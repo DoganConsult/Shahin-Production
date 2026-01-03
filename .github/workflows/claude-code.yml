@@ -46,10 +46,21 @@ jobs:
           node-version: '20'
 
       - name: Install ABP CLI
-        run: dotnet tool install -g Volo.Abp.Cli || true
+        run: |
+          dotnet tool install -g Volo.Abp.Cli || true
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Add dotnet to PATH
+        run: |
+          echo "DOTNET_ROOT=/usr/share/dotnet" >> $GITHUB_ENV
+          echo "/usr/share/dotnet" >> $GITHUB_PATH
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
       - name: Run Claude Code
         uses: anthropics/claude-code-action@v1
+        env:
+          DOTNET_ROOT: /usr/share/dotnet
+          PATH: /usr/share/dotnet:${{ env.PATH }}:$HOME/.dotnet/tools
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -64,6 +75,12 @@ jobs:
             LS
           # Optional: Custom system prompt
           custom_instructions: |
+            IMPORTANT: Before running any dotnet commands, ensure the PATH includes:
+            - /usr/share/dotnet (for dotnet CLI)
+            - $HOME/.dotnet/tools (for ABP CLI)
+
+            Run this before dotnet commands: export PATH="/usr/share/dotnet:$HOME/.dotnet/tools:$PATH"
+
             You are working on the GRC (Governance, Risk, and Compliance) System.
             This is an ABP Framework Blazor Server application using .NET 8.
 
