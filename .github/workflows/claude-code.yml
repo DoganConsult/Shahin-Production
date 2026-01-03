@@ -59,8 +59,7 @@ jobs:
       - name: Run Claude Code
         uses: anthropics/claude-code-action@v1
         env:
-          DOTNET_ROOT: /usr/share/dotnet
-          PATH: /usr/share/dotnet:${{ env.PATH }}:$HOME/.dotnet/tools
+          DOTNET_ROOT: ${{ env.DOTNET_ROOT }}
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -75,11 +74,24 @@ jobs:
             LS
           # Optional: Custom system prompt
           custom_instructions: |
-            IMPORTANT: Before running any dotnet commands, ensure the PATH includes:
-            - /usr/share/dotnet (for dotnet CLI)
-            - $HOME/.dotnet/tools (for ABP CLI)
-
-            Run this before dotnet commands: export PATH="/usr/share/dotnet:$HOME/.dotnet/tools:$PATH"
+            IMPORTANT: .NET SDK Setup Instructions
+            
+            Before running ANY dotnet commands, you MUST first install .NET SDK:
+            
+            ```bash
+            # Install .NET 8 SDK
+            curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 8.0
+            export DOTNET_ROOT="$HOME/.dotnet"
+            export PATH="$DOTNET_ROOT:$DOTNET_ROOT/tools:$PATH"
+            
+            # Verify installation
+            dotnet --version
+            
+            # Install ABP CLI (optional, for ABP commands)
+            dotnet tool install -g Volo.Abp.Cli || true
+            ```
+            
+            Always run these commands at the start of any task requiring .NET.
 
             You are working on the GRC (Governance, Risk, and Compliance) System.
             This is an ABP Framework Blazor Server application using .NET 8.
