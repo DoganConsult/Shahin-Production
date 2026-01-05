@@ -1,0 +1,176 @@
+@model GrcMvc.Models.Dtos.PaymentDto
+
+@{
+    ViewData["Title"] = "Payment Receipt";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Success Message -->
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <strong>Payment Successful!</strong> Your subscription is now active.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Receipt Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-receipt"></i> Payment Receipt
+                    </h5>
+                    <button class="btn btn-sm btn-outline-primary" onclick="window.print()">
+                        <i class="bi bi-printer"></i> Print
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Receipt Number</h6>
+                            <p>@Model.Id.ToString().Substring(0, 8).ToUpper()</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <h6 class="text-muted">Date</h6>
+                            <p>@DateTime.Now.ToString("MMM d, yyyy")</p>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Payment Status</h6>
+                            <p>
+                                @{
+                                    var statusClass = Model.Status switch
+                                    {
+                                        "Completed" => "success",
+                                        "Pending" => "warning",
+                                        "Failed" => "danger",
+                                        _ => "info"
+                                    };
+                                }
+                                <span class="badge bg-@statusClass">@Model.Status</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <h6 class="text-muted">Transaction ID</h6>
+                            <p><code>@Model.TransactionId</code></p>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <h6 class="mb-3">Payment Details</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Monthly Subscription</td>
+                                    <td class="text-end">${@Model.Amount.ToString("F2")}</td>
+                                </tr>
+                                <tr>
+                                    <td><small class="text-muted">Tax (Included)</small></td>
+                                    <td class="text-end"><small class="text-muted">$0.00</small></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="border-top">
+                                    <th>Total Paid</th>
+                                    <th class="text-end">${@Model.Amount.ToString("F2")}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <hr />
+
+                    <h6 class="mb-3">Billing Information</h6>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Payment Method</small>
+                            <p>Credit Card ending in <strong>****</strong></p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Currency</small>
+                            <p><strong>@Model.Currency</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Next Billing Date:</strong> Your subscription will automatically renew on
+                        <strong>@DateTime.Now.AddMonths(1).ToString("MMM d, yyyy")</strong>.
+                        You can manage your subscription at any time from your account settings.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Steps -->
+            <div class="card border-0 bg-light">
+                <div class="card-header bg-light border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-arrow-right"></i> What's Next?
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ol class="mb-0">
+                        <li class="mb-3">
+                            <strong>Complete Onboarding</strong>
+                            <p class="text-muted small mb-0">Set up your organization profile and derive your compliance scope</p>
+                        </li>
+                        <li class="mb-3">
+                            <strong>Review Your Scope</strong>
+                            <p class="text-muted small mb-0">See the frameworks, controls, and templates assigned to your organization</p>
+                        </li>
+                        <li class="mb-3">
+                            <strong>Access Your Dashboard</strong>
+                            <p class="text-muted small mb-0">Start managing your compliance program after onboarding is complete</p>
+                        </li>
+                        <li>
+                            <strong>Contact Support</strong>
+                            <p class="text-muted small mb-0">Our team is ready to help you succeed</p>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                <a href="@Url.Action("Index", "Onboarding")" class="btn btn-primary btn-lg">
+                    <i class="bi bi-rocket"></i> Start Onboarding
+                </a>
+                <a href="@Url.Action("Index", "Subscription")" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-credit-card"></i> Manage Subscription
+                </a>
+            </div>
+
+            <!-- Receipt Footer -->
+            <div class="text-center mt-5 pt-4 border-top">
+                <p class="text-muted small mb-1">A confirmation email has been sent to your email address</p>
+                <p class="text-muted small">If you have any questions, please contact our support team</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @@media print {
+        .alert-dismissible,
+        .btn-outline-primary,
+        .border-top {
+            display: none !important;
+        }
+
+        body {
+            background-color: white;
+        }
+    }
+</style>

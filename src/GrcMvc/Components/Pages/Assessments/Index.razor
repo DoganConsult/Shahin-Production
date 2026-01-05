@@ -1,0 +1,96 @@
+@page "/assessments"
+@using GrcMvc.Models.Dtos
+@using GrcMvc.Services.Interfaces
+@inject IWorkflowEngineService WorkflowService
+@inject NavigationManager NavManager
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">Assessments</h1>
+        </div>
+        <div class="col-auto">
+            <a href="/assessments/create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Assessment
+            </a>
+        </div>
+    </div>
+
+    @if (assessments == null || assessments.Count == 0)
+    {
+        <div class="alert alert-info">No assessments found</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Number</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Assigned To</th>
+                        <th>Start Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var assessment in assessments)
+                    {
+                        <tr>
+                            <td><span class="badge bg-secondary">@assessment.AssessmentNumber</span></td>
+                            <td><strong>@assessment.Name</strong></td>
+                            <td>@assessment.Type</td>
+                            <td>
+                                <span class="badge bg-@GetStatusColor(assessment.Status)">
+                                    @assessment.Status
+                                </span>
+                                @if (assessment.IsOverdue)
+                                {
+                                    <span class="badge bg-danger ms-2">OVERDUE</span>
+                                }
+                            </td>
+                            <td>@assessment.AssignedTo</td>
+                            <td>@assessment.StartDate.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <a href="/assessments/@assessment.Id/edit" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a href="/assessments/@assessment.Id/detail" class="btn btn-sm btn-outline-secondary">View</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<AssessmentListItemDto>? assessments;
+
+    protected override Task OnInitializedAsync()
+    {
+        // TODO: Load from service - for now, demo data
+        assessments = new List<AssessmentListItemDto>
+{
+new() { Id = Guid.NewGuid(), AssessmentNumber = "ASMT-SEC-001", Name = "Security Assessment Q1 2024", Type = "Risk",
+Status = "In Progress", AssignedTo = "Ahmed Al-Mansouri", StartDate = DateTime.Now.AddDays(-5), IsOverdue = false, Score
+= 75 },
+new() { Id = Guid.NewGuid(), AssessmentNumber = "ASMT-COMP-001", Name = "Compliance Assessment", Type = "Compliance",
+Status = "Pending", AssignedTo = "Fatima Al-Dosari", StartDate = DateTime.Now.AddDays(5), IsOverdue = false },
+new() { Id = Guid.NewGuid(), AssessmentNumber = "ASMT-CTRL-001", Name = "Control Effectiveness Review", Type =
+"Control", Status = "Completed", AssignedTo = "Sarah Johnson", StartDate = DateTime.Now.AddDays(-30), EndDate =
+DateTime.Now.AddDays(-5), IsOverdue = false, Score = 88 }
+};
+        return Task.CompletedTask;
+    }
+
+    private string GetStatusColor(string status) => status switch
+    {
+        "Completed" => "success",
+        "In Progress" => "warning",
+        "Pending" => "info",
+        "Cancelled" => "danger",
+        _ => "secondary"
+    };
+}

@@ -1,0 +1,96 @@
+@page "/policies"
+@using GrcMvc.Models.Dtos
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">Policies</h1>
+        </div>
+        <div class="col-auto">
+            <a href="/policies/create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Policy
+            </a>
+        </div>
+    </div>
+
+    @if (policies == null || policies.Count == 0)
+    {
+        <div class="alert alert-info">No policies found</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Last Review</th>
+                        <th>Violations</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var policy in policies)
+                    {
+                        <tr>
+                            <td><strong>@policy.Name</strong></td>
+                            <td>@policy.Category</td>
+                            <td>
+                                <span class="badge bg-@GetStatusColor(policy.Status)">
+                                    @policy.Status
+                                </span>
+                            </td>
+                            <td>@policy.LastReviewDate.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                @if (policy.ViolationCount > 0)
+                                {
+                                    <span class="badge bg-danger">@policy.ViolationCount violations</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">No violations</span>
+                                }
+                            </td>
+                            <td>
+                                <a href="/policies/@policy.Id/edit" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a href="/policies/@policy.Id/violations" class="btn btn-sm btn-outline-secondary">View
+                                    Violations</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<PolicyListItemDto>? policies;
+
+    protected override Task OnInitializedAsync()
+    {
+        // TODO: Load from service - for now, demo data
+        policies = new List<PolicyListItemDto>
+{
+new() { Id = Guid.NewGuid(), Name = "Information Security Policy", Status = "Active", Category = "Security",
+LastReviewDate = DateTime.Now.AddDays(-30), ViolationCount = 2 },
+new() { Id = Guid.NewGuid(), Name = "Data Privacy Policy", Status = "Active", Category = "Privacy", LastReviewDate =
+DateTime.Now.AddDays(-15), ViolationCount = 0 },
+new() { Id = Guid.NewGuid(), Name = "Acceptable Use Policy", Status = "Active", Category = "Compliance", LastReviewDate
+= DateTime.Now.AddDays(-60), ViolationCount = 5 },
+new() { Id = Guid.NewGuid(), Name = "Disaster Recovery Policy", Status = "Pending Review", Category = "Operations",
+LastReviewDate = DateTime.Now.AddDays(-180), ViolationCount = 0 }
+};
+        return Task.CompletedTask;
+    }
+
+    private string GetStatusColor(string status) => status switch
+    {
+        "Active" => "success",
+        "Inactive" => "danger",
+        "Pending Review" => "warning",
+        _ => "secondary"
+    };
+}

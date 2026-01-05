@@ -1,0 +1,238 @@
+@page "/risks/create"
+@using GrcMvc.Models.Dtos
+@inject NavigationManager NavManager
+
+<PageTitle>Register New Risk</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6">Register New Risk</h1>
+            <p class="text-muted">Create and document a new risk in the risk register</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/risks" class="btn btn-outline-secondary">Back to Risk Register</a>
+        </div>
+    </div>
+
+    <LoadingSpinner IsLoading="@isSubmitting" Message="Registering risk..." />
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Risk Information</h5>
+                </div>
+                <div class="card-body">
+                    @if (!isSubmitting && errorMessage != null)
+                    {
+                        <div class="alert alert-danger">@errorMessage</div>
+                    }
+
+                    <EditForm Model="@newRisk" OnValidSubmit="@HandleCreateRisk">
+                        <DataAnnotationsValidator />
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Risk Title *</label>
+                            <InputText class="form-control" placeholder="e.g., Data Breach - Customer PII"
+                                @bind-Value="newRisk.Title" />
+                            <ValidationMessage For="@(() => newRisk.Title)" class="text-danger small" />
+                            <small class="form-text text-muted">Clear, descriptive title for the risk</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Category *</label>
+                                <InputSelect class="form-select" @bind-Value="newRisk.Category">
+                                    <option value="">-- Select Category --</option>
+                                    <option value="Operational">Operational</option>
+                                    <option value="Compliance">Compliance</option>
+                                    <option value="Strategic">Strategic</option>
+                                    <option value="Financial">Financial</option>
+                                    <option value="Reputational">Reputational</option>
+                                    <option value="Technology">Technology</option>
+                                </InputSelect>
+                                <ValidationMessage For="@(() => newRisk.Category)" class="text-danger small" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Status *</label>
+                                <InputSelect class="form-select" @bind-Value="selectedStatus">
+                                    <option value="Open">Open</option>
+                                    <option value="Mitigated">Mitigated</option>
+                                    <option value="Accepted">Accepted</option>
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description *</label>
+                            <InputTextArea class="form-control" rows="4"
+                                placeholder="Detailed description of the risk, potential impact, and context..."
+                                @bind-Value="newRisk.Description"></InputTextArea>
+                            <ValidationMessage For="@(() => newRisk.Description)" class="text-danger small" />
+                        </div>
+
+                        <div class="card bg-light mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Risk Scoring</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Inherent Score (1-25) *</label>
+                                        <InputNumber class="form-control" min="1" max="25"
+                                            @bind-Value="newRisk.InherentScore" />
+                                        <ValidationMessage For="@(() => newRisk.InherentScore)" class="text-danger small" />
+                                        <small class="form-text text-muted">Risk score before mitigations</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Residual Score (1-25) *</label>
+                                        <InputNumber class="form-control" min="1" max="25"
+                                            @bind-Value="newRisk.ResidualScore" />
+                                        <ValidationMessage For="@(() => newRisk.ResidualScore)" class="text-danger small" />
+
+                                        <small class="form-text text-muted">Risk score after mitigations</small>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Impact Level *</label>
+                                        <InputSelect class="form-select" @bind-Value="newRisk.Impact">
+                                            <option value="Low">Low</option>
+                                            <option value="Medium">Medium</option>
+                                            <option value="High">High</option>
+                                            <option value="Critical">Critical</option>
+                                        </InputSelect>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Likelihood *</label>
+                                        <InputSelect class="form-select" @bind-Value="newRisk.Likelihood">
+                                            <option value="Low">Low</option>
+                                            <option value="Medium">Medium</option>
+                                            <option value="High">High</option>
+                                        </InputSelect>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Responsible Party *</label>
+                                <InputText class="form-control"
+                                    placeholder="e.g., Security Team, Finance Manager" @bind-Value="newRisk.ResponsibleParty" />
+                                <ValidationMessage For="@(() => newRisk.ResponsibleParty)" class="text-danger small" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Owner</label>
+                                <InputText class="form-control" placeholder="e.g., Jane Smith (optional)"
+                                    @bind-Value="newRisk.Owner" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Identified Date *</label>
+                                <InputDate class="form-control" @bind-Value="newRisk.IdentifiedDate" />
+                                <ValidationMessage For="@(() => newRisk.IdentifiedDate)" class="text-danger small" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Target Closure Date</label>
+                                <InputDate class="form-control" @bind-Value="targetClosureDate" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Consequence Area</label>
+                            <InputText class="form-control"
+                                placeholder="e.g., Data Loss, Revenue Impact, Regulatory Penalty"
+                                @bind-Value="newRisk.ConsequenceArea" />
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-outline-secondary"
+                                @onclick="NavigateBack" disabled="@isSubmitting">Cancel</button>
+                            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                                @if (isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"
+                                        aria-hidden="true"></span>
+                                    <span>Registering Risk...</span>
+                                }
+                                else
+                                {
+                                    <span>Register Risk</span>
+                                }
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card bg-info-subtle">
+                <div class="card-header">
+                    <h6 class="mb-0">📌 Quick Reference</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Risk Number:</strong> Will be automatically generated</p>
+                    <hr />
+                    <p><strong>Scoring Guide:</strong></p>
+                    <ul class="small">
+                        <li><strong>1-5:</strong> Low</li>
+                        <li><strong>6-12:</strong> Medium</li>
+                        <li><strong>13-18:</strong> High</li>
+                        <li><strong>19-25:</strong> Critical</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private RiskCreateDto newRisk = new();
+    private string selectedStatus = "Open";
+    private DateTime targetClosureDate = DateTime.Now.AddMonths(3);
+    private bool isSubmitting = false;
+    private string? errorMessage;
+
+    private void NavigateBack() => NavManager.NavigateTo("/risks");
+
+    private async Task HandleCreateRisk()
+    {
+        try
+        {
+            isSubmitting = true;
+            errorMessage = null;
+
+            // Validate form
+            if (string.IsNullOrWhiteSpace(newRisk.Title))
+            {
+                errorMessage = "Risk title is required";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(newRisk.Category))
+            {
+                errorMessage = "Risk category is required";
+                return;
+            }
+
+            // Simulate API call
+            await Task.Delay(800);
+
+            // Navigate to risk register
+            NavManager.NavigateTo("/risks");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error registering risk: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

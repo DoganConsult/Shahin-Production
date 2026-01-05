@@ -1,0 +1,334 @@
+@{
+    ViewData["Title"] = "Evidence Collection";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-2">
+                <i class="fas fa-file-alt"></i> Evidence Collection
+            </h1>
+            <p class="text-muted">Submit and manage control evidence for compliance verification</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitEvidenceModal">
+                <i class="fas fa-upload"></i> Submit Evidence
+            </button>
+        </div>
+    </div>
+
+    <!-- Evidence Status Summary -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="text-muted">Pending Review</h5>
+                    <h3 class="text-primary" id="pendingReview">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="text-muted">Under Review</h5>
+                    <h3 class="text-warning" id="underReview">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="text-muted">Approved</h5>
+                    <h3 class="text-success" id="approved">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="text-muted">Rejected</h5>
+                    <h3 class="text-danger" id="rejected">0</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Evidence Table -->
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Evidence Submissions</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Control ID</th>
+                            <th>Submitted By</th>
+                            <th>Submission Date</th>
+                            <th>Status</th>
+                            <th>Files</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="evidenceTableBody">
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">
+                                <i class="fas fa-spinner fa-spin"></i> Loading evidence...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Evidence by Control Cards -->
+    <div class="row mt-4" id="evidenceCardsContainer">
+        <!-- Cards loaded dynamically -->
+    </div>
+</div>
+
+<!-- Submit Evidence Modal -->
+<div class="modal fade" id="submitEvidenceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Submit Control Evidence</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="submitEvidenceForm">
+                    <div class="mb-3">
+                        <label class="form-label">Control ID</label>
+                        <select class="form-select" id="controlId" required>
+                            <option value="">Select a control...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Evidence Type</label>
+                        <select class="form-select" id="evidenceType" required>
+                            <option value="">Select type...</option>
+                            <option value="Documentation">Documentation</option>
+                            <option value="Screenshot">Screenshot</option>
+                            <option value="TestReport">Test Report</option>
+                            <option value="Interview">Interview Notes</option>
+                            <option value="SystemLog">System Log</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="description" rows="3" required placeholder="Describe the evidence and why it supports this control..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Upload Files</label>
+                        <div class="input-group">
+                            <input type="file" class="form-control" id="evidenceFile" multiple required>
+                            <button class="btn btn-outline-secondary" type="button">Upload</button>
+                        </div>
+                        <small class="text-muted">Accepted: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG (Max 10 MB each)</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitEvidence()">
+                    <i class="fas fa-check"></i> Submit Evidence
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Evidence Review Modal -->
+<div class="modal fade" id="evidenceReviewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Review Evidence</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="evidenceReviewContent">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" onclick="approveEvidence()">
+                    <i class="fas fa-check"></i> Approve
+                </button>
+                <button type="button" class="btn btn-danger" onclick="requestEvidenceRevision()">
+                    <i class="fas fa-times"></i> Request Revision
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentEvidenceId = null;
+
+        async function submitEvidence() {
+            const controlId = document.getElementById('controlId').value;
+            const evidenceType = document.getElementById('evidenceType').value;
+            const description = document.getElementById('description').value;
+            const files = document.getElementById('evidenceFile').files;
+
+            if (!controlId || !evidenceType || !description || files.length === 0) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            try {
+                // This would typically upload files to a storage service
+                const fileUrls = Array.from(files).map(f => f.name);
+
+                const response = await fetch(`/api/workflows/evidence/initiate/${controlId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('[name="__RequestVerificationToken"]').value
+                    }
+                });
+
+                if (response.ok) {
+                    const workflow = await response.json();
+                    
+                    // Submit evidence
+                    const submitResponse = await fetch(`/api/workflows/evidence/${workflow.workflowId}/submit`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('[name="__RequestVerificationToken"]').value
+                        },
+                        body: JSON.stringify({
+                            description,
+                            fileUrls
+                        })
+                    });
+
+                    if (submitResponse.ok) {
+                        alert('Evidence submitted successfully');
+                        document.getElementById('submitEvidenceForm').reset();
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('submitEvidenceModal'));
+                        modal.hide();
+                        loadEvidence();
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error submitting evidence');
+            }
+        }
+
+        async function approveEvidence() {
+            try {
+                const response = await fetch(`/api/workflows/evidence/${currentEvidenceId}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ comments: 'Evidence approved' })
+                });
+
+                if (response.ok) {
+                    alert('Evidence approved');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('evidenceReviewModal'));
+                    modal.hide();
+                    loadEvidence();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function requestEvidenceRevision() {
+            const reason = prompt('Enter reason for revision request:');
+            if (!reason) return;
+
+            try {
+                // Implementation for revision request
+                alert('Revision requested');
+                loadEvidence();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadEvidence() {
+            try {
+                const response = await fetch('/api/workflows/list/evidence');
+                const data = await response.json();
+
+                // Update status counts
+                const stats = {
+                    pendingReview: data.workflows?.filter(w => w.status === 'Submitted').length || 0,
+                    underReview: data.workflows?.filter(w => w.status === 'UnderReview').length || 0,
+                    approved: data.workflows?.filter(w => w.status === 'Approved').length || 0,
+                    rejected: data.workflows?.filter(w => w.status === 'Rejected').length || 0
+                };
+
+                document.getElementById('pendingReview').textContent = stats.pendingReview;
+                document.getElementById('underReview').textContent = stats.underReview;
+                document.getElementById('approved').textContent = stats.approved;
+                document.getElementById('rejected').textContent = stats.rejected;
+
+                // Update table
+                const tbody = document.getElementById('evidenceTableBody');
+                if (data.workflows && data.workflows.length > 0) {
+                    tbody.innerHTML = data.workflows.map(w => `
+                        <tr>
+                            <td>${w.controlId}</td>
+                            <td>${w.submittedByUserId}</td>
+                            <td>${new Date(w.submittedDate).toLocaleDateString()}</td>
+                            <td>${getEvidenceStatusBadge(w.status)}</td>
+                            <td><span class="badge bg-secondary">${w.fileCount} files</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-info" onclick="viewEvidenceDetail(${w.id})">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                ${w.status === 'Submitted' ? `
+                                    <button class="btn btn-sm btn-success" onclick="approveEvidenceQuick(${w.id})">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                ` : ''}
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No evidence submitted</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading evidence:', error);
+            }
+        }
+
+        function getEvidenceStatusBadge(status) {
+            const badges = {
+                'Submitted': '<span class="badge bg-primary">Pending Review</span>',
+                'UnderReview': '<span class="badge bg-warning">Under Review</span>',
+                'Approved': '<span class="badge bg-success">Approved</span>',
+                'Rejected': '<span class="badge bg-danger">Rejected</span>'
+            };
+            return badges[status] || `<span class="badge bg-secondary">${status}</span>`;
+        }
+
+        function viewEvidenceDetail(evidenceId) {
+            currentEvidenceId = evidenceId;
+            
+            // Load evidence details
+            const modal = new bootstrap.Modal(document.getElementById('evidenceReviewModal'));
+            modal.show();
+        }
+
+        function approveEvidenceQuick(evidenceId) {
+            currentEvidenceId = evidenceId;
+            approveEvidence();
+        }
+
+        // Load evidence on page load
+        document.addEventListener('DOMContentLoaded', loadEvidence);
+    </script>
+}

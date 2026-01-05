@@ -1,0 +1,117 @@
+@{
+    ViewData["Title"] = "GRC System - Onboarding";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar - Progress Steps -->
+            <div class="col-md-3">
+                <div class="card shadow-sm sticky-top" style="top: 20px;">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Onboarding Steps</h5>
+                        
+                        <div class="progress mb-3" style="height: 5px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                        </div>
+
+                        <div class="list-group list-group-flush">
+                            <a href="#" class="list-group-item list-group-item-action active" disabled>
+                                <i class="bi bi-circle text-primary"></i>
+                                <span class="ms-2">Welcome</span>
+                            </a>
+                            <a href="/onboarding/signup" class="list-group-item list-group-item-action disabled">
+                                <i class="bi bi-circle text-secondary"></i>
+                                <span class="ms-2">User Account</span>
+                            </a>
+                            <a href="/onboarding/org-profile" class="list-group-item list-group-item-action disabled">
+                                <i class="bi bi-circle text-secondary"></i>
+                                <span class="ms-2">Organization</span>
+                            </a>
+                            <a href="/onboarding/review-scope" class="list-group-item list-group-item-action disabled">
+                                <i class="bi bi-circle text-secondary"></i>
+                                <span class="ms-2">Compliance Scope</span>
+                            </a>
+                            <a href="/onboarding/create-plan" class="list-group-item list-group-item-action disabled">
+                                <i class="bi bi-circle text-secondary"></i>
+                                <span class="ms-2">Create Plan</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <div class="card shadow">
+                    <div class="card-body p-5">
+                        <h1 class="mb-4">Welcome to GRC Management System</h1>
+                        
+                        <div class="alert alert-info border-0" role="alert">
+                            <i class="bi bi-info-circle"></i>
+                            <strong class="ms-2">Complete the onboarding process</strong> to set up your organization and derive your compliance scope.
+                        </div>
+
+                        <div class="row mt-5">
+                            <div class="col-md-6">
+                                <h5 class="mb-3">What You'll Do:</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-3">
+                                        <i class="bi bi-check-circle text-success"></i>
+                                        <span class="ms-2">Create your user account</span>
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="bi bi-check-circle text-success"></i>
+                                        <span class="ms-2">Set up your organization profile</span>
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="bi bi-check-circle text-success"></i>
+                                        <span class="ms-2">Review your compliance scope</span>
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="bi bi-check-circle text-success"></i>
+                                        <span class="ms-2">Create your GRC plan</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light border-0">
+                                    <div class="card-body">
+                                        <h6><strong>Estimated Time: 15 minutes</strong></h6>
+                                        <p class="text-muted mb-0">Our system will automatically determine applicable:</p>
+                                        <ul class="text-muted small mt-2 mb-0">
+                                            <li>Compliance frameworks</li>
+                                            <li>Control baselines</li>
+                                            <li>Assessment templates</li>
+                                            <li>Audit packages</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-5">
+                            <a href="/onboarding/signup" class="btn btn-primary btn-lg">
+                                <i class="bi bi-arrow-right"></i> Start Onboarding
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Disable form submit links in sidebar
+            document.querySelectorAll('.list-group-item.disabled').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                });
+            });
+        });
+    </script>
+}

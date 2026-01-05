@@ -1,0 +1,185 @@
+@page "/workflows/{WorkflowId:guid}/edit"
+@using GrcMvc.Models.Dtos
+@inject NavigationManager NavManager
+
+<PageTitle>Edit Workflow</PageTitle>
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">Edit Workflow</h1>
+        </div>
+    </div>
+
+    <LoadingSpinner IsLoading="@isLoading" Message="Loading workflow..." />
+
+    @if (!isLoading)
+    {
+        @if (workflow == null)
+        {
+            <div class="alert alert-warning">Workflow not found</div>
+            <a href="/workflows" class="btn btn-secondary">Back to Workflows</a>
+        }
+        else
+        {
+            @if (!isSubmitting && errorMessage != null)
+            {
+                <div class="alert alert-danger">@errorMessage</div>
+            }
+
+            <div class="card">
+                <div class="card-body">
+                    <EditForm Model="@workflow" OnValidSubmit="@HandleSaveWorkflow">
+                        <DataAnnotationsValidator />
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Workflow Name *</label>
+                            <InputText class="form-control" id="name" @bind-Value="workflow.Name" />
+                            <ValidationMessage For="@(() => workflow.Name)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <InputTextArea class="form-control" id="description" rows="4" @bind-Value="workflow.Description"></InputTextArea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category *</label>
+                            <InputSelect class="form-select" id="category" @bind-Value="workflow.Category">
+                                <option value="">-- Select Category --</option>
+                                <option value="Assessment">Assessment</option>
+                                <option value="Audit">Audit</option>
+                                <option value="Compliance">Compliance</option>
+                                <option value="Review">Review</option>
+                                <option value="Approval">Approval</option>
+                                <option value="Other">Other</option>
+                            </InputSelect>
+                            <ValidationMessage For="@(() => workflow.Category)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <InputCheckbox class="form-check-input" id="approval"
+                                    @bind-Value="workflow.RequiresApproval" />
+                                <label class="form-check-label" for="approval">
+                                    Requires Approval
+                                </label>
+                            </div>
+                        </div>
+
+                        @if (workflow.RequiresApproval)
+                        {
+                            <div class="mb-3">
+                                <label for="approvers" class="form-label">Approvers (comma-separated emails)</label>
+                                <InputText class="form-control" id="approvers" @bind-Value="workflow.Approvers"
+                                    placeholder="user1@company.com, user2@company.com" />
+                            </div>
+                        }
+
+                        <div class="alert alert-light">
+                            <h6>Additional Info</h6>
+                            <p class="mb-1"><strong>Workflow Number:</strong> <span
+                                    class="font-monospace">@workflow.WorkflowNumber</span> (Auto-generated)</p>
+                            <p class="mb-1"><strong>Created:</strong> @workflow.CreatedDate.ToString("MMM dd, yyyy hh:mm tt")
+                            </p>
+                            <p class="mb-0"><strong>Status:</strong> <span class="badge bg-info">@workflow.Status</span></p>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                                @if (isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    <span>Saving...</span>
+                                }
+                                else
+                                {
+                                    <span>Save Changes</span>
+                                }
+                            </button>
+                            <button type="button" class="btn btn-secondary" @onclick="CancelEdit" disabled="@isSubmitting">Cancel</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Guid WorkflowId { get; set; }
+
+    @inject NavigationManager NavManager
+
+    private WorkflowEditDto? workflow;
+    private bool isLoading = true;
+    private bool isSubmitting = false;
+    private string errorMessage = string.Empty;
+    private string successMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // TODO: Load from service using WorkflowId
+            // For now, demo data
+            await Task.Delay(500); // Simulate loading
+            workflow = new WorkflowEditDto
+            {
+                Id = WorkflowId,
+                WorkflowNumber = "WF-SEC-001",
+                Name = "Security Assessment Q1 2024",
+                Description = "Comprehensive security assessment for first quarter",
+                Category = "Assessment",
+                RequiresApproval = true,
+                Approvers = "manager@company.com, security.lead@company.com",
+                Status = "Active",
+                CreatedDate = DateTime.Now.AddDays(-30)
+            };
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading workflow: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleSaveWorkflow()
+    {
+        if (workflow == null || string.IsNullOrWhiteSpace(workflow.Name))
+        {
+            errorMessage = "Workflow name is required";
+            return;
+        }
+
+        isSubmitting = true;
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+
+        try
+        {
+            await Task.Delay(1000); // Simulate API call
+            successMessage = "Workflow saved successfully!";
+
+            // TODO: Call service to save workflow
+            // await WorkflowService.UpdateWorkflowAsync(workflow);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error saving workflow: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void CancelEdit()
+    {
+        NavManager.NavigateTo("/workflows");
+    }
+}

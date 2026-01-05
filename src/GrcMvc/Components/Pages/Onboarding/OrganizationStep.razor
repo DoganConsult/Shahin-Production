@@ -1,0 +1,254 @@
+@using GrcMvc.Models.DTOs
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<div>
+    <h3 class="mb-4">Organization Profile Setup</h3>
+    
+    <div class="alert alert-info" role="alert">
+        <i class="bi bi-info-circle"></i>
+        This information helps us determine your compliance scope and applicable frameworks.
+    </div>
+
+    <EditForm Model="OrgProfile" OnValidSubmit="HandleOrganizationProfile">
+        <DataAnnotationsValidator />
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="orgName" class="form-label">Organization Name <span class="text-danger">*</span></label>
+                    <InputText id="orgName" class="form-control" @bind-Value="OrgProfile.OrganizationName" placeholder="Your Company Inc." />
+                    <ValidationMessage For="() => OrgProfile.OrganizationName" class="text-danger small" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="orgType" class="form-label">Organization Type <span class="text-danger">*</span></label>
+                    <InputSelect id="orgType" class="form-select" @bind-Value="OrgProfile.OrgType">
+                        <option value="">-- Select --</option>
+                        <option value="Enterprise">Enterprise</option>
+                        <option value="SMB">Small/Medium Business</option>
+                        <option value="Startup">Startup</option>
+                        <option value="Government">Government</option>
+                        <option value="NonProfit">Non-Profit</option>
+                    </InputSelect>
+                    <ValidationMessage For="() => OrgProfile.OrgType" class="text-danger small" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="sector" class="form-label">Industry Sector <span class="text-danger">*</span></label>
+                    <InputSelect id="sector" class="form-select" @bind-Value="OrgProfile.Sector">
+                        <option value="">-- Select --</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Retail">Retail</option>
+                        <option value="Manufacturing">Manufacturing</option>
+                        <option value="Energy">Energy</option>
+                        <option value="Government">Government</option>
+                        <option value="Other">Other</option>
+                    </InputSelect>
+                    <ValidationMessage For="() => OrgProfile.Sector" class="text-danger small" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="country" class="form-label">Country <span class="text-danger">*</span></label>
+                    <InputSelect id="country" class="form-select" @bind-Value="OrgProfile.Country">
+                        <option value="">-- Select --</option>
+                        <option value="United States">United States</option>
+                        <option value="Canada">Canada</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="Germany">Germany</option>
+                        <option value="France">France</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Japan">Japan</option>
+                        <option value="Other">Other</option>
+                    </InputSelect>
+                    <ValidationMessage For="() => OrgProfile.Country" class="text-danger small" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="orgSize" class="form-label">Organization Size <span class="text-danger">*</span></label>
+                    <InputSelect id="orgSize" class="form-select" @bind-Value="OrgProfile.OrganizationSize">
+                        <option value="">-- Select --</option>
+                        <option value="1-10">1-10 Employees</option>
+                        <option value="11-50">11-50 Employees</option>
+                        <option value="51-250">51-250 Employees</option>
+                        <option value="251-1000">251-1,000 Employees</option>
+                        <option value="1000+">1,000+ Employees</option>
+                    </InputSelect>
+                    <ValidationMessage For="() => OrgProfile.OrganizationSize" class="text-danger small" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="hostingModel" class="form-label">Data Hosting Model <span class="text-danger">*</span></label>
+                    <InputSelect id="hostingModel" class="form-select" @bind-Value="OrgProfile.HostingModel">
+                        <option value="">-- Select --</option>
+                        <option value="Cloud">Cloud (SaaS)</option>
+                        <option value="OnPremise">On-Premise</option>
+                        <option value="Hybrid">Hybrid</option>
+                        <option value="Managed">Managed Services</option>
+                    </InputSelect>
+                    <ValidationMessage For="() => OrgProfile.HostingModel" class="text-danger small" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="maturity" class="form-label">Compliance Maturity Level <span class="text-danger">*</span></label>
+                    <InputSelect id="maturity" class="form-select" @bind-Value="OrgProfile.ComplianceMaturity">
+                        <option value="">-- Select --</option>
+                        <option value="Beginning">Beginning (No formal program)</option>
+                        <option value="Developing">Developing (Initial processes)</option>
+                        <option value="Intermediate">Intermediate (Some controls)</option>
+                        <option value="Advanced">Advanced (Mature program)</option>
+                        <option value="Optimized">Optimized (Best practice)</option>
+                    </InputSelect>
+                    <ValidationMessage For="() => OrgProfile.ComplianceMaturity" class="text-danger small" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="dataTypes" class="form-label">Data Types You Process</label>
+                    <InputText id="dataTypes" class="form-control" @bind-Value="OrgProfile.DataTypes" placeholder="e.g., PII, PHI, Payment Data" />
+                    <small class="text-muted">Comma-separated list</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="vendors" class="form-label">Third-Party Vendors/Integrations</label>
+            <InputText id="vendors" class="form-control" @bind-Value="OrgProfile.Vendors" placeholder="e.g., AWS, Salesforce, Microsoft 365" />
+            <small class="text-muted">Comma-separated list</small>
+        </div>
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-circle"></i> @ErrorMessage
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(SuccessMessage))
+        {
+            <div class="alert alert-success" role="alert">
+                <i class="bi bi-check-circle"></i> @SuccessMessage
+            </div>
+        }
+
+        <div class="d-flex gap-2 mt-4">
+            <button type="button" class="btn btn-outline-secondary" @onclick="() => OnBack.InvokeAsync()" disabled="@IsSubmitting">
+                <i class="bi bi-arrow-left"></i> Back
+            </button>
+            <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+                @if (IsSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    <span>Saving Organization...</span>
+                }
+                else
+                {
+                    <span><i class="bi bi-arrow-right"></i> Next</span>
+                }
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public Guid TenantId { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid?> OnNext { get; set; }
+
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+
+    private OrganizationProfileDto OrgProfile = new();
+    private string ErrorMessage = string.Empty;
+    private string SuccessMessage = string.Empty;
+    private bool IsSubmitting = false;
+
+    protected override void OnInitialized()
+    {
+        OrgProfile = new OrganizationProfileDto
+        {
+            TenantId = TenantId == Guid.Empty ? Guid.NewGuid() : TenantId,
+            OrganizationName = string.Empty,
+            OrgType = string.Empty,
+            Sector = string.Empty,
+            Country = string.Empty,
+            DataTypes = string.Empty,
+            HostingModel = string.Empty,
+            OrganizationSize = string.Empty,
+            ComplianceMaturity = string.Empty,
+            Vendors = string.Empty
+        };
+    }
+
+    private async Task HandleOrganizationProfile()
+    {
+        IsSubmitting = true;
+        ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
+
+        try
+        {
+            var payload = new
+            {
+                tenantId = OrgProfile.TenantId,
+                userId = "current-user",
+                orgType = OrgProfile.OrgType,
+                sector = OrgProfile.Sector,
+                country = OrgProfile.Country,
+                dataTypes = OrgProfile.DataTypes,
+                hostingModel = OrgProfile.HostingModel,
+                organizationSize = OrgProfile.OrganizationSize,
+                complianceMaturity = OrgProfile.ComplianceMaturity,
+                vendors = OrgProfile.Vendors,
+                questionnaire = new Dictionary<string, string>
+                {
+                    { "organization_name", OrgProfile.OrganizationName },
+                    { "org_type", OrgProfile.OrgType },
+                    { "sector", OrgProfile.Sector }
+                }
+            };
+
+            var response = await Http.PostAsJsonAsync("/api/onboarding/org-profile", payload);
+
+            if (response.IsSuccessStatusCode)
+            {
+                SuccessMessage = "Organization profile saved! Proceeding to compliance scope review...";
+                await Task.Delay(1500);
+                await OnNext.InvokeAsync(OrgProfile.TenantId);
+            }
+            else
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                ErrorMessage = $"Failed to save profile: {content}";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
+}

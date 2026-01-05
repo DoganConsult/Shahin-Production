@@ -1,0 +1,359 @@
+@{
+    ViewData["Title"] = "Workflow Approvals";
+    var tenantId = ViewBag.TenantId;
+}
+
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h2 mb-2">
+                                <i class="fas fa-check-circle text-primary me-2"></i>Pending Approvals
+                            </h1>
+                            <p class="text-muted mb-0">Review and approve pending workflow requests</p>
+                        </div>
+                        <span class="badge bg-warning text-dark fs-6">{{ PendingCount }} Pending</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter and Search -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" class="form-control border-start-0"
+                    placeholder="Search approvals by workflow, submitter..." id="searchApprovals">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select class="form-select" id="filterStatus">
+                <option value="">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Delegated">Delegated to Me</option>
+                <option value="Overdue">Overdue</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Approvals List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" id="approvalsCard">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light border-bottom">
+                            <tr>
+                                <th class="ps-4">Workflow</th>
+                                <th>Level</th>
+                                <th>Submitted By</th>
+                                <th>Priority</th>
+                                <th>Due Date</th>
+                                <th>Days Remaining</th>
+                                <th class="pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="approvalsBody">
+                            <!-- Populated via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Row -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card bg-light border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-hourglass-half text-warning fa-2x mb-3"></i>
+                    <h5>Pending</h5>
+                    <p class="h3 mb-0 text-warning" id="statPending">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-light border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-fire text-danger fa-2x mb-3"></i>
+                    <h5>Overdue</h5>
+                    <p class="h3 mb-0 text-danger" id="statOverdue">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-light border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle text-success fa-2x mb-3"></i>
+                    <h5>Completed</h5>
+                    <p class="h3 mb-0 text-success" id="statCompleted">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-light border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock text-info fa-2x mb-3"></i>
+                    <h5>Avg Turnaround</h5>
+                    <p class="h3 mb-0 text-info" id="statAvgTime">0h</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Approval Modal -->
+<div class="modal fade" id="approvalModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title" id="approvalModalTitle">Review Approval</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Workflow</label>
+                        <p class="fw-bold" id="modalWorkflow">-</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Approval Level</label>
+                        <p class="fw-bold" id="modalLevel">-</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Submitted By</label>
+                        <p class="fw-bold" id="modalSubmittedBy">-</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Due Date</label>
+                        <p class="fw-bold" id="modalDueDate">-</p>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Comments (Optional)</label>
+                    <textarea class="form-control" id="approvalComments" rows="3"
+                        placeholder="Add your comments..."></textarea>
+                </div>
+
+                <div class="alert alert-info" id="approvalChainInfo">
+                    <strong>Approval Chain:</strong>
+                    <p id="chainDetails" class="mb-0 mt-2">Loading...</p>
+                </div>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Delegate</button>
+                <button type="button" class="btn btn-danger" id="rejectBtn">Reject</button>
+                <button type="button" class="btn btn-success" id="approveBtn">Approve</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Load approvals on page load
+        $(function () {
+            loadApprovals();
+            loadStats();
+        });
+
+        function loadApprovals() {
+            // Load from API
+            fetch('/api/approvals?status=' + $('#filterStatus').val())
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = $('#approvalsBody');
+                    tbody.empty();
+
+                    data.forEach(approval => {
+                        const row = `
+                            <tr>
+                                <td class="ps-4">${approval.workflow}</td>
+                                <td><span class="badge bg-info">${approval.level}</span></td>
+                                <td>${approval.submittedBy}</td>
+                                <td><span class="badge bg-${getPriorityColor(approval.priority)}">${approval.priority}</span></td>
+                                <td>${new Date(approval.dueDate).toLocaleDateString()}</td>
+                                <td>${approval.daysRemaining > 2 ? approval.daysRemaining : '<span class="badge bg-danger">' + approval.daysRemaining + '</span>'}</td>
+                                <td class="pe-4">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="openApprovalModal('${approval.id}', '${approval.workflow}', '${approval.level}', '${approval.submittedBy}', '${approval.dueDate}')">
+                                        <i class="fas fa-eye"></i> Review
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.append(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading approvals:', error);
+                    // Show demo data on error
+                    const approvals = [
+                        {
+                            id: '1', workflow: 'WF-001: NCA ECC Assessment', level: '1/4', submittedBy: 'John Smith',
+                            priority: 'High', dueDate: new Date(Date.now() + 4*24*60*60*1000), daysRemaining: 4, status: 'Pending'
+                        },
+                        {
+                            id: '2', workflow: 'WF-002: SAMA Cyber Assessment', level: '2/3', submittedBy: 'Jane Doe',
+                            priority: 'Normal', dueDate: new Date(Date.now() + 6*24*60*60*1000), daysRemaining: 6, status: 'Pending'
+                        }
+                    ];
+                    
+                    const tbody = $('#approvalsBody');
+                    tbody.empty();
+
+                    approvals.forEach(approval => {
+                        const row = `
+                            <tr>
+                                <td class="ps-4">${approval.workflow}</td>
+                                <td><span class="badge bg-info">${approval.level}</span></td>
+                                <td>${approval.submittedBy}</td>
+                                <td><span class="badge bg-${getPriorityColor(approval.priority)}">${approval.priority}</span></td>
+                                <td>${approval.dueDate.toLocaleDateString()}</td>
+                                <td>${approval.daysRemaining > 2 ? approval.daysRemaining : '<span class="badge bg-danger">' + approval.daysRemaining + '</span>'}</td>
+                                <td class="pe-4">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="openApprovalModal('${approval.id}', '${approval.workflow}', '${approval.level}', '${approval.submittedBy}', '${approval.dueDate.toISOString()}')">
+                                        <i class="fas fa-eye"></i> Review
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.append(row);
+                    });
+                });
+        }
+
+        function loadStats() {
+            // Load from API
+            fetch('/api/approvals/stats')
+                .then(response => response.json())
+                .then(data => {
+                    $('#statPending').text(data.pending);
+                    $('#statOverdue').text(data.overdue);
+                    $('#statCompleted').text(data.completed);
+                    $('#statAvgTime').text(data.avgTime);
+                })
+                .catch(error => {
+                    console.error('Error loading stats:', error);
+                    // Show defaults on error
+                    $('#statPending').text('2');
+                    $('#statOverdue').text('0');
+                    $('#statCompleted').text('45');
+                    $('#statAvgTime').text('8h');
+                });
+        }
+
+        function openApprovalModal(approvalId, workflow, level, submittedBy, dueDate) {
+            $('#modalWorkflow').text(workflow);
+            $('#modalLevel').text(level);
+            $('#modalSubmittedBy').text(submittedBy);
+            $('#modalDueDate').text(new Date(dueDate).toLocaleDateString());
+            
+            // Load approval chain details
+            fetch('/api/approvals/' + approvalId + '/chain')
+                .then(response => response.json())
+                .then(data => {
+                    let chainHtml = '<ul class="mb-0">';
+                    data.chain.forEach((step, index) => {
+                        const status = step.completed ? '<span class="badge bg-success">✓</span>' : 
+                                     (step.current ? '<span class="badge bg-warning">Current</span>' : '');
+                        chainHtml += `<li>${step.approverName} - ${step.level} ${status}</li>`;
+                    });
+                    chainHtml += '</ul>';
+                    $('#chainDetails').html(chainHtml);
+                })
+                .catch(error => {
+                    console.error('Error loading chain:', error);
+                    $('#chainDetails').text('Chain information unavailable');
+                });
+            
+            $('#approvalModal').modal('show');
+        }
+
+        function getPriorityColor(priority) {
+            switch (priority) {
+                case 'Critical': return 'danger';
+                case 'High': return 'warning';
+                default: return 'secondary';
+            }
+        }
+
+        // Handle approve button
+        $('#approveBtn').click(async function () {
+            const comments = $('#approvalComments').val();
+            const approvalId = new URLSearchParams(window.location.search).get('approvalId') || '1';
+            
+            try {
+                const response = await fetch('/api/approvals/' + approvalId + '/approve', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ comments: comments })
+                });
+                
+                if (response.ok) {
+                    alert('Approval submitted successfully!');
+                    $('#approvalModal').modal('hide');
+                    loadApprovals();
+                    loadStats();
+                } else {
+                    alert('Error submitting approval');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Handle reject button
+        $('#rejectBtn').click(async function () {
+            const comments = $('#approvalComments').val();
+            if (!comments) {
+                alert('Please provide a reason for rejection');
+                return;
+            }
+            
+            const approvalId = new URLSearchParams(window.location.search).get('approvalId') || '1';
+            
+            try {
+                const response = await fetch('/api/approvals/' + approvalId + '/reject', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ reason: comments })
+                });
+                
+                if (response.ok) {
+                    alert('Rejection submitted successfully!');
+                    $('#approvalModal').modal('hide');
+                    loadApprovals();
+                    loadStats();
+                } else {
+                    alert('Error submitting rejection');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+        
+        // Handle filters
+        $('#filterStatus').on('change', loadApprovals);
+        $('#searchApprovals').on('keyup', function() {
+            const searchTerm = $(this).val().toLowerCase();
+            $('#approvalsBody tr').each(function() {
+                const text = $(this).text().toLowerCase();
+                $(this).toggle(text.includes(searchTerm));
+            });
+        });
+    </script>
+}

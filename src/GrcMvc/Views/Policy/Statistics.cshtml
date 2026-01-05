@@ -1,0 +1,188 @@
+@model GrcMvc.Models.DTOs.PolicyStatisticsDto
+@{
+    ViewData["Title"] = "Policy Statistics";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-bar-chart"></i> Policy Statistics</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Policy Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Policies</h5>
+                    <p class="card-text display-4">@Model.TotalPolicies</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Published</h5>
+                    <p class="card-text display-4">@Model.PublishedPolicies</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Expiring Soon</h5>
+                    <p class="card-text display-4">@Model.ExpiringSoon</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Violations</h5>
+                    <p class="card-text display-4">@Model.TotalViolations</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Compliance Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4 border-end">
+                            <h6 class="text-muted">Drafts</h6>
+                            <h2 class="text-secondary">@Model.DraftPolicies</h2>
+                        </div>
+                        <div class="col-md-4 border-end">
+                            <h6 class="text-muted">Archived</h6>
+                            <h2 class="text-dark">@Model.ArchivedPolicies</h2>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-muted">Compliance Rate</h6>
+                            <h2 class="text-info">@Model.ComplianceRate.ToString("F1")%</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4 h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Policies by Category</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4 h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Policy Status</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4 h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Policy Types</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="typeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Category Chart
+            var categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            var categoryData = @Html.Raw(Json.Serialize(Model.PoliciesByCategory));
+
+            new Chart(categoryCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(categoryData),
+                    datasets: [{
+                        data: Object.values(categoryData),
+                        backgroundColor: [
+                            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'
+                        ]
+                    }]
+                }
+            });
+
+            // Status Chart
+            var statusCtx = document.getElementById('statusChart').getContext('2d');
+            var statusData = @Html.Raw(Json.Serialize(Model.StatusDistribution));
+
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusData),
+                    datasets: [{
+                        data: Object.values(statusData),
+                        backgroundColor: [
+                            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'
+                        ]
+                    }]
+                }
+            });
+
+            // Type Chart
+            var typeCtx = document.getElementById('typeChart').getContext('2d');
+            var typeData = @Html.Raw(Json.Serialize(Model.TypeDistribution));
+
+            new Chart(typeCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(typeData),
+                    datasets: [{
+                        label: 'Count',
+                        data: Object.values(typeData),
+                        backgroundColor: '#4e73df'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,95 @@
+@page "/admin/users"
+@using GrcMvc.Models.Dtos
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">User Management</h1>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> Add User
+            </button>
+        </div>
+    </div>
+
+    @if (users == null || users.Count == 0)
+    {
+        <div class="alert alert-info">No users found</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Status</th>
+                        <th>Last Login</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in users)
+                    {
+                        <tr>
+                            <td><strong>@user.Name</strong></td>
+                            <td>@user.Email</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(user.Roles))
+                                {
+                                    @foreach (var role in user.Roles.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                                    {
+                                        <span class="badge bg-info">@role.Trim()</span>
+                                    }
+                                }
+                            </td>
+                            <td>
+                                <span class="badge bg-@(user.IsActive ? "success" : "danger")">
+                                    @(user.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </td>
+                            <td>
+                                @if (user.LastLogin.HasValue)
+                                {
+                                    @user.LastLogin.Value.ToString("MMM dd, yyyy")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Never</span>
+                                }
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                <button class="btn btn-sm btn-outline-danger">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<UserListItemDto>? users;
+
+    protected override Task OnInitializedAsync()
+    {
+        // Sample data for demo
+        users = new List<UserListItemDto>
+{
+new() { Id = Guid.NewGuid(), Name = "Ahmed Al-Mansouri", Email = "ahmed@company.com", Roles = "Administrator, Reviewer",
+IsActive = true, LastLogin = DateTime.Now.AddDays(-1) },
+new() { Id = Guid.NewGuid(), Name = "Fatima Al-Dosari", Email = "fatima@company.com", Roles = "Manager, Approver",
+IsActive = true, LastLogin = DateTime.Now.AddHours(-5) },
+new() { Id = Guid.NewGuid(), Name = "Mohammed Al-Harbi", Email = "mohammed@company.com", Roles = "Compliance Officer",
+IsActive = true, LastLogin = DateTime.Now.AddDays(-3) },
+new() { Id = Guid.NewGuid(), Name = "Noor Al-Khalidi", Email = "noor@company.com", Roles = "Auditor", IsActive = false,
+LastLogin = null }
+};
+        return Task.CompletedTask;
+    }
+}

@@ -1,0 +1,144 @@
+@model GrcMvc.Models.DTOs.CreateEvidenceDto
+@{
+    ViewData["Title"] = "Create Evidence";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-plus-circle"></i> Upload New Evidence</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Create" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Name" class="control-label fw-bold">Evidence Name</label>
+                            <input asp-for="Name" class="form-control" placeholder="e.g. Q1 Access Log" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label asp-for="EvidenceType" class="control-label fw-bold">Type</label>
+                            <select asp-for="EvidenceType" class="form-select">
+                                <option value="">Select Type...</option>
+                                <option value="Document">Document</option>
+                                <option value="Screenshot">Screenshot</option>
+                                <option value="Log">Log File</option>
+                                <option value="Report">Report</option>
+                                <option value="Email">Email</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span asp-validation-for="EvidenceType" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label asp-for="Status" class="control-label fw-bold">Status</label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="Active">Active</option>
+                                <option value="Pending">Pending Review</option>
+                                <option value="Draft">Draft</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Description" class="control-label fw-bold">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="DataClassification" class="control-label fw-bold">Classification</label>
+                            <select asp-for="DataClassification" class="form-select">
+                                <option value="Public">Public</option>
+                                <option value="Internal">Internal</option>
+                                <option value="Confidential">Confidential</option>
+                                <option value="Restricted">Restricted</option>
+                            </select>
+                            <span asp-validation-for="DataClassification" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="Source" class="control-label fw-bold">Source System/Person</label>
+                            <input asp-for="Source" class="form-control" placeholder="e.g. AD Server or John Doe" />
+                            <span asp-validation-for="Source" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="Owner" class="control-label fw-bold">Owner</label>
+                            <input asp-for="Owner" class="form-control" />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="CollectionDate" class="control-label fw-bold">Collection Date</label>
+                            <input asp-for="CollectionDate" class="form-control" type="date" />
+                            <span asp-validation-for="CollectionDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="ExpirationDate" class="control-label fw-bold">Expiration Date (Optional)</label>
+                            <input asp-for="ExpirationDate" class="form-control" type="date" />
+                            <span asp-validation-for="ExpirationDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Location" class="control-label fw-bold">File Location / URL</label>
+                    <input asp-for="Location" class="form-control" placeholder="https://..." />
+                    <span asp-validation-for="Location" class="text-danger"></span>
+                    <small class="text-muted">Or upload a file (feature coming soon)</small>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Tags" class="control-label fw-bold">Tags</label>
+                    <input asp-for="Tags" class="form-control" placeholder="Comma separated tags" />
+                    <span asp-validation-for="Tags" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Notes" class="control-label fw-bold">Notes</label>
+                    <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="Notes" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Create Evidence
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,80 @@
+services:
+  grcmvc:
+    build:
+      context: .
+      dockerfile: src/GrcMvc/Dockerfile
+    container_name: grcmvc-app
+    ports:
+      - "5137:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=db;Database=GrcMvcDb;Username=postgres;Password=postgres;Port=5432
+      - JwtSettings__Secret=ProdSecretKeyMustBeVeryLongAndSecureForProductionUse_2026_Portal!
+      - JwtSettings__Issuer=https://portal.shahin-ai.com
+      - JwtSettings__Audience=https://portal.shahin-ai.com
+      - AllowedHosts=localhost;portal.shahin-ai.com;157.180.105.48
+      - AdminUser__Email=Info@doganconsult.com
+      - AdminUser__Password=AhmEma$$123456
+      # Claude AI Code Quality Monitoring
+      - Claude__ApiKey=${CLAUDE_API_KEY:-}
+      - Claude__Model=claude-sonnet-4-20250514
+      - CodeQuality__Enabled=true
+      - CodeQuality__ProjectPath=/app
+      # Alert Configuration
+      - Alerts__EnableEmail=true
+      - Alerts__EnableSlack=${ENABLE_SLACK_ALERTS:-false}
+      - Alerts__EnableTeams=${ENABLE_TEAMS_ALERTS:-false}
+      - Alerts__EnableWebhook=true
+      - Alerts__SlackWebhookUrl=${SLACK_WEBHOOK_URL:-}
+      - Alerts__TeamsWebhookUrl=${TEAMS_WEBHOOK_URL:-}
+      - Alerts__CustomWebhookUrl=${CUSTOM_WEBHOOK_URL:-}
+      - Alerts__MinScoreThreshold=50
+    volumes:
+      - app_logs:/app/logs  # Application logs
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - grc-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  db:
+    image: postgres:15-alpine
+    container_name: grcmvc-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=GrcMvcDb
+    # Remove port exposure for security - only accessible within Docker network
+    # ports:
+    #   - "5434:5432"
+    volumes:
+      - grcmvc_db_data:/var/lib/postgresql/data
+    networks:
+      - grc-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d GrcMvcDb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  grcmvc_db_data:
+    driver: local
+  dataprotection_keys:
+    driver: local
+  app_logs:
+    driver: local
+
+networks:
+  grc-network:
+    driver: bridge

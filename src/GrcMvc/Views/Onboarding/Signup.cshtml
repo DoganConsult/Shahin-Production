@@ -1,0 +1,155 @@
+@model CreateTenantDto
+
+@{
+    ViewData["Title"] = "GRC System - Organization Signup";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Progress Indicator -->
+            <div class="card mb-4 border-0 bg-light">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Onboarding Progress</h5>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 25%;" aria-valuenow="25"
+                            aria-valuemin="0" aria-valuemax="100">
+                            Step 1: Registration
+                        </div>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        Step 1: Registration → Step 2: Organization Profile → Step 3: Review Scope → Step 4: Create Plan
+                    </small>
+                </div>
+            </div>
+
+            <!-- Registration Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-building"></i> Register Your Organization
+                    </h4>
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-action="Signup" asp-controller="Onboarding" method="post" id="signupForm" novalidate>
+                        <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+                        <!-- Organization Name -->
+                        <div class="mb-3">
+                            <label asp-for="OrganizationName" class="form-label">
+                                <span class="text-danger">*</span> Organization Name
+                            </label>
+                            <input asp-for="OrganizationName" class="form-control form-control-lg"
+                                placeholder="Enter your organization name">
+                            <span asp-validation-for="OrganizationName" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-1">This is the primary identifier for your organization
+                                in the GRC system.</small>
+                        </div>
+
+                        <!-- Admin Email -->
+                        <div class="mb-3">
+                            <label asp-for="AdminEmail" class="form-label">
+                                <span class="text-danger">*</span> Administrator Email
+                            </label>
+                            <input asp-for="AdminEmail" type="email" class="form-control form-control-lg"
+                                placeholder="admin@example.com">
+                            <span asp-validation-for="AdminEmail" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-1">An activation link will be sent to this email
+                                address.</small>
+                        </div>
+
+                        <!-- Subscription Tier -->
+                        <div class="mb-3">
+                            <label asp-for="SubscriptionTier" class="form-label">
+                                <span class="text-danger">*</span> Subscription Tier
+                            </label>
+                            <select asp-for="SubscriptionTier" class="form-select form-select-lg">
+                                <option value="">-- Select Subscription Tier --</option>
+                                <option value="Starter">Starter (Small organizations, basic compliance)</option>
+                                <option value="Professional">Professional (Mid-size, comprehensive controls)</option>
+                                <option value="Enterprise">Enterprise (Large organizations, advanced features)</option>
+                            </select>
+                            <span asp-validation-for="SubscriptionTier" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-1">Affects available features and control
+                                limits.</small>
+                        </div>
+
+                        <!-- Country -->
+                        <div class="mb-3">
+                            <label asp-for="Country" class="form-label">
+                                <span class="text-danger">*</span> Primary Country of Operation
+                            </label>
+                            <select asp-for="Country" class="form-select form-select-lg">
+                                <option value="">-- Select Country --</option>
+                                <option value="SA">Saudi Arabia</option>
+                                <option value="AE">United Arab Emirates</option>
+                                <option value="QA">Qatar</option>
+                                <option value="KW">Kuwait</option>
+                                <option value="BH">Bahrain</option>
+                                <option value="OM">Oman</option>
+                                <option value="Other">Other (Specify in next step)</option>
+                            </select>
+                            <span asp-validation-for="Country" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-1">Determines applicable regulatory frameworks.</small>
+                        </div>
+
+                        <!-- Terms & Conditions -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                                <label class="form-check-label" for="agreeTerms">
+                                    I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#"
+                                        target="_blank">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-arrow-right"></i> Continue to Organization Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-lock text-success"></i> Secure Registration
+                            </h5>
+                            <p class="card-text small">Your organization data is encrypted and secured with
+                                enterprise-grade security standards.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-clock text-info"></i> Quick Setup
+                            </h5>
+                            <p class="card-text small">Complete the onboarding process in 10-15 minutes and start
+                                managing compliance immediately.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('signupForm').addEventListener('submit', function (e) {
+        if (!document.getElementById('agreeTerms').checked) {
+            e.preventDefault();
+            alert('You must agree to the Terms of Service and Privacy Policy');
+        }
+    });
+</script>

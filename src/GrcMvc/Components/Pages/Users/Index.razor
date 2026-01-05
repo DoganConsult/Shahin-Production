@@ -1,0 +1,370 @@
+@page "/users"
+@using GrcMvc.Data
+@using GrcMvc.Models.Entities
+@using Microsoft.EntityFrameworkCore
+@inject GrcDbContext DbContext
+@inject NavigationManager Navigation
+
+<PageTitle>User Management</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6"><i class="bi bi-people me-2"></i>User Management</h1>
+                <p class="text-muted">Manage tenant users and role assignments</p>
+            </div>
+            <button class="btn btn-primary" @onclick="ShowInviteModal">
+                <i class="bi bi-person-plus me-1"></i> Invite User
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <h2>@totalUsers</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Active</h5>
+                    <h2>@activeUsers</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Pending</h5>
+                    <h2>@pendingUsers</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Suspended</h5>
+                    <h2>@suspendedUsers</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Users</h5>
+        </div>
+        <div class="card-body p-0">
+            @if (isLoading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary"></div>
+                </div>
+            }
+            else if (users.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in users)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle me-2">
+                                                @(GetInitials(user.UserId))
+                                            </div>
+                                            <div>
+                                                <strong>@user.UserId</strong>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-info">@user.RoleCode</span></td>
+                                    <td>@user.TitleCode</td>
+                                    <td>
+                                        @if (user.Status == "Active")
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else if (user.Status == "Pending")
+                                        {
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        }
+                                        else if (user.Status == "Suspended")
+                                        {
+                                            <span class="badge bg-danger">Suspended</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@user.Status</span>
+                                        }
+                                    </td>
+                                    <td>@user.CreatedDate.ToString("MMM dd, yyyy")</td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            @if (user.Status == "Active")
+                                            {
+                                                <button class="btn btn-outline-warning" @onclick="() => SuspendUser(user.Id)" title="Suspend">
+                                                    <i class="bi bi-pause-circle"></i>
+                                                </button>
+                                            }
+                                            @if (user.Status == "Suspended")
+                                            {
+                                                <button class="btn btn-outline-success" @onclick="() => ReactivateUser(user.Id)" title="Reactivate">
+                                                    <i class="bi bi-play-circle"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-people display-4"></i>
+                    <p class="mt-2">No users found</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Invite User Modal -->
+@if (showInviteModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Invite User</h5>
+                    <button type="button" class="btn-close" @onclick="CloseInviteModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">User ID / Email *</label>
+                        <input type="text" class="form-control" @bind="inviteUserId" placeholder="user@example.com" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Role *</label>
+                        <select class="form-select" @bind="inviteRoleCode">
+                            <option value="">Select Role...</option>
+                            @foreach (var role in roles)
+                            {
+                                <option value="@role.RoleCode">@role.RoleName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <select class="form-select" @bind="inviteTitleCode">
+                            <option value="">Select Title...</option>
+                            @foreach (var title in titles)
+                            {
+                                <option value="@title.TitleCode">@title.TitleName</option>
+                            }
+                        </select>
+                    </div>
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger">@errorMessage</div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseInviteModal">Cancel</button>
+                    <button type="button" class="btn btn-primary" @onclick="SendInvitation" disabled="@isSending">
+                        @if (isSending) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                        Send Invitation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .avatar-circle {
+        width: 36px;
+        height: 36px;
+        background-color: #6c757d;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: bold;
+    }
+</style>
+
+@code {
+    private List<TenantUser> users = new();
+    private List<GrcMvc.Models.Entities.Catalogs.RoleCatalog> roles = new();
+    private List<GrcMvc.Models.Entities.Catalogs.TitleCatalog> titles = new();
+    private bool isLoading = true;
+    private bool showInviteModal = false;
+    private bool isSending = false;
+    private string errorMessage = "";
+    private Guid currentTenantId;
+
+    private int totalUsers = 0;
+    private int activeUsers = 0;
+    private int pendingUsers = 0;
+    private int suspendedUsers = 0;
+
+    private string inviteUserId = "";
+    private string inviteRoleCode = "";
+    private string inviteTitleCode = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var tenant = await DbContext.Tenants.FirstOrDefaultAsync(t => !t.IsDeleted);
+        currentTenantId = tenant?.Id ?? Guid.Empty;
+        await LoadUsers();
+        await LoadRolesAndTitles();
+    }
+
+    private async Task LoadUsers()
+    {
+        isLoading = true;
+        try
+        {
+            users = await DbContext.TenantUsers
+                .Where(u => u.TenantId == currentTenantId && !u.IsDeleted)
+                .OrderByDescending(u => u.CreatedDate)
+                .ToListAsync();
+
+            totalUsers = users.Count;
+            activeUsers = users.Count(u => u.Status == "Active");
+            pendingUsers = users.Count(u => u.Status == "Pending");
+            suspendedUsers = users.Count(u => u.Status == "Suspended");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadRolesAndTitles()
+    {
+        roles = await DbContext.RoleCatalogs.Where(r => r.IsActive).OrderBy(r => r.RoleName).ToListAsync();
+        titles = await DbContext.TitleCatalogs.Where(t => t.IsActive).OrderBy(t => t.TitleName).ToListAsync();
+    }
+
+    private void ShowInviteModal()
+    {
+        inviteUserId = "";
+        inviteRoleCode = "";
+        inviteTitleCode = "";
+        errorMessage = "";
+        showInviteModal = true;
+    }
+
+    private void CloseInviteModal()
+    {
+        showInviteModal = false;
+    }
+
+    private async Task SendInvitation()
+    {
+        if (string.IsNullOrWhiteSpace(inviteUserId) || string.IsNullOrWhiteSpace(inviteRoleCode))
+        {
+            errorMessage = "Please fill in all required fields.";
+            return;
+        }
+
+        isSending = true;
+        errorMessage = "";
+
+        try
+        {
+            var existingUser = await DbContext.TenantUsers
+                .FirstOrDefaultAsync(u => u.TenantId == currentTenantId && u.UserId == inviteUserId);
+
+            if (existingUser != null)
+            {
+                errorMessage = "A user with this ID already exists.";
+                return;
+            }
+
+            var newUser = new TenantUser
+            {
+                Id = Guid.NewGuid(),
+                TenantId = currentTenantId,
+                UserId = inviteUserId,
+                RoleCode = inviteRoleCode,
+                TitleCode = inviteTitleCode ?? "",
+                Status = "Pending",
+                InvitationToken = Guid.NewGuid().ToString("N"),
+                InvitedAt = DateTime.UtcNow,
+                CreatedDate = DateTime.UtcNow,
+                CreatedBy = "System"
+            };
+
+            DbContext.TenantUsers.Add(newUser);
+            await DbContext.SaveChangesAsync();
+
+            showInviteModal = false;
+            await LoadUsers();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isSending = false;
+        }
+    }
+
+    private async Task SuspendUser(Guid userId)
+    {
+        var user = await DbContext.TenantUsers.FindAsync(userId);
+        if (user != null)
+        {
+            user.Status = "Suspended";
+            user.ModifiedDate = DateTime.UtcNow;
+            await DbContext.SaveChangesAsync();
+            await LoadUsers();
+        }
+    }
+
+    private async Task ReactivateUser(Guid userId)
+    {
+        var user = await DbContext.TenantUsers.FindAsync(userId);
+        if (user != null)
+        {
+            user.Status = "Active";
+            user.ModifiedDate = DateTime.UtcNow;
+            await DbContext.SaveChangesAsync();
+            await LoadUsers();
+        }
+    }
+
+    private string GetInitials(string userId)
+    {
+        if (string.IsNullOrEmpty(userId)) return "?";
+        var parts = userId.Split('@');
+        return parts[0].Length >= 2 ? parts[0].Substring(0, 2).ToUpper() : parts[0].ToUpper();
+    }
+}

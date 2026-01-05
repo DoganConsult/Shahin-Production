@@ -1,0 +1,177 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GRC Management System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-shield-check"></i> GRC System
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house"></i> Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-area="" asp-controller="Onboarding" asp-action="Index">
+                                <i class="bi bi-rocket"></i> Onboarding
+                            </a>
+                        </li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-exclamation-triangle"></i> Risk Management
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Risk" asp-action="Index"><i class="bi bi-exclamation-diamond me-2"></i>Risks</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Control" asp-action="Index"><i class="bi bi-shield-check me-2"></i>Controls</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Control" asp-action="Matrix"><i class="bi bi-grid-3x3 me-2"></i>Control Matrix</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Assessment" asp-action="Index"><i class="bi bi-clipboard-check me-2"></i>Assessments</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Risk" asp-action="Report"><i class="bi bi-bar-chart me-2"></i>Risk Reports</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-clipboard-check"></i> Compliance
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Policy" asp-action="Index"><i class="bi bi-file-text me-2"></i>Policies</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Audit" asp-action="Index"><i class="bi bi-search me-2"></i>Audits</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Evidence" asp-action="Index"><i class="bi bi-file-earmark-check me-2"></i>Evidence</a></li>
+                                    <li><a class="dropdown-item" href="/evidence/lifecycle"><i class="bi bi-arrow-repeat me-2"></i>Evidence Lifecycle</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Policy" asp-action="Statistics"><i class="bi bi-pie-chart me-2"></i>Policy Statistics</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Audit" asp-action="Statistics"><i class="bi bi-bar-chart me-2"></i>Audit Statistics</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Evidence" asp-action="Statistics"><i class="bi bi-graph-up me-2"></i>Evidence Statistics</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-speedometer2"></i> Dashboards
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/dashboard"><i class="bi bi-graph-up me-2"></i>Main Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="/dashboard/executive"><i class="bi bi-speedometer2 me-2"></i>Executive Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="/inbox"><i class="bi bi-inbox me-2"></i>Inbox</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-light" href="/users">
+                                    <i class="bi bi-people"></i> Users
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-diagram-3"></i> Workflows
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Workflow" asp-action="Index"><i class="bi bi-list me-2"></i>All Workflows</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Workflow" asp-action="ByStatus" asp-route-status="Active"><i class="bi bi-lightning me-2"></i>Active Workflows</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Workflow" asp-action="Statistics"><i class="bi bi-bar-chart me-2"></i>Statistics</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-controller="Home" asp-action="Reports">
+                                    <i class="bi bi-file-earmark-bar-graph"></i> Reports
+                                </a>
+                            </li>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-gear"></i> Admin
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" asp-controller="Home" asp-action="ManageTenants"><i class="bi bi-building me-2"></i>Manage Tenants</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Home" asp-action="Admin"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</a></li>
+                                    </ul>
+                                </li>
+                            }
+                        }
+                    </ul>
+                    <ul class="navbar-nav">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-person-circle"></i> @User.Identity.Name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">Profile</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post">
+                                            <button type="submit" class="dropdown-item">Logout</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-controller="Account" asp-action="Login">
+                                    <i class="bi bi-box-arrow-in-right"></i> Login
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-controller="Account" asp-action="Register">
+                                    <i class="bi bi-person-plus"></i> Register
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container-fluid">
+        <!-- Alert Messages -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i> @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i> @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted mt-5">
+        <div class="container text-center py-3">
+            &copy; @DateTime.Now.Year - GRC Management System - Version 1.0.0
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

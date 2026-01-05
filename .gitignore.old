@@ -1,0 +1,50 @@
+## Build artifacts
+bin/
+obj/
+
+## IDE
+.vs/
+*.user
+*.suo
+*.userprefs
+*.csproj.user
+
+## Logs
+*.log
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Tooling
+/.idea/
+/.vscode/
+
+## Packages
+*.nupkg
+packages/
+
+## Env/Secrets
+.env
+.env.*
+!.env.example
+!.env.production.template
+# Explicitly ignore production secrets
+.env.production
+.env.local
+.env.staging
+# SSL certificates and keys
+*.key
+*.pem
+*.pfx
+*.p12
+*.crt
+!ssl/README.md
+
+## Dotnet
+project.lock.json
+artifacts/
+
+## Others
+node_modules/
+certificates/

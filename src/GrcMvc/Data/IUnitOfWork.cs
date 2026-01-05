@@ -1,0 +1,59 @@
+using System;
+using System.Threading.Tasks;
+using GrcMvc.Data.Repositories;
+using GrcMvc.Models.Entities;
+using GrcMvc.Models.Entities.Catalogs;
+
+namespace GrcMvc.Data
+{
+    /// <summary>
+    /// Unit of Work pattern for managing transactions across repositories
+    /// </summary>
+    public interface IUnitOfWork : IDisposable
+    {
+        // Repositories
+        IGenericRepository<Risk> Risks { get; }
+        IGenericRepository<Control> Controls { get; }
+        IGenericRepository<Assessment> Assessments { get; }
+        IGenericRepository<Audit> Audits { get; }
+        IGenericRepository<AuditFinding> AuditFindings { get; }
+        IGenericRepository<Evidence> Evidences { get; }
+        IGenericRepository<Policy> Policies { get; }
+        IGenericRepository<PolicyViolation> PolicyViolations { get; }
+        IGenericRepository<Workflow> Workflows { get; }
+        IGenericRepository<WorkflowExecution> WorkflowExecutions { get; }
+
+        // Multi-tenant & onboarding repositories
+        IGenericRepository<Tenant> Tenants { get; }
+        IGenericRepository<TenantUser> TenantUsers { get; }
+        IGenericRepository<OrganizationProfile> OrganizationProfiles { get; }
+        IGenericRepository<Ruleset> Rulesets { get; }
+        IGenericRepository<Rule> Rules { get; }
+        IGenericRepository<RuleExecutionLog> RuleExecutionLogs { get; }
+        IGenericRepository<TenantBaseline> TenantBaselines { get; }
+        IGenericRepository<TenantPackage> TenantPackages { get; }
+        IGenericRepository<TenantTemplate> TenantTemplates { get; }
+        IGenericRepository<Plan> Plans { get; }
+        IGenericRepository<PlanPhase> PlanPhases { get; }
+        IGenericRepository<AuditEvent> AuditEvents { get; }
+        IGenericRepository<AssessmentRequirement> AssessmentRequirements { get; }
+        IGenericRepository<FrameworkControl> FrameworkControls { get; }
+        IGenericRepository<TemplateCatalog> TemplateCatalogs { get; }
+
+        // STAGE 2: Workflow infrastructure repositories
+        IGenericRepository<WorkflowDefinition> WorkflowDefinitions { get; }
+        IGenericRepository<WorkflowInstance> WorkflowInstances { get; }
+        IGenericRepository<WorkflowTask> WorkflowTasks { get; }
+        IGenericRepository<ApprovalChain> ApprovalChains { get; }
+        IGenericRepository<ApprovalInstance> ApprovalInstances { get; }
+        IGenericRepository<EscalationRule> EscalationRules { get; }
+        IGenericRepository<WorkflowAuditEntry> WorkflowAuditEntries { get; }
+
+        // Transaction management
+        Task<int> SaveChangesAsync();
+        Task BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
+        bool HasActiveTransaction { get; }
+    }
+}

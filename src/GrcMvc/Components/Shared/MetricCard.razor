@@ -1,0 +1,45 @@
+@using GrcMvc.Models.Dtos
+
+<div class="card border-@Color bg-light">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h6 class="card-title text-@Color">@Title</h6>
+                <p class="display-6 mb-0">@Value</p>
+                @if (!string.IsNullOrEmpty(Subtitle))
+                {
+                    <small class="text-muted">@Subtitle</small>
+                }
+            </div>
+            @if (!string.IsNullOrEmpty(Icon))
+            {
+                <i class="bi @Icon" style="font-size: 2rem; opacity: 0.3;"></i>
+            }
+        </div>
+        @if (ChildContent != null)
+        {
+            <hr class="my-3" />
+            @ChildContent
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "";
+
+    [Parameter]
+    public string Value { get; set; } = "0";
+
+    [Parameter]
+    public string? Subtitle { get; set; }
+
+    [Parameter]
+    public string Color { get; set; } = "primary";
+
+    [Parameter]
+    public string? Icon { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

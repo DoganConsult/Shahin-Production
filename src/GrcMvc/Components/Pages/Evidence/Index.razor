@@ -1,0 +1,95 @@
+@page "/evidence"
+@using GrcMvc.Models.Dtos
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">Evidence Library</h1>
+        </div>
+        <div class="col-auto">
+            <a href="/evidence/upload" class="btn btn-primary">
+                <i class="bi bi-cloud-upload"></i> Upload Evidence
+            </a>
+        </div>
+    </div>
+
+    @if (evidence == null || evidence.Count == 0)
+    {
+        <div class="alert alert-info">No evidence files found</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Linked To</th>
+                        <th>Uploaded By</th>
+                        <th>Uploaded Date</th>
+                        <th>Size</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in evidence)
+                    {
+                        <tr>
+                            <td><i class="bi bi-file-earmark"></i> @item.Name</td>
+                            <td><span class="badge bg-info">@item.Type</span></td>
+                            <td>@item.LinkedItemId</td>
+                            <td>@item.UploadedBy</td>
+                            <td>@item.UploadedDate.ToString("MMM dd, yyyy")</td>
+                            <td>@item.FileSize</td>
+                            <td>
+                                <a href="/evidence/@item.Id/detail" class="btn btn-sm btn-outline-secondary">View</a>
+                                <button class="btn btn-sm btn-outline-danger">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<EvidenceListItemDto>? evidence;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEvidence();
+    }
+
+    private async Task LoadEvidence()
+    {
+        try
+        {
+            var response = await Http.GetAsync("/api/evidence");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var apiResponse = System.Text.Json.JsonSerializer.Deserialize<GrcMvc.Models.ApiResponse<EvidenceListItemDto[]>>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (apiResponse?.Success == true && apiResponse.Data != null)
+                {
+                    evidence = new List<EvidenceListItemDto>(apiResponse.Data);
+                }
+                else
+                {
+                    evidence = new List<EvidenceListItemDto>();
+                }
+            }
+            else
+            {
+                evidence = new List<EvidenceListItemDto>();
+            }
+        }
+        catch (Exception)
+        {
+            evidence = new List<EvidenceListItemDto>();
+        }
+    }
+}
+
+@inject HttpClient Http

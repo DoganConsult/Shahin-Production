@@ -1,0 +1,33 @@
+using System;
+using System.Threading.Tasks;
+using GrcMvc.Models.Entities;
+using GrcMvc.Models.DTOs;
+
+namespace GrcMvc.Services.Interfaces
+{
+    /// <summary>
+    /// Interface for multi-tenant provisioning and management.
+    /// </summary>
+    public interface ITenantService
+    {
+        /// <summary>
+        /// Create a new tenant (organization).
+        /// </summary>
+        Task<Tenant> CreateTenantAsync(string organizationName, string adminEmail, string tenantSlug);
+
+        /// <summary>
+        /// Activate tenant after admin confirms email.
+        /// </summary>
+        Task<Tenant> ActivateTenantAsync(string tenantSlug, string activationToken, string activatedBy);
+
+        /// <summary>
+        /// Get tenant by slug (used in multi-tenant routing).
+        /// </summary>
+        Task<Tenant?> GetTenantBySlugAsync(string tenantSlug);
+
+        /// <summary>
+        /// Get tenant by ID.
+        /// </summary>
+        Task<Tenant?> GetTenantByIdAsync(Guid tenantId);
+    }
+}

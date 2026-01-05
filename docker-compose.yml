@@ -1,0 +1,64 @@
+services:
+  grcmvc:
+    build:
+      context: .
+      dockerfile: src/GrcMvc/Dockerfile
+    ports:
+      - "${APP_PORT:-8888}:80"
+      - "${APP_HTTPS_PORT:-8443}:443"
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=${CONNECTION_STRING}
+      - JwtSettings__Secret=${JWT_SECRET}
+      - JwtSettings__Issuer=${JWT_ISSUER:-https://portal.shahin-ai.com}
+      - JwtSettings__Audience=${JWT_AUDIENCE:-https://portal.shahin-ai.com}
+      - AllowedHosts=${ALLOWED_HOSTS:-localhost;portal.shahin-ai.com;157.180.105.48}
+      - EmailSettings__SmtpServer=${SMTP_SERVER}
+      - EmailSettings__SmtpPort=${SMTP_PORT}
+      - EmailSettings__Username=${SMTP_USERNAME}
+      - EmailSettings__Password=${SMTP_PASSWORD}
+      - EmailSettings__From=${SMTP_FROM}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - grc-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  db:
+    image: postgres:15-alpine
+    container_name: grc-db
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_DB=${DB_NAME:-GrcMvcDb}
+      - POSTGRES_INITDB_ARGS=${DB_INIT_ARGS:-}
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - grc_db_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - grc-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-GrcMvcDb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  grc_db_data:
+
+networks:
+  grc-network:
+    driver: bridge

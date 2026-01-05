@@ -1,0 +1,148 @@
+@page "/audits/create"
+@using GrcMvc.Models.Dtos
+@inject NavigationManager NavManager
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Create New Audit</h4>
+                </div>
+                <div class="card-body">
+                    @if (errorMessage != null)
+                    {
+                        <div class="alert alert-danger">@errorMessage</div>
+                    }
+
+                    <form @onsubmit="HandleCreateAudit">
+                        <div class="mb-3">
+                            <label class="form-label" for="title">Audit Title *</label>
+                            <input class="form-control" type="text" id="title" @bind="newAudit.Title"
+                                placeholder="e.g., Internal IT Audit 2024" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="type">Audit Type *</label>
+                            <select class="form-select" id="type" @bind="newAudit.Type" required>
+                                <option value="">-- Select Type --</option>
+                                <option value="Internal">Internal Audit</option>
+                                <option value="External">External Audit</option>
+                                <option value="Regulatory">Regulatory Audit</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="scope">Scope *</label>
+                            <textarea class="form-control" id="scope" rows="3" @bind="newAudit.Scope"
+                                placeholder="Define audit scope and boundaries" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="objectives">Objectives *</label>
+                            <textarea class="form-control" id="objectives" rows="3" @bind="newAudit.Objectives"
+                                placeholder="Define audit objectives" required></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" for="leadAuditor">Lead Auditor *</label>
+                                    <input class="form-control" type="text" id="leadAuditor"
+                                        @bind="newAudit.LeadAuditor" required />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" for="auditTeam">Audit Team</label>
+                                    <input class="form-control" type="text" id="auditTeam" @bind="newAudit.AuditTeam"
+                                        placeholder="Comma-separated names" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" for="startDate">Planned Start Date *</label>
+                                    <input class="form-control" type="date" id="startDate"
+                                        @bind="newAudit.PlannedStartDate" required />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" for="endDate">Planned End Date *</label>
+                                    <input class="form-control" type="date" id="endDate" @bind="newAudit.PlannedEndDate"
+                                        required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info" role="alert">
+                            <small>
+                                <i class="bi bi-info-circle"></i>
+                                Audit Number will be automatically generated when created.
+                                Format: AUD-[TYPE]-[SEQUENCE]
+                            </small>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-secondary" @onclick="CancelCreate">Cancel</button>
+                            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                                @if (isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                    <span>Creating...</span>
+                                }
+                                else
+                                {
+                                    <span>Create Audit</span>
+                                }
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private AuditCreateDto newAudit = new();
+    private bool isSubmitting = false;
+    private string? errorMessage;
+
+    private async Task HandleCreateAudit()
+    {
+        if (newAudit == null || string.IsNullOrWhiteSpace(newAudit.Title))
+        {
+            errorMessage = "Audit title is required";
+            return;
+        }
+
+        isSubmitting = true;
+        errorMessage = null;
+
+        try
+        {
+            // TODO: Call service to create audit
+            // await AuditService.CreateAsync(newAudit);
+
+            await Task.Delay(1000); // Simulate API call
+            NavManager.NavigateTo("/audits");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error creating audit: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void CancelCreate()
+    {
+        NavManager.NavigateTo("/audits");
+    }
+}

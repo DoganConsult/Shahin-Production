@@ -1,0 +1,145 @@
+@model GrcMvc.Models.DTOs.UpdateRiskDto
+@{
+    ViewData["Title"] = "Edit Risk";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="bi bi-pencil"></i> Edit Risk</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Category" class="form-label"></label>
+                                <select asp-for="Category" class="form-select">
+                                    <option value="">Select Category</option>
+                                    <option value="Financial">Financial</option>
+                                    <option value="Operational">Operational</option>
+                                    <option value="Strategic">Strategic</option>
+                                    <option value="Compliance">Compliance</option>
+                                    <option value="Reputational">Reputational</option>
+                                    <option value="Technology">Technology</option>
+                                    <option value="Security">Security</option>
+                                </select>
+                                <span asp-validation-for="Category" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Status" class="form-label"></label>
+                                <select asp-for="Status" class="form-select">
+                                    <option value="Active">Active</option>
+                                    <option value="Monitoring">Monitoring</option>
+                                    <option value="Mitigated">Mitigated</option>
+                                    <option value="Closed">Closed</option>
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="Probability" class="form-label"></label>
+                                <select asp-for="Probability" class="form-select" id="probabilitySelect">
+                                    <option value="1">Very Low (1)</option>
+                                    <option value="2">Low (2)</option>
+                                    <option value="3">Medium (3)</option>
+                                    <option value="4">High (4)</option>
+                                    <option value="5">Very High (5)</option>
+                                </select>
+                                <span asp-validation-for="Probability" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="Impact" class="form-label"></label>
+                                <select asp-for="Impact" class="form-select" id="impactSelect">
+                                    <option value="1">Negligible (1)</option>
+                                    <option value="2">Minor (2)</option>
+                                    <option value="3">Moderate (3)</option>
+                                    <option value="4">Major (4)</option>
+                                    <option value="5">Catastrophic (5)</option>
+                                </select>
+                                <span asp-validation-for="Impact" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="InherentRisk" class="form-label">Inherent Risk</label>
+                                <input asp-for="InherentRisk" class="form-control" id="inherentRisk" readonly />
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="ResidualRisk" class="form-label">Residual Risk</label>
+                                <input asp-for="ResidualRisk" class="form-control" />
+                                <span asp-validation-for="ResidualRisk" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="MitigationStrategy" class="form-label"></label>
+                            <textarea asp-for="MitigationStrategy" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="MitigationStrategy" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Owner" class="form-label"></label>
+                                <input asp-for="Owner" class="form-control" />
+                                <span asp-validation-for="Owner" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DueDate" class="form-label"></label>
+                                <input asp-for="DueDate" type="date" class="form-control" />
+                                <span asp-validation-for="DueDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to List
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            function calculateInherentRisk() {
+                var probability = parseInt($('#probabilitySelect').val());
+                var impact = parseInt($('#impactSelect').val());
+                var score = probability * impact;
+                $('#inherentRisk').val(score);
+            }
+
+            $('#probabilitySelect, #impactSelect').change(calculateInherentRisk);
+        });
+    </script>
+}

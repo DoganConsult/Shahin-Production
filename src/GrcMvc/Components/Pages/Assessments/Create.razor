@@ -1,0 +1,139 @@
+@page "/assessments/create"
+@using GrcMvc.Models.Dtos
+@using GrcMvc.Services.Interfaces
+@inject IWorkflowEngineService WorkflowService
+@inject NavigationManager NavManager
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Create New Assessment</h4>
+                </div>
+                <div class="card-body">
+                    @if (errorMessage != null)
+                    {
+                        <div class="alert alert-danger">@errorMessage</div>
+                    }
+
+                    <form @onsubmit="HandleCreateAssessment">
+                        <div class="mb-3">
+                            <label class="form-label" for="name">Assessment Name *</label>
+                            <input class="form-control" type="text" id="name" @bind="newAssessment.Name"
+                                placeholder="e.g., Security Assessment Q1 2024" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="description">Description</label>
+                            <textarea class="form-control" id="description" rows="3" @bind="newAssessment.Description"
+                                placeholder="Provide assessment details and scope"></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" for="type">Assessment Type *</label>
+                                    <select class="form-select" id="type" @bind="newAssessment.Type" required>
+                                        <option value="">-- Select Type --</option>
+                                        <option value="Risk">Risk Assessment</option>
+                                        <option value="Control">Control Assessment</option>
+                                        <option value="Compliance">Compliance Assessment</option>
+                                        <option value="Security">Security Assessment</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" for="startDate">Start Date *</label>
+                                    <input class="form-control" type="date" id="startDate"
+                                        @bind="newAssessment.StartDate" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" for="scheduledDate">Scheduled Completion</label>
+                                    <input class="form-control" type="date" id="scheduledDate"
+                                        @bind="newAssessment.ScheduledDate" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" for="assignedTo">Assigned To *</label>
+                                    <input class="form-control" type="text" id="assignedTo"
+                                        @bind="newAssessment.AssignedTo" placeholder="Assessor name" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info" role="alert">
+                            <small>
+                                <i class="bi bi-info-circle"></i>
+                                Assessment Number will be automatically generated when created.
+                                Format: ASMT-[TYPE]-[SEQUENCE]
+                            </small>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-secondary" @onclick="CancelCreate">Cancel</button>
+                            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                                @if (isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                    <span>Creating...</span>
+                                }
+                                else
+                                {
+                                    <span>Create Assessment</span>
+                                }
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private AssessmentCreateDto newAssessment = new();
+    private bool isSubmitting = false;
+    private string? errorMessage;
+
+    private async Task HandleCreateAssessment()
+    {
+        if (newAssessment == null || string.IsNullOrWhiteSpace(newAssessment.Name))
+        {
+            errorMessage = "Assessment name is required";
+            return;
+        }
+
+        isSubmitting = true;
+        errorMessage = null;
+
+        try
+        {
+            // TODO: Call service to create assessment
+            // await AssessmentService.CreateAsync(newAssessment);
+
+            await Task.Delay(1000); // Simulate API call
+            NavManager.NavigateTo("/assessments");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error creating assessment: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void CancelCreate()
+    {
+        NavManager.NavigateTo("/assessments");
+    }
+}

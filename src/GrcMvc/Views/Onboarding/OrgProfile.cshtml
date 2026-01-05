@@ -1,0 +1,219 @@
+@model OrganizationProfileDto
+
+@{
+    ViewData["Title"] = "GRC System - Organization Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4 mb-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Progress Indicator -->
+            <div class="card mb-4 border-0 bg-light">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Onboarding Progress</h5>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 50%;" aria-valuenow="50"
+                            aria-valuemin="0" aria-valuemax="100">
+                            Step 2: Organization Profile
+                        </div>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        Step 1: Registration ✓ → Step 2: Organization Profile → Step 3: Review Scope → Step 4: Create
+                        Plan
+                    </small>
+                </div>
+            </div>
+
+            <!-- Organization Profile Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-building"></i> Organization Profile
+                    </h4>
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-action="SaveOrgProfile" asp-controller="Onboarding" method="post" id="profileForm"
+                        novalidate>
+                        <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+                        <input type="hidden" asp-for="TenantId" />
+
+                        <!-- Basic Information -->
+                        <h5 class="mb-3 text-primary border-bottom pb-2">
+                            <i class="fas fa-info-circle"></i> Basic Information
+                        </h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="OrganizationType" class="form-label">
+                                    <span class="text-danger">*</span> Organization Type
+                                </label>
+                                <select asp-for="OrganizationType" class="form-select">
+                                    <option value="">-- Select Type --</option>
+                                    <option value="Government">Government Agency</option>
+                                    <option value="Banking">Banking & Financial Services</option>
+                                    <option value="Insurance">Insurance</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Telecom">Telecommunications</option>
+                                    <option value="Energy">Energy & Utilities</option>
+                                    <option value="Technology">Technology / Software</option>
+                                    <option value="Manufacturing">Manufacturing</option>
+                                    <option value="Retail">Retail & E-Commerce</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <span asp-validation-for="OrganizationType" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Sector" class="form-label">
+                                    <span class="text-danger">*</span> Sector
+                                </label>
+                                <input asp-for="Sector" class="form-control"
+                                    placeholder="e.g., Banking, Healthcare, Technology">
+                                <span asp-validation-for="Sector" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- Geographic & Operational -->
+                        <h5 class="mb-3 mt-4 text-primary border-bottom pb-2">
+                            <i class="fas fa-globe"></i> Geographic & Operational
+                        </h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Country" class="form-label">
+                                    <span class="text-danger">*</span> Primary Country
+                                </label>
+                                <select asp-for="Country" class="form-select">
+                                    <option value="">-- Select Country --</option>
+                                    <option value="SA">Saudi Arabia</option>
+                                    <option value="AE">United Arab Emirates</option>
+                                    <option value="QA">Qatar</option>
+                                    <option value="KW">Kuwait</option>
+                                    <option value="BH">Bahrain</option>
+                                    <option value="OM">Oman</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <span asp-validation-for="Country" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="HostingModel" class="form-label">
+                                    <span class="text-danger">*</span> Data Hosting Model
+                                </label>
+                                <select asp-for="HostingModel" class="form-select">
+                                    <option value="">-- Select Model --</option>
+                                    <option value="OnPremise">On-Premise (Local Data Centers)</option>
+                                    <option value="Cloud">Cloud (AWS, Azure, GCP)</option>
+                                    <option value="Hybrid">Hybrid (Mix of On-Premise & Cloud)</option>
+                                </select>
+                                <span asp-validation-for="HostingModel" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- Data & Security -->
+                        <h5 class="mb-3 mt-4 text-primary border-bottom pb-2">
+                            <i class="fas fa-shield-alt"></i> Data & Security
+                        </h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DataTypes" class="form-label">
+                                    <span class="text-danger">*</span> Data Types Processed
+                                </label>
+                                <select asp-for="DataTypes" class="form-select" multiple size="4">
+                                    <option value="personal_data">Personal Data (Names, IDs, etc.)</option>
+                                    <option value="financial_data">Financial Data (Banking, Transactions)</option>
+                                    <option value="health_data">Health Data (Medical Records)</option>
+                                    <option value="biometric_data">Biometric Data (Fingerprints, Facial)</option>
+                                    <option value="geolocation_data">Geolocation Data</option>
+                                    <option value="other">Other Sensitive Data</option>
+                                </select>
+                                <span asp-validation-for="DataTypes" class="text-danger small"></span>
+                                <small class="text-muted d-block mt-1">Hold Ctrl/Cmd to select multiple.</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Size" class="form-label">
+                                    <span class="text-danger">*</span> Organization Size
+                                </label>
+                                <select asp-for="Size" class="form-select">
+                                    <option value="">-- Select Size --</option>
+                                    <option value="Startup">Startup (1-50 employees)</option>
+                                    <option value="Small">Small (51-250 employees)</option>
+                                    <option value="Medium">Medium (251-1000 employees)</option>
+                                    <option value="Large">Large (1000+ employees)</option>
+                                </select>
+                                <span asp-validation-for="Size" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- Maturity & Compliance -->
+                        <h5 class="mb-3 mt-4 text-primary border-bottom pb-2">
+                            <i class="fas fa-chart-line"></i> Maturity & Compliance
+                        </h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Maturity" class="form-label">
+                                    <span class="text-danger">*</span> Compliance Maturity Level
+                                </label>
+                                <select asp-for="Maturity" class="form-select">
+                                    <option value="">-- Select Level --</option>
+                                    <option value="Initial">Initial (No formal processes)</option>
+                                    <option value="Repeatable">Repeatable (Some documented processes)</option>
+                                    <option value="Defined">Defined (Documented & standardized)</option>
+                                    <option value="Managed">Managed (Measured & monitored)</option>
+                                    <option value="Optimized">Optimized (Continuous improvement)</option>
+                                </select>
+                                <span asp-validation-for="Maturity" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <span class="text-danger">*</span> Is Critical Infrastructure?
+                                </label>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" id="isCritical"
+                                        name="IsCriticalInfrastructure">
+                                    <label class="form-check-label" for="isCritical">
+                                        Yes, our organization is considered critical infrastructure
+                                    </label>
+                                </div>
+                                <small class="text-muted d-block mt-1">Applies stricter regulatory requirements (NRA,
+                                    MOI).</small>
+                            </div>
+                        </div>
+
+                        <!-- Third-Party Services -->
+                        <h5 class="mb-3 mt-4 text-primary border-bottom pb-2">
+                            <i class="fas fa-handshake"></i> Third-Party Services
+                        </h5>
+
+                        <div class="mb-3">
+                            <label asp-for="Vendors" class="form-label">
+                                Key Third-Party Vendors / Services
+                            </label>
+                            <textarea asp-for="Vendors" class="form-control" rows="3"
+                                placeholder="List major vendors (e.g., AWS, Azure, ServiceNow, Salesforce)"></textarea>
+                            <small class="text-muted d-block mt-1">Comma-separated or one per line.</small>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-grid gap-2 d-sm-flex justify-content-between mt-4">
+                            <a href="@Url.Action("Signup", "Onboarding")" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-arrow-right"></i> Continue to Review Scope
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

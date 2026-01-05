@@ -1,0 +1,334 @@
+using GrcMvc.Models.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
+
+namespace GrcMvc.Data
+{
+    /// <summary>
+    /// Initializes seed data for GRC system:
+    /// - Global rulesets and rules
+    /// - Global baselines, packages, templates
+    /// - Roles and titles
+    /// </summary>
+    public class SeedDataInitializer
+    {
+        private readonly GrcDbContext _context;
+        private readonly ILogger<SeedDataInitializer> _logger;
+
+        public SeedDataInitializer(GrcDbContext context, ILogger<SeedDataInitializer> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
+        public async Task InitializeAsync()
+        {
+            try
+            {
+                _logger.LogInformation("Starting seed data initialization...");
+
+                // Only seed if data doesn't exist
+                if (await _context.Rulesets.AnyAsync())
+                {
+                    _logger.LogInformation("Seed data already exists. Skipping initialization.");
+                    return;
+                }
+
+                // Create default tenant if it doesn't exist
+                await SeedDefaultTenantAsync();
+
+                await SeedRulesetsAndRulesAsync();
+                await SeedGlobalCatalogsAsync();
+                await SeedRolesAndTitlesAsync();
+
+                _logger.LogInformation("Seed data initialization completed successfully.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during seed data initialization");
+                throw;
+            }
+        }
+
+        private async Task SeedDefaultTenantAsync()
+        {
+            _logger.LogInformation("Creating default tenant...");
+
+            if (await _context.Tenants.AnyAsync())
+            {
+                _logger.LogInformation("Tenant already exists. Skipping creation.");
+                return;
+            }
+
+            var defaultTenant = new Tenant
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                TenantSlug = "default",
+                OrganizationName = "Default Organization",
+                AdminEmail = "admin@default.local",
+                Status = "Active",
+                ActivatedAt = DateTime.UtcNow,
+                ActivatedBy = "System",
+                SubscriptionStartDate = DateTime.UtcNow,
+                SubscriptionTier = "Enterprise",
+                CorrelationId = Guid.NewGuid().ToString(),
+                CreatedDate = DateTime.UtcNow,
+                CreatedBy = "System"
+            };
+
+            _context.Tenants.Add(defaultTenant);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("✅ Default tenant created successfully.");
+        }
+
+        private async Task SeedRulesetsAndRulesAsync()
+        {
+            _logger.LogInformation("Seeding rulesets and rules...");
+
+            var defaultTenantId = new Guid("00000000-0000-0000-0000-000000000001");
+
+            // Create KSA General Rules v1
+            var ruleset = new Ruleset
+            {
+                Id = new Guid("10000000-0000-0000-0000-000000000001"),
+                RulesetCode = "RULESET_KSA_GENERAL_V1",
+                Name = "KSA General Compliance Rules",
+                Version = 1,
+                Status = "Active",
+                ActivatedAt = DateTime.UtcNow,
+                ChangeNotes = "Initial KSA compliance ruleset covering SAMA, PDPL, MOI, NRA, other regulators",
+                CreatedDate = DateTime.UtcNow,
+                CreatedBy = "System",
+                TenantId = defaultTenantId
+            };
+
+            _context.Rulesets.Add(ruleset);
+            await _context.SaveChangesAsync();
+
+            // Rule 1: Saudi Arabia Detection
+            var rule1 = new Rule
+            {
+                Id = new Guid("20000000-0000-0000-0000-000000000001"),
+                RulesetId = ruleset.Id,
+                RuleCode = "RULE_COUNTRY_SA",
+                Name = "Saudi Arabia Country Detection",
+                Description = "Detects if organization is located in Saudi Arabia",
+                Priority = 1,
+                BusinessReason = "Primary filter for KSA-specific regulations",
+                ConditionJson = JsonSerializer.Serialize(new
+                {
+                    type = "and",
+                    conditions = new object[]
+                    {
+                        new { field = "country", @operator = "equals", value = "SA" }
+                    }
+                }),
+                ActionsJson = JsonSerializer.Serialize(new object[]
+                {
+                    new { action = "tag", key = "regulated", value = "true" },
+                    new { action = "tag", key = "region", value = "MENA" }
+                }),
+                CreatedDate = DateTime.UtcNow,
+                CreatedBy = "System"
+            };
+
+            // Rule 2: Financial Services Detection
+            var rule2 = new Rule
+            {
+                Id = new Guid("20000000-0000-0000-0000-000000000002"),
+                RulesetId = ruleset.Id,
+                RuleCode = "RULE_SECTOR_FINANCIAL",
+                Name = "Financial Services Sector Detection",
+                Description = "Detects if organization is in financial services",
+                Priority = 2,
+                BusinessReason = "Triggers SAMA regulations",
+                ConditionJson = JsonSerializer.Serialize(new
+                {
+                    type = "and",
+                    conditions = new object[]
+                    {
+                        new { field = "sector", @operator = "in", value = new[] { "Banking", "Insurance", "Investment", "FinTech" } }
+                    }
+                }),
+                ActionsJson = JsonSerializer.Serialize(new object[]
+                {
+                    new { action = "apply_baseline", code = "BL_SAMA" },
+                    new { action = "tag", key = "sama_regulated", value = "true" }
+                }),
+                CreatedDate = DateTime.UtcNow,
+                CreatedBy = "System"
+            };
+
+            // Rule 3: Data Processing Regulations
+            var rule3 = new Rule
+            {
+                Id = new Guid("20000000-0000-0000-0000-000000000003"),
+                RulesetId = ruleset.Id,
+                RuleCode = "RULE_DATA_PROCESSING",
+                Name = "Data Processing Detection",
+                Description = "Detects if organization processes personal data",
+                Priority = 2,
+                BusinessReason = "Triggers PDPL (Personal Data Protection Law)",
+                ConditionJson = JsonSerializer.Serialize(new
+                {
+                    type = "and",
+                    conditions = new object[]
+                    {
+                        new { field = "data_types", @operator = "contains", value = "personal_data" }
+                    }
+                }),
+                ActionsJson = JsonSerializer.Serialize(new object[]
+                {
+                    new { action = "apply_baseline", code = "BL_PDPL" },
+                    new { action = "apply_template", code = "TEMP_DPAI" },
+                    new { action = "tag", key = "pdpl_regulated", value = "true" }
+                }),
+                CreatedDate = DateTime.UtcNow,
+                CreatedBy = "System"
+            };
+
+            // Rule 4: Critical Infrastructure
+            var rule4 = new Rule
+            {
+                Id = new Guid("20000000-0000-0000-0000-000000000004"),
+                RulesetId = ruleset.Id,
+                RuleCode = "RULE_CRITICAL_INFRA",
+                Name = "Critical Infrastructure Detection",
+                Description = "Detects if organization is critical infrastructure",
+                Priority = 3,
+                BusinessReason = "Triggers NRA and MOI regulations",
+                ConditionJson = JsonSerializer.Serialize(new
+                {
+                    type = "or",
+                    conditions = new object[]
+                    {
+                        new { field = "sector", @operator = "in", value = new[] { "Energy", "Telecom", "Healthcare", "Water", "Government" } },
+                        new { field = "is_critical_infrastructure", @operator = "equals", value = true }
+                    }
+                }),
+                ActionsJson = JsonSerializer.Serialize(new object[]
+                {
+                    new { action = "apply_baseline", code = "BL_NRA" },
+                    new { action = "apply_baseline", code = "BL_MOI" },
+                    new { action = "apply_package", code = "PKG_INCIDENT_RESPONSE" },
+                    new { action = "tag", key = "critical_infra", value = "true" }
+                }),
+                CreatedDate = DateTime.UtcNow,
+                CreatedBy = "System"
+            };
+
+            // Rule 5: Cloud Hosting Model
+            var rule5 = new Rule
+            {
+                Id = new Guid("20000000-0000-0000-0000-000000000005"),
+                RulesetId = ruleset.Id,
+                RuleCode = "RULE_CLOUD_HOSTING",
+                Name = "Cloud Hosting Model Detection",
+                Description = "Detects if organization uses cloud infrastructure",
+                Priority = 2,
+                BusinessReason = "Triggers data residency and cross-border requirements",
+                ConditionJson = JsonSerializer.Serialize(new
+                {
+                    type = "and",
+                    conditions = new object[]
+                    {
+                        new { field = "hosting_model", @operator = "in", value = new[] { "Cloud", "Hybrid" } }
+                    }
+                }),
+                ActionsJson = JsonSerializer.Serialize(new object[]
+                {
+                    new { action = "apply_template", code = "TEMP_DATA_RESIDENCY" },
+                    new { action = "apply_package", code = "PKG_CLOUD_SECURITY" }
+                }),
+                CreatedDate = DateTime.UtcNow,
+                CreatedBy = "System"
+            };
+
+            _context.Rules.AddRange(rule1, rule2, rule3, rule4, rule5);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Seeded 1 ruleset with 5 rules");
+        }
+
+        private async Task SeedGlobalCatalogsAsync()
+        {
+            _logger.LogInformation("Seeding global baselines, packages, and templates...");
+
+            // Note: These are global catalog items (not tenant-specific)
+            // For now, we store as placeholder data
+            // In production, these would be loaded from a separate catalog service
+
+            var catalogData = new
+            {
+                baselines = new[]
+                {
+                    new { code = "BL_SAMA", name = "Saudi Arabian Monetary Authority", controls_count = 45 },
+                    new { code = "BL_PDPL", name = "Personal Data Protection Law", controls_count = 38 },
+                    new { code = "BL_NRA", name = "National Cybersecurity Authority", controls_count = 52 },
+                    new { code = "BL_MOI", name = "Ministry of Interior Requirements", controls_count = 30 },
+                    new { code = "BL_CMA", name = "Capital Market Authority", controls_count = 28 },
+                    new { code = "BL_GAZT", name = "General Authority for Zakat and Tax", controls_count = 25 }
+                },
+                packages = new[]
+                {
+                    new { code = "PKG_INCIDENT_RESPONSE", name = "Incident Response & Recovery", controls_count = 15 },
+                    new { code = "PKG_CLOUD_SECURITY", name = "Cloud Infrastructure Security", controls_count = 20 },
+                    new { code = "PKG_VENDOR_MANAGEMENT", name = "Third-Party Risk Management", controls_count = 12 },
+                    new { code = "PKG_ACCESS_CONTROL", name = "Identity & Access Management", controls_count = 18 }
+                },
+                templates = new[]
+                {
+                    new { code = "TEMP_DPAI", name = "Data Protection Impact Assessment", sections = 8 },
+                    new { code = "TEMP_DATA_RESIDENCY", name = "Data Residency & Localization", sections = 5 },
+                    new { code = "TEMP_VENDOR_ASSESSMENT", name = "Vendor Security Assessment", sections = 6 },
+                    new { code = "TEMP_INCIDENT_PLAN", name = "Incident Response Plan", sections = 7 }
+                }
+            };
+
+            // Store as JSON for reference (actual catalog data would be managed separately)
+            _logger.LogInformation($"Catalog definitions: {JsonSerializer.Serialize(catalogData)}");
+
+            await Task.CompletedTask;
+        }
+
+        private async Task SeedRolesAndTitlesAsync()
+        {
+            _logger.LogInformation("Seeding roles and titles...");
+
+            // These would typically be stored in a separate Roles/Titles table
+            // For now, document the expected role codes
+            var roles = new[]
+            {
+                new { code = "ROLE_TENANT_ADMIN", name = "Tenant Administrator", permissions = "full" },
+                new { code = "ROLE_COMPLIANCE_OFFICER", name = "Compliance Officer", permissions = "manage_compliance" },
+                new { code = "ROLE_AUDITOR", name = "Internal Auditor", permissions = "audit_and_report" },
+                new { code = "ROLE_CONTROL_OWNER", name = "Control Owner", permissions = "manage_controls" },
+                new { code = "ROLE_APPROVER", name = "Evidence Approver", permissions = "approve_evidence" },
+                new { code = "ROLE_VIEWER", name = "Viewer", permissions = "read_only" }
+            };
+
+            var titles = new[]
+            {
+                new { code = "TITLE_CEO", name = "Chief Executive Officer" },
+                new { code = "TITLE_CTO", name = "Chief Technology Officer" },
+                new { code = "TITLE_CISO", name = "Chief Information Security Officer" },
+                new { code = "TITLE_CFO", name = "Chief Financial Officer" },
+                new { code = "TITLE_COMPLIANCE_MGR", name = "Compliance Manager" },
+                new { code = "TITLE_SECURITY_LEAD", name = "Security Team Lead" },
+                new { code = "TITLE_AUDIT_MGR", name = "Audit Manager" },
+                new { code = "TITLE_LEGAL_COUNSEL", name = "Legal Counsel" }
+            };
+
+            _logger.LogInformation($"Roles defined: {string.Join(", ", roles.Select(r => r.code))}");
+            _logger.LogInformation($"Titles defined: {string.Join(", ", titles.Select(t => t.code))}");
+
+            await Task.CompletedTask;
+        }
+    }
+}

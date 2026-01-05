@@ -1,0 +1,217 @@
+@page "/assessments/{AssessmentId:guid}/edit"
+@using GrcMvc.Models.Dtos
+@using GrcMvc.Services.Interfaces
+@inject IWorkflowEngineService WorkflowService
+@inject NavigationManager NavManager
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">Edit Assessment</h1>
+        </div>
+    </div>
+
+    @if (assessment == null)
+    {
+        <div class="alert alert-warning">Assessment not found</div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <form @onsubmit="HandleSaveAssessment">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Assessment Name *</label>
+                        <input type="text" class="form-control" id="name" @bind="assessment.Name" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" rows="4" @bind="assessment.Description"></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="type" class="form-label">Type *</label>
+                                <select class="form-select" id="type" @bind="assessment.Type" required>
+                                    <option value="Risk">Risk Assessment</option>
+                                    <option value="Control">Control Assessment</option>
+                                    <option value="Compliance">Compliance Assessment</option>
+                                    <option value="Security">Security Assessment</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Status *</label>
+                                <select class="form-select" id="status" @bind="assessment.Status" required>
+                                    <option value="Planned">Planned</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Completed">Completed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="assignedTo" class="form-label">Assigned To *</label>
+                                <input type="text" class="form-control" id="assignedTo" @bind="assessment.AssignedTo"
+                                    required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="reviewedBy" class="form-label">Reviewed By</label>
+                                <input type="text" class="form-control" id="reviewedBy" @bind="assessment.ReviewedBy" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="startDate" class="form-label">Start Date *</label>
+                                <input type="date" class="form-control" id="startDate" @bind="assessment.StartDate"
+                                    required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="endDate" class="form-label">End Date</label>
+                                <input type="date" class="form-control" id="endDate" @bind="assessment.EndDate" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="score" class="form-label">Score (0-100)</label>
+                                <input type="number" class="form-control" id="score" @bind="assessment.Score" min="0"
+                                    max="100" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="findings" class="form-label">Findings</label>
+                        <textarea class="form-control" id="findings" rows="3" @bind="assessment.Findings"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="recommendations" class="form-label">Recommendations</label>
+                        <textarea class="form-control" id="recommendations" rows="3"
+                        @bind="assessment.Recommendations"></textarea>
+                    </div>
+
+                    <div class="alert alert-light">
+                        <h6>Assessment Information</h6>
+                        <p class="mb-1">
+                            <strong>Assessment Number:</strong>
+                            <span class="font-monospace">@assessment.AssessmentNumber</span>
+                            (Auto-generated)
+                        </p>
+                        <p class="mb-0">
+                            <strong>Created:</strong> @assessment.CreatedDate.ToString("MMM dd, yyyy hh:mm tt")
+                        </p>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                            @if (isSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <span>Saving...</span>
+                            }
+                            else
+                            {
+                                <span>Save Changes</span>
+                            }
+                        </button>
+                        <button type="button" class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger mt-3">@errorMessage</div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="alert alert-success mt-3">@successMessage</div>
+                    }
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Guid AssessmentId { get; set; }
+
+    private AssessmentEditDto? assessment;
+    private bool isSubmitting = false;
+    private string errorMessage = string.Empty;
+    private string successMessage = string.Empty;
+
+    protected override Task OnInitializedAsync()
+    {
+        // TODO: Load from service using AssessmentId
+        // For now, demo data
+        assessment = new AssessmentEditDto
+        {
+            Id = AssessmentId,
+            AssessmentNumber = "ASMT-SEC-001",
+            Name = "Security Assessment Q1 2024",
+            Description = "Comprehensive security assessment",
+            Type = "Risk",
+            Status = "In Progress",
+            AssignedTo = "Ahmed Al-Mansouri",
+            ReviewedBy = "Sarah Johnson",
+            StartDate = DateTime.Now.AddDays(-5),
+            EndDate = null,
+            Score = 75,
+            Findings = "Initial findings: 3 medium severity issues identified",
+            Recommendations = "Implement security patch management process",
+            CreatedDate = DateTime.Now.AddDays(-10)
+        };
+        return Task.CompletedTask;
+    }
+
+    private async Task HandleSaveAssessment()
+    {
+        if (assessment == null || string.IsNullOrWhiteSpace(assessment.Name))
+        {
+            errorMessage = "Assessment name is required";
+            return;
+        }
+
+        isSubmitting = true;
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+
+        try
+        {
+            // TODO: Call service to update assessment
+            // await AssessmentService.UpdateAsync(assessment);
+
+            await Task.Delay(1000); // Simulate API call
+            successMessage = "Assessment saved successfully!";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error saving assessment: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void CancelEdit()
+    {
+        NavManager.NavigateTo("/assessments");
+    }
+}

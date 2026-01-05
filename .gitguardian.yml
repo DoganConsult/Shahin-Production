@@ -1,0 +1,38 @@
+# GitGuardian configuration for GRC System
+version: 2
+
+# Paths to scan
+paths-ignore:
+  - '**/bin/**'
+  - '**/obj/**'
+  - '**/packages/**'
+  - '**/node_modules/**'
+  - '**/*.dll'
+  - '**/*.exe'
+  - '**/*.pdb'
+  - '**/Migrations/**/*.cs'  # Migration files may contain test data
+
+# Secret patterns to detect
+secrets:
+  enabled: true
+  # Custom patterns can be added here
+
+# API keys
+api-keys:
+  enabled: true
+
+# Database connection strings
+database-uris:
+  enabled: true
+
+# Cloud provider credentials
+cloud-provider-credentials:
+  enabled: true
+
+# JWT tokens
+jwt-tokens:
+  enabled: true
+
+# Report settings
+show-secrets: false
+exit-zero: false

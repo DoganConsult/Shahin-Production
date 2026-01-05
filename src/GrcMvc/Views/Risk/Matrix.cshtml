@@ -1,0 +1,221 @@
+@model IEnumerable<GrcMvc.Models.DTOs.RiskDto>
+@{
+    ViewData["Title"] = "Risk Matrix";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-grid-3x3"></i> Risk Matrix</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Risk
+            </a>
+        </div>
+    </div>
+
+    <!-- Risk Heatmap -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0 text-center">Risk Heatmap (Probability vs Impact)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered text-center risk-matrix" style="height: 400px;">
+                            <thead>
+                                <tr>
+                                    <th rowspan="6" class="align-middle" style="width: 50px; writing-mode: vertical-rl; transform: rotate(180deg);">Probability</th>
+                                    <th class="border-0"></th>
+                                    <th colspan="5">Impact</th>
+                                </tr>
+                                <tr>
+                                    <th class="border-0"></th>
+                                    <th class="bg-light">1 - Negligible</th>
+                                    <th class="bg-light">2 - Minor</th>
+                                    <th class="bg-light">3 - Moderate</th>
+                                    <th class="bg-light">4 - Major</th>
+                                    <th class="bg-light">5 - Critical</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int p = 5; p >= 1; p--)
+                                {
+                                    <tr>
+                                        <th class="bg-light align-middle">@GetProbabilityLabel(p)</th>
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            var count = Model.Count(r => r.Probability == p && r.Impact == i);
+                                            var cellClass = GetRiskCellClass(p * i);
+                                            <td class="@cellClass align-middle position-relative p-0">
+                                                @if (count > 0)
+                                                {
+                                                    <a href="#" class="d-block w-100 h-100 text-decoration-none text-dark p-3 fw-bold"
+                                                       data-bs-toggle="modal" data-bs-target="#riskModal-@p-@i">
+                                                        @count
+                                                    </a>
+
+                                                    <!-- Modal for cell details -->
+                                                    <div class="modal fade" id="riskModal-@p-@i" tabindex="-1">
+                                                        <div class="modal-dialog modal-lg">
+                                                            <div class="modal-content text-start">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">Risks: Probability @p, Impact @i</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <div class="table-responsive">
+                                                                        <table class="table table-sm table-hover">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>Name</th>
+                                                                                    <th>Category</th>
+                                                                                    <th>Score</th>
+                                                                                    <th>Owner</th>
+                                                                                    <th>Action</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                @foreach (var risk in Model.Where(r => r.Probability == p && r.Impact == i))
+                                                                                {
+                                                                                    <tr>
+                                                                                        <td>@risk.Name</td>
+                                                                                        <td>@risk.Category</td>
+                                                                                        <td>
+                                                                                            <span class="badge @GetRiskBadgeClass(risk.InherentRisk)">@risk.InherentRisk</span>
+                                                                                        </td>
+                                                                                        <td>@risk.Owner</td>
+                                                                                        <td>
+                                                                                            <a asp-action="Details" asp-route-id="@risk.Id" class="btn btn-sm btn-outline-primary">View</a>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                }
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted opacity-25">-</span>
+                                                }
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Risk Levels</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>High (15-25)</span>
+                        <span class="badge bg-danger rounded-pill">@Model.Count(r => r.InherentRisk >= 15)</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Medium (8-14)</span>
+                        <span class="badge bg-warning rounded-pill">@Model.Count(r => r.InherentRisk >= 8 && r.InherentRisk < 15)</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Low (1-7)</span>
+                        <span class="badge bg-success rounded-pill">@Model.Count(r => r.InherentRisk < 8)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Top Categories</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var group in Model.GroupBy(r => r.Category).OrderByDescending(g => g.Count()).Take(5))
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @group.Key
+                                <span class="badge bg-primary rounded-pill">@group.Count()</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Top Risks by Score</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        @foreach (var risk in Model.OrderByDescending(r => r.InherentRisk).Take(5))
+                        {
+                            <a asp-action="Details" asp-route-id="@risk.Id" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1 text-truncate" style="max-width: 200px;">@risk.Name</h6>
+                                    <span class="badge @GetRiskBadgeClass(risk.InherentRisk)">@risk.InherentRisk</span>
+                                </div>
+                                <small class="text-muted">@risk.Category</small>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetProbabilityLabel(int p)
+    {
+        return p switch
+        {
+            5 => "5 - Frequent",
+            4 => "4 - Likely",
+            3 => "3 - Possible",
+            2 => "2 - Unlikely",
+            1 => "1 - Rare",
+            _ => p.ToString()
+        };
+    }
+
+    private string GetRiskCellClass(int score)
+    {
+        return score switch
+        {
+            >= 15 => "bg-danger bg-opacity-25",
+            >= 8 => "bg-warning bg-opacity-25",
+            _ => "bg-success bg-opacity-25"
+        };
+    }
+
+    private string GetRiskBadgeClass(int score)
+    {
+        return score switch
+        {
+            >= 15 => "bg-danger",
+            >= 8 => "bg-warning",
+            _ => "bg-success"
+        };
+    }
+}

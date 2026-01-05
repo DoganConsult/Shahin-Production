@@ -1,0 +1,220 @@
+@page "/inbox"
+@using GrcMvc.Data
+@using GrcMvc.Models.Entities
+@using GrcMvc.Models.Dtos
+@using Microsoft.EntityFrameworkCore
+@inject GrcDbContext DbContext
+@inject NavigationManager Navigation
+
+<PageTitle>Inbox</PageTitle>
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3"><i class="bi bi-inbox me-2"></i>My Inbox</h1>
+            <small class="text-muted">@(tasks?.Count ?? 0) pending tasks</small>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">@totalTasks</h4>
+                            <small>Total Tasks</small>
+                        </div>
+                        <i class="bi bi-list-task fs-2 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">@pendingTasks</h4>
+                            <small>Pending</small>
+                        </div>
+                        <i class="bi bi-hourglass-split fs-2 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">@overdueTasks</h4>
+                            <small>Overdue</small>
+                        </div>
+                        <i class="bi bi-exclamation-triangle fs-2 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">@completedTasks</h4>
+                            <small>Completed</small>
+                        </div>
+                        <i class="bi bi-check-circle fs-2 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <LoadingSpinner IsLoading="@isLoading" Message="Loading tasks..." />
+
+    @if (!isLoading)
+    {
+        @if (tasks == null || tasks.Count == 0)
+        {
+            <div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>No pending tasks. You're all caught up!</div>
+        }
+        else
+        {
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Workflow</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Due Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    @foreach (var task in tasks)
+                    {
+                        <tr class="@(task.IsOverdue ? "table-danger" : "")">
+                            <td>
+                                <strong>@task.Title</strong><br />
+                                <small class="text-muted">@task.Description</small>
+                            </td>
+                            <td><span class="badge bg-secondary">@task.WorkflowName</span></td>
+                            <td>
+                                <span class="badge bg-@GetPriorityBadge(task.Priority)">@task.Priority</span>
+                            </td>
+                            <td>
+                                <StatusBadge Status="@task.Status" />
+                            </td>
+                            <td>
+                                @if (task.DueDate.HasValue)
+                                {
+                                    <span class="@(task.IsOverdue ? "text-danger fw-bold" : "")">
+                                        @task.DueDate.Value.ToString("MMM dd")
+                                        @if (task.IsOverdue)
+                                        {
+                                            <span class="badge bg-danger ms-2">OVERDUE</span>
+                                        }
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>
+                                <a href="/inbox/@task.Id" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-eye me-1"></i>View
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<InboxTaskListItemDto>? tasks;
+    private bool isLoading = true;
+    private int totalTasks = 0;
+    private int pendingTasks = 0;
+    private int overdueTasks = 0;
+    private int completedTasks = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var tenant = await DbContext.Tenants.FirstOrDefaultAsync(t => !t.IsDeleted);
+            var tenantId = tenant?.Id ?? Guid.Empty;
+
+            var dbTasks = await DbContext.WorkflowTasks
+                .Include(t => t.WorkflowInstance)
+                .ThenInclude(i => i.WorkflowDefinition)
+                .Where(t => t.WorkflowInstance.TenantId == tenantId && !t.IsDeleted)
+                .OrderByDescending(t => t.Priority)
+                .ThenBy(t => t.DueDate)
+                .Take(50)
+                .ToListAsync();
+
+            var now = DateTime.UtcNow;
+            tasks = dbTasks.Select(t => new InboxTaskListItemDto
+            {
+                Id = t.Id,
+                Title = t.TaskName,
+                Description = t.Description ?? "",
+                Priority = t.Priority switch { >= 3 => "Critical", 2 => "High", 1 => "Medium", _ => "Low" },
+                Status = t.Status,
+                DueDate = t.DueDate,
+                IsOverdue = t.DueDate.HasValue && t.DueDate < now && t.Status != "Completed",
+                WorkflowName = t.WorkflowInstance?.WorkflowDefinition?.Name ?? "Workflow"
+            }).ToList();
+
+            totalTasks = dbTasks.Count;
+            pendingTasks = dbTasks.Count(t => t.Status == "Pending");
+            overdueTasks = dbTasks.Count(t => t.DueDate < now && t.Status != "Completed" && t.Status != "Cancelled");
+            completedTasks = dbTasks.Count(t => t.Status == "Completed");
+        }
+        catch (Exception)
+        {
+            tasks = new List<InboxTaskListItemDto>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string GetStatusBadge(string status)
+    {
+        return status switch
+        {
+            "Completed" => "success",
+            "In Progress" => "info",
+            "Pending" => "warning",
+            _ => "secondary"
+        };
+    }
+
+    private string GetPriorityBadge(string priority)
+    {
+        return priority switch
+        {
+            "Critical" => "danger",
+            "High" => "warning",
+            "Medium" => "info",
+            "Low" => "secondary",
+            _ => "light"
+        };
+    }
+}

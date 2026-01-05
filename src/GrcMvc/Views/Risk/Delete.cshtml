@@ -1,0 +1,83 @@
+@model GrcMvc.Models.DTOs.RiskDto
+@{
+    ViewData["Title"] = "Delete Risk";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4><i class="bi bi-exclamation-triangle"></i> Delete Risk</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-circle"></i> <strong>Warning!</strong>
+                        Are you sure you want to delete this risk? This action cannot be undone.
+                    </div>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Risk Name:</dt>
+                        <dd class="col-sm-8"><strong>@Model.Name</strong></dd>
+
+                        <dt class="col-sm-4">Category:</dt>
+                        <dd class="col-sm-8">@Model.Category</dd>
+
+                        <dt class="col-sm-4">Status:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @GetStatusBadgeClass(Model.Status)">@Model.Status</span>
+                        </dd>
+
+                        <dt class="col-sm-4">Risk Score:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @GetRiskScoreBadgeClass(Model.InherentRisk)">@Model.InherentRisk</span>
+                        </dd>
+
+                        <dt class="col-sm-4">Owner:</dt>
+                        <dd class="col-sm-8">@Model.Owner</dd>
+
+                        <dt class="col-sm-4">Description:</dt>
+                        <dd class="col-sm-8">@Model.Description</dd>
+                    </dl>
+
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Yes, Delete
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetRiskScoreBadgeClass(int score)
+    {
+        return score switch
+        {
+            >= 15 => "bg-danger",
+            >= 8 => "bg-warning",
+            _ => "bg-success"
+        };
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "active" => "bg-danger",
+            "mitigated" => "bg-warning",
+            "closed" => "bg-success",
+            "monitoring" => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+}

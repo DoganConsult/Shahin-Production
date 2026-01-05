@@ -1,0 +1,278 @@
+@page "/dashboard"
+@using GrcMvc.Models.Dtos
+
+<PageTitle>Dashboard</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-6">GRC Dashboard</h1>
+            <p class="text-muted">System Overview &amp; Key Metrics</p>
+        </div>
+    </div>
+
+    <!-- Summary Cards Row -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <MetricCard Title="Active Workflows"
+                       Value="@metrics.ActiveWorkflows.ToString()"
+                       Subtitle="@($"{metrics.TotalWorkflows} total")"
+                       Color="primary"
+                       Icon="bi-diagram-3" />
+        </div>
+        <div class="col-md-3 mb-3">
+            <MetricCard Title="In Progress Assessments"
+                       Value="@metrics.InProgressAssessments.ToString()"
+                       Subtitle="@($"{metrics.AverageAssessmentScore:F1}% avg score")"
+                       Color="info"
+                       Icon="bi-check2-circle" />
+        </div>
+        <div class="col-md-3 mb-3">
+            <MetricCard Title="Open Audits"
+                       Value="@metrics.OpenAudits.ToString()"
+                       Subtitle="@($"{metrics.TotalAuditFindings} findings")"
+                       Color="warning"
+                       Icon="bi-file-earmark-text" />
+        </div>
+        <div class="col-md-3 mb-3">
+            <MetricCard Title="Critical Risks"
+                       Value="@metrics.CriticalRisks.ToString()"
+                       Subtitle="@($"{metrics.TotalRisks} total")"
+                       Color="danger"
+                       Icon="bi-exclamation-triangle" />
+        </div>
+    </div>
+
+    <!-- Risk & Control Metrics Row -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Risk Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label class="form-label">High Risks</label>
+                                <p class="h4 text-warning">@metrics.HighRisks</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Critical Risks</label>
+                                <p class="h4 text-danger">@metrics.CriticalRisks</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label class="form-label">Avg Residual Score</label>
+                                <p class="h4 text-info">@($"{metrics.AverageResidualScore:F1}")</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Total Risks</label>
+                                <p class="h4">@metrics.TotalRisks</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="/risks" class="btn btn-sm btn-outline-primary">View Risk Register</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Control Effectiveness</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label class="form-label">Total Controls</label>
+                                <p class="h4">@metrics.TotalControls</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Effective Controls</label>
+                                <p class="h4 text-success">@metrics.EffectiveControls</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label class="form-label">Effectiveness Rate</label>
+                                <p class="h4 text-info">@($"{metrics.ControlEffectivenessPct:F1}%")</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Inefficient Controls</label>
+                                <p class="h4 text-warning">@metrics.InefficientControls</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="/controls" class="btn btn-sm btn-outline-primary">View Controls</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit & Policy Metrics Row -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Audit Summary</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <tbody>
+                            <tr>
+                                <td>Total Audits</td>
+                                <td class="text-end"><strong>@metrics.TotalAudits</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Open Audits</td>
+                                <td class="text-end"><strong>@metrics.OpenAudits</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Completed Audits</td>
+                                <td class="text-end"><strong>@metrics.CompletedAudits</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Total Findings</td>
+                                <td class="text-end"><strong>@metrics.TotalAuditFindings</strong></td>
+                            </tr>
+                            <tr class="table-danger">
+                                <td>Critical Findings</td>
+                                <td class="text-end"><strong>@metrics.CriticalFindings</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <a href="/audits" class="btn btn-sm btn-outline-primary mt-2">View Audits</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Governance Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label small">Pending Approvals</label>
+                            <p class="h5 text-info">@metrics.PendingApprovals</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small">Approved Today</label>
+                            <p class="h5 text-success">@metrics.ApprovedToday</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label small">Total Policies</label>
+                            <p class="h5">@metrics.TotalPolicies</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small">Policy Violations</label>
+                            <p class="h5 text-danger">@metrics.PolicyViolations</p>
+                        </div>
+                    </div>
+                    <a href="/approvals" class="btn btn-sm btn-outline-primary">View Approvals</a>
+                    <a href="/policies" class="btn btn-sm btn-outline-primary">View Policies</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Row -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group flex-wrap" role="group">
+                        <a href="/workflows/create" class="btn btn-primary">
+                            <span class="me-2">+</span>New Workflow
+                        </a>
+                        <a href="/assessments/create" class="btn btn-primary">
+                            <span class="me-2">+</span>Create Assessment
+                        </a>
+                        <a href="/audits/create" class="btn btn-primary">
+                            <span class="me-2">+</span>Schedule Audit
+                        </a>
+                        <a href="/risks/create" class="btn btn-primary">
+                            <span class="me-2">+</span>Register Risk
+                        </a>
+                        <a href="/controls/create" class="btn btn-primary">
+                            <span class="me-2">+</span>Create Control
+                        </a>
+                        <a href="/evidence" class="btn btn-primary">
+                            <span class="me-2">⬆</span>Upload Evidence
+                        </a>
+                        <a href="/reports" class="btn btn-outline-secondary">
+                            <span class="me-2">📊</span>Generate Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Status -->
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <strong>Last Updated:</strong> @metrics.LastUpdated.ToString("MMM dd, yyyy hh:mm tt")
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private DashboardMetricsDto metrics = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load dashboard metrics from demo data
+        // Note: Services can be injected to load real metrics from database when needed
+        // Example: @inject IWorkflowEngineService WorkflowService;
+        // Then call: var workflows = await WorkflowService.GetUserWorkflowsAsync(...);
+
+        metrics = new DashboardMetricsDto
+        {
+            TotalWorkflows = 12,
+            ActiveWorkflows = 5,
+            CompletedWorkflows = 7,
+            OverdueWorkflows = 1,
+
+            TotalAssessments = 8,
+            InProgressAssessments = 3,
+            CompletedAssessments = 5,
+            AverageAssessmentScore = 78.5m,
+
+            TotalAudits = 6,
+            OpenAudits = 2,
+            CompletedAudits = 4,
+            TotalAuditFindings = 18,
+            CriticalFindings = 3,
+
+            TotalRisks = 25,
+            HighRisks = 7,
+            CriticalRisks = 2,
+            AverageResidualScore = 12.4m,
+
+            TotalControls = 45,
+            EffectiveControls = 38,
+            InefficientControls = 3,
+            ControlEffectivenessPct = 84.4m,
+
+            PendingApprovals = 4,
+            ApprovedToday = 8,
+
+            TotalPolicies = 10,
+            PolicyViolations = 7,
+
+            LastUpdated = DateTime.Now
+        };
+
+        await Task.CompletedTask;
+    }
+}

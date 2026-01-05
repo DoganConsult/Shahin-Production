@@ -1,0 +1,306 @@
+@model GrcMvc.Models.DTOs.RiskDto
+@{
+    ViewData["Title"] = "Risk Details";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="bi bi-exclamation-triangle"></i> Risk Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Risk ID:</strong></div>
+                        <div class="col-md-9">@Model.Id</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Name:</strong></div>
+                        <div class="col-md-9">@Model.Name</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Description:</strong></div>
+                        <div class="col-md-9">@Model.Description</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Category:</strong></div>
+                        <div class="col-md-9">
+                            <span class="badge bg-info">@Model.Category</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Status:</strong></div>
+                        <div class="col-md-9">
+                            <span class="badge @GetStatusBadgeClass(Model.Status)">@Model.Status</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Probability:</strong></div>
+                        <div class="col-md-9">
+                            <span class="badge @GetProbabilityBadgeClass(Model.Probability)">
+                                @Model.Probability - @GetProbabilityText(Model.Probability)
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Impact:</strong></div>
+                        <div class="col-md-9">
+                            <span class="badge @GetImpactBadgeClass(Model.Impact)">
+                                @Model.Impact - @GetImpactText(Model.Impact)
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Inherent Risk Score:</strong></div>
+                        <div class="col-md-9">
+                            <span class="badge @GetRiskScoreBadgeClass(Model.InherentRisk) fs-6">
+                                @Model.InherentRisk
+                            </span>
+                            <span class="ms-2">@GetRiskLevel(Model.InherentRisk)</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Residual Risk Score:</strong></div>
+                        <div class="col-md-9">
+                            <span class="badge @GetRiskScoreBadgeClass(Model.ResidualRisk) fs-6">
+                                @Model.ResidualRisk
+                            </span>
+                            <span class="ms-2">@GetRiskLevel(Model.ResidualRisk)</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Mitigation Strategy:</strong></div>
+                        <div class="col-md-9">@Model.MitigationStrategy</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Risk Owner:</strong></div>
+                        <div class="col-md-9">@Model.Owner</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Due Date:</strong></div>
+                        <div class="col-md-9">
+                            @if (Model.DueDate.HasValue)
+                            {
+                                @Model.DueDate.Value.ToString("MMMM dd, yyyy")
+                                @if (Model.DueDate.Value < DateTime.Now)
+                                {
+                                    <span class="badge bg-danger ms-2">Overdue</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">Not set</span>
+                            }
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="row mb-3">
+                        <div class="col-md-3"><strong>Created Date:</strong></div>
+                        <div class="col-md-9">@Model.CreatedDate.ToString("MMMM dd, yyyy HH:mm")</div>
+                    </div>
+
+                    @if (Model.ModifiedDate.HasValue)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-md-3"><strong>Last Modified:</strong></div>
+                            <div class="col-md-9">@Model.ModifiedDate.Value.ToString("MMMM dd, yyyy HH:mm")</div>
+                        </div>
+                    }
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Delete
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Risk Matrix Visualization -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Risk Position</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <canvas id="riskMatrix" width="250" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="#" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-plus"></i> Add Control
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-info">
+                            <i class="bi bi-calendar-event"></i> Schedule Assessment
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-warning">
+                            <i class="bi bi-file-earmark-pdf"></i> Generate Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetProbabilityText(int probability)
+    {
+        return probability switch
+        {
+            1 => "Very Low",
+            2 => "Low",
+            3 => "Medium",
+            4 => "High",
+            5 => "Very High",
+            _ => "Unknown"
+        };
+    }
+
+    private string GetImpactText(int impact)
+    {
+        return impact switch
+        {
+            1 => "Negligible",
+            2 => "Minor",
+            3 => "Moderate",
+            4 => "Major",
+            5 => "Catastrophic",
+            _ => "Unknown"
+        };
+    }
+
+    private string GetRiskLevel(int score)
+    {
+        return score switch
+        {
+            >= 20 => "Critical Risk",
+            >= 15 => "High Risk",
+            >= 8 => "Medium Risk",
+            >= 4 => "Low Risk",
+            _ => "Very Low Risk"
+        };
+    }
+
+    private string GetProbabilityBadgeClass(int probability)
+    {
+        return probability switch
+        {
+            >= 4 => "bg-danger",
+            3 => "bg-warning",
+            2 => "bg-info",
+            _ => "bg-success"
+        };
+    }
+
+    private string GetImpactBadgeClass(int impact)
+    {
+        return impact switch
+        {
+            >= 4 => "bg-danger",
+            3 => "bg-warning",
+            2 => "bg-info",
+            _ => "bg-success"
+        };
+    }
+
+    private string GetRiskScoreBadgeClass(int score)
+    {
+        return score switch
+        {
+            >= 15 => "bg-danger",
+            >= 8 => "bg-warning",
+            _ => "bg-success"
+        };
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "active" => "bg-danger",
+            "mitigated" => "bg-warning",
+            "closed" => "bg-success",
+            "monitoring" => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+}
+
+@section Scripts {
+    <script>
+        // Draw simple risk matrix
+        $(document).ready(function() {
+            var canvas = document.getElementById('riskMatrix');
+            var ctx = canvas.getContext('2d');
+
+            // Draw grid
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+
+            for (var i = 0; i <= 5; i++) {
+                // Horizontal lines
+                ctx.beginPath();
+                ctx.moveTo(0, i * 50);
+                ctx.lineTo(250, i * 50);
+                ctx.stroke();
+
+                // Vertical lines
+                ctx.beginPath();
+                ctx.moveTo(i * 50, 0);
+                ctx.lineTo(i * 50, 250);
+                ctx.stroke();
+            }
+
+            // Mark risk position
+            var probability = @Model.Probability;
+            var impact = @Model.Impact;
+            var x = probability * 50 - 25;
+            var y = 250 - (impact * 50 - 25);
+
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(x, y, 8, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Add labels
+            ctx.font = '10px Arial';
+            ctx.fillStyle = 'black';
+            ctx.fillText('Probability →', 190, 245);
+            ctx.save();
+            ctx.rotate(-Math.PI/2);
+            ctx.fillText('Impact →', -60, 10);
+            ctx.restore();
+        });
+    </script>
+}

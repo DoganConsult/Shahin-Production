@@ -1,0 +1,238 @@
+@page "/risks"
+@using GrcMvc.Models.Dtos
+
+<PageTitle>Risk Register</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6">Risk Register</h1>
+            <p class="text-muted">Comprehensive risk inventory and tracking</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/risks/create" class="btn btn-primary">
+                <span class="me-2">+</span>Register New Risk
+            </a>
+        </div>
+    </div>
+
+    <LoadingSpinner IsLoading="@isLoading" Message="Loading risks..." />
+
+    <!-- Filtering Options -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="form-label">Filter by Status</label>
+                            <select class="form-select form-select-sm" @onchange="FilterByStatus">
+                                <option value="">All Statuses</option>
+                                <option value="Open">Open</option>
+                                <option value="Mitigated">Mitigated</option>
+                                <option value="Accepted">Accepted</option>
+                                <option value="Closed">Closed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Filter by Rating</label>
+                            <select class="form-select form-select-sm" @onchange="FilterByRating">
+                                <option value="">All Ratings</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Sort By</label>
+                            <select class="form-select form-select-sm" @onchange="ChangeSortOrder">
+                                <option value="date">Date (Newest)</option>
+                                <option value="risk-high">Risk Score (High)</option>
+                                <option value="status">Status</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">&nbsp;</label>
+                            <button class="btn btn-sm btn-outline-secondary w-100" @onclick="ResetFilters">
+                                Reset Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-2">
+            <div class="card text-center border-danger">
+                <div class="card-body">
+                    <h6 class="card-title">Critical Risks</h6>
+                    <p class="display-6 text-danger mb-0">2</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="card text-center border-warning">
+                <div class="card-body">
+                    <h6 class="card-title">High Risks</h6>
+                    <p class="display-6 text-warning mb-0">7</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="card text-center border-info">
+                <div class="card-body">
+                    <h6 class="card-title">Medium Risks</h6>
+                    <p class="display-6 text-info mb-0">12</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="card text-center border-success">
+                <div class="card-body">
+                    <h6 class="card-title">Low Risks</h6>
+                    <p class="display-6 text-success mb-0">4</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Risk Number</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Inherent</th>
+                                <th>Residual</th>
+                                <th>Owner</th>
+                                <th>Identified</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var risk in risks)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-secondary">@risk.RiskNumber</span>
+                                    </td>
+                                    <td>
+                                        <strong>@risk.Title</strong>
+                                        <br />
+                                        <small class="text-muted">@risk.Category</small>
+                                    </td>
+                                    <td>@risk.Category</td>
+                                    <td>
+                                        <StatusBadge Status="@risk.Status" />
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">@risk.InherentScore</span>
+                                    </td>
+                                    <td>
+                                        @if (risk.ResidualRating == "Critical")
+                                        {
+                                            <span class="badge bg-danger">@risk.ResidualScore (Critical)</span>
+                                        }
+                                        else if (risk.ResidualRating == "High")
+                                        {
+                                            <span class="badge bg-warning">@risk.ResidualScore (High)</span>
+                                        }
+                                        else if (risk.ResidualRating == "Medium")
+                                        {
+                                            <span class="badge bg-info">@risk.ResidualScore (Medium)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">@risk.ResidualScore (Low)</span>
+                                        }
+                                    </td>
+                                    <td>@risk.ResponsibleParty</td>
+                                    <td>@risk.IdentifiedDate.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        <a href="/risks/@risk.Id/edit" class="btn btn-sm btn-outline-primary">Edit</a>
+                                        <a href="/risks/@risk.Id" class="btn btn-sm btn-outline-secondary">View</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<RiskListItemDto> risks = new();
+    private bool isLoading = true;
+    private string selectedStatus = "";
+    private string selectedRating = "";
+    private string sortOrder = "date";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // TODO: Load from service
+        // var riskService = GetService<IRiskService>();
+        // risks = (await riskService.GetAllAsync()).ToList();
+
+        // Demo data
+        risks = new List<RiskListItemDto>
+{
+new() { Id = Guid.NewGuid(), RiskNumber = "RISK-001", Title = "Data Breach - Customer PII", Category = "Compliance",
+Status = "Open", InherentScore = 24, ResidualScore = 18, ResidualRating = "Critical", ResponsibleParty = "Security Team", IdentifiedDate = DateTime.Now.AddMonths(-2), MitigationCount = 3 },
+new() { Id = Guid.NewGuid(), RiskNumber = "RISK-002", Title = "System Downtime - Critical Systems", Category =
+"Operational", Status = "Open", InherentScore = 22, ResidualScore = 15, ResidualRating = "High", ResponsibleParty = "IT Operations", IdentifiedDate = DateTime.Now.AddMonths(-3), MitigationCount = 2 },
+new() { Id = Guid.NewGuid(), RiskNumber = "RISK-003", Title = "Regulatory Non-Compliance", Category = "Compliance",
+Status = "Mitigated", InherentScore = 20, ResidualScore = 10, ResidualRating = "Medium", ResponsibleParty = "Compliance Officer", IdentifiedDate = DateTime.Now.AddMonths(-4), MitigationCount = 4 },
+new() { Id = Guid.NewGuid(), RiskNumber = "RISK-004", Title = "Third-party Vendor Risk", Category = "Strategic", Status
+= "Open", InherentScore = 18, ResidualScore = 12, ResidualRating = "Medium", ResponsibleParty = "Procurement",
+IdentifiedDate = DateTime.Now.AddMonths(-1), MitigationCount = 1 },
+new() { Id = Guid.NewGuid(), RiskNumber = "RISK-005", Title = "Key Person Dependency", Category = "Operational", Status
+= "Accepted", InherentScore = 16, ResidualScore = 16, ResidualRating = "High", ResponsibleParty = "HR Manager",
+IdentifiedDate = DateTime.Now.AddMonths(-6), MitigationCount = 0 },
+};
+
+        await Task.CompletedTask;
+        isLoading = false;
+    }
+
+    private void FilterByStatus(ChangeEventArgs e)
+    {
+        selectedStatus = e.Value?.ToString() ?? "";
+        ApplyFilters();
+    }
+
+    private void FilterByRating(ChangeEventArgs e)
+    {
+        selectedRating = e.Value?.ToString() ?? "";
+        ApplyFilters();
+    }
+
+    private void ChangeSortOrder(ChangeEventArgs e)
+    {
+        sortOrder = e.Value?.ToString() ?? "date";
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        // Implement filtering logic here
+    }
+
+    private void ResetFilters()
+    {
+        selectedStatus = "";
+        selectedRating = "";
+        sortOrder = "date";
+    }
+}

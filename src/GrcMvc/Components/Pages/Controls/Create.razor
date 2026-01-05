@@ -1,0 +1,191 @@
+@page "/controls/create"
+@using GrcMvc.Models.Dtos
+@inject NavigationManager NavManager
+
+<PageTitle>Create Control</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6">Create Control</h1>
+            <p class="text-muted">Add a new control to your control library</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/controls" class="btn btn-outline-secondary">Back to Controls</a>
+        </div>
+    </div>
+
+    <LoadingSpinner IsLoading="@isSubmitting" Message="Creating control..." />
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Control Details</h5>
+                </div>
+                <div class="card-body">
+                    @if (!isSubmitting && errorMessage != null)
+                    {
+                        <div class="alert alert-danger">@errorMessage</div>
+                    }
+
+                    <EditForm Model="@newControl" OnValidSubmit="@HandleCreateControl">
+                        <DataAnnotationsValidator />
+
+                        <div class="mb-3">
+                            <label class="form-label">Control Name *</label>
+                            <InputText class="form-control" placeholder="e.g., Firewall - Internet Perimeter"
+                                @bind-Value="newControl.Name" />
+                            <ValidationMessage For="@(() => newControl.Name)" class="text-danger small" />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Type *</label>
+                                <InputSelect class="form-select" @bind-Value="newControl.Type">
+                                    <option value="">-- Select Type --</option>
+                                    <option value="Detective">Detective</option>
+                                    <option value="Preventive">Preventive</option>
+                                    <option value="Corrective">Corrective</option>
+                                </InputSelect>
+                                <ValidationMessage For="@(() => newControl.Type)" class="text-danger small" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Category *</label>
+                                <InputSelect class="form-select" @bind-Value="newControl.Category">
+                                    <option value="">-- Select Category --</option>
+                                    <option value="Administrative">Administrative</option>
+                                    <option value="Technical">Technical</option>
+                                    <option value="Physical">Physical</option>
+                                </InputSelect>
+                                <ValidationMessage For="@(() => newControl.Category)" class="text-danger small" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Testing Frequency *</label>
+                                <InputSelect class="form-select" @bind-Value="newControl.TestingFrequency">
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Quarterly">Quarterly</option>
+                                    <option value="Semi-Annually">Semi-Annually</option>
+                                    <option value="Annually">Annually</option>
+                                </InputSelect>
+                                <ValidationMessage For="@(() => newControl.TestingFrequency)" class="text-danger small" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description *</label>
+                            <InputTextArea class="form-control" rows="4"
+                                placeholder="Describe the control, its purpose, and how it operates..."
+                                @bind-Value="newControl.Description"></InputTextArea>
+                            <ValidationMessage For="@(() => newControl.Description)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Objective *</label>
+                            <InputTextArea class="form-control" rows="3" placeholder="What is the objective of this control?"
+                                @bind-Value="newControl.Objective"></InputTextArea>
+                            <ValidationMessage For="@(() => newControl.Objective)" class="text-danger small" />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Control Owner *</label>
+                                <InputText class="form-control" placeholder="e.g., IT Security Manager"
+                                    @bind-Value="newControl.Owner" />
+                                <ValidationMessage For="@(() => newControl.Owner)" class="text-danger small" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Key Personnel</label>
+                                <InputText class="form-control" placeholder="e.g., John Smith, Jane Doe"
+                                    @bind-Value="newControl.KeyPersonnel" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Effectiveness Score (1-100)</label>
+                            <InputNumber class="form-range" min="1" max="100"
+                                @bind-Value="newControl.EffectivenessScore" />
+                            <small class="form-text text-muted">Current: @newControl.EffectivenessScore%</small>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-outline-secondary"
+                                @onclick="NavigateBack" disabled="@isSubmitting">Cancel</button>
+                            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                                @if (isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"
+                                        aria-hidden="true"></span>
+                                    <span>Creating Control...</span>
+                                }
+                                else
+                                {
+                                    <span>Create Control</span>
+                                }
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card bg-info-subtle">
+                <div class="card-header">
+                    <h6 class="mb-0">💡 Control Tips</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Control Number:</strong> Auto-generated as CTRL-[SEQ]</p>
+                    <hr />
+                    <p><strong>Control Types:</strong></p>
+                    <ul class="small">
+                        <li><strong>Detective:</strong> Identifies control failures</li>
+                        <li><strong>Preventive:</strong> Stops control failures</li>
+                        <li><strong>Corrective:</strong> Remediates control failures</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private ControlCreateDto newControl = new();
+    private bool isSubmitting = false;
+    private string? errorMessage;
+
+    private void NavigateBack() => NavManager.NavigateTo("/controls");
+
+    private async Task HandleCreateControl()
+    {
+        try
+        {
+            isSubmitting = true;
+            errorMessage = null;
+
+            // Validate form
+            if (string.IsNullOrWhiteSpace(newControl.Name))
+            {
+                errorMessage = "Control name is required";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(newControl.Type))
+            {
+                errorMessage = "Control type is required";
+                return;
+            }
+
+            await Task.Delay(800);
+            NavManager.NavigateTo("/controls");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error creating control: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

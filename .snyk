@@ -1,0 +1,26 @@
+# Snyk configuration for GRC System
+version: v1.22.0
+
+# Policy file location
+policy: .snyk
+
+# Exclude patterns (if needed)
+exclude:
+  global:
+    - '**/node_modules/**'
+    - '**/bin/**'
+    - '**/obj/**'
+    - '**/packages/**'
+
+# Patch settings
+patch:
+  enabled: true
+
+# Monitor settings
+monitor:
+  enabled: true
+
+# Test settings
+test:
+  enabled: true
+  severity-threshold: high

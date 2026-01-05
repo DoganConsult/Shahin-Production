@@ -1,0 +1,80 @@
+@page "/admin/roles"
+@using GrcMvc.Models.Dtos
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">Role Management</h1>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add Role
+            </button>
+        </div>
+    </div>
+
+    @if (roles == null || roles.Count == 0)
+    {
+        <div class="alert alert-warning">No roles found</div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var role in roles)
+            {
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h5 class="card-title mb-0">@role.Name</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text text-muted">@role.Description</p>
+                            <div class="mb-3">
+                                <small class="text-muted">Permissions:</small>
+                                <div class="mt-2">
+                                    @if (!string.IsNullOrEmpty(role.Permissions))
+                                    {
+                                        @foreach (var permission in role.Permissions.Split(new[] { ',' },
+                                                                    StringSplitOptions.RemoveEmptyEntries).Take(3))
+                                        {
+                                            <span class="badge bg-secondary me-1">@permission.Trim()</span>
+                                        }
+                                        @if (role.Permissions.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Length >
+                                                                    3)
+                                        {
+                                            <span class="badge bg-light text-dark">+@(role.Permissions.Split(new[] { ',' },
+                                                                                StringSplitOptions.RemoveEmptyEntries).Length - 3) more</span>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                            <small class="text-muted">Users: @role.UserCount</small>
+                        </div>
+                        <div class="card-footer bg-light">
+                            <button class="btn btn-sm btn-outline-primary">Edit</button>
+                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<RoleListItemDto>? roles;
+
+    protected override Task OnInitializedAsync()
+    {
+        // Sample data for demo
+        roles = new List<RoleListItemDto>
+{
+new() { Id = Guid.NewGuid(), Name = "Administrator", Description = "Full system access", Permissions = "View All, Edit All, Delete All, Approve All, Audit", UserCount = 2 },
+new() { Id = Guid.NewGuid(), Name = "Manager", Description = "Department management", Permissions = "View Department, Edit Department, Approve Workflows, Audit Department", UserCount = 5 },
+new() { Id = Guid.NewGuid(), Name = "Compliance Officer", Description = "Compliance oversight", Permissions = "View All, Create Assessments, Run Audits, Generate Reports", UserCount = 3 },
+new() { Id = Guid.NewGuid(), Name = "Auditor", Description = "Audit activities only", Permissions = "View All, Run Audits, Generate Reports", UserCount = 4 },
+new() { Id = Guid.NewGuid(), Name = "Contributor", Description = "Create and submit workflows", Permissions = "Create Workflows, View Own, Submit Tasks", UserCount = 12 }
+};
+        return Task.CompletedTask;
+    }
+}

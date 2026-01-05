@@ -1,0 +1,101 @@
+@model IEnumerable<GrcMvc.Models.DTOs.AuditDto>
+@{
+    ViewData["Title"] = "Audits by Type";
+    Layout = "_Layout";
+    var type = ViewBag.Type as string;
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-filter"></i> @type Audits</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> All Audits
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-search display-1 text-muted"></i>
+                    <h4 class="mt-3 text-muted">No @type audits found.</h4>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover" id="byTypeTable">
+                        <thead>
+                            <tr>
+                                <th>Number</th>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Lead Auditor</th>
+                                <th>Period</th>
+                                <th>Findings</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <a asp-action="Details" asp-route-id="@item.Id">@item.AuditNumber</a>
+                                    </td>
+                                    <td>@item.Name</td>
+                                    <td>
+                                        <span class="badge @GetStatusBadgeClass(item.Status)">
+                                            @item.Status
+                                        </span>
+                                    </td>
+                                    <td>@item.LeadAuditor</td>
+                                    <td>
+                                        <small>
+                                            @item.StartDate.ToShortDateString() - @item.EndDate.ToShortDateString()
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">@item.FindingsCount</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a asp-action="Edit" asp-route-id="@item.Id"
+                                               class="btn btn-outline-primary" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a asp-action="Details" asp-route-id="@item.Id"
+                                               class="btn btn-outline-info" title="Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "completed" => "bg-success",
+            "inprogress" or "in progress" => "bg-primary",
+            "planned" => "bg-info",
+            "delayed" or "overdue" => "bg-danger",
+            "cancelled" => "bg-secondary",
+            _ => "bg-secondary"
+        };
+    }
+}

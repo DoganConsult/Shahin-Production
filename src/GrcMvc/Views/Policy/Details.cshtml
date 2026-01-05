@@ -1,0 +1,165 @@
+@model GrcMvc.Models.DTOs.PolicyDto
+@{
+    ViewData["Title"] = "Policy Details";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-file-text"></i> Policy Details</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">General Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="fw-bold">Title</label>
+                            <p>@Model.Title</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold">Policy Number</label>
+                            <p>@Model.PolicyNumber</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="fw-bold">Type</label>
+                            <p>@Model.Type</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="fw-bold">Category</label>
+                            <p>@Model.Category</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="fw-bold">Status</label>
+                            <p>
+                                <span class="badge @GetStatusBadgeClass(Model.Status)">
+                                    @Model.Status
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Description</label>
+                        <p>@Model.Description</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Policy Content</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="fw-bold">Scope</label>
+                        <p>@Model.Scope</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Requirements</label>
+                        <p>@Model.Requirements</p>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Procedures))
+                    {
+                        <div class="mb-3">
+                            <label class="fw-bold">Procedures</label>
+                            <p>@Model.Procedures</p>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.References))
+                    {
+                        <div class="mb-3">
+                            <label class="fw-bold">References</label>
+                            <p>@Model.References</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Metadata</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-6">Version</dt>
+                        <dd class="col-sm-6">@Model.Version</dd>
+
+                        <dt class="col-sm-6">Effective Date</dt>
+                        <dd class="col-sm-6">@Model.EffectiveDate.ToShortDateString()</dd>
+
+                        <dt class="col-sm-6">Next Review</dt>
+                        <dd class="col-sm-6">@Model.NextReviewDate.ToShortDateString()</dd>
+
+                        <dt class="col-sm-6">Expiration</dt>
+                        <dd class="col-sm-6">@(Model.ExpirationDate?.ToShortDateString() ?? "-")</dd>
+                    </dl>
+                    <hr />
+                    <dl class="row mb-0">
+                        <dt class="col-sm-6">Owner</dt>
+                        <dd class="col-sm-6">@Model.Owner</dd>
+
+                        <dt class="col-sm-6">Approver</dt>
+                        <dd class="col-sm-6">@Model.Approver</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Violations</h5>
+                        <span class="badge bg-secondary">@Model.ViolationsCount</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-action="Violations" asp-route-id="@Model.Id" class="btn btn-outline-danger">
+                            <i class="bi bi-exclamation-octagon"></i> View Violations
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "active" or "published" => "bg-success",
+            "draft" => "bg-secondary",
+            "review" or "in review" => "bg-warning",
+            "archived" or "retired" => "bg-dark",
+            "expired" => "bg-danger",
+            _ => "bg-info"
+        };
+    }
+}

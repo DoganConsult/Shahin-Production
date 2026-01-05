@@ -1,0 +1,20 @@
+@using GrcMvc.Models.Dtos
+
+<span class="badge bg-@GetStatusColor(Status)">@Status</span>
+
+@code {
+    [Parameter]
+    public string Status { get; set; } = "Pending";
+
+    private string GetStatusColor(string status)
+    {
+        return status switch
+        {
+            "Approved" or "Completed" or "Active" => "success",
+            "Rejected" or "Failed" or "Cancelled" => "danger",
+            "Pending" or "In Progress" => "warning",
+            "Delegated" or "On Hold" => "info",
+            _ => "secondary"
+        };
+    }
+}

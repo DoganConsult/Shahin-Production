@@ -1,0 +1,38 @@
+@model GrcMvc.Models.ViewModels.LoginWithRecoveryCodeViewModel
+@{
+    ViewData["Title"] = "Recovery code verification";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="bi bi-shield-lock"></i> Recovery Code Login</h4>
+                </div>
+                <div class="card-body">
+                    <p>
+                        You have requested to log in with a recovery code. This login will not be remembered until you provide
+                        an authenticator app code at login or disable 2FA and log in again.
+                    </p>
+                    <form asp-action="LoginWithRecoveryCode" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="mb-3">
+                            <label asp-for="RecoveryCode" class="form-label"></label>
+                            <input asp-for="RecoveryCode" class="form-control" autocomplete="off" />
+                            <span asp-validation-for="RecoveryCode" class="text-danger"></span>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Log in</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

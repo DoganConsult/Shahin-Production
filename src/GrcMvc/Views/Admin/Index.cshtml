@@ -1,0 +1,266 @@
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject RoleManager<IdentityRole> RoleManager
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1>
+                <i class="bi bi-speedometer2"></i> Admin Dashboard
+            </h1>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-left-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1">Total Users</h6>
+                            <h3 class="mb-0" id="totalUsers">-</h3>
+                        </div>
+                        <i class="bi bi-people text-primary" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-left-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1">Active Subscriptions</h6>
+                            <h3 class="mb-0" id="activeSubscriptions">-</h3>
+                        </div>
+                        <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-left-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1">Pending Payments</h6>
+                            <h3 class="mb-0" id="pendingPayments">-</h3>
+                        </div>
+                        <i class="bi bi-hourglass-split text-warning" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-left-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1">Monthly Revenue</h6>
+                            <h3 class="mb-0" id="monthlyRevenue">-</h3>
+                        </div>
+                        <i class="bi bi-currency-dollar text-info" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Sections -->
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Users Management -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-people"></i> User Management
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Roles</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Loading users...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <a href="@Url.Action("Users", "Admin")" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-circle"></i> Manage All Users
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Subscriptions -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-briefcase"></i> Recent Subscriptions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Plan</th>
+                                    <th>User</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subscriptionsTable">
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">Loading subscriptions...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <a href="@Url.Action("Subscriptions", "Admin")" class="btn btn-sm btn-primary">
+                        <i class="bi bi-list"></i> View All Subscriptions
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning"></i> Quick Actions
+                    </h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="@Url.Action("CreateUser", "Admin")" class="list-group-item list-group-item-action">
+                        <i class="bi bi-person-plus"></i> Create New User
+                    </a>
+                    <a href="@Url.Action("Plans", "Admin")" class="list-group-item list-group-item-action">
+                        <i class="bi bi-briefcase"></i> Manage Plans
+                    </a>
+                    <a href="@Url.Action("Roles", "Admin")" class="list-group-item list-group-item-action">
+                        <i class="bi bi-shield"></i> Manage Roles
+                    </a>
+                    <a href="@Url.Action("Settings", "Admin")" class="list-group-item list-group-item-action">
+                        <i class="bi bi-gear"></i> System Settings
+                    </a>
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-heart-pulse"></i> System Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Database</span>
+                        <span class="badge bg-success">
+                            <i class="bi bi-check-circle"></i> Connected
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Email Service</span>
+                        <span class="badge bg-success">
+                            <i class="bi bi-check-circle"></i> Configured
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>API</span>
+                        <span class="badge bg-success">
+                            <i class="bi bi-check-circle"></i> Running
+                        </span>
+                    </div>
+                    <hr />
+                    <p class="small text-muted mb-0">
+                        Last updated: <span id="statusTime">-</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Help & Support -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0">
+                        <i class="bi bi-question-circle"></i> Help & Support
+                    </h5>
+                </div>
+                <div class="card-body small">
+                    <p class="mb-3">
+                        Need help? Check out our documentation or contact support.
+                    </p>
+                    <a href="https://docs.shahin-ai.com" target="_blank" class="btn btn-sm btn-outline-primary w-100 mb-2">
+                        <i class="bi bi-book"></i> Documentation
+                    </a>
+                    <a href="mailto:support@shahin-ai.com" class="btn btn-sm btn-outline-secondary w-100">
+                        <i class="bi bi-envelope"></i> Contact Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-left-primary {
+        border-left: 4px solid #007bff !important;
+    }
+
+    .border-left-success {
+        border-left: 4px solid #28a745 !important;
+    }
+
+    .border-left-warning {
+        border-left: 4px solid #ffc107 !important;
+    }
+
+    .border-left-info {
+        border-left: 4px solid #17a2b8 !important;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Load dashboard data
+        loadDashboardStats();
+        updateTimestamp();
+        setInterval(loadDashboardStats, 60000); // Refresh every minute
+    });
+
+    function loadDashboardStats() {
+        // This would normally fetch from an API endpoint
+        // For now, showing placeholder data
+        document.getElementById('totalUsers').innerText = '127';
+        document.getElementById('activeSubscriptions').innerText = '89';
+        document.getElementById('pendingPayments').innerText = '12';
+        document.getElementById('monthlyRevenue').innerText = '$28,950';
+    }
+
+    function updateTimestamp() {
+        const now = new Date().toLocaleString();
+        document.getElementById('statusTime').innerText = now;
+    }
+</script>

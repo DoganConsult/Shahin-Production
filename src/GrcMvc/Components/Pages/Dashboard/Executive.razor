@@ -1,0 +1,386 @@
+@page "/dashboard/executive"
+@using GrcMvc.Data
+@using GrcMvc.Models.Entities
+@using Microsoft.EntityFrameworkCore
+@inject GrcDbContext DbContext
+
+<PageTitle>Executive Dashboard</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-6"><i class="bi bi-speedometer2 me-2"></i>Executive Dashboard</h1>
+            <p class="text-muted">High-level compliance overview and key metrics</p>
+        </div>
+    </div>
+
+    <!-- Overall Compliance Score -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-muted">Overall Compliance Score</h5>
+                    <div class="compliance-gauge my-4">
+                        <div class="gauge-circle @GetScoreColorClass(overallScore)">
+                            <span class="gauge-value">@overallScore.ToString("F0")%</span>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-0">Based on @totalRequirements requirements</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Compliance by Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col">
+                            <h3 class="text-success">@compliantCount</h3>
+                            <small class="text-muted">Compliant</small>
+                            <div class="progress mt-2" style="height: 8px;">
+                                <div class="progress-bar bg-success" style="width: @(GetPercentage(compliantCount))%"></div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h3 class="text-warning">@partialCount</h3>
+                            <small class="text-muted">Partial</small>
+                            <div class="progress mt-2" style="height: 8px;">
+                                <div class="progress-bar bg-warning" style="width: @(GetPercentage(partialCount))%"></div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h3 class="text-danger">@nonCompliantCount</h3>
+                            <small class="text-muted">Non-Compliant</small>
+                            <div class="progress mt-2" style="height: 8px;">
+                                <div class="progress-bar bg-danger" style="width: @(GetPercentage(nonCompliantCount))%"></div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h3 class="text-secondary">@notStartedCount</h3>
+                            <small class="text-muted">Not Started</small>
+                            <div class="progress mt-2" style="height: 8px;">
+                                <div class="progress-bar bg-secondary" style="width: @(GetPercentage(notStartedCount))%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics Row -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted">Active Plans</h6>
+                            <h2 class="mb-0">@activePlans</h2>
+                        </div>
+                        <div class="text-primary">
+                            <i class="bi bi-clipboard-check display-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted">Open Tasks</h6>
+                            <h2 class="mb-0">@openTasks</h2>
+                            @if (overdueTasks > 0)
+                            {
+                                <small class="text-danger">@overdueTasks overdue</small>
+                            }
+                        </div>
+                        <div class="text-warning">
+                            <i class="bi bi-list-task display-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-danger">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted">High Risks</h6>
+                            <h2 class="mb-0">@highRisks</h2>
+                            <small class="text-muted">of @totalRisks total</small>
+                        </div>
+                        <div class="text-danger">
+                            <i class="bi bi-exclamation-triangle display-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted">Evidence Pending</h6>
+                            <h2 class="mb-0">@pendingEvidence</h2>
+                        </div>
+                        <div class="text-info">
+                            <i class="bi bi-file-earmark-check display-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compliance by Framework -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Compliance by Framework</h5>
+                </div>
+                <div class="card-body">
+                    @if (frameworkCompliance.Any())
+                    {
+                        @foreach (var fw in frameworkCompliance)
+                        {
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>@fw.Name</span>
+                                    <span class="@GetScoreTextClass(fw.Score)">@fw.Score.ToString("F0")%</span>
+                                </div>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar @GetScoreBarClass(fw.Score)" style="width: @fw.Score%">
+                                        @fw.Compliant / @fw.Total
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">No framework data available</p>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Top Actions Required</h5>
+                    <a href="/tasks" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    @if (topActions.Any())
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var action in topActions)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="badge @GetUrgencyBadge(action.Urgency) me-2">@action.Urgency</span>
+                                        @action.Title
+                                    </div>
+                                    @if (action.DueDate.HasValue)
+                                    {
+                                        <small class="text-muted">@action.DueDate.Value.ToString("MMM dd")</small>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-3">No pending actions</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Overview -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Risk Overview</h5>
+                    <a href="/risks" class="btn btn-sm btn-outline-primary">Manage Risks</a>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="p-3 bg-danger bg-opacity-10 rounded">
+                                <h3 class="text-danger">@highRisks</h3>
+                                <p class="mb-0">High Risk</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 bg-warning bg-opacity-10 rounded">
+                                <h3 class="text-warning">@mediumRisks</h3>
+                                <p class="mb-0">Medium Risk</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 bg-success bg-opacity-10 rounded">
+                                <h3 class="text-success">@lowRisks</h3>
+                                <p class="mb-0">Low Risk</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 bg-secondary bg-opacity-10 rounded">
+                                <h3 class="text-secondary">@mitigatedRisks</h3>
+                                <p class="mb-0">Mitigated</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .compliance-gauge {
+        display: flex;
+        justify-content: center;
+    }
+    .gauge-circle {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 8px solid;
+    }
+    .gauge-circle.score-high { border-color: #198754; }
+    .gauge-circle.score-medium { border-color: #ffc107; }
+    .gauge-circle.score-low { border-color: #dc3545; }
+    .gauge-value {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+</style>
+
+@code {
+    private Guid currentTenantId;
+    private decimal overallScore = 0;
+    private int totalRequirements = 0;
+    private int compliantCount = 0;
+    private int partialCount = 0;
+    private int nonCompliantCount = 0;
+    private int notStartedCount = 0;
+    private int activePlans = 0;
+    private int openTasks = 0;
+    private int overdueTasks = 0;
+    private int highRisks = 0;
+    private int mediumRisks = 0;
+    private int lowRisks = 0;
+    private int mitigatedRisks = 0;
+    private int totalRisks = 0;
+    private int pendingEvidence = 0;
+
+    private List<FrameworkComplianceItem> frameworkCompliance = new();
+    private List<ActionItem> topActions = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var tenant = await DbContext.Tenants.FirstOrDefaultAsync(t => !t.IsDeleted);
+        currentTenantId = tenant?.Id ?? Guid.Empty;
+        await LoadDashboardData();
+    }
+
+    private async Task LoadDashboardData()
+    {
+        var requirements = await DbContext.AssessmentRequirements
+            .Include(r => r.Assessment)
+            .Where(r => r.Assessment.TenantId == currentTenantId && !r.IsDeleted)
+            .ToListAsync();
+
+        totalRequirements = requirements.Count;
+        compliantCount = requirements.Count(r => r.Status == "Compliant");
+        partialCount = requirements.Count(r => r.Status == "PartiallyCompliant");
+        nonCompliantCount = requirements.Count(r => r.Status == "NonCompliant");
+        notStartedCount = requirements.Count(r => r.Status == "NotStarted" || string.IsNullOrEmpty(r.Status));
+        overallScore = totalRequirements > 0 ? (decimal)requirements.Average(r => r.Score ?? 0) : 0;
+
+        var plans = await DbContext.Plans.Where(p => p.TenantId == currentTenantId && !p.IsDeleted).ToListAsync();
+        activePlans = plans.Count(p => p.Status == "Active" || p.Status == "InProgress");
+
+        var tasks = await DbContext.WorkflowTasks
+            .Include(t => t.WorkflowInstance)
+            .Where(t => t.WorkflowInstance.TenantId == currentTenantId && !t.IsDeleted)
+            .ToListAsync();
+        openTasks = tasks.Count(t => t.Status != "Completed" && t.Status != "Cancelled");
+        overdueTasks = tasks.Count(t => t.DueDate < DateTime.UtcNow && t.Status != "Completed" && t.Status != "Cancelled");
+
+        var risks = await DbContext.Risks.Where(r => r.TenantId == currentTenantId && !r.IsDeleted).ToListAsync();
+        totalRisks = risks.Count;
+        highRisks = risks.Count(r => r.RiskScore >= 8);
+        mediumRisks = risks.Count(r => r.RiskScore >= 4 && r.RiskScore < 8);
+        lowRisks = risks.Count(r => r.RiskScore < 4);
+        mitigatedRisks = risks.Count(r => r.Status == "Mitigated" || r.Status == "Closed");
+
+        pendingEvidence = await DbContext.Evidences
+            .CountAsync(e => e.TenantId == currentTenantId &&
+                (e.VerificationStatus == "Submitted" || e.VerificationStatus == "InReview") && !e.IsDeleted);
+
+        frameworkCompliance = requirements
+            .GroupBy(r => r.Assessment?.FrameworkCode ?? "Unknown")
+            .Select(g => new FrameworkComplianceItem
+            {
+                Name = g.Key,
+                Total = g.Count(),
+                Compliant = g.Count(r => r.Status == "Compliant"),
+                Score = g.Any() ? (decimal)g.Average(r => r.Score ?? 0) : 0
+            })
+            .OrderByDescending(f => f.Score)
+            .Take(5)
+            .ToList();
+
+        topActions = tasks
+            .Where(t => t.Status != "Completed" && t.Status != "Cancelled")
+            .OrderBy(t => t.DueDate)
+            .Take(5)
+            .Select(t => new ActionItem
+            {
+                Title = t.TaskName,
+                Urgency = t.DueDate < DateTime.UtcNow ? "Overdue" : t.DueDate < DateTime.UtcNow.AddDays(3) ? "Urgent" : "Normal",
+                DueDate = t.DueDate
+            })
+            .ToList();
+    }
+
+    private string GetScoreColorClass(decimal score) => score >= 80 ? "score-high" : score >= 60 ? "score-medium" : "score-low";
+    private string GetScoreTextClass(decimal score) => score >= 80 ? "text-success" : score >= 60 ? "text-warning" : "text-danger";
+    private string GetScoreBarClass(decimal score) => score >= 80 ? "bg-success" : score >= 60 ? "bg-warning" : "bg-danger";
+    private string GetUrgencyBadge(string urgency) => urgency switch
+    {
+        "Overdue" => "bg-danger",
+        "Urgent" => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
+    private decimal GetPercentage(int count) => totalRequirements > 0 ? (decimal)count / totalRequirements * 100 : 0;
+
+    private class FrameworkComplianceItem
+    {
+        public string Name { get; set; } = "";
+        public int Total { get; set; }
+        public int Compliant { get; set; }
+        public decimal Score { get; set; }
+    }
+
+    private class ActionItem
+    {
+        public string Title { get; set; } = "";
+        public string Urgency { get; set; } = "";
+        public DateTime? DueDate { get; set; }
+    }
+}

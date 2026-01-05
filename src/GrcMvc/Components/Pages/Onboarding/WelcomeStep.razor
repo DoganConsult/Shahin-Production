@@ -1,0 +1,62 @@
+@using GrcMvc.Models.DTOs
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<div>
+    <h3 class="mb-4">Welcome to GRC Management System</h3>
+    
+    <div class="alert alert-info" role="alert">
+        <i class="bi bi-info-circle"></i>
+        <strong>Complete the onboarding process</strong> to set up your organization and derive your compliance scope.
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h5 class="mb-3">What You'll Do:</h5>
+            <ul class="list-unstyled">
+                <li class="mb-2">
+                    <i class="bi bi-check-circle text-success"></i>
+                    <span class="ms-2">Create your user account</span>
+                </li>
+                <li class="mb-2">
+                    <i class="bi bi-check-circle text-success"></i>
+                    <span class="ms-2">Set up your organization profile</span>
+                </li>
+                <li class="mb-2">
+                    <i class="bi bi-check-circle text-success"></i>
+                    <span class="ms-2">Review your compliance scope</span>
+                </li>
+                <li class="mb-2">
+                    <i class="bi bi-check-circle text-success"></i>
+                    <span class="ms-2">Complete the onboarding</span>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6>Estimated Time: <strong>15 minutes</strong></h6>
+                    <p class="text-muted mb-0">Our system will automatically determine applicable:</p>
+                    <ul class="text-muted small mt-2 mb-0">
+                        <li>Compliance frameworks</li>
+                        <li>Control baselines</li>
+                        <li>Audit packages</li>
+                        <li>Assessment templates</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <button class="btn btn-primary btn-lg" @onclick="() => OnNext.InvokeAsync(null)">
+            <i class="bi bi-arrow-right"></i> Start Onboarding
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<Guid?> OnNext { get; set; }
+}

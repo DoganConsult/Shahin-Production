@@ -1,0 +1,139 @@
+@model IEnumerable<GrcMvc.Models.DTOs.AuditDto>
+@{
+    ViewData["Title"] = "Audits";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-search"></i> Audits</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Audit
+            </a>
+            <a asp-action="Upcoming" class="btn btn-info">
+                <i class="bi bi-calendar-event"></i> Upcoming
+            </a>
+            <a asp-action="Statistics" class="btn btn-secondary">
+                <i class="bi bi-bar-chart"></i> Statistics
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="auditsTable">
+                    <thead>
+                        <tr>
+                            <th>Number</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Lead Auditor</th>
+                            <th>Period</th>
+                            <th>Findings</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@item.Id">@item.AuditNumber</a>
+                                </td>
+                                <td>@item.Name</td>
+                                <td>@item.Type</td>
+                                <td>
+                                    <span class="badge @GetStatusBadgeClass(item.Status)">
+                                        @item.Status
+                                    </span>
+                                </td>
+                                <td>@item.LeadAuditor</td>
+                                <td>
+                                    <small>
+                                        @item.StartDate.ToShortDateString() - @item.EndDate.ToShortDateString()
+                                    </small>
+                                </td>
+                                <td>
+                                    @if (item.FindingsCount > 0)
+                                    {
+                                        <a asp-action="Findings" asp-route-id="@item.Id" class="badge bg-danger text-decoration-none">
+                                            @item.FindingsCount Issues
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">0 Issues</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.Id"
+                                           class="btn btn-outline-primary" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Id"
+                                           class="btn btn-outline-info" title="Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id"
+                                           class="btn btn-outline-danger" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "completed" => "bg-success",
+            "inprogress" or "in progress" => "bg-primary",
+            "planned" => "bg-info",
+            "delayed" or "overdue" => "bg-danger",
+            "cancelled" => "bg-secondary",
+            _ => "bg-secondary"
+        };
+    }
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#auditsTable').DataTable({
+                "order": [[5, "desc"]], // Sort by date
+                "pageLength": 25,
+                "responsive": true
+            });
+        });
+    </script>
+}

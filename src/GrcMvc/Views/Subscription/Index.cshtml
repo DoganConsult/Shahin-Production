@@ -1,0 +1,179 @@
+@model GrcMvc.Models.Dtos.SubscriptionDto
+
+@{
+    ViewData["Title"] = "Your Subscription";
+}
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1>
+                <i class="bi bi-credit-card"></i> Your Subscription
+            </h1>
+        </div>
+    </div>
+
+    @if (Model == null)
+    {
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i> You don't have an active subscription yet.
+            <a href="@Url.Action("Index", "Plans")" class="alert-link">Browse plans</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="bi bi-briefcase"></i> @(Model.Plan?.Name ?? "Unknown") Plan
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="text-muted text-uppercase">Plan Status</h6>
+                                <p>
+                                    <span class="badge bg-@(Model.Status == "Active" ? "success" : Model.Status == "PendingPayment" ? "warning" : "danger")">
+                                        @Model.Status
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted text-uppercase">Billing Cycle</h6>
+                                <p>@Model.BillingCycle</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="text-muted text-uppercase">Start Date</h6>
+                                <p>@Model.SubscriptionStartDate.ToString("MMMM d, yyyy")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted text-uppercase">Renewal Date</h6>
+                                <p>@(Model.NextBillingDate?.ToString("MMMM d, yyyy") ?? "N/A")</p>
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <h5 class="mb-3">Plan Details</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <small class="text-muted">Monthly Price</small>
+                                <p class="h6">${@(Model.Plan?.MonthlyPrice ?? 0)}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted">Max Users</small>
+                                <p class="h6">@(Model.Plan?.MaxUsers ?? 0)</p>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted">Max Assessments</small>
+                                <p class="h6">@(Model.Plan?.MaxAssessments ?? 0)</p>
+                            </div>
+                        </div>
+
+                        @if (Model.Plan?.Features != null && Model.Plan.Features.Any())
+                        {
+                            <hr />
+                            <h5 class="mb-3">Included Features</h5>
+                            <div class="row">
+                                @foreach (var feature in Model.Plan.Features.Chunk(2))
+                                {
+                                    <div class="col-md-6">
+                                        @foreach (var f in feature)
+                                        {
+                                            <div class="mb-2">
+                                                <i class="bi bi-check-circle text-success"></i>
+                                                <span>@f</span>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm bg-light">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-calendar-event"></i> Renewal Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small">
+                            Your subscription automatically renews on <strong>@(Model.NextBillingDate?.ToString("MMMM d, yyyy") ?? "N/A")</strong>
+                        </p>
+
+                        @if (Model.NextBillingDate.HasValue && (Model.NextBillingDate.Value - DateTime.Now).Days <= 7)
+                        {
+                            <div class="alert alert-warning">
+                                <small>Your subscription renews in @(Model.NextBillingDate.HasValue ? Math.Max(1, (Model.NextBillingDate.Value - DateTime.Now).Days) : 0) days</small>
+                            </div>
+                        }
+
+                        <hr />
+
+                        <div class="d-grid gap-2">
+                            <a href="@Url.Action("Index", "Plans")" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-arrow-left-right"></i> Change Plan
+                            </a>
+                            <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                                <i class="bi bi-x-circle"></i> Cancel Subscription
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-question-circle"></i> Need Help?
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="small">
+                            Have questions about your subscription? Contact our support team.
+                        </p>
+                        <a href="mailto:support@shahin-ai.com" class="btn btn-sm btn-outline-secondary w-100">
+                            <i class="bi bi-envelope"></i> Contact Support
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Cancel Subscription Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle"></i> Cancel Subscription
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel your subscription?</p>
+                <p class="text-muted small">
+                    You will lose access to all features at the end of your billing period.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Subscription</button>
+                <form method="post" action="@Url.Action("Cancel", "Subscription")" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-check"></i> Yes, Cancel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

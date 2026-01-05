@@ -1,0 +1,161 @@
+@model GrcMvc.Models.DTOs.PlanDto
+
+@{
+    ViewData["Title"] = "Edit Plan";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <h1>
+                <i class="bi bi-pencil"></i> Edit Plan
+            </h1>
+            <p class="text-muted">Update plan details and configuration</p>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">@Model.Name</h5>
+                </div>
+                <div class="card-body">
+                    <form id="planForm" method="post" action="@Url.Action("Update", "Plans", new { planId = Model.Id })">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="planCode" class="form-label">Plan Code</label>
+                                <input type="text" class="form-control" id="planCode" value="@Model.PlanCode" disabled>
+                                <small class="text-muted">Cannot be changed</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="planType" class="form-label">Plan Type</label>
+                                <input type="text" class="form-control" id="planType" value="@Model.PlanType" disabled>
+                                <small class="text-muted">Cannot be changed</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Plan Name *</label>
+                            <input type="text" class="form-control" id="name" name="name" value="@Model.Name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4">@Model.Description</textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="startDate" class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="startDate" name="startDate" 
+                                       value="@Model.StartDate.ToString("yyyy-MM-dd")">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="targetEndDate" class="form-label">Target End Date</label>
+                                <input type="date" class="form-control" id="targetEndDate" name="targetEndDate" 
+                                       value="@Model.TargetEndDate.ToString("yyyy-MM-dd")">
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Save Changes
+                            </button>
+                            <a href="@Url.Action("Details", new { planId = Model.Id })" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card bg-light mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle"></i> Plan Info
+                    </h5>
+                </div>
+                <div class="card-body small">
+                    <div class="mb-3">
+                        <strong>Status:</strong><br />
+                        @{
+                            var statusClass = Model.Status switch
+                            {
+                                "Draft" => "secondary",
+                                "Active" => "primary",
+                                "Paused" => "warning",
+                                "Completed" => "success",
+                                _ => "info"
+                            };
+                        }
+                        <span class="badge bg-@statusClass">@Model.Status</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Progress:</strong><br />
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-@statusClass" role="progressbar" 
+                                 style="width: @Model.ProgressPercentage%">
+                                @Model.ProgressPercentage%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Created:</strong><br />
+                        @Model.CreatedAt.ToString("MMM d, yyyy HH:mm")
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Modified:</strong><br />
+                        @(Model.ModifiedAt?.ToString("MMM d, yyyy HH:mm") ?? "Never")
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-warning bg-opacity-10 border-warning">
+                <div class="card-header bg-warning bg-opacity-10">
+                    <h6 class="mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> Important
+                    </h6>
+                </div>
+                <div class="card-body small">
+                    <p>Once a plan is activated, certain fields cannot be changed. Consider the implications before modifying active plans.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('planForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = {
+            name: document.getElementById('name').value,
+            description: document.getElementById('description').value,
+            startDate: document.getElementById('startDate').value,
+            targetEndDate: document.getElementById('targetEndDate').value
+        };
+
+        try {
+            const response = await fetch('@Url.Action("Update", "Plans", new { planId = Model.Id })', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                alert('Plan updated successfully');
+                window.location.href = '/Plans/Details?planId=@Model.Id';
+            } else {
+                alert('Error updating plan');
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    });
+</script>

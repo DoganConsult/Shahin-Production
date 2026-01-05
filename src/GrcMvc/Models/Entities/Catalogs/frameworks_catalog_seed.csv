@@ -1,0 +1,164 @@
+code,version,title_en,title_ar,regulator,category,mandatory,controls,domains
+NCA-ECC,2.0,Essential Cybersecurity Controls,الضوابط الأساسية للأمن السيبراني,NCA,cybersecurity,True,114,5
+NCA-CCC,1.0,Cloud Cybersecurity Controls,ضوابط الأمن السيبراني السحابية,NCA,cybersecurity,True,67,4
+NCA-OTCC,1.0,Operational Technology Cybersecurity Controls,ضوابط الأمن السيبراني للتقنيات التشغيلية,NCA,cybersecurity,True,53,4
+NCA-CTCC,1.0,Critical Systems Cybersecurity Controls,ضوابط الأمن السيبراني للأنظمة الحساسة,NCA,cybersecurity,True,45,3
+NCA-DCC,1.0,Data Cybersecurity Controls,ضوابط الأمن السيبراني للبيانات,NCA,cybersecurity,True,38,3
+NCA-TCC,1.0,Telecom Cybersecurity Controls,ضوابط الأمن السيبراني للاتصالات,NCA,cybersecurity,True,42,3
+NCA-CSCC,1.0,Cybersecurity Compliance Certificate,شهادة الامتثال للأمن السيبراني,NCA,cybersecurity,True,30,2
+NCA-NCSA,1.0,National Cybersecurity Assessment,التقييم الوطني للأمن السيبراني,NCA,cybersecurity,True,25,2
+NCA-BCMS,1.0,Business Continuity Management for Cybersecurity,إدارة استمرارية الأعمال للأمن السيبراني,NCA,cybersecurity,True,35,3
+NCA-IRCC,1.0,Incident Response Cybersecurity Controls,ضوابط الاستجابة للحوادث السيبرانية,NCA,cybersecurity,True,28,2
+SAMA-CSF,2.0,Cybersecurity Framework,الإطار الإرشادي للأمن السيبراني,SAMA,cybersecurity,True,156,6
+SAMA-AML,5.0,Anti-Money Laundering Rules,قواعد مكافحة غسل الأموال,SAMA,aml,True,167,8
+SAMA-CFT,3.0,Counter Terrorist Financing Rules,قواعد مكافحة تمويل الإرهاب,SAMA,aml,True,89,5
+SAMA-PSR,1.2,Payment Services Regulations,تنظيم خدمات الدفع,SAMA,payment,True,67,4
+SAMA-CCP,2.1,Consumer Protection Principles,مبادئ حماية المستهلك,SAMA,consumer,True,34,3
+SAMA-BCM,2.0,Business Continuity Management,إدارة استمرارية الأعمال,SAMA,bcm,True,45,4
+SAMA-OSP,1.0,Outsourcing Policy,سياسة الإسناد الخارجي,SAMA,operational,True,38,3
+SAMA-ORM,1.0,Operational Risk Management,إدارة المخاطر التشغيلية,SAMA,risk,True,52,4
+SAMA-ICG,2.0,Internal Control Guidelines,إرشادات الرقابة الداخلية,SAMA,governance,True,48,4
+SAMA-CGR,2.0,Corporate Governance Regulations,لوائح حوكمة الشركات,SAMA,governance,True,65,5
+SAMA-OB,1.0,Open Banking Framework,إطار الخدمات المصرفية المفتوحة,SAMA,fintech,True,42,3
+SAMA-SANDBOX,2.0,Regulatory Sandbox Framework,إطار البيئة التجريبية التنظيمية,SAMA,fintech,False,28,2
+SAMA-BNPL,1.0,Buy Now Pay Later Regulations,لوائح الشراء الآن والدفع لاحقاً,SAMA,fintech,True,35,3
+SAMA-CRYPTO,1.0,Virtual Assets Regulations,لوائح الأصول الافتراضية,SAMA,fintech,True,58,4
+SAMA-INSURANCE,3.0,Insurance Supervision Framework,إطار الإشراف على التأمين,SAMA,insurance,True,78,5
+CMA-CG,2022,Corporate Governance Regulations,لائحة حوكمة الشركات,CMA,governance,True,94,6
+CMA-LR,2023,Listing Rules,قواعد الإدراج,CMA,listing,True,128,8
+CMA-AML,2022,AML/CFT Rules for Capital Market,قواعد مكافحة غسل الأموال لسوق المال,CMA,aml,True,76,5
+CMA-IC,2022,Internal Controls Regulations,لائحة الرقابة الداخلية,CMA,governance,True,82,5
+CMA-DR,2023,Disclosure Regulations,لائحة الإفصاح,CMA,disclosure,True,65,4
+CMA-MC,2022,Market Conduct Regulations,لائحة سلوك السوق,CMA,conduct,True,58,4
+CMA-IM,2022,Investment Management Regulations,لائحة إدارة الاستثمارات,CMA,investment,True,72,5
+CMA-MF,2022,Mutual Funds Regulations,لائحة صناديق الاستثمار,CMA,funds,True,68,4
+CMA-REIT,2021,Real Estate Investment Traded Funds,صناديق الاستثمار العقارية المتداولة,CMA,funds,True,45,3
+CMA-AP,2022,Authorized Persons Regulations,لائحة الأشخاص المرخص لهم,CMA,licensing,True,85,6
+CMA-SUKUK,2022,Sukuk & Debt Instruments Regulations,لائحة الصكوك وأدوات الدين,CMA,sukuk,True,52,4
+CMA-TAKEOVER,2022,Mergers & Acquisitions Regulations,لائحة الاندماج والاستحواذ,CMA,ma,True,48,3
+PDPL,1.0,Personal Data Protection Law,نظام حماية البيانات الشخصية,SDAIA,privacy,True,45,4
+PDPL-IR,1.0,PDPL Implementing Regulations,اللائحة التنفيذية لنظام حماية البيانات,SDAIA,privacy,True,89,6
+PDPL-DPO,1.0,Data Protection Officer Guidelines,إرشادات مسؤول حماية البيانات,SDAIA,privacy,True,28,2
+PDPL-DPIA,1.0,Data Protection Impact Assessment,تقييم أثر حماية البيانات,SDAIA,privacy,True,32,3
+PDPL-XBORDER,1.0,Cross-Border Data Transfer Rules,قواعد نقل البيانات عبر الحدود,SDAIA,privacy,True,25,2
+ZATCA-EINV-P1,1.0,E-Invoicing Phase 1 (Generation),الفوترة الإلكترونية - المرحلة الأولى,ZATCA,tax,True,12,2
+ZATCA-EINV-P2,2.0,E-Invoicing Phase 2 (Integration),الفوترة الإلكترونية - المرحلة الثانية,ZATCA,tax,True,23,3
+ZATCA-VAT,2023,VAT Implementing Regulations,اللائحة التنفيذية لضريبة القيمة المضافة,ZATCA,tax,True,76,5
+ZATCA-WHT,2023,Withholding Tax Regulations,لائحة ضريبة الاستقطاع,ZATCA,tax,True,42,3
+ZATCA-ZAKAT,2023,Zakat Regulations,لائحة الزكاة,ZATCA,zakat,True,58,4
+ZATCA-CIT,2023,Corporate Income Tax Regulations,لائحة ضريبة دخل الشركات,ZATCA,tax,True,65,4
+ZATCA-CUSTOMS,2023,Customs Regulations,لائحة الجمارك,ZATCA,customs,True,82,5
+ZATCA-TP,2022,Transfer Pricing Regulations,لائحة التسعير التحويلي,ZATCA,tax,True,38,3
+DGA-CloudFirst,2024,Cloud First Policy,سياسة السحابة أولاً,DGA,cloud,True,28,2
+DGA-DMI,2024,Digital Maturity Index,مؤشر النضج الرقمي,DGA,digital,True,42,4
+DGA-OpenData,2023,Open Data Policy,سياسة البيانات المفتوحة,DGA,data,True,23,2
+DGA-DG,2023,Data Governance Framework,إطار حوكمة البيانات,DGA,governance,True,67,5
+DGA-API,2023,API Standards & Guidelines,معايير وإرشادات الواجهات البرمجية,DGA,technical,True,35,3
+DGA-UX,2023,User Experience Standards,معايير تجربة المستخدم,DGA,design,False,45,3
+CST-CLOUD,1.1,Cloud Computing Regulatory Framework,إطار تنظيم الحوسبة السحابية,CST,cloud,True,78,5
+CST-ICT,2.0,ICT Service Provider Regulations,لائحة مقدمي خدمات تقنية المعلومات,CST,telecom,True,58,4
+CST-DATA-LOC,1.0,Data Localization Requirements,متطلبات توطين البيانات,CST,data,True,32,2
+CST-5G,1.0,5G Security Framework,إطار أمن شبكات الجيل الخامس,CST,telecom,True,45,3
+CST-IOT,1.0,IoT Security Guidelines,إرشادات أمن إنترنت الأشياء,CST,iot,True,52,4
+CST-SPAM,1.0,Anti-Spam Regulations,لائحة مكافحة البريد العشوائي,CST,telecom,True,18,2
+MOH-HIS,3.0,Health Information System Standards,معايير نظم المعلومات الصحية,MOH,healthcare_it,True,112,7
+MOH-EMR,2.0,Electronic Medical Records Standards,معايير السجلات الطبية الإلكترونية,MOH,healthcare_it,True,85,5
+MOH-TELEMEDICINE,2.0,Telemedicine Regulations,لائحة الطب عن بعد,MOH,healthcare,True,48,3
+MOH-PS,2.0,Patient Safety Standards,معايير سلامة المرضى,MOH,patient_safety,True,95,6
+MOH-QM,2.0,Quality Management Standards,معايير إدارة الجودة,MOH,quality,True,78,5
+MOH-INFECTION,2.0,Infection Control Standards,معايير مكافحة العدوى,MOH,infection_control,True,65,4
+MOH-PHARMACY,2.0,Pharmacy Practice Standards,معايير ممارسة الصيدلة,MOH,pharmacy,True,58,4
+MOH-LAB,2.0,Laboratory Standards,معايير المختبرات,MOH,laboratory,True,72,5
+MOH-RADIOLOGY,2.0,Radiology & Imaging Standards,معايير الأشعة والتصوير,MOH,radiology,True,52,3
+MOH-PRIVACY,1.0,Patient Privacy Guidelines,إرشادات خصوصية المرضى,MOH,privacy,True,38,3
+SFDA-GXP,5.0,Good Practice Guidelines (GxP),إرشادات الممارسات الجيدة,SFDA,quality,True,145,8
+SFDA-GMP,4.0,Good Manufacturing Practice,ممارسات التصنيع الجيدة,SFDA,manufacturing,True,125,7
+SFDA-GDP,3.0,Good Distribution Practice,ممارسات التوزيع الجيدة,SFDA,distribution,True,68,5
+SFDA-GLP,2.0,Good Laboratory Practice,ممارسات المختبر الجيدة,SFDA,laboratory,True,72,5
+SFDA-GCP,2.0,Good Clinical Practice,ممارسات السريرية الجيدة,SFDA,clinical,True,95,6
+SFDA-PV,3.0,Pharmacovigilance Guidelines,إرشادات اليقظة الدوائية,SFDA,safety,True,58,4
+SFDA-MD,4.1,Medical Devices Regulations,لائحة الأجهزة الطبية,SFDA,medical_devices,True,87,5
+SFDA-DATA,2.0,Data Integrity Guidelines,إرشادات سلامة البيانات,SFDA,data,True,52,4
+MOCI-COMPANIES,2022,Companies Law,نظام الشركات,MOCI,corporate,True,235,12
+MOCI-CR,2023,Commercial Registration,السجل التجاري,MOCI,registration,True,89,5
+MOCI-CP,2022,Consumer Protection Law,نظام حماية المستهلك,MOCI,consumer,True,67,4
+MOCI-ECOM,2020,E-Commerce Law,نظام التجارة الإلكترونية,MOCI,ecommerce,True,54,4
+MOCI-FRANCHISE,2020,Franchise Law,نظام الامتياز التجاري,MOCI,franchise,True,42,3
+MOCI-UBO,2023,Ultimate Beneficial Ownership,قواعد المالك المستفيد,MOCI,aml,True,23,2
+MOCI-AGENCY,2022,Commercial Agencies Law,نظام الوكالات التجارية,MOCI,agencies,True,48,3
+MOCI-COMPETITION,2019,Competition Law,نظام المنافسة,MOCI,competition,True,38,3
+MHRSD-LABOR,2023,Labor Law,نظام العمل,MHRSD,labor,True,245,12
+MHRSD-WPS,2.0,Wage Protection System,نظام حماية الأجور,MHRSD,wages,True,35,3
+MHRSD-NITAQAT,3.0,Nitaqat Saudization Program,برنامج نطاقات للتوطين,MHRSD,saudization,True,52,4
+MHRSD-MUSANED,2.0,Domestic Workers Regulations,لائحة العمالة المنزلية,MHRSD,domestic,True,38,3
+MHRSD-SAFETY,2.0,Occupational Safety & Health,السلامة والصحة المهنية,MHRSD,safety,True,85,6
+MHRSD-REMOTE,1.0,Remote Work Regulations,لائحة العمل عن بعد,MHRSD,remote,False,28,2
+ISO-27001,2022,Information Security Management System,نظام إدارة أمن المعلومات,ISO,security,False,93,4
+ISO-27002,2022,Information Security Controls,ضوابط أمن المعلومات,ISO,security,False,93,4
+ISO-27017,2015,Cloud Security Controls,ضوابط أمان السحابة,ISO,cloud,False,37,2
+ISO-27018,2019,Cloud Privacy Controls,ضوابط خصوصية السحابة,ISO,privacy,False,43,2
+ISO-27701,2019,Privacy Information Management,إدارة معلومات الخصوصية,ISO,privacy,False,58,3
+ISO-22301,2019,Business Continuity Management,إدارة استمرارية الأعمال,ISO,bcm,False,67,4
+ISO-31000,2018,Risk Management,إدارة المخاطر,ISO,risk,False,45,3
+ISO-9001,2015,Quality Management System,نظام إدارة الجودة,ISO,quality,False,84,5
+ISO-14001,2015,Environmental Management System,نظام الإدارة البيئية,ISO,environment,False,72,4
+ISO-45001,2018,Occupational Health & Safety,الصحة والسلامة المهنية,ISO,safety,False,68,4
+ISO-20000,2018,IT Service Management,إدارة خدمات تقنية المعلومات,ISO,itsm,False,76,5
+ISO-37001,2016,Anti-Bribery Management System,نظام إدارة مكافحة الرشوة,ISO,compliance,False,52,3
+ISO-37301,2021,Compliance Management System,نظام إدارة الامتثال,ISO,compliance,False,58,4
+ISO-27035,2016,Information Security Incident Management,إدارة حوادث أمن المعلومات,ISO,incident,False,42,3
+ISO-27005,2022,Information Security Risk Management,إدارة مخاطر أمن المعلومات,ISO,risk,False,38,3
+NIST-CSF,1.1,Cybersecurity Framework,إطار الأمن السيبراني,NIST,cybersecurity,False,108,5
+NIST-CSF,2.0,Cybersecurity Framework 2.0,إطار الأمن السيبراني 2.0,NIST,cybersecurity,False,125,6
+NIST-800-53,Rev5,Security & Privacy Controls,ضوابط الأمن والخصوصية,NIST,security,False,1006,20
+NIST-800-171,Rev2,Protecting CUI,حماية المعلومات المصنفة,NIST,security,False,110,14
+NIST-AI-RMF,1.0,AI Risk Management Framework,إطار إدارة مخاطر الذكاء الاصطناعي,NIST,ai,False,72,4
+PCI-DSS,4.0,Payment Card Industry Data Security Standard,معيار أمان بيانات بطاقات الدفع,PCI-SSC,payment,True,362,12
+PCI-PA-DSS,3.2,Payment Application Data Security Standard,معيار أمان بيانات تطبيقات الدفع,PCI-SSC,payment,True,148,8
+PCI-P2PE,3.0,Point-to-Point Encryption Standard,معيار التشفير من نقطة لنقطة,PCI-SSC,encryption,True,85,5
+PCI-3DS,2.2,3D Secure Standard,معيار المصادقة ثلاثية الأبعاد,PCI-SSC,authentication,True,62,4
+SOC2,2023,Service Organization Controls Type 2,ضوابط المنظمات الخدمية - النوع الثاني,AICPA,audit,False,64,5
+SOC1,2023,Service Organization Controls Type 1,ضوابط المنظمات الخدمية - النوع الأول,AICPA,audit,False,42,4
+SOC-CYBER,2023,SOC for Cybersecurity,ضوابط SOC للأمن السيبراني,AICPA,cybersecurity,False,58,4
+COBIT,2019,IT Governance Framework,إطار حوكمة تقنية المعلومات,ISACA,governance,False,40,5
+RISK-IT,2.0,IT Risk Framework,إطار مخاطر تقنية المعلومات,ISACA,risk,False,35,3
+CMMI,2.0,Capability Maturity Model Integration,نموذج تكامل نضج القدرات,ISACA,maturity,False,52,4
+HIPAA,2013,Health Insurance Portability & Accountability Act,قانون نقل التأمين الصحي والمساءلة,HHS-OCR,healthcare,False,127,6
+HITRUST-CSF,11,HITRUST Common Security Framework,إطار الأمن المشترك HITRUST,HITRUST,healthcare,False,156,14
+HL7-FHIR,R4,Fast Healthcare Interoperability Resources,موارد التشغيل البيني السريع للرعاية الصحية,ISO,healthcare_it,False,85,5
+GDPR,2018,General Data Protection Regulation,اللائحة العامة لحماية البيانات,EU-GDPR,privacy,False,65,5
+CCPA,2020,California Consumer Privacy Act,قانون خصوصية المستهلك في كاليفورنيا,ISO,privacy,False,42,3
+ITIL,4,IT Infrastructure Library,مكتبة البنية التحتية لتقنية المعلومات,ITIL,itsm,False,75,5
+CIS-CONTROLS,8,CIS Critical Security Controls,ضوابط CIS الأمنية الحرجة,CIS,security,False,153,18
+OWASP-ASVS,4.0,Application Security Verification Standard,معيار التحقق من أمان التطبيقات,OWASP,appsec,False,286,14
+OWASP-MASVS,2.0,Mobile Application Security Verification,معيار التحقق من أمان تطبيقات الجوال,OWASP,mobile,False,92,8
+CSA-CCM,4.0,Cloud Controls Matrix,مصفوفة ضوابط السحابة,CSA,cloud,False,197,17
+SWIFT-CSP,2023,Customer Security Programme,برنامج أمان العملاء,SWIFT,banking,True,32,3
+BASEL-III,2023,Basel III Banking Supervision,بازل 3 للرقابة المصرفية,BASEL,banking,True,145,8
+FATF-AML,2023,FATF Recommendations,توصيات مجموعة العمل المالي,FATF,aml,True,40,4
+COSO-ERM,2017,Enterprise Risk Management,إدارة المخاطر المؤسسية,COSO,risk,False,85,5
+COSO-IC,2013,Internal Control Framework,إطار الرقابة الداخلية,COSO,governance,False,72,5
+NCEC-ENV,2024,Environmental Compliance Standards,معايير الامتثال البيئي,NCEC,environment,True,156,8
+SASO-QUALITY,2023,Product Quality Standards,معايير جودة المنتجات,SASO,quality,True,245,10
+SASO-SAFETY,2023,Product Safety Standards,معايير سلامة المنتجات,SASO,safety,True,189,8
+CBAHI-HAS,4.0,Healthcare Accreditation Standards,معايير اعتماد المنشآت الصحية,CBAHI,healthcare,False,298,12
+MISA-FDI,2023,Foreign Direct Investment Rules,قواعد الاستثمار الأجنبي المباشر,MISA,investment,True,78,5
+GACA-AVIATION,2023,Civil Aviation Safety Regulations,لوائح سلامة الطيران المدني,GACA,aviation,True,185,10
+TGA-TRANSPORT,2023,Transport Safety Standards,معايير سلامة النقل,TGA,transport,True,125,7
+MAWANI-PORT,2023,Port Security Standards,معايير أمن الموانئ,MAWANI,maritime,True,95,6
+GOSI-SI,2023,Social Insurance Regulations,لوائح التأمينات الاجتماعية,GOSI,insurance,True,85,5
+PPA-PENSION,2023,Pension Regulations,لوائح التقاعد,PPA,pension,True,72,4
+SAIP-IP,2023,Intellectual Property Protection,حماية الملكية الفكرية,SAIP,ip,True,68,4
+GCAM-MEDIA,2023,Media Content Regulations,لوائح المحتوى الإعلامي,GCAM,media,True,58,4
+GEA-EVENTS,2023,Entertainment Events Standards,معايير الفعاليات الترفيهية,GEA,entertainment,True,65,4
+MOC-CULTURE,2023,Cultural Heritage Protection,حماية التراث الثقافي,MOC,culture,True,52,3
+MOE-EDUCATION,2023,Education Quality Standards,معايير جودة التعليم,MOE,education,True,145,8
+MOS-SPORTS,2023,Sports Governance Standards,معايير حوكمة الرياضة,MOS,sports,True,78,5
+NWC-WATER,2023,Water Quality Standards,معايير جودة المياه,NWC,water,True,95,6
+SEC-ELECTRICITY,2023,Electricity Service Standards,معايير خدمة الكهرباء,SEC,electricity,True,88,5
+ISO-27799,2016,Health Informatics Security,أمن المعلوماتية الصحية,ISO,healthcare,False,52,3
+ISO-27799,2016,Health Informatics Security,أمن المعلوماتية الصحية,ISO,healthcare,False,52,3
+ISO-13485,2016,Medical Devices QMS,نظام إدارة جودة الأجهزة الطبية,ISO,quality,False,95,6
+ISO-17025,2017,Laboratory Competence,كفاءة المختبرات,ISO,laboratory,False,78,5
+ISO-22000,2018,Food Safety Management,نظام إدارة سلامة الغذاء,ISO,food,False,85,5
+ISO-50001,2018,Energy Management,نظام إدارة الطاقة,ISO,energy,False,68,4

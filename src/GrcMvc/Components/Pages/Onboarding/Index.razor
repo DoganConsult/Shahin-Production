@@ -1,0 +1,96 @@
+@page "/onboarding"
+@using GrcMvc.Models.DTOs
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<div class="container-fluid py-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Onboarding Steps</h5>
+
+                    <div class="progress mb-3" style="height: 5px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: @GetProgressPercentage()%"></div>
+                    </div>
+
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item list-group-item-action @(CurrentStep >= 1 ? "active" : "disabled")" disabled>
+                            <i class="bi bi-check-circle @(CurrentStep >= 1 ? "text-success" : "text-secondary")"></i>
+                            <span class="ms-2">Welcome</span>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action @(CurrentStep >= 2 ? "active" : "disabled")" disabled>
+                            <i class="bi @(CurrentStep >= 2 ? "bi-check-circle text-success" : "bi-circle text-secondary")"></i>
+                            <span class="ms-2">User Account</span>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action @(CurrentStep >= 3 ? "active" : "disabled")" disabled>
+                            <i class="bi @(CurrentStep >= 3 ? "bi-check-circle text-success" : "bi-circle text-secondary")"></i>
+                            <span class="ms-2">Organization</span>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action @(CurrentStep >= 4 ? "active" : "disabled")" disabled>
+                            <i class="bi @(CurrentStep >= 4 ? "bi-check-circle text-success" : "bi-circle text-secondary")"></i>
+                            <span class="ms-2">Compliance Scope</span>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action @(CurrentStep >= 5 ? "active" : "disabled")" disabled>
+                            <i class="bi @(CurrentStep >= 5 ? "bi-check-circle text-success" : "bi-circle text-secondary")"></i>
+                            <span class="ms-2">Complete</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card shadow">
+                <div class="card-body">
+                    @if (CurrentStep == 1)
+                    {
+                        <WelcomeStep OnNext="GoToNextStep" />
+                    }
+                    else if (CurrentStep == 2)
+                    {
+                        <SignupStep OnNext="GoToNextStep" OnBack="GoToPreviousStep" />
+                    }
+                    else if (CurrentStep == 3)
+                    {
+                        <OrganizationStep OnNext="GoToNextStep" OnBack="GoToPreviousStep" TenantId="@CurrentTenantId" />
+                    }
+                    else if (CurrentStep == 4)
+                    {
+                        <ComplianceScopeStep OnNext="GoToNextStep" OnBack="GoToPreviousStep" TenantId="@CurrentTenantId" />
+                    }
+                    else if (CurrentStep == 5)
+                    {
+                        <CompleteStep OnBack="GoToPreviousStep" TenantId="@CurrentTenantId" />
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int CurrentStep = 1;
+    private Guid CurrentTenantId = Guid.Empty;
+
+    private int GetProgressPercentage()
+    {
+        return (CurrentStep - 1) * 25;
+    }
+
+    private void GoToNextStep(Guid? tenantId = null)
+    {
+        if (tenantId.HasValue)
+            CurrentTenantId = tenantId.Value;
+
+        if (CurrentStep < 5)
+            CurrentStep++;
+    }
+
+    private void GoToPreviousStep()
+    {
+        if (CurrentStep > 1)
+            CurrentStep--;
+    }
+}

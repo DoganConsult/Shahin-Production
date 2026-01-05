@@ -1,0 +1,171 @@
+@page "/workflows/create"
+@using GrcMvc.Models.Dtos
+@using GrcMvc.Services.Interfaces
+@inject IWorkflowEngineService WorkflowService
+@inject NavigationManager NavManager
+
+<PageTitle>Create Workflow</PageTitle>
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-lg-8 offset-lg-2">
+            <StepProgress Steps="@steps" CurrentStep="Details" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Create New Workflow</h4>
+                </div>
+                <div class="card-body">
+                    <LoadingSpinner IsLoading="@isSubmitting" Message="Creating workflow..." />
+
+                    @if (!isSubmitting)
+                    {
+                        @if (errorMessage != null)
+                        {
+                            <div class="alert alert-danger">@errorMessage</div>
+                        }
+
+                        <EditForm Model="@newWorkflow" OnValidSubmit="@HandleCreateWorkflow">
+                            <DataAnnotationsValidator />
+                            <div class="mb-3">
+                                <label class="form-label" for="name">Workflow Name *</label>
+                                <InputText class="form-control" id="name" @bind-Value="newWorkflow.Name"
+                                    placeholder="Enter workflow name" />
+                                <ValidationMessage For="@(() => newWorkflow.Name)" class="text-danger small" />
+                                <small class="form-text text-muted">e.g., NCA ECC Assessment, SAMA Cyber Review</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="description">Description</label>
+                                <InputTextArea class="form-control" id="description" rows="3" @bind-Value="newWorkflow.Description"
+                                    placeholder="Describe the workflow purpose and scope"></InputTextArea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="category">Category *</label>
+                                        <InputSelect class="form-select" id="category" @bind-Value="newWorkflow.Category">
+                                            <option value="">-- Select Category --</option>
+                                            <option value="Assessment">Assessment</option>
+                                            <option value="Audit">Audit</option>
+                                            <option value="Compliance">Compliance</option>
+                                            <option value="Review">Review</option>
+                                            <option value="Approval">Approval</option>
+                                            <option value="Other">Other</option>
+                                        </InputSelect>
+                                        <ValidationMessage For="@(() => newWorkflow.Category)" class="text-danger small" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <InputCheckbox class="form-check-input" id="requiresApproval" @bind-Value="newWorkflow.RequiresApproval" />
+                                            <label class="form-check-label" for="requiresApproval">
+                                                Requires Approval
+                                            </label>
+                                        </div>
+                                        <small class="form-text text-muted">Enable multi-level approvals for this workflow</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (newWorkflow.RequiresApproval)
+                            {
+                                <div class="mb-3">
+                                    <label class="form-label">Approval Steps (Comma-separated user IDs)</label>
+                                    <InputTextArea class="form-control" rows="2" @bind-Value="newWorkflow.Approvers"
+                                        placeholder="user1, user2, user3"></InputTextArea>
+                                    <small class="form-text text-muted">Approvers will review in order</small>
+                                </div>
+                            }
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-secondary" @onclick="CancelCreate">Cancel</button>
+                                <button type="submit" class="btn btn-primary" disabled="@(isSubmitting)">
+                                    @if (isSubmitting)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                        <span>Creating...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Create Workflow</span>
+                                    }
+                                </button>
+                            </div>
+                        </EditForm>
+                    }
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Tips</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li>Workflow names should be descriptive and unique</li>
+                        <li>Enable approval requirement for critical workflows</li>
+                        <li>Add multiple approvers for complex approvals</li>
+                        <li>You can edit workflows after creation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private CreateWorkflowDto newWorkflow = new();
+    private bool isSubmitting = false;
+    private string? errorMessage;
+    private List<string> steps = new() { "Details", "Configuration", "Approvers", "Review" };
+
+    private bool IsFormValid()
+    {
+        return !string.IsNullOrWhiteSpace(newWorkflow.Name) &&
+               !string.IsNullOrWhiteSpace(newWorkflow.Category);
+    }
+
+    private async Task HandleCreateWorkflow()
+    {
+        try
+        {
+            isSubmitting = true;
+            errorMessage = null;
+
+            // Validate form
+            if (!IsFormValid())
+            {
+                errorMessage = "Please fill in all required fields";
+                return;
+            }
+
+            // Create workflow via API
+            var tenantId = Guid.Parse("550e8400-e29b-41d4-a716-446655440000");
+            
+            // Simulate API call
+            await Task.Delay(500);
+            
+            NavManager.NavigateTo("/workflows");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error creating workflow: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void CancelCreate()
+    {
+        NavManager.NavigateTo("/workflows");
+    }
+}

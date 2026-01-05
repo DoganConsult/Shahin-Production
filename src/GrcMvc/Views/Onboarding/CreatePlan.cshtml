@@ -1,0 +1,282 @@
+@model CreatePlanDto
+
+@{
+    ViewData["Title"] = "GRC System - Create Assessment Plan";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4 mb-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Progress Indicator -->
+            <div class="card mb-4 border-0 bg-light">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Onboarding Progress</h5>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100"
+                            aria-valuemin="0" aria-valuemax="100">
+                            Step 4: Create Assessment Plan
+                        </div>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        Step 1: Registration ✓ → Step 2: Organization Profile ✓ → Step 3: Review Scope ✓ → Step 4:
+                        Create Plan
+                    </small>
+                </div>
+            </div>
+
+            <!-- Create Plan Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-calendar-alt"></i> Create Your First Assessment Plan
+                    </h4>
+                </div>
+
+                <div class="card-body p-4">
+                    <p class="text-muted mb-4">
+                        Create your first assessment plan to begin evaluating compliance against the derived scope.
+                    </p>
+
+                    <form asp-action="CreatePlan" asp-controller="Onboarding" method="post" id="planForm" novalidate>
+                        <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+                        <input type="hidden" asp-for="TenantId" />
+
+                        <!-- Basic Information -->
+                        <h5 class="mb-3 text-primary border-bottom pb-2">
+                            <i class="fas fa-info-circle"></i> Plan Details
+                        </h5>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">
+                                <span class="text-danger">*</span> Plan Name
+                            </label>
+                            <input asp-for="Name" class="form-control form-control-lg"
+                                placeholder="e.g., 2026 Q1 Compliance Assessment">
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-1">A descriptive name for this assessment plan.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">
+                                Plan Description
+                            </label>
+                            <textarea asp-for="Description" class="form-control" rows="3"
+                                placeholder="Brief description of the plan scope and objectives..."></textarea>
+                            <small class="text-muted d-block mt-1">Optional: Helps team members understand the plan's
+                                focus.</small>
+                        </div>
+
+                        <!-- Plan Type -->
+                        <div class="mb-3">
+                            <label asp-for="PlanType" class="form-label">
+                                <span class="text-danger">*</span> Plan Type
+                            </label>
+                            <select asp-for="PlanType" class="form-select form-select-lg" id="planType">
+                                <option value="">-- Select Plan Type --</option>
+                                <option value="QuickScan">Quick Scan (2-4 weeks, high-level assessment)</option>
+                                <option value="Full">Full Assessment (6-8 weeks, comprehensive controls review)</option>
+                                <option value="Remediation">Remediation (4-6 weeks, focused on identified gaps)</option>
+                                <option value="Custom">Custom (Define your own timeline and scope)</option>
+                            </select>
+                            <span asp-validation-for="PlanType" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-1">
+                                <strong>QuickScan:</strong> Perfect for initial assessments. <br>
+                                <strong>Full:</strong> Comprehensive review of all applicable controls. <br>
+                                <strong>Remediation:</strong> Focused on addressing identified findings. <br>
+                                <strong>Custom:</strong> Define your own schedule.
+                            </small>
+                        </div>
+
+                        <!-- Timeline Section -->
+                        <h5 class="mb-3 mt-4 text-primary border-bottom pb-2">
+                            <i class="fas fa-hourglass-half"></i> Timeline
+                        </h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="StartDate" class="form-label">
+                                    <span class="text-danger">*</span> Planned Start Date
+                                </label>
+                                <input asp-for="StartDate" type="date" class="form-control form-control-lg">
+                                <span asp-validation-for="StartDate" class="text-danger small"></span>
+                                <small class="text-muted d-block mt-1">When should the assessment begin?</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="TargetEndDate" class="form-label">
+                                    <span class="text-danger">*</span> Target End Date
+                                </label>
+                                <input asp-for="TargetEndDate" type="date" class="form-control form-control-lg"
+                                    id="targetEndDate">
+                                <span asp-validation-for="TargetEndDate" class="text-danger small"></span>
+                                <small class="text-muted d-block mt-1">By when should the assessment be
+                                    completed?</small>
+                            </div>
+                        </div>
+
+                        <!-- Auto-calculated duration info -->
+                        <div class="alert alert-info mb-3" id="durationAlert" style="display: none;">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Estimated Duration:</strong> <span id="durationDays">0</span> days
+                        </div>
+
+                        <!-- Plan Scope Summary -->
+                        <h5 class="mb-3 mt-4 text-primary border-bottom pb-2">
+                            <i class="fas fa-list-check"></i> Assessment Scope
+                        </h5>
+
+                        <div class="alert alert-success">
+                            <p class="mb-2">
+                                <strong>This plan will assess compliance against:</strong>
+                            </p>
+                            <ul class="mb-0 small">
+                                <li><strong>Baselines:</strong> All applicable KSA regulations (SAMA, PDPL, NRA, MOI,
+                                    etc.)</li>
+                                <li><strong>Packages:</strong> Critical infrastructure, incident response, cloud
+                                    security packages</li>
+                                <li><strong>Templates:</strong> Data protection assessments, vendor reviews, compliance
+                                    documentation</li>
+                            </ul>
+                        </div>
+
+                        <!-- Stakeholders -->
+                        <h5 class="mb-3 mt-4 text-primary border-bottom pb-2">
+                            <i class="fas fa-users"></i> Stakeholders
+                        </h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <span class="text-danger">*</span> Primary Stakeholders
+                            </label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="stakeholder1" name="Stakeholders"
+                                    value="COMPLIANCE_OFFICER" checked>
+                                <label class="form-check-label" for="stakeholder1">
+                                    Compliance Officer
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="stakeholder2" name="Stakeholders"
+                                    value="SECURITY_LEAD">
+                                <label class="form-check-label" for="stakeholder2">
+                                    Security Team Lead
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="stakeholder3" name="Stakeholders"
+                                    value="AUDIT_MGR">
+                                <label class="form-check-label" for="stakeholder3">
+                                    Audit Manager
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="stakeholder4" name="Stakeholders"
+                                    value="LEGAL_COUNSEL">
+                                <label class="form-check-label" for="stakeholder4">
+                                    Legal Counsel
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Confirmation -->
+                        <div class="alert alert-warning mt-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="confirmPlan" name="ConfirmPlan"
+                                    required>
+                                <label class="form-check-label" for="confirmPlan">
+                                    I confirm that the plan timeline is feasible and stakeholders are aware of this
+                                    assessment.
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-grid gap-2 d-sm-flex justify-content-between mt-4">
+                            <a href="@Url.Action("ReviewScope", "Onboarding")" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check-circle"></i> Create Plan & Complete Onboarding
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Success Card (shown after plan creation) -->
+            <div class="card shadow-sm mt-4 border-success" id="successCard" style="display: none;">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-check-circle"></i> Onboarding Complete!
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <p class="mb-3">Your organization has been successfully set up in the GRC system.</p>
+                    <ul class="mb-4">
+                        <li>✓ Organization provisioned</li>
+                        <li>✓ Compliance scope derived</li>
+                        <li>✓ Assessment plan created</li>
+                        <li>✓ Team invited</li>
+                    </ul>
+                    <p>You can now access your dashboard and begin the assessment process.</p>
+                    <a href="@Url.Action("Index", "Dashboard")" class="btn btn-success btn-lg">
+                        <i class="fas fa-arrow-right"></i> Go to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Calculate duration based on date inputs
+    document.addEventListener('DOMContentLoaded', function () {
+        const startDateInput = document.querySelector('input[name="StartDate"]');
+        const endDateInput = document.querySelector('input[name="TargetEndDate"]');
+        const durationAlert = document.getElementById('durationAlert');
+        const durationDays = document.getElementById('durationDays');
+
+        function calculateDuration() {
+            if (startDateInput.value && endDateInput.value) {
+                const start = new Date(startDateInput.value);
+                const end = new Date(endDateInput.value);
+                const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                durationDays.textContent = diff > 0 ? diff : 0;
+                durationAlert.style.display = diff > 0 ? 'block' : 'none';
+            }
+        }
+
+        startDateInput.addEventListener('change', calculateDuration);
+        endDateInput.addEventListener('change', calculateDuration);
+
+        // Auto-populate target end date based on plan type
+        document.getElementById('planType').addEventListener('change', function () {
+            const startDate = new Date(startDateInput.value);
+            let daysToAdd = 42; // Default: 6 weeks
+
+            switch (this.value) {
+                case 'QuickScan':
+                    daysToAdd = 21; // 3 weeks
+                    break;
+                case 'Full':
+                    daysToAdd = 56; // 8 weeks
+                    break;
+                case 'Remediation':
+                    daysToAdd = 35; // 5 weeks
+                    break;
+                case 'Custom':
+                    daysToAdd = 0;
+                    break;
+            }
+
+            if (daysToAdd > 0 && startDateInput.value) {
+                const endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + daysToAdd);
+                endDateInput.value = endDate.toISOString().split('T')[0];
+                calculateDuration();
+            }
+        });
+    });
+</script>

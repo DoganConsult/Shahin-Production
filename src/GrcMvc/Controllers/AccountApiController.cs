@@ -1,0 +1,264 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using GrcMvc.Models.DTOs;
+using GrcMvc.Models;
+using GrcMvc.Services.Interfaces;
+using System;
+using System.Threading.Tasks;
+
+namespace GrcMvc.Controllers
+{
+    /// <summary>
+    /// Account API Controller
+    /// Handles REST API requests for user login, registration, profile management, and password operations
+    /// Route: /api/auth
+    /// </summary>
+    [Route("api/auth")]
+    [ApiController]
+    public class AccountApiController : ControllerBase
+    {
+        private readonly IAuthenticationService _authenticationService;
+
+        public AccountApiController(IAuthenticationService authenticationService)
+        {
+            _authenticationService = authenticationService;
+        }
+
+        /// <summary>
+        /// User login endpoint
+        /// </summary>
+        /// <remarks>
+        /// Test with: admin@grc.com / password
+        /// </remarks>
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequest)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(loginRequest?.Email) || string.IsNullOrWhiteSpace(loginRequest?.Password))
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Email and password are required"));
+
+                var result = await _authenticationService.LoginAsync(loginRequest.Email, loginRequest.Password);
+                if (result == null)
+                    return Unauthorized(ApiResponse<object>.ErrorResponse("Invalid email or password"));
+
+                return Ok(ApiResponse<AuthTokenDto>.SuccessResponse(result, "Login successful"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// User logout endpoint
+        /// </summary>
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromBody] dynamic request)
+        {
+            try
+            {
+                var token = request?.token?.ToString();
+                if (string.IsNullOrEmpty(token))
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Token is required"));
+
+                await _authenticationService.LogoutAsync(token);
+                return Ok(ApiResponse<object>.SuccessResponse(null, "Logout successful"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// User registration endpoint
+        /// </summary>
+        [HttpPost("register")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequest)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(registerRequest?.Email) ||
+                    string.IsNullOrWhiteSpace(registerRequest?.Password) ||
+                    string.IsNullOrWhiteSpace(registerRequest?.FullName))
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Email, password, and full name are required"));
+
+                var result = await _authenticationService.RegisterAsync(
+                    registerRequest.Email,
+                    registerRequest.Password,
+                    registerRequest.FullName);
+
+                if (result == null)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("User already exists"));
+
+                return CreatedAtAction(nameof(GetUserProfile),
+                    ApiResponse<AuthTokenDto>.SuccessResponse(result, "Registration successful"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Refresh authentication token
+        /// </summary>
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto refreshRequest)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(refreshRequest?.RefreshToken))
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Refresh token is required"));
+
+                var result = await _authenticationService.RefreshTokenAsync(refreshRequest.RefreshToken);
+                if (result == null)
+                    return Unauthorized(ApiResponse<object>.ErrorResponse("Invalid refresh token"));
+
+                return Ok(ApiResponse<AuthTokenDto>.SuccessResponse(result, "Token refreshed successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Forgot password endpoint - sends reset link via email
+        /// </summary>
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto forgotPasswordRequest)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(forgotPasswordRequest?.Email))
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Email is required"));
+
+                var result = await _authenticationService.ForgotPasswordAsync(forgotPasswordRequest.Email);
+
+                if (!result.Success)
+                    return NotFound(ApiResponse<PasswordResetResponseDto>.ErrorResponse("User not found"));
+
+                return Ok(ApiResponse<PasswordResetResponseDto>.SuccessResponse(result, "Password reset link sent successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Reset password endpoint
+        /// </summary>
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto resetPasswordRequest)
+        {
+            try
+            {
+                if (resetPasswordRequest == null ||
+                    string.IsNullOrWhiteSpace(resetPasswordRequest.Email) ||
+                    string.IsNullOrWhiteSpace(resetPasswordRequest.NewPassword) ||
+                    string.IsNullOrWhiteSpace(resetPasswordRequest.Token))
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Email, token, and new password are required"));
+
+                if (resetPasswordRequest.NewPassword != resetPasswordRequest.ConfirmPassword)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Passwords do not match"));
+
+                var success = await _authenticationService.ResetPasswordAsync(resetPasswordRequest);
+
+                if (!success)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Password reset failed"));
+
+                return Ok(ApiResponse<object>.SuccessResponse(null, "Password reset successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Get user profile
+        /// </summary>
+        [HttpGet("user-profile")]
+        public async Task<IActionResult> GetUserProfile([FromQuery] string userId)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(userId))
+                    return BadRequest(ApiResponse<object>.ErrorResponse("User ID is required"));
+
+                var profile = await _authenticationService.GetUserProfileAsync(userId);
+                if (profile == null)
+                    return NotFound(ApiResponse<object>.ErrorResponse("User not found"));
+
+                return Ok(ApiResponse<UserProfileDto>.SuccessResponse(profile, "User profile retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Update user profile
+        /// </summary>
+        [HttpPut("update-profile")]
+        public async Task<IActionResult> UpdateProfile([FromQuery] string userId, [FromBody] UpdateProfileRequestDto updateProfileRequest)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(userId))
+                    return BadRequest(ApiResponse<object>.ErrorResponse("User ID is required"));
+
+                if (updateProfileRequest == null)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Profile data is required"));
+
+                var profile = await _authenticationService.UpdateProfileAsync(userId, updateProfileRequest);
+                if (profile == null)
+                    return NotFound(ApiResponse<object>.ErrorResponse("User not found"));
+
+                return Ok(ApiResponse<UserProfileDto>.SuccessResponse(profile, "Profile updated successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Change user password
+        /// </summary>
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromQuery] string userId, [FromBody] ChangePasswordRequestDto changePasswordRequest)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(userId))
+                    return BadRequest(ApiResponse<object>.ErrorResponse("User ID is required"));
+
+                if (changePasswordRequest == null ||
+                    string.IsNullOrWhiteSpace(changePasswordRequest.CurrentPassword) ||
+                    string.IsNullOrWhiteSpace(changePasswordRequest.NewPassword))
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Current and new passwords are required"));
+
+                if (changePasswordRequest.NewPassword != changePasswordRequest.ConfirmPassword)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Passwords do not match"));
+
+                var success = await _authenticationService.ChangePasswordAsync(userId, changePasswordRequest);
+
+                if (!success)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Password change failed"));
+
+                return Ok(ApiResponse<object>.SuccessResponse(null, "Password changed successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+    }
+}

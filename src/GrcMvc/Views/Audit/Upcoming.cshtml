@@ -1,0 +1,113 @@
+@model IEnumerable<GrcMvc.Models.DTOs.AuditDto>
+@{
+    ViewData["Title"] = "Upcoming Audits";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-calendar-event"></i> Upcoming Audits (Next 30 Days)</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Audit
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-calendar-check display-1 text-muted"></i>
+                    <h4 class="mt-3 text-muted">No upcoming audits scheduled for the next 30 days.</h4>
+                    <p>You're all caught up!</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover" id="upcomingTable">
+                        <thead>
+                            <tr>
+                                <th>Start Date</th>
+                                <th>Audit</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Lead Auditor</th>
+                                <th>Days Until Start</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                var daysLeft = (item.PlannedStartDate - DateTime.Now).Days;
+                                var urgencyClass = daysLeft < 3 ? "text-danger fw-bold" : (daysLeft < 7 ? "text-warning" : "");
+
+                                <tr>
+                                    <td>@item.PlannedStartDate.ToShortDateString()</td>
+                                    <td>
+                                        <a asp-action="Details" asp-route-id="@item.Id">@item.Name</a>
+                                        <br />
+                                        <small class="text-muted">@item.AuditNumber</small>
+                                    </td>
+                                    <td>@item.Type</td>
+                                    <td>
+                                        <span class="badge @GetStatusBadgeClass(item.Status)">
+                                            @item.Status
+                                        </span>
+                                    </td>
+                                    <td>@item.LeadAuditor</td>
+                                    <td class="@urgencyClass">
+                                        @if (daysLeft < 0)
+                                        {
+                                            <span>Started</span>
+                                        }
+                                        else
+                                        {
+                                            <span>In @daysLeft days</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i> Update
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "completed" => "bg-success",
+            "inprogress" or "in progress" => "bg-primary",
+            "planned" => "bg-info",
+            "delayed" or "overdue" => "bg-danger",
+            "cancelled" => "bg-secondary",
+            _ => "bg-secondary"
+        };
+    }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "grc-mvc-frontend",
+  "version": "1.0.0",
+  "description": "Frontend dependencies for GRC MVC Application",
+  "scripts": {
+    "build": "npm run build:css && npm run build:js",
+    "build:css": "echo 'CSS build placeholder'",
+    "build:js": "echo 'JS build placeholder'",
+    "watch": "npm run watch:css & npm run watch:js",
+    "watch:css": "echo 'CSS watch placeholder'",
+    "watch:js": "echo 'JS watch placeholder'"
+  },
+  "devDependencies": {
+    "@types/jquery": "^3.5.29",
+    "bootstrap": "^5.3.2",
+    "jquery": "^3.7.1",
+    "sass": "^1.69.5",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {},
+  "keywords": ["grc", "mvc", "governance", "risk", "compliance"],
+  "author": "GRC Development Team",
+  "license": "ISC"
+}

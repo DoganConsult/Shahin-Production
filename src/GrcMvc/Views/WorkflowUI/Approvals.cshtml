@@ -1,0 +1,358 @@
+@{
+    ViewData["Title"] = "Approval Workflows";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-2">
+                <i class="fas fa-check-circle"></i> Approval Workflows
+            </h1>
+            <p class="text-muted">Multi-level approval routing with manager, compliance, and executive sign-off</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitForApprovalModal">
+                <i class="fas fa-plus"></i> Submit for Approval
+            </button>
+        </div>
+    </div>
+
+    <!-- Approval Status Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center border-primary">
+                <div class="card-body">
+                    <h5>Awaiting Manager</h5>
+                    <h3 class="text-primary" id="awaitingManager">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-success">
+                <div class="card-body">
+                    <h5>Manager Approved</h5>
+                    <h3 class="text-success" id="managerApproved">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-warning">
+                <div class="card-body">
+                    <h5>Awaiting Compliance</h5>
+                    <h3 class="text-warning" id="awaitingCompliance">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-danger">
+                <div class="card-body">
+                    <h5>Rejected</h5>
+                    <h3 class="text-danger" id="rejected">0</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approval Requests Table -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">All Approvals</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Document Type</th>
+                            <th>Submitted By</th>
+                            <th>Current Stage</th>
+                            <th>Status</th>
+                            <th>Submitted Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="approvalsTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">
+                                <i class="fas fa-spinner fa-spin"></i> Loading approvals...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approval Stages Diagram -->
+    <div class="card mt-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Approval Process Flow</h5>
+        </div>
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-2 text-center">
+                    <div class="badge bg-primary p-3 fs-5">Submit</div>
+                    <p class="mt-2 text-muted small">Initiate</p>
+                </div>
+                <div class="col-md-1 text-center">
+                    <i class="fas fa-arrow-right text-muted fa-2x"></i>
+                </div>
+                <div class="col-md-2 text-center">
+                    <div class="badge bg-primary p-3 fs-5">Manager</div>
+                    <p class="mt-2 text-muted small">Approval 1</p>
+                </div>
+                <div class="col-md-1 text-center">
+                    <i class="fas fa-arrow-right text-muted fa-2x"></i>
+                </div>
+                <div class="col-md-2 text-center">
+                    <div class="badge bg-primary p-3 fs-5">Compliance</div>
+                    <p class="mt-2 text-muted small">Approval 2</p>
+                </div>
+                <div class="col-md-1 text-center">
+                    <i class="fas fa-arrow-right text-muted fa-2x"></i>
+                </div>
+                <div class="col-md-2 text-center">
+                    <div class="badge bg-primary p-3 fs-5">Executive</div>
+                    <p class="mt-2 text-muted small">Final Sign-off</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submit for Approval Modal -->
+<div class="modal fade" id="submitForApprovalModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Submit for Approval</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="submitApprovalForm">
+                    <div class="mb-3">
+                        <label class="form-label">Document Type</label>
+                        <select class="form-select" id="entityType" required>
+                            <option value="">Select document type...</option>
+                            <option value="Policy">Policy Document</option>
+                            <option value="Procedure">Procedure</option>
+                            <option value="Control">Control Implementation</option>
+                            <option value="Framework">Framework Change</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Document ID</label>
+                        <input type="number" class="form-control" id="entityId" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Supporting Documents</label>
+                        <input type="file" class="form-control" id="attachments" multiple>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitForApproval()">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Approval Detail Modal -->
+<div class="modal fade" id="approvalDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Approval Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="approvalDetailContent">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function submitForApproval() {
+            const entityType = document.getElementById('entityType').value;
+            const entityId = document.getElementById('entityId').value;
+            const description = document.getElementById('description').value;
+
+            if (!entityType || !entityId || !description) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/workflows/approval/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ entityId, entityType })
+                });
+
+                if (response.ok) {
+                    alert('Document submitted for approval');
+                    document.getElementById('submitApprovalForm').reset();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('submitForApprovalModal'));
+                    modal.hide();
+                    loadApprovals();
+                } else {
+                    alert('Error submitting document');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error submitting document');
+            }
+        }
+
+        async function approveAsManager(workflowId) {
+            const comments = prompt('Enter approval comments:');
+            if (!comments) return;
+
+            try {
+                const response = await fetch(`/api/workflows/approval/${workflowId}/manager-approve`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ comments })
+                });
+
+                if (response.ok) {
+                    alert('Approval submitted');
+                    loadApprovals();
+                } else {
+                    alert('Error approving');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function rejectApproval(workflowId) {
+            const comments = prompt('Enter rejection reason:');
+            if (!comments) return;
+
+            try {
+                const response = await fetch(`/api/workflows/approval/${workflowId}/manager-reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ comments })
+                });
+
+                if (response.ok) {
+                    alert('Document rejected');
+                    loadApprovals();
+                } else {
+                    alert('Error rejecting');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadApprovals() {
+            try {
+                const response = await fetch('/api/workflows/list/approval');
+                const data = await response.json();
+
+                // Update status counts
+                const awaitingManager = data.workflows?.filter(w => w.currentState === 'Submitted').length || 0;
+                const managerApproved = data.workflows?.filter(w => w.currentState === 'ManagerApproved').length || 0;
+                const awaitingCompliance = data.workflows?.filter(w => w.currentState === 'PendingComplianceReview').length || 0;
+                const rejected = data.workflows?.filter(w => w.currentState === 'Rejected').length || 0;
+
+                document.getElementById('awaitingManager').textContent = awaitingManager;
+                document.getElementById('managerApproved').textContent = managerApproved;
+                document.getElementById('awaitingCompliance').textContent = awaitingCompliance;
+                document.getElementById('rejected').textContent = rejected;
+
+                // Update table
+                const tbody = document.getElementById('approvalsTableBody');
+                if (data.workflows && data.workflows.length > 0) {
+                    tbody.innerHTML = data.workflows.map(w => `
+                        <tr>
+                            <td>${w.id}</td>
+                            <td>${w.entityType}</td>
+                            <td>${w.createdByUserId}</td>
+                            <td><span class="badge bg-info">${w.currentState}</span></td>
+                            <td>${getStatusBadge(w.currentState)}</td>
+                            <td>${new Date(w.createdAt).toLocaleDateString()}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info" onclick="viewApprovalDetail(${w.id})">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                ${w.currentState === 'Submitted' ? `
+                                    <button class="btn btn-sm btn-success" onclick="approveAsManager(${w.id})">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="rejectApproval(${w.id})">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                ` : ''}
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No approvals found</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading approvals:', error);
+            }
+        }
+
+        function getStatusBadge(status) {
+            const badges = {
+                'Submitted': '<span class="badge bg-primary">Pending</span>',
+                'ManagerApproved': '<span class="badge bg-success">Approved</span>',
+                'PendingComplianceReview': '<span class="badge bg-warning">Under Review</span>',
+                'Rejected': '<span class="badge bg-danger">Rejected</span>',
+                'Completed': '<span class="badge bg-dark">Completed</span>'
+            };
+            return badges[status] || `<span class="badge bg-secondary">${status}</span>`;
+        }
+
+        async function viewApprovalDetail(workflowId) {
+            try {
+                const response = await fetch(`/api/workflows/approval/${workflowId}/history`);
+                const history = await response.json();
+
+                const modalContent = document.getElementById('approvalDetailContent');
+                modalContent.innerHTML = `
+                    <div class="timeline">
+                        ${history.map(h => `
+                            <div class="timeline-item">
+                                <h6>${h.stage}</h6>
+                                <p class="text-muted small">${new Date(h.timestamp).toLocaleString()}</p>
+                                <p>${h.comments || 'No comments'}</p>
+                                <p><strong>By:</strong> ${h.approverName}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                const modal = new bootstrap.Modal(document.getElementById('approvalDetailModal'));
+                modal.show();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Load approvals on page load
+        document.addEventListener('DOMContentLoaded', loadApprovals);
+    </script>
+}

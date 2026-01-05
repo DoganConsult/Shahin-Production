@@ -1,0 +1,162 @@
+@model GrcMvc.Models.DTOs.EvidenceStatisticsDto
+@{
+    ViewData["Title"] = "Evidence Statistics";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-bar-chart"></i> Evidence Statistics</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Evidence</h5>
+                    <p class="card-text display-4">@Model.TotalEvidences</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Active</h5>
+                    <p class="card-text display-4">@Model.ActiveEvidences</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Expiring Soon</h5>
+                    <p class="card-text display-4">@Model.ExpiringSoon</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-secondary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Archived</h5>
+                    <p class="card-text display-4">@Model.ArchivedEvidences</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4 h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Evidence by Type</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="typeChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4 h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Data Classification</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="classChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4 h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Status Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Type Chart
+            var typeCtx = document.getElementById('typeChart').getContext('2d');
+            var typeData = @Html.Raw(Json.Serialize(Model.EvidencesByType));
+
+            new Chart(typeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(typeData),
+                    datasets: [{
+                        data: Object.values(typeData),
+                        backgroundColor: [
+                            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'
+                        ]
+                    }]
+                }
+            });
+
+            // Classification Chart
+            var classCtx = document.getElementById('classChart').getContext('2d');
+            var classData = @Html.Raw(Json.Serialize(Model.ClassificationDistribution));
+
+            new Chart(classCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(classData),
+                    datasets: [{
+                        data: Object.values(classData),
+                        backgroundColor: [
+                            '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'
+                        ]
+                    }]
+                }
+            });
+
+            // Status Chart
+            var statusCtx = document.getElementById('statusChart').getContext('2d');
+            var statusData = @Html.Raw(Json.Serialize(Model.StatusDistribution));
+
+            new Chart(statusCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(statusData),
+                    datasets: [{
+                        label: 'Count',
+                        data: Object.values(statusData),
+                        backgroundColor: '#4e73df'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        });
+    </script>
+}

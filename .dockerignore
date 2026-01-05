@@ -1,0 +1,86 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/out/
+**/publish/
+
+# Visual Studio
+**/.vs/
+**/*.user
+**/*.suo
+**/*.userosscache
+**/*.sln.docstates
+
+# Rider
+**/.idea/
+**/*.iml
+
+# VS Code
+**/.vscode/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+**/*.md
+!README.md
+docs/
+
+# Test files
+**/test/
+**/tests/
+**/*.Test.csproj
+**/*.Tests.csproj
+
+# Logs
+**/logs/
+**/*.log
+**/*.txt
+!nuget.config
+
+# Temporary files
+**/.tmp/
+**/tmp/
+**/*.tmp
+**/*.temp
+
+# OS files
+.DS_Store
+Thumbs.db
+**/.DS_Store
+
+# Docker
+**/Dockerfile*
+**/docker-compose*.yml
+**/.dockerignore
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+azure-pipelines.yml
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Coverage reports
+**/coverage/
+**/*.coverage
+**/*.coveragexml
+
+# NuGet packages
+**/packages/
+*.nupkg
+
+# Scripts (keep only essential)
+scripts/
+!scripts/build.sh
+
+# Status reports
+**/STATUS*.md
+**/REPORT*.md
+**/*_STATUS.md
+**/*_REPORT.md
