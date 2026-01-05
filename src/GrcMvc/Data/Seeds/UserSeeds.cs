@@ -54,8 +54,8 @@ public static class UserSeeds
         Guid tenantId,
         ILogger logger)
     {
-        const string adminEmail = "admin@grcsystem.com";
-        const string adminPassword = "Admin@123456";
+        const string adminEmail = "support@shahin-ai.com";
+        const string adminPassword = "DogCon@2026";
 
         var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
@@ -237,11 +237,34 @@ public static class UserSeeds
 
         // Create title if it doesn't exist
         logger.LogInformation($"Creating title {titleCode} in catalog...");
+
+        // Get or create a default role catalog for titles
+        var defaultRole = await context.RoleCatalogs
+            .FirstOrDefaultAsync(r => r.RoleCode == "DEFAULT" || r.RoleName.Contains("Default"));
+
+        if (defaultRole == null)
+        {
+            // Create a default role if none exists
+            defaultRole = new RoleCatalog
+            {
+                Id = Guid.NewGuid(),
+                RoleCode = "DEFAULT",
+                RoleName = "Default Role",
+                IsActive = true,
+                DisplayOrder = 999,
+                CreatedDate = DateTime.UtcNow,
+                CreatedBy = "System"
+            };
+            context.RoleCatalogs.Add(defaultRole);
+            await context.SaveChangesAsync();
+        }
+
         var newTitle = new TitleCatalog
         {
             Id = Guid.NewGuid(),
             TitleCode = titleCode,
             TitleName = titleName,
+            RoleCatalogId = defaultRole.Id, // Set required foreign key
             IsActive = true,
             DisplayOrder = 999,
             CreatedDate = DateTime.UtcNow,

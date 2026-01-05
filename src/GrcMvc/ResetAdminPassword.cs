@@ -41,7 +41,7 @@ namespace GrcMvc
                         EmailConfirmed = true
                     };
 
-                    var createResult = await userManager.CreateAsync(adminUser, "Admin123!");
+                    var createResult = await userManager.CreateAsync(adminUser, "DogCon@2026");
 
                     if (!createResult.Succeeded)
                     {
@@ -58,7 +58,7 @@ namespace GrcMvc
 
                     // Reset password to known value
                     var token = await userManager.GeneratePasswordResetTokenAsync(adminUser);
-                    var resetResult = await userManager.ResetPasswordAsync(adminUser, token, "Admin123!");
+                    var resetResult = await userManager.ResetPasswordAsync(adminUser, token, "DogCon@2026");
 
                     if (!resetResult.Succeeded)
                     {
@@ -83,7 +83,7 @@ namespace GrcMvc
                 Console.WriteLine("\n==============================");
                 Console.WriteLine("Login Credentials:");
                 Console.WriteLine($"Email: support@shahin-ai.com");
-                Console.WriteLine($"Password: Admin123!");
+                Console.WriteLine($"Password: DogCon@2026");
                 Console.WriteLine("==============================\n");
 
                 return true;

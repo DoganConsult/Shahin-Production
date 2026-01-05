@@ -95,14 +95,39 @@
                             <small class="text-muted d-block mt-1">Determines applicable regulatory frameworks.</small>
                         </div>
 
-                        <!-- Terms & Conditions -->
-                        <div class="mb-4">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="agreeTerms" required>
-                                <label class="form-check-label" for="agreeTerms">
-                                    I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#"
-                                        target="_blank">Privacy Policy</a>
-                                </label>
+                        <!-- Terms of Service & Privacy Policy -->
+                        <div class="card border-warning mb-4">
+                            <div class="card-header bg-warning bg-opacity-10">
+                                <h6 class="mb-0"><i class="fas fa-file-contract me-2"></i>Legal Agreements / الاتفاقيات القانونية</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                                    <label class="form-check-label" for="agreeTerms">
+                                        <span class="text-danger">*</span>
+                                        I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#tosModal" class="fw-bold">Terms of Service</a>
+                                        <br>
+                                        <small class="text-muted">أوافق على شروط الخدمة</small>
+                                    </label>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="agreePrivacy" required>
+                                    <label class="form-check-label" for="agreePrivacy">
+                                        <span class="text-danger">*</span>
+                                        I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal" class="fw-bold">Privacy Policy</a> (PDPL Compliant)
+                                        <br>
+                                        <small class="text-muted">أوافق على سياسة الخصوصية (متوافقة مع نظام حماية البيانات الشخصية)</small>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="agreeDataProcessing" required>
+                                    <label class="form-check-label" for="agreeDataProcessing">
+                                        <span class="text-danger">*</span>
+                                        I consent to the processing of my organization's data for GRC services
+                                        <br>
+                                        <small class="text-muted">أوافق على معالجة بيانات منظمتي لخدمات الحوكمة والمخاطر والامتثال</small>
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
@@ -147,9 +172,38 @@
 
 <script>
     document.getElementById('signupForm').addEventListener('submit', function (e) {
-        if (!document.getElementById('agreeTerms').checked) {
+        const tosChecked = document.getElementById('agreeTerms').checked;
+        const privacyChecked = document.getElementById('agreePrivacy').checked;
+        const dataProcessingChecked = document.getElementById('agreeDataProcessing').checked;
+
+        if (!tosChecked || !privacyChecked || !dataProcessingChecked) {
             e.preventDefault();
-            alert('You must agree to the Terms of Service and Privacy Policy');
+            alert('يجب الموافقة على جميع الاتفاقيات القانونية للمتابعة\n\nYou must agree to all legal agreements to continue');
+            return false;
         }
+
+        // Record consent via API (async, don't block form submission)
+        recordConsent();
     });
+
+    async function recordConsent() {
+        try {
+            const consents = ['TermsOfService', 'PrivacyPolicy', 'DataProcessing'];
+            for (const type of consents) {
+                await fetch('/api/support/consent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tenantId: '00000000-0000-0000-0000-000000000000', // Will be updated after tenant creation
+                        userId: 'PENDING',
+                        consentType: type,
+                        documentVersion: '1.0',
+                        isGranted: true
+                    })
+                });
+            }
+        } catch (error) {
+            console.log('Consent recording will be completed after registration');
+        }
+    }
 </script>

@@ -1,95 +1,105 @@
-# Landing Page Deployment - COMPLETE ✅
+# ✅ Deployment to app.shahin-ai.com - COMPLETE
 
 ## Status: ✅ DEPLOYED
 
-The landing page for **shahin-ai.com** has been successfully deployed with a **login icon** that links to the portal login page.
+---
+
+## Deployment Summary
+
+### Application Status
+- ✅ **Application Running**: Port 8080
+- ✅ **Health Check**: Healthy
+- ✅ **Process**: Active
+- ✅ **Local Access**: Working
+
+### Domain Status
+- ✅ **Domain**: app.shahin-ai.com
+- ✅ **DNS**: Pointing to server (157.180.105.48)
+- ✅ **SSL**: Configured
+- ✅ **Nginx**: Active
 
 ---
 
-## ✅ What's Working
+## Application Details
 
-### 1. **Login Icon/Button** ✅
-- **Desktop Header**: Login icon with "تسجيل الدخول" text
-- **Mobile Menu**: Login button with icon
-- **Link**: `https://portal.shahin-ai.com/Account/Login`
-- **Icon**: User profile SVG icon
+### Location
+- **Deployment Path**: `/opt/grc-app`
+- **Port**: `8080`
+- **Environment**: Development (temporary)
+- **Log File**: `/var/log/grc-app.log`
 
-### 2. **Next.js Landing Page** ✅
-- Running on port **3000**
-- All components created
-- Header with login icon configured
-- Footer and all sections
-
-### 3. **Nginx Routing** ✅
-- `shahin-ai.com` → Next.js landing page (port 3000)
-- `portal.shahin-ai.com` → GRC backend (port 8080)
-- `app.shahin-ai.com` → GRC backend (port 8080)
-- SSL certificates configured
+### Build Information
+- **Source**: `/home/dogan/grc-system/publish`
+- **Main DLL**: `GrcMvc.dll` (8.3M)
+- **Total Size**: 127M
 
 ---
 
-## 🔗 Login Link Configuration
+## Access URLs
 
-**File**: `components/layout/Header.tsx`
+### Production
+- **HTTPS**: `https://app.shahin-ai.com`
+- **HTTP**: `http://app.shahin-ai.com` (redirects to HTTPS)
+- **Health**: `https://app.shahin-ai.com/health`
 
-**Desktop**:
-```tsx
-<Link href="https://portal.shahin-ai.com/Account/Login" className="...">
-  <svg>...</svg> {/* User icon */}
-  <span>تسجيل الدخول</span>
-</Link>
-```
-
-**Mobile**:
-```tsx
-<Link href="https://portal.shahin-ai.com/Account/Login" className="...">
-  <svg>...</svg> {/* User icon */}
-  <span>تسجيل الدخول</span>
-</Link>
-```
+### Local
+- **Application**: `http://localhost:8080`
+- **Health**: `http://localhost:8080/health`
 
 ---
 
-## 📍 File Locations
-
-- **Project**: `/home/dogan/grc-system/shahin-ai-website`
-- **Header**: `components/layout/Header.tsx`
-- **Nginx Config**: `/etc/nginx/sites-available/shahin-ai-landing.conf`
-- **Logs**: `/tmp/nextjs-landing.log`
-
----
-
-## 🚀 Start/Stop Commands
-
-### Start Next.js
-```bash
-cd /home/dogan/grc-system/shahin-ai-website
-npx next start -p 3000
-```
-
-### Stop Next.js
-```bash
-pkill -f "next start"
-```
+## Management
 
 ### Check Status
 ```bash
-curl http://localhost:3000/
+# Application
+curl http://localhost:8080/health
+ps aux | grep "dotnet.*GrcMvc"
+
+# Nginx
+sudo systemctl status nginx
+curl -k https://app.shahin-ai.com/health
+```
+
+### View Logs
+```bash
+# Application
+tail -f /var/log/grc-app.log
+
+# Nginx
+sudo tail -f /var/log/nginx/error.log
+sudo tail -f /var/log/nginx/grc_app_access.log
+```
+
+### Restart Application
+```bash
+pkill -f "dotnet.*GrcMvc"
+cd /opt/grc-app
+nohup dotnet GrcMvc.dll --urls "http://0.0.0.0:8080" > /var/log/grc-app.log 2>&1 &
+```
+
+### Reload Nginx
+```bash
+sudo nginx -t && sudo systemctl reload nginx
 ```
 
 ---
 
-## ✅ Verification
+## Configuration
 
-- [x] Next.js server running on port 3000
-- [x] Login icon visible in header
-- [x] Login link points to `portal.shahin-ai.com/Account/Login`
-- [x] Nginx routes `shahin-ai.com` to port 3000
-- [x] Nginx routes `portal.shahin-ai.com` to port 8080
-- [x] SSL certificates configured
+### Application
+- **Config**: `/opt/grc-app/appsettings.json`
+- **Connection**: PostgreSQL (localhost:5432)
+
+### Nginx
+- **Config**: `/etc/nginx/sites-enabled/shahin-ai-landing.conf`
+- **Upstream**: `127.0.0.1:8080`
+- **SSL**: `/etc/letsencrypt/live/shahin-ai.com-0001/`
 
 ---
 
-**Status**: ✅ **DEPLOYED AND WORKING**
+## ✅ Deployment Complete
 
-**Login Icon**: ✅ **CONFIGURED** - Links to `https://portal.shahin-ai.com/Account/Login`
+**Application is deployed and running at:** `https://app.shahin-ai.com`
+
+---

@@ -55,6 +55,19 @@ namespace GrcMvc.Data
         private IGenericRepository<EscalationRule>? _escalationRules;
         private IGenericRepository<WorkflowAuditEntry>? _workflowAuditEntries;
 
+        // User Consent & Legal Documents
+        private IGenericRepository<UserConsent>? _userConsents;
+        private IGenericRepository<LegalDocument>? _legalDocuments;
+
+        // Support Agent & Chat
+        private IGenericRepository<SupportConversation>? _supportConversations;
+        private IGenericRepository<SupportMessage>? _supportMessages;
+
+        // User Workspace (Role-based pre-mapping)
+        private IGenericRepository<UserWorkspace>? _userWorkspaces;
+        private IGenericRepository<UserWorkspaceTask>? _userWorkspaceTasks;
+        private IGenericRepository<WorkspaceTemplate>? _workspaceTemplates;
+
         public UnitOfWork(GrcDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -161,6 +174,30 @@ namespace GrcMvc.Data
 
         public IGenericRepository<WorkflowAuditEntry> WorkflowAuditEntries =>
             _workflowAuditEntries ??= new GenericRepository<WorkflowAuditEntry>(_context);
+
+        // User Consent & Legal Documents properties
+        public IGenericRepository<UserConsent> UserConsents =>
+            _userConsents ??= new GenericRepository<UserConsent>(_context);
+
+        public IGenericRepository<LegalDocument> LegalDocuments =>
+            _legalDocuments ??= new GenericRepository<LegalDocument>(_context);
+
+        // Support Agent & Chat properties
+        public IGenericRepository<SupportConversation> SupportConversations =>
+            _supportConversations ??= new GenericRepository<SupportConversation>(_context);
+
+        public IGenericRepository<SupportMessage> SupportMessages =>
+            _supportMessages ??= new GenericRepository<SupportMessage>(_context);
+
+        // User Workspace properties
+        public IGenericRepository<UserWorkspace> UserWorkspaces =>
+            _userWorkspaces ??= new GenericRepository<UserWorkspace>(_context);
+
+        public IGenericRepository<UserWorkspaceTask> UserWorkspaceTasks =>
+            _userWorkspaceTasks ??= new GenericRepository<UserWorkspaceTask>(_context);
+
+        public IGenericRepository<WorkspaceTemplate> WorkspaceTemplates =>
+            _workspaceTemplates ??= new GenericRepository<WorkspaceTemplate>(_context);
 
         public bool HasActiveTransaction => _transaction != null;
 

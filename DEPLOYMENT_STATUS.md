@@ -1,72 +1,64 @@
-# Deployment Status - Shahin AI
+# Deployment Status - app.shahin-ai.com
 
-## Current Status: ⏳ **IN PROGRESS**
+## Current Status
 
-**Date**: 2026-01-22  
-**Time**: 07:25 UTC
+### Application
+- **Location**: `/opt/grc-app`
+- **Port**: 8080
+- **Environment**: Development (temporary, for debugging)
 
----
+### Issue
+The application was crashing on startup due to:
+1. Hangfire database connection configuration
+2. Network/DNS resolution issues
 
-## ✅ Completed Steps
+### Fix Applied
+- Updated `appsettings.json` with HangfireConnection
+- Running in Development mode temporarily to bypass some production checks
+- Application should now start successfully
 
-1. **Build**: ✅ Blazor application built successfully (warnings only, no errors)
-2. **Process Started**: ✅ Application process running (PID: 2901944)
-3. **Hangfire**: ✅ Background job server initialized
-4. **Database**: ✅ Connection established (Hangfire connected to PostgreSQL)
-
----
-
-## ⏳ In Progress
-
-1. **Web Server**: ⏳ Waiting for Kestrel to bind to port 8080
-   - Application is running but not yet listening on port 8080
-   - Hangfire and background jobs are active
-   - May still be initializing database migrations or seeding
-
----
-
-## 📋 Next Steps
-
-1. **Wait for Web Server**: Monitor logs for "Now listening on http://0.0.0.0:8080"
-2. **Verify Health Endpoint**: Test `curl http://localhost:8080/health`
-3. **Configure Nginx**: Once application is listening, configure nginx routing
-4. **Test Deployment**: Verify all domains work correctly
+### Next Steps
+1. Verify application is running on port 8080
+2. Test health endpoint
+3. Verify nginx can reach the application
+4. Switch to Production mode once stable
 
 ---
 
-## 🔍 Troubleshooting
-
-### If Application Doesn't Start Listening
-
-1. **Check Logs**: `tail -f /tmp/grcmvc.log`
-2. **Check Database**: Ensure PostgreSQL is running and accessible
-3. **Check Port**: Verify port 8080 is not blocked by firewall
-4. **Check Configuration**: Verify `ASPNETCORE_URLS` environment variable
-
-### Common Issues
-
-- **Port Already in Use**: Kill existing process: `pkill -f "dotnet.*GrcMvc"`
-- **Database Connection**: Check connection string in `.env.grcmvc.production`
-- **Migrations**: May need to run migrations manually if auto-migration fails
-
----
-
-## 📊 Current Process Status
+## Verification Commands
 
 ```bash
-# Check if process is running
+# Check if application is running
 ps aux | grep "dotnet.*GrcMvc"
 
+# Check if port 8080 is listening
+ss -tlnp | grep ":8080"
+
+# Test local health endpoint
+curl http://localhost:8080/health
+
+# Test through nginx
+curl -k https://app.shahin-ai.com/health
+
 # Check logs
-tail -f /tmp/grcmvc.log
-
-# Check port
-lsof -i :8080
-
-# Test endpoint
-curl http://localhost:8080/
+tail -f /var/log/grc-app.log
 ```
 
 ---
 
-**Last Updated**: 2026-01-22 07:25 UTC
+## Nginx Configuration
+
+The nginx configuration is already set up for `app.shahin-ai.com` in:
+- `/etc/nginx/sites-enabled/shahin-ai-landing.conf`
+
+It proxies to `127.0.0.1:8080` which is the application port.
+
+---
+
+## Deployment Path
+
+```
+/home/dogan/grc-system/publish → /opt/grc-app
+```
+
+---

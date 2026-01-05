@@ -9,24 +9,26 @@ using Microsoft.Extensions.Logging;
 namespace GrcMvc.Controllers
 {
     /// <summary>
-    /// API and MVC Controller for multi-tenant onboarding workflow.
-    /// Handles: tenant signup, activation, organizational profiling, and scope derivation.
+    /// API Controller for onboarding endpoints
     /// </summary>
+    [ApiController]
     [Route("api/onboarding")]
-    public class OnboardingController : Controller
+    [Consumes("application/json")]
+    [Produces("application/json")]
+    public class OnboardingApiController : ControllerBase
     {
         private readonly ITenantService _tenantService;
         private readonly IOnboardingService _onboardingService;
         private readonly ISmartOnboardingService _smartOnboardingService;
         private readonly IRulesEngineService _rulesEngine;
-        private readonly ILogger<OnboardingController> _logger;
+        private readonly ILogger<OnboardingApiController> _logger;
 
-        public OnboardingController(
+        public OnboardingApiController(
             ITenantService tenantService,
             IOnboardingService onboardingService,
             ISmartOnboardingService smartOnboardingService,
             IRulesEngineService rulesEngine,
-            ILogger<OnboardingController> logger)
+            ILogger<OnboardingApiController> logger)
         {
             _tenantService = tenantService;
             _onboardingService = onboardingService;
@@ -191,6 +193,31 @@ namespace GrcMvc.Controllers
         }
 
         /// <summary>
+        /// Complete FULL smart onboarding - generates assessments, requirements, and team workspaces
+        /// </summary>
+        [HttpPost("tenants/{tenantId:guid}/complete-full-onboarding")]
+        public async Task<IActionResult> CompleteFullSmartOnboardingAsync(
+            Guid tenantId,
+            [FromBody] FullOnboardingRequest? request = null)
+        {
+            try
+            {
+                var userId = User?.FindFirst("sub")?.Value ?? "SYSTEM";
+                var result = await _smartOnboardingService.CompleteFullSmartOnboardingAsync(
+                    tenantId,
+                    userId,
+                    request?.TeamMembers);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error completing full smart onboarding");
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Get derived scope for tenant (applicable baselines, packages, templates).
         /// Includes ReasonJson explaining why each applies.
         /// </summary>
@@ -254,11 +281,19 @@ namespace GrcMvc.Controllers
                 return BadRequest(ex.Message);
             }
         }
+    }
 
+    /// <summary>
+    /// MVC Controller for onboarding pages (views)
+    /// </summary>
+    [Route("[controller]")]
+    public class OnboardingController : Controller
+    {
         /// <summary>
         /// MVC Route: Display onboarding index page
         /// </summary>
-        [HttpGet("/onboarding")]
+        [HttpGet]
+        [HttpGet("Index")]
         public IActionResult Index()
         {
             return View(nameof(Index));
@@ -267,7 +302,7 @@ namespace GrcMvc.Controllers
         /// <summary>
         /// MVC Route: Display signup page
         /// </summary>
-        [HttpGet("/onboarding/signup")]
+        [HttpGet("Signup")]
         public IActionResult Signup()
         {
             return View();
@@ -276,37 +311,49 @@ namespace GrcMvc.Controllers
         /// <summary>
         /// MVC Route: Display organization profile page
         /// </summary>
-        [HttpGet("/onboarding/org-profile")]
+        [HttpGet("OrgProfile")]
+        [HttpGet("org-profile")]
         public IActionResult OrgProfile()
         {
-            return View();
+            return View(new OrganizationProfileDto { TenantId = Guid.Empty });
         }
 
         /// <summary>
         /// MVC Route: Display scope review page
         /// </summary>
-        [HttpGet("/onboarding/review-scope")]
+        [HttpGet("ReviewScope")]
+        [HttpGet("review-scope")]
         public IActionResult ReviewScope()
         {
-            return View();
+            return View(new OnboardingScopeDto());
         }
 
         /// <summary>
         /// MVC Route: Display plan creation page
         /// </summary>
-        [HttpGet("/onboarding/create-plan")]
+        [HttpGet("CreatePlan")]
+        [HttpGet("create-plan")]
         public IActionResult CreatePlan()
         {
-            return View();
+            return View(new CreatePlanDto());
         }
 
         /// <summary>
         /// MVC Route: Display activation page
         /// </summary>
-        [HttpGet("/onboarding/activate")]
+        [HttpGet("Activate")]
+        [HttpGet("activate")]
         public IActionResult Activate()
         {
             return View();
         }
+    }
+
+    /// <summary>
+    /// Request for full onboarding with team members
+    /// </summary>
+    public class FullOnboardingRequest
+    {
+        public List<TeamMemberDto>? TeamMembers { get; set; }
     }
 }

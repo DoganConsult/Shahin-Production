@@ -18,6 +18,7 @@ public class SmartOnboardingService : ISmartOnboardingService
     private readonly IAssessmentService _assessmentService;
     private readonly IPlanService _planService;
     private readonly IFrameworkService _frameworkService;
+    private readonly IWorkspaceService _workspaceService;
     private readonly ILogger<SmartOnboardingService> _logger;
 
     public SmartOnboardingService(
@@ -26,6 +27,7 @@ public class SmartOnboardingService : ISmartOnboardingService
         IAssessmentService assessmentService,
         IPlanService planService,
         IFrameworkService frameworkService,
+        IWorkspaceService workspaceService,
         ILogger<SmartOnboardingService> logger)
     {
         _unitOfWork = unitOfWork;
@@ -33,6 +35,7 @@ public class SmartOnboardingService : ISmartOnboardingService
         _assessmentService = assessmentService;
         _planService = planService;
         _frameworkService = frameworkService;
+        _workspaceService = workspaceService;
         _logger = logger;
     }
 
@@ -558,6 +561,233 @@ public class SmartOnboardingService : ISmartOnboardingService
         if (profile.ComplianceMaturity == "Intermediate")
             return "Comprehensive";
         return "Remediation";
+    }
+
+    #endregion
+
+    #region New Methods - Auto-generate Assessments and Workspaces
+
+    /// <summary>
+    /// Auto-generate actual Assessment entities from templates
+    /// </summary>
+    public async Task<List<Assessment>> GenerateAssessmentsFromTemplatesAsync(
+        Guid tenantId,
+        Guid planId,
+        List<GeneratedAssessmentTemplateDto> templates,
+        string createdBy)
+    {
+        var assessments = new List<Assessment>();
+
+        try
+        {
+            var plan = await _unitOfWork.Plans.GetByIdAsync(planId);
+            if (plan == null)
+                throw new InvalidOperationException($"Plan {planId} not found");
+
+            foreach (var template in templates)
+            {
+                var assessment = new Assessment
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    PlanId = planId,
+                    AssessmentCode = $"ASMT-{template.FrameworkCode}-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..4].ToUpper()}",
+                    Name = template.Name,
+                    Type = "Compliance",
+                    Status = "Draft",
+                    ScheduledDate = template.RecommendedStartDate,
+                    DueDate = template.RecommendedEndDate,
+                    TemplateCode = template.TemplateCode,
+                    FrameworkCode = template.FrameworkCode,
+                    CreatedDate = DateTime.UtcNow,
+                    CreatedBy = createdBy
+                };
+
+                await _unitOfWork.Assessments.AddAsync(assessment);
+                assessments.Add(assessment);
+
+                // Generate assessment requirements from framework controls
+                await GenerateRequirementsForAssessmentAsync(assessment, template.FrameworkCode, createdBy);
+
+                _logger.LogInformation("Created assessment {Code} for framework {Framework}",
+                    assessment.AssessmentCode, template.FrameworkCode);
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+            _logger.LogInformation("Generated {Count} assessments for tenant {TenantId}", assessments.Count, tenantId);
+
+            return assessments;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating assessments from templates");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Generate assessment requirements from framework controls
+    /// </summary>
+    private async Task GenerateRequirementsForAssessmentAsync(Assessment assessment, string frameworkCode, string createdBy)
+    {
+        // Get controls for this framework
+        var controls = await _unitOfWork.FrameworkControls
+            .Query()
+            .Where(c => c.FrameworkCode == frameworkCode && !c.IsDeleted)
+            .OrderBy(c => c.ControlNumber)
+            .Take(500)
+            .ToListAsync();
+
+        foreach (var control in controls)
+        {
+            var requirement = new AssessmentRequirement
+            {
+                Id = Guid.NewGuid(),
+                AssessmentId = assessment.Id,
+                TenantId = assessment.TenantId,
+                ControlNumber = control.ControlNumber,
+                ControlTitle = control.TitleEn,
+                ControlTitleAr = control.TitleAr,
+                RequirementText = control.RequirementEn,
+                RequirementTextAr = control.RequirementAr,
+                Domain = control.Domain,
+                ControlType = control.ControlType ?? "Technical",
+                MaturityLevel = control.MaturityLevel.ToString(),
+                Status = "NotStarted",
+                EvidenceStatus = "Pending",
+                CreatedDate = DateTime.UtcNow,
+                CreatedBy = createdBy
+            };
+
+            await _unitOfWork.AssessmentRequirements.AddAsync(requirement);
+        }
+
+        _logger.LogInformation("Generated {Count} requirements for assessment {Code}",
+            controls.Count, assessment.AssessmentCode);
+    }
+
+    /// <summary>
+    /// Pre-map workspaces for team members after onboarding
+    /// </summary>
+    public async Task<List<UserWorkspace>> SetupTeamWorkspacesAsync(
+        Guid tenantId,
+        List<TeamMemberDto> teamMembers,
+        List<Guid> assessmentIds,
+        string createdBy)
+    {
+        return await _workspaceService.CreateTeamWorkspacesAsync(tenantId, teamMembers, assessmentIds, createdBy);
+    }
+
+    /// <summary>
+    /// Complete full smart onboarding with assessments and workspace setup
+    /// </summary>
+    public async Task<FullOnboardingResultDto> CompleteFullSmartOnboardingAsync(
+        Guid tenantId,
+        string userId,
+        List<TeamMemberDto>? teamMembers = null)
+    {
+        try
+        {
+            _logger.LogInformation("Starting full smart onboarding for tenant {TenantId}", tenantId);
+
+            // Step 1: Complete standard smart onboarding
+            var basicResult = await CompleteSmartOnboardingAsync(tenantId, userId);
+
+            // Step 2: Generate actual assessments from templates
+            var assessments = await GenerateAssessmentsFromTemplatesAsync(
+                tenantId,
+                basicResult.GeneratedPlan?.PlanId ?? Guid.Empty,
+                basicResult.GeneratedTemplates,
+                userId);
+
+            var assessmentIds = assessments.Select(a => a.Id).ToList();
+
+            // Step 3: Get control counts
+            var totalControls = await _unitOfWork.AssessmentRequirements
+                .Query()
+                .CountAsync(r => assessmentIds.Contains(r.AssessmentId) && !r.IsDeleted);
+
+            // Step 4: Setup team workspaces
+            var workspaces = new List<UserWorkspace>();
+            var totalTasks = 0;
+
+            // If no team members provided, create default workspace for admin
+            if (teamMembers == null || !teamMembers.Any())
+            {
+                teamMembers = new List<TeamMemberDto>
+                {
+                    new TeamMemberDto
+                    {
+                        UserId = userId,
+                        Name = "Admin",
+                        RoleCode = "GRC_MANAGER",
+                        AssignedFrameworks = basicResult.GeneratedTemplates.Select(t => t.FrameworkCode).ToList()
+                    }
+                };
+            }
+
+            workspaces = await SetupTeamWorkspacesAsync(tenantId, teamMembers, assessmentIds, userId);
+
+            // Count total tasks
+            foreach (var workspace in workspaces)
+            {
+                var taskCount = await _unitOfWork.UserWorkspaceTasks
+                    .Query()
+                    .CountAsync(t => t.WorkspaceId == workspace.Id && !t.IsDeleted);
+                totalTasks += taskCount;
+            }
+
+            // Build result
+            var result = new FullOnboardingResultDto
+            {
+                TenantId = tenantId,
+                Success = true,
+                Message = $"Full smart onboarding completed. Generated {assessments.Count} assessments with {totalControls} controls, and {workspaces.Count} team workspaces with {totalTasks} pre-mapped tasks.",
+                Scope = basicResult.Scope,
+                GeneratedPlan = basicResult.GeneratedPlan,
+                GeneratedTemplates = basicResult.GeneratedTemplates,
+                GeneratedAssessments = assessments.Select(a => new AssessmentSummaryDto
+                {
+                    Id = a.Id,
+                    AssessmentCode = a.AssessmentCode,
+                    Name = a.Name,
+                    FrameworkCode = a.FrameworkCode,
+                    DueDate = a.DueDate,
+                    Status = a.Status
+                }).ToList(),
+                TeamWorkspaces = workspaces.Select(w => new WorkspaceSummaryDto
+                {
+                    Id = w.Id,
+                    UserId = w.UserId,
+                    RoleCode = w.RoleCode,
+                    RoleName = w.RoleName,
+                    DefaultLandingPage = w.DefaultLandingPage
+                }).ToList(),
+                TotalControls = totalControls,
+                TotalTasks = totalTasks,
+                EstimatedCompletionDate = basicResult.GeneratedPlan?.TargetEndDate ?? DateTime.UtcNow.AddMonths(6),
+                CompletedAt = DateTime.UtcNow
+            };
+
+            // Update workspace task counts
+            foreach (var ws in result.TeamWorkspaces)
+            {
+                var workspace = workspaces.First(w => w.Id == ws.Id);
+                ws.AssignedTasks = await _unitOfWork.UserWorkspaceTasks
+                    .Query()
+                    .CountAsync(t => t.WorkspaceId == workspace.Id && !t.IsDeleted);
+            }
+
+            _logger.LogInformation("Full smart onboarding completed for tenant {TenantId}: {Assessments} assessments, {Controls} controls, {Workspaces} workspaces, {Tasks} tasks",
+                tenantId, assessments.Count, totalControls, workspaces.Count, totalTasks);
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in full smart onboarding for tenant {TenantId}", tenantId);
+            throw;
+        }
     }
 
     #endregion

@@ -50,6 +50,19 @@ namespace GrcMvc.Data
         IGenericRepository<EscalationRule> EscalationRules { get; }
         IGenericRepository<WorkflowAuditEntry> WorkflowAuditEntries { get; }
 
+        // User Consent & Legal Documents
+        IGenericRepository<UserConsent> UserConsents { get; }
+        IGenericRepository<LegalDocument> LegalDocuments { get; }
+
+        // Support Agent & Chat
+        IGenericRepository<SupportConversation> SupportConversations { get; }
+        IGenericRepository<SupportMessage> SupportMessages { get; }
+
+        // User Workspace (Role-based pre-mapping)
+        IGenericRepository<UserWorkspace> UserWorkspaces { get; }
+        IGenericRepository<UserWorkspaceTask> UserWorkspaceTasks { get; }
+        IGenericRepository<WorkspaceTemplate> WorkspaceTemplates { get; }
+
         // Transaction management
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();

@@ -1,0 +1,321 @@
+@{
+    ViewData["Title"] = "خطط العمل";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-tasks me-2 text-primary"></i>
+                        خطط العمل
+                    </h2>
+                    <p class="text-muted mb-0">إدارة خطط العمل والإجراءات التصحيحية</p>
+                </div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newActionPlanModal">
+                    <i class="fas fa-plus me-1"></i> خطة عمل جديدة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 mb-1">إجمالي الخطط</h6>
+                            <h3 class="mb-0">24</h3>
+                        </div>
+                        <i class="fas fa-clipboard-list fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-dark opacity-75 mb-1">قيد التنفيذ</h6>
+                            <h3 class="mb-0">12</h3>
+                        </div>
+                        <i class="fas fa-spinner fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 mb-1">مكتملة</h6>
+                            <h3 class="mb-0">8</h3>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 mb-1">متأخرة</h6>
+                            <h3 class="mb-0">4</h3>
+                        </div>
+                        <i class="fas fa-exclamation-triangle fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">الحالة</label>
+                    <select class="form-select">
+                        <option value="">جميع الحالات</option>
+                        <option value="pending">معلقة</option>
+                        <option value="in_progress">قيد التنفيذ</option>
+                        <option value="completed">مكتملة</option>
+                        <option value="overdue">متأخرة</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">الأولوية</label>
+                    <select class="form-select">
+                        <option value="">جميع الأولويات</option>
+                        <option value="critical">حرجة</option>
+                        <option value="high">عالية</option>
+                        <option value="medium">متوسطة</option>
+                        <option value="low">منخفضة</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">المسؤول</label>
+                    <select class="form-select">
+                        <option value="">جميع المسؤولين</option>
+                        <option value="1">أحمد محمد</option>
+                        <option value="2">سارة العلي</option>
+                        <option value="3">خالد السعود</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">البحث</label>
+                    <input type="text" class="form-control" placeholder="ابحث عن خطة عمل...">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Plans Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0">رقم الخطة</th>
+                            <th class="border-0">العنوان</th>
+                            <th class="border-0">الإطار المرتبط</th>
+                            <th class="border-0">المسؤول</th>
+                            <th class="border-0">الأولوية</th>
+                            <th class="border-0">التقدم</th>
+                            <th class="border-0">تاريخ الاستحقاق</th>
+                            <th class="border-0">الحالة</th>
+                            <th class="border-0">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>AP-001</code></td>
+                            <td>تطبيق ضوابط إدارة الهوية</td>
+                            <td><span class="badge bg-primary">NCA ECC</span></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-primary rounded-circle text-white me-2 d-flex align-items-center justify-content-center" style="width:32px;height:32px;font-size:12px;">أم</div>
+                                    أحمد محمد
+                                </div>
+                            </td>
+                            <td><span class="badge bg-danger">حرجة</span></td>
+                            <td>
+                                <div class="progress" style="height: 8px; width: 100px;">
+                                    <div class="progress-bar bg-success" style="width: 75%"></div>
+                                </div>
+                                <small class="text-muted">75%</small>
+                            </td>
+                            <td>2026-01-15</td>
+                            <td><span class="badge bg-warning text-dark">قيد التنفيذ</span></td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary"><i class="fas fa-eye"></i></button>
+                                    <button class="btn btn-outline-secondary"><i class="fas fa-edit"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>AP-002</code></td>
+                            <td>تحديث سياسة حماية البيانات</td>
+                            <td><span class="badge bg-info">PDPL</span></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-success rounded-circle text-white me-2 d-flex align-items-center justify-content-center" style="width:32px;height:32px;font-size:12px;">سع</div>
+                                    سارة العلي
+                                </div>
+                            </td>
+                            <td><span class="badge bg-warning text-dark">عالية</span></td>
+                            <td>
+                                <div class="progress" style="height: 8px; width: 100px;">
+                                    <div class="progress-bar bg-success" style="width: 100%"></div>
+                                </div>
+                                <small class="text-muted">100%</small>
+                            </td>
+                            <td>2026-01-10</td>
+                            <td><span class="badge bg-success">مكتملة</span></td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary"><i class="fas fa-eye"></i></button>
+                                    <button class="btn btn-outline-secondary"><i class="fas fa-edit"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>AP-003</code></td>
+                            <td>تقييم مخاطر الموردين</td>
+                            <td><span class="badge bg-success">SAMA CSF</span></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-warning rounded-circle text-dark me-2 d-flex align-items-center justify-content-center" style="width:32px;height:32px;font-size:12px;">خس</div>
+                                    خالد السعود
+                                </div>
+                            </td>
+                            <td><span class="badge bg-secondary">متوسطة</span></td>
+                            <td>
+                                <div class="progress" style="height: 8px; width: 100px;">
+                                    <div class="progress-bar bg-danger" style="width: 30%"></div>
+                                </div>
+                                <small class="text-muted">30%</small>
+                            </td>
+                            <td>2025-12-30</td>
+                            <td><span class="badge bg-danger">متأخرة</span></td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary"><i class="fas fa-eye"></i></button>
+                                    <button class="btn btn-outline-secondary"><i class="fas fa-edit"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>AP-004</code></td>
+                            <td>تنفيذ نظام النسخ الاحتياطي</td>
+                            <td><span class="badge bg-primary">NCA ECC</span></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-primary rounded-circle text-white me-2 d-flex align-items-center justify-content-center" style="width:32px;height:32px;font-size:12px;">أم</div>
+                                    أحمد محمد
+                                </div>
+                            </td>
+                            <td><span class="badge bg-warning text-dark">عالية</span></td>
+                            <td>
+                                <div class="progress" style="height: 8px; width: 100px;">
+                                    <div class="progress-bar bg-primary" style="width: 50%"></div>
+                                </div>
+                                <small class="text-muted">50%</small>
+                            </td>
+                            <td>2026-02-01</td>
+                            <td><span class="badge bg-warning text-dark">قيد التنفيذ</span></td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary"><i class="fas fa-eye"></i></button>
+                                    <button class="btn btn-outline-secondary"><i class="fas fa-edit"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white border-0">
+            <nav>
+                <ul class="pagination pagination-sm justify-content-center mb-0">
+                    <li class="page-item disabled"><a class="page-link" href="#">السابق</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">التالي</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- New Action Plan Modal -->
+<div class="modal fade" id="newActionPlanModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>خطة عمل جديدة</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">عنوان الخطة</label>
+                            <input type="text" class="form-control" placeholder="أدخل عنوان خطة العمل">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">الإطار المرتبط</label>
+                            <select class="form-select">
+                                <option value="">اختر الإطار</option>
+                                <option value="ecc">NCA ECC</option>
+                                <option value="sama">SAMA CSF</option>
+                                <option value="pdpl">PDPL</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">المسؤول</label>
+                            <select class="form-select">
+                                <option value="">اختر المسؤول</option>
+                                <option value="1">أحمد محمد</option>
+                                <option value="2">سارة العلي</option>
+                                <option value="3">خالد السعود</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">الأولوية</label>
+                            <select class="form-select">
+                                <option value="critical">حرجة</option>
+                                <option value="high">عالية</option>
+                                <option value="medium" selected>متوسطة</option>
+                                <option value="low">منخفضة</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">تاريخ الاستحقاق</label>
+                            <input type="date" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">الوصف</label>
+                            <textarea class="form-control" rows="3" placeholder="وصف تفصيلي لخطة العمل"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary">حفظ الخطة</button>
+            </div>
+        </div>
+    </div>
+</div>

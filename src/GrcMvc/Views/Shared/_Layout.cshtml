@@ -23,6 +23,7 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     }
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     @if (isRtl)
     {
@@ -92,6 +93,41 @@
                                     <li><a class="dropdown-item" href="/inbox"><i class="bi bi-inbox me-2"></i>Inbox</a></li>
                                 </ul>
                             </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-warning" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-shield-alt"></i> Shahin-AI
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="ShahinAI" asp-action="Index"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                                    <li><a class="dropdown-item" asp-controller="ShahinAIIntegration" asp-action="Index"><i class="fas fa-project-diagram me-2 text-info"></i>Integrated Flow</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="ShahinAI" asp-action="Map"><i class="fas fa-map me-2 text-primary"></i>MAP - Control Library</a></li>
+                                    <li><a class="dropdown-item" asp-controller="ShahinAI" asp-action="Apply"><i class="fas fa-check-circle me-2 text-success"></i>APPLY - Scope</a></li>
+                                    <li><a class="dropdown-item" asp-controller="ShahinAI" asp-action="Prove"><i class="fas fa-file-alt me-2" style="color:#9B59B6;"></i>PROVE - Evidence</a></li>
+                                    <li><a class="dropdown-item" asp-controller="ShahinAI" asp-action="Watch"><i class="fas fa-eye me-2 text-danger"></i>WATCH - Monitoring</a></li>
+                                    <li><a class="dropdown-item" asp-controller="ShahinAI" asp-action="Fix"><i class="fas fa-wrench me-2 text-warning"></i>FIX - Remediation</a></li>
+                                    <li><a class="dropdown-item" asp-controller="ShahinAI" asp-action="Vault"><i class="fas fa-lock me-2" style="color:#1ABC9C;"></i>VAULT - Repository</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-cogs"></i> Manage
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="RoleProfile" asp-action="Index"><i class="fas fa-user-shield me-2 text-primary"></i>Role Profiles</a></li>
+                                    <li><a class="dropdown-item" asp-controller="AssessmentTemplate" asp-action="Index"><i class="fas fa-clipboard-list me-2 text-info"></i>Assessment Templates</a></li>
+                                    <li><a class="dropdown-item" asp-controller="DocumentFlow" asp-action="Index"><i class="fas fa-file-upload me-2 text-success"></i>Document Flow</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="CCM" asp-action="Index"><i class="fas fa-robot me-2 text-info"></i>CCM Tests</a></li>
+                                    <li><a class="dropdown-item" asp-controller="KRIDashboard" asp-action="Index"><i class="fas fa-chart-line me-2 text-danger"></i>KRI/KPI Dashboard</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Exception" asp-action="Index"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Exceptions</a></li>
+                                    <li><a class="dropdown-item" asp-controller="AuditPackage" asp-action="Index"><i class="fas fa-archive me-2 text-success"></i>Audit Packages</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Invitation" asp-action="Index"><i class="fas fa-user-plus me-2 text-primary"></i>Invitations</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Reports" asp-action="Index"><i class="fas fa-chart-bar me-2" style="color:#9B59B6;"></i>Reports</a></li>
+                                    <li><a class="dropdown-item" asp-controller="RoleProfile" asp-action="MyProfile"><i class="fas fa-user me-2"></i>My Profile</a></li>
+                                </ul>
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link text-light" href="/users">
                                     <i class="bi bi-people"></i> Users
@@ -119,8 +155,15 @@
                                         <i class="bi bi-gear"></i> Admin
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" asp-controller="Home" asp-action="ManageTenants"><i class="bi bi-building me-2"></i>Manage Tenants</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Home" asp-action="Admin"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</a></li>
+                                        <li><a class="dropdown-item" asp-controller="TenantAdmin" asp-action="Index"><i class="fas fa-building me-2 text-primary"></i>Tenant Admin</a></li>
+                                        <li><a class="dropdown-item" asp-controller="CatalogAdmin" asp-action="Index"><i class="fas fa-database me-2 text-info"></i>Catalog Admin</a></li>
+                                        <li><a class="dropdown-item" asp-controller="RoleDelegation" asp-action="Index"><i class="fas fa-people-arrows me-2 text-success"></i>Role Delegation</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-controller="Notifications" asp-action="Index"><i class="fas fa-bell me-2 text-warning"></i>Notifications</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Subscription" asp-action="Index"><i class="fas fa-credit-card me-2 text-success"></i>Subscription</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Subscription" asp-action="WebhookLogs"><i class="fas fa-plug me-2 text-secondary"></i>Webhook Logs</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-controller="Analytics" asp-action="Index"><i class="fas fa-chart-pie me-2" style="color:#9B59B6;"></i>Analytics</a></li>
                                     </ul>
                                 </li>
                             }
@@ -130,7 +173,7 @@
                         <!-- Language Switcher -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-globe"></i> 
+                                <i class="bi bi-globe"></i>
                                 @if (isRtl)
                                 {
                                     <text>العربية</text>
@@ -223,6 +266,9 @@
             &copy; @DateTime.Now.Year - GRC Management System - Version 1.0.0
         </div>
     </footer>
+
+    @* Support Chat Widget *@
+    @await Html.PartialAsync("_SupportChatWidget")
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

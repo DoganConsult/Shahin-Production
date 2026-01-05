@@ -34,15 +34,24 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8 rtl:space-x-reverse">
+          <div className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
             <Link href="#features" className="text-gray-700 hover:text-[#0E7490] transition-colors">
               المميزات
             </Link>
             <Link href="#solutions" className="text-gray-700 hover:text-[#0E7490] transition-colors">
               الحلول
             </Link>
+            <Link href="#industries" className="text-gray-700 hover:text-[#0E7490] transition-colors">
+              القطاعات
+            </Link>
             <Link href="#pricing" className="text-gray-700 hover:text-[#0E7490] transition-colors">
               الأسعار
+            </Link>
+            <Link href="#resources" className="text-gray-700 hover:text-[#0E7490] transition-colors">
+              الموارد
+            </Link>
+            <Link href="#about" className="text-gray-700 hover:text-[#0E7490] transition-colors">
+              من نحن
             </Link>
             <Link href="#contact" className="text-gray-700 hover:text-[#0E7490] transition-colors">
               اتصل بنا
@@ -100,8 +109,17 @@ export default function Header() {
               <Link href="#solutions" className="text-gray-700 hover:text-[#0E7490]">
                 الحلول
               </Link>
+              <Link href="#industries" className="text-gray-700 hover:text-[#0E7490]">
+                القطاعات
+              </Link>
               <Link href="#pricing" className="text-gray-700 hover:text-[#0E7490]">
                 الأسعار
+              </Link>
+              <Link href="#resources" className="text-gray-700 hover:text-[#0E7490]">
+                الموارد
+              </Link>
+              <Link href="#about" className="text-gray-700 hover:text-[#0E7490]">
+                من نحن
               </Link>
               <Link href="#contact" className="text-gray-700 hover:text-[#0E7490]">
                 اتصل بنا

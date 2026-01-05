@@ -8,8 +8,9 @@ using GrcMvc.Services.Interfaces;
 using GrcMvc.Services.Interfaces.Workflows;
 using GrcMvc.Services.Interfaces.RBAC;
 using GrcMvc.Services.Implementations.RBAC;
-using Hangfire;
-using Hangfire.PostgreSql;
+// Hangfire temporarily disabled
+// using Hangfire;
+// using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Polly;
@@ -399,6 +400,34 @@ builder.Services.AddHttpClient<ILlmService, LlmService>();
 // Smart Onboarding Service (auto-generates assessment templates and GRC plans)
 builder.Services.AddScoped<ISmartOnboardingService, SmartOnboardingService>();
 
+// User Consent & Support Agent Services
+builder.Services.AddScoped<IConsentService, ConsentService>();
+builder.Services.AddScoped<ISupportAgentService, SupportAgentService>();
+
+// Workspace Service (Role-based pre-mapping)
+builder.Services.AddScoped<IWorkspaceService, WorkspaceService>();
+
+// Expert Framework Mapping Service (Sector-driven compliance blueprints)
+builder.Services.AddScoped<IExpertFrameworkMappingService, ExpertFrameworkMappingService>();
+
+// Suite Generation Service (Baseline + Overlays model)
+builder.Services.AddScoped<ISuiteGenerationService, SuiteGenerationService>();
+
+// Shahin-AI Orchestration Service (MAP, APPLY, PROVE, WATCH, FIX, VAULT)
+builder.Services.AddScoped<IShahinAIOrchestrationService, ShahinAIOrchestrationService>();
+
+// Shahin-AI Module Services (MAP, APPLY, PROVE, WATCH, FIX, VAULT)
+builder.Services.AddScoped<IMAPService, MAPService>();
+builder.Services.AddScoped<IAPPLYService, APPLYService>();
+builder.Services.AddScoped<IPROVEService, PROVEService>();
+builder.Services.AddScoped<IWATCHService, WATCHService>();
+builder.Services.AddScoped<IFIXService, FIXService>();
+builder.Services.AddScoped<IVAULTService, VAULTService>();
+
+// Assessment Execution & Workflow Integration Services
+builder.Services.AddScoped<IAssessmentExecutionService, AssessmentExecutionService>();
+builder.Services.AddScoped<IWorkflowIntegrationService, WorkflowIntegrationService>();
+
 // Role Delegation Service (Human↔Human, Human↔Agent, Agent↔Agent, Multi-Agent)
 builder.Services.AddScoped<IRoleDelegationService, RoleDelegationService>();
 
@@ -411,6 +440,15 @@ builder.Services.AddScoped<IResilienceService, ResilienceService>();
 
 // Register Subscription & Billing service
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+
+// Integration Services (Email, File Storage, Payment, SSO)
+builder.Services.AddHttpClient("Email");
+builder.Services.AddHttpClient("Stripe");
+builder.Services.AddHttpClient("SSO");
+builder.Services.AddScoped<GrcMvc.Services.Integrations.IEmailIntegrationService, GrcMvc.Services.Integrations.EmailIntegrationService>();
+builder.Services.AddScoped<GrcMvc.Services.Integrations.IPaymentIntegrationService, GrcMvc.Services.Integrations.StripePaymentService>();
+builder.Services.AddScoped<GrcMvc.Services.Integrations.ISSOIntegrationService, GrcMvc.Services.Integrations.SSOIntegrationService>();
+builder.Services.AddScoped<GrcMvc.Services.Integrations.IEvidenceAutomationService, GrcMvc.Services.Integrations.EvidenceAutomationService>();
 
 // Register Evidence and Report services
 builder.Services.AddScoped<IEvidenceService, EvidenceService>();
@@ -494,30 +532,59 @@ builder.Services.ConfigureApplicationCookie(options =>
 // =============================================================================
 
 // =============================================================================
-// 3. HANGFIRE CONFIGURATION (Background Jobs)
+// 3. HANGFIRE CONFIGURATION (Background Jobs) - DISABLED
 // =============================================================================
 
-builder.Services.AddHangfire(config =>
-{
-    config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-          .UseSimpleAssemblyNameTypeSerializer()
-          .UseRecommendedSerializerSettings()
-          .UsePostgreSqlStorage(options =>
-          {
-              options.UseNpgsqlConnection(connectionString);
-          });
-});
+// Hangfire is temporarily disabled to prevent startup failures
+// TODO: Re-enable when database connection is stable
+var enableHangfire = false; // builder.Configuration.GetValue<bool>("WorkflowSettings:EnableBackgroundJobs", false);
 
-builder.Services.AddHangfireServer(options =>
+// Hangfire configuration disabled - uncomment using statements at top of file to re-enable
+/*
+if (enableHangfire)
 {
-    options.WorkerCount = Environment.ProcessorCount * 2;
-    options.Queues = new[] { "critical", "default", "low" };
-});
+    try
+    {
+        // Test database connection before configuring Hangfire
+        using var testConnection = new NpgsqlConnection(connectionString);
+        testConnection.Open();
+        testConnection.Close();
 
-// Register background job classes
-builder.Services.AddScoped<EscalationJob>();
-builder.Services.AddScoped<NotificationDeliveryJob>();
-builder.Services.AddScoped<SlaMonitorJob>();
+        builder.Services.AddHangfire(config =>
+        {
+            config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                  .UseSimpleAssemblyNameTypeSerializer()
+                  .UseRecommendedSerializerSettings()
+                  .UsePostgreSqlStorage(options =>
+                  {
+                      options.UseNpgsqlConnection(connectionString);
+                  });
+        });
+
+        builder.Services.AddHangfireServer(options =>
+        {
+            options.WorkerCount = Environment.ProcessorCount * 2;
+            options.Queues = new[] { "critical", "default", "low" };
+        });
+
+        Console.WriteLine("Hangfire configured successfully");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Hangfire disabled: Database connection test failed - {ex.Message}");
+    }
+}
+else
+{
+    Console.WriteLine("Hangfire disabled (temporarily disabled to prevent startup issues)");
+}
+*/
+Console.WriteLine("Hangfire background jobs disabled");
+
+// Register background job classes (disabled when Hangfire is disabled)
+// builder.Services.AddScoped<EscalationJob>();
+// builder.Services.AddScoped<NotificationDeliveryJob>();
+// builder.Services.AddScoped<SlaMonitorJob>();
 
 // =============================================================================
 // 4. CACHING CONFIGURATION
@@ -657,39 +724,21 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // =============================================================================
-// 12. HANGFIRE DASHBOARD
+// 12. HANGFIRE DASHBOARD (Disabled)
 // =============================================================================
 
-app.UseHangfireDashboard("/hangfire", new DashboardOptions
-{
-    Authorization = new[] { new HangfireAuthFilter() },
-    DashboardTitle = "GRC Background Jobs",
-    DisplayStorageConnectionString = false
-});
+// Hangfire dashboard is disabled - Hangfire is not configured
+// Uncomment below when Hangfire is re-enabled
+var appLogger = app.Services.GetRequiredService<ILogger<Program>>();
+appLogger.LogInformation("⚠️ Hangfire dashboard disabled (Hangfire temporarily disabled)");
 
 // =============================================================================
-// 13. CONFIGURE RECURRING JOBS
+// 13. CONFIGURE RECURRING JOBS (Disabled - Hangfire not configured)
 // =============================================================================
 
-// Configure recurring background jobs
-RecurringJob.AddOrUpdate<EscalationJob>(
-    "process-escalations",
-    job => job.ExecuteAsync(),
-    Cron.Hourly,
-    new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
-
-RecurringJob.AddOrUpdate<NotificationDeliveryJob>(
-    "deliver-notifications",
-    job => job.ExecuteAsync(),
-    "*/5 * * * *", // Every 5 minutes
-    new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
-
-RecurringJob.AddOrUpdate<SlaMonitorJob>(
-    "monitor-sla",
-    job => job.ExecuteAsync(),
-    "*/30 * * * *", // Every 30 minutes
-    new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
-
+// Recurring jobs are disabled because Hangfire is not configured
+// Uncomment when Hangfire is re-enabled
+// Recurring jobs disabled - Hangfire not configured
 // =============================================================================
 // 14. ENDPOINT MAPPING
 // =============================================================================

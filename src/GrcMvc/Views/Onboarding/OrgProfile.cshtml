@@ -202,6 +202,42 @@
                             <small class="text-muted d-block mt-1">Comma-separated or one per line.</small>
                         </div>
 
+                        <!-- Expert-Derived Frameworks (Auto-populated based on sector) -->
+                        <div id="derivedFrameworksSection" class="mt-4" style="display: none;">
+                            <h5 class="mb-3 text-success border-bottom pb-2">
+                                <i class="fas fa-magic"></i> الأطر التنظيمية المطبقة تلقائياً | Auto-Derived Frameworks
+                            </h5>
+                            <div class="alert alert-info">
+                                <i class="fas fa-robot me-2"></i>
+                                <strong>Expert-Driven Mapping:</strong> Based on your sector selection, the following regulatory frameworks
+                                will automatically apply to your organization. No manual selection needed!
+                            </div>
+
+                            <div id="frameworksList" class="row">
+                                <!-- Frameworks will be populated dynamically -->
+                            </div>
+
+                            <div class="card bg-light mt-3" id="implementationGuidance" style="display: none;">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-lightbulb text-warning"></i> Implementation Guidance</h6>
+                                    <p id="guidanceText" class="mb-2 small"></p>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>Estimated Timeline:</strong> <span id="estimatedMonths" class="badge bg-primary"></span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Priority Focus:</strong> <span id="priorityFocus" class="text-muted small"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3" id="regulatoryDeadlines" style="display: none;">
+                                <h6><i class="fas fa-calendar-alt text-danger"></i> Regulatory Deadlines</h6>
+                                <ul id="deadlinesList" class="small mb-0"></ul>
+                            </div>
+                        </div>
+
                         <!-- Submit Buttons -->
                         <div class="d-grid gap-2 d-sm-flex justify-content-between mt-4">
                             <a href="@Url.Action("Signup", "Onboarding")" class="btn btn-secondary">
@@ -217,3 +253,226 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Expert-driven sector blueprints (mirrors backend ExpertFrameworkMappingService)
+    const sectorBlueprints = {
+        'Banking': {
+            name: 'Banking & Financial Services',
+            nameAr: 'الخدمات المصرفية والمالية',
+            frameworks: [
+                { code: 'SAMA-CSF', name: 'SAMA Cybersecurity Framework', priority: 1, mandatory: true, reason: 'Required for all SAMA-regulated financial institutions', controls: 98 },
+                { code: 'NCA-ECC', name: 'NCA Essential Cybersecurity Controls', priority: 2, mandatory: true, reason: 'National requirement for critical infrastructure', controls: 114 },
+                { code: 'PDPL', name: 'Personal Data Protection Law', priority: 3, mandatory: true, reason: 'Customer data processing requirements', controls: 45 },
+                { code: 'SAMA-AML', name: 'SAMA Anti-Money Laundering', priority: 4, mandatory: true, reason: 'Financial crime prevention', controls: 67 },
+                { code: 'PCI-DSS', name: 'Payment Card Industry DSS', priority: 5, mandatory: false, reason: 'If processing card payments', controls: 78 }
+            ],
+            guidance: 'Focus on transaction security, customer data protection, and regulatory reporting. SAMA inspections occur annually.',
+            estimatedMonths: 9,
+            priorities: ['Access Control', 'Cryptography', 'Incident Response', 'Business Continuity'],
+            deadlines: ['SAMA CSF: Immediate compliance required', 'PDPL: Full compliance by end of year']
+        },
+        'Healthcare': {
+            name: 'Healthcare & Medical',
+            nameAr: 'الرعاية الصحية والطبية',
+            frameworks: [
+                { code: 'NCA-ECC', name: 'NCA Essential Cybersecurity Controls', priority: 1, mandatory: true, reason: 'Healthcare is critical infrastructure', controls: 114 },
+                { code: 'PDPL', name: 'Personal Data Protection Law', priority: 1, mandatory: true, reason: 'Patient health data is sensitive personal data', controls: 45 },
+                { code: 'SFDA', name: 'SFDA Medical Device Regulations', priority: 2, mandatory: true, reason: 'Medical device cybersecurity requirements', controls: 89 },
+                { code: 'MOH-HIS', name: 'MOH Health Information Standards', priority: 3, mandatory: true, reason: 'Health information exchange requirements', controls: 56 }
+            ],
+            guidance: 'Prioritize patient data protection and medical device security. MOH conducts periodic inspections.',
+            estimatedMonths: 12,
+            priorities: ['Data Protection', 'Access Control', 'Medical Device Security', 'Patient Privacy'],
+            deadlines: ['PDPL: Immediate for health data', 'SFDA: Device registration required']
+        },
+        'Government': {
+            name: 'Government & Public Sector',
+            nameAr: 'القطاع الحكومي والعام',
+            frameworks: [
+                { code: 'NCA-ECC', name: 'NCA Essential Cybersecurity Controls', priority: 1, mandatory: true, reason: 'Mandatory for all government entities', controls: 114 },
+                { code: 'NCA-CSCC', name: 'NCA Critical Systems Controls', priority: 1, mandatory: true, reason: 'Government systems are critical infrastructure', controls: 50 },
+                { code: 'DGA-CLOUD', name: 'DGA Cloud First Policy', priority: 2, mandatory: true, reason: 'Government cloud adoption requirements', controls: 35 },
+                { code: 'PDPL', name: 'Personal Data Protection Law', priority: 3, mandatory: true, reason: 'Citizen data protection', controls: 45 },
+                { code: 'NDMO', name: 'NDMO Data Governance Standards', priority: 3, mandatory: true, reason: 'National data management requirements', controls: 42 }
+            ],
+            guidance: 'Focus on data classification, sovereign cloud, and NCA compliance. NCA conducts mandatory annual assessments.',
+            estimatedMonths: 6,
+            priorities: ['Data Classification', 'Access Control', 'Cryptography', 'Incident Response'],
+            deadlines: ['NCA ECC: Immediate', 'NCA CSCC: Within 6 months', 'Cloud First: Ongoing migration']
+        },
+        'Telecom': {
+            name: 'Telecommunications',
+            nameAr: 'الاتصالات',
+            frameworks: [
+                { code: 'CST-CRF', name: 'CST Cybersecurity Regulatory Framework', priority: 1, mandatory: true, reason: 'CST-regulated entity requirement', controls: 85 },
+                { code: 'NCA-ECC', name: 'NCA Essential Cybersecurity Controls', priority: 1, mandatory: true, reason: 'Telecom is critical infrastructure', controls: 114 },
+                { code: 'NCA-CSCC', name: 'NCA Critical Systems Controls', priority: 2, mandatory: true, reason: 'Critical national infrastructure', controls: 50 },
+                { code: 'PDPL', name: 'Personal Data Protection Law', priority: 3, mandatory: true, reason: 'Subscriber data protection', controls: 45 }
+            ],
+            guidance: 'Focus on network infrastructure security and service continuity. CST conducts regular inspections.',
+            estimatedMonths: 9,
+            priorities: ['Network Security', 'Infrastructure Protection', 'Incident Response', 'Business Continuity'],
+            deadlines: ['CST CRF: Immediate', 'NCA: Within 6 months']
+        },
+        'Energy': {
+            name: 'Energy & Utilities',
+            nameAr: 'الطاقة والمرافق',
+            frameworks: [
+                { code: 'NCA-ECC', name: 'NCA Essential Cybersecurity Controls', priority: 1, mandatory: true, reason: 'Critical national infrastructure', controls: 114 },
+                { code: 'NCA-CSCC', name: 'NCA Critical Systems Controls', priority: 1, mandatory: true, reason: 'OT/ICS systems protection', controls: 50 },
+                { code: 'HCIS', name: 'HCIS Industrial Cybersecurity', priority: 2, mandatory: true, reason: 'Industrial control systems security', controls: 72 },
+                { code: 'PDPL', name: 'Personal Data Protection Law', priority: 3, mandatory: true, reason: 'Customer data protection', controls: 45 }
+            ],
+            guidance: 'Priority on OT/ICS segmentation and industrial control system security. Critical infrastructure audits by NCA.',
+            estimatedMonths: 12,
+            priorities: ['OT Security', 'Physical Security', 'Incident Response', 'Network Segmentation'],
+            deadlines: ['NCA CSCC: Immediate for critical systems', 'HCIS: Within 12 months']
+        },
+        'Retail': {
+            name: 'Retail & E-Commerce',
+            nameAr: 'التجزئة والتجارة الإلكترونية',
+            frameworks: [
+                { code: 'PDPL', name: 'Personal Data Protection Law', priority: 1, mandatory: true, reason: 'Customer data processing', controls: 45 },
+                { code: 'NCA-ECC', name: 'NCA Essential Cybersecurity Controls', priority: 2, mandatory: true, reason: 'Basic cybersecurity requirements', controls: 114 },
+                { code: 'PCI-DSS', name: 'Payment Card Industry DSS', priority: 2, mandatory: true, reason: 'Card payment processing', controls: 78 },
+                { code: 'MOCI-ECOM', name: 'MOCI E-Commerce Regulations', priority: 3, mandatory: true, reason: 'E-commerce compliance', controls: 28 }
+            ],
+            guidance: 'Focus on PCI compliance and customer data protection. MOCI and CITC oversight.',
+            estimatedMonths: 6,
+            priorities: ['Payment Security', 'Customer Data Protection', 'Website Security'],
+            deadlines: ['PDPL: Immediate', 'PCI-DSS: Ongoing']
+        },
+        'Technology': {
+            name: 'Technology & Software',
+            nameAr: 'التقنية والبرمجيات',
+            frameworks: [
+                { code: 'NCA-ECC', name: 'NCA Essential Cybersecurity Controls', priority: 1, mandatory: true, reason: 'Basic cybersecurity requirements', controls: 114 },
+                { code: 'PDPL', name: 'Personal Data Protection Law', priority: 2, mandatory: true, reason: 'User data processing', controls: 45 },
+                { code: 'CST-CLOUD', name: 'CST Cloud Regulations', priority: 3, mandatory: false, reason: 'If providing cloud services', controls: 38 },
+                { code: 'ISO27001', name: 'ISO 27001 Information Security', priority: 4, mandatory: false, reason: 'Recommended for enterprise clients', controls: 114 }
+            ],
+            guidance: 'Focus on secure SDLC and application security. Consider SOC 2 for enterprise clients.',
+            estimatedMonths: 6,
+            priorities: ['Secure Development', 'Access Control', 'Data Protection'],
+            deadlines: ['NCA ECC: Within 6 months', 'PDPL: Immediate']
+        }
+    };
+
+    // Map organization type to sector
+    function mapTypeToSector(orgType) {
+        const mapping = {
+            'Government': 'Government',
+            'Banking': 'Banking',
+            'Insurance': 'Banking',
+            'Healthcare': 'Healthcare',
+            'Telecom': 'Telecom',
+            'Energy': 'Energy',
+            'Technology': 'Technology',
+            'Manufacturing': 'Energy',
+            'Retail': 'Retail',
+            'Education': 'Government',
+            'Other': 'Technology'
+        };
+        return mapping[orgType] || 'Technology';
+    }
+
+    // Update derived frameworks based on selection
+    function updateDerivedFrameworks() {
+        const orgType = document.getElementById('OrganizationType')?.value;
+        const sectorInput = document.getElementById('Sector')?.value;
+
+        // Determine sector from org type or manual sector input
+        let sector = orgType ? mapTypeToSector(orgType) : null;
+        if (sectorInput) {
+            // Try to match sector input to known sectors
+            const sectorLower = sectorInput.toLowerCase();
+            if (sectorLower.includes('bank') || sectorLower.includes('financ')) sector = 'Banking';
+            else if (sectorLower.includes('health') || sectorLower.includes('medical')) sector = 'Healthcare';
+            else if (sectorLower.includes('government') || sectorLower.includes('public')) sector = 'Government';
+            else if (sectorLower.includes('telecom')) sector = 'Telecom';
+            else if (sectorLower.includes('energy') || sectorLower.includes('oil') || sectorLower.includes('utility')) sector = 'Energy';
+            else if (sectorLower.includes('retail') || sectorLower.includes('commerce')) sector = 'Retail';
+            else if (sectorLower.includes('tech') || sectorLower.includes('software')) sector = 'Technology';
+        }
+
+        const section = document.getElementById('derivedFrameworksSection');
+        const frameworksList = document.getElementById('frameworksList');
+        const guidance = document.getElementById('implementationGuidance');
+        const deadlines = document.getElementById('regulatoryDeadlines');
+
+        if (!sector || !sectorBlueprints[sector]) {
+            section.style.display = 'none';
+            return;
+        }
+
+        const blueprint = sectorBlueprints[sector];
+        section.style.display = 'block';
+
+        // Render frameworks
+        let html = '';
+        blueprint.frameworks.forEach(fw => {
+            const mandatoryBadge = fw.mandatory
+                ? '<span class="badge bg-danger ms-1">Mandatory</span>'
+                : '<span class="badge bg-secondary ms-1">Optional</span>';
+
+            html += `
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100 ${fw.mandatory ? 'border-primary' : 'border-secondary'}">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="fas fa-shield-alt text-${fw.mandatory ? 'primary' : 'secondary'}"></i>
+                                ${fw.name} ${mandatoryBadge}
+                            </h6>
+                            <p class="card-text small text-muted">${fw.reason}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-light text-dark">${fw.code}</span>
+                                <small class="text-muted">${fw.controls} controls</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        frameworksList.innerHTML = html;
+
+        // Show guidance
+        document.getElementById('guidanceText').textContent = blueprint.guidance;
+        document.getElementById('estimatedMonths').textContent = blueprint.estimatedMonths + ' months';
+        document.getElementById('priorityFocus').textContent = blueprint.priorities.join(', ');
+        guidance.style.display = 'block';
+
+        // Show deadlines
+        let deadlinesHtml = '';
+        blueprint.deadlines.forEach(d => {
+            deadlinesHtml += `<li><i class="fas fa-exclamation-triangle text-warning me-1"></i>${d}</li>`;
+        });
+        document.getElementById('deadlinesList').innerHTML = deadlinesHtml;
+        deadlines.style.display = 'block';
+
+        // Auto-fill sector field if empty
+        const sectorField = document.getElementById('Sector');
+        if (!sectorField.value && orgType) {
+            sectorField.value = blueprint.name;
+        }
+    }
+
+    // Attach event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const orgTypeSelect = document.getElementById('OrganizationType');
+        const sectorInput = document.getElementById('Sector');
+        const criticalCheckbox = document.getElementById('isCritical');
+
+        orgTypeSelect?.addEventListener('change', updateDerivedFrameworks);
+        sectorInput?.addEventListener('blur', updateDerivedFrameworks);
+        criticalCheckbox?.addEventListener('change', function() {
+            // If critical infrastructure, add NCA-CSCC automatically
+            updateDerivedFrameworks();
+        });
+
+        // Initial check
+        if (orgTypeSelect?.value) {
+            updateDerivedFrameworks();
+        }
+    });
+</script>

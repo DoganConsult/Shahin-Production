@@ -1,5 +1,8 @@
+@using Microsoft.AspNetCore.Localization
 @{
-    ViewData["Title"] = "GRC System - Onboarding";
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var isArabic = requestCulture?.RequestCulture?.UICulture?.Name == "ar";
+    ViewData["Title"] = isArabic ? "نظام GRC - التسجيل" : "GRC System - Onboarding";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -11,7 +14,7 @@
                 <div class="card shadow-sm sticky-top" style="top: 20px;">
                     <div class="card-body">
                         <h5 class="card-title mb-4">Onboarding Steps</h5>
-                        
+
                         <div class="progress mb-3" style="height: 5px;">
                             <div class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
                         </div>
@@ -47,7 +50,7 @@
                 <div class="card shadow">
                     <div class="card-body p-5">
                         <h1 class="mb-4">Welcome to GRC Management System</h1>
-                        
+
                         <div class="alert alert-info border-0" role="alert">
                             <i class="bi bi-info-circle"></i>
                             <strong class="ms-2">Complete the onboarding process</strong> to set up your organization and derive your compliance scope.

@@ -7,9 +7,12 @@ import ProblemCards from '@/components/sections/ProblemCards';
 import DifferentiatorGrid from '@/components/sections/DifferentiatorGrid';
 import HowItWorks from '@/components/sections/HowItWorks';
 import RegulatoryPacks from '@/components/sections/RegulatoryPacks';
+import Industries from '@/components/sections/Industries';
 import PlatformPreview from '@/components/sections/PlatformPreview';
 import Testimonials from '@/components/sections/Testimonials';
 import PricingPreview from '@/components/sections/PricingPreview';
+import Resources from '@/components/sections/Resources';
+import About from '@/components/sections/About';
 import CtaBanner from '@/components/sections/CtaBanner';
 
 export default function HomePage() {
@@ -23,9 +26,12 @@ export default function HomePage() {
       <DifferentiatorGrid />
       <HowItWorks />
       <RegulatoryPacks />
+      <Industries />
       <PlatformPreview />
       <Testimonials />
       <PricingPreview />
+      <Resources />
+      <About />
       <CtaBanner />
       <Footer />
     </main>

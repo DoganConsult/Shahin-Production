@@ -1,0 +1,120 @@
+========================================
+CUSTOMER USER - COMPLETE SETUP GUIDE
+========================================
+
+STATUS: ✅ ALL SETUP COMPLETE
+
+WHAT'S READY:
+-------------
+✅ Production build created (publish/GrcMvc.dll)
+✅ All code compiled and ready
+✅ Database migrations ready to apply
+✅ Seed data configured (runs automatically)
+✅ Documentation created
+
+WHAT YOU NEED TO DO:
+--------------------
+
+STEP 1: Configure Database Connection
+-------------------------------------
+Edit: src/GrcMvc/appsettings.json
+
+Set ConnectionStrings.DefaultConnection:
+  Host=localhost;Database=GrcMvcDb;Username=postgres;Password=yourpassword;Port=5432
+
+STEP 2: Apply Database Migrations
+----------------------------------
+cd /root/.cursor/worktrees/GRC__Workspace___SSH__doganconsult_/bsk/src/GrcMvc
+
+# Option 1 (if in GrcMvc directory):
+dotnet ef database update --project GrcMvc.csproj --context GrcDbContext
+
+# Option 2 (if from root):
+cd /root/.cursor/worktrees/GRC__Workspace___SSH__doganconsult_/bsk
+dotnet ef database update --project src/GrcMvc/GrcMvc.csproj --startup-project src/GrcMvc/GrcMvc.csproj --context GrcDbContext
+
+STEP 3: Start the Application
+------------------------------
+cd /root/.cursor/worktrees/GRC__Workspace___SSH__doganconsult_/bsk/src/GrcMvc
+dotnet run
+
+The application will automatically:
+  ✓ Create default tenant
+  ✓ Seed role profiles (15 roles)
+  ✓ Seed workflow definitions (10 workflows)
+  ✓ Set up RBAC system (permissions, features, roles)
+  ✓ Create admin user
+  ✓ Create manager user
+  ✓ Link users to tenant
+
+Wait 1-2 minutes for initialization to complete.
+
+STEP 4: Login
+-------------
+URL: http://localhost:5000 or https://localhost:5001
+
+Admin User:
+  Email: admin@grcsystem.com
+  Password: Admin@123456
+  Role: SuperAdmin (full access)
+
+Manager User:
+  Email: manager@grcsystem.com
+  Password: Manager@123456
+  Role: ComplianceManager
+
+WHAT GETS CREATED AUTOMATICALLY:
+--------------------------------
+✓ Default Tenant (Organization)
+✓ 8 Identity Roles (SuperAdmin, TenantAdmin, etc.)
+✓ 40+ Permissions (all module permissions)
+✓ 19 Features (all menu items)
+✓ 15 Role Profiles (executive, management, operational, support)
+✓ 10 Workflow Definitions (complete workflows)
+✓ 2 Default Users (admin and manager)
+✓ Role-Permission Mappings
+✓ Role-Feature Mappings
+✓ User-Tenant Links
+
+VERIFICATION:
+-------------
+After starting, verify:
+  [ ] Application starts without errors
+  [ ] Can login with admin credentials
+  [ ] Dashboard loads
+  [ ] Menu items are visible
+  [ ] Can create a test record
+
+TROUBLESHOOTING:
+----------------
+Database Issues:
+  - Ensure PostgreSQL is running
+  - Check connection string is correct
+  - Verify database exists: createdb -U postgres GrcMvcDb
+
+Migration Issues:
+  - Check: dotnet ef migrations list
+  - Verify: dotnet ef database update --verbose
+
+User Not Created:
+  - Check logs: /app/logs/grcmvc-.log
+  - Look for "Starting application initialization"
+  - Verify database connection works
+
+QUICK REFERENCE:
+----------------
+Build Location: publish/
+Main DLL: publish/GrcMvc.dll (8.3 MB)
+Logs: /app/logs/grcmvc-.log
+Health: http://localhost/health
+Hangfire: http://localhost/hangfire
+
+DOCUMENTATION:
+--------------
+- CUSTOMER_USER_QUICK_START.md (detailed guide)
+- START_CUSTOMER_USER.md (quick start)
+- PRODUCTION_DEPLOYMENT_RELEASE.md (deployment)
+
+========================================
+✅ READY TO START CUSTOMER USER
+========================================

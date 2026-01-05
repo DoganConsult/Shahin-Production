@@ -1,5 +1,6 @@
 using GrcMvc.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 
@@ -13,18 +14,18 @@ public class PolicyEnforcementHelper
 {
     private readonly IPolicyEnforcer _policyEnforcer;
     private readonly ICurrentUserService _currentUser;
-    private readonly IConfiguration _configuration;
+    private readonly IHostEnvironment _environment;
     private readonly ILogger<PolicyEnforcementHelper> _logger;
 
     public PolicyEnforcementHelper(
         IPolicyEnforcer policyEnforcer,
         ICurrentUserService currentUser,
-        IConfiguration configuration,
+        IHostEnvironment environment,
         ILogger<PolicyEnforcementHelper> logger)
     {
         _policyEnforcer = policyEnforcer;
         _currentUser = currentUser;
-        _configuration = configuration;
+        _environment = environment;
         _logger = logger;
     }
 
@@ -119,10 +120,18 @@ public class PolicyEnforcementHelper
             var userId = _currentUser.GetUserId().ToString();
             var userRoles = _currentUser.GetRoles();
 
+            // Map ASP.NET Core environment to policy environment (dev/staging/prod)
+            var policyEnvironment = _environment.EnvironmentName.ToLower() switch
+            {
+                "production" => "prod",
+                "staging" => "staging",
+                _ => "dev"
+            };
+
             var context = new PolicyContext
             {
                 Action = action,
-                Environment = _configuration["Environment"] ?? "dev",
+                Environment = policyEnvironment,
                 ResourceType = resourceType,
                 Resource = policyResource,
                 TenantId = tenantId,

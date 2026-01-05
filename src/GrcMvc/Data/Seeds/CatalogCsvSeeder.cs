@@ -109,6 +109,7 @@ public class CatalogCsvSeeder
             .ToDictionaryAsync(r => r.Code, r => r.Id);
 
         var frameworks = new List<FrameworkCatalog>();
+        var frameworkCodes = new HashSet<string>(); // Track codes to prevent duplicates
         var lines = await File.ReadAllLinesAsync(csvPath);
         var displayOrder = 1;
 
@@ -121,13 +122,24 @@ public class CatalogCsvSeeder
             if (fields.Length < 9) continue;
 
             // CSV: code,version,title_en,title_ar,regulator,category,mandatory,controls,domains
+            var frameworkCode = fields[0].Trim();
+            
+            // Skip if duplicate code
+            if (frameworkCodes.Contains(frameworkCode))
+            {
+                _logger.LogWarning($"⚠️ Skipping duplicate framework code: {frameworkCode}");
+                continue;
+            }
+            
+            frameworkCodes.Add(frameworkCode);
+            
             var regulatorCode = fields[4].Trim();
             Guid? regulatorId = regulatorLookup.TryGetValue(regulatorCode, out var id) ? id : null;
 
             frameworks.Add(new FrameworkCatalog
             {
                 Id = Guid.NewGuid(),
-                Code = fields[0].Trim(),
+                Code = frameworkCode,
                 Version = fields[1].Trim(),
                 TitleEn = fields[2].Trim(),
                 TitleAr = fields[3].Trim(),
@@ -165,9 +177,11 @@ public class CatalogCsvSeeder
             return;
         }
 
-        // Build framework lookup
-        var frameworkLookup = await _context.FrameworkCatalogs
-            .ToDictionaryAsync(f => f.Code, f => f.Id);
+        // Build framework lookup - handle duplicates by taking first occurrence
+        var frameworkCatalogs = await _context.FrameworkCatalogs.ToListAsync();
+        var frameworkLookup = frameworkCatalogs
+            .GroupBy(f => f.Code)
+            .ToDictionary(g => g.Key, g => g.First().Id);
 
         var controls = new List<ControlCatalog>();
         var lines = await File.ReadAllLinesAsync(csvPath);

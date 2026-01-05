@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GrcMvc.Controllers
 {
-    [Route("subscription")]
+    [Route("subscriptions")]
     public class SubscriptionController : Controller
     {
         private readonly ISubscriptionService _subscriptionService;

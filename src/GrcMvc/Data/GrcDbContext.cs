@@ -122,6 +122,120 @@ namespace GrcMvc.Data
 
         // Trigger Rules (Event-based automation)
         public DbSet<TriggerRule> TriggerRules { get; set; } = null!;
+
+        // User Consent & Legal Documents
+        public DbSet<UserConsent> UserConsents { get; set; } = null!;
+        public DbSet<LegalDocument> LegalDocuments { get; set; } = null!;
+
+        // Support Agent & Chat
+        public DbSet<SupportConversation> SupportConversations { get; set; } = null!;
+        public DbSet<SupportMessage> SupportMessages { get; set; } = null!;
+
+        // User Workspace (Role-based pre-mapping)
+        public DbSet<UserWorkspace> UserWorkspaces { get; set; } = null!;
+        public DbSet<UserWorkspaceTask> UserWorkspaceTasks { get; set; } = null!;
+        public DbSet<WorkspaceTemplate> WorkspaceTemplates { get; set; } = null!;
+
+        // Canonical Control Library (CCL) - Unified Control Framework
+        public DbSet<ControlDomain> ControlDomains { get; set; } = null!;
+        public DbSet<ControlObjective> ControlObjectives { get; set; } = null!;
+        public DbSet<CanonicalControl> CanonicalControls { get; set; } = null!;
+        public DbSet<RegulatoryRequirement> RegulatoryRequirements { get; set; } = null!;
+        public DbSet<RequirementMapping> RequirementMappings { get; set; } = null!;
+        public DbSet<EvidencePack> EvidencePacks { get; set; } = null!;
+        public DbSet<ControlEvidencePack> ControlEvidencePacks { get; set; } = null!;
+        public DbSet<TestProcedure> TestProcedures { get; set; } = null!;
+        public DbSet<ControlTestProcedure> ControlTestProcedures { get; set; } = null!;
+        public DbSet<ApplicabilityRule> ApplicabilityRules { get; set; } = null!;
+        public DbSet<ControlChangeHistory> ControlChangeHistories { get; set; } = null!;
+
+        // Applicability Matrix & Quality Gate
+        public DbSet<ApplicabilityEntry> ApplicabilityEntries { get; set; } = null!;
+        public DbSet<EvidencePackFamily> EvidencePackFamilies { get; set; } = null!;
+        public DbSet<StandardEvidenceItem> StandardEvidenceItems { get; set; } = null!;
+        public DbSet<MappingQualityGate> MappingQualityGates { get; set; } = null!;
+        public DbSet<MappingWorkflowStep> MappingWorkflowSteps { get; set; } = null!;
+        public DbSet<MappingWorkflowTemplate> MappingWorkflowTemplates { get; set; } = null!;
+        public DbSet<AssessmentScope> AssessmentScopes { get; set; } = null!;
+
+        // Baseline + Overlays Model
+        public DbSet<BaselineControlSet> BaselineControlSets { get; set; } = null!;
+        public DbSet<BaselineControlMapping> BaselineControlMappings { get; set; } = null!;
+        public DbSet<OverlayCatalog> OverlayCatalogs { get; set; } = null!;
+        public DbSet<OverlayControlMapping> OverlayControlMappings { get; set; } = null!;
+        public DbSet<OverlayParameterOverride> OverlayParameterOverrides { get; set; } = null!;
+        public DbSet<ApplicabilityRuleCatalog> ApplicabilityRuleCatalogs { get; set; } = null!;
+        public DbSet<GeneratedControlSuite> GeneratedControlSuites { get; set; } = null!;
+        public DbSet<SuiteControlEntry> SuiteControlEntries { get; set; } = null!;
+        public DbSet<SuiteEvidenceRequest> SuiteEvidenceRequests { get; set; } = null!;
+        public DbSet<OrganizationEntity> OrganizationEntities { get; set; } = null!;
+
+        // Autonomous Risk & Resilience
+        public DbSet<RiskIndicator> RiskIndicators { get; set; } = null!;
+        public DbSet<RiskIndicatorMeasurement> RiskIndicatorMeasurements { get; set; } = null!;
+        public DbSet<RiskIndicatorAlert> RiskIndicatorAlerts { get; set; } = null!;
+        public DbSet<ImportantBusinessService> ImportantBusinessServices { get; set; } = null!;
+        public DbSet<ControlException> ControlExceptions { get; set; } = null!;
+        public DbSet<GovernanceCadence> GovernanceCadences { get; set; } = null!;
+        public DbSet<CadenceExecution> CadenceExecutions { get; set; } = null!;
+        public DbSet<EvidenceSourceIntegration> EvidenceSourceIntegrations { get; set; } = null!;
+        public DbSet<CapturedEvidence> CapturedEvidences { get; set; } = null!;
+        public DbSet<TeamsNotificationConfig> TeamsNotificationConfigs { get; set; } = null!;
+
+        // Integration Layer
+        public DbSet<SystemOfRecordDefinition> SystemOfRecordDefinitions { get; set; } = null!;
+        public DbSet<CrossReferenceMapping> CrossReferenceMappings { get; set; } = null!;
+        public DbSet<DomainEvent> DomainEvents { get; set; } = null!;
+        public DbSet<EventSubscription> EventSubscriptions { get; set; } = null!;
+        public DbSet<EventDeliveryLog> EventDeliveryLogs { get; set; } = null!;
+        public DbSet<IntegrationConnector> IntegrationConnectors { get; set; } = null!;
+        public DbSet<SyncJob> SyncJobs { get; set; } = null!;
+        public DbSet<SyncExecutionLog> SyncExecutionLogs { get; set; } = null!;
+        public DbSet<IntegrationHealthMetric> IntegrationHealthMetrics { get; set; } = null!;
+        public DbSet<DeadLetterEntry> DeadLetterEntries { get; set; } = null!;
+        public DbSet<EventSchemaRegistry> EventSchemaRegistries { get; set; } = null!;
+
+        // ERP Integration & Continuous Controls Monitoring (CCM)
+        public DbSet<ERPSystemConfig> ERPSystemConfigs { get; set; } = null!;
+        public DbSet<ERPExtractConfig> ERPExtractConfigs { get; set; } = null!;
+        public DbSet<ERPExtractExecution> ERPExtractExecutions { get; set; } = null!;
+        public DbSet<CCMControlTest> CCMControlTests { get; set; } = null!;
+        public DbSet<CCMTestExecution> CCMTestExecutions { get; set; } = null!;
+        public DbSet<CCMException> CCMExceptions { get; set; } = null!;
+        public DbSet<SoDRuleDefinition> SoDRuleDefinitions { get; set; } = null!;
+        public DbSet<SoDConflict> SoDConflicts { get; set; } = null!;
+        public DbSet<AutoTaggedEvidence> AutoTaggedEvidences { get; set; } = null!;
+
+        // Agent Operating Model
+        public DbSet<AgentDefinition> AgentDefinitions { get; set; } = null!;
+        public DbSet<AgentCapability> AgentCapabilities { get; set; } = null!;
+        public DbSet<AgentAction> AgentActions { get; set; } = null!;
+        public DbSet<AgentApprovalGate> AgentApprovalGates { get; set; } = null!;
+        public DbSet<PendingApproval> PendingApprovals { get; set; } = null!;
+        public DbSet<AgentConfidenceScore> AgentConfidenceScores { get; set; } = null!;
+        public DbSet<AgentSoDRule> AgentSoDRules { get; set; } = null!;
+        public DbSet<AgentSoDViolation> AgentSoDViolations { get; set; } = null!;
+        public DbSet<HumanRetainedResponsibility> HumanRetainedResponsibilities { get; set; } = null!;
+        public DbSet<RoleTransitionPlan> RoleTransitionPlans { get; set; } = null!;
+
+        // MAP Framework & Strategic Capabilities
+        public DbSet<MAPFrameworkConfig> MAPFrameworkConfigs { get; set; } = null!;
+        public DbSet<PlainLanguageControl> PlainLanguageControls { get; set; } = null!;
+        public DbSet<UniversalEvidencePack> UniversalEvidencePacks { get; set; } = null!;
+        public DbSet<UniversalEvidencePackItem> UniversalEvidencePackItems { get; set; } = null!;
+        public DbSet<GovernanceRhythmTemplate> GovernanceRhythmTemplates { get; set; } = null!;
+        public DbSet<GovernanceRhythmItem> GovernanceRhythmItems { get; set; } = null!;
+        public DbSet<OnePageGuide> OnePageGuides { get; set; } = null!;
+        public DbSet<CryptographicAsset> CryptographicAssets { get; set; } = null!;
+        public DbSet<ThirdPartyConcentration> ThirdPartyConcentrations { get; set; } = null!;
+        public DbSet<ComplianceGuardrail> ComplianceGuardrails { get; set; } = null!;
+        public DbSet<StrategicRoadmapMilestone> StrategicRoadmapMilestones { get; set; } = null!;
+
+        // Shahin-AI Branding & Localization
+        public DbSet<ShahinAIBrandConfig> ShahinAIBrandConfigs { get; set; } = null!;
+        public DbSet<ShahinAIModule> ShahinAIModules { get; set; } = null!;
+        public DbSet<UITextEntry> UITextEntries { get; set; } = null!;
+        public DbSet<SiteMapEntry> SiteMapEntries { get; set; } = null!;
         public DbSet<TriggerExecutionLog> TriggerExecutionLogs { get; set; } = null!;
 
         // Validation & Data Quality
