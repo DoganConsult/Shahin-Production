@@ -1,10 +1,13 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> Localizer
+
 @if (IsLoading)
 {
     <div class="text-center py-5">
         <div class="spinner-border" role="status">
-            <span class="visually-hidden">@Message</span>
+            <span class="visually-hidden">@(string.IsNullOrEmpty(Message) ? Localizer["Loading"] : Message)</span>
         </div>
-        <p class="text-muted mt-3">@Message</p>
+        <p class="text-muted mt-3">@(string.IsNullOrEmpty(Message) ? Localizer["Loading"] : Message)</p>
     </div>
 }
 
@@ -13,5 +16,5 @@
     public bool IsLoading { get; set; }
 
     [Parameter]
-    public string Message { get; set; } = "Loading...";
+    public string Message { get; set; } = "";
 }

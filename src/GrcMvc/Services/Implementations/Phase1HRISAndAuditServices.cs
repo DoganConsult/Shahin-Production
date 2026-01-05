@@ -72,8 +72,8 @@ namespace GrcMvc.Services.Implementations
         /// Log a change to any entity
         /// </summary>
         public async Task LogChangeAsync(Guid tenantId, string entityType, Guid entityId, string action,
-                                        string fieldName = null, string oldValue = null, string newValue = null,
-                                        Guid? userId = null, string ipAddress = null)
+                                        string? fieldName = null, string? oldValue = null, string? newValue = null,
+                                        Guid? userId = null, string? ipAddress = null)
         {
             try
             {

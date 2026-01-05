@@ -2,8 +2,15 @@
 @using System.Net.Http.Json
 @using System.Text.Json
 @inject HttpClient Http
+@inject IHttpContextAccessor HttpContextAccessor
 
-<div>
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
+
+<div dir="@dir">
     <h3 class="mb-4">Your Compliance Scope</h3>
     
     <div class="alert alert-success" role="alert">

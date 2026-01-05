@@ -7,6 +7,7 @@ using GrcMvc.Data;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Application.Policy;
 using Microsoft.Extensions.Logging;
 
 namespace GrcMvc.Services.Implementations
@@ -16,12 +17,18 @@ namespace GrcMvc.Services.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<PolicyService> _logger;
+        private readonly PolicyEnforcementHelper _policyHelper;
 
-        public PolicyService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<PolicyService> logger)
+        public PolicyService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            ILogger<PolicyService> logger,
+            PolicyEnforcementHelper policyHelper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
+            _policyHelper = policyHelper ?? throw new ArgumentNullException(nameof(policyHelper));
         }
 
         public async Task<IEnumerable<PolicyDto>> GetAllAsync()
@@ -64,11 +71,24 @@ namespace GrcMvc.Services.Implementations
                 policy.Version = "1.0";
                 policy.IsActive = true;
 
+                // Enforce policies before saving
+                await _policyHelper.EnforceCreateAsync(
+                    resourceType: "PolicyDocument",
+                    resource: policy,
+                    dataClassification: null, // Will be set to "internal" by helper if null
+                    owner: null); // Will be set to current user by helper if null
+
                 await _unitOfWork.Policies.AddAsync(policy);
                 await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogInformation("Policy created with ID {PolicyId}", policy.Id);
                 return _mapper.Map<PolicyDto>(policy);
+            }
+            catch (PolicyViolationException pve)
+            {
+                _logger.LogWarning("Policy violation prevented policy creation: {Message}. Rule: {RuleId}",
+                    pve.Message, pve.RuleId);
+                throw;
             }
             catch (Exception ex)
             {

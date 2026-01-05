@@ -3,6 +3,7 @@ using GrcMvc.Data;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Application.Policy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -22,17 +23,20 @@ namespace GrcMvc.Services.Implementations
         private readonly IMapper _mapper;
         private readonly ILogger<RiskService> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly PolicyEnforcementHelper _policyHelper;
 
         public RiskService(
             IUnitOfWork unitOfWork,
             IMapper mapper,
             ILogger<RiskService> logger,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            PolicyEnforcementHelper policyHelper)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _policyHelper = policyHelper ?? throw new ArgumentNullException(nameof(policyHelper));
         }
 
         public async Task<RiskDto?> GetByIdAsync(Guid id)
@@ -85,12 +89,25 @@ namespace GrcMvc.Services.Implementations
                 risk.CreatedBy = GetCurrentUser();
                 risk.CreatedDate = DateTime.UtcNow;
 
+                // Enforce policies before saving (extract from entity or use defaults)
+                await _policyHelper.EnforceCreateAsync(
+                    resourceType: "Risk",
+                    resource: risk,
+                    dataClassification: null, // Will be set to "internal" by helper if null
+                    owner: risk.Owner);
+
                 // Add to repository
                 var createdRisk = await _unitOfWork.Risks.AddAsync(risk);
 
                 _logger.LogInformation("Risk created with ID {Id} by {User}", createdRisk.Id, risk.CreatedBy);
 
                 return _mapper.Map<RiskDto>(createdRisk);
+            }
+            catch (PolicyViolationException pve)
+            {
+                _logger.LogWarning("Policy violation prevented risk creation: {Message}. Rule: {RuleId}",
+                    pve.Message, pve.RuleId);
+                throw;
             }
             catch (Exception ex)
             {
@@ -118,6 +135,13 @@ namespace GrcMvc.Services.Implementations
                 // Map updated values
                 _mapper.Map(dto, risk);
 
+                // Enforce policies before updating
+                await _policyHelper.EnforceUpdateAsync(
+                    resourceType: "Risk",
+                    resource: risk,
+                    dataClassification: null, // Will be set to "internal" by helper if null
+                    owner: risk.Owner);
+
                 // Update audit fields
                 risk.ModifiedBy = GetCurrentUser();
                 risk.ModifiedDate = DateTime.UtcNow;
@@ -128,6 +152,12 @@ namespace GrcMvc.Services.Implementations
                 _logger.LogInformation("Risk {Id} updated by {User}", id, risk.ModifiedBy);
 
                 return _mapper.Map<RiskDto>(risk);
+            }
+            catch (PolicyViolationException pve)
+            {
+                _logger.LogWarning("Policy violation prevented risk update: {Message}. Rule: {RuleId}",
+                    pve.Message, pve.RuleId);
+                throw;
             }
             catch (Exception ex)
             {

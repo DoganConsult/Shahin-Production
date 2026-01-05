@@ -1,10 +1,20 @@
 @page "/risks/{id:guid}/edit"
 @using GrcMvc.Models.Dtos
+@using GrcMvc.Services.Interfaces
+@using GrcMvc.Services.Mappers
 @inject NavigationManager NavManager
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IRiskService RiskService
 
-<PageTitle>Edit Risk</PageTitle>
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
 
-<div class="container-fluid mt-4">
+<PageTitle>@(currentCulture == "ar" ? "تعديل المخاطرة" : "Edit Risk")</PageTitle>
+
+<div dir="@dir" class="container-fluid mt-4">
     <div class="row mb-4">
         <div class="col-md-8">
             <h1 class="display-6">Edit Risk</h1>
@@ -15,7 +25,18 @@
         </div>
     </div>
 
-    @if (risk != null)
+    @if (risk == null && !string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="row">
+            <div class="col-12">
+                <ErrorAlert Message="@errorMessage" Severity="danger" Title="Error Loading Risk" ShowDismiss="false" />
+                <div class="mt-3">
+                    <a href="/risks" class="btn btn-outline-secondary">Back to Risk Register</a>
+                </div>
+            </div>
+        </div>
+    }
+    else if (risk != null)
     {
         <div class="row">
             <div class="col-lg-8">
@@ -24,6 +45,8 @@
                         <h5 class="mb-0">Risk Information</h5>
                     </div>
                     <div class="card-body">
+                        <ErrorAlert Message="@errorMessage" Severity="danger" ShowDismiss="true" />
+                        
                         <div class="alert alert-light">
                             <h6>Risk Identification</h6>
                             <p class="mb-1">
@@ -187,36 +210,32 @@
 
     private RiskEditDto? risk;
     private bool isSubmitting = false;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        // TODO: Load from service
-        // var riskService = GetService<IRiskService>();
-        // risk = await riskService.GetByIdAsync(Id);
-
-        // Demo data
-        risk = new RiskEditDto
+        try
         {
-            Id = Id,
-            RiskNumber = "RISK-001",
-            Title = "Data Breach - Customer PII",
-            Category = "Compliance",
-            Description = "Potential unauthorized access to customer personally identifiable information could result in regulatory fines and reputational damage.",
-            Status = "Open",
-            InherentScore = 24,
-            ResidualScore = 18,
-            ResponsibleParty = "Security Team",
-            Owner = "John Smith",
-            IdentifiedDate = DateTime.Now.AddMonths(-2),
-            TargetClosureDate = DateTime.Now.AddMonths(1),
-            Impact = "Critical",
-            Likelihood = "Medium",
-            ConsequenceArea = "Data Loss, Regulatory Penalty, Reputational Damage",
-            CreatedDate = DateTime.Now.AddMonths(-3),
-            LastModifiedDate = DateTime.Now
-        };
+            // Load from service
+            var serviceRisk = await RiskService.GetByIdAsync(Id);
+            
+            if (serviceRisk == null)
+            {
+                // Risk not found - could redirect or show error
+                // For now, set risk to null and UI will handle
+                risk = null;
+                return;
+            }
 
-        await Task.CompletedTask;
+            // Convert Service DTO to UI DTO
+            risk = RiskDtoMapper.ToEditDto(serviceRisk);
+        }
+        catch (Exception ex)
+        {
+            // Log error
+            risk = null;
+            errorMessage = $"Error loading risk: {ex.Message}";
+        }
     }
 
     private void NavigateBack() => NavManager.NavigateTo("/risks");
@@ -228,14 +247,20 @@
         isSubmitting = true;
         try
         {
-            // TODO: Call service to update risk
-            // var riskService = GetService<IRiskService>();
-            // await riskService.UpdateAsync(risk);
+            // Convert UI DTO to Service DTO
+            var updateDto = RiskDtoMapper.ToUpdateDto(risk);
+            
+            // Call service to update
+            await RiskService.UpdateAsync(Id, updateDto);
 
-            // Simulate delay
-            await Task.Delay(500);
-
+            // Navigate back to list
             NavManager.NavigateTo("/risks");
+        }
+        catch (Exception ex)
+        {
+            // Log error
+            errorMessage = $"Error updating risk: {ex.Message}";
+            // Stay on page so user can see error and retry
         }
         finally
         {

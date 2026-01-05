@@ -1,9 +1,16 @@
 @page "/controls"
 @using GrcMvc.Models.Dtos
+@inject IHttpContextAccessor HttpContextAccessor
 
-<PageTitle>Control Library</PageTitle>
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
 
-<div class="container-fluid mt-4">
+<PageTitle>@(currentCulture == "ar" ? "مكتبة الضوابط" : "Control Library")</PageTitle>
+
+<div dir="@dir" class="container-fluid mt-4">
     <div class="row mb-4">
         <div class="col-md-8">
             <h1 class="display-6">Control Library</h1>

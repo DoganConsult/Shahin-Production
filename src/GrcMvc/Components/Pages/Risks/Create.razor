@@ -1,10 +1,20 @@
 @page "/risks/create"
 @using GrcMvc.Models.Dtos
+@using GrcMvc.Services.Interfaces
+@using GrcMvc.Services.Mappers
 @inject NavigationManager NavManager
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IRiskService RiskService
 
-<PageTitle>Register New Risk</PageTitle>
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
 
-<div class="container-fluid mt-4">
+<PageTitle>@(currentCulture == "ar" ? "تسجيل مخاطرة جديدة" : "Register New Risk")</PageTitle>
+
+<div dir="@dir" class="container-fluid mt-4">
     <div class="row mb-4">
         <div class="col-md-8">
             <h1 class="display-6">Register New Risk</h1>
@@ -24,10 +34,7 @@
                     <h5 class="mb-0">Risk Information</h5>
                 </div>
                 <div class="card-body">
-                    @if (!isSubmitting && errorMessage != null)
-                    {
-                        <div class="alert alert-danger">@errorMessage</div>
-                    }
+                    <ErrorAlert Message="@errorMessage" Severity="danger" ShowDismiss="true" />
 
                     <EditForm Model="@newRisk" OnValidSubmit="@HandleCreateRisk">
                         <DataAnnotationsValidator />
@@ -220,8 +227,11 @@
                 return;
             }
 
-            // Simulate API call
-            await Task.Delay(800);
+            // Convert UI DTO to Service DTO (pass selectedStatus from dropdown)
+            var createDto = RiskDtoMapper.ToCreateDto(newRisk, selectedStatus);
+
+            // Call service
+            var createdRisk = await RiskService.CreateAsync(createDto);
 
             // Navigate to risk register
             NavManager.NavigateTo("/risks");

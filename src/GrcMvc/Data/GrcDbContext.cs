@@ -78,6 +78,13 @@ namespace GrcMvc.Data
         public DbSet<Payment> Payments { get; set; } = null!;
         public DbSet<Invoice> Invoices { get; set; } = null!;
 
+        // Reports
+        public DbSet<Report> Reports { get; set; } = null!;
+
+        // Resilience Assessments
+        public DbSet<Resilience> Resiliences { get; set; } = null!;
+        public DbSet<RiskResilience> RiskResiliences { get; set; } = null!;
+
         // RBAC (Role-Based Access Control) DbSets
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<Feature> Features { get; set; }
@@ -111,6 +118,7 @@ namespace GrcMvc.Data
         public DbSet<SlaRule> SlaRules { get; set; } = null!;
         public DbSet<DelegationRule> DelegationRules { get; set; } = null!;
         public DbSet<DelegationLog> DelegationLogs { get; set; } = null!;
+        public DbSet<TaskDelegation> TaskDelegations { get; set; } = null!;
 
         // Trigger Rules (Event-based automation)
         public DbSet<TriggerRule> TriggerRules { get; set; } = null!;
@@ -123,6 +131,14 @@ namespace GrcMvc.Data
 
         // Evidence Scoring (Phase 8)
         public DbSet<Services.Interfaces.EvidenceScore> EvidenceScores { get; set; } = null!;
+
+        // User Profiles & Preferences
+        public DbSet<UserProfile> UserProfiles { get; set; } = null!;
+        public DbSet<UserProfileAssignment> UserProfileAssignments { get; set; } = null!;
+        public DbSet<UserNotificationPreference> UserNotificationPreferences { get; set; } = null!;
+
+        // Workflow Transitions (Audit Trail)
+        public DbSet<Models.Workflows.WorkflowTransition> WorkflowTransitions { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -471,6 +487,56 @@ namespace GrcMvc.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
+            // Configure Report
+            // Configure Resilience entity
+            modelBuilder.Entity<Resilience>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.AssessmentNumber).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.AssessmentType).HasMaxLength(100);
+                entity.Property(e => e.Framework).HasMaxLength(100);
+                entity.Property(e => e.Status).HasMaxLength(50);
+                entity.HasIndex(e => e.TenantId);
+                entity.HasIndex(e => new { e.TenantId, e.Status });
+                entity.HasIndex(e => e.AssessmentDate);
+            });
+
+            // Configure RiskResilience entity
+            modelBuilder.Entity<RiskResilience>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.AssessmentNumber).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.RiskCategory).HasMaxLength(100);
+                entity.Property(e => e.RiskType).HasMaxLength(100);
+                entity.Property(e => e.Status).HasMaxLength(50);
+                entity.HasIndex(e => e.TenantId);
+                entity.HasIndex(e => new { e.TenantId, e.Status });
+                entity.HasIndex(e => e.RelatedRiskId);
+                entity.HasIndex(e => e.AssessmentDate);
+            });
+
+            modelBuilder.Entity<Report>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.ReportNumber).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Title).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.Type).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Status).HasMaxLength(50);
+                entity.Property(e => e.Scope).HasMaxLength(500);
+                entity.Property(e => e.TenantId).IsRequired();
+                entity.HasIndex(e => e.ReportNumber).IsUnique();
+                entity.HasIndex(e => new { e.TenantId, e.Type, e.Status });
+                entity.HasIndex(e => e.CorrelationId);
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.Tenant)
+                    .WithMany()
+                    .HasForeignKey(e => e.TenantId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
             // Configure AuditEvent
             modelBuilder.Entity<AuditEvent>(entity =>
             {
@@ -729,6 +795,31 @@ namespace GrcMvc.Data
                 entity.HasIndex(e => e.Domain);
                 entity.HasIndex(e => e.Status);
                 entity.HasQueryFilter(e => !e.IsDeleted);
+            });
+
+            // Configure WorkflowTransition
+            modelBuilder.Entity<Models.Workflows.WorkflowTransition>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.FromState).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.ToState).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.TriggeredBy).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.Reason).HasMaxLength(500);
+
+                // Configure ContextData as JSON column (PostgreSQL supports JSONB)
+                entity.Property(e => e.ContextData)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        v => v == null ? null : System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions)null),
+                        v => v == null ? null : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(v, (System.Text.Json.JsonSerializerOptions)null));
+
+                entity.HasIndex(e => e.WorkflowInstanceId);
+                entity.HasIndex(e => e.TransitionDate);
+
+                entity.HasOne(e => e.WorkflowInstance)
+                    .WithMany()
+                    .HasForeignKey(e => e.WorkflowInstanceId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
 

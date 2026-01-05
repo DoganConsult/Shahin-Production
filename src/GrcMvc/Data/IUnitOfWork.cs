@@ -36,6 +36,7 @@ namespace GrcMvc.Data
         IGenericRepository<Plan> Plans { get; }
         IGenericRepository<PlanPhase> PlanPhases { get; }
         IGenericRepository<AuditEvent> AuditEvents { get; }
+        IGenericRepository<Report> Reports { get; }
         IGenericRepository<AssessmentRequirement> AssessmentRequirements { get; }
         IGenericRepository<FrameworkControl> FrameworkControls { get; }
         IGenericRepository<TemplateCatalog> TemplateCatalogs { get; }

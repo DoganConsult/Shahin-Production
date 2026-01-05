@@ -41,6 +41,7 @@ namespace GrcMvc.Data
         private IGenericRepository<Plan>? _plans;
         private IGenericRepository<PlanPhase>? _planPhases;
         private IGenericRepository<AuditEvent>? _auditEvents;
+        private IGenericRepository<Report>? _reports;
         private IGenericRepository<AssessmentRequirement>? _assessmentRequirements;
         private IGenericRepository<FrameworkControl>? _frameworkControls;
         private IGenericRepository<TemplateCatalog>? _templateCatalogs;
@@ -126,6 +127,9 @@ namespace GrcMvc.Data
 
         public IGenericRepository<AuditEvent> AuditEvents =>
             _auditEvents ??= new GenericRepository<AuditEvent>(_context);
+
+        public IGenericRepository<Report> Reports =>
+            _reports ??= new GenericRepository<Report>(_context);
 
         public IGenericRepository<AssessmentRequirement> AssessmentRequirements =>
             _assessmentRequirements ??= new GenericRepository<AssessmentRequirement>(_context);

@@ -3,8 +3,15 @@
 @using System.Text.Json
 @inject HttpClient Http
 @inject NavigationManager Navigation
+@inject IHttpContextAccessor HttpContextAccessor
 
-<div>
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
+
+<div dir="@dir">
     <div class="text-center mb-5">
         <div class="mb-4">
             <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>

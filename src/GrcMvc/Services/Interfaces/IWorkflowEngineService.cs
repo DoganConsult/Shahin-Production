@@ -14,6 +14,15 @@ namespace GrcMvc.Services.Interfaces
         // Workflow Creation & Initialization
         Task<WorkflowInstance> CreateWorkflowAsync(Guid tenantId, Guid definitionId, string priority = "Medium", string createdBy = "System");
         
+        /// <summary>
+        /// Start a workflow instance from a definition with BPMN parsing and task creation
+        /// </summary>
+        Task<WorkflowInstance> StartWorkflowAsync(
+            Guid tenantId,
+            Guid definitionId,
+            Guid? initiatedByUserId,
+            Dictionary<string, object>? inputVariables = null);
+        
         // Workflow Execution
         Task<WorkflowInstance> GetWorkflowAsync(Guid tenantId, Guid workflowId);
         Task<List<WorkflowInstance>> GetUserWorkflowsAsync(Guid tenantId, int page = 1, int pageSize = 20);
@@ -27,6 +36,16 @@ namespace GrcMvc.Services.Interfaces
         Task<WorkflowTask> GetTaskAsync(Guid tenantId, Guid taskId);
         Task<List<WorkflowTask>> GetWorkflowTasksAsync(Guid tenantId, Guid workflowId);
         Task<bool> CompleteTaskAsync(Guid tenantId, Guid taskId, string notes = "");
+        
+        /// <summary>
+        /// Complete a task and evaluate workflow completion
+        /// </summary>
+        Task<bool> CompleteTaskAsync(
+            Guid tenantId,
+            Guid taskId,
+            Guid userId,
+            Dictionary<string, object>? outputData = null,
+            string? notes = null);
         
         // Statistics
         Task<WorkflowStats> GetStatisticsAsync(Guid tenantId);

@@ -4,12 +4,22 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <NoWarn>$(NoWarn);8600;8601;8602;8603;8604;8613;8629;8632;1929;0618</NoWarn>
+    <!-- Suppress non-critical warnings:
+         CS8618: Non-nullable property uninitialized (handled by constructors/defaults)
+         CS1998: Async without await (placeholder implementations)
+         CS0108: Member hides inherited (intentional overrides)
+         CS8619: Nullability mismatch in anonymous types
+         CS7022: Multiple entry points
+         CS0105: Duplicate using directives
+    -->
+    <NoWarn>$(NoWarn);8600;8601;8602;8603;8604;8613;8618;8619;8629;8632;1929;1998;0108;0618;7022;0105</NoWarn>
+    <CopyRefAssembliesToPublishDirectory>true</CopyRefAssembliesToPublishDirectory>
   </PropertyGroup>
 
   <ItemGroup>
     <!-- Core Dependencies -->
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="ClosedXML" Version="0.102.2" />
     <PackageReference Include="CsvHelper" Version="31.0.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageReference Include="MailKit" Version="4.14.1" />
@@ -32,6 +42,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.Hangfire" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="QuestPDF" Version="2024.3.10" />
 
     <!-- Logging - Serilog -->
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
@@ -63,6 +74,7 @@
 
     <!-- API Documentation -->
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="YamlDotNet" Version="15.1.4" />
   </ItemGroup>
 
 </Project>

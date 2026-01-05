@@ -1,0 +1,210 @@
+@model GrcMvc.Models.ViewModels.UserProfileViewModel
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="bi bi-person-circle me-2"></i>My Profile</h2>
+            <p class="text-muted">View and manage your account settings</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Profile Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="avatar-large mx-auto mb-3">
+                        <i class="bi bi-person-circle display-1 text-primary"></i>
+                    </div>
+                    <h4>@Model.FullName</h4>
+                    <p class="text-muted">@Model.Email</p>
+                    @if (!string.IsNullOrEmpty(Model.RoleName))
+                    {
+                        <span class="badge bg-primary fs-6">@Model.RoleName</span>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.TitleName))
+                    {
+                        <br/><span class="badge bg-secondary mt-2">@Model.TitleName</span>
+                    }
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="/inbox" class="list-group-item list-group-item-action">
+                        <i class="bi bi-inbox me-2"></i>My Inbox
+                        @if (Model.PendingTasksCount > 0)
+                        {
+                            <span class="badge bg-warning float-end">@Model.PendingTasksCount</span>
+                        }
+                    </a>
+                    <a href="/Workflow/Inbox" class="list-group-item list-group-item-action">
+                        <i class="bi bi-list-task me-2"></i>My Tasks
+                    </a>
+                    <a asp-action="ChangePassword" class="list-group-item list-group-item-action">
+                        <i class="bi bi-key me-2"></i>Change Password
+                    </a>
+                    <a asp-action="Manage" class="list-group-item list-group-item-action">
+                        <i class="bi bi-gear me-2"></i>Account Settings
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Details -->
+        <div class="col-md-8">
+            <!-- Assigned Profiles -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-person-badge me-2"></i>Assigned Profiles</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.AssignedProfiles != null && Model.AssignedProfiles.Any())
+                    {
+                        <div class="row">
+                            @foreach (var profile in Model.AssignedProfiles)
+                            {
+                                <div class="col-md-6 mb-2">
+                                    <div class="border rounded p-2">
+                                        <strong>@profile.ProfileName</strong>
+                                        <br/><small class="text-muted">@profile.Description</small>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No profiles assigned yet.</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Permissions -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-shield-check me-2"></i>Permissions</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.Permissions != null && Model.Permissions.Any())
+                    {
+                        @foreach (var perm in Model.Permissions.Take(20))
+                        {
+                            <span class="badge bg-info me-1 mb-1">@perm</span>
+                        }
+                        @if (Model.Permissions.Count > 20)
+                        {
+                            <span class="badge bg-secondary">+@(Model.Permissions.Count - 20) more</span>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No permissions assigned.</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Workflow Roles -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>Workflow Roles</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.WorkflowRoles != null && Model.WorkflowRoles.Any())
+                    {
+                        @foreach (var role in Model.WorkflowRoles)
+                        {
+                            <span class="badge bg-success me-1 mb-1">@role</span>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No workflow roles assigned.</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Notification Preferences -->
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="bi bi-bell me-2"></i>Notification Preferences</h6>
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#notificationModal">
+                        <i class="bi bi-pencil"></i> Edit
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1">
+                                <i class="bi @(Model.NotificationPreferences?.EmailEnabled == true ? "bi-check-circle text-success" : "bi-x-circle text-danger") me-2"></i>
+                                Email Notifications
+                            </p>
+                            <p class="mb-1">
+                                <i class="bi @(Model.NotificationPreferences?.SmsEnabled == true ? "bi-check-circle text-success" : "bi-x-circle text-danger") me-2"></i>
+                                SMS Notifications
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1">
+                                <i class="bi @(Model.NotificationPreferences?.InAppEnabled == true ? "bi-check-circle text-success" : "bi-x-circle text-danger") me-2"></i>
+                                In-App Notifications
+                            </p>
+                            <p class="mb-0">
+                                <strong>Digest:</strong> @(Model.NotificationPreferences?.DigestFrequency ?? "Immediate")
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Preferences Modal -->
+<div class="modal fade" id="notificationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Notification Preferences</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="UpdateNotificationPreferences" method="post">
+                <div class="modal-body">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="emailEnabled" name="EmailEnabled"
+                               @(Model.NotificationPreferences?.EmailEnabled == true ? "checked" : "")>
+                        <label class="form-check-label" for="emailEnabled">Email Notifications</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="smsEnabled" name="SmsEnabled"
+                               @(Model.NotificationPreferences?.SmsEnabled == true ? "checked" : "")>
+                        <label class="form-check-label" for="smsEnabled">SMS Notifications</label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="inAppEnabled" name="InAppEnabled"
+                               @(Model.NotificationPreferences?.InAppEnabled == true ? "checked" : "")>
+                        <label class="form-check-label" for="inAppEnabled">In-App Notifications</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Digest Frequency</label>
+                        <select class="form-select" name="DigestFrequency">
+                            <option value="Immediate" selected="@(Model.NotificationPreferences?.DigestFrequency == "Immediate")">Immediate</option>
+                            <option value="Daily" selected="@(Model.NotificationPreferences?.DigestFrequency == "Daily")">Daily</option>
+                            <option value="Weekly" selected="@(Model.NotificationPreferences?.DigestFrequency == "Weekly")">Weekly</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,127 @@
+apiVersion: policy.doganconsult.io/v1
+kind: Policy
+
+metadata:
+  name: baseline-governance
+  namespace: default
+  version: "1.0.0"
+  createdAt: "2025-01-22T18:30:00+03:00"
+  labels:
+    owner: "dogan-consult"
+    domain: "governance"
+  annotations:
+    purpose: "Baseline deterministic enforcement rules for all resources"
+
+spec:
+  mode: enforce
+  defaultEffect: allow
+
+  execution:
+    order: sequential
+    shortCircuit: true
+    conflictStrategy: denyOverrides
+
+  target:
+    resourceTypes:
+      - "Any"
+    environments:
+      - "dev"
+      - "staging"
+      - "prod"
+
+  audit:
+    logDecisions: true
+    retentionDays: 365
+    sinks:
+      - type: stdout
+
+  rules:
+    - id: REQUIRE_DATA_CLASSIFICATION
+      priority: 10
+      description: "Every resource must carry a data classification label."
+      enabled: true
+      match:
+        resource:
+          type: "Any"
+          name: "*"
+      when:
+        - op: notMatches
+          path: "metadata.labels.dataClassification"
+          value: "^(public|internal|confidential|restricted)$"
+      effect: deny
+      severity: high
+      message: "Missing/invalid metadata.labels.dataClassification. Allowed: public|internal|confidential|restricted."
+      remediation:
+        hint: "Set metadata.labels.dataClassification to one of the allowed values."
+
+    - id: REQUIRE_OWNER
+      priority: 20
+      description: "Every resource must declare an owner label."
+      enabled: true
+      match:
+        resource:
+          type: "Any"
+          name: "*"
+      when:
+        - op: notMatches
+          path: "metadata.labels.owner"
+          value: "^.{2,256}$"
+      effect: deny
+      severity: medium
+      message: "Missing/invalid metadata.labels.owner."
+      remediation:
+        hint: "Set metadata.labels.owner to a team or individual identifier."
+
+    - id: PROD_RESTRICTED_MUST_HAVE_APPROVAL
+      priority: 30
+      description: "Restricted data in prod requires an approval flag."
+      enabled: true
+      match:
+        resource:
+          type: "Any"
+          name: "*"
+        environment: "prod"
+      when:
+        - op: equals
+          path: "metadata.labels.dataClassification"
+          value: "restricted"
+        - op: notEquals
+          path: "metadata.labels.approvedForProd"
+          value: "true"
+      effect: deny
+      severity: critical
+      message: "Restricted data in prod requires metadata.labels.approvedForProd=true."
+      remediation:
+        hint: "Run the approval workflow and set approvedForProd=true."
+
+    - id: NORMALIZE_EMPTY_LABELS
+      priority: 9000
+      description: "Normalize known empty label values to null (deterministic mutation)."
+      enabled: true
+      match:
+        resource:
+          type: "Any"
+          name: "*"
+      when:
+        - op: in
+          path: "metadata.labels.owner"
+          value: ["", "unknown", "n/a"]
+      effect: mutate
+      severity: low
+      message: "Normalizing invalid owner label."
+      mutations:
+        - op: set
+          path: "metadata.labels.owner"
+          value: null
+
+  exceptions:
+    - id: TEMP_EXC_DEV_SANDBOX
+      ruleIds:
+        - PROD_RESTRICTED_MUST_HAVE_APPROVAL
+      reason: "Dev sandbox does not require prod approval controls."
+      expiresAt: "2026-01-31T23:59:59+03:00"
+      match:
+        resource:
+          type: "Any"
+          name: "*"
+        environment: "dev"

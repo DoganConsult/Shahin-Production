@@ -8,7 +8,7 @@ namespace GrcMvc
         public static string GenerateHash(string password)
         {
             var hasher = new PasswordHasher<object>();
-            return hasher.HashPassword(null, password);
+            return hasher.HashPassword(new object(), password);
         }
 
         public static void Main()

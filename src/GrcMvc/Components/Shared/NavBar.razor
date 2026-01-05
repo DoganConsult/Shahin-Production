@@ -1,6 +1,15 @@
 @using GrcMvc.Models.Dtos
+@using Microsoft.AspNetCore.Localization
+@inject IHttpContextAccessor HttpContextAccessor
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var isRtl = currentCulture == "ar";
+    var dir = isRtl ? "rtl" : "ltr";
+}
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top" dir="@dir">
     <div class="container-fluid">
         <a class="navbar-brand" href="/">
             <i class="bi bi-shield-lock"></i> GRC System
@@ -65,8 +74,11 @@
                     </ul>
                 </li>
                 <li class="nav-item">
+                    <LanguageSwitcher />
+                </li>
+                <li class="nav-item">
                     <a class="nav-link text-warning" href="/logout">
-                        <i class="bi bi-box-arrow-right"></i> Logout
+                        <i class="bi bi-box-arrow-right"></i> @(isRtl ? "تسجيل الخروج" : "Logout")
                     </a>
                 </li>
             </ul>

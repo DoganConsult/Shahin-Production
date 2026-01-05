@@ -5,7 +5,9 @@ using System.Security.Claims;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
 using GrcMvc.Models.DTOs.Workflows;
+using GrcMvc.Resources;
 using GrcMvc.Services.Interfaces.Workflows;
+using Microsoft.Extensions.Localization;
 
 namespace GrcMvc.Controllers.Api
 {
@@ -28,6 +30,7 @@ namespace GrcMvc.Controllers.Api
         private readonly ITrainingAssignmentWorkflowService _trainingWorkflow;
         private readonly IAuditWorkflowService _auditWorkflow;
         private readonly IExceptionHandlingWorkflowService _exceptionWorkflow;
+        private readonly IStringLocalizer<SharedResource> _localizer;
         private readonly ILogger<WorkflowsController> _logger;
         private readonly GrcDbContext _context;
 
@@ -43,7 +46,8 @@ namespace GrcMvc.Controllers.Api
             IAuditWorkflowService auditWorkflow,
             IExceptionHandlingWorkflowService exceptionWorkflow,
             ILogger<WorkflowsController> logger,
-            GrcDbContext context)
+            GrcDbContext context,
+            IStringLocalizer<SharedResource> localizer)
         {
             _controlWorkflow = controlWorkflow;
             _riskWorkflow = riskWorkflow;
@@ -57,6 +61,7 @@ namespace GrcMvc.Controllers.Api
             _exceptionWorkflow = exceptionWorkflow;
             _logger = logger;
             _context = context;
+            _localizer = localizer;
         }
 
         // ===== CONTROL IMPLEMENTATION WORKFLOWS =====
@@ -82,7 +87,7 @@ namespace GrcMvc.Controllers.Api
         public async Task<IActionResult> MoveControlToPlanning(Guid workflowId, [FromBody] WorkflowActionDto action)
         {
             var result = await _controlWorkflow.MoveToPlanning(workflowId, action.Notes);
-            return result ? Ok("Moved to planning") : BadRequest("Cannot move to planning");
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpPut("control/{workflowId:guid}/implementation")]
@@ -90,7 +95,7 @@ namespace GrcMvc.Controllers.Api
         public async Task<IActionResult> MoveControlToImplementation(Guid workflowId, [FromBody] WorkflowActionDto action)
         {
             var result = await _controlWorkflow.MoveToImplementation(workflowId, action.Details);
-            return result ? Ok("Moved to implementation") : BadRequest("Cannot move to implementation");
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpPut("control/{workflowId:guid}/submit-review")]
@@ -99,7 +104,7 @@ namespace GrcMvc.Controllers.Api
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             var result = await _controlWorkflow.SubmitForReview(workflowId, userId);
-            return result ? Ok("Submitted for review") : BadRequest("Cannot submit for review");
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpPut("control/{workflowId:guid}/approve")]
@@ -108,7 +113,7 @@ namespace GrcMvc.Controllers.Api
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             var result = await _controlWorkflow.ApproveImplementation(workflowId, userId, action.Comments);
-            return result ? Ok("Control approved") : BadRequest("Cannot approve control");
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpPut("control/{workflowId:guid}/deploy")]
@@ -116,7 +121,7 @@ namespace GrcMvc.Controllers.Api
         public async Task<IActionResult> DeployControl(Guid workflowId)
         {
             var result = await _controlWorkflow.DeployControl(workflowId);
-            return result ? Ok("Control deployed") : BadRequest("Cannot deploy control");
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpPut("control/{workflowId:guid}/monitor")]
@@ -124,7 +129,7 @@ namespace GrcMvc.Controllers.Api
         public async Task<IActionResult> StartControlMonitoring(Guid workflowId)
         {
             var result = await _controlWorkflow.StartMonitoring(workflowId);
-            return result ? Ok("Monitoring started") : BadRequest("Cannot start monitoring");
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpGet("control/{workflowId:guid}")]
@@ -132,7 +137,7 @@ namespace GrcMvc.Controllers.Api
         public async Task<ActionResult<WorkflowInstanceDto>> GetControlWorkflow(Guid workflowId)
         {
             var workflow = await _controlWorkflow.GetWorkflowAsync(workflowId);
-            return workflow != null ? Ok(MapWorkflowToDto(workflow)) : NotFound();
+            return workflow != null ? Ok(MapWorkflowToDto(workflow)) : NotFound(_localizer["Error_NotFound"]);
         }
 
         // ===== RISK ASSESSMENT WORKFLOWS =====
@@ -153,7 +158,7 @@ namespace GrcMvc.Controllers.Api
         public async Task<IActionResult> StartRiskAssessment(Guid workflowId)
         {
             var result = await _riskWorkflow.StartDataGatheringAsync(workflowId);
-            return result ? Ok("Assessment started") : BadRequest();
+            return result ? Ok(_localizer["Success_Created"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpPut("risk/{workflowId:guid}/submit-analysis")]
@@ -161,7 +166,7 @@ namespace GrcMvc.Controllers.Api
         public async Task<IActionResult> SubmitRiskAnalysis(Guid workflowId, [FromBody] WorkflowActionDto action)
         {
             var result = await _riskWorkflow.SubmitAnalysisAsync(workflowId, action.Details);
-            return result ? Ok("Analysis submitted") : BadRequest();
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpGet("risk/{workflowId:guid}")]
@@ -169,7 +174,7 @@ namespace GrcMvc.Controllers.Api
         public async Task<ActionResult<WorkflowInstanceDto>> GetRiskWorkflow(Guid workflowId)
         {
             var workflow = await _riskWorkflow.GetAssessmentStatusAsync(workflowId);
-            return workflow != null ? Ok(MapWorkflowToDto(workflow)) : NotFound();
+            return workflow != null ? Ok(MapWorkflowToDto(workflow)) : NotFound(_localizer["Error_NotFound"]);
         }
 
         // ===== APPROVAL WORKFLOWS =====
@@ -193,7 +198,7 @@ namespace GrcMvc.Controllers.Api
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             var result = await _approvalWorkflow.ApproveAsManagerAsync(workflowId, userId, action.Comments);
-            return result ? Ok("Manager approval granted") : BadRequest();
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpPut("approval/{workflowId:guid}/approve-compliance")]
@@ -202,7 +207,7 @@ namespace GrcMvc.Controllers.Api
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             var result = await _approvalWorkflow.ApproveAsComplianceAsync(workflowId, userId, action.Comments);
-            return result ? Ok("Compliance approval granted") : BadRequest();
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpPut("approval/{workflowId:guid}/approve-executive")]
@@ -211,7 +216,7 @@ namespace GrcMvc.Controllers.Api
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             var result = await _approvalWorkflow.ApproveAsExecutiveAsync(workflowId, userId, action.Comments);
-            return result ? Ok("Executive approval granted") : BadRequest();
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpPut("approval/{workflowId:guid}/reject")]
@@ -220,7 +225,7 @@ namespace GrcMvc.Controllers.Api
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             var result = await _approvalWorkflow.RejectAsManagerAsync(workflowId, userId, action.Comments);
-            return result ? Ok("Approval rejected") : BadRequest();
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpGet("approval/{workflowId:guid}/history")]
@@ -260,7 +265,7 @@ namespace GrcMvc.Controllers.Api
             var result = await _evidenceWorkflow.SubmitEvidenceAsync(
                 workflowId, userId, submission.Description, submission.FileUrls);
 
-            return result ? Ok("Evidence submitted") : BadRequest();
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpPut("evidence/{workflowId:guid}/approve")]
@@ -269,7 +274,7 @@ namespace GrcMvc.Controllers.Api
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             var result = await _evidenceWorkflow.ApproveEvidenceAsync(workflowId, userId, action.Comments);
-            return result ? Ok("Evidence approved") : BadRequest();
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         // ===== COMPLIANCE TESTING WORKFLOWS =====
@@ -290,7 +295,7 @@ namespace GrcMvc.Controllers.Api
         public async Task<IActionResult> CompleteComplianceTest(Guid workflowId, [FromBody] TestResultsDto results)
         {
             var outcome = await _testingWorkflow.CompleteTestExecutionAsync(workflowId, results.Results);
-            return outcome ? Ok("Test completed") : BadRequest();
+            return outcome ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpPut("testing/{workflowId:guid}/mark-compliant")]
@@ -299,7 +304,7 @@ namespace GrcMvc.Controllers.Api
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             var result = await _testingWorkflow.MarkAsCompliantAsync(workflowId, userId);
-            return result ? Ok("Marked as compliant") : BadRequest();
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpPut("testing/{workflowId:guid}/mark-non-compliant")]
@@ -308,7 +313,7 @@ namespace GrcMvc.Controllers.Api
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             var result = await _testingWorkflow.MarkAsNonCompliantAsync(workflowId, userId, action.Details);
-            return result ? Ok("Marked as non-compliant") : BadRequest();
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         // ===== REMEDIATION WORKFLOWS =====
@@ -331,7 +336,7 @@ namespace GrcMvc.Controllers.Api
         public async Task<IActionResult> StartRemediation(Guid workflowId)
         {
             var result = await _remediationWorkflow.StartRemediationAsync(workflowId);
-            return result ? Ok("Remediation started") : BadRequest();
+            return result ? Ok(_localizer["Success_Created"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpPut("remediation/{workflowId:guid}/verify")]
@@ -342,7 +347,7 @@ namespace GrcMvc.Controllers.Api
             var result = await _remediationWorkflow.VerifyRemediationAsync(
                 workflowId, userId, verification.IsSuccessful);
 
-            return result ? Ok("Remediation verified") : BadRequest();
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         // ===== POLICY REVIEW WORKFLOWS =====
@@ -362,7 +367,7 @@ namespace GrcMvc.Controllers.Api
         public async Task<IActionResult> PublishPolicy(Guid workflowId)
         {
             var result = await _policyWorkflow.PublishPolicyAsync(workflowId);
-            return result ? Ok("Policy published") : BadRequest();
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         // ===== TRAINING ASSIGNMENT WORKFLOWS =====
@@ -386,7 +391,7 @@ namespace GrcMvc.Controllers.Api
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             var result = await _trainingWorkflow.CompleteTrainingAsync(workflowId, userId);
-            return result ? Ok("Training completed") : BadRequest();
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpPut("training/{workflowId:guid}/pass")]
@@ -394,7 +399,7 @@ namespace GrcMvc.Controllers.Api
         public async Task<IActionResult> PassTraining(Guid workflowId, [FromBody] TrainingResultDto result)
         {
             var outcome = await _trainingWorkflow.MarkAsPassedAsync(workflowId, result.Score);
-            return outcome ? Ok("Training passed") : BadRequest();
+            return outcome ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         // ===== AUDIT WORKFLOWS =====
@@ -415,7 +420,7 @@ namespace GrcMvc.Controllers.Api
         public async Task<IActionResult> IssueAuditReport(Guid workflowId, [FromBody] AuditReportDto report)
         {
             var result = await _auditWorkflow.IssueFinalReportAsync(workflowId, report.Report);
-            return result ? Ok("Report issued") : BadRequest();
+            return result ? Ok(_localizer["Success_Created"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         // ===== EXCEPTION HANDLING WORKFLOWS =====
@@ -439,7 +444,7 @@ namespace GrcMvc.Controllers.Api
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             var result = await _exceptionWorkflow.ApproveExceptionAsync(workflowId, userId, action.Comments);
-            return result ? Ok("Exception approved") : BadRequest();
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         [HttpPut("exception/{workflowId:guid}/reject")]
@@ -448,7 +453,7 @@ namespace GrcMvc.Controllers.Api
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             var result = await _exceptionWorkflow.RejectExceptionAsync(workflowId, userId, action.Comments);
-            return result ? Ok("Exception rejected") : BadRequest();
+            return result ? Ok(_localizer["Success_Updated"]) : BadRequest(_localizer["Error_BadRequest"]);
         }
 
         // ===== HELPER METHODS =====

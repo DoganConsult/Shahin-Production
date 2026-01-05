@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace GrcMvc.Services.Implementations
 {
@@ -21,6 +22,9 @@ namespace GrcMvc.Services.Implementations
         private readonly GrcDbContext _context;
         private readonly ILogger<WorkflowEngineService> _logger;
         private readonly IMemoryCache _cache;
+        private readonly BpmnParser _bpmnParser;
+        private readonly WorkflowAssigneeResolver _assigneeResolver;
+        private readonly IWorkflowAuditService _auditService;
 
         // Cache keys and expiration settings
         private const string WorkflowDefinitionCacheKey = "WorkflowDef_";
@@ -28,14 +32,176 @@ namespace GrcMvc.Services.Implementations
         private static readonly TimeSpan DefinitionCacheExpiration = TimeSpan.FromMinutes(10);
         private static readonly TimeSpan StatsCacheExpiration = TimeSpan.FromMinutes(2);
 
-        public WorkflowEngineService(GrcDbContext context, ILogger<WorkflowEngineService> logger, IMemoryCache cache)
+        public WorkflowEngineService(
+            GrcDbContext context,
+            ILogger<WorkflowEngineService> logger,
+            IMemoryCache cache,
+            BpmnParser bpmnParser,
+            WorkflowAssigneeResolver assigneeResolver,
+            IWorkflowAuditService auditService)
         {
             _context = context;
             _logger = logger;
             _cache = cache;
+            _bpmnParser = bpmnParser;
+            _assigneeResolver = assigneeResolver;
+            _auditService = auditService;
         }
 
         // ============ Workflow Creation & Initialization ============
+
+        /// <summary>
+        /// Start a workflow instance from a definition with BPMN parsing and task creation
+        /// Implements the specification: StartWorkflowAsync with full task creation
+        /// </summary>
+        public async Task<WorkflowInstance> StartWorkflowAsync(
+            Guid tenantId,
+            Guid definitionId,
+            Guid? initiatedByUserId,
+            Dictionary<string, object>? inputVariables = null)
+        {
+            // STEP 1: Validate workflow definition is active
+            var definition = await GetWorkflowDefinitionAsync(tenantId, definitionId);
+            if (definition == null)
+                throw new InvalidOperationException($"Workflow definition {definitionId} not found");
+
+            if (definition.Status != "Active" && definition.IsActive != true)
+                throw new InvalidOperationException($"Workflow definition {definitionId} is not active");
+
+            // STEP 2: Create instance with tenant isolation
+            var instance = new WorkflowInstance
+            {
+                Id = Guid.NewGuid(),
+                TenantId = tenantId,
+                WorkflowDefinitionId = definitionId,
+                Status = "Pending",
+                CurrentState = "Pending",
+                StartedAt = DateTime.UtcNow,
+                InitiatedByUserId = initiatedByUserId,
+                Variables = inputVariables != null ? JsonSerializer.Serialize(inputVariables) : null
+            };
+
+            // STEP 3: Start instance (Pending → InProgress)
+            instance.Status = "InProgress";
+            instance.CurrentState = "InProgress";
+
+            // STEP 4: Parse BPMN XML and create tasks
+            var bpmnWorkflow = !string.IsNullOrWhiteSpace(definition.BpmnXml)
+                ? _bpmnParser.Parse(definition.BpmnXml)
+                : ParseStepsFromJson(definition.Steps);
+
+            if (bpmnWorkflow.Steps.Any())
+            {
+                foreach (var step in bpmnWorkflow.Steps.Where(s => s.Type == BpmnStepType.Task))
+                {
+                    // Validate assignee exists (multi-team support via role-based assignment)
+                    // AssigneeRule is available in step definitions but not in parsed BPMN steps
+                    // For now, use role-based resolution which supports multi-team via roles
+                    var assigneeUserId = await _assigneeResolver.ResolveAssigneeAsync(
+                        tenantId,
+                        step.Assignee ?? definition.DefaultAssignee,
+                        initiatedByUserId);
+
+                    if (!assigneeUserId.HasValue)
+                    {
+                        _logger.LogWarning("Could not resolve assignee for step {StepName}, skipping", step.Name);
+                        continue;
+                    }
+
+                    // Create task with SLA
+                    var dueDate = step.DueDateOffsetDays.HasValue
+                        ? DateTime.UtcNow.AddDays(step.DueDateOffsetDays.Value)
+                        : (DateTime?)null;
+
+                    var task = new WorkflowTask
+                    {
+                        Id = Guid.NewGuid(),
+                        TenantId = tenantId,
+                        WorkflowInstanceId = instance.Id,
+                        TaskName = step.Name,
+                        Description = step.Description ?? string.Empty,
+                        AssignedToUserId = assigneeUserId.Value,
+                        Status = "Pending",
+                        Priority = step.Priority,
+                        DueDate = dueDate,
+                        StartedAt = null,
+                        CompletedAt = null
+                    };
+
+                    instance.Tasks.Add(task);
+                }
+            }
+
+            // STEP 5: Persist to database
+            _context.WorkflowInstances.Add(instance);
+            await _context.SaveChangesAsync();
+
+            // STEP 6: Record audit trail
+            await _auditService.RecordInstanceEventAsync(
+                instance,
+                "InstanceStarted",
+                null,
+                $"Workflow started with {instance.Tasks.Count} tasks");
+
+            _logger.LogInformation("✅ Started workflow {InstanceId} from definition {DefinitionName} with {TaskCount} tasks",
+                instance.Id, definition.Name, instance.Tasks.Count);
+
+            return instance;
+        }
+
+        /// <summary>
+        /// Parse steps from JSON fallback (when BPMN XML is not available)
+        /// </summary>
+        private BpmnWorkflow ParseStepsFromJson(string stepsJson)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(stepsJson) || stepsJson == "[]")
+                    return new BpmnWorkflow { Steps = new List<BpmnStep>() };
+
+                var stepDefinitions = JsonSerializer.Deserialize<List<WorkflowStepDefinition>>(stepsJson);
+                if (stepDefinitions == null)
+                    return new BpmnWorkflow { Steps = new List<BpmnStep>() };
+
+                var steps = stepDefinitions.Select(s => new BpmnStep
+                {
+                    Id = s.id,
+                    Name = s.name,
+                    Type = s.type switch
+                    {
+                        "startEvent" => BpmnStepType.Start,
+                        "endEvent" => BpmnStepType.End,
+                        _ => BpmnStepType.Task
+                    },
+                    Sequence = s.stepNumber,
+                    Assignee = s.assignee,
+                    DueDateOffsetDays = s.daysToComplete,
+                    Priority = 2, // Default medium
+                    Description = s.description
+                }).ToList();
+
+                return new BpmnWorkflow { Steps = steps };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error parsing steps from JSON");
+                return new BpmnWorkflow { Steps = new List<BpmnStep>() };
+            }
+        }
+
+        /// <summary>
+        /// WorkflowStepDefinition for JSON deserialization
+        /// </summary>
+        private class WorkflowStepDefinition
+        {
+            public string id { get; set; } = string.Empty;
+            public string name { get; set; } = string.Empty;
+            public string type { get; set; } = string.Empty;
+            public int stepNumber { get; set; }
+            public string? assignee { get; set; }
+            public int? daysToComplete { get; set; }
+            public string? description { get; set; }
+        }
 
         public async Task<WorkflowInstance> CreateWorkflowAsync(Guid tenantId, Guid definitionId, string priority = "Medium", string createdBy = "System")
         {
@@ -74,6 +240,7 @@ namespace GrcMvc.Services.Implementations
 
         /// <summary>
         /// Get workflow definition with caching (10 minute expiration)
+        /// Supports both tenant-specific and global (TenantId = null) definitions
         /// </summary>
         private async Task<WorkflowDefinition?> GetWorkflowDefinitionAsync(Guid tenantId, Guid definitionId)
         {
@@ -84,9 +251,10 @@ namespace GrcMvc.Services.Implementations
                 entry.SlidingExpiration = DefinitionCacheExpiration;
                 _logger.LogDebug("Cache miss for workflow definition {DefinitionId}", definitionId);
 
+                // Support both tenant-specific and global (TenantId = null) definitions
                 return await _context.WorkflowDefinitions
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(d => d.Id == definitionId && d.TenantId == tenantId);
+                    .FirstOrDefaultAsync(d => d.Id == definitionId && (d.TenantId == tenantId || d.TenantId == null));
             });
         }
 
@@ -256,27 +424,122 @@ namespace GrcMvc.Services.Implementations
 
         public async Task<bool> CompleteTaskAsync(Guid tenantId, Guid taskId, string notes = "")
         {
+            // Legacy method - calls the enhanced version
+            return await CompleteTaskAsync(tenantId, taskId, Guid.Empty, null, notes);
+        }
+
+        /// <summary>
+        /// Complete a task and evaluate workflow completion
+        /// Implements the specification: CompleteTaskAsync with workflow evaluation
+        /// </summary>
+        public async Task<bool> CompleteTaskAsync(
+            Guid tenantId,
+            Guid taskId,
+            Guid userId,
+            Dictionary<string, object>? outputData = null,
+            string? notes = null)
+        {
             try
             {
-                var task = await _context.WorkflowTasks
-                    .FirstOrDefaultAsync(t => t.Id == taskId && t.TenantId == tenantId);
+                var instance = await _context.WorkflowInstances
+                    .Include(i => i.Tasks)
+                    .FirstOrDefaultAsync(i => i.Tasks.Any(t => t.Id == taskId) && i.TenantId == tenantId);
 
-                if (task == null)
+                if (instance == null)
+                {
+                    _logger.LogWarning("Workflow instance not found for task {TaskId}", taskId);
                     return false;
+                }
 
-                task.Status = "Completed";
+                var task = instance.Tasks.FirstOrDefault(t => t.Id == taskId);
+                if (task == null)
+                {
+                    _logger.LogWarning("Task {TaskId} not found", taskId);
+                    return false;
+                }
+
+                // Mark task as Approved (completed successfully)
+                var oldStatus = task.Status;
+                task.Status = "Approved"; // Using "Approved" as per spec (not "Completed")
                 task.CompletedAt = DateTime.UtcNow;
+                task.CompletedByUserId = userId;
+                task.CompletionNotes = notes;
 
-                _context.WorkflowTasks.Update(task);
+                // Record task completion audit
+                await _auditService.RecordTaskEventAsync(
+                    task,
+                    "TaskCompleted",
+                    oldStatus,
+                    $"Task completed by user {userId}. Notes: {notes ?? "None"}");
+
+                // Evaluate if workflow should complete
+                await EvaluateWorkflowCompletionAsync(instance);
+
+                _context.WorkflowInstances.Update(instance);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"✅ Completed task {taskId}");
+                _logger.LogInformation("✅ Completed task {TaskId} for workflow {InstanceId}", taskId, instance.Id);
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError($"❌ Error completing task: {ex.Message}");
+                _logger.LogError(ex, "❌ Error completing task {TaskId}", taskId);
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Evaluate workflow completion based on task statuses
+        /// Implements the specification: EvaluateNextStepsWithAiAsync logic
+        /// </summary>
+        private async Task EvaluateWorkflowCompletionAsync(WorkflowInstance instance)
+        {
+            // Count task statuses
+            var pendingOrInProgressTasks = instance.Tasks.Count(t =>
+                t.Status == "Pending" || t.Status == "InProgress");
+            var rejectedTasks = instance.Tasks.Count(t => t.Status == "Rejected");
+            var approvedTasks = instance.Tasks.Count(t => t.Status == "Approved");
+
+            // RULE 1: If any tasks rejected and no pending work → REJECT workflow
+            if (rejectedTasks > 0 && pendingOrInProgressTasks == 0)
+            {
+                instance.Status = "Rejected";
+                instance.CurrentState = "Rejected";
+                instance.CompletedAt = DateTime.UtcNow;
+
+                await _auditService.RecordInstanceEventAsync(
+                    instance,
+                    "InstanceRejected",
+                    "InProgress",
+                    $"Workflow rejected: {rejectedTasks} task(s) were rejected");
+
+                _logger.LogInformation("Workflow {InstanceId} rejected: {RejectedTasks} task(s) were rejected",
+                    instance.Id, rejectedTasks);
+                return;
+            }
+
+            // RULE 2: If all tasks done (no pending) and at least one task → COMPLETE workflow
+            if (pendingOrInProgressTasks == 0 && instance.Tasks.Any())
+            {
+                instance.Status = "Completed";
+                instance.CurrentState = "Completed";
+                instance.CompletedAt = DateTime.UtcNow;
+                instance.CompletedByUserId = instance.InitiatedByUserId;
+
+                await _auditService.RecordInstanceEventAsync(
+                    instance,
+                    "InstanceCompleted",
+                    "InProgress",
+                    $"Workflow completed successfully with {approvedTasks} approved task(s)");
+
+                _logger.LogInformation("Workflow {InstanceId} completed successfully with {ApprovedTasks} approved task(s)",
+                    instance.Id, approvedTasks);
+            }
+            // RULE 3: Still have pending tasks → continue workflow
+            else if (pendingOrInProgressTasks > 0)
+            {
+                _logger.LogDebug("Workflow {InstanceId} has {PendingTasks} pending task(s), continuing",
+                    instance.Id, pendingOrInProgressTasks);
             }
         }
 

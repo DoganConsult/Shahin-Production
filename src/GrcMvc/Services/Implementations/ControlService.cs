@@ -7,6 +7,7 @@ using GrcMvc.Data;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Application.Policy;
 using Microsoft.Extensions.Logging;
 
 namespace GrcMvc.Services.Implementations
@@ -16,12 +17,18 @@ namespace GrcMvc.Services.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<ControlService> _logger;
+        private readonly PolicyEnforcementHelper _policyHelper;
 
-        public ControlService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<ControlService> logger)
+        public ControlService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            ILogger<ControlService> logger,
+            PolicyEnforcementHelper policyHelper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
+            _policyHelper = policyHelper ?? throw new ArgumentNullException(nameof(policyHelper));
         }
 
         public async Task<IEnumerable<ControlDto>> GetAllAsync()
@@ -66,11 +73,24 @@ namespace GrcMvc.Services.Implementations
                 control.CreatedDate = DateTime.UtcNow;
                 control.ControlCode = GenerateControlCode();
 
+                // Enforce policies before saving
+                await _policyHelper.EnforceCreateAsync(
+                    resourceType: "Control",
+                    resource: control,
+                    dataClassification: null, // Will be set to "internal" by helper if null
+                    owner: null); // Will be set to current user by helper if null
+
                 await _unitOfWork.Controls.AddAsync(control);
                 await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogInformation("Control created with ID {ControlId}", control.Id);
                 return _mapper.Map<ControlDto>(control);
+            }
+            catch (PolicyViolationException pve)
+            {
+                _logger.LogWarning("Policy violation prevented control creation: {Message}. Rule: {RuleId}",
+                    pve.Message, pve.RuleId);
+                throw;
             }
             catch (Exception ex)
             {

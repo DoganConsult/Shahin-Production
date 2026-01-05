@@ -275,10 +275,10 @@ namespace GrcMvc.BackgroundJobs
         /// <summary>
         /// Get user notification preferences
         /// </summary>
-        private async Task<UserNotificationPreference?> GetUserPreferencesAsync(string userId, Guid tenantId)
+        private async Task<Models.Entities.UserNotificationPreference?> GetUserPreferencesAsync(string userId, Guid tenantId)
         {
             // TODO: Implement when UserNotificationPreferences DbSet is added
-            return await Task.FromResult<UserNotificationPreference?>(null);
+            return await Task.FromResult<Models.Entities.UserNotificationPreference?>(null);
         }
 
         private class DeliveryStats

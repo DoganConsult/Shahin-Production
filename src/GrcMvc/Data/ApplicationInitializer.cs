@@ -1,4 +1,8 @@
 using GrcMvc.Data.Seeds;
+using GrcMvc.Models.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -13,15 +17,21 @@ public class ApplicationInitializer
     private readonly GrcDbContext _context;
     private readonly ILogger<ApplicationInitializer> _logger;
     private readonly IHostEnvironment _environment;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IServiceProvider _serviceProvider;
 
     public ApplicationInitializer(
         GrcDbContext context,
         ILogger<ApplicationInitializer> logger,
-        IHostEnvironment environment)
+        IHostEnvironment environment,
+        UserManager<ApplicationUser> userManager,
+        IServiceProvider serviceProvider)
     {
         _context = context;
         _logger = logger;
         _environment = environment;
+        _userManager = userManager;
+        _serviceProvider = serviceProvider;
     }
 
     /// <summary>Initialize all seed data</summary>
@@ -39,6 +49,18 @@ public class ApplicationInitializer
 
             // Seed Workflow Definitions (STAGE 2)
             await WorkflowDefinitionSeeds.SeedWorkflowDefinitionsAsync(_context, _logger);
+
+            // Seed RBAC System (Permissions, Features, Roles, Mappings) - MUST be before user seeding
+            var defaultTenant = await _context.Tenants.FirstOrDefaultAsync(t => t.TenantSlug == "default" && !t.IsDeleted);
+            if (defaultTenant != null)
+            {
+                using var scope = _serviceProvider.CreateScope();
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                await RbacSeeds.SeedRbacSystemAsync(_context, roleManager, defaultTenant.Id, _logger);
+            }
+
+            // Seed Predefined Users (Admin, Manager) - MUST be after RBAC system
+            await UserSeeds.SeedUsersAsync(_context, _userManager, _logger);
 
             _logger.LogInformation("✅ Application initialization completed successfully");
         }

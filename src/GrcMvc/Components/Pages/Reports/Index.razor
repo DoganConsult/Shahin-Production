@@ -1,7 +1,21 @@
 @page "/reports"
 @using GrcMvc.Models.Dtos
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Localization
+@inject HttpClient Http
+@inject ILogger<Reports.Index> Logger
+@inject IHttpContextAccessor HttpContextAccessor
 
-<PageTitle>Reports</PageTitle>
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var isRtl = currentCulture == "ar";
+    var dir = isRtl ? "rtl" : "ltr";
+}
+
+<PageTitle>@(isRtl ? "التقارير" : "Reports")</PageTitle>
+
+<div dir="@dir">
 
 <div class="container-fluid mt-4">
     <div class="row mb-4">
@@ -24,7 +38,7 @@
                     <h5 class="card-title">Risk Summary Report</h5>
                     <p class="card-text small">Generate comprehensive risk register report with scoring and mitigation
                         status</p>
-                    <a href="#" class="btn btn-sm btn-outline-primary">Generate</a>
+                    <button class="btn btn-sm btn-outline-primary" @onclick="@(() => QuickGenerate("Risk"))">Generate</button>
                 </div>
             </div>
         </div>
@@ -33,7 +47,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Audit Findings Report</h5>
                     <p class="card-text small">Detailed audit findings with severity levels and remediation tracking</p>
-                    <a href="#" class="btn btn-sm btn-outline-primary">Generate</a>
+                    <button class="btn btn-sm btn-outline-primary" @onclick="@(() => QuickGenerate("Audit"))">Generate</button>
                 </div>
             </div>
         </div>
@@ -43,7 +57,7 @@
                     <h5 class="card-title">Control Effectiveness Report</h5>
                     <p class="card-text small">Assessment of control effectiveness with test results and recommendations
                     </p>
-                    <a href="#" class="btn btn-sm btn-outline-primary">Generate</a>
+                    <button class="btn btn-sm btn-outline-primary" @onclick="@(() => QuickGenerate("Control"))">Generate</button>
                 </div>
             </div>
         </div>
@@ -52,7 +66,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Compliance Status Report</h5>
                     <p class="card-text small">Current status of all compliance requirements and policy adherence</p>
-                    <a href="#" class="btn btn-sm btn-outline-primary">Generate</a>
+                    <button class="btn btn-sm btn-outline-primary" @onclick="@(() => QuickGenerate("Compliance"))">Generate</button>
                 </div>
             </div>
         </div>
@@ -118,8 +132,8 @@
                                         <span class="badge bg-light text-dark">@report.PageCount</span>
                                     </td>
                                     <td>
-                                        <a href="#" class="btn btn-sm btn-outline-primary">View</a>
-                                        <a href="#" class="btn btn-sm btn-outline-secondary">Download</a>
+                                        <a href="/reports/@report.Id" class="btn btn-sm btn-outline-primary">View</a>
+                                        <a href="/api/reports/@report.Id/download" class="btn btn-sm btn-outline-secondary" target="_blank">Download</a>
                                     </td>
                                 </tr>
                             }
@@ -130,34 +144,120 @@
         </div>
     </div>
 </div>
+</div>
 
 @code {
     private List<ReportListItemDto> reports = new();
+    private bool isLoading = false;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        // TODO: Load from service
-        // var reportService = GetService<IReportService>();
-        // reports = (await reportService.GetAllAsync()).ToList();
+        await LoadReportsAsync();
+    }
 
-        // Demo data
-        reports = new List<ReportListItemDto>
-{
-new() { Id = Guid.NewGuid(), ReportNumber = "RPT-2024-001", Title = "Q4 2024 Risk Summary Report", Type = "Risk", Status
-= "Delivered", GeneratedDate = DateTime.Now.AddDays(-5), GeneratedBy = "John Smith", PageCount = 18 },
-new() { Id = Guid.NewGuid(), ReportNumber = "RPT-2024-002", Title = "2024 Audit Findings Summary", Type = "Audit",
-Status = "Generated", GeneratedDate = DateTime.Now.AddDays(-2), GeneratedBy = "Sarah Johnson", PageCount = 25 },
-new() { Id = Guid.NewGuid(), ReportNumber = "RPT-2024-003", Title = "Control Effectiveness Assessment Q4", Type =
-"Compliance", Status = "Generated", GeneratedDate = DateTime.Now.AddDays(-1), GeneratedBy = "Mike Davis", PageCount = 12 },
-new() { Id = Guid.NewGuid(), ReportNumber = "RPT-2024-004", Title = "Annual Compliance Status Report", Type =
-"Compliance", Status = "Draft", GeneratedDate = DateTime.Now, GeneratedBy = "Lisa Anderson", PageCount = 35 },
-};
+    private async Task LoadReportsAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
 
-        await Task.CompletedTask;
+            var response = await Http.GetFromJsonAsync<ApiResponse<List<ReportListItemDto>>>("/api/report");
+
+            if (response?.data != null)
+            {
+                reports = response.data;
+            }
+            else
+            {
+                // Fallback to empty list if API fails
+                reports = new List<ReportListItemDto>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading reports");
+            errorMessage = "Failed to load reports. Please try again.";
+            reports = new List<ReportListItemDto>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task QuickGenerate(string type)
+    {
+        try
+        {
+            isLoading = true;
+            var dto = new QuickGenerateReportDto
+            {
+                StartDate = DateTime.UtcNow.AddMonths(-1),
+                EndDate = DateTime.UtcNow
+            };
+
+            var response = await Http.PostAsJsonAsync($"/api/report/generate/{type}", dto);
+
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadReportsAsync();
+            }
+            else
+            {
+                errorMessage = $"Failed to generate {type} report";
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error generating report");
+            errorMessage = "Failed to generate report";
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private void ShowGenerateReportModal()
     {
-        // TODO: Implement modal or navigation to report generation form
+        // Navigate to create page
+        NavigationManager.NavigateTo("/reports/create");
     }
+
+    // Helper classes for API responses
+    private class ApiResponse<T>
+    {
+        public T? data { get; set; }
+        public int totalCount { get; set; }
+        public int page { get; set; }
+        public int pageSize { get; set; }
+        public int totalPages { get; set; }
+    }
+
+    private class QuickGenerateReportDto
+    {
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+    }
+}
+
+@inject NavigationManager NavigationManager
+
+@if (isLoading)
+{
+    <div class="text-center py-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        @errorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 }

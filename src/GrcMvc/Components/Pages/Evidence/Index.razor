@@ -1,7 +1,16 @@
 @page "/evidence"
 @using GrcMvc.Models.Dtos
+@inject IHttpContextAccessor HttpContextAccessor
 
-<div class="container-fluid py-4">
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
+
+<PageTitle>@(currentCulture == "ar" ? "الأدلة" : "Evidence")</PageTitle>
+
+<div dir="@dir" class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col">
             <h1 class="h3">Evidence Library</h1>

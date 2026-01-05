@@ -1,0 +1,204 @@
+@page "/reports/create"
+@using GrcMvc.Models.Dtos
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Localization
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject ILogger<Reports.Create> Logger
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var isRtl = currentCulture == "ar";
+    var dir = isRtl ? "rtl" : "ltr";
+}
+
+<PageTitle>@(isRtl ? "إنشاء تقرير جديد" : "Generate New Report")</PageTitle>
+
+<div dir="@dir">
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6">Generate New Report</h1>
+            <p class="text-muted">Create a custom compliance, risk, or audit report</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/reports" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @errorMessage
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form @onsubmit="HandleSubmit" @onsubmit:preventDefault="true">
+                        <div class="mb-3">
+                            <label class="form-label">Report Type <span class="text-danger">*</span></label>
+                            <select class="form-select" @bind="reportDto.Type" required>
+                                <option value="">Select Report Type</option>
+                                <option value="Risk">Risk Summary Report</option>
+                                <option value="Compliance">Compliance Status Report</option>
+                                <option value="Audit">Audit Findings Report</option>
+                                <option value="Control">Control Effectiveness Report</option>
+                                <option value="Executive">Executive Summary</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Report Title <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" @bind="reportDto.Title" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" rows="3" @bind="reportDto.Description"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Scope</label>
+                            <input type="text" class="form-control" @bind="reportDto.Scope" placeholder="e.g., All departments, Q4 2024" />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Report Period Start <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" @bind="reportDto.ReportPeriodStart" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Report Period End <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" @bind="reportDto.ReportPeriodEnd" required />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Include Sections</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" @bind="includeExecutiveSummary" id="execSummary" />
+                                <label class="form-check-label" for="execSummary">Executive Summary</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" @bind="includeFindings" id="findings" />
+                                <label class="form-check-label" for="findings">Key Findings</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" @bind="includeRecommendations" id="recommendations" />
+                                <label class="form-check-label" for="recommendations">Recommendations</label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="/reports" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary" disabled="@isGenerating">
+                                @if (isGenerating)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    <text>Generating...</text>
+                                }
+                                else
+                                {
+                                    <text>Generate Report</text>
+                                }
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Report Information</h5>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted">
+                        Reports are generated based on the selected type and date range. 
+                        The system will gather relevant data from risks, audits, controls, and policies.
+                    </p>
+                    <hr />
+                    <h6>Report Types:</h6>
+                    <ul class="small">
+                        <li><strong>Risk:</strong> Risk register with scoring and mitigation status</li>
+                        <li><strong>Compliance:</strong> Compliance requirements and policy adherence</li>
+                        <li><strong>Audit:</strong> Audit findings with severity levels</li>
+                        <li><strong>Control:</strong> Control effectiveness assessments</li>
+                        <li><strong>Executive:</strong> High-level executive dashboard</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+@code {
+    private ReportCreateDto reportDto = new()
+    {
+        Title = "",
+        Type = "",
+        Description = "",
+        Scope = "",
+        ReportPeriodStart = DateTime.UtcNow.AddMonths(-1),
+        ReportPeriodEnd = DateTime.UtcNow,
+        IncludeExecutiveSummary = "yes",
+        IncludeFindingsDetail = "yes",
+        IncludeRecommendations = "yes"
+    };
+
+    private bool includeExecutiveSummary = true;
+    private bool includeFindings = true;
+    private bool includeRecommendations = true;
+    private bool isGenerating = false;
+    private string? errorMessage;
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            isGenerating = true;
+            errorMessage = null;
+
+            reportDto.IncludeExecutiveSummary = includeExecutiveSummary ? "yes" : "no";
+            reportDto.IncludeFindingsDetail = includeFindings ? "yes" : "no";
+            reportDto.IncludeRecommendations = includeRecommendations ? "yes" : "no";
+
+            var response = await Http.PostAsJsonAsync("/api/report", reportDto);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var createdReport = await response.Content.ReadFromJsonAsync<ReportDetailDto>();
+                if (createdReport != null)
+                {
+                    NavigationManager.NavigateTo($"/reports/{createdReport.Id}");
+                }
+                else
+                {
+                    NavigationManager.NavigateTo("/reports");
+                }
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Failed to generate report: {error}";
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error generating report");
+            errorMessage = "An error occurred while generating the report. Please try again.";
+        }
+        finally
+        {
+            isGenerating = false;
+        }
+    }
+}

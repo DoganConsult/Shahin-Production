@@ -1,13 +1,22 @@
 @page "/users"
+@page "/admin/users"
 @using GrcMvc.Data
 @using GrcMvc.Models.Entities
 @using Microsoft.EntityFrameworkCore
+@using System.Text.Json
 @inject GrcDbContext DbContext
 @inject NavigationManager Navigation
+@inject IHttpContextAccessor HttpContextAccessor
 
-<PageTitle>User Management</PageTitle>
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
 
-<div class="container-fluid mt-4">
+<PageTitle>@(currentCulture == "ar" ? "إدارة المستخدمين" : "User Management")</PageTitle>
+
+<div dir="@dir" class="container-fluid mt-4">
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
@@ -238,30 +247,67 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "A", location = "Users/Index.razor:OnInitializedAsync", message = "OnInitializedAsync started", data = new { }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         var tenant = await DbContext.Tenants.FirstOrDefaultAsync(t => !t.IsDeleted);
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "A", location = "Users/Index.razor:OnInitializedAsync", message = "Tenant query result", data = new { tenantFound = tenant != null, tenantId = tenant?.Id.ToString() ?? "null", tenantName = tenant?.OrganizationName ?? "null" }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         currentTenantId = tenant?.Id ?? Guid.Empty;
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "A", location = "Users/Index.razor:OnInitializedAsync", message = "CurrentTenantId set", data = new { currentTenantId = currentTenantId.ToString(), isEmpty = currentTenantId == Guid.Empty }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         await LoadUsers();
         await LoadRolesAndTitles();
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "A", location = "Users/Index.razor:OnInitializedAsync", message = "OnInitializedAsync completed", data = new { usersCount = users.Count, rolesCount = roles.Count, titlesCount = titles.Count }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
     }
 
     private async Task LoadUsers()
     {
         isLoading = true;
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "Users/Index.razor:LoadUsers", message = "LoadUsers started", data = new { currentTenantId = currentTenantId.ToString() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         try
         {
+            // #region agent log
+            var allTenantUsersCount = await DbContext.TenantUsers.CountAsync();
+            var tenantUsersCount = await DbContext.TenantUsers.CountAsync(u => u.TenantId == currentTenantId);
+            var nonDeletedCount = await DbContext.TenantUsers.CountAsync(u => u.TenantId == currentTenantId && !u.IsDeleted);
+            try { System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "Users/Index.razor:LoadUsers", message = "Before query - counts", data = new { allTenantUsersCount, tenantUsersCount, nonDeletedCount, currentTenantId = currentTenantId.ToString() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             users = await DbContext.TenantUsers
                 .Where(u => u.TenantId == currentTenantId && !u.IsDeleted)
                 .OrderByDescending(u => u.CreatedDate)
                 .ToListAsync();
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "Users/Index.razor:LoadUsers", message = "After query - results", data = new { usersReturned = users.Count, userIds = users.Select(u => u.Id.ToString()).ToList() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
 
             totalUsers = users.Count;
             activeUsers = users.Count(u => u.Status == "Active");
             pendingUsers = users.Count(u => u.Status == "Pending");
             suspendedUsers = users.Count(u => u.Status == "Suspended");
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "Users/Index.razor:LoadUsers", message = "Stats calculated", data = new { totalUsers, activeUsers, pendingUsers, suspendedUsers }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
+        }
+        catch (Exception ex)
+        {
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "C", location = "Users/Index.razor:LoadUsers", message = "Exception in LoadUsers", data = new { exceptionType = ex.GetType().Name, message = ex.Message, stackTrace = ex.StackTrace }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
+            throw;
         }
         finally
         {
             isLoading = false;
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "Users/Index.razor:LoadUsers", message = "LoadUsers completed", data = new { isLoading = false, finalUsersCount = users.Count }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
         }
     }
 

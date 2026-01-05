@@ -8,7 +8,6 @@ using GrcMvc.Services.Interfaces;
 using GrcMvc.Services.Interfaces.Workflows;
 using GrcMvc.Services.Interfaces.RBAC;
 using GrcMvc.Services.Implementations.RBAC;
-using GrcMvc.Services.Implementations.UserProfiles;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Identity;
@@ -38,6 +37,10 @@ using Serilog;
 using Serilog.Events;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.DataProtection;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Options;
+using GrcMvc.Resources;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -111,12 +114,43 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Add HttpContextAccessor for Blazor components
+builder.Services.AddHttpContextAccessor();
+
+// Add Localization services (Arabic default, English secondary)
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[]
+    {
+        new CultureInfo("ar"), // Arabic - Default (RTL)
+        new CultureInfo("en")  // English - Secondary (LTR)
+    };
+
+    options.DefaultRequestCulture = new RequestCulture("ar"); // Arabic as default
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+
+    // Store culture preference in cookie
+    options.RequestCultureProviders.Insert(0, new CookieRequestCultureProvider
+    {
+        CookieName = "GrcMvc.Culture",
+        Options = options
+    });
+});
+
 // Add services to the container with FluentValidation
 builder.Services.AddControllersWithViews(options =>
 {
     // Add global anti-forgery token validation
     options.Filters.Add(new Microsoft.AspNetCore.Mvc.AutoValidateAntiforgeryTokenAttribute());
-}).AddRazorRuntimeCompilation();
+}).AddRazorRuntimeCompilation()
+.AddViewLocalization()
+.AddDataAnnotationsLocalization(options =>
+{
+    options.DataAnnotationLocalizerProvider = (type, factory) =>
+        factory.Create(typeof(GrcMvc.Resources.SharedResource));
+});
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 
@@ -336,6 +370,9 @@ builder.Services.AddScoped<IAuditWorkflowService, AuditWorkflowService>();
 builder.Services.AddScoped<IExceptionHandlingWorkflowService, ExceptionHandlingWorkflowService>();
 
 // Register existing Workflow services
+builder.Services.AddScoped<BpmnParser>();
+builder.Services.AddScoped<WorkflowAssigneeResolver>();
+builder.Services.AddScoped<IWorkflowAuditService, WorkflowAuditService>();
 builder.Services.AddScoped<IWorkflowEngineService, WorkflowEngineService>();
 builder.Services.AddScoped<IEscalationService, EscalationService>();
 builder.Services.AddScoped<IUserWorkspaceService, UserWorkspaceService>();
@@ -350,25 +387,64 @@ builder.Services.AddScoped<IAccessControlService, AccessControlService>();
 builder.Services.AddScoped<IRbacSeederService, RbacSeederService>();
 
 // Register User Profile Service (14 user profiles)
-builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileServiceImpl>();
+
+// Register Tenant Context Service
+builder.Services.AddScoped<ITenantContextService, TenantContextService>();
 
 // Register STAGE 2 Enterprise LLM service
 builder.Services.AddScoped<ILlmService, LlmService>();
 builder.Services.AddHttpClient<ILlmService, LlmService>();
+
+// Smart Onboarding Service (auto-generates assessment templates and GRC plans)
+builder.Services.AddScoped<ISmartOnboardingService, SmartOnboardingService>();
+
+// Role Delegation Service (Human↔Human, Human↔Agent, Agent↔Agent, Multi-Agent)
+builder.Services.AddScoped<IRoleDelegationService, RoleDelegationService>();
+
+// Register Resilience Services
+builder.Services.AddScoped<IResilienceService, ResilienceService>();
 
 // Register Subscription & Billing service
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 
 // Register Evidence and Report services
 builder.Services.AddScoped<IEvidenceService, EvidenceService>();
-builder.Services.AddScoped<IReportService, ReportService>();
+
+// Enhanced Report Services with PDF/Excel generation
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<IReportGenerator, ReportGeneratorService>();
+builder.Services.AddScoped<IReportService, EnhancedReportServiceFixed>();
+
+// Register Menu Service (RBAC-based navigation)
+builder.Services.AddScoped<IMenuService, MenuService>();
 
 // Register Authentication and Authorization services
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
 
+// Policy Enforcement System
+builder.Services.AddScoped<GrcMvc.Application.Policy.IPolicyEnforcer, GrcMvc.Application.Policy.PolicyEnforcer>();
+builder.Services.AddSingleton<GrcMvc.Application.Policy.IPolicyStore, GrcMvc.Application.Policy.PolicyStore>();
+builder.Services.AddScoped<GrcMvc.Application.Policy.IDotPathResolver, GrcMvc.Application.Policy.DotPathResolver>();
+builder.Services.AddScoped<GrcMvc.Application.Policy.IMutationApplier, GrcMvc.Application.Policy.MutationApplier>();
+builder.Services.AddScoped<GrcMvc.Application.Policy.IPolicyAuditLogger, GrcMvc.Application.Policy.PolicyAuditLogger>();
+builder.Services.AddScoped<GrcMvc.Application.Policy.PolicyEnforcementHelper>(); // Helper for easy integration
+builder.Services.AddHostedService<GrcMvc.Application.Policy.PolicyStore>(); // For hot reload
+
+// Permissions System
+builder.Services.AddSingleton<GrcMvc.Application.Permissions.IPermissionDefinitionProvider, GrcMvc.Application.Permissions.GrcPermissionDefinitionProvider>();
+builder.Services.AddScoped<GrcMvc.Application.Permissions.PermissionSeederService>();
+
+// Policy Validation Helper (for UX enhancements)
+builder.Services.AddScoped<GrcMvc.Application.Policy.PolicyValidationHelper>();
+
 // Register Application Initializer for seed data
 builder.Services.AddScoped<ApplicationInitializer>();
+
+// Register User Seeding Hosted Service (runs on startup)
+builder.Services.AddHostedService<UserSeedingHostedService>();
 
 // Register Catalog Seeder Service
 builder.Services.AddScoped<CatalogSeederService>();
@@ -554,6 +630,13 @@ else
     app.UseHsts();
 }
 
+// Configure Request Localization (must be before UseStaticFiles and UseRouting)
+var localizationOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
+app.UseRequestLocalization(localizationOptions);
+
+// Policy Violation Exception Middleware (early in pipeline for API error handling)
+app.UseMiddleware<GrcMvc.Middleware.PolicyViolationExceptionMiddleware>();
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -622,7 +705,30 @@ app.MapGet("/health", () => Results.Ok(new
 }));
 
 // =============================================================================
-// 15. RUN APPLICATION
+// 15. INITIALIZE SEED DATA (Run on startup)
+// =============================================================================
+
+// Initialize seed data asynchronously (don't block startup)
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+_ = Task.Run(async () =>
+{
+    try
+    {
+        await Task.Delay(5000); // Wait for app to be fully ready
+        using var scope = app.Services.CreateScope();
+        var initializer = scope.ServiceProvider.GetRequiredService<ApplicationInitializer>();
+        logger.LogInformation("🚀 Starting application initialization (seed data)...");
+        await initializer.InitializeAsync();
+        logger.LogInformation("✅ Application initialization completed");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "❌ Failed to initialize seed data");
+    }
+});
+
+// =============================================================================
+// 16. RUN APPLICATION
 // =============================================================================
 
 app.Run();

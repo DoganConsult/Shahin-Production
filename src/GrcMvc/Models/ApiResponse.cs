@@ -29,7 +29,7 @@ namespace GrcMvc.Models
         /// <summary>
         /// Creates a successful response with data
         /// </summary>
-        public static ApiResponse<T> SuccessResponse(T data, string message = "Success")
+        public static ApiResponse<T> SuccessResponse(T? data, string message = "Success")
         {
             return new ApiResponse<T>
             {

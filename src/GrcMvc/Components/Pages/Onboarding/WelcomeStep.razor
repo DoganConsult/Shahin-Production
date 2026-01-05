@@ -2,8 +2,15 @@
 @using System.Net.Http.Json
 @inject HttpClient Http
 @inject NavigationManager Navigation
+@inject IHttpContextAccessor HttpContextAccessor
 
-<div>
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
+
+<div dir="@dir">
     <h3 class="mb-4">Welcome to GRC Management System</h3>
     
     <div class="alert alert-info" role="alert">

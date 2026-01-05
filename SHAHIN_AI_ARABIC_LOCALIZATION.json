@@ -1,0 +1,16 @@
+{
+  "culture": "ar",
+  "texts": {
+    "Menu:ShahinAi": "Shahin AI",
+    "Menu:Dashboard": "لوحة المعلومات",
+    "Menu:Assessments": "التقييمات",
+    "Menu:ControlAssessments": "تقييمات الضوابط",
+    "Menu:Evidence": "الأدلة",
+    "Menu:Risks": "المخاطر",
+    "Menu:ActionPlans": "خطط العمل",
+    "Menu:Policies": "السياسات",
+    "Menu:Audits": "التدقيقات",
+    "Menu:Reports": "التقارير",
+    "Menu:Administration": "الإدارة"
+  }
+}

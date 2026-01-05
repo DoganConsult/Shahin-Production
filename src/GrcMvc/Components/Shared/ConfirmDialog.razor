@@ -1,4 +1,6 @@
 @using GrcMvc.Models.Dtos
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> Localizer
 
 @if (IsOpen)
 {
@@ -6,14 +8,14 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-light">
-                    <h5 class="modal-title">@Title</h5>
+                    <h5 class="modal-title">@(string.IsNullOrEmpty(Title) ? Localizer["ConfirmAction"] : Title)</h5>
                     <button type="button" class="btn-close" @onclick="OnCancel"></button>
                 </div>
                 <div class="modal-body">
-                    @Message
+                    @(string.IsNullOrEmpty(Message) ? Localizer["AreYouSure"] : Message)
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="OnCancel">@CancelText</button>
+                    <button type="button" class="btn btn-secondary" @onclick="OnCancel">@(string.IsNullOrEmpty(CancelText) ? Localizer["Cancel"] : CancelText)</button>
                     <button type="button" class="btn @(IsDeleteAction ? "btn-danger" : "btn-primary")"
                         @onclick="OnConfirm" disabled="@IsProcessing">
                         @if (IsProcessing)
@@ -21,7 +23,7 @@
                             <span class="spinner-border spinner-border-sm me-2" role="status"
                                 aria-hidden="true"></span>
                         }
-                        @ConfirmText
+                        @(string.IsNullOrEmpty(ConfirmText) ? Localizer["Confirm"] : ConfirmText)
                     </button>
                 </div>
             </div>
@@ -31,16 +33,16 @@
 
 @code {
     [Parameter]
-    public string Title { get; set; } = "Confirm Action";
+    public string Title { get; set; } = "";
 
     [Parameter]
-    public string Message { get; set; } = "Are you sure?";
+    public string Message { get; set; } = "";
 
     [Parameter]
-    public string ConfirmText { get; set; } = "Confirm";
+    public string ConfirmText { get; set; } = "";
 
     [Parameter]
-    public string CancelText { get; set; } = "Cancel";
+    public string CancelText { get; set; } = "";
 
     [Parameter]
     public bool IsDeleteAction { get; set; } = false;

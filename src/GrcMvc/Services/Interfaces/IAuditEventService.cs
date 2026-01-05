@@ -21,7 +21,7 @@ namespace GrcMvc.Services.Interfaces
             string action,
             string actor,
             string payloadJson,
-            string correlationId);
+            string? correlationId = null);
 
         /// <summary>
         /// Get audit events for a tenant.

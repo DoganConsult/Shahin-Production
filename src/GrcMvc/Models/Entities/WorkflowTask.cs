@@ -40,7 +40,11 @@ namespace GrcMvc.Models.Entities
         public Guid? EscalatedToUserId { get; set; }
         public DateTime? LastEscalatedAt { get; set; }
 
+        // Metadata for agent assignment and delegation tracking
+        public string? Metadata { get; set; } // JSON: {AgentType, DelegatedFrom, etc.}
+
         // Navigation
         public virtual WorkflowInstance WorkflowInstance { get; set; } = null!;
+        public virtual ICollection<TaskDelegation> Delegations { get; set; } = new List<TaskDelegation>();
     }
 }

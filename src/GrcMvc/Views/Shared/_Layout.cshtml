@@ -1,12 +1,33 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.Extensions.Options
+@inject IOptions<RequestLocalizationOptions> LocOptions
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var isRtl = currentCulture == "ar";
+    var htmlLang = currentCulture;
+    var htmlDir = isRtl ? "rtl" : "ltr";
+}
+<!DOCTYPE html>
+<html lang="@htmlLang" dir="@htmlDir">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - GRC Management System</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    @if (isRtl)
+    {
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" />
+    }
+    else
+    {
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    }
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @if (isRtl)
+    {
+        <link rel="stylesheet" href="~/css/rtl.css" asp-append-version="true" />
+    }
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
@@ -106,18 +127,52 @@
                         }
                     </ul>
                     <ul class="navbar-nav">
+                        <!-- Language Switcher -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-globe"></i> 
+                                @if (isRtl)
+                                {
+                                    <text>العربية</text>
+                                }
+                                else
+                                {
+                                    <text>English</text>
+                                }
+                            </a>
+                            <ul class="dropdown-menu @(isRtl ? "dropdown-menu-start" : "dropdown-menu-end")">
+                                <li>
+                                    <a class="dropdown-item @(currentCulture == "ar" ? "active" : "")" href="?culture=ar&ui-culture=ar">
+                                        <i class="bi bi-translate me-2"></i>العربية
+                                        @if (currentCulture == "ar")
+                                        {
+                                            <i class="bi bi-check-lg float-end"></i>
+                                        }
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item @(currentCulture == "en" ? "active" : "")" href="?culture=en&ui-culture=en">
+                                        <i class="bi bi-translate me-2"></i>English
+                                        @if (currentCulture == "en")
+                                        {
+                                            <i class="bi bi-check-lg float-end"></i>
+                                        }
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
                                     <i class="bi bi-person-circle"></i> @User.Identity.Name
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">Profile</a></li>
+                                <ul class="dropdown-menu @(isRtl ? "dropdown-menu-start" : "dropdown-menu-end")">
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">@(isRtl ? "الملف الشخصي" : "Profile")</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post">
-                                            <button type="submit" class="dropdown-item">Logout</button>
+                                            <button type="submit" class="dropdown-item">@(isRtl ? "تسجيل الخروج" : "Logout")</button>
                                         </form>
                                     </li>
                                 </ul>
@@ -171,6 +226,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/language-switcher.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

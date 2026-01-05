@@ -49,8 +49,8 @@ namespace GrcMvc.Services.Interfaces
     {
         // Logging changes
         Task LogChangeAsync(Guid tenantId, string entityType, Guid entityId, string action,
-                           string fieldName = null, string oldValue = null, string newValue = null,
-                           Guid? userId = null, string ipAddress = null);
+                           string? fieldName = null, string? oldValue = null, string? newValue = null,
+                           Guid? userId = null, string? ipAddress = null);
 
         Task LogCreatedAsync(Guid tenantId, string entityType, Guid entityId, Guid? userId = null);
         Task LogUpdatedAsync(Guid tenantId, string entityType, Guid entityId, string fieldName,

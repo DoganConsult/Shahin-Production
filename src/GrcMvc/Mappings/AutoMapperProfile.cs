@@ -1,6 +1,10 @@
 using AutoMapper;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Models.Entities;
+// Alias to resolve ambiguous references
+using AuditFindingDtoAlias = GrcMvc.Models.DTOs.AuditFindingDto;
+using CreateAuditFindingDtoAlias = GrcMvc.Models.DTOs.CreateAuditFindingDto;
+using CreateWorkflowDtoAlias = GrcMvc.Models.DTOs.CreateWorkflowDto;
 
 namespace GrcMvc.Mappings
 {
@@ -83,8 +87,8 @@ namespace GrcMvc.Mappings
                 .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
 
             // AuditFinding mappings
-            CreateMap<AuditFinding, AuditFindingDto>();
-            CreateMap<CreateAuditFindingDto, AuditFinding>()
+            CreateMap<AuditFinding, AuditFindingDtoAlias>();
+            CreateMap<CreateAuditFindingDtoAlias, AuditFinding>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
                 .ForMember(dest => dest.ModifiedDate, opt => opt.Ignore())
@@ -123,7 +127,7 @@ namespace GrcMvc.Mappings
             // Workflow mappings
             CreateMap<Workflow, WorkflowDto>()
                 .ForMember(dest => dest.ExecutionsCount, opt => opt.MapFrom(src => src.Executions.Count));
-            CreateMap<CreateWorkflowDto, Workflow>()
+            CreateMap<CreateWorkflowDtoAlias, Workflow>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
                 .ForMember(dest => dest.ModifiedDate, opt => opt.Ignore())
@@ -136,6 +140,9 @@ namespace GrcMvc.Mappings
                 .ForMember(dest => dest.WorkflowName, opt => opt.MapFrom(src => src.Workflow.Name))
                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src =>
                     src.EndTime.HasValue ? (src.EndTime.Value - src.StartTime).TotalMinutes : (double?)null));
+
+            // UI DTO mappings removed - DTOs don't exist yet
+            // TODO: Add UI DTO mappings when UI DTOs are created
         }
     }
 }

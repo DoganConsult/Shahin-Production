@@ -3332,6 +3332,281 @@ namespace GrcMvc.Migrations
                     b.ToTable("PolicyViolations");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.Report", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContentType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CorrelationId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CriticalFindingsCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DeliveredTo")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeliveryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ExecutiveSummary")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FilePath")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FileUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GeneratedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("GeneratedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IncludedEntitiesJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("KeyFindings")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MetadataJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PageCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Recommendations")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReportNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("ReportPeriodEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ReportPeriodStart")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<int>("TotalFindingsCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CorrelationId");
+
+                    b.HasIndex("ReportNumber")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "Type", "Status");
+
+                    b.ToTable("Reports");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Resilience", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActionItems")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ApprovedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ApprovedByUserName")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("AssessedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AssessedByUserName")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("AssessmentDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AssessmentDetails")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AssessmentNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("AssessmentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal?>("BusinessContinuityScore")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("CyberResilienceScore")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("DisasterRecoveryScore")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EvidenceUrls")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Findings")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Framework")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OverallRating")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("RelatedAssessmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RelatedRiskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RelatedWorkflowInstanceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ReportUrl")
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("ResilienceScore")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid?>("ReviewedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ReviewedByUserName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Tags")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssessmentDate");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Status");
+
+                    b.ToTable("Resiliences");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.Risk", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3342,6 +3617,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ConsequenceArea")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -3354,6 +3632,9 @@ namespace GrcMvc.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("IdentifiedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Impact")
@@ -3391,8 +3672,14 @@ namespace GrcMvc.Migrations
                     b.Property<int>("ResidualRisk")
                         .HasColumnType("integer");
 
+                    b.Property<string>("ResponsibleParty")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("ReviewDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RiskNumber")
+                        .HasColumnType("text");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -3401,11 +3688,134 @@ namespace GrcMvc.Migrations
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Name");
 
                     b.ToTable("Risks");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.RiskResilience", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AssessedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AssessedByUserName")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("AssessmentDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AssessmentNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("ImpactMitigationScore")
+                        .HasColumnType("numeric");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("RecoveryCapabilityScore")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("RecoveryPlan")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("RelatedAssessmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RelatedRiskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RelatedWorkflowInstanceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ResilienceMeasures")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ResilienceRating")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ReviewedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ReviewedByUserName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RiskCategory")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("RiskScenario")
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("RiskToleranceLevel")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("RiskType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssessmentDate");
+
+                    b.HasIndex("RelatedRiskId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Status");
+
+                    b.ToTable("RiskResiliences");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.RoleFeature", b =>
@@ -4662,6 +5072,199 @@ namespace GrcMvc.Migrations
                     b.ToTable("TriggerRules");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.UserNotificationPreference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DigestFrequency")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("EmailEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("EnabledTypesJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("InAppEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PreferredTime")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("PushEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("QuietHoursEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("QuietHoursEnd")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("QuietHoursStart")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("SmsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Timezone")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("UserNotificationPreferences");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.UserProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSystemProfile")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PermissionsJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProfileCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProfileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UiAccessJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("WorkflowRolesJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserProfiles");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.UserProfileAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AssignedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserProfileId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UserProfileId");
+
+                    b.ToTable("UserProfileAssignments");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.UserRoleAssignment", b =>
                 {
                     b.Property<int>("Id")
@@ -5694,6 +6297,104 @@ namespace GrcMvc.Migrations
                     b.ToTable("WorkflowNotifications");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Workflows.WorkflowTransition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContextData")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("FromState")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ToState")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("TransitionDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TriggeredBy")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<Guid>("WorkflowInstanceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TransitionDate");
+
+                    b.HasIndex("WorkflowInstanceId");
+
+                    b.ToTable("WorkflowTransitions");
+                });
+
+            modelBuilder.Entity("GrcMvc.Services.Interfaces.EvidenceScore", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Comments")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("EvidenceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFinal")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ScoredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ScoredBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ScoringCriteria")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EvidenceId");
+
+                    b.ToTable("EvidenceScores");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -6119,6 +6820,17 @@ namespace GrcMvc.Migrations
                     b.Navigation("Policy");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.Report", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.RoleFeature", b =>
                 {
                     b.HasOne("GrcMvc.Models.Entities.Feature", "Feature")
@@ -6324,6 +7036,36 @@ namespace GrcMvc.Migrations
                     b.Navigation("TriggerRule");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.UserNotificationPreference", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.UserProfileAssignment", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GrcMvc.Models.Entities.UserProfile", "UserProfile")
+                        .WithMany("Assignments")
+                        .HasForeignKey("UserProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+
+                    b.Navigation("UserProfile");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.UserRoleAssignment", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
@@ -6442,6 +7184,28 @@ namespace GrcMvc.Migrations
                         .IsRequired();
 
                     b.Navigation("WorkflowInstance");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Workflows.WorkflowTransition", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.WorkflowInstance", "WorkflowInstance")
+                        .WithMany()
+                        .HasForeignKey("WorkflowInstanceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WorkflowInstance");
+                });
+
+            modelBuilder.Entity("GrcMvc.Services.Interfaces.EvidenceScore", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Evidence", "Evidence")
+                        .WithMany()
+                        .HasForeignKey("EvidenceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Evidence");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -6637,6 +7401,11 @@ namespace GrcMvc.Migrations
                     b.Navigation("Features");
 
                     b.Navigation("Permissions");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.UserProfile", b =>
+                {
+                    b.Navigation("Assignments");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.Workflow", b =>

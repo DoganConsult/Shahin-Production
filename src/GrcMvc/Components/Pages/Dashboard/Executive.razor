@@ -3,10 +3,17 @@
 @using GrcMvc.Models.Entities
 @using Microsoft.EntityFrameworkCore
 @inject GrcDbContext DbContext
+@inject IHttpContextAccessor HttpContextAccessor
 
-<PageTitle>Executive Dashboard</PageTitle>
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
 
-<div class="container-fluid mt-4">
+<PageTitle>@(currentCulture == "ar" ? "لوحة التحكم التنفيذية" : "Executive Dashboard")</PageTitle>
+
+<div dir="@dir" class="container-fluid mt-4">
     <div class="row mb-4">
         <div class="col-12">
             <h1 class="display-6"><i class="bi bi-speedometer2 me-2"></i>Executive Dashboard</h1>

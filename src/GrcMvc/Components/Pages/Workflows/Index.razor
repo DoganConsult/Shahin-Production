@@ -3,10 +3,17 @@
 @using GrcMvc.Services.Interfaces
 @inject IWorkflowEngineService WorkflowService
 @inject NavigationManager NavManager
+@inject IHttpContextAccessor HttpContextAccessor
 
-<PageTitle>Workflows</PageTitle>
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
 
-<div class="container-fluid py-4">
+<PageTitle>@(currentCulture == "ar" ? "سير العمل" : "Workflows")</PageTitle>
+
+<div dir="@dir" class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col">
             <h1 class="h3">Workflows</h1>
@@ -81,7 +88,9 @@
     private string? errorMessage;
     private Guid selectedWorkflowId;
     private string selectedWorkflowName = "";
-    private bool showDeleteConfirm = false;
+#pragma warning disable CS0414
+    private bool showDeleteConfirm = false; // Used in UI for delete confirmation modal
+#pragma warning restore CS0414
 
     protected override async Task OnInitializedAsync()
     {

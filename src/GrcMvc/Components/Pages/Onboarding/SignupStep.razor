@@ -3,8 +3,15 @@
 @using System.ComponentModel.DataAnnotations
 @inject HttpClient Http
 @inject NavigationManager Navigation
+@inject IHttpContextAccessor HttpContextAccessor
 
-<div>
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
+
+<div dir="@dir">
     <h3 class="mb-4">Create Your Account</h3>
     
     <EditForm Model="SignupRequest" OnValidSubmit="HandleSignup">

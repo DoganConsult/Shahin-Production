@@ -1,9 +1,20 @@
 @page "/risks"
 @using GrcMvc.Models.Dtos
+@using GrcMvc.Services.Interfaces
+@using GrcMvc.Services.Mappers
+@using GrcMvc.Models.DTOs
+@using System.Linq
 
-<PageTitle>Risk Register</PageTitle>
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var isRtl = currentCulture == "ar";
+    var dir = isRtl ? "rtl" : "ltr";
+}
 
-<div class="container-fluid mt-4">
+<PageTitle>@(isRtl ? "سجل المخاطر" : "Risk Register")</PageTitle>
+
+<div dir="@dir" class="container-fluid mt-4">
     <div class="row mb-4">
         <div class="col-md-8">
             <h1 class="display-6">Risk Register</h1>
@@ -17,6 +28,8 @@
     </div>
 
     <LoadingSpinner IsLoading="@isLoading" Message="Loading risks..." />
+    
+    <ErrorAlert Message="@errorMessage" Severity="danger" ShowDismiss="true" />
 
     <!-- Filtering Options -->
     <div class="row mb-3">
@@ -70,7 +83,7 @@
             <div class="card text-center border-danger">
                 <div class="card-body">
                     <h6 class="card-title">Critical Risks</h6>
-                    <p class="display-6 text-danger mb-0">2</p>
+                    <p class="display-6 text-danger mb-0">@(risks.Count(r => r.ResidualRating == "Critical"))</p>
                 </div>
             </div>
         </div>
@@ -78,7 +91,7 @@
             <div class="card text-center border-warning">
                 <div class="card-body">
                     <h6 class="card-title">High Risks</h6>
-                    <p class="display-6 text-warning mb-0">7</p>
+                    <p class="display-6 text-warning mb-0">@(risks.Count(r => r.ResidualRating == "High"))</p>
                 </div>
             </div>
         </div>
@@ -86,7 +99,7 @@
             <div class="card text-center border-info">
                 <div class="card-body">
                     <h6 class="card-title">Medium Risks</h6>
-                    <p class="display-6 text-info mb-0">12</p>
+                    <p class="display-6 text-info mb-0">@(risks.Count(r => r.ResidualRating == "Medium"))</p>
                 </div>
             </div>
         </div>
@@ -94,7 +107,7 @@
             <div class="card text-center border-success">
                 <div class="card-body">
                     <h6 class="card-title">Low Risks</h6>
-                    <p class="display-6 text-success mb-0">4</p>
+                    <p class="display-6 text-success mb-0">@(risks.Count(r => r.ResidualRating == "Low"))</p>
                 </div>
             </div>
         </div>
@@ -172,61 +185,116 @@
     </div>
 </div>
 
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IRiskService RiskService
+
 @code {
     private List<RiskListItemDto> risks = new();
     private bool isLoading = true;
     private string selectedStatus = "";
     private string selectedRating = "";
     private string sortOrder = "date";
+    private RiskStatisticsDto? statistics;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        // TODO: Load from service
-        // var riskService = GetService<IRiskService>();
-        // risks = (await riskService.GetAllAsync()).ToList();
-
-        // Demo data
-        risks = new List<RiskListItemDto>
-{
-new() { Id = Guid.NewGuid(), RiskNumber = "RISK-001", Title = "Data Breach - Customer PII", Category = "Compliance",
-Status = "Open", InherentScore = 24, ResidualScore = 18, ResidualRating = "Critical", ResponsibleParty = "Security Team", IdentifiedDate = DateTime.Now.AddMonths(-2), MitigationCount = 3 },
-new() { Id = Guid.NewGuid(), RiskNumber = "RISK-002", Title = "System Downtime - Critical Systems", Category =
-"Operational", Status = "Open", InherentScore = 22, ResidualScore = 15, ResidualRating = "High", ResponsibleParty = "IT Operations", IdentifiedDate = DateTime.Now.AddMonths(-3), MitigationCount = 2 },
-new() { Id = Guid.NewGuid(), RiskNumber = "RISK-003", Title = "Regulatory Non-Compliance", Category = "Compliance",
-Status = "Mitigated", InherentScore = 20, ResidualScore = 10, ResidualRating = "Medium", ResponsibleParty = "Compliance Officer", IdentifiedDate = DateTime.Now.AddMonths(-4), MitigationCount = 4 },
-new() { Id = Guid.NewGuid(), RiskNumber = "RISK-004", Title = "Third-party Vendor Risk", Category = "Strategic", Status
-= "Open", InherentScore = 18, ResidualScore = 12, ResidualRating = "Medium", ResponsibleParty = "Procurement",
-IdentifiedDate = DateTime.Now.AddMonths(-1), MitigationCount = 1 },
-new() { Id = Guid.NewGuid(), RiskNumber = "RISK-005", Title = "Key Person Dependency", Category = "Operational", Status
-= "Accepted", InherentScore = 16, ResidualScore = 16, ResidualRating = "High", ResponsibleParty = "HR Manager",
-IdentifiedDate = DateTime.Now.AddMonths(-6), MitigationCount = 0 },
-};
-
-        await Task.CompletedTask;
-        isLoading = false;
+        try
+        {
+            isLoading = true;
+            
+            // Load from service
+            var serviceRisks = await RiskService.GetAllAsync();
+            
+            // Convert Service DTOs to UI DTOs
+            risks = serviceRisks
+                .Select(RiskDtoMapper.ToListItemDto)
+                .ToList();
+            
+            // Load statistics
+            statistics = await RiskService.GetStatisticsAsync();
+        }
+        catch (Exception ex)
+        {
+            // Log error (you can inject ILogger if needed)
+            // For now, fallback to empty list
+            risks = new List<RiskListItemDto>();
+            errorMessage = $"Error loading risks: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
-    private void FilterByStatus(ChangeEventArgs e)
+    private async Task FilterByStatus(ChangeEventArgs e)
     {
         selectedStatus = e.Value?.ToString() ?? "";
-        ApplyFilters();
+        await ApplyFilters();
     }
 
-    private void FilterByRating(ChangeEventArgs e)
+    private async Task FilterByRating(ChangeEventArgs e)
     {
         selectedRating = e.Value?.ToString() ?? "";
-        ApplyFilters();
+        await ApplyFilters();
     }
 
-    private void ChangeSortOrder(ChangeEventArgs e)
+    private async Task ChangeSortOrder(ChangeEventArgs e)
     {
         sortOrder = e.Value?.ToString() ?? "date";
-        ApplyFilters();
+        await ApplyFilters();
     }
 
-    private void ApplyFilters()
+    private async Task ApplyFilters()
     {
-        // Implement filtering logic here
+        try
+        {
+            isLoading = true;
+            
+            IEnumerable<RiskDto> serviceRisks;
+            
+            // Apply status filter if selected
+            if (!string.IsNullOrEmpty(selectedStatus))
+            {
+                serviceRisks = await RiskService.GetByStatusAsync(selectedStatus);
+            }
+            else
+            {
+                serviceRisks = await RiskService.GetAllAsync();
+            }
+            
+            // Convert to UI DTOs
+            var filtered = serviceRisks
+                .Select(RiskDtoMapper.ToListItemDto)
+                .ToList();
+            
+            // Apply rating filter (client-side, as service doesn't have this)
+            if (!string.IsNullOrEmpty(selectedRating))
+            {
+                filtered = filtered
+                    .Where(r => r.ResidualRating == selectedRating)
+                    .ToList();
+            }
+            
+            // Apply sorting
+            risks = sortOrder switch
+            {
+                "date" => filtered.OrderByDescending(r => r.IdentifiedDate).ToList(),
+                "risk-high" => filtered.OrderByDescending(r => r.ResidualScore).ToList(),
+                "status" => filtered.OrderBy(r => r.Status).ToList(),
+                _ => filtered
+            };
+        }
+        catch (Exception ex)
+        {
+            // Log error
+            risks = new List<RiskListItemDto>();
+            errorMessage = $"Error filtering risks: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private void ResetFilters()

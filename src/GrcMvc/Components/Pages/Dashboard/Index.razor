@@ -1,9 +1,16 @@
 @page "/dashboard"
 @using GrcMvc.Models.Dtos
 
-<PageTitle>Dashboard</PageTitle>
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var isRtl = currentCulture == "ar";
+    var dir = isRtl ? "rtl" : "ltr";
+}
 
-<div class="container-fluid mt-4">
+<PageTitle>@(isRtl ? "لوحة التحكم" : "Dashboard")</PageTitle>
+
+<div dir="@dir" class="container-fluid mt-4">
     <div class="row mb-4">
         <div class="col-12">
             <h1 class="display-6">GRC Dashboard</h1>
@@ -225,6 +232,8 @@
         </div>
     </div>
 </div>
+
+@inject IHttpContextAccessor HttpContextAccessor
 
 @code {
     private DashboardMetricsDto metrics = new();

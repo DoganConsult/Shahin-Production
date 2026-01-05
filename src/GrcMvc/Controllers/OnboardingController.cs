@@ -17,17 +17,20 @@ namespace GrcMvc.Controllers
     {
         private readonly ITenantService _tenantService;
         private readonly IOnboardingService _onboardingService;
+        private readonly ISmartOnboardingService _smartOnboardingService;
         private readonly IRulesEngineService _rulesEngine;
         private readonly ILogger<OnboardingController> _logger;
 
         public OnboardingController(
             ITenantService tenantService,
             IOnboardingService onboardingService,
+            ISmartOnboardingService smartOnboardingService,
             IRulesEngineService rulesEngine,
             ILogger<OnboardingController> logger)
         {
             _tenantService = tenantService;
             _onboardingService = onboardingService;
+            _smartOnboardingService = smartOnboardingService;
             _rulesEngine = rulesEngine;
             _logger = logger;
         }
@@ -164,6 +167,26 @@ namespace GrcMvc.Controllers
             {
                 _logger.LogError(ex, "Error completing onboarding");
                 return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Complete smart onboarding - auto-generates assessment templates and GRC plan
+        /// </summary>
+        [HttpPost("tenants/{tenantId:guid}/complete-smart-onboarding")]
+        public async Task<IActionResult> CompleteSmartOnboardingAsync(Guid tenantId)
+        {
+            try
+            {
+                var userId = User?.FindFirst("sub")?.Value ?? "SYSTEM";
+                var result = await _smartOnboardingService.CompleteSmartOnboardingAsync(tenantId, userId);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error completing smart onboarding");
+                return BadRequest(new { error = ex.Message });
             }
         }
 

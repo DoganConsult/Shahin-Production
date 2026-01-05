@@ -38,7 +38,7 @@ namespace GrcMvc.Services.Implementations
             string action,
             string actor,
             string payloadJson,
-            string correlationId)
+            string? correlationId = null)
         {
             try
             {

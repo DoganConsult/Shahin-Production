@@ -279,17 +279,73 @@ namespace GrcMvc.Services.Implementations
             bool smsEnabled = false,
             List<string>? enabledNotificationTypes = null)
         {
-            // TODO: Implement when UserNotificationPreferences DbSet is added
-            await Task.CompletedTask;
+            var existing = await _context.UserNotificationPreferences
+                .FirstOrDefaultAsync(p => p.UserId == userId && p.TenantId == tenantId && !p.IsDeleted);
+
+            if (existing != null)
+            {
+                existing.EmailEnabled = emailEnabled;
+                existing.SmsEnabled = smsEnabled;
+                if (enabledNotificationTypes != null)
+                {
+                    existing.EnabledTypesJson = System.Text.Json.JsonSerializer.Serialize(enabledNotificationTypes);
+                }
+                existing.ModifiedDate = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                var preference = new Models.Entities.UserNotificationPreference
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    UserId = userId,
+                    EmailEnabled = emailEnabled,
+                    SmsEnabled = smsEnabled,
+                    EnabledTypesJson = enabledNotificationTypes != null
+                        ? System.Text.Json.JsonSerializer.Serialize(enabledNotificationTypes)
+                        : "[\"TaskAssigned\",\"TaskDueSoon\",\"TaskOverdue\",\"ApprovalRequested\",\"WorkflowCompleted\"]",
+                    CreatedDate = DateTime.UtcNow,
+                    CreatedBy = "System"
+                };
+                _context.UserNotificationPreferences.Add(preference);
+                await _context.SaveChangesAsync();
+            }
+
+            _logger.LogInformation("Updated notification preferences for user {UserId}", userId);
         }
 
         /// <summary>
         /// Get user notification preferences
         /// </summary>
-        public async Task<UserNotificationPreference?> GetUserPreferencesAsync(string userId, Guid tenantId)
+        public async Task<Models.Entities.UserNotificationPreference?> GetUserPreferencesAsync(string userId, Guid tenantId)
         {
-            // TODO: Implement when UserNotificationPreferences DbSet is added
-            return await Task.FromResult<UserNotificationPreference?>(null);
+            var pref = await _context.UserNotificationPreferences
+                .FirstOrDefaultAsync(p => p.UserId == userId && p.TenantId == tenantId && !p.IsDeleted);
+
+            if (pref == null)
+            {
+                // Return default preferences
+                return new Models.Entities.UserNotificationPreference
+                {
+                    UserId = userId,
+                    TenantId = tenantId,
+                    EmailEnabled = true,
+                    SmsEnabled = false,
+                    InAppEnabled = true,
+                    DigestFrequency = "Immediate"
+                };
+            }
+
+            return new Models.Entities.UserNotificationPreference
+            {
+                UserId = pref.UserId,
+                TenantId = pref.TenantId,
+                EmailEnabled = pref.EmailEnabled,
+                SmsEnabled = pref.SmsEnabled,
+                InAppEnabled = pref.InAppEnabled,
+                DigestFrequency = pref.DigestFrequency
+            };
         }
 
         /// <summary>
@@ -359,52 +415,5 @@ namespace GrcMvc.Services.Implementations
                 _ => "TaskAssigned"
             };
         }
-    }
-
-    /// <summary>
-    /// Result of a notification send operation
-    /// </summary>
-    public class NotificationResult
-    {
-        public bool IsSuccess { get; set; }
-        public string? Message { get; set; }
-        public Guid NotificationId { get; set; }
-    }
-
-    /// <summary>
-    /// Interface for notification service
-    /// </summary>
-    public interface INotificationService
-    {
-        Task<WorkflowNotification> CreateNotificationAsync(
-            Guid workflowInstanceId,
-            string recipientUserId,
-            string notificationType,
-            string subject,
-            string body,
-            string priority = "Normal",
-            Guid tenantId = default,
-            bool requiresEmail = true,
-            bool requiresSms = false);
-
-        Task<NotificationResult> SendNotificationAsync(
-            Guid workflowInstanceId,
-            string recipientUserId,
-            string notificationType,
-            string subject,
-            string body,
-            string priority = "Normal",
-            Guid tenantId = default,
-            Dictionary<string, object>? templateData = null);
-
-        Task<List<WorkflowNotification>> GetPendingNotificationsAsync(Guid? tenantId = null);
-        Task<List<WorkflowNotification>> GetUserNotificationsAsync(string userId, Guid tenantId, bool unreadOnly = false, int page = 1, int pageSize = 20);
-        Task<int> GetUnreadCountAsync(string userId, Guid tenantId);
-        Task MarkAsReadAsync(Guid notificationId, string userId);
-        Task MarkAllAsReadAsync(string userId, Guid tenantId);
-        Task MarkAsDeliveredAsync(Guid notificationId);
-        Task UpdatePreferencesAsync(string userId, Guid tenantId, bool emailEnabled = true, bool smsEnabled = false, List<string>? enabledNotificationTypes = null);
-        Task<UserNotificationPreference?> GetUserPreferencesAsync(string userId, Guid tenantId);
-        Task<int> CreateBulkNotificationsAsync(Guid workflowInstanceId, List<string> recipientUserIds, string notificationType, string subject, string body, string priority = "Normal", Guid tenantId = default);
     }
 }

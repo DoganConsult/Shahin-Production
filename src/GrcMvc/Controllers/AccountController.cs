@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using GrcMvc.Models.Entities;
 using GrcMvc.Models.ViewModels;
 using GrcMvc.Services.Interfaces;
@@ -533,6 +534,94 @@ namespace GrcMvc.Controllers
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 expiration = token.ValidTo
             });
+        }
+
+        // GET: Account/Profile
+        [Authorize]
+        public async Task<IActionResult> Profile(
+            [FromServices] IUserProfileService profileService,
+            [FromServices] ITenantContextService tenantContext,
+            [FromServices] INotificationService notificationService,
+            [FromServices] Data.GrcDbContext dbContext)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var userId = user.Id;
+            var tenantId = tenantContext.GetCurrentTenantId();
+
+            // Get user's tenant info
+            var tenantUser = await dbContext.TenantUsers
+                .FirstOrDefaultAsync(tu => tu.UserId == userId && tu.TenantId == tenantId && !tu.IsDeleted);
+
+            // Get assigned profiles
+            var assignments = await profileService.GetUserAssignmentsAsync(userId, tenantId);
+            var permissions = await profileService.GetUserPermissionsAsync(userId, tenantId);
+            var workflowRoles = await profileService.GetUserWorkflowRolesAsync(userId, tenantId);
+
+            // Get notification preferences
+            var notifPrefs = await notificationService.GetUserPreferencesAsync(userId, tenantId);
+
+            // Get pending tasks count
+            var pendingTasks = await dbContext.WorkflowTasks
+                .CountAsync(t => t.AssignedToUserId.ToString() == userId &&
+                    t.Status == "Pending" && !t.IsDeleted);
+
+            var model = new UserProfileViewModel
+            {
+                UserId = userId,
+                Email = user.Email ?? "",
+                FullName = $"{user.FirstName} {user.LastName}".Trim(),
+                RoleName = tenantUser?.RoleCode ?? "",
+                TitleName = tenantUser?.TitleCode ?? "",
+                PendingTasksCount = pendingTasks,
+                AssignedProfiles = assignments.Select(a => new UserProfileInfo
+                {
+                    ProfileId = a.UserProfileId,
+                    ProfileCode = a.UserProfile?.ProfileCode ?? "",
+                    ProfileName = a.UserProfile?.ProfileName ?? "",
+                    Description = a.UserProfile?.Description ?? "",
+                    Category = a.UserProfile?.Category ?? ""
+                }).ToList(),
+                Permissions = permissions,
+                WorkflowRoles = workflowRoles,
+                NotificationPreferences = notifPrefs != null ? new NotificationPreferencesInfo
+                {
+                    EmailEnabled = notifPrefs.EmailEnabled,
+                    SmsEnabled = notifPrefs.SmsEnabled,
+                    InAppEnabled = notifPrefs.InAppEnabled,
+                    DigestFrequency = notifPrefs.DigestFrequency
+                } : new NotificationPreferencesInfo()
+            };
+
+            return View(model);
+        }
+
+        // POST: Account/UpdateNotificationPreferences
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateNotificationPreferences(
+            [FromServices] INotificationService notificationService,
+            [FromServices] ITenantContextService tenantContext,
+            bool EmailEnabled = true,
+            bool SmsEnabled = false,
+            bool InAppEnabled = true,
+            string DigestFrequency = "Immediate")
+        {
+            var userId = _userManager.GetUserId(User);
+            var tenantId = tenantContext.GetCurrentTenantId();
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                await notificationService.UpdatePreferencesAsync(userId, tenantId, EmailEnabled, SmsEnabled);
+            }
+
+            TempData["Success"] = "Notification preferences updated.";
+            return RedirectToAction(nameof(Profile));
         }
     }
 }

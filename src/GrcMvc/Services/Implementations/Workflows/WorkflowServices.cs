@@ -59,8 +59,9 @@ namespace GrcMvc.Services.Implementations.Workflows
 
             workflow.CurrentState = toState;
 
-            var transition = new WorkflowTransition
+            var transition = new Models.Workflows.WorkflowTransition
             {
+                Id = Guid.NewGuid(),
                 WorkflowInstanceId = workflowInstanceId,
                 FromState = fromState,
                 ToState = toState,
@@ -69,8 +70,7 @@ namespace GrcMvc.Services.Implementations.Workflows
                 Reason = reason
             };
 
-            // TODO: Add WorkflowTransitions DbSet to GrcDbContext
-            // _context.WorkflowTransitions.Add(transition);
+            _context.WorkflowTransitions.Add(transition);
             _context.WorkflowInstances.Update(workflow);
             await _context.SaveChangesAsync();
 

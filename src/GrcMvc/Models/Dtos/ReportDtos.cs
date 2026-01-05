@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace GrcMvc.Models.Dtos;
 
@@ -58,15 +59,38 @@ public class ReportDetailDto
 /// </summary>
 public class ReportCreateDto
 {
+    [Required(ErrorMessage = "Title is required")]
+    [Display(Name = "Title")]
     public string Title { get; set; } = string.Empty;
+    
+    [Required(ErrorMessage = "Type is required")]
+    [Display(Name = "Type")]
     public string Type { get; set; } = string.Empty;
+    
+    [Display(Name = "Description")]
     public string Description { get; set; } = string.Empty;
+    
+    [Display(Name = "Scope")]
     public string Scope { get; set; } = string.Empty;
+    
+    [Required(ErrorMessage = "Start date is required")]
+    [Display(Name = "Report Period Start")]
     public DateTime ReportPeriodStart { get; set; }
+    
+    [Required(ErrorMessage = "End date is required")]
+    [Display(Name = "Report Period End")]
     public DateTime ReportPeriodEnd { get; set; }
+    
+    [Display(Name = "Included Entities")]
     public List<string> IncludedEntities { get; set; } = new();
+    
+    [Display(Name = "Include Executive Summary")]
     public string IncludeExecutiveSummary { get; set; } = "yes";
+    
+    [Display(Name = "Include Findings Detail")]
     public string IncludeFindingsDetail { get; set; } = "yes";
+    
+    [Display(Name = "Include Recommendations")]
     public string IncludeRecommendations { get; set; } = "yes";
 }
 

@@ -5,6 +5,7 @@ using GrcMvc.Services;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
+using GrcMvc.Models.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -153,7 +154,69 @@ namespace GrcMvc.Controllers.Api
         }
 
         /// <summary>
-        /// POST /api/workflows - Create new workflow instance from definition
+        /// POST /api/workflows/start - Start new workflow instance from definition
+        /// Uses enhanced StartWorkflowAsync with BPMN parsing and task creation
+        /// </summary>
+        [HttpPost("start")]
+        public async Task<IActionResult> StartWorkflow([FromBody] StartWorkflowRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var userIdClaim = User.FindFirst("sub")?.Value ?? User.Identity?.Name;
+                if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+                    return Unauthorized(new { success = false, error = "User ID not found" });
+
+                var tenantId = GetUserTenantId();
+                if (tenantId == Guid.Empty)
+                    return BadRequest(new { success = false, error = "Tenant ID not found" });
+
+                // Start workflow instance with task creation
+                var instance = await _workflowService.StartWorkflowAsync(
+                    tenantId,
+                    request.WorkflowDefinitionId,
+                    userId,
+                    request.InputVariables);
+
+                _logger.LogInformation($"✅ Started workflow instance {instance.Id} with {instance.Tasks?.Count ?? 0} tasks");
+
+                return CreatedAtAction(nameof(GetWorkflow), new { id = instance.Id }, new
+                {
+                    success = true,
+                    message = "Workflow started successfully",
+                    data = new
+                    {
+                        instance.Id,
+                        instance.Status,
+                        instance.CurrentState,
+                        TaskCount = instance.Tasks?.Count ?? 0,
+                        Tasks = instance.Tasks?.Select(t => new
+                        {
+                            t.Id,
+                            t.TaskName,
+                            t.Status,
+                            t.AssignedToUserId,
+                            t.DueDate
+                        }).ToList()
+                    }
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning($"⚠️ Workflow start failed: {ex.Message}");
+                return BadRequest(new { success = false, error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"❌ Error starting workflow");
+                return StatusCode(500, new { success = false, error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// POST /api/workflows - Create new workflow instance from definition (legacy)
         /// Initializes workflow with pending status
         /// </summary>
         [HttpPost]
@@ -315,52 +378,53 @@ namespace GrcMvc.Controllers.Api
 
         /// <summary>
         /// POST /api/workflows/{id}/task/{taskId}/complete - Complete a workflow task
-        /// Updates task status and checks if workflow is fully complete
+        /// Uses enhanced CompleteTaskAsync with workflow evaluation
         /// </summary>
         [HttpPost("{id}/task/{taskId}/complete")]
         public async Task<IActionResult> CompleteTask(Guid id, Guid taskId, [FromBody] TaskCompleteRequest? request)
         {
             try
             {
+                var userIdClaim = User.FindFirst("sub")?.Value ?? User.Identity?.Name;
+                if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+                    return Unauthorized(new { success = false, error = "User ID not found" });
+
                 var tenantId = GetUserTenantId();
-                var task = await _context.WorkflowTasks
-                    .Where(t => t.Id == taskId && t.WorkflowInstanceId == id && t.TenantId == tenantId)
-                    .FirstOrDefaultAsync();
+                if (tenantId == Guid.Empty)
+                    return BadRequest(new { success = false, error = "Tenant ID not found" });
 
-                if (task == null)
-                    return NotFound(new { success = false, error = "Task not found" });
+                // Use enhanced CompleteTaskAsync with workflow evaluation
+                var success = await _workflowService.CompleteTaskAsync(
+                    tenantId,
+                    taskId,
+                    userId,
+                    null, // outputData
+                    request?.Notes);
 
-                task.Status = "Completed";
-                task.CompletedAt = DateTime.UtcNow;
+                if (!success)
+                    return NotFound(new { success = false, error = "Task not found or could not be completed" });
 
-                _context.WorkflowTasks.Update(task);
-                await _context.SaveChangesAsync();
-
-                // Check if all tasks are complete
-                var workflow = await _context.WorkflowInstances
-                    .Include(w => w.Tasks)
-                    .FirstAsync(w => w.Id == id && w.TenantId == tenantId);
-
-                if (workflow.Tasks.All(t => t.Status == "Completed"))
-                {
-                    workflow.Status = "Completed";
-                    workflow.CompletedAt = DateTime.UtcNow;
-                    _context.WorkflowInstances.Update(workflow);
-                    await _context.SaveChangesAsync();
-
-                    _logger.LogInformation($"✅ Workflow {id} fully completed");
-                }
+                // Get updated workflow status
+                var workflow = await _workflowService.GetWorkflowAsync(tenantId, id);
+                if (workflow == null)
+                    return NotFound(new { success = false, error = "Workflow not found" });
 
                 return Ok(new
                 {
                     success = true,
                     message = "Task completed successfully",
-                    data = new { task.Id, task.Status, workflowComplete = workflow.Status == "Completed" }
+                    data = new
+                    {
+                        TaskId = taskId,
+                        WorkflowId = id,
+                        WorkflowStatus = workflow.Status,
+                        WorkflowComplete = workflow.Status == "Completed"
+                    }
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError($"❌ Error completing task: {ex.Message}");
+                _logger.LogError(ex, $"❌ Error completing task {taskId}");
                 return StatusCode(500, new { success = false, error = ex.Message });
             }
         }
@@ -514,7 +578,16 @@ namespace GrcMvc.Controllers.Api
     // ============ Request/Response DTOs ============
 
     /// <summary>
-    /// Request to create a new workflow instance
+    /// Request to start a new workflow instance (enhanced with BPMN parsing)
+    /// </summary>
+    public class StartWorkflowRequest
+    {
+        public Guid WorkflowDefinitionId { get; set; }
+        public Dictionary<string, object>? InputVariables { get; set; }
+    }
+
+    /// <summary>
+    /// Request to create a new workflow instance (legacy)
     /// </summary>
     public class CreateWorkflowRequest
     {

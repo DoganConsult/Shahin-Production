@@ -6,6 +6,7 @@ using GrcMvc.Data;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Application.Policy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -19,11 +20,16 @@ namespace GrcMvc.Services.Implementations
     {
         private readonly GrcDbContext _context;
         private readonly ILogger<EvidenceService> _logger;
+        private readonly PolicyEnforcementHelper _policyHelper;
 
-        public EvidenceService(GrcDbContext context, ILogger<EvidenceService> logger)
+        public EvidenceService(
+            GrcDbContext context,
+            ILogger<EvidenceService> logger,
+            PolicyEnforcementHelper policyHelper)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _policyHelper = policyHelper ?? throw new ArgumentNullException(nameof(policyHelper));
         }
 
         /// <summary>
@@ -75,7 +81,7 @@ namespace GrcMvc.Services.Implementations
         }
 
         /// <summary>
-        /// Create new evidence in database
+        /// Create new evidence in database with policy enforcement
         /// </summary>
         public async Task<EvidenceDto> CreateAsync(CreateEvidenceDto createEvidenceDto)
         {
@@ -98,11 +104,23 @@ namespace GrcMvc.Services.Implementations
                     EvidenceNumber = $"EV-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpper()}"
                 };
 
+                // Enforce policies before saving using helper
+                await _policyHelper.EnforceCreateAsync(
+                    resourceType: "Evidence",
+                    resource: evidence,
+                    dataClassification: createEvidenceDto.DataClassification,
+                    owner: createEvidenceDto.Owner);
+
                 _context.Evidences.Add(evidence);
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation($"Created evidence '{evidence.Title}' with ID {evidence.Id}");
                 return MapToDto(evidence);
+            }
+            catch (PolicyViolationException pve)
+            {
+                _logger.LogWarning($"Policy violation prevented evidence creation: {pve.Message}. Rule: {pve.RuleId}");
+                throw;
             }
             catch (Exception ex)
             {
@@ -110,6 +128,7 @@ namespace GrcMvc.Services.Implementations
                 throw;
             }
         }
+
 
         /// <summary>
         /// Update existing evidence in database
