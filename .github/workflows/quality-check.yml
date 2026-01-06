@@ -1,0 +1,276 @@
+name: Shahin GRC Quality Check
+
+# ============================================================
+# MANDATORY QUALITY GATE - Required for all merges
+# Configure in GitHub: Settings > Branches > Branch protection rules
+# Add "quality-gate" as required status check
+# ============================================================
+
+on:
+  push:
+    branches: [ main, develop, release/* ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  # ============================================================
+  # Phase 1: Build Validation
+  # ============================================================
+  build-validation:
+    name: Build & Structure Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore src/GrcMvc/GrcMvc.csproj
+
+      - name: Build project
+        run: |
+          dotnet build src/GrcMvc/GrcMvc.csproj --no-restore --configuration Release
+          echo "BUILD_STATUS=success" >> $GITHUB_ENV
+
+      - name: Validate Controller-View Mapping
+        run: |
+          echo "Checking Controller-View mappings..."
+          MISSING=0
+          for controller in src/GrcMvc/Controllers/*.cs; do
+            name=$(basename "$controller" .cs)
+            # Skip API controllers
+            if [[ "$name" == *"Api"* ]]; then continue; fi
+            folder="${name%Controller}"
+            if [ ! -d "src/GrcMvc/Views/$folder" ]; then
+              echo "WARNING: Views folder missing for $name"
+            fi
+          done
+          echo "Controller-View validation complete"
+
+      - name: Validate Required Files
+        run: |
+          ERRORS=0
+          # Check shared views
+          for file in _Layout.cshtml Error.cshtml _ValidationScriptsPartial.cshtml; do
+            if [ ! -f "src/GrcMvc/Views/Shared/$file" ]; then
+              echo "ERROR: Missing src/GrcMvc/Views/Shared/$file"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+          # Check root views
+          for file in _ViewStart.cshtml _ViewImports.cshtml; do
+            if [ ! -f "src/GrcMvc/Views/$file" ]; then
+              echo "ERROR: Missing src/GrcMvc/Views/$file"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+          if [ $ERRORS -gt 0 ]; then
+            echo "Found $ERRORS missing required files"
+            exit 1
+          fi
+          echo "All required files present"
+
+  # ============================================================
+  # Phase 2: Content Validation
+  # ============================================================
+  content-validation:
+    name: Content & Module Validation
+    runs-on: ubuntu-latest
+    needs: build-validation
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate Shahin Modules
+        run: |
+          echo "Validating Shahin module coverage..."
+          MODULES=(
+            "OnboardingController.cs:Shahin-SMART"
+            "ControlsController.cs:Shahin-MAP"
+            "EvidenceController.cs:Shahin-PROVE"
+            "RiskIndicatorsController.cs:Shahin-WATCH"
+            "ExceptionsController.cs:Shahin-FIX"
+            "VaultController.cs:Shahin-VAULT"
+            "WorkflowUIController.cs:Shahin-FLOW"
+            "ShahinAIIntegrationController.cs:Shahin-AI"
+          )
+
+          MISSING=0
+          for module in "${MODULES[@]}"; do
+            file="${module%%:*}"
+            name="${module##*:}"
+            if [ -f "src/GrcMvc/Controllers/$file" ]; then
+              echo "✓ $name ($file)"
+            else
+              echo "✗ MISSING: $name ($file)"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+
+          if [ $MISSING -gt 0 ]; then
+            echo "ERROR: $MISSING Shahin module(s) missing"
+            exit 1
+          fi
+          echo "All Shahin modules present"
+
+      - name: Count API Endpoints
+        run: |
+          TOTAL=0
+          for controller in src/GrcMvc/Controllers/*.cs; do
+            if [ -f "$controller" ]; then
+              count=$(grep -c "\[Http" "$controller" 2>/dev/null || true)
+              if [ -n "$count" ] && [ "$count" -gt 0 ]; then
+                TOTAL=$((TOTAL + count))
+              fi
+            fi
+          done
+          echo "Total API Endpoints: $TOTAL"
+          echo "API_ENDPOINTS=$TOTAL" >> $GITHUB_ENV
+
+      - name: Validate Configuration Files
+        run: |
+          ERRORS=0
+          for config in appsettings.json appsettings.Development.json; do
+            if [ ! -f "src/GrcMvc/$config" ]; then
+              echo "WARNING: Missing $config"
+            else
+              echo "✓ $config present"
+            fi
+          done
+
+  # ============================================================
+  # Phase 3: Security Scan
+  # ============================================================
+  security-scan:
+    name: Security Validation
+    runs-on: ubuntu-latest
+    needs: build-validation
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Check for Hardcoded Secrets
+        run: |
+          echo "Scanning for potential secrets..."
+          ISSUES=0
+          # Check for common secret patterns
+          if grep -rn "password\s*=\s*[\"'][^\"']*[\"']" src/ --include="*.cs" --include="*.json" 2>/dev/null | grep -v "appsettings" | grep -v "example"; then
+            echo "WARNING: Potential hardcoded passwords found"
+            ISSUES=$((ISSUES + 1))
+          fi
+          if grep -rn "apikey\s*=\s*[\"']sk-" src/ --include="*.cs" 2>/dev/null; then
+            echo "ERROR: Potential API key found"
+            ISSUES=$((ISSUES + 1))
+          fi
+          if [ $ISSUES -gt 0 ]; then
+            echo "Security scan found $ISSUES potential issues"
+          else
+            echo "No obvious secrets detected"
+          fi
+
+      - name: Check for SQL Injection Risks
+        run: |
+          echo "Checking for SQL injection patterns..."
+          # Look for string concatenation in SQL
+          if grep -rn "FromSqlRaw.*\+" src/ --include="*.cs" 2>/dev/null; then
+            echo "WARNING: Potential SQL injection risk - string concatenation in raw SQL"
+          fi
+          echo "SQL injection check complete"
+
+  # ============================================================
+  # Phase 4: Generate Report
+  # ============================================================
+  generate-report:
+    name: Generate Validation Report
+    runs-on: ubuntu-latest
+    needs: [build-validation, content-validation, security-scan]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate Summary Report
+        run: |
+          echo "# Shahin GRC Release Validation Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** $(date '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Phase | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build & Structure | ${{ needs.build-validation.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Content & Modules | ${{ needs.content-validation.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Scan | ${{ needs.security-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Count controllers and views
+          CONTROLLERS=$(find src/GrcMvc/Controllers -name "*.cs" | wc -l)
+          VIEWS=$(find src/GrcMvc/Views -name "*.cshtml" | wc -l)
+          echo "## Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "- **Controllers:** $CONTROLLERS" >> $GITHUB_STEP_SUMMARY
+          echo "- **Views:** $VIEWS" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Generated by Shahin GRC Quality Check Pipeline*" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================
+  # QUALITY GATE - This job MUST pass for merge
+  # Add "quality-gate" as required check in GitHub branch protection
+  # ============================================================
+  quality-gate:
+    name: Quality Gate (Required)
+    runs-on: ubuntu-latest
+    needs: [build-validation, content-validation, security-scan]
+    if: always()
+
+    steps:
+      - name: Check Quality Gate Status
+        run: |
+          echo "╔════════════════════════════════════════════════════════════╗"
+          echo "║         SHAHIN GRC QUALITY GATE                            ║"
+          echo "╚════════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "Build Validation: ${{ needs.build-validation.result }}"
+          echo "Content Validation: ${{ needs.content-validation.result }}"
+          echo "Security Scan: ${{ needs.security-scan.result }}"
+          echo ""
+
+          if [ "${{ needs.build-validation.result }}" != "success" ]; then
+            echo "❌ BUILD VALIDATION FAILED"
+            exit 1
+          fi
+
+          if [ "${{ needs.content-validation.result }}" != "success" ]; then
+            echo "❌ CONTENT VALIDATION FAILED"
+            exit 1
+          fi
+
+          if [ "${{ needs.security-scan.result }}" != "success" ]; then
+            echo "❌ SECURITY SCAN FAILED"
+            exit 1
+          fi
+
+          echo "╔════════════════════════════════════════════════════════════╗"
+          echo "║  ✅ QUALITY GATE PASSED - Ready to merge                   ║"
+          echo "╚════════════════════════════════════════════════════════════╝"
