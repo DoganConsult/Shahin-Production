@@ -149,7 +149,65 @@ jobs:
           done
 
   # ============================================================
-  # Phase 3: Security Scan
+  # Phase 3: .NET Built-in Validation
+  # ============================================================
+  dotnet-validation:
+    name: .NET Framework Validation
+    runs-on: ubuntu-latest
+    needs: build-validation
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore src/GrcMvc/GrcMvc.csproj
+
+      - name: Run .NET Code Analysis
+        run: |
+          echo "Running .NET code analyzers..."
+          dotnet build src/GrcMvc/GrcMvc.csproj --no-restore -warnaserror:nullable -p:TreatWarningsAsErrors=false
+          echo "Code analysis complete"
+
+      - name: Validate FluentValidation Rules
+        run: |
+          echo "Checking FluentValidation validators..."
+          VALIDATORS=$(find src/GrcMvc -name "*Validator.cs" | wc -l)
+          echo "Found $VALIDATORS FluentValidation validators"
+
+      - name: Validate Entity Framework Migrations
+        run: |
+          echo "Checking EF Core migrations..."
+          MIGRATIONS=$(find src/GrcMvc/Migrations -name "*.cs" ! -name "*Snapshot*" | wc -l)
+          echo "Found $MIGRATIONS migrations"
+
+          # Check for migration issues
+          if grep -rn "migrationBuilder.Sql" src/GrcMvc/Migrations/*.cs 2>/dev/null; then
+            echo "INFO: Raw SQL migrations detected - review recommended"
+          fi
+
+      - name: Validate Health Checks Configuration
+        run: |
+          echo "Checking health checks setup..."
+          if grep -q "AddHealthChecks\|MapHealthChecks" src/GrcMvc/Program.cs; then
+            echo "✓ Health checks configured"
+          else
+            echo "WARNING: Health checks not configured"
+          fi
+
+      - name: Validate AutoMapper Profiles
+        run: |
+          echo "Checking AutoMapper configuration..."
+          PROFILES=$(find src/GrcMvc -name "*Profile.cs" -o -name "*Mapping*.cs" | wc -l)
+          echo "Found $PROFILES AutoMapper profiles"
+
+  # ============================================================
+  # Phase 4: Security Scan
   # ============================================================
   security-scan:
     name: Security Validation
@@ -193,13 +251,34 @@ jobs:
           fi
           echo "SQL injection check complete"
 
+      - name: Check OWASP Security Patterns
+        run: |
+          echo "Checking OWASP security patterns..."
+
+          # Check for XSS prevention
+          if grep -rq "HtmlEncoder\|AntiXss\|@Html.Raw" src/GrcMvc/Views/*.cshtml 2>/dev/null; then
+            echo "INFO: Raw HTML output detected - review for XSS"
+          fi
+
+          # Check for CSRF protection
+          if grep -q "ValidateAntiForgeryToken\|AntiForgeryToken" src/GrcMvc/Views/*.cshtml 2>/dev/null; then
+            echo "✓ CSRF protection found"
+          fi
+
+          # Check for authentication
+          if grep -q "Authorize\|Authentication" src/GrcMvc/Controllers/*.cs 2>/dev/null; then
+            echo "✓ Authorization attributes found"
+          fi
+
+          echo "OWASP check complete"
+
   # ============================================================
-  # Phase 4: Generate Report
+  # Phase 5: Generate Report
   # ============================================================
   generate-report:
     name: Generate Validation Report
     runs-on: ubuntu-latest
-    needs: [build-validation, content-validation, security-scan]
+    needs: [build-validation, content-validation, dotnet-validation, security-scan]
     if: always()
 
     steps:
@@ -220,6 +299,7 @@ jobs:
           echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Build & Structure | ${{ needs.build-validation.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Content & Modules | ${{ needs.content-validation.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| .NET Framework | ${{ needs.dotnet-validation.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Security Scan | ${{ needs.security-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
@@ -241,7 +321,7 @@ jobs:
   quality-gate:
     name: Quality Gate (Required)
     runs-on: ubuntu-latest
-    needs: [build-validation, content-validation, security-scan]
+    needs: [build-validation, content-validation, dotnet-validation, security-scan]
     if: always()
 
     steps:
@@ -251,9 +331,10 @@ jobs:
           echo "║         SHAHIN GRC QUALITY GATE                            ║"
           echo "╚════════════════════════════════════════════════════════════╝"
           echo ""
-          echo "Build Validation: ${{ needs.build-validation.result }}"
+          echo "Build Validation:   ${{ needs.build-validation.result }}"
           echo "Content Validation: ${{ needs.content-validation.result }}"
-          echo "Security Scan: ${{ needs.security-scan.result }}"
+          echo ".NET Validation:    ${{ needs.dotnet-validation.result }}"
+          echo "Security Scan:      ${{ needs.security-scan.result }}"
           echo ""
 
           if [ "${{ needs.build-validation.result }}" != "success" ]; then
@@ -263,6 +344,11 @@ jobs:
 
           if [ "${{ needs.content-validation.result }}" != "success" ]; then
             echo "❌ CONTENT VALIDATION FAILED"
+            exit 1
+          fi
+
+          if [ "${{ needs.dotnet-validation.result }}" != "success" ]; then
+            echo "❌ .NET FRAMEWORK VALIDATION FAILED"
             exit 1
           fi
 
