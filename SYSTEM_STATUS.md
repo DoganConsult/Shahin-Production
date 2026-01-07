@@ -1,7 +1,7 @@
 # System Status Report
 
-**Date:** 2026-01-07  
-**System:** GRC System (grc-system)  
+**Date:** 2026-01-07
+**System:** GRC System (grc-system)
 **Status:** Partial - DB connection verified, application container stopped
 
 ---
