@@ -58,6 +58,56 @@ namespace GrcMvc.Controllers
         }
 
         /// <summary>
+        /// Legacy route redirect - handles /TenantAdmin requests and redirects to tenant-specific admin
+        /// </summary>
+        [HttpGet("/TenantAdmin")]
+        [Authorize]
+        public async Task<IActionResult> RedirectToTenantAdmin()
+        {
+            try
+            {
+                // Get tenant ID from claims (standard pattern in this codebase)
+                var tenantIdClaim = User?.FindFirst("TenantId")?.Value;
+                Guid tenantId;
+                
+                if (!string.IsNullOrEmpty(tenantIdClaim) && Guid.TryParse(tenantIdClaim, out tenantId))
+                {
+                    // Try to get tenant by ID from claim
+                    var currentTenant = await _dbContext.Tenants.FirstOrDefaultAsync(t => t.Id == tenantId);
+                    if (currentTenant != null && !string.IsNullOrEmpty(currentTenant.TenantSlug))
+                    {
+                        return RedirectToAction(nameof(Dashboard), "TenantAdmin", new { tenantSlug = currentTenant.TenantSlug });
+                    }
+                }
+
+                // Fallback: Try to get tenant from TenantUsers table via current user
+                var userId = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    var tenantUser = await _dbContext.Set<TenantUser>()
+                        .FirstOrDefaultAsync(tu => tu.UserId == userId);
+                    
+                    if (tenantUser != null)
+                    {
+                        var currentTenant = await _dbContext.Tenants.FirstOrDefaultAsync(t => t.Id == tenantUser.TenantId);
+                        if (currentTenant != null && !string.IsNullOrEmpty(currentTenant.TenantSlug))
+                        {
+                            return RedirectToAction(nameof(Dashboard), "TenantAdmin", new { tenantSlug = currentTenant.TenantSlug });
+                        }
+                    }
+                }
+
+                _logger.LogWarning("No tenant found for redirect to tenant admin. User={UserId}", userId);
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to redirect to tenant admin - user may not have tenant assigned");
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        /// <summary>
         /// Tenant Admin Dashboard
         /// </summary>
         [HttpGet("dashboard")]

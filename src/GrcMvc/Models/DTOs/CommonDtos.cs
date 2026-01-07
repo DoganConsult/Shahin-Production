@@ -10,13 +10,62 @@ namespace GrcMvc.Models.DTOs
     {
         public Guid Id { get; set; }
         public string AssessmentNumber { get; set; } = string.Empty;
+        
+        // Canonical field
         public string Type { get; set; } = string.Empty;
+        
+        // Alias expected by controllers
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string AssessmentType
+        {
+            get => Type;
+            set => Type = value ?? string.Empty;
+        }
+        
         public string Name { get; set; } = string.Empty;
+        
+        // Canonical field
         public string Description { get; set; } = string.Empty;
+        
+        // Alias expected by controllers
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string Notes
+        {
+            get => Description;
+            set => Description = value ?? string.Empty;
+        }
+        
+        // Canonical scheduling/completion fields
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        
+        // Alias expected by controllers
+        public DateTime? ScheduledDate { get; set; }
+        
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public DateTime? CompletedDate
+        {
+            get => EndDate;
+            set => EndDate = value;
+        }
+        
         public string Status { get; set; } = string.Empty;
+        
+        // Canonical assignment
         public string AssignedTo { get; set; } = string.Empty;
+        
+        // Alias expected by controllers
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string AssessorId
+        {
+            get => AssignedTo;
+            set => AssignedTo = value ?? string.Empty;
+        }
+        
         public string ReviewedBy { get; set; } = string.Empty;
         public int? ComplianceScore { get; set; }
         public int Score { get; set; }
@@ -25,6 +74,10 @@ namespace GrcMvc.Models.DTOs
         public string Results { get; set; } = string.Empty;
         public Guid? RiskId { get; set; }
         public Guid? ControlId { get; set; }
+        
+        // Missing fields expected by controllers / policy enforcement
+        public string DataClassification { get; set; } = string.Empty;
+        public string Owner { get; set; } = string.Empty;
     }
 
     public class CreateAssessmentDto
@@ -87,6 +140,12 @@ namespace GrcMvc.Models.DTOs
         public string AuditType { get => Type; set => Type = value; }
         [System.Text.Json.Serialization.JsonIgnore]
         [Newtonsoft.Json.JsonIgnore]
+        /// <summary>
+        /// Alias property for PlannedStartDate.
+        /// IMPORTANT: The getter treats default(DateTime) as "null" (unset) for backward compatibility.
+        /// The domain entity requires a non-null PlannedStartDate, so the setter preserves existing value if null is submitted.
+        /// NOTE: Domain layer should never legitimately use DateTime.MinValue or default(DateTime) as a real planned date.
+        /// </summary>
         public DateTime? ScheduledDate 
         { 
             get => PlannedStartDate == default(DateTime) ? null : (DateTime?)PlannedStartDate; 
@@ -94,8 +153,7 @@ namespace GrcMvc.Models.DTOs
             {
                 if (value.HasValue)
                     PlannedStartDate = value.Value;
-                // If null is set, preserve existing PlannedStartDate (domain requires non-null)
-                // Alternative: set to DateTime.MinValue or default if domain allows null planning
+                // If null, preserve existing PlannedStartDate (domain requires non-null)
             }
         }
         [System.Text.Json.Serialization.JsonIgnore]
@@ -324,6 +382,8 @@ namespace GrcMvc.Models.DTOs
         public string Notifications { get; set; } = string.Empty;
         public string DataClassification { get; set; } = string.Empty;
         public string Owner { get; set; } = string.Empty;
+        public bool RequiresApproval { get; set; }
+        public string? Approvers { get; set; }
     }
 
     public class UpdateWorkflowDto : WorkflowDto
@@ -595,9 +655,15 @@ namespace GrcMvc.Models.DTOs
         public string AssignedTo { get; set; } = string.Empty;
         public string AssignedToName { get; set; } = string.Empty;
         public string AssignedByName { get; set; } = string.Empty;
-        public DateTime DueDate { get; set; }
+        public DateTime? DueDate { get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime ModifiedAt { get; set; }
+        public DateTime? ModifiedAt { get; set; }
+        /// <summary>
+        /// Computed property: checks if task is overdue based on UTC time.
+        /// NOTE: This is a response DTO computed property and should NOT be used in EF LINQ query predicates.
+        /// For query predicates, compute overdue status in the service layer using DateTime.UtcNow.
+        /// </summary>
+        public bool IsOverdue => DueDate.HasValue && DueDate.Value < DateTime.UtcNow;
         public List<TaskCommentDto> Comments { get; set; } = new();
         public List<TaskAttachmentDto> Attachments { get; set; } = new();
     }

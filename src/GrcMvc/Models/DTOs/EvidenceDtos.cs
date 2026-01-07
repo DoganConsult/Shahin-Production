@@ -1,20 +1,8 @@
 using System;
 
-namespace GrcMvc.Models.Dtos
+namespace GrcMvc.Models.DTOs
 {
-    /// <summary>
-    /// Evidence list item DTO
-    /// </summary>
-    public class EvidenceListItemDto
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Type { get; set; } = string.Empty; // Document, Photo, Video, Recording, Other
-        public string LinkedItemId { get; set; } = string.Empty; // Assessment, Audit, etc.
-        public DateTime UploadedDate { get; set; }
-        public string UploadedBy { get; set; } = string.Empty;
-        public string FileSize { get; set; } = string.Empty;
-    }
+    // EvidenceListItemDto is defined in CommonDtos.cs
 
     /// <summary>
     /// Evidence detail DTO

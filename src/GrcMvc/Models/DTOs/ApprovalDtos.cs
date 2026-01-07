@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace GrcMvc.Models.Dtos
+namespace GrcMvc.Models.DTOs
 {
     /// <summary>
     /// DTO for approval details
@@ -24,17 +24,7 @@ namespace GrcMvc.Models.Dtos
         public string? Priority { get; set; }
     }
 
-    /// <summary>
-    /// DTO for approval list item (summary)
-    /// </summary>
-    public class ApprovalListItemDto
-    {
-        public Guid Id { get; set; }
-        public string? WorkflowName { get; set; }
-        public string? Status { get; set; }
-        public DateTime DueDate { get; set; }
-        public string? Priority { get; set; }
-    }
+    // ApprovalListItemDto is defined in CommonDtos.cs
 
     /// <summary>
     /// DTO for approval levels in chain
@@ -50,20 +40,7 @@ namespace GrcMvc.Models.Dtos
         public int SlaHours { get; set; }
     }
 
-    /// <summary>
-    /// DTO for approval history entry
-    /// </summary>
-    public class ApprovalHistoryDto
-    {
-        public Guid Id { get; set; }
-        public int ApprovalLevel { get; set; }
-        public string? Action { get; set; } // Approved, Rejected, Delegated
-        public string? ActionBy { get; set; }
-        public string? ActionByName { get; set; }
-        public DateTime ActionAt { get; set; }
-        public string? Comments { get; set; }
-        public string? DelegatedTo { get; set; }
-    }
+    // ApprovalHistoryDto is defined in CommonDtos.cs (note: property structure differs slightly)
 
     /// <summary>
     /// DTO for approval statistics

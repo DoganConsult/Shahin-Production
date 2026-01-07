@@ -1,5 +1,5 @@
 using GrcMvc.Data;
-using GrcMvc.Models.Dtos;
+using GrcMvc.Models.DTOs;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;

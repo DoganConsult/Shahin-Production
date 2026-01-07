@@ -183,7 +183,10 @@ namespace GrcMvc.Services.Implementations
                                 permissions.Add(perm);
                         }
                     }
-                    catch { }
+                    catch (JsonException)
+                    {
+                        // Malformed JSON in PermissionsJson - skip this assignment's permissions
+                    }
                 }
             }
 
@@ -208,7 +211,10 @@ namespace GrcMvc.Services.Implementations
                                 roles.Add(role);
                         }
                     }
-                    catch { }
+                    catch (JsonException)
+                    {
+                        // Malformed JSON in WorkflowRolesJson - skip this assignment's roles
+                    }
                 }
             }
 

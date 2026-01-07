@@ -6,6 +6,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GrcMvc.Controllers;
 
+// NOTE: This file intentionally contains multiple controller classes:
+// - CCMController
+// - KRIDashboardController
+// - ExceptionController
+// - AuditPackageController
+// - InvitationController
+// - ReportsController
+// Do not split into separate files without coordinating with the team.
+
 /// <summary>
 /// CCM (Continuous Control Monitoring) Controller
 /// Run and manage automated control tests
@@ -224,10 +233,12 @@ public class ExceptionCreateDto
 public class AuditPackageController : Controller
 {
     private readonly GrcDbContext _db;
+    private readonly ILogger<AuditPackageController> _logger;
 
-    public AuditPackageController(GrcDbContext db)
+    public AuditPackageController(GrcDbContext db, ILogger<AuditPackageController> logger)
     {
         _db = db;
+        _logger = logger;
     }
 
     [HttpGet]

@@ -165,7 +165,9 @@ public class CatalogDataService : ICatalogDataService
 
             foreach (var group in frameworkGroups)
             {
-                var latest = group.OrderByDescending(f => f.Version).First();
+                var latest = group.OrderByDescending(f => f.Version).FirstOrDefault();
+                if (latest == null)
+                    continue; // Skip empty groups
                 var allVersions = group.Select(f => f.Version).OrderByDescending(v => v).ToList();
 
                 result.Add(new FrameworkCatalogDto

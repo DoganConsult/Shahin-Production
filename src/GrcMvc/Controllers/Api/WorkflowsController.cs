@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
+using GrcMvc.Models.DTOs;
 using GrcMvc.Models.DTOs.Workflows;
 using GrcMvc.Resources;
 using GrcMvc.Services.Interfaces.Workflows;

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace GrcMvc.Models.Dtos
+namespace GrcMvc.Models.DTOs
 {
     /// <summary>
     /// Audit list item DTO
@@ -87,35 +87,10 @@ namespace GrcMvc.Models.Dtos
         public DateTime CreatedDate { get; set; }
     }
 
-    /// <summary>
-    /// Audit finding DTO
-    /// </summary>
-    public class AuditFindingDto
-    {
-        public Guid Id { get; set; }
-        public string FindingNumber { get; set; } = string.Empty;
-        public string Category { get; set; } = string.Empty;
-        public string Severity { get; set; } = string.Empty; // Critical, High, Medium, Low
-        public string Description { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty; // Open, InProgress, Closed
-        public string ResponsibleParty { get; set; } = string.Empty;
-        public DateTime DueDate { get; set; }
-        public string CorrectiveAction { get; set; } = string.Empty;
-        public string Evidence { get; set; } = string.Empty;
-        public DateTime CreatedDate { get; set; }
-    }
+    // AuditFindingDto and CreateAuditFindingDto are defined in CommonDtos.cs
+    // Note: The versions in AuditDtos.cs have additional properties (Category, ResponsibleParty, etc.)
+    // Consider consolidating these if the extended versions are needed.
 
-    /// <summary>
-    /// Create audit finding DTO
-    /// </summary>
-    public class CreateAuditFindingDto
-    {
-        public Guid AuditId { get; set; }
-        public string Category { get; set; } = string.Empty;
-        public string Severity { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string ResponsibleParty { get; set; } = string.Empty;
-        public DateTime DueDate { get; set; }
-        public string CorrectiveAction { get; set; } = string.Empty;
-    }
+    // CreateAuditFindingDto is defined in CommonDtos.cs
+    // If extended version with Category, ResponsibleParty is needed, consider adding properties to the CommonDtos version
 }

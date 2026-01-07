@@ -1,5 +1,5 @@
 @page "/evidence"
-@using GrcMvc.Models.Dtos
+@using GrcMvc.Models.DTOs
 @using GrcMvc.Services
 @using GrcMvc.Application.Policy;
 @inject IHttpContextAccessor HttpContextAccessor
@@ -109,7 +109,7 @@
             else
             {
                 // Check for policy violation in error response
-                var violation = PolicyViolationParser.ParseFromHttpResponse(response);
+                var violation = await PolicyViolationParser.ParseFromHttpResponseAsync(response);
                 if (violation != null)
                 {
                     policyViolation = violation;

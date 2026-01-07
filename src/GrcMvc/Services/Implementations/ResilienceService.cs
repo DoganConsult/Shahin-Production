@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
-using GrcMvc.Models.Dtos;
+using GrcMvc.Models.DTOs;
 using GrcMvc.Services.Interfaces;
 
 namespace GrcMvc.Services.Implementations

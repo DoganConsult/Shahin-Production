@@ -11,13 +11,13 @@ public class PolicyViolationParser
     /// <summary>
     /// Parse policy violation from HTTP response
     /// </summary>
-    public static PolicyViolationInfo? ParseFromHttpResponse(HttpResponseMessage response)
+    public static async Task<PolicyViolationInfo?> ParseFromHttpResponseAsync(HttpResponseMessage response)
     {
         try
         {
             if (!response.IsSuccessStatusCode)
             {
-                var content = response.Content.ReadAsStringAsync().Result;
+                var content = await response.Content.ReadAsStringAsync();
                 
                 // Try to parse as JSON error response
                 if (!string.IsNullOrEmpty(content) && (content.TrimStart().StartsWith("{") || content.Contains("Policy Violation")))
@@ -49,7 +49,7 @@ public class PolicyViolationParser
                                 };
                             }
                         }
-                        catch
+                        catch (JsonException)
                         {
                             // If JSON parsing fails, try to extract from plain text
                             if (content.Contains("Policy Violation"))
@@ -67,9 +67,10 @@ public class PolicyViolationParser
                 }
             }
         }
-        catch
+        catch (Exception)
         {
-            // Return null if parsing fails
+            // Return null if parsing fails - exception details not needed at this level
+            // Caller should handle logging if required
         }
         
         return null;
@@ -142,8 +143,9 @@ public class PolicyViolationParser
                 return list.Count > 0 ? list : null;
             }
         }
-        catch
+        catch (JsonException)
         {
+            // Invalid JSON structure - return null gracefully
         }
         
         return null;

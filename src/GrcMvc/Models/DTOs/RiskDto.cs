@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace GrcMvc.Models.DTOs
 {
@@ -20,6 +22,23 @@ namespace GrcMvc.Models.DTOs
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public string DataClassification { get; set; } = string.Empty;
+        
+        // Alias properties for controller compatibility (not serialized to avoid duplicates)
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public int RiskScore
+        {
+            get => ResidualRisk;
+            set => ResidualRisk = value;
+        }
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string TreatmentPlan
+        {
+            get => MitigationStrategy;
+            set => MitigationStrategy = value ?? string.Empty;
+        }
     }
 
     public class CreateRiskDto
@@ -36,6 +55,23 @@ namespace GrcMvc.Models.DTOs
         public DateTime? DueDate { get; set; }
         public string MitigationStrategy { get; set; } = string.Empty;
         public string DataClassification { get; set; } = string.Empty;
+        
+        // Alias properties for controller compatibility (not serialized to avoid duplicates)
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public int RiskScore
+        {
+            get => ResidualRisk;
+            set => ResidualRisk = value;
+        }
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string TreatmentPlan
+        {
+            get => MitigationStrategy;
+            set => MitigationStrategy = value ?? string.Empty;
+        }
     }
 
     public class UpdateRiskDto
@@ -53,6 +89,23 @@ namespace GrcMvc.Models.DTOs
         public DateTime? DueDate { get; set; }
         public string MitigationStrategy { get; set; } = string.Empty;
         public string DataClassification { get; set; } = string.Empty;
+        
+        // Alias properties for controller compatibility (not serialized to avoid duplicates)
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public int RiskScore
+        {
+            get => ResidualRisk;
+            set => ResidualRisk = value;
+        }
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string TreatmentPlan
+        {
+            get => MitigationStrategy;
+            set => MitigationStrategy = value ?? string.Empty;
+        }
     }
 
     public class RiskStatisticsDto

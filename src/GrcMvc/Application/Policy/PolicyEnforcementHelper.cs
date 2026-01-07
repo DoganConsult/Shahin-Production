@@ -153,32 +153,8 @@ public class PolicyEnforcementHelper
         Dictionary<string, object>? additionalMetadata = null,
         CancellationToken ct = default)
     {
-        // #region agent log
-        try
-        {
-            var logPath = "/home/dogan/grc-system/.cursor/debug.log";
-            var logEntry = System.Text.Json.JsonSerializer.Serialize(new
-            {
-                id = $"log_{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid():N}",
-                timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                location = "PolicyEnforcementHelper.EnforceAsync:156",
-                message = "Policy enforcement started",
-                data = new
-                {
-                    action = action,
-                    resourceType = resourceType,
-                    dataClassification = dataClassification ?? "null",
-                    owner = owner ?? "null",
-                    hasResource = resource != null
-                },
-                sessionId = "debug-session",
-                runId = "run1",
-                hypothesisId = "A"
-            }) + "\n";
-            await System.IO.File.AppendAllTextAsync(logPath, logEntry);
-        }
-        catch { }
-        // #endregion
+        _logger.LogDebug("Enforcing policy: Action={Action}, ResourceType={ResourceType}, DataClassification={DataClassification}, Owner={Owner}", 
+            action, resourceType, dataClassification ?? "null", owner ?? "null");
 
         try
         {
@@ -210,120 +186,23 @@ public class PolicyEnforcementHelper
                 Metadata = additionalMetadata ?? new Dictionary<string, object>()
             };
 
-            // #region agent log
-            try
-            {
-                var logPath = "/home/dogan/grc-system/.cursor/debug.log";
-                var logEntry = System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    id = $"log_{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid():N}",
-                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                    location = "PolicyEnforcementHelper.EnforceAsync:186",
-                    message = "Calling policy enforcer",
-                    data = new
-                    {
-                        contextAction = context.Action,
-                        contextEnvironment = context.Environment,
-                        contextResourceType = context.ResourceType,
-                        contextTenantId = context.TenantId?.ToString() ?? "null",
-                        contextPrincipalId = context.PrincipalId ?? "null",
-                        contextRolesCount = context.PrincipalRoles?.Count ?? 0
-                    },
-                    sessionId = "debug-session",
-                    runId = "run1",
-                    hypothesisId = "A"
-                }) + "\n";
-                await System.IO.File.AppendAllTextAsync(logPath, logEntry);
-            }
-            catch { }
-            // #endregion
+            _logger.LogDebug("Calling policy enforcer: Action={Action}, Environment={Environment}, ResourceType={ResourceType}, TenantId={TenantId}, PrincipalId={PrincipalId}, RolesCount={RolesCount}",
+                context.Action, context.Environment, context.ResourceType, context.TenantId, context.PrincipalId, context.PrincipalRoles?.Count ?? 0);
 
             await _policyEnforcer.EnforceAsync(context, ct);
 
-            // #region agent log
-            try
-            {
-                var logPath = "/home/dogan/grc-system/.cursor/debug.log";
-                var logEntry = System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    id = $"log_{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid():N}",
-                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                    location = "PolicyEnforcementHelper.EnforceAsync:189",
-                    message = "Policy enforcement completed successfully",
-                    data = new
-                    {
-                        action = action,
-                        resourceType = resourceType
-                    },
-                    sessionId = "debug-session",
-                    runId = "run1",
-                    hypothesisId = "A"
-                }) + "\n";
-                await System.IO.File.AppendAllTextAsync(logPath, logEntry);
-            }
-            catch { }
-            // #endregion
+            _logger.LogDebug("Policy enforcement completed successfully: Action={Action}, ResourceType={ResourceType}", action, resourceType);
         }
         catch (PolicyViolationException pvEx)
         {
-            // #region agent log
-            try
-            {
-                var logPath = "/home/dogan/grc-system/.cursor/debug.log";
-                var logEntry = System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    id = $"log_{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid():N}",
-                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                    location = "PolicyEnforcementHelper.EnforceAsync:192",
-                    message = "Policy violation detected",
-                    data = new
-                    {
-                        action = action,
-                        resourceType = resourceType,
-                        violationMessage = pvEx.Message,
-                        ruleId = pvEx.RuleId,
-                        remediationHint = pvEx.RemediationHint
-                    },
-                    sessionId = "debug-session",
-                    runId = "run1",
-                    hypothesisId = "A"
-                }) + "\n";
-                await System.IO.File.AppendAllTextAsync(logPath, logEntry);
-            }
-            catch { }
-            // #endregion
+            _logger.LogWarning("Policy violation detected: Action={Action}, ResourceType={ResourceType}, RuleId={RuleId}, Message={Message}",
+                action, resourceType, pvEx.RuleId, pvEx.Message);
 
             // Re-throw policy violations as-is
             throw;
         }
         catch (Exception ex)
         {
-            // #region agent log
-            try
-            {
-                var logPath = "/home/dogan/grc-system/.cursor/debug.log";
-                var logEntry = System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    id = $"log_{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid():N}",
-                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                    location = "PolicyEnforcementHelper.EnforceAsync:197",
-                    message = "Error enforcing policy",
-                    data = new
-                    {
-                        action = action,
-                        resourceType = resourceType,
-                        errorMessage = ex.Message,
-                        errorType = ex.GetType().Name
-                    },
-                    sessionId = "debug-session",
-                    runId = "run1",
-                    hypothesisId = "A"
-                }) + "\n";
-                await System.IO.File.AppendAllTextAsync(logPath, logEntry);
-            }
-            catch { }
-            // #endregion
-
             _logger.LogError(ex, "Error enforcing policy for {Action} on {ResourceType}", action, resourceType);
             throw;
         }

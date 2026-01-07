@@ -101,85 +101,13 @@ namespace GrcMvc.Controllers
         [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Risks.Manage)]
         public async Task<IActionResult> Edit(Guid id, UpdateRiskDto dto)
         {
-            // #region agent log
-            try
-            {
-                var logPath = "/home/dogan/grc-system/.cursor/debug.log";
-                var logEntry = System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    id = $"log_{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid():N}",
-                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                    location = "RiskController.Edit:105",
-                    message = "RiskController.Edit action called",
-                    data = new
-                    {
-                        riskId = id.ToString(),
-                        hasDataClassification = !string.IsNullOrEmpty(dto.DataClassification),
-                        dataClassification = dto.DataClassification ?? "null",
-                        hasOwner = !string.IsNullOrEmpty(dto.Owner),
-                        owner = dto.Owner ?? "null",
-                        modelStateIsValid = ModelState.IsValid
-                    },
-                    sessionId = "debug-session",
-                    runId = "run1",
-                    hypothesisId = "B"
-                }) + "\n";
-                await System.IO.File.AppendAllTextAsync(logPath, logEntry);
-            }
-            catch { }
-            // #endregion
+            _logger.LogDebug("Edit risk requested. RiskId={RiskId}, ModelStateValid={IsValid}", id, ModelState.IsValid);
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // #region agent log
-                    try
-                    {
-                        var logPath = "/home/dogan/grc-system/.cursor/debug.log";
-                        var logEntry = System.Text.Json.JsonSerializer.Serialize(new
-                        {
-                            id = $"log_{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid():N}",
-                            timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                            location = "RiskController.Edit:110",
-                            message = "About to call EnforceUpdateAsync",
-                            data = new
-                            {
-                                riskId = id.ToString(),
-                                dataClassification = dto.DataClassification ?? "null",
-                                owner = dto.Owner ?? "null"
-                            },
-                            sessionId = "debug-session",
-                            runId = "run1",
-                            hypothesisId = "B"
-                        }) + "\n";
-                        await System.IO.File.AppendAllTextAsync(logPath, logEntry);
-                    }
-                    catch { }
-                    // #endregion
-
                     await _policyHelper.EnforceUpdateAsync("Risk", dto, dataClassification: dto.DataClassification, owner: dto.Owner);
-
-                    // #region agent log
-                    try
-                    {
-                        var logPath = "/home/dogan/grc-system/.cursor/debug.log";
-                        var logEntry = System.Text.Json.JsonSerializer.Serialize(new
-                        {
-                            id = $"log_{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid():N}",
-                            timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                            location = "RiskController.Edit:115",
-                            message = "EnforceUpdateAsync completed, calling service",
-                            data = new { riskId = id.ToString() },
-                            sessionId = "debug-session",
-                            runId = "run1",
-                            hypothesisId = "B"
-                        }) + "\n";
-                        await System.IO.File.AppendAllTextAsync(logPath, logEntry);
-                    }
-                    catch { }
-                    // #endregion
-
                     var risk = await _riskService.UpdateAsync(id, dto);
                     if (risk == null) return NotFound();
                     TempData["SuccessMessage"] = "Risk updated successfully.";

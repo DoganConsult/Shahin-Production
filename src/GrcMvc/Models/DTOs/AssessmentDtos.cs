@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace GrcMvc.Models.Dtos
+namespace GrcMvc.Models.DTOs
 {
     /// <summary>
     /// Assessment list item DTO

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace GrcMvc.Controllers.Api
 {
@@ -290,13 +291,26 @@ namespace GrcMvc.Controllers.Api
                     }
                 });
             }
+            catch (NpgsqlException npgEx)
+            {
+                _logger.LogError(npgEx, "Database connection failed: {ErrorCode}", npgEx.SqlState);
+                return StatusCode(503, new
+                {
+                    status = "unhealthy",
+                    error = "Database connection failed",
+                    errorCode = npgEx.SqlState, // 28P01 for auth failure
+                    message = npgEx.Message,
+                    database = "disconnected"
+                });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Health check failed");
                 return StatusCode(503, new
                 {
                     status = "unhealthy",
-                    error = ex.Message
+                    error = ex.Message,
+                    errorType = ex.GetType().Name
                 });
             }
         }

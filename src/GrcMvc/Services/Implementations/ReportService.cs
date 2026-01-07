@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
-using GrcMvc.Models.Dtos;
+using GrcMvc.Models.DTOs;
 using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

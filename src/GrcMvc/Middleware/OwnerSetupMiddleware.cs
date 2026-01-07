@@ -57,9 +57,7 @@ namespace GrcMvc.Middleware
                 }
                 else
                 {
-                    // #region agent log
-                    System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "owner-setup", runId = "middleware-check", hypothesisId = "D", location = "OwnerSetupMiddleware.InvokeAsync:check-owner", message = "Checking owner existence in middleware", data = new { path }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-                    // #endregion
+                    _logger.LogDebug("Checking owner existence in middleware for path: {Path}", path);
 
                     ownerExists = await ownerSetupService.OwnerExistsAsync();
                     _ownerExistsCache = ownerExists;
@@ -69,9 +67,7 @@ namespace GrcMvc.Middleware
                 // If no owner exists and user is not already on setup page, redirect
                 if (!ownerExists && !path.StartsWith("/account/login"))
                 {
-                    // #region agent log
-                    System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "owner-setup", runId = "middleware-check", hypothesisId = "D", location = "OwnerSetupMiddleware.InvokeAsync:redirect", message = "Redirecting to owner setup", data = new { path, ownerExists }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-                    // #endregion
+                    _logger.LogInformation("Redirecting to owner setup page. Path: {Path}, OwnerExists: {OwnerExists}", path, ownerExists);
 
                     context.Response.Redirect("/OwnerSetup");
                     return;

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace GrcMvc.Models.Dtos
+namespace GrcMvc.Models.DTOs
 {
     /// <summary>
     /// DTO for role in admin list
@@ -44,18 +44,5 @@ namespace GrcMvc.Models.Dtos
         public DateTime CreatedDate { get; set; }
     }
 
-    /// <summary>
-    /// DTO for approval review
-    /// </summary>
-    public class ApprovalReviewDto
-    {
-        public Guid Id { get; set; }
-        public string WorkflowName { get; set; } = string.Empty;
-        public string ApprovalType { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
-        public string Priority { get; set; } = string.Empty;
-        public string SubmittedByName { get; set; } = string.Empty;
-        public DateTime SubmittedDate { get; set; }
-    }
+    // ApprovalReviewDto is defined in CommonDtos.cs
 }

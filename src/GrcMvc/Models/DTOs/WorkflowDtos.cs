@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace GrcMvc.Models.Dtos
+namespace GrcMvc.Models.DTOs
 {
     /// <summary>
     /// DTO for displaying workflow in list view
@@ -17,17 +17,7 @@ namespace GrcMvc.Models.Dtos
         public DateTime? ModifiedAt { get; set; }
     }
 
-    /// <summary>
-    /// DTO for creating/updating a workflow
-    /// </summary>
-    public class CreateWorkflowDto
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string Category { get; set; } = string.Empty;
-        public bool RequiresApproval { get; set; }
-        public string? Approvers { get; set; }
-    }
+    // CreateWorkflowDto is defined in CommonDtos.cs - keeping WorkflowListItemDto and other unique classes
 
     /// <summary>
     /// DTO for detailed workflow view

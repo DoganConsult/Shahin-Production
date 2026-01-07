@@ -150,6 +150,12 @@ builder.Services.AddControllersWithViews(options =>
 {
     // Add global anti-forgery token validation
     options.Filters.Add(new Microsoft.AspNetCore.Mvc.AutoValidateAntiforgeryTokenAttribute());
+
+    // Add duplicate property binding detection filter
+    // This detects when both canonical and alias properties are bound from form submissions
+    // API requests: returns 400 BadRequest if duplicates detected
+    // MVC requests: logs warning but allows action to proceed (backward compatibility)
+    options.Filters.Add<GrcMvc.Filters.DuplicatePropertyBindingFilter>();
 }).AddRazorRuntimeCompilation()
 .AddViewLocalization()
 .AddDataAnnotationsLocalization(options =>
@@ -346,6 +352,13 @@ builder.Services.AddScoped<Microsoft.AspNetCore.Authorization.IAuthorizationHand
 // Register ActiveTenantAdmin authorization handler
 builder.Services.AddScoped<Microsoft.AspNetCore.Authorization.IAuthorizationHandler,
     GrcMvc.Authorization.ActiveTenantAdminHandler>();
+
+// Dynamic permission policy provider for [Authorize("Grc.*")] attributes
+// This resolves policies on-demand without manual registration for each permission
+builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationPolicyProvider,
+    GrcMvc.Authorization.PermissionPolicyProvider>();
+builder.Services.AddScoped<Microsoft.AspNetCore.Authorization.IAuthorizationHandler,
+    GrcMvc.Authorization.PermissionAuthorizationHandler>();
 
 // Add session support with enhanced security
 builder.Services.AddSession(options =>
@@ -659,7 +672,9 @@ else
 }
 
 // Redis Cache (optional - falls back to IMemoryCache)
-// TODO: Add Microsoft.Extensions.Caching.StackExchangeRedis package to enable
+// NOTE: Redis caching requires Microsoft.Extensions.Caching.StackExchangeRedis NuGet package.
+// Currently disabled - application uses IMemoryCache as fallback.
+// To enable: 1) Add package reference, 2) Set Redis:Enabled=true in configuration, 3) Uncomment Redis configuration below.
 var redisEnabled = builder.Configuration.GetValue<bool>("Redis:Enabled", false);
 if (redisEnabled)
 {
@@ -687,8 +702,10 @@ if (signalREnabled)
             builder.Configuration.GetValue<int>("SignalR:MaximumReceiveMessageSize", 32768);
     });
 
-    // Use Redis backplane for SignalR if enabled
-    // TODO: Add Microsoft.AspNetCore.SignalR.StackExchangeRedis package to enable
+    // Use Redis backplane for SignalR if enabled (for horizontal scaling)
+    // NOTE: Redis backplane requires Microsoft.AspNetCore.SignalR.StackExchangeRedis NuGet package.
+    // Currently disabled - SignalR uses in-memory backplane (single server only).
+    // To enable: 1) Add package reference, 2) Set SignalR:UseRedisBackplane=true and Redis:Enabled=true in configuration, 3) Uncomment Redis backplane configuration below.
     var useRedisBackplane = builder.Configuration.GetValue<bool>("SignalR:UseRedisBackplane", false);
     if (useRedisBackplane && redisEnabled)
     {
@@ -944,7 +961,7 @@ builder.Services.Configure<TwilioSettings>(builder.Configuration.GetSection("Twi
 // 8. MVC & API CONFIGURATION
 // =============================================================================
 
-builder.Services.AddControllersWithViews();
+// NOTE: AddControllersWithViews() already registered at line ~149 with filters
 builder.Services.AddRazorPages();
 
 // API versioning (optional)
@@ -954,30 +971,15 @@ builder.Services.AddEndpointsApiExplorer();
 // 9. AUTHENTICATION & AUTHORIZATION
 // =============================================================================
 
-builder.Services.AddAuthentication();
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("ComplianceOfficer", policy => policy.RequireRole("Admin", "ComplianceOfficer"));
-    options.AddPolicy("Auditor", policy => policy.RequireRole("Admin", "Auditor"));
-    options.AddPolicy("RiskManager", policy => policy.RequireRole("Admin", "RiskManager"));
-});
+// NOTE: AddAuthentication() and AddAuthorization() already registered at lines ~306 and ~330
+// with full JWT and policy configuration. Skipping duplicate registration.
 
 // =============================================================================
 // 10. CORS CONFIGURATION
 // =============================================================================
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigins", policy =>
-    {
-        policy.WithOrigins(
-                builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? new[] { "https://localhost:5001" })
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
-    });
-});
+// NOTE: AddCors() already registered at line ~99 with "AllowApiClients" policy.
+// Adding "AllowSpecificOrigins" policy to existing CORS configuration is done there.
 
 // =============================================================================
 // BUILD APPLICATION
@@ -1018,11 +1020,14 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Rate Limiting (must be after UseRouting, before UseAuthentication)
+app.UseRateLimiter();
+
 // Session (required for workspace context storage)
 app.UseSession();
 
 // CORS
-app.UseCors("AllowSpecificOrigins");
+app.UseCors("AllowApiClients");
 
 // Response caching
 app.UseResponseCaching();

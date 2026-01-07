@@ -346,6 +346,9 @@ namespace GrcMvc.Data
             // Apply global query filters for multi-tenant isolation
             ApplyGlobalQueryFilters(modelBuilder);
 
+            // Apply UTC DateTime converters to avoid Kind=Unspecified issues
+            ApplyUtcDateTimeConverters(modelBuilder);
+
             // Configure Risk entity
             modelBuilder.Entity<Risk>(entity =>
             {
@@ -1366,6 +1369,39 @@ namespace GrcMvc.Data
             // Tenant lookup tables - no TenantId filter (cross-tenant lookup allowed)
             modelBuilder.Entity<TenantUser>().HasQueryFilter(e => !e.IsDeleted);
             modelBuilder.Entity<Tenant>().HasQueryFilter(e => !e.IsDeleted);
+        }
+
+        /// <summary>
+        /// Applies UTC DateTime converters to all DateTime properties across all entities.
+        ///
+        /// Problem: PostgreSQL timestamp (without time zone) returns DateTime with Kind=Unspecified.
+        /// This causes incorrect comparisons with DateTime.UtcNow (which has Kind=Utc).
+        ///
+        /// Solution: This method ensures all DateTime values read from the database are marked as UTC.
+        ///
+        /// Note: For full correctness, migrate DB columns to timestamptz and use DateTimeOffset.
+        /// This is a short-term stabilization that works without schema changes.
+        /// </summary>
+        private static void ApplyUtcDateTimeConverters(ModelBuilder modelBuilder)
+        {
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    // Skip properties that already have a converter configured
+                    if (property.GetValueConverter() != null)
+                        continue;
+
+                    if (property.ClrType == typeof(DateTime))
+                    {
+                        property.SetValueConverter(UtcDateTimeConverters.UtcDateTime);
+                    }
+                    else if (property.ClrType == typeof(DateTime?))
+                    {
+                        property.SetValueConverter(UtcDateTimeConverters.UtcNullableDateTime);
+                    }
+                }
+            }
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

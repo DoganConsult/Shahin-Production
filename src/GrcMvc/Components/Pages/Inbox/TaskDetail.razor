@@ -1,5 +1,5 @@
 @page "/inbox/{TaskId:guid}/detail"
-@using GrcMvc.Models.Dtos
+@using GrcMvc.Models.DTOs
 @using System.Text.Json
 @inject IHttpContextAccessor HttpContextAccessor
 
@@ -242,7 +242,7 @@
                 Id = Guid.NewGuid(),
                 Content = newComment,
                 Author = "Current User",
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             if (task.Comments == null)

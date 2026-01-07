@@ -1,4 +1,4 @@
-using GrcMvc.Models.Dtos;
+using GrcMvc.Models.DTOs;
 using GrcMvc.Models.Entities;
 using GrcMvc.Data;
 using GrcMvc.Services.Interfaces;
@@ -39,7 +39,7 @@ namespace GrcMvc.Services.Implementations
                 .Where(p => p.IsActive)
                 .OrderBy(p => p.DisplayOrder)
                 .ToListAsync();
-            
+
             return plans.Select(p => MapToDto(p)).ToList();
         }
 
@@ -64,7 +64,7 @@ namespace GrcMvc.Services.Implementations
             var subscription = await _dbContext.Subscriptions
                 .Include(s => s.Plan)
                 .FirstOrDefaultAsync(s => s.TenantId == tenantId && s.Status != "Cancelled");
-            
+
             return subscription != null ? MapToDto(subscription) : null;
         }
 
@@ -73,7 +73,7 @@ namespace GrcMvc.Services.Implementations
             var subscription = await _dbContext.Subscriptions
                 .Include(s => s.Plan)
                 .FirstOrDefaultAsync(s => s.Id == subscriptionId);
-            
+
             return subscription != null ? MapToDto(subscription) : null;
         }
 
@@ -463,7 +463,7 @@ namespace GrcMvc.Services.Implementations
                 DueDate = DateTime.UtcNow.AddDays(30),
                 PeriodStart = DateTime.UtcNow,
                 PeriodEnd = DateTime.UtcNow.AddMonths(1),
-                SubTotal = subscription.BillingCycle == "Annual" 
+                SubTotal = subscription.BillingCycle == "Annual"
                     ? (await GetPlanByIdAsync(subscription.PlanId))?.AnnualPrice ?? 0
                     : (await GetPlanByIdAsync(subscription.PlanId))?.MonthlyPrice ?? 0,
                 TaxAmount = 0,
@@ -699,12 +699,15 @@ namespace GrcMvc.Services.Implementations
             var features = new List<string>();
             if (!string.IsNullOrEmpty(plan.Features))
             {
-                // Parse JSON features
+                // Parse JSON features (best-effort - malformed JSON returns empty list)
                 try
                 {
                     features = System.Text.Json.JsonSerializer.Deserialize<List<string>>(plan.Features) ?? new List<string>();
                 }
-                catch { }
+                catch (System.Text.Json.JsonException)
+                {
+                    // Malformed JSON in Features field - return empty list
+                }
             }
 
             return new SubscriptionPlanDto

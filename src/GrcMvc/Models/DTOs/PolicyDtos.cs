@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace GrcMvc.Models.Dtos
+namespace GrcMvc.Models.DTOs
 {
     /// <summary>
     /// Policy list item DTO
@@ -66,18 +66,5 @@ namespace GrcMvc.Models.Dtos
         public DateTime CreatedDate { get; set; }
     }
 
-    /// <summary>
-    /// Policy violation DTO
-    /// </summary>
-    public class PolicyViolationDto
-    {
-        public Guid Id { get; set; }
-        public string ViolationType { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty; // Open, Remediated, Waived
-        public string ReportedBy { get; set; } = string.Empty;
-        public DateTime ReportedDate { get; set; }
-        public DateTime? RemediationDueDate { get; set; }
-        public string RemediationPlan { get; set; } = string.Empty;
-    }
+    // PolicyViolationDto is defined in CommonDtos.cs
 }

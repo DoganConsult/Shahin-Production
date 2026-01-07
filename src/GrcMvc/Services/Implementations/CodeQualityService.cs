@@ -248,13 +248,20 @@ public class CodeQualityService : ICodeQualityService
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
         var responseJson = JsonDocument.Parse(responseContent);
 
-        // Extract text from Claude response
-        var content = responseJson.RootElement
-            .GetProperty("content")
-            .EnumerateArray()
-            .FirstOrDefault()
-            .GetProperty("text")
-            .GetString();
+        // Extract text from Claude response (safely handle empty content array)
+        var contentArray = responseJson.RootElement.GetProperty("content").EnumerateArray();
+        var firstContent = contentArray.FirstOrDefault();
+
+        // FirstOrDefault() on JsonElement.ArrayEnumerator returns default(JsonElement) if empty
+        // Check ValueKind to ensure we have a valid element before accessing properties
+        if (firstContent.ValueKind == JsonValueKind.Undefined || firstContent.ValueKind == JsonValueKind.Null)
+        {
+            return "";
+        }
+
+        var content = firstContent.TryGetProperty("text", out var textElement)
+            ? textElement.GetString()
+            : null;
 
         return content ?? "";
     }

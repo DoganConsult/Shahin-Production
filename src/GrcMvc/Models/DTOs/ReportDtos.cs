@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace GrcMvc.Models.Dtos;
+namespace GrcMvc.Models.DTOs;
 
 /// <summary>
 /// DTO for report list display

@@ -1,4 +1,4 @@
-using GrcMvc.Models.Dtos;
+using GrcMvc.Models.DTOs;
 using GrcMvc.Models.DTOs;
 using System;
 using System.Collections.Generic;

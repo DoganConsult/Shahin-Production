@@ -1,32 +1,7 @@
 namespace GrcMvc.Models.DTOs.Workflows
 {
-    /// <summary>Workflow Instance DTO</summary>
-    public class WorkflowInstanceDto
-    {
-        public Guid Id { get; set; }
-        public string WorkflowType { get; set; }
-        public string EntityType { get; set; }
-        public Guid EntityId { get; set; }
-        public string CurrentState { get; set; }
-        public string Status { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? CompletedAt { get; set; }
-        public string InitiatedBy { get; set; }
-        public List<WorkflowTaskDto> PendingTasks { get; set; } = new();
-    }
-
-    /// <summary>Workflow Task DTO</summary>
-    public class WorkflowTaskDto
-    {
-        public Guid Id { get; set; }
-        public string TaskName { get; set; }
-        public string Description { get; set; }
-        public string AssignedToUserId { get; set; }
-        public string Status { get; set; }
-        public DateTime DueDate { get; set; }
-        public int Priority { get; set; }
-        public bool IsEscalated { get; set; }
-    }
+    // NOTE: WorkflowInstanceDto and WorkflowTaskDto are defined in Models/DTOs/WorkflowDtos.cs
+    // to avoid duplicate class definitions. Use those versions which have more complete properties.
 
     /// <summary>Workflow Approval DTO</summary>
     public class WorkflowApprovalDto

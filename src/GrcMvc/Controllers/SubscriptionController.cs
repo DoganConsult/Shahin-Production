@@ -1,4 +1,4 @@
-using GrcMvc.Models.Dtos;
+using GrcMvc.Models.DTOs;
 using GrcMvc.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -381,7 +381,7 @@ namespace GrcMvc.Controllers
         public async Task<IActionResult> Index()
         {
             // Return user's current subscription or null if none exists
-            return View((GrcMvc.Models.Dtos.SubscriptionDto)null);
+            return View((GrcMvc.Models.DTOs.SubscriptionDto)null);
         }
 
         /// <summary>
