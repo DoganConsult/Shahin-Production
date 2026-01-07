@@ -22,6 +22,108 @@ namespace GrcMvc.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.ActionPlan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AssignedTo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PlanNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("RelatedAssessmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RelatedAuditId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RelatedControlId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RelatedRiskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ActionPlans");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.AgentAction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -69,6 +171,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int?>("DurationMs")
                         .HasColumnType("integer");
 
@@ -85,6 +193,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -94,12 +205,20 @@ namespace GrcMvc.Migrations
                     b.Property<string>("OutputDataJson")
                         .HasColumnType("text");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("Reasoning")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
                     b.Property<bool>("RequiredApproval")
                         .HasColumnType("boolean");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -158,6 +277,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -177,6 +302,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -187,6 +315,14 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -231,6 +367,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -240,6 +382,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<int?>("MaxUsesPerHour")
                         .HasColumnType("integer");
@@ -255,6 +400,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<bool>("RequiresApproval")
                         .HasColumnType("boolean");
 
@@ -262,6 +410,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -293,6 +446,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("HumanReviewOutcome")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
@@ -307,6 +466,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("LowConfidenceFactorsJson")
                         .HasColumnType("text");
 
@@ -319,10 +481,18 @@ namespace GrcMvc.Migrations
                     b.Property<int>("OverallScore")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("RecommendedAction")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("ScoreBreakdownJson")
                         .HasColumnType("text");
@@ -377,8 +547,14 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("DataSourcesJson")
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
@@ -393,6 +569,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -412,6 +591,14 @@ namespace GrcMvc.Migrations
                     b.Property<string>("OversightRoleCode")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -456,6 +643,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -471,6 +664,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -482,9 +678,17 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("RiskDescription")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("RuleCode")
                         .IsRequired()
@@ -517,11 +721,20 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("DetectedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -536,6 +749,14 @@ namespace GrcMvc.Migrations
                     b.Property<string>("OverrideReason")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("RuleId")
                         .HasColumnType("uuid");
@@ -597,9 +818,15 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("DataTypeDriver")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("EvidencePackId")
                         .HasColumnType("uuid");
@@ -629,11 +856,17 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("Reason")
                         .HasMaxLength(1000)
@@ -641,6 +874,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<Guid?>("RequirementId")
                         .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -689,11 +927,20 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -711,8 +958,16 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("RuleCode")
                         .IsRequired()
@@ -768,6 +1023,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -781,6 +1042,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -792,8 +1056,16 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("RuleCategory")
                         .IsRequired()
@@ -833,7 +1105,6 @@ namespace GrcMvc.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
@@ -845,8 +1116,7 @@ namespace GrcMvc.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
@@ -878,19 +1148,23 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<DateTime?>("LastPasswordChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("MustChangePassword")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("text");
 
                     b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("text");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text");
@@ -920,21 +1194,13 @@ namespace GrcMvc.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex");
-
                     b.HasIndex("RoleProfileId");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("ApplicationUser");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.ApprovalChain", b =>
@@ -962,6 +1228,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("EntityType")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -973,6 +1245,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -983,6 +1258,14 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -1019,6 +1302,12 @@ namespace GrcMvc.Migrations
                     b.Property<int>("CurrentStepIndex")
                         .HasColumnType("integer");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("EntityId")
                         .HasColumnType("uuid");
 
@@ -1047,11 +1336,22 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -1102,6 +1402,9 @@ namespace GrcMvc.Migrations
                     b.Property<int>("CurrentApprovalLevel")
                         .HasColumnType("integer");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("DelegatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -1111,17 +1414,26 @@ namespace GrcMvc.Migrations
                     b.Property<string>("DelegationReason")
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("Priority")
                         .HasMaxLength(50)
@@ -1135,6 +1447,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("RejectionReason")
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .HasMaxLength(50)
@@ -1201,6 +1518,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1222,6 +1545,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -1232,6 +1558,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<Guid?>("PlanId")
                         .HasColumnType("uuid");
@@ -1249,6 +1578,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<Guid?>("RiskId")
                         .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime?>("ScheduledDate")
                         .HasColumnType("timestamp with time zone");
@@ -1275,6 +1609,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<Guid?>("WorkspaceId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AssessmentNumber")
@@ -1287,6 +1624,8 @@ namespace GrcMvc.Migrations
                     b.HasIndex("PlanPhaseId");
 
                     b.HasIndex("RiskId");
+
+                    b.HasIndex("WorkspaceId");
 
                     b.ToTable("Assessments");
                 });
@@ -1340,6 +1679,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Domain")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1372,6 +1717,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("MaturityLevel")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1384,6 +1732,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("OwnerRoleCode")
                         .IsRequired()
@@ -1414,6 +1765,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("ReviewerRoleCode")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SampleEvidenceDescription")
                         .IsRequired()
@@ -1484,9 +1840,15 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("DataTypes")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("HostingModels")
                         .HasMaxLength(100)
@@ -1502,6 +1864,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -1511,6 +1876,14 @@ namespace GrcMvc.Migrations
                     b.Property<string>("OutOfScopeDescription")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("ScopeCode")
                         .IsRequired()
@@ -1603,6 +1976,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("DecommissionedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1620,6 +1996,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsInScope")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("LastRiskAssessmentDate")
                         .HasColumnType("timestamp with time zone");
@@ -1645,6 +2024,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<Guid?>("OwnerTeamId")
                         .HasColumnType("uuid");
 
@@ -1653,6 +2035,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<int?>("RiskScore")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SourceSystem")
                         .IsRequired()
@@ -1721,6 +2108,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("ExecutiveSummary")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1730,6 +2123,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("KeyFindings")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LabelsJson")
                         .HasColumnType("text");
 
                     b.Property<string>("LeadAuditor")
@@ -1750,6 +2146,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("PlannedEndDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -1759,6 +2158,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("RiskRating")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Scope")
                         .IsRequired()
@@ -1781,10 +2185,15 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<Guid?>("WorkspaceId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AuditNumber")
                         .IsUnique();
+
+                    b.HasIndex("WorkspaceId");
 
                     b.ToTable("Audits");
                 });
@@ -1826,6 +2235,15 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
                     b.Property<string>("ErrorMessage")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1843,8 +2261,14 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -1852,7 +2276,19 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("PayloadJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Severity")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -1863,6 +2299,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -1895,6 +2334,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1915,6 +2360,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ManagementResponse")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1924,6 +2372,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("Recommendation")
                         .IsRequired()
@@ -1936,6 +2387,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("RootCause")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Severity")
                         .IsRequired()
@@ -1993,6 +2449,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -2015,6 +2477,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("MimeType")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -2024,6 +2489,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("OwnerId")
                         .HasMaxLength(100)
@@ -2058,6 +2526,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("ReviewedBy")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Source")
                         .IsRequired()
@@ -2119,8 +2592,14 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("DefaultParametersJson")
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("integer");
@@ -2131,11 +2610,22 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsMandatory")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -2171,6 +2661,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -2183,6 +2679,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -2198,6 +2697,14 @@ namespace GrcMvc.Migrations
                     b.Property<string>("NameAr")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -2230,6 +2737,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -2255,6 +2768,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("LastExecutionAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -2276,6 +2792,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("PopulationDefinitionJson")
                         .IsRequired()
                         .HasColumnType("text");
@@ -2289,6 +2808,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("RuleDefinitionJson")
                         .IsRequired()
@@ -2359,6 +2883,12 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Details")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
@@ -2390,11 +2920,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("RawDataJson")
                         .HasColumnType("text");
@@ -2409,6 +2945,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("ResolvedBy")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Severity")
                         .IsRequired()
@@ -2460,6 +3001,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int?>("DurationSeconds")
                         .HasColumnType("integer");
 
@@ -2481,11 +3028,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<decimal>("PassRate")
                         .HasColumnType("numeric");
@@ -2506,6 +3059,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("StartedAt")
                         .HasColumnType("timestamp with time zone");
@@ -2552,6 +3110,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DeliverablesProducedJson")
                         .HasColumnType("text");
 
@@ -2560,6 +3124,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -2570,11 +3137,19 @@ namespace GrcMvc.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("text");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<bool>("ReminderSent")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("ReminderSentAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("ScheduledDate")
                         .HasColumnType("timestamp with time zone");
@@ -2642,6 +3217,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("EffectiveDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -2660,6 +3241,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -2669,10 +3253,18 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("ObjectiveId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("RiskRating")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime?>("SunsetDate")
                         .HasColumnType("timestamp with time zone");
@@ -2720,6 +3312,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -2744,11 +3342,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("OwnerId")
                         .HasMaxLength(100)
@@ -2776,6 +3380,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("ReviewerId")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("SourceIntegrationId")
                         .HasColumnType("uuid");
@@ -2839,6 +3448,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -2856,11 +3471,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("RegulatorCode")
                         .IsRequired()
@@ -2869,6 +3490,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime?>("RetiredDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -2915,6 +3541,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("integer");
 
@@ -2942,6 +3574,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("MappingIso27001")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -2966,6 +3601,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("RequirementAr")
                         .IsRequired()
                         .HasMaxLength(4000)
@@ -2975,6 +3613,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -3032,6 +3675,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -3056,6 +3705,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<int>("MaxFileSizeMB")
                         .HasColumnType("integer");
 
@@ -3068,8 +3720,16 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<bool>("RequiresApproval")
                         .HasColumnType("boolean");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -3104,6 +3764,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DescriptionAr")
                         .IsRequired()
                         .HasMaxLength(2000)
@@ -3134,17 +3800,28 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsMandatory")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<Guid?>("RegulatorId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("RetiredDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -3196,6 +3873,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -3213,11 +3896,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("PackageCode")
                         .IsRequired()
@@ -3231,6 +3920,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<int>("RequirementCount")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -3264,6 +3958,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("integer");
 
@@ -3281,6 +3981,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -3297,10 +4000,18 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("RegionType")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Sector")
                         .IsRequired()
@@ -3347,6 +4058,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Department")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -3366,6 +4083,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("Layer")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -3377,6 +4097,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("RoleCode")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -3386,6 +4109,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -3407,6 +4135,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -3424,11 +4158,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<Guid?>("PackageCatalogId")
                         .HasColumnType("uuid");
@@ -3439,6 +4179,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("RequirementsJson")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("TemplateCode")
                         .IsRequired()
@@ -3477,6 +4222,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -3491,14 +4242,25 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("RoleCatalogId")
                         .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -3520,6 +4282,113 @@ namespace GrcMvc.Migrations
                     b.ToTable("TitleCatalogs");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.ComplianceEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AssignedTo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("EventDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EventNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RecurrencePattern")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("RelatedAssessmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RelatedFrameworkId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RelatedRegulatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ReminderDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ComplianceEvents");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.ComplianceGuardrail", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3533,6 +4402,12 @@ namespace GrcMvc.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
@@ -3565,6 +4440,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("LastEvaluatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -3582,6 +4460,14 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("RuleDefinitionJson")
                         .HasColumnType("text");
@@ -3627,6 +4513,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -3644,6 +4536,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("LastTestDate")
                         .HasColumnType("timestamp with time zone");
@@ -3669,6 +4564,11 @@ namespace GrcMvc.Migrations
                     b.Property<Guid?>("RiskId")
                         .HasColumnType("uuid");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
@@ -3681,12 +4581,17 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<Guid?>("WorkspaceId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ControlId")
                         .IsUnique();
 
                     b.HasIndex("RiskId");
+
+                    b.HasIndex("WorkspaceId");
 
                     b.ToTable("Controls");
                 });
@@ -3736,6 +4641,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("EntityId")
                         .HasColumnType("uuid");
 
@@ -3747,6 +4658,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -3756,8 +4670,16 @@ namespace GrcMvc.Migrations
                     b.Property<string>("NewValueJson")
                         .HasColumnType("text");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("PreviousValueJson")
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -3777,6 +4699,12 @@ namespace GrcMvc.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
@@ -3801,6 +4729,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -3815,6 +4746,14 @@ namespace GrcMvc.Migrations
                     b.Property<string>("NameAr")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -3839,6 +4778,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("EvidencePackId")
                         .HasColumnType("uuid");
 
@@ -3847,6 +4792,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsPrimary")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -3857,6 +4805,14 @@ namespace GrcMvc.Migrations
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -3896,6 +4852,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("ExceptionCode")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -3910,6 +4872,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("LastReviewDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -3921,6 +4886,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime?>("NextReviewDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("Reason")
                         .IsRequired()
@@ -3955,6 +4923,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Scope")
                         .IsRequired()
@@ -3993,6 +4966,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
@@ -4008,6 +4987,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -4028,6 +5010,14 @@ namespace GrcMvc.Migrations
                     b.Property<string>("ObjectiveStatementAr")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -4054,11 +5044,20 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsPrimary")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -4069,6 +5068,14 @@ namespace GrcMvc.Migrations
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -4100,6 +5107,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("ExternalId")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -4125,6 +5138,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("LastSyncAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -4142,6 +5158,14 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SyncStatus")
                         .IsRequired()
@@ -4182,6 +5206,12 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime?>("ExpiryDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -4196,6 +5226,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<int?>("KeySizeBits")
                         .HasColumnType("integer");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("MigrationPriority")
                         .IsRequired()
@@ -4213,6 +5246,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("OwnerId")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -4221,6 +5257,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SystemName")
                         .HasMaxLength(255)
@@ -4264,6 +5305,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("EntityId")
                         .HasColumnType("uuid");
 
@@ -4284,6 +5331,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("LastImprovedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -4299,12 +5349,20 @@ namespace GrcMvc.Migrations
                     b.Property<int>("OverallScore")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("QualificationLevel")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("QualificationPoints")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -4335,6 +5393,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("EntryType")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -4357,6 +5421,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("LastRetryAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -4370,6 +5437,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("ResolutionNotes")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
@@ -4380,6 +5450,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("ResolvedBy")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("StackTrace")
                         .HasColumnType("text");
@@ -4427,6 +5502,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("DelegateUserId")
                         .HasColumnType("uuid");
 
@@ -4436,8 +5514,14 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("DelegatorUserId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -4448,6 +5532,14 @@ namespace GrcMvc.Migrations
                     b.Property<string>("Notes")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("TaskId")
                         .HasColumnType("uuid");
@@ -4509,6 +5601,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("DelegateRoleCode")
                         .IsRequired()
                         .HasColumnType("text");
@@ -4531,6 +5626,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid?>("DelegatorUserId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -4550,6 +5648,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsIndefinite")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -4566,11 +5667,19 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("NotifyDelegatorOnAction")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
 
                     b.Property<bool>("RequireDelegatorConfirmation")
                         .HasColumnType("boolean");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("RuleCode")
                         .IsRequired()
@@ -4609,6 +5718,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("EventType")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -4616,6 +5731,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("LastError")
                         .HasMaxLength(2000)
@@ -4642,6 +5760,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("OccurredAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("PayloadJson")
                         .IsRequired()
                         .HasColumnType("text");
@@ -4654,6 +5775,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime?>("PublishedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SchemaVersion")
                         .IsRequired()
@@ -4698,10 +5824,16 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("DataSource")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("ERPSystemId")
                         .HasColumnType("uuid");
@@ -4725,6 +5857,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("LastExtractAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -4745,6 +5880,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("NextExtractAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("ProcessArea")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -4752,6 +5890,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("QueryExpression")
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -4778,6 +5921,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int?>("DurationSeconds")
                         .HasColumnType("integer");
 
@@ -4795,11 +5944,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("PeriodEnd")
                         .HasColumnType("timestamp with time zone");
@@ -4812,6 +5967,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<int>("RecordsPassedToCCM")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("StartedAt")
                         .HasColumnType("timestamp with time zone");
@@ -4864,6 +6024,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("ERPType")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -4883,6 +6049,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsReadOnlyReplica")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("LastHealthCheck")
                         .HasColumnType("timestamp with time zone");
 
@@ -4896,6 +6065,14 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("ServiceAccountId")
                         .HasMaxLength(100)
@@ -4933,8 +6110,14 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<int>("DaysOverdueTrigger")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -4960,6 +6143,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -4975,8 +6161,16 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("RuleCode")
                         .IsRequired()
@@ -5040,6 +6234,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("ErrorMessage")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
@@ -5053,6 +6253,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<int?>("LatencyMs")
                         .HasColumnType("integer");
 
@@ -5065,9 +6268,17 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("NextRetryAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("ResponseBody")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -5101,6 +6312,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime?>("DeprecatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -5129,6 +6346,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -5140,9 +6360,17 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("RequiredFields")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SchemaVersion")
                         .IsRequired()
@@ -5169,6 +6397,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DeliveryEndpoint")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -5192,6 +6426,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<int>("MaxRetries")
                         .HasColumnType("integer");
 
@@ -5206,10 +6443,18 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("RetryPolicy")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SubscriberSystem")
                         .IsRequired()
@@ -5261,6 +6506,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -5285,6 +6536,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("MimeType")
                         .IsRequired()
                         .HasColumnType("text");
@@ -5294,6 +6548,14 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -5318,6 +6580,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("WorkspaceId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AssessmentId");
@@ -5328,6 +6593,8 @@ namespace GrcMvc.Migrations
 
                     b.HasIndex("EvidenceNumber")
                         .IsUnique();
+
+                    b.HasIndex("WorkspaceId");
 
                     b.ToTable("Evidences");
                 });
@@ -5344,6 +6611,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -5356,6 +6629,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -5372,6 +6648,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("PackCode")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -5384,6 +6663,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<int>("RetentionMonths")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -5403,6 +6687,12 @@ namespace GrcMvc.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
@@ -5427,6 +6717,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -5441,6 +6734,14 @@ namespace GrcMvc.Migrations
                     b.Property<string>("NameAr")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -5473,6 +6774,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("EvidenceTypesProvided")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -5487,6 +6794,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("LastSyncDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -5500,6 +6810,14 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SourceCode")
                         .IsRequired()
@@ -5597,6 +6915,104 @@ namespace GrcMvc.Migrations
                     b.ToTable("FeaturePermissions");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.Framework", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("EffectiveDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ExpirationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FrameworkCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsMandatory")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Jurisdiction")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Website")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Frameworks");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.FrameworkControl", b =>
                 {
                     b.Property<Guid>("Id")
@@ -5619,8 +7035,14 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<int>("DefaultWeight")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Domain")
                         .IsRequired()
@@ -5644,6 +7066,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("MappingIso27001")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -5666,6 +7091,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("RequirementAr")
                         .IsRequired()
                         .HasMaxLength(4000)
@@ -5674,6 +7102,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("RequirementEn")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SearchKeywords")
                         .IsRequired()
@@ -5735,6 +7168,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("GeneratedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -5747,6 +7186,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<int>("MandatoryControls")
                         .HasColumnType("integer");
@@ -5765,8 +7207,16 @@ namespace GrcMvc.Migrations
                     b.Property<int>("OptionalControls")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("ProfileSnapshotJson")
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("RulesExecutionLogJson")
                         .HasColumnType("text");
@@ -5821,11 +7271,17 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<int?>("DayOfMonth")
                         .HasColumnType("integer");
 
                     b.Property<int?>("DayOfWeek")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DeliverablesJson")
                         .HasColumnType("text");
@@ -5844,6 +7300,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("LastExecutionDate")
                         .HasColumnType("timestamp with time zone");
@@ -5866,6 +7325,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("NextScheduledDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("OwnerRoleCode")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -5876,6 +7338,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<int>("ReminderHoursBefore")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("TeamsChannelId")
                         .HasMaxLength(255)
@@ -5918,6 +7385,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DeliverablesJson")
                         .HasColumnType("text");
 
@@ -5940,6 +7413,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -5955,6 +7431,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("OwnerRoleCode")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -5962,6 +7441,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("ParticipantRoleCodes")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("TemplateId")
                         .HasColumnType("uuid");
@@ -5988,6 +7472,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -6001,6 +7491,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -6012,8 +7505,16 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("RhythmItemsJson")
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("TemplateCode")
                         .IsRequired()
@@ -6049,6 +7550,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -6058,6 +7565,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -6078,6 +7588,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("RegulatoryReference")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
@@ -6091,6 +7604,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -6122,6 +7640,12 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Dependencies")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -6135,6 +7659,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("LastDRTestDate")
                         .HasColumnType("timestamp with time zone");
@@ -6161,11 +7688,19 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<int>("RPO_Hours")
                         .HasColumnType("integer");
 
                     b.Property<int>("RTO_Hours")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("ServiceCode")
                         .IsRequired()
@@ -6228,6 +7763,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("ErrorCount")
                         .HasColumnType("integer");
 
@@ -6236,6 +7777,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("LastHealthCheck")
                         .HasColumnType("timestamp with time zone");
@@ -6253,6 +7797,14 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SupportedOperationsJson")
                         .HasColumnType("text");
@@ -6288,11 +7840,20 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsBreaching")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("MetricType")
                         .IsRequired()
@@ -6305,6 +7866,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("PeriodEnd")
                         .HasColumnType("timestamp with time zone");
 
@@ -6313,6 +7877,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime>("RecordedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -6347,6 +7916,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -6361,6 +7936,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -6368,6 +7946,9 @@ namespace GrcMvc.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Owner")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("PaidDate")
@@ -6378,6 +7959,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime>("PeriodStart")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime?>("SentDate")
                         .HasColumnType("timestamp with time zone");
@@ -6439,6 +8025,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DocumentType")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -6456,11 +8048,22 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsMandatory")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Summary")
                         .HasMaxLength(1000)
@@ -6515,6 +8118,12 @@ namespace GrcMvc.Migrations
                     b.Property<int>("CurrentMonthUsage")
                         .HasColumnType("integer");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("EnabledForTenant")
                         .HasColumnType("boolean");
 
@@ -6523,6 +8132,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("LastUsageResetDate")
                         .HasColumnType("timestamp with time zone");
@@ -6544,10 +8156,18 @@ namespace GrcMvc.Migrations
                     b.Property<int>("MonthlyUsageLimit")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("Provider")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<decimal>("Temperature")
                         .HasColumnType("numeric");
@@ -6589,6 +8209,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("EvidenceNamingStandard")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -6602,6 +8228,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -6617,6 +8246,14 @@ namespace GrcMvc.Migrations
                     b.Property<string>("NameAr")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Tagline")
                         .IsRequired()
@@ -6661,6 +8298,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("EvidenceLinkageNotes")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -6682,6 +8325,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("MappingId")
                         .HasColumnType("uuid");
 
@@ -6690,6 +8336,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<bool>("PassedQualityGate")
                         .HasColumnType("boolean");
@@ -6711,6 +8360,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("ReviewedBy")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -6753,15 +8407,24 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("Decision")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<Guid>("MappingId")
                         .HasColumnType("uuid");
@@ -6772,6 +8435,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("RaciType")
                         .IsRequired()
                         .HasMaxLength(15)
@@ -6781,6 +8447,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime?>("StartedAt")
                         .HasColumnType("timestamp with time zone");
@@ -6824,6 +8495,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -6837,6 +8514,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -6847,6 +8527,14 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("StepsJson")
                         .HasColumnType("text");
@@ -6905,8 +8593,10 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("BackupDrTooling")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("");
 
                     b.Property<string>("BackupReviewFrequency")
                         .IsRequired()
@@ -6932,8 +8622,10 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("CiCdTooling")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("");
 
                     b.Property<string>("ClientSpecificControlsJson")
                         .IsRequired()
@@ -6945,8 +8637,10 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("CmdbSource")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("");
 
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
@@ -7011,6 +8705,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("DataResidencyCountriesJson")
                         .IsRequired()
                         .HasColumnType("text");
@@ -7033,6 +8730,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DesiredMaturity")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -7050,13 +8750,17 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("EdrPlatform")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("");
 
                     b.Property<string>("ErpSystem")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("");
 
                     b.Property<int>("EscalationDaysOverdue")
                         .HasColumnType("integer");
@@ -7084,8 +8788,10 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("EvidenceRepository")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("");
 
                     b.Property<int>("EvidenceRetentionYears")
                         .HasColumnType("integer");
@@ -7129,8 +8835,10 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("IdentityProvider")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("");
 
                     b.Property<string>("ImportantBusinessServicesJson")
                         .IsRequired()
@@ -7189,8 +8897,13 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("ItsmPlatform")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("LastStepSavedAt")
                         .HasColumnType("timestamp with time zone");
@@ -7236,6 +8949,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("PaymentCardDataLocationsJson")
                         .IsRequired()
@@ -7301,6 +9017,11 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
                     b.Property<string>("SamplingGuidanceJson")
                         .IsRequired()
                         .HasColumnType("text");
@@ -7322,8 +9043,10 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("SiemPlatform")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("");
 
                     b.Property<bool>("SsoEnabled")
                         .HasColumnType("boolean");
@@ -7377,8 +9100,10 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("VulnerabilityManagementTool")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("");
 
                     b.Property<string>("VulnerabilityPatchReviewFrequency")
                         .IsRequired()
@@ -7418,6 +9143,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("GuideCode")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -7437,6 +9168,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("LastUpdated")
                         .HasColumnType("timestamp with time zone");
 
@@ -7446,8 +9180,16 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("QuickLinksJson")
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("TargetAudience")
                         .IsRequired()
@@ -7511,9 +9253,15 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("DataTypes")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("EntityCode")
                         .IsRequired()
@@ -7541,6 +9289,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -7556,8 +9307,16 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<Guid?>("ParentEntityId")
                         .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Sectors")
                         .HasMaxLength(255)
@@ -7665,12 +9424,18 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<int>("DataSubjectCount")
                         .HasColumnType("integer");
 
                     b.Property<string>("DataTypes")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DpoEmail")
                         .IsRequired()
@@ -7733,6 +9498,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("ItSystemsJson")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LabelsJson")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("LastScopeDerivedAt")
@@ -7811,6 +9579,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("ParentCompanyName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -7844,6 +9615,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("RegulatoryCertifications")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SecondaryRegulators")
                         .IsRequired()
@@ -7908,6 +9684,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -7920,6 +9702,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -7946,8 +9731,16 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -7982,6 +9775,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("integer");
 
@@ -7990,6 +9789,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsMandatory")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -8000,9 +9802,17 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("OverlayId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("Reason")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -8031,8 +9841,17 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -8052,6 +9871,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("ParameterName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -8060,6 +9882,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("Reason")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -8071,6 +9898,87 @@ namespace GrcMvc.Migrations
                     b.HasIndex("OverlayId");
 
                     b.ToTable("OverlayParameterOverrides");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.OwnerTenantCreation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AdminUsername")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("CredentialsDelivered")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("CredentialsExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeliveredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeliveryMethod")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("DeliveryNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("PlatformAdminId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("PlatformAdminId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "OwnerId");
+
+                    b.ToTable("OwnerTenantCreations");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.Payment", b =>
@@ -8093,6 +10001,12 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("ErrorMessage")
                         .HasColumnType("text");
 
@@ -8107,11 +10021,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("timestamp with time zone");
@@ -8123,6 +10043,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -8182,6 +10107,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("DecidedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -8197,6 +10125,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("DueAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -8209,17 +10140,28 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsEscalated")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<bool>("ReminderSent")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("RequestedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -8299,6 +10241,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("FailCriteria")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -8318,11 +10266,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("PassCriteria")
                         .IsRequired()
@@ -8337,6 +10291,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("PlainStatementAr")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -8380,12 +10339,21 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -8398,6 +10366,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("PlanCode")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -8407,6 +10378,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<int>("RulesetVersion")
                         .HasColumnType("integer");
@@ -8429,9 +10405,14 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("WorkspaceId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CorrelationId");
+
+                    b.HasIndex("WorkspaceId");
 
                     b.HasIndex("TenantId", "PlanCode")
                         .IsUnique();
@@ -8457,12 +10438,21 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -8496,6 +10486,11 @@ namespace GrcMvc.Migrations
                     b.Property<int>("ProgressPercentage")
                         .HasColumnType("integer");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
                     b.Property<int>("Sequence")
                         .HasColumnType("integer");
 
@@ -8512,6 +10507,173 @@ namespace GrcMvc.Migrations
                     b.HasIndex("PlanId", "Sequence");
 
                     b.ToTable("PlanPhases");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.PlatformAdmin", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AdminLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("AllowedRegions")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("AllowedTenantIds")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<bool>("CanAccessTenantData")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanCreateTenants")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanDeleteTenants")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanImpersonateUsers")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanManageBilling")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanManageCatalogs")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanManageConfiguration")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanManagePlatformAdmins")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanManageTenants")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanResetOwnPassword")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanResetTenantAdminPasswords")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanRestartTenantAdminAccounts")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanViewAnalytics")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ContactEmail")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("ContactPhone")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedByAdminId")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("ForcePasswordChange")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastLoginIp")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("LastPasswordChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("LastTenantCreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MaxTenantsAllowed")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("MfaRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<int>("SessionTimeoutMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("StatusReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("TotalTenantsCreated")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdminLevel");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("PlatformAdmins");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.Policy", b =>
@@ -8542,6 +10704,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -8561,6 +10729,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -8588,6 +10759,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
@@ -8605,12 +10781,128 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<Guid?>("WorkspaceId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PolicyNumber")
                         .IsUnique();
 
+                    b.HasIndex("WorkspaceId");
+
                     b.ToTable("Policies");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.PolicyDecision", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ConfidenceScore")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ContextHash")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ContextJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Decision")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("EvaluatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EvaluatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsCached")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PolicyType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("PolicyVersion")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<Guid?>("RelatedEntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RelatedEntityType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<int>("RulesEvaluated")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RulesMatched")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContextHash");
+
+                    b.HasIndex("EvaluatedAt");
+
+                    b.HasIndex("TenantId", "PolicyType", "EvaluatedAt");
+
+                    b.ToTable("PolicyDecisions");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.PolicyViolation", b =>
@@ -8623,6 +10915,12 @@ namespace GrcMvc.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Department")
@@ -8640,11 +10938,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<Guid>("PolicyId")
                         .HasColumnType("uuid");
@@ -8655,6 +10959,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime?>("ResolutionDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Severity")
                         .IsRequired()
@@ -8706,11 +11015,20 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -8718,23 +11036,35 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
 
                     b.Property<string>("RACI")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(1)
+                        .HasColumnType("character varying(1)");
 
                     b.Property<string>("RoleCode")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("ScopeId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("ScopeType")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<Guid>("TeamId")
                         .HasColumnType("uuid");
@@ -8742,11 +11072,112 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("WorkspaceId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("TeamId");
 
+                    b.HasIndex("WorkspaceId");
+
                     b.ToTable("RACIAssignments");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Regulator", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContactEmail")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContactPhone")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Jurisdiction")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RegulatorCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Website")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Regulators");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.RegulatoryRequirement", b =>
@@ -8761,9 +11192,15 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("DataTypes")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("EffectiveDate")
                         .HasColumnType("timestamp with time zone");
@@ -8794,11 +11231,17 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("RegulatorCode")
                         .IsRequired()
@@ -8823,6 +11266,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Section")
                         .HasMaxLength(100)
@@ -8857,6 +11305,12 @@ namespace GrcMvc.Migrations
 
                     b.Property<int>("CriticalFindingsCount")
                         .HasColumnType("integer");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DeliveredTo")
                         .HasColumnType("text");
@@ -8905,6 +11359,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("MetadataJson")
                         .IsRequired()
                         .HasColumnType("text");
@@ -8914,6 +11371,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<int>("PageCount")
                         .HasColumnType("integer");
@@ -8932,6 +11392,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime>("ReportPeriodStart")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Scope")
                         .IsRequired()
@@ -8959,12 +11424,17 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<Guid?>("WorkspaceId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CorrelationId");
 
                     b.HasIndex("ReportNumber")
                         .IsUnique();
+
+                    b.HasIndex("WorkspaceId");
 
                     b.HasIndex("TenantId", "Type", "Status");
 
@@ -8996,11 +11466,20 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("MappingType")
                         .IsRequired()
@@ -9016,12 +11495,20 @@ namespace GrcMvc.Migrations
                     b.Property<Guid?>("ObjectiveId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("Rationale")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
                     b.Property<Guid>("RequirementId")
                         .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -9089,6 +11576,12 @@ namespace GrcMvc.Migrations
                     b.Property<decimal?>("CyberResilienceScore")
                         .HasColumnType("numeric");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -9113,6 +11606,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -9128,6 +11624,9 @@ namespace GrcMvc.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("OverallRating")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Owner")
                         .HasColumnType("text");
 
                     b.Property<Guid?>("RelatedAssessmentId")
@@ -9150,6 +11649,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("ReviewedByUserName")
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Scope")
                         .IsRequired()
@@ -9197,6 +11701,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -9215,6 +11725,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<int>("Likelihood")
                         .HasColumnType("integer");
@@ -9251,6 +11764,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("RiskNumber")
                         .HasColumnType("text");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
@@ -9261,9 +11779,16 @@ namespace GrcMvc.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("WorkspaceId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Name");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("WorkspaceId");
 
                     b.ToTable("Risks");
                 });
@@ -9294,9 +11819,15 @@ namespace GrcMvc.Migrations
                     b.Property<decimal?>("CriticalThreshold")
                         .HasColumnType("numeric");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("DataSource")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
@@ -9326,6 +11857,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("MeasurementFrequency")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -9346,9 +11880,17 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("OwnerRoleCode")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<decimal?>("TargetValue")
                         .HasColumnType("numeric");
@@ -9399,8 +11941,14 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<int>("DaysInBreach")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("EscalatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -9418,6 +11966,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsEscalated")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<Guid?>("MeasurementId")
                         .HasColumnType("uuid");
 
@@ -9432,6 +11983,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("ResolutionNotes")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -9442,6 +11996,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("ResolvedBy")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Severity")
                         .IsRequired()
@@ -9487,11 +12046,20 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("IndicatorId")
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("MeasuredAt")
                         .HasColumnType("timestamp with time zone");
@@ -9506,6 +12074,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("PeriodEnd")
                         .HasColumnType("timestamp with time zone");
 
@@ -9514,6 +12085,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("RawDataJson")
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Source")
                         .IsRequired()
@@ -9574,6 +12150,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -9587,6 +12169,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -9599,6 +12184,9 @@ namespace GrcMvc.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Owner")
                         .HasColumnType("text");
 
                     b.Property<decimal?>("RecoveryCapabilityScore")
@@ -9643,6 +12231,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -9700,13 +12293,104 @@ namespace GrcMvc.Migrations
 
                     b.HasIndex("FeatureId");
 
-                    b.HasIndex("RoleId");
-
                     b.HasIndex("TenantId");
 
                     b.HasIndex("TenantRoleConfigurationId");
 
                     b.ToTable("RoleFeatures");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.RoleLandingConfig", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AssignableTaskTypesJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DefaultFiltersJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DefaultLandingPage")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FavoritesJson")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("LandingDashboardId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NavigationJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NotificationPrefsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<string>("QuickActionsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RoleCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("WidgetsJson")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("WorkspaceId");
+
+                    b.ToTable("RoleLandingConfigs");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.RolePermission", b =>
@@ -9740,8 +12424,6 @@ namespace GrcMvc.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PermissionId");
-
-                    b.HasIndex("RoleId");
 
                     b.HasIndex("TenantId");
 
@@ -9780,6 +12462,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Department")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -9799,6 +12487,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("Layer")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -9809,6 +12500,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("ParticipatingWorkflows")
                         .HasMaxLength(1000)
@@ -9827,6 +12521,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Scope")
                         .IsRequired()
@@ -9871,11 +12570,20 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -9886,6 +12594,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("NewHumanRole")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("Phase")
                         .IsRequired()
@@ -9900,6 +12611,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("RiskMitigationNotes")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<int>("TargetAutomationPercent")
                         .HasColumnType("integer");
@@ -9945,12 +12661,21 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("LastModifiedAt")
                         .HasColumnType("timestamp with time zone");
@@ -9966,8 +12691,16 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("RuleCode")
                         .IsRequired()
@@ -10008,6 +12741,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DerivedScopeJson")
                         .IsRequired()
                         .HasColumnType("text");
@@ -10026,6 +12765,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("MatchedRulesJson")
                         .IsRequired()
                         .HasColumnType("text");
@@ -10039,6 +12781,14 @@ namespace GrcMvc.Migrations
                     b.Property<string>("OrgProfileSnapshotJson")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("RulesetId")
                         .HasColumnType("uuid");
@@ -10077,12 +12827,21 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -10095,8 +12854,16 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<Guid?>("PreviousVersionId")
                         .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("RulesetCode")
                         .IsRequired()
@@ -10158,10 +12925,16 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("DefaultLanguage")
                         .IsRequired()
                         .HasMaxLength(5)
                         .HasColumnType("character varying(5)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FaviconUrl")
                         .HasMaxLength(500)
@@ -10172,6 +12945,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("LogoDarkUrl")
                         .HasMaxLength(500)
@@ -10197,6 +12973,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("PrimaryColor")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -10209,6 +12988,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("RTLEnabled")
                         .HasColumnType("boolean");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SecondaryColor")
                         .IsRequired()
@@ -10252,6 +13036,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("integer");
 
@@ -10272,6 +13062,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -10306,12 +13099,20 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<bool>("RequiresLicense")
                         .HasColumnType("boolean");
 
                     b.Property<string>("RoutePath")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("ShortDescription")
                         .IsRequired()
@@ -10343,6 +13144,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("integer");
 
@@ -10355,6 +13162,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("MetaDescriptionAr")
                         .HasMaxLength(500)
@@ -10370,6 +13180,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("PageCode")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -10381,6 +13194,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("RequiresAuth")
                         .HasColumnType("boolean");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<bool>("ShowInNav")
                         .HasColumnType("boolean");
@@ -10443,6 +13261,12 @@ namespace GrcMvc.Migrations
                     b.Property<int>("CriticalThresholdPercent")
                         .HasColumnType("integer");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -10463,6 +13287,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -10481,6 +13308,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
 
@@ -10489,6 +13319,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<int>("ResponseTimeHours")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("RuleCode")
                         .IsRequired()
@@ -10546,6 +13381,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("DetectedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -10565,6 +13406,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("MitigatingControlDescription")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -10574,6 +13418,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ResolvedAt")
                         .HasColumnType("timestamp with time zone");
@@ -10585,6 +13432,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("RiskAcceptanceOwnerName")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("RuleId")
                         .HasColumnType("uuid");
@@ -10635,6 +13487,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -10672,6 +13530,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("MitigatingControls")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -10687,6 +13548,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("ProcessArea")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -10696,6 +13560,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("RuleCode")
                         .IsRequired()
@@ -10730,6 +13599,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -10759,6 +13634,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -10774,10 +13652,18 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("RequiredFrequency")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SampleFileName")
                         .HasMaxLength(255)
@@ -10813,6 +13699,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Dependencies")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -10826,6 +13718,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("MilestoneCode")
                         .IsRequired()
@@ -10843,6 +13738,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("OwnerId")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -10851,6 +13749,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -10897,8 +13800,17 @@ namespace GrcMvc.Migrations
                     b.Property<int>("CurrentUserCount")
                         .HasColumnType("integer");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -10909,8 +13821,16 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("NextBillingDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("PlanId")
                         .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -10959,6 +13879,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -10985,6 +13911,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<int>("MaxAssessments")
                         .HasColumnType("integer");
 
@@ -11006,6 +13935,14 @@ namespace GrcMvc.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -11037,6 +13974,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("integer");
 
@@ -11050,11 +13993,22 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsMandatory")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Source")
                         .IsRequired()
@@ -11103,6 +14057,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -11122,11 +14082,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("RequiredFrequency")
                         .IsRequired()
@@ -11135,6 +14101,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<int>("RetentionMonths")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -11177,6 +14148,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Feedback")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -11187,11 +14164,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("Priority")
                         .IsRequired()
@@ -11200,6 +14183,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime?>("ResolvedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<int?>("SatisfactionRating")
                         .HasColumnType("integer");
@@ -11250,8 +14238,17 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("MessageType")
                         .IsRequired()
@@ -11267,8 +14264,16 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("ReadAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SenderId")
                         .HasMaxLength(100)
@@ -11307,6 +14312,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int?>("DurationSeconds")
                         .HasColumnType("integer");
 
@@ -11316,11 +14327,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<int>("RecordsCreated")
                         .HasColumnType("integer");
@@ -11336,6 +14353,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<int>("RecordsUpdated")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("StartedAt")
                         .HasColumnType("timestamp with time zone");
@@ -11377,6 +14399,12 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Direction")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -11403,6 +14431,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("LastRunAt")
                         .HasColumnType("timestamp with time zone");
@@ -11432,6 +14463,14 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -11468,6 +14507,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -11481,6 +14526,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -11491,6 +14539,14 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SystemCode")
                         .IsRequired()
@@ -11541,14 +14597,31 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -11582,6 +14655,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("DelegatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -11589,6 +14665,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");
@@ -11618,11 +14697,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsRevoked")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("Reason")
                         .HasMaxLength(1000)
@@ -11633,6 +14718,11 @@ namespace GrcMvc.Migrations
 
                     b.Property<Guid?>("RevokedByUserId")
                         .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SelectedAgentType")
                         .HasMaxLength(100)
@@ -11690,7 +14780,8 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("BusinessUnit")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -11698,9 +14789,16 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -11710,6 +14808,12 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSharedTeam")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<Guid?>("ManagerUserId")
                         .HasColumnType("uuid");
@@ -11722,30 +14826,48 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("NameAr")
                         .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Owner")
                         .HasColumnType("text");
 
                     b.Property<string>("Purpose")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("TeamCode")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("TeamType")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("WorkspaceId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("TenantId");
+
+                    b.HasIndex("WorkspaceId");
 
                     b.ToTable("Teams");
                 });
@@ -11768,6 +14890,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -11780,6 +14908,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("JoinedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("LeftDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -11789,9 +14920,18 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("RoleCode")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("TeamId")
                         .HasColumnType("uuid");
@@ -11802,11 +14942,16 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("WorkspaceId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("TeamId");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("WorkspaceId");
 
                     b.ToTable("TeamMembers");
                 });
@@ -11832,11 +14977,20 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("MessageTemplateJson")
                         .HasColumnType("text");
@@ -11856,6 +15010,14 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -11894,10 +15056,22 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("AdminAccountGenerated")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("AdminAccountGeneratedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("AdminEmail")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<Guid?>("AssessmentTemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("BypassPayment")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("CorrelationId")
                         .IsRequired()
@@ -11906,8 +15080,26 @@ namespace GrcMvc.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
+                    b.Property<string>("CreatedByOwnerId")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("CredentialExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("DefaultWorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("GrcPlanId")
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -11915,16 +15107,37 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsOwnerCreated")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("OnboardingCompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OnboardingStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("OrganizationName")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -11987,11 +15200,20 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("DerivedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -11999,9 +15221,17 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("ReasonJson")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("RuleExecutionLogId")
                         .HasColumnType("uuid");
@@ -12034,17 +15264,29 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("DerivedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("PackageCode")
                         .IsRequired()
@@ -12059,6 +15301,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("ReasonJson")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("RuleExecutionLogId")
                         .HasColumnType("uuid");
@@ -12104,8 +15351,6 @@ namespace GrcMvc.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoleId");
-
                     b.HasIndex("TenantId");
 
                     b.ToTable("TenantRoleConfigurations");
@@ -12128,11 +15373,20 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("DerivedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
@@ -12140,9 +15394,17 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("ReasonJson")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("RuleExecutionLogId")
                         .HasColumnType("uuid");
@@ -12183,6 +15445,18 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("CredentialExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GeneratedByOwnerId")
+                        .HasColumnType("text");
+
                     b.Property<string>("InvitationToken")
                         .IsRequired()
                         .HasColumnType("text");
@@ -12197,16 +15471,33 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsOwnerGenerated")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("MustChangePasswordOnFirstLogin")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("RoleCode")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -12235,6 +15526,92 @@ namespace GrcMvc.Migrations
                     b.ToTable("TenantUsers");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.TenantWorkflowConfig", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ActivatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ActivatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CustomConfigJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeactivatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeactivatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NotificationOverridesJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<decimal>("SlaMultiplier")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("WorkflowCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("WorkflowName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "WorkflowCode")
+                        .IsUnique();
+
+                    b.ToTable("TenantWorkflowConfigs");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.TestProcedure", b =>
                 {
                     b.Property<Guid>("Id")
@@ -12245,6 +15622,12 @@ namespace GrcMvc.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ExpectedResults")
@@ -12262,6 +15645,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -12276,6 +15662,14 @@ namespace GrcMvc.Migrations
                     b.Property<string>("NameAr")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SampleSizeGuidance")
                         .HasMaxLength(500)
@@ -12325,6 +15719,12 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime?>("ExitPlanLastTested")
                         .HasColumnType("timestamp with time zone");
 
@@ -12346,15 +15746,26 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("OwnerId")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("ServicesProvidedJson")
                         .HasColumnType("text");
@@ -12408,6 +15819,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid?>("EntityId")
                         .HasColumnType("uuid");
 
@@ -12428,15 +15845,26 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("ResultJson")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -12501,6 +15929,12 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -12527,6 +15961,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("LastErrorMessage")
                         .IsRequired()
@@ -12558,11 +15995,19 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
 
                     b.Property<bool>("RequiresAgentEvaluation")
                         .HasColumnType("boolean");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("RuleCode")
                         .IsRequired()
@@ -12611,17 +16056,34 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -12667,6 +16129,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -12686,6 +16154,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("MinimalTestStepsJson")
                         .HasColumnType("text");
@@ -12709,10 +16180,18 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("PackCode")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SatisfiesFrameworks")
                         .HasMaxLength(500)
@@ -12746,6 +16225,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("integer");
 
@@ -12770,6 +16255,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -12785,11 +16273,19 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("PackId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("RetentionMonths")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SampleFileName")
                         .HasMaxLength(255)
@@ -12825,6 +16321,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DocumentHash")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
@@ -12844,11 +16346,22 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsGranted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -12889,6 +16402,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DigestFrequency")
                         .IsRequired()
                         .HasColumnType("text");
@@ -12906,11 +16425,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("PreferredTime")
                         .IsRequired()
@@ -12929,6 +16454,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("QuietHoursStart")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<bool>("SmsEnabled")
                         .HasColumnType("boolean");
@@ -12967,6 +16497,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -12983,11 +16519,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsSystemProfile")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("PermissionsJson")
                         .IsRequired()
@@ -13000,6 +16542,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("ProfileName")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -13036,6 +16583,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime?>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -13045,11 +16598,22 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -13104,11 +16668,7 @@ namespace GrcMvc.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoleId");
-
                     b.HasIndex("TenantId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("UserRoleAssignments");
                 });
@@ -13135,16 +16695,25 @@ namespace GrcMvc.Migrations
                     b.Property<string>("DashboardWidgetsJson")
                         .HasColumnType("text");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("DefaultLandingPage")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsConfigured")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("LastAccessedAt")
                         .HasColumnType("timestamp with time zone");
@@ -13154,6 +16723,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<string>("QuickActionsJson")
                         .HasColumnType("text");
@@ -13171,6 +16743,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("RoleNameAr")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -13207,6 +16784,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -13227,11 +16810,17 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
 
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
@@ -13242,6 +16831,11 @@ namespace GrcMvc.Migrations
                     b.Property<string>("RelatedEntityType")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -13287,6 +16881,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("EntityId")
                         .HasColumnType("uuid");
 
@@ -13312,11 +16912,22 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsValid")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -13365,6 +16976,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("DataType")
                         .IsRequired()
                         .HasColumnType("text");
@@ -13372,6 +16986,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("DateFormat")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DependentConditionJson")
                         .IsRequired()
@@ -13438,6 +17055,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsRequired")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("MaxDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -13469,6 +17089,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<int>("PassCount")
                         .HasColumnType("integer");
 
@@ -13493,6 +17116,11 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("RequireDigitalSignature")
                         .HasColumnType("boolean");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
                     b.Property<string>("RuleCode")
                         .IsRequired()
                         .HasColumnType("text");
@@ -13513,6 +17141,359 @@ namespace GrcMvc.Migrations
                     b.ToTable("ValidationRules");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.Vendor", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("AssessmentStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContactEmail")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContactName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContactPhone")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastAssessmentDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("NextAssessmentDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RiskLevel")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("VendorCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Vendors");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.WebhookDeliveryLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AttemptCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeliveredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("ErrorStackTrace")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("EventId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("FirstAttemptAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastAttemptAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("NextRetryAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PayloadJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RequestHeaders")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("ResponseBody")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("ResponseHeaders")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<int?>("ResponseStatusCode")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("ResponseTimeMs")
+                        .HasColumnType("bigint");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Signature")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("TargetUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("WebhookSubscriptionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("WebhookSubscriptionId");
+
+                    b.ToTable("WebhookDeliveryLogs");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.WebhookSubscription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ConsecutiveFailures")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CustomHeaders")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("DisableAfterFailures")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DisabledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DisabledReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("EventTypes")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<long>("FailureCount")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastErrorMessage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime?>("LastFailureAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("LastSuccessAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MaxRetries")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RetryDelays")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Secret")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<long>("SuccessCount")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("TargetUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("TimeoutSeconds")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("WebhookSubscriptions");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.Workflow", b =>
                 {
                     b.Property<Guid>("Id")
@@ -13530,9 +17511,15 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("Definition")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -13551,6 +17538,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsTemplate")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -13561,6 +17551,14 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -13619,6 +17617,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
@@ -13633,6 +17637,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -13646,6 +17653,14 @@ namespace GrcMvc.Migrations
                     b.Property<string>("OldStatus")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("SourceEntity")
                         .IsRequired()
@@ -13695,6 +17710,9 @@ namespace GrcMvc.Migrations
                     b.Property<int>("CurrentStageIndex")
                         .HasColumnType("integer");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("DefaultAssignee")
                         .IsRequired()
                         .HasColumnType("text");
@@ -13702,6 +17720,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("DefaultAssigneeRoleCode")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -13728,6 +17749,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsTemplate")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("MermaidDiagram")
                         .IsRequired()
                         .HasColumnType("text");
@@ -13743,9 +17767,17 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("RequiredPermission")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("StagesJson")
                         .IsRequired()
@@ -13828,6 +17860,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("EscalatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -13844,6 +17882,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
@@ -13852,6 +17893,14 @@ namespace GrcMvc.Migrations
 
                     b.Property<Guid>("OriginalAssignee")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -13898,6 +17947,12 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -13921,15 +17976,26 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("Result")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("timestamp with time zone");
@@ -13981,6 +18047,12 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("EntityId")
                         .HasColumnType("uuid");
 
@@ -14002,6 +18074,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("Metadata")
                         .HasColumnType("text");
 
@@ -14011,8 +18086,16 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("Result")
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<bool>("SlaBreached")
                         .HasColumnType("boolean");
@@ -14085,6 +18168,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -14104,6 +18193,9 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsEscalated")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("LastEscalatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -14117,8 +18209,16 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime?>("StartedAt")
                         .HasColumnType("timestamp with time zone");
@@ -14150,6 +18250,418 @@ namespace GrcMvc.Migrations
                     b.ToTable("WorkflowTasks");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.Workspace", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConfigJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DefaultLanguage")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("JurisdictionCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("NameAr")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("OverlaysJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RegulatorsJson")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Timezone")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("WorkspaceCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("WorkspaceType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Workspaces");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.WorkspaceApprovalGate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("EscalationDays")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("GateCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<int>("MinApprovals")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("NameAr")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("ScopeType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ScopeValue")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<int>("SlaDays")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WorkspaceId");
+
+                    b.ToTable("WorkspaceApprovalGates");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.WorkspaceApprovalGateApprover", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ApprovalOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ApproverReference")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("ApproverType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("GateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsMandatory")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GateId");
+
+                    b.ToTable("WorkspaceApprovalGateApprovers");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.WorkspaceControl", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ControlId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FrequencyOverride")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OverlaySource")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("OwnerTeamId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OwnerUserId")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<int?>("SlaDaysOverride")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ControlId");
+
+                    b.HasIndex("WorkspaceId");
+
+                    b.ToTable("WorkspaceControls");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.WorkspaceMembership", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsWorkspaceAdmin")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("JoinedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastAccessedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("WorkspaceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("WorkspaceRolesJson")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("WorkspaceId");
+
+                    b.ToTable("WorkspaceMemberships");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.WorkspaceTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -14169,10 +18681,16 @@ namespace GrcMvc.Migrations
                     b.Property<string>("DashboardWidgetsJson")
                         .HasColumnType("text");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
                     b.Property<string>("DefaultLandingPage")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
@@ -14186,6 +18704,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
 
                     b.Property<string>("MenuItemsJson")
                         .HasColumnType("text");
@@ -14205,6 +18726,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
                     b.Property<string>("QuickActionsJson")
                         .HasColumnType("text");
 
@@ -14212,6 +18736,11 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -14382,6 +18911,42 @@ namespace GrcMvc.Migrations
                     b.ToTable("WorkflowTransitions");
                 });
 
+            modelBuilder.Entity("GrcMvc.Services.Implementations.SerialNumberCounter", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DateKey")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("LastSequence")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "EntityType", "DateKey")
+                        .IsUnique();
+
+                    b.ToTable("SerialNumberCounters");
+                });
+
             modelBuilder.Entity("GrcMvc.Services.Interfaces.EvidenceScore", b =>
                 {
                     b.Property<Guid>("Id")
@@ -14398,6 +18963,12 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("EvidenceId")
                         .HasColumnType("uuid");
 
@@ -14407,11 +18978,22 @@ namespace GrcMvc.Migrations
                     b.Property<bool>("IsFinal")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
 
                     b.Property<int>("Score")
                         .HasColumnType("integer");
@@ -14435,138 +19017,6 @@ namespace GrcMvc.Migrations
                     b.HasIndex("EvidenceId");
 
                     b.ToTable("EvidenceScores");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex");
-
-                    b.ToTable("AspNetRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
-
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetRoleClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserLogins", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("RoleId")
-                        .HasColumnType("text");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetUserRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("text");
-
-                    b.HasKey("UserId", "LoginProvider", "Name");
-
-                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.AgentAction", b =>
@@ -14729,11 +19179,17 @@ namespace GrcMvc.Migrations
                         .HasForeignKey("RiskId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("GrcMvc.Models.Entities.Workspace", "Workspace")
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId");
+
                     b.Navigation("Control");
 
                     b.Navigation("Plan");
 
                     b.Navigation("Risk");
+
+                    b.Navigation("Workspace");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.AssessmentRequirement", b =>
@@ -14779,6 +19235,15 @@ namespace GrcMvc.Migrations
                     b.Navigation("OwnerTeam");
 
                     b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Audit", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Workspace", "Workspace")
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId");
+
+                    b.Navigation("Workspace");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.AuditEvent", b =>
@@ -15010,7 +19475,13 @@ namespace GrcMvc.Migrations
                         .HasForeignKey("RiskId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("GrcMvc.Models.Entities.Workspace", "Workspace")
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId");
+
                     b.Navigation("Risk");
+
+                    b.Navigation("Workspace");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.ControlEvidencePack", b =>
@@ -15187,11 +19658,17 @@ namespace GrcMvc.Migrations
                         .HasForeignKey("ControlId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("GrcMvc.Models.Entities.Workspace", "Workspace")
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId");
+
                     b.Navigation("Assessment");
 
                     b.Navigation("Audit");
 
                     b.Navigation("Control");
+
+                    b.Navigation("Workspace");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.EvidenceSourceIntegration", b =>
@@ -15442,6 +19919,29 @@ namespace GrcMvc.Migrations
                     b.Navigation("Overlay");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.OwnerTenantCreation", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.ApplicationUser", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GrcMvc.Models.Entities.PlatformAdmin", null)
+                        .WithMany("TenantCreations")
+                        .HasForeignKey("PlatformAdminId");
+
+                    b.HasOne("GrcMvc.Models.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.Payment", b =>
                 {
                     b.HasOne("GrcMvc.Models.Entities.Invoice", "Invoice")
@@ -15501,7 +20001,13 @@ namespace GrcMvc.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GrcMvc.Models.Entities.Workspace", "Workspace")
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId");
+
                     b.Navigation("Tenant");
+
+                    b.Navigation("Workspace");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.PlanPhase", b =>
@@ -15513,6 +20019,37 @@ namespace GrcMvc.Migrations
                         .IsRequired();
 
                     b.Navigation("Plan");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.PlatformAdmin", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Policy", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Workspace", "Workspace")
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId");
+
+                    b.Navigation("Workspace");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.PolicyDecision", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.PolicyViolation", b =>
@@ -15534,7 +20071,13 @@ namespace GrcMvc.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GrcMvc.Models.Entities.Workspace", "Workspace")
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId");
+
                     b.Navigation("Team");
+
+                    b.Navigation("Workspace");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.Report", b =>
@@ -15545,7 +20088,13 @@ namespace GrcMvc.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("GrcMvc.Models.Entities.Workspace", "Workspace")
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId");
+
                     b.Navigation("Tenant");
+
+                    b.Navigation("Workspace");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.RequirementMapping", b =>
@@ -15571,6 +20120,15 @@ namespace GrcMvc.Migrations
                     b.Navigation("Objective");
 
                     b.Navigation("Requirement");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Risk", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Workspace", "Workspace")
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId");
+
+                    b.Navigation("Workspace");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.RiskIndicator", b =>
@@ -15626,12 +20184,6 @@ namespace GrcMvc.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("GrcMvc.Models.Entities.Tenant", "Tenant")
                         .WithMany()
                         .HasForeignKey("TenantId")
@@ -15644,9 +20196,26 @@ namespace GrcMvc.Migrations
 
                     b.Navigation("Feature");
 
-                    b.Navigation("Role");
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.RoleLandingConfig", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GrcMvc.Models.Entities.Workspace", "Workspace")
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Tenant");
+
+                    b.Navigation("Workspace");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.RolePermission", b =>
@@ -15654,12 +20223,6 @@ namespace GrcMvc.Migrations
                     b.HasOne("GrcMvc.Models.Entities.Permission", "Permission")
                         .WithMany("RolePermissions")
                         .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -15674,8 +20237,6 @@ namespace GrcMvc.Migrations
                         .HasForeignKey("TenantRoleConfigurationId");
 
                     b.Navigation("Permission");
-
-                    b.Navigation("Role");
 
                     b.Navigation("Tenant");
                 });
@@ -15912,7 +20473,13 @@ namespace GrcMvc.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GrcMvc.Models.Entities.Workspace", "Workspace")
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId");
+
                     b.Navigation("Tenant");
+
+                    b.Navigation("Workspace");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.TeamMember", b =>
@@ -15929,9 +20496,15 @@ namespace GrcMvc.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GrcMvc.Models.Entities.Workspace", "Workspace")
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId");
+
                     b.Navigation("Team");
 
                     b.Navigation("User");
+
+                    b.Navigation("Workspace");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.TeamsNotificationConfig", b =>
@@ -15969,19 +20542,11 @@ namespace GrcMvc.Migrations
 
             modelBuilder.Entity("GrcMvc.Models.Entities.TenantRoleConfiguration", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("GrcMvc.Models.Entities.Tenant", "Tenant")
                         .WithMany()
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Role");
 
                     b.Navigation("Tenant");
                 });
@@ -16014,6 +20579,17 @@ namespace GrcMvc.Migrations
                     b.Navigation("Tenant");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.TenantWorkflowConfig", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.ThirdPartyConcentration", b =>
@@ -16100,29 +20676,13 @@ namespace GrcMvc.Migrations
 
             modelBuilder.Entity("GrcMvc.Models.Entities.UserRoleAssignment", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("GrcMvc.Models.Entities.Tenant", "Tenant")
                         .WithMany()
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GrcMvc.Models.Entities.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Role");
-
                     b.Navigation("Tenant");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.UserWorkspace", b =>
@@ -16164,6 +20724,32 @@ namespace GrcMvc.Migrations
                         .IsRequired();
 
                     b.Navigation("ValidationRule");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.WebhookDeliveryLog", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.HasOne("GrcMvc.Models.Entities.WebhookSubscription", "WebhookSubscription")
+                        .WithMany()
+                        .HasForeignKey("WebhookSubscriptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+
+                    b.Navigation("WebhookSubscription");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.WebhookSubscription", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.WorkflowAuditEntry", b =>
@@ -16226,6 +20812,77 @@ namespace GrcMvc.Migrations
                     b.Navigation("WorkflowInstance");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.Workspace", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.WorkspaceApprovalGate", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Workspace", "Workspace")
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Workspace");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.WorkspaceApprovalGateApprover", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.WorkspaceApprovalGate", "Gate")
+                        .WithMany("Approvers")
+                        .HasForeignKey("GateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Gate");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.WorkspaceControl", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Control", "Control")
+                        .WithMany()
+                        .HasForeignKey("ControlId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GrcMvc.Models.Entities.Workspace", "Workspace")
+                        .WithMany()
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Control");
+
+                    b.Navigation("Workspace");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.WorkspaceMembership", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GrcMvc.Models.Entities.Workspace", "Workspace")
+                        .WithMany("Memberships")
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+
+                    b.Navigation("Workspace");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Workflows.WorkflowApproval", b =>
                 {
                     b.HasOne("GrcMvc.Models.Entities.WorkflowInstance", "WorkflowInstance")
@@ -16268,57 +20925,6 @@ namespace GrcMvc.Migrations
                         .IsRequired();
 
                     b.Navigation("Evidence");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.HasOne("GrcMvc.Models.Entities.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.HasOne("GrcMvc.Models.Entities.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GrcMvc.Models.Entities.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.HasOne("GrcMvc.Models.Entities.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.AgentDefinition", b =>
@@ -16490,6 +21096,11 @@ namespace GrcMvc.Migrations
                     b.Navigation("Assessments");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.PlatformAdmin", b =>
+                {
+                    b.Navigation("TenantCreations");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.Policy", b =>
                 {
                     b.Navigation("Violations");
@@ -16611,6 +21222,16 @@ namespace GrcMvc.Migrations
             modelBuilder.Entity("GrcMvc.Models.Entities.WorkflowTask", b =>
                 {
                     b.Navigation("Delegations");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Workspace", b =>
+                {
+                    b.Navigation("Memberships");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.WorkspaceApprovalGate", b =>
+                {
+                    b.Navigation("Approvers");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,10 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GrcMvc.Models.Entities
 {
     public class Policy : BaseEntity
     {
+        /// <summary>
+        /// Workspace this policy belongs to (Market/BU scope).
+        /// Null = applies to all workspaces in the tenant.
+        /// </summary>
+        public Guid? WorkspaceId { get; set; }
+
+        [ForeignKey("WorkspaceId")]
+        public virtual Workspace? Workspace { get; set; }
+
         public string PolicyNumber { get; set; } = string.Empty;
         public string PolicyCode { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;

@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using GrcMvc.Models.Dtos;
 using GrcMvc.Resources;
 using GrcMvc.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace GrcMvc.Controllers.Api
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ReportController : ControllerBase

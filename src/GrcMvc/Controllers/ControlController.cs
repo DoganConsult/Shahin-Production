@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Models.DTOs;
+using GrcMvc.Application.Permissions;
+using GrcMvc.Application.Policy;
+using GrcMvc.Authorization;
 using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.Logging;
@@ -9,67 +12,69 @@ using Microsoft.Extensions.Logging;
 namespace GrcMvc.Controllers
 {
     [Authorize]
+    [RequireTenant]
     public class ControlController : Controller
     {
         private readonly IControlService _controlService;
         private readonly IRiskService _riskService;
         private readonly ILogger<ControlController> _logger;
+        private readonly IWorkspaceContextService? _workspaceContext;
+        private readonly PolicyEnforcementHelper _policyHelper;
 
-        public ControlController(
-            IControlService controlService,
-            IRiskService riskService,
-            ILogger<ControlController> logger)
+        public ControlController(IControlService controlService, IRiskService riskService, ILogger<ControlController> logger, PolicyEnforcementHelper policyHelper, IWorkspaceContextService? workspaceContext = null)
         {
             _controlService = controlService;
             _riskService = riskService;
             _logger = logger;
+            _policyHelper = policyHelper;
+            _workspaceContext = workspaceContext;
         }
 
-        // GET: Control
+        [Authorize(GrcPermissions.Frameworks.View)] // Controls are part of frameworks
         public async Task<IActionResult> Index()
         {
             var controls = await _controlService.GetAllAsync();
             return View(controls);
         }
 
-        // GET: Control/Details/5
+        [Authorize(GrcPermissions.Frameworks.View)]
         public async Task<IActionResult> Details(Guid id)
         {
             var control = await _controlService.GetByIdAsync(id);
-            if (control == null)
-            {
-                return NotFound();
-            }
+            if (control == null) return NotFound();
             return View(control);
         }
 
-        // GET: Control/Create
+        [Authorize(GrcPermissions.Frameworks.Create)]
         public async Task<IActionResult> Create(Guid? riskId = null)
         {
             var model = new CreateControlDto();
-
             if (riskId.HasValue)
             {
                 model.RiskId = riskId.Value;
                 ViewBag.RiskName = (await _riskService.GetByIdAsync(riskId.Value))?.Name;
             }
-
             ViewBag.Risks = await _riskService.GetAllAsync();
             return View(model);
         }
 
-        // POST: Control/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateControlDto createControlDto)
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Frameworks.Create)]
+        public async Task<IActionResult> Create(CreateControlDto dto)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var control = await _controlService.CreateAsync(createControlDto);
+                    await _policyHelper.EnforceCreateAsync("Control", dto, dataClassification: dto.DataClassification, owner: dto.Owner);
+                    var control = await _controlService.CreateAsync(dto);
                     TempData["SuccessMessage"] = "Control created successfully.";
                     return RedirectToAction(nameof(Details), new { id = control.Id });
+                }
+                catch (PolicyViolationException pex)
+                {
+                    _logger.LogWarning(pex, "Policy violation creating control");
+                    ModelState.AddModelError("", $"Policy Violation: {pex.Message}");
+                    if (!string.IsNullOrEmpty(pex.RemediationHint)) ModelState.AddModelError("", $"Remediation: {pex.RemediationHint}");
                 }
                 catch (Exception ex)
                 {
@@ -77,132 +82,109 @@ namespace GrcMvc.Controllers
                     ModelState.AddModelError(string.Empty, "An error occurred while creating the control.");
                 }
             }
-
             ViewBag.Risks = await _riskService.GetAllAsync();
-            return View(createControlDto);
+            return View(dto);
         }
 
-        // GET: Control/Edit/5
+        [Authorize(GrcPermissions.Frameworks.Update)]
         public async Task<IActionResult> Edit(Guid id)
         {
             var control = await _controlService.GetByIdAsync(id);
-            if (control == null)
-            {
-                return NotFound();
-            }
+            if (control == null) return NotFound();
 
             var updateDto = new UpdateControlDto
             {
+                Id = control.Id,
+                ControlNumber = control.ControlNumber,
                 Name = control.Name,
                 Description = control.Description,
-                Type = control.Type,
-                Frequency = control.Frequency,
-                Effectiveness = control.Effectiveness,
+                ControlType = control.ControlType,
+                Category = control.Category,
                 Status = control.Status,
                 Owner = control.Owner,
+                DataClassification = control.DataClassification,
                 RiskId = control.RiskId,
-                ImplementationDate = control.ImplementationDate,
-                LastReviewDate = control.LastReviewDate,
-                NextReviewDate = control.NextReviewDate
+                Effectiveness = control.Effectiveness,
+                TestingFrequency = control.TestingFrequency,
+                LastTestedDate = control.LastTestedDate
             };
 
             ViewBag.Risks = await _riskService.GetAllAsync();
             return View(updateDto);
         }
 
-        // POST: Control/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, UpdateControlDto updateControlDto)
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Frameworks.Update)]
+        public async Task<IActionResult> Edit(Guid id, UpdateControlDto dto)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var control = await _controlService.UpdateAsync(id, updateControlDto);
-                    if (control == null)
-                    {
-                        return NotFound();
-                    }
-
+                    await _policyHelper.EnforceUpdateAsync("Control", dto, dataClassification: dto.DataClassification, owner: dto.Owner);
+                    var control = await _controlService.UpdateAsync(id, dto);
+                    if (control == null) return NotFound();
                     TempData["SuccessMessage"] = "Control updated successfully.";
                     return RedirectToAction(nameof(Details), new { id = control.Id });
                 }
+                catch (PolicyViolationException pex)
+                {
+                    _logger.LogWarning(pex, "Policy violation updating control {ControlId}", id);
+                    ModelState.AddModelError("", $"Policy Violation: {pex.Message}");
+                    if (!string.IsNullOrEmpty(pex.RemediationHint)) ModelState.AddModelError("", $"Remediation: {pex.RemediationHint}");
+                }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error updating control");
-                    ModelState.AddModelError(string.Empty, "An error occurred while updating the control.");
+                    _logger.LogError(ex, "Error updating control {ControlId}", id);
+                    ModelState.AddModelError("", "Error updating control. Please try again.");
                 }
             }
-
             ViewBag.Risks = await _riskService.GetAllAsync();
-            return View(updateControlDto);
+            return View(dto);
         }
 
-        // GET: Control/Delete/5
+        [Authorize(GrcPermissions.Frameworks.Update)]
+        public async Task<IActionResult> UpdateControl(Guid id, [FromBody] UpdateControlDto updateControlDto)
+        {
+            var controlDto = await _controlService.UpdateAsync(id, updateControlDto);
+            if (controlDto == null) return NotFound();
+            return Ok(controlDto);
+        }
+
+        [Authorize(GrcPermissions.Frameworks.Delete)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var control = await _controlService.GetByIdAsync(id);
-            if (control == null)
-            {
-                return NotFound();
-            }
+            if (control == null) return NotFound();
             return View(control);
         }
 
-        // POST: Control/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken, Authorize(GrcPermissions.Frameworks.Delete)]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             try
             {
+                var control = await _controlService.GetByIdAsync(id);
+                if (control != null)
+                {
+                    await _policyHelper.EnforceAsync("delete", "Control", control, dataClassification: control.DataClassification, owner: control.Owner);
+                }
+
                 await _controlService.DeleteAsync(id);
                 TempData["SuccessMessage"] = "Control deleted successfully.";
                 return RedirectToAction(nameof(Index));
             }
+            catch (PolicyViolationException pex)
+            {
+                _logger.LogWarning(pex, "Policy violation deleting control {ControlId}", id);
+                TempData["ErrorMessage"] = $"Policy Violation: {pex.Message}. {pex.RemediationHint}";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting control");
-                TempData["ErrorMessage"] = "An error occurred while deleting the control.";
-                return RedirectToAction(nameof(Index));
+                _logger.LogError(ex, "Error deleting control {ControlId}", id);
+                TempData["ErrorMessage"] = "Error deleting control. Please try again.";
+                return RedirectToAction(nameof(Delete), new { id });
             }
-        }
-
-        // GET: Control/Matrix
-        public async Task<IActionResult> Matrix()
-        {
-            var controls = await _controlService.GetAllAsync();
-            var statistics = await _controlService.GetStatisticsAsync();
-
-            ViewBag.Statistics = statistics;
-            return View(controls);
-        }
-
-        // GET: Control/ByRisk/5
-        public async Task<IActionResult> ByRisk(Guid riskId)
-        {
-            var controls = await _controlService.GetByRiskIdAsync(riskId);
-            var risk = await _riskService.GetByIdAsync(riskId);
-
-            ViewBag.Risk = risk;
-            return View(controls);
-        }
-
-        // GET: Controls/Assess
-        public async Task<IActionResult> Assess(Guid? controlId = null)
-        {
-            if (controlId.HasValue)
-            {
-                var control = await _controlService.GetByIdAsync(controlId.Value);
-                if (control == null)
-                {
-                    return NotFound();
-                }
-                ViewBag.ControlId = controlId.Value;
-                ViewBag.ControlName = control.Name;
-            }
-            return View();
         }
     }
 }

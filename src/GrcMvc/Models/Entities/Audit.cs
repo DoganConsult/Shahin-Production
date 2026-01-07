@@ -1,10 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GrcMvc.Models.Entities
 {
     public class Audit : BaseEntity
     {
+        /// <summary>
+        /// Workspace this audit belongs to (Market/BU scope).
+        /// Null = applies to all workspaces in the tenant.
+        /// </summary>
+        public Guid? WorkspaceId { get; set; }
+
+        [ForeignKey("WorkspaceId")]
+        public virtual Workspace? Workspace { get; set; }
+
         public string AuditNumber { get; set; } = string.Empty;
         public string AuditCode { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;

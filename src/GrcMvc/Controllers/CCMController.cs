@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
@@ -9,6 +10,7 @@ namespace GrcMvc.Controllers;
 /// CCM (Continuous Control Monitoring) Controller
 /// Run and manage automated control tests
 /// </summary>
+[Authorize]
 [Route("[controller]")]
 public class CCMController : Controller
 {
@@ -258,14 +260,27 @@ public class AuditPackageController : Controller
     }
 
     [HttpGet("Export/{assessmentId}")]
+    [Authorize(GrcMvc.Application.Permissions.GrcPermissions.Reports.Export)]
     public async Task<IActionResult> Export(Guid assessmentId)
     {
-        var assessment = await _db.Assessments.FirstOrDefaultAsync(a => a.Id == assessmentId);
-        if (assessment == null) return NotFound();
+        try
+        {
+            var assessment = await _db.Assessments.FirstOrDefaultAsync(a => a.Id == assessmentId);
+            if (assessment == null) return NotFound();
 
-        var content = $"Audit Package for {assessment.Name}\nGenerated: {DateTime.UtcNow:yyyy-MM-dd HH:mm}\nStatus: {assessment.Status}";
-        var bytes = System.Text.Encoding.UTF8.GetBytes(content);
-        return File(bytes, "text/plain", $"audit-package-{assessment.Id}.txt");
+            // POLICY ENFORCEMENT: Check if export is allowed
+            // Note: This requires PolicyEnforcementHelper injection
+            // For now, authorization attribute ensures user has permission
+
+            var content = $"Audit Package for {assessment.Name}\nGenerated: {DateTime.UtcNow:yyyy-MM-dd HH:mm}\nStatus: {assessment.Status}";
+            var bytes = System.Text.Encoding.UTF8.GetBytes(content);
+            return File(bytes, "text/plain", $"audit-package-{assessment.Id}.txt");
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Error exporting report for assessment {AssessmentId}", assessmentId);
+            return StatusCode(500, "Error exporting report");
+        }
     }
 
     private Guid GetCurrentTenantId()
@@ -283,16 +298,18 @@ public class AuditPackageController : Controller
 public class InvitationController : Controller
 {
     private readonly GrcDbContext _db;
+    private readonly GrcMvc.Services.Interfaces.IUserDirectoryService _userDirectory;
 
-    public InvitationController(GrcDbContext db)
+    public InvitationController(GrcDbContext db, GrcMvc.Services.Interfaces.IUserDirectoryService userDirectory)
     {
         _db = db;
+        _userDirectory = userDirectory;
     }
 
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var users = await _db.Users.Take(50).ToListAsync();
+        var users = await _userDirectory.GetAllActiveUsersAsync();
 
         ViewBag.Users = users;
         ViewBag.PendingInvites = new List<object>();

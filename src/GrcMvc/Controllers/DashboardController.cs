@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using GrcMvc.Data;
 using GrcMvc.Data.Repositories;
+using GrcMvc.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -9,21 +10,30 @@ using System.Linq;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
+using GrcMvc.Authorization;
+
 namespace GrcMvc.Controllers
 {
     /// <summary>
     /// MVC Controller for Dashboard views
     /// </summary>
     [Authorize]
+    [RequireTenant]
     public class DashboardMvcController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<DashboardMvcController> _logger;
 
-        public DashboardMvcController(IUnitOfWork unitOfWork, ILogger<DashboardMvcController> logger)
+        private readonly IWorkspaceContextService? _workspaceContext;
+
+        public DashboardMvcController(
+            IUnitOfWork unitOfWork, 
+            ILogger<DashboardMvcController> logger,
+            IWorkspaceContextService? workspaceContext = null)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _workspaceContext = workspaceContext;
         }
 
         /// <summary>

@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Identity;
 
 namespace GrcMvc.Models.Entities
 {
@@ -91,9 +90,7 @@ namespace GrcMvc.Models.Entities
 
         public string AssignedBy { get; set; } // UserId who assigned
 
-        // Navigation
-        [ForeignKey("RoleId")]
-        public IdentityRole Role { get; set; }
+        // Note: RoleId is a soft link to AspNetRoles (in GrcAuthDb) - no FK constraint
     }
 
     /// <summary>
@@ -121,9 +118,7 @@ namespace GrcMvc.Models.Entities
 
         public string AssignedBy { get; set; } // UserId who assigned
 
-        // Navigation
-        [ForeignKey("RoleId")]
-        public IdentityRole Role { get; set; }
+        // Note: RoleId is a soft link to AspNetRoles (in GrcAuthDb) - no FK constraint
     }
 
     /// <summary>
@@ -160,9 +155,7 @@ namespace GrcMvc.Models.Entities
         public Tenant Tenant { get; set; }
 
         [Required]
-        public string RoleId { get; set; } // FK to AspNetRoles.Id
-        [ForeignKey("RoleId")]
-        public IdentityRole Role { get; set; }
+        public string RoleId { get; set; } // Soft link to AspNetRoles.Id (in GrcAuthDb)
 
         public string Description { get; set; }
 
@@ -186,18 +179,14 @@ namespace GrcMvc.Models.Entities
         public int Id { get; set; }
 
         [Required]
-        public string UserId { get; set; } // FK to AspNetUsers.Id
-        [ForeignKey("UserId")]
-        public ApplicationUser User { get; set; }
+        public string UserId { get; set; } // Soft link to AspNetUsers.Id (in GrcAuthDb)
 
         public Guid TenantId { get; set; }
         [ForeignKey("TenantId")]
         public Tenant Tenant { get; set; }
 
         [Required]
-        public string RoleId { get; set; } // FK to AspNetRoles.Id
-        [ForeignKey("RoleId")]
-        public IdentityRole Role { get; set; }
+        public string RoleId { get; set; } // Soft link to AspNetRoles.Id (in GrcAuthDb)
 
         public bool IsActive { get; set; } = true;
 

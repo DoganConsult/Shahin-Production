@@ -1,0 +1,266 @@
+@model GrcMvc.Models.ViewModels.PlatformDashboardViewModel
+@{
+    ViewData["Title"] = "Platform Admin Dashboard";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Platform Administration</h1>
+            <p class="text-muted mb-0">Welcome, @Model.Admin.DisplayName (@Model.Admin.AdminLevel)</p>
+        </div>
+        <div>
+            <a href="@Url.Action("Tenants")" class="btn btn-primary">
+                <i class="bi bi-building"></i> Manage Tenants
+            </a>
+            <a href="@Url.Action("Users")" class="btn btn-outline-primary">
+                <i class="bi bi-people"></i> Manage Users
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white-50">Total Tenants</h6>
+                            <h2 class="mb-0">@Model.TotalTenants</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-building fs-1 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <small>@Model.ActiveTenants active, @Model.PendingTenants pending</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white-50">Active Tenants</h6>
+                            <h2 class="mb-0">@Model.ActiveTenants</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-check-circle fs-1 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <small>@(Model.TotalTenants > 0 ? (Model.ActiveTenants * 100 / Model.TotalTenants) : 0)% of total</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white-50">Total Users</h6>
+                            <h2 class="mb-0">@Model.TotalUsers</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-people fs-1 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <small>@Model.ActiveUsers active users</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-dark-50">Suspended</h6>
+                            <h2 class="mb-0">@Model.SuspendedTenants</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-pause-circle fs-1 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <small>Requires attention</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions & Permissions -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        @if (Model.Admin.CanCreateTenants)
+                        {
+                            <div class="col-6">
+                                <a href="@Url.Action("CreateTenant")" class="btn btn-outline-primary w-100">
+                                    <i class="bi bi-plus-circle"></i> New Tenant
+                                </a>
+                            </div>
+                        }
+                        @if (Model.Admin.CanManagePlatformAdmins)
+                        {
+                            <div class="col-6">
+                                <a href="@Url.Action("CreateAdmin")" class="btn btn-outline-secondary w-100">
+                                    <i class="bi bi-person-plus"></i> New Admin
+                                </a>
+                            </div>
+                        }
+                        <div class="col-6">
+                            <a href="@Url.Action("AuditLogs")" class="btn btn-outline-info w-100">
+                                <i class="bi bi-journal-text"></i> Audit Logs
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="@Url.Action("Admins")" class="btn btn-outline-dark w-100">
+                                <i class="bi bi-shield-check"></i> Platform Admins
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="bi bi-key"></i> Your Permissions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <ul class="list-unstyled mb-0">
+                                <li><i class="bi @(Model.Admin.CanCreateTenants ? "bi-check-circle text-success" : "bi-x-circle text-danger")"></i> Create Tenants</li>
+                                <li><i class="bi @(Model.Admin.CanManageTenants ? "bi-check-circle text-success" : "bi-x-circle text-danger")"></i> Manage Tenants</li>
+                                <li><i class="bi @(Model.Admin.CanDeleteTenants ? "bi-check-circle text-success" : "bi-x-circle text-danger")"></i> Delete Tenants</li>
+                                <li><i class="bi @(Model.Admin.CanManageBilling ? "bi-check-circle text-success" : "bi-x-circle text-danger")"></i> Manage Billing</li>
+                                <li><i class="bi @(Model.Admin.CanAccessTenantData ? "bi-check-circle text-success" : "bi-x-circle text-danger")"></i> Access Tenant Data</li>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <ul class="list-unstyled mb-0">
+                                <li><i class="bi @(Model.Admin.CanManageCatalogs ? "bi-check-circle text-success" : "bi-x-circle text-danger")"></i> Manage Catalogs</li>
+                                <li><i class="bi @(Model.Admin.CanManagePlatformAdmins ? "bi-check-circle text-success" : "bi-x-circle text-danger")"></i> Manage Admins</li>
+                                <li><i class="bi @(Model.Admin.CanViewAnalytics ? "bi-check-circle text-success" : "bi-x-circle text-danger")"></i> View Analytics</li>
+                                <li><i class="bi @(Model.Admin.CanImpersonateUsers ? "bi-check-circle text-success" : "bi-x-circle text-danger")"></i> Impersonate Users</li>
+                                <li><i class="bi @(Model.Admin.CanResetTenantAdminPasswords ? "bi-check-circle text-success" : "bi-x-circle text-danger")"></i> Reset Passwords</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Tenants & Activity -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-building"></i> Recent Tenants</h5>
+                    <a href="@Url.Action("Tenants")" class="btn btn-sm btn-link">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Organization</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var tenant in Model.RecentTenants)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="@Url.Action("TenantDetails", new { id = tenant.Id })">
+                                                @tenant.OrganizationName
+                                            </a>
+                                            <br><small class="text-muted">@tenant.TenantSlug</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-@(tenant.Status == "Active" ? "success" : tenant.Status == "Pending" ? "warning" : "danger")">
+                                                @tenant.Status
+                                            </span>
+                                        </td>
+                                        <td><small>@tenant.CreatedAt.ToString("MMM dd, yyyy")</small></td>
+                                    </tr>
+                                }
+                                @if (!Model.RecentTenants.Any())
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-4">No tenants yet</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-activity"></i> Recent Activity</h5>
+                    <a href="@Url.Action("AuditLogs")" class="btn btn-sm btn-link">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var evt in Model.RecentAuditEvents)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-secondary">@evt.EventType</span>
+                                            <br><small class="text-muted">@evt.Description</small>
+                                        </td>
+                                        <td><small>@evt.Timestamp.ToString("HH:mm MMM dd")</small></td>
+                                    </tr>
+                                }
+                                @if (!Model.RecentAuditEvents.Any())
+                                {
+                                    <tr>
+                                        <td colspan="2" class="text-center text-muted py-4">No recent activity</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-refresh dashboard every 60 seconds
+        setTimeout(function() {
+            location.reload();
+        }, 60000);
+    </script>
+}

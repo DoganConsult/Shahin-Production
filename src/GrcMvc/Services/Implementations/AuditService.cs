@@ -18,17 +18,20 @@ namespace GrcMvc.Services.Implementations
         private readonly IMapper _mapper;
         private readonly ILogger<AuditService> _logger;
         private readonly PolicyEnforcementHelper _policyHelper;
+        private readonly IWorkspaceContextService? _workspaceContext;
 
         public AuditService(
             IUnitOfWork unitOfWork,
             IMapper mapper,
             ILogger<AuditService> logger,
-            PolicyEnforcementHelper policyHelper)
+            PolicyEnforcementHelper policyHelper,
+            IWorkspaceContextService? workspaceContext = null)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
             _policyHelper = policyHelper ?? throw new ArgumentNullException(nameof(policyHelper));
+            _workspaceContext = workspaceContext;
         }
 
         public async Task<IEnumerable<AuditDto>> GetAllAsync()
@@ -68,6 +71,12 @@ namespace GrcMvc.Services.Implementations
                 audit.CreatedDate = DateTime.UtcNow;
                 audit.Status = "Planned";
                 audit.AuditCode = GenerateAuditCode();
+
+                // Set workspace context if available
+                if (_workspaceContext != null && _workspaceContext.HasWorkspaceContext())
+                {
+                    audit.WorkspaceId = _workspaceContext.GetCurrentWorkspaceId();
+                }
 
                 // Enforce policies before saving
                 await _policyHelper.EnforceCreateAsync(
@@ -304,6 +313,32 @@ namespace GrcMvc.Services.Implementations
         private string GenerateFindingCode()
         {
             return $"FIND-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}";
+        }
+
+        public async Task CloseAsync(Guid id)
+        {
+            try
+            {
+                var audit = await _unitOfWork.Audits.GetByIdAsync(id);
+                if (audit == null)
+                {
+                    _logger.LogWarning("Audit with ID {AuditId} not found for closing", id);
+                    return;
+                }
+
+                audit.Status = "Closed";
+                audit.ModifiedDate = DateTime.UtcNow;
+
+                await _unitOfWork.Audits.UpdateAsync(audit);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Audit with ID {AuditId} closed", id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error closing audit with ID {AuditId}", id);
+                throw;
+            }
         }
     }
 }

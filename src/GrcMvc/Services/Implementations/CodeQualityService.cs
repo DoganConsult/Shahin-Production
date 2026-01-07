@@ -71,7 +71,7 @@ public class CodeQualityService : ICodeQualityService
             var result = ParseAnalysisResponse(response, request);
 
             // Check if alert should be triggered
-            if (request.SendAlerts && _alertService.ShouldTriggerAlert(result))
+            if (request.SendAlerts && await _alertService.ShouldTriggerAlertAsync(result))
             {
                 var alert = _alertService.CreateAlert(result);
                 result.AlertTriggered = true;

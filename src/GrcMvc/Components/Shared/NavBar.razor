@@ -19,68 +19,98 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/onboarding">
-                        <i class="bi bi-rocket"></i> Onboarding
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/dashboard">
-                        <i class="bi bi-graph-up"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/workflows">
-                        <i class="bi bi-diagram-3"></i> Workflows
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/approvals">
-                        <i class="bi bi-check-circle"></i> Approvals
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/inbox">
-                        <i class="bi bi-inbox"></i> Inbox
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/risks">
-                        <i class="bi bi-exclamation-triangle"></i> Risks
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/controls">
-                        <i class="bi bi-shield-check"></i> Controls
-                    </a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="moreDropdown" role="button"
-                        data-bs-toggle="dropdown">
-                        <i class="bi bi-three-dots-vertical"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="/assessments"><i class="bi bi-clipboard-check me-2"></i>Assessments</a></li>
-                        <li><a class="dropdown-item" href="/audits"><i class="bi bi-file-earmark-text me-2"></i>Audits</a></li>
-                        <li><a class="dropdown-item" href="/policies"><i class="bi bi-journal-text me-2"></i>Policies</a></li>
-                        <li><a class="dropdown-item" href="/evidence"><i class="bi bi-folder me-2"></i>Evidence</a></li>
-                        <li><a class="dropdown-item" href="/evidence/lifecycle"><i class="bi bi-file-earmark-check me-2"></i>Evidence Lifecycle</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="/users"><i class="bi bi-people me-2"></i>Users</a></li>
-                        <li><a class="dropdown-item" href="/dashboard/executive"><i class="bi bi-speedometer2 me-2"></i>Executive Dashboard</a></li>
-                        <li><a class="dropdown-item" href="/reports"><i class="bi bi-bar-chart me-2"></i>Reports</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="/admin"><i class="bi bi-gear me-2"></i>Admin</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <LanguageSwitcher />
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-warning" href="/logout">
-                        <i class="bi bi-box-arrow-right"></i> @(isRtl ? "تسجيل الخروج" : "Logout")
-                    </a>
-                </li>
+                <!-- Platform Admin Menu -->
+                <AuthorizeView Roles="PlatformAdmin">
+                    <Authorized>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/platform/dashboard">
+                                <i class="bi bi-speedometer2"></i> @(isRtl ? "لوحة المنصة" : "Platform Dashboard")
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/platform/tenants">
+                                <i class="bi bi-building"></i> @(isRtl ? "إدارة المستأجرين" : "Manage Tenants")
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/platform/settings">
+                                <i class="bi bi-gear"></i> @(isRtl ? "إعدادات المنصة" : "Platform Settings")
+                            </a>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
+
+                <!-- Tenant Admin Menu -->
+                <AuthorizeView Roles="TenantAdmin">
+                    <Authorized>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/tenant/dashboard">
+                                <i class="bi bi-graph-up"></i> @(isRtl ? "لوحة المستأجر" : "Tenant Dashboard")
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/tenant/users">
+                                <i class="bi bi-people"></i> @(isRtl ? "إدارة المستخدمين" : "Manage Users")
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/tenant/settings">
+                                <i class="bi bi-gear"></i> @(isRtl ? "إعدادات المستأجر" : "Tenant Settings")
+                            </a>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
+
+                <!-- Regular User Menu -->
+                <AuthorizeView>
+                    <Authorized>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/app/dashboard">
+                                <i class="bi bi-graph-up"></i> @(isRtl ? "لوحة التحكم" : "My Dashboard")
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/inbox">
+                                <i class="bi bi-inbox"></i> @(isRtl ? "صندوق الوارد" : "Inbox")
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/workflows">
+                                <i class="bi bi-diagram-3"></i> @(isRtl ? "سير العمل" : "Workflows")
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="moreDropdown" role="button"
+                                data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="/risks"><i class="bi bi-exclamation-triangle me-2"></i>@(isRtl ? "المخاطر" : "Risks")</a></li>
+                                <li><a class="dropdown-item" href="/controls"><i class="bi bi-shield-check me-2"></i>@(isRtl ? "الضوابط" : "Controls")</a></li>
+                                <li><a class="dropdown-item" href="/assessments"><i class="bi bi-clipboard-check me-2"></i>@(isRtl ? "التقييمات" : "Assessments")</a></li>
+                                <li><a class="dropdown-item" href="/audits"><i class="bi bi-file-earmark-text me-2"></i>@(isRtl ? "المراجعات" : "Audits")</a></li>
+                                <li><a class="dropdown-item" href="/policies"><i class="bi bi-journal-text me-2"></i>@(isRtl ? "السياسات" : "Policies")</a></li>
+                                <li><a class="dropdown-item" href="/evidence"><i class="bi bi-folder me-2"></i>@(isRtl ? "الأدلة" : "Evidence")</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/reports"><i class="bi bi-bar-chart me-2"></i>@(isRtl ? "التقارير" : "Reports")</a></li>
+                            </ul>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
+
+                <!-- Common Menu Items (for all authenticated users) -->
+                <AuthorizeView>
+                    <Authorized>
+                        <li class="nav-item">
+                            <LanguageSwitcher />
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-warning" href="/Account/Logout">
+                                <i class="bi bi-box-arrow-right"></i> @(isRtl ? "تسجيل الخروج" : "Logout")
+                            </a>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
             </ul>
         </div>
     </div>

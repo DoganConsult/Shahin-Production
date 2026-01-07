@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -11,6 +12,7 @@ namespace GrcMvc.Controllers
     /// <summary>
     /// API Controller for onboarding endpoints
     /// </summary>
+    [Authorize]
     [ApiController]
     [Route("api/onboarding")]
     [Consumes("application/json")]
@@ -316,9 +318,21 @@ namespace GrcMvc.Controllers
     /// <summary>
     /// MVC Controller for onboarding pages (views)
     /// </summary>
+    [Authorize]
     [Route("[controller]")]
     public class OnboardingController : Controller
     {
+        private readonly ITenantService _tenantService;
+        private readonly ILogger<OnboardingController> _logger;
+
+        public OnboardingController(
+            ITenantService tenantService,
+            ILogger<OnboardingController> logger)
+        {
+            _tenantService = tenantService;
+            _logger = logger;
+        }
+
         /// <summary>
         /// MVC Route: Display onboarding index page
         /// </summary>
@@ -340,23 +354,62 @@ namespace GrcMvc.Controllers
 
         /// <summary>
         /// MVC Route: Process signup form and redirect to OrgProfile
+        /// Creates the tenant in the database immediately.
         /// </summary>
         [HttpPost("Signup")]
         [ValidateAntiForgeryToken]
-        public IActionResult Signup(CreateTenantDto model)
+        public async Task<IActionResult> Signup(CreateTenantDto model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            // Store tenant info in TempData for next step
-            TempData["TenantSlug"] = model.TenantSlug ?? model.OrganizationName?.ToLower().Replace(" ", "-");
-            TempData["OrganizationName"] = model.OrganizationName;
-            TempData["AdminEmail"] = model.AdminEmail;
-            TempData["TenantId"] = Guid.NewGuid().ToString();
+            try
+            {
+                // Generate tenant slug if not provided
+                var tenantSlug = model.TenantSlug ?? model.OrganizationName?.ToLower()
+                    .Replace(" ", "-")
+                    .Replace("_", "-")
+                    .Replace(".", "-")
+                    .Trim('-');
 
-            return RedirectToAction(nameof(OrgProfile));
+                if (string.IsNullOrWhiteSpace(tenantSlug))
+                {
+                    ModelState.AddModelError(nameof(model.TenantSlug), "Tenant slug is required.");
+                    return View(model);
+                }
+
+                // CRITICAL: Actually create the tenant in the database
+                var tenant = await _tenantService.CreateTenantAsync(
+                    model.OrganizationName ?? string.Empty,
+                    model.AdminEmail ?? string.Empty,
+                    tenantSlug);
+
+                _logger.LogInformation("Tenant created via MVC signup: {TenantId} ({Slug})", tenant.Id, tenant.TenantSlug);
+
+                // Store tenant info in TempData for next step
+                TempData["TenantSlug"] = tenant.TenantSlug;
+                TempData["OrganizationName"] = tenant.OrganizationName;
+                TempData["AdminEmail"] = tenant.AdminEmail;
+                TempData["TenantId"] = tenant.Id.ToString();
+
+                return RedirectToAction(nameof(OrgProfile));
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Handle duplicate slug or other validation errors
+                ModelState.AddModelError("", ex.Message);
+                _logger.LogWarning(ex, "Failed to create tenant: {Message}", ex.Message);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected errors
+                ModelState.AddModelError("", "An error occurred while creating your account. Please try again.");
+                _logger.LogError(ex, "Error creating tenant during signup");
+                return View(model);
+            }
         }
 
         /// <summary>
@@ -479,7 +532,6 @@ namespace GrcMvc.Controllers
         /// MVC Route: Display activation page
         /// </summary>
         [HttpGet("Activate")]
-        [HttpGet("activate")]
         public IActionResult Activate()
         {
             return View();

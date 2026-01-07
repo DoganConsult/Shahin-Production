@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using GrcMvc.Models.Entities;
 using GrcMvc.Data;
+using GrcMvc.Services.Interfaces;
 
 namespace GrcMvc.Services
 {
@@ -24,11 +25,19 @@ namespace GrcMvc.Services
     public class UserWorkspaceService : IUserWorkspaceService
     {
         private readonly GrcDbContext _context;
+        private readonly GrcAuthDbContext _authContext;
+        private readonly IUserDirectoryService _userDirectory;
         private readonly ILogger<UserWorkspaceService> _logger;
 
-        public UserWorkspaceService(GrcDbContext context, ILogger<UserWorkspaceService> logger)
+        public UserWorkspaceService(
+            GrcDbContext context,
+            GrcAuthDbContext authContext,
+            IUserDirectoryService userDirectory,
+            ILogger<UserWorkspaceService> logger)
         {
             _context = context;
+            _authContext = authContext;
+            _userDirectory = userDirectory;
             _logger = logger;
         }
 
@@ -39,7 +48,8 @@ namespace GrcMvc.Services
         {
             try
             {
-                var user = await _context.Users
+                // Get user from Auth DB
+                var user = await _authContext.Users
                     .Include(u => u.RoleProfile)
                     .FirstOrDefaultAsync(u => u.Id == userId && u.IsActive);
 
@@ -61,8 +71,8 @@ namespace GrcMvc.Services
                 // Get accessible tasks based on assignment
                 var userTasks = await _context.WorkflowTasks
                     .Include(t => t.WorkflowInstance)
-                    .Where(t => (t.AssignedToUserId.ToString() == userId) && 
-                                t.Status != "Completed" && 
+                    .Where(t => (t.AssignedToUserId.ToString() == userId) &&
+                                t.Status != "Completed" &&
                                 t.Status != "Rejected")
                     .ToListAsync();
 
@@ -94,11 +104,11 @@ namespace GrcMvc.Services
                     CanEscalate = user.RoleProfile.CanEscalate,
                     KsaCompetencyLevel = user.KsaCompetencyLevel,
                     AccessibleWorkflows = accessibleWorkflows.ToList(),
-                    PendingTasks = userTasks.Count,
+                    PendingTasks = userTasks.Count(),
                     PendingTasksList = userTasks,
-                    AssignedAssessments = assessments.Count,
-                    AssignedRisks = risks.Count,
-                    AssignedPolicies = policies.Count,
+                    AssignedAssessments = assessments.Count(),
+                    AssignedRisks = risks.Count(),
+                    AssignedPolicies = policies.Count(),
                     LastAccessTime = user.LastLoginDate
                 };
             }
@@ -116,13 +126,15 @@ namespace GrcMvc.Services
         {
             try
             {
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                // Get user from Auth DB
+                var user = await _authContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 if (user == null)
                 {
                     _logger.LogError($"❌ User {userId} not found");
                     throw new InvalidOperationException("User not found");
                 }
 
+                // Get role profile from main DB (it's app data, not identity)
                 var roleProfile = await _context.RoleProfiles.FirstOrDefaultAsync(r => r.Id == roleProfileId);
                 if (roleProfile == null)
                 {
@@ -130,7 +142,7 @@ namespace GrcMvc.Services
                     throw new InvalidOperationException("Role profile not found");
                 }
 
-                // Assign role
+                // Assign role (update user in Auth DB)
                 user.RoleProfileId = roleProfileId;
                 user.AssignedScope = roleProfile.Scope;
                 user.KsaCompetencyLevel = 3; // Default to intermediate
@@ -141,8 +153,8 @@ namespace GrcMvc.Services
                 user.Skills = JsonSerializer.Serialize(new List<string> { "Role assigned on " + DateTime.UtcNow });
                 user.Abilities = JsonSerializer.Serialize(new List<string> { "Profile: " + roleProfile.RoleName });
 
-                _context.Users.Update(user);
-                await _context.SaveChangesAsync();
+                _authContext.Users.Update(user);
+                await _authContext.SaveChangesAsync();
 
                 _logger.LogInformation($"✅ User {user.FullName} assigned to role {roleProfile.RoleName}");
             }
@@ -160,7 +172,8 @@ namespace GrcMvc.Services
         {
             try
             {
-                var user = await _context.Users
+                // Get user from Auth DB
+                var user = await _authContext.Users
                     .Include(u => u.RoleProfile)
                     .FirstOrDefaultAsync(u => u.Id == userId);
 
@@ -174,6 +187,7 @@ namespace GrcMvc.Services
                     .Select(w => w.Trim())
                     .ToList();
 
+                // Get workflows from main DB
                 var workflows = await _context.WorkflowDefinitions
                     .Where(w => workflowNumbers.Contains(w.WorkflowNumber) && w.Status == "Active")
                     .ToListAsync();
@@ -223,7 +237,7 @@ namespace GrcMvc.Services
                 return query;
 
             var scopeAreas = userScope.Split(',').Select(s => s.Trim()).ToList();
-            return query.Where(r => scopeAreas.Contains(r.Category) || 
+            return query.Where(r => scopeAreas.Contains(r.Category) ||
                                    scopeAreas.Contains(r.Owner));
         }
 

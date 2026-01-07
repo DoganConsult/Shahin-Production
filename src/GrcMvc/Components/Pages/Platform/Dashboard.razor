@@ -1,0 +1,103 @@
+@page "/platform/dashboard"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "PlatformAdmin")]
+@using GrcMvc.Data
+@using GrcMvc.Models.Entities
+@using GrcMvc.Services.Interfaces
+@using Microsoft.EntityFrameworkCore
+@inject GrcDbContext DbContext
+@inject ITenantContextService TenantContext
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var isRtl = currentCulture == "ar";
+    var dir = isRtl ? "rtl" : "ltr";
+}
+
+<PageTitle>Platform Admin Dashboard</PageTitle>
+
+<div dir="@dir" class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-6"><i class="bi bi-speedometer2 me-2"></i>Platform Administration</h1>
+            <p class="text-muted">Manage all tenants, subscriptions, and platform settings</p>
+        </div>
+    </div>
+    
+    <!-- Platform-level metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <MetricCard Title="Total Tenants" 
+                       Value="@totalTenants.ToString()" 
+                       Color="primary"
+                       Icon="bi-building" />
+        </div>
+        <div class="col-md-3 mb-3">
+            <MetricCard Title="Active Tenants" 
+                       Value="@activeTenants.ToString()" 
+                       Color="success"
+                       Icon="bi-check-circle" />
+        </div>
+        <div class="col-md-3 mb-3">
+            <MetricCard Title="Pending Onboarding" 
+                       Value="@pendingOnboarding.ToString()" 
+                       Color="warning"
+                       Icon="bi-hourglass-split" />
+        </div>
+        <div class="col-md-3 mb-3">
+            <MetricCard Title="Suspended Tenants" 
+                       Value="@suspendedTenants.ToString()" 
+                       Color="danger"
+                       Icon="bi-x-circle" />
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="/platform/tenants" class="btn btn-primary me-2">
+                        <i class="bi bi-building me-2"></i>Manage Tenants
+                    </a>
+                    <a href="/platform/settings" class="btn btn-secondary me-2">
+                        <i class="bi bi-gear me-2"></i>Platform Settings
+                    </a>
+                    <a href="/admin/users" class="btn btn-outline-primary me-2">
+                        <i class="bi bi-people me-2"></i>Manage Users
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int totalTenants = 0;
+    private int activeTenants = 0;
+    private int pendingOnboarding = 0;
+    private int suspendedTenants = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Query master database (not tenant-specific)
+            totalTenants = await DbContext.Tenants.CountAsync();
+            activeTenants = await DbContext.Tenants.CountAsync(t => t.IsActive && !t.IsDeleted);
+            pendingOnboarding = await DbContext.Tenants.CountAsync(t => 
+                (t.OnboardingStatus == "NOT_STARTED" || t.OnboardingStatus == "IN_PROGRESS") && !t.IsDeleted);
+            suspendedTenants = await DbContext.Tenants.CountAsync(t => t.Status == "Suspended" && !t.IsDeleted);
+        }
+        catch (Exception ex)
+        {
+            // Log error but don't crash the page
+            Console.WriteLine($"Error loading platform metrics: {ex.Message}");
+        }
+    }
+}

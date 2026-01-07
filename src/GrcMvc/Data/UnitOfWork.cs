@@ -27,10 +27,16 @@ namespace GrcMvc.Data
         private IGenericRepository<PolicyViolation>? _policyViolations;
         private IGenericRepository<Workflow>? _workflows;
         private IGenericRepository<WorkflowExecution>? _workflowExecutions;
+        private IGenericRepository<ActionPlan>? _actionPlans;
+        private IGenericRepository<Vendor>? _vendors;
+        private IGenericRepository<Regulator>? _regulators;
+        private IGenericRepository<ComplianceEvent>? _complianceEvents;
+        private IGenericRepository<GrcMvc.Models.Entities.Framework>? _frameworks;
 
         // Multi-tenant repositories
         private IGenericRepository<Tenant>? _tenants;
         private IGenericRepository<TenantUser>? _tenantUsers;
+        private IGenericRepository<OwnerTenantCreation>? _ownerTenantCreations;
         private IGenericRepository<OrganizationProfile>? _organizationProfiles;
         private IGenericRepository<OnboardingWizard>? _onboardingWizards;
 
@@ -114,12 +120,30 @@ namespace GrcMvc.Data
         public IGenericRepository<WorkflowExecution> WorkflowExecutions =>
             _workflowExecutions ??= new GenericRepository<WorkflowExecution>(_context);
 
+        public IGenericRepository<ActionPlan> ActionPlans =>
+            _actionPlans ??= new GenericRepository<ActionPlan>(_context);
+
+        public IGenericRepository<Vendor> Vendors =>
+            _vendors ??= new GenericRepository<Vendor>(_context);
+
+        public IGenericRepository<Regulator> Regulators =>
+            _regulators ??= new GenericRepository<Regulator>(_context);
+
+        public IGenericRepository<ComplianceEvent> ComplianceEvents =>
+            _complianceEvents ??= new GenericRepository<ComplianceEvent>(_context);
+
+        public IGenericRepository<GrcMvc.Models.Entities.Framework> Frameworks =>
+            _frameworks ??= new GenericRepository<GrcMvc.Models.Entities.Framework>(_context);
+
         // Multi-tenant repository properties
         public IGenericRepository<Tenant> Tenants =>
             _tenants ??= new GenericRepository<Tenant>(_context);
 
         public IGenericRepository<TenantUser> TenantUsers =>
             _tenantUsers ??= new GenericRepository<TenantUser>(_context);
+
+        public IGenericRepository<OwnerTenantCreation> OwnerTenantCreations =>
+            _ownerTenantCreations ??= new GenericRepository<OwnerTenantCreation>(_context);
 
         public IGenericRepository<OrganizationProfile> OrganizationProfiles =>
             _organizationProfiles ??= new GenericRepository<OrganizationProfile>(_context);

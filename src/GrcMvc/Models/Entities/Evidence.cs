@@ -1,9 +1,19 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GrcMvc.Models.Entities
 {
     public class Evidence : BaseEntity
     {
+        /// <summary>
+        /// Workspace this evidence belongs to (Market/BU scope).
+        /// Null = applies to all workspaces in the tenant.
+        /// </summary>
+        public Guid? WorkspaceId { get; set; }
+
+        [ForeignKey("WorkspaceId")]
+        public virtual Workspace? Workspace { get; set; }
+
         public string EvidenceNumber { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;

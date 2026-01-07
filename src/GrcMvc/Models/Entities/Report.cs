@@ -13,6 +13,11 @@ namespace GrcMvc.Models.Entities
         public Guid TenantId { get; set; }
         
         /// <summary>
+        /// Optional workspace scope for the report
+        /// </summary>
+        public Guid? WorkspaceId { get; set; }
+        
+        /// <summary>
         /// Auto-generated report number (e.g., RPT-2024-001)
         /// </summary>
         public string ReportNumber { get; set; } = string.Empty;
@@ -149,5 +154,6 @@ namespace GrcMvc.Models.Entities
         
         // Navigation properties
         public virtual Tenant Tenant { get; set; } = null!;
+        public virtual Workspace? Workspace { get; set; }
     }
 }

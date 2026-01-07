@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using GrcMvc.Models;
 using GrcMvc.Models.DTOs;
@@ -6,12 +7,14 @@ using GrcMvc.Services.Interfaces.Workflows;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GrcAuthorizationService = GrcMvc.Services.Interfaces.IAuthorizationService;
 
 namespace GrcMvc.Controllers
 {
     /// <summary>
     /// Main API controller for workflow, control, evidence, and assessment endpoints
     /// </summary>
+    [Authorize]
     [Route("api")]
     [ApiController]
     public class ApiController : ControllerBase
@@ -27,7 +30,7 @@ namespace GrcMvc.Controllers
         private readonly IPlanService _planService;
         private readonly ISubscriptionService _subscriptionService;
         private readonly IAuthenticationService _authenticationService;
-        private readonly IAuthorizationService _authorizationService;
+        private readonly GrcAuthorizationService _authorizationService;
 
         public ApiController(
             IWorkflowService workflowService,
@@ -41,7 +44,7 @@ namespace GrcMvc.Controllers
             IPlanService planService,
             ISubscriptionService subscriptionService,
             IAuthenticationService authenticationService,
-            IAuthorizationService authorizationService)
+            GrcAuthorizationService authorizationService)
         {
             _workflowService = workflowService;
             _assessmentService = assessmentService;

@@ -20,17 +20,20 @@ namespace GrcMvc.Services.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAuditEventService _auditService;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IWorkspaceContextService? _workspaceContext;
         private readonly ILogger<ReportService> _logger;
 
         public ReportService(
             IUnitOfWork unitOfWork,
             IAuditEventService auditService,
             ICurrentUserService currentUserService,
-            ILogger<ReportService> logger)
+            ILogger<ReportService> logger,
+            IWorkspaceContextService? workspaceContext = null)
         {
             _unitOfWork = unitOfWork;
             _auditService = auditService;
             _currentUserService = currentUserService;
+            _workspaceContext = workspaceContext;
             _logger = logger;
         }
 
@@ -49,6 +52,9 @@ namespace GrcMvc.Services.Implementations
                 {
                     Id = Guid.NewGuid(),
                     TenantId = tenantId,
+                    WorkspaceId = _workspaceContext != null && _workspaceContext.HasWorkspaceContext() 
+                        ? _workspaceContext.GetCurrentWorkspaceId() 
+                        : null,
                     ReportNumber = await GenerateReportNumberAsync("COMP"),
                     Title = $"Compliance Report - {startDate:yyyy-MM-dd} to {endDate:yyyy-MM-dd}",
                     Type = "Compliance",
@@ -125,6 +131,9 @@ namespace GrcMvc.Services.Implementations
                 {
                     Id = Guid.NewGuid(),
                     TenantId = tenantId,
+                    WorkspaceId = _workspaceContext != null && _workspaceContext.HasWorkspaceContext() 
+                        ? _workspaceContext.GetCurrentWorkspaceId() 
+                        : null,
                     ReportNumber = await GenerateReportNumberAsync("RISK"),
                     Title = $"Risk Summary Report - {startDate:yyyy-MM-dd} to {endDate:yyyy-MM-dd}",
                     Type = "Risk",
@@ -192,6 +201,9 @@ namespace GrcMvc.Services.Implementations
                 {
                     Id = Guid.NewGuid(),
                     TenantId = audit.TenantId ?? Guid.Empty,
+                    WorkspaceId = _workspaceContext != null && _workspaceContext.HasWorkspaceContext() 
+                        ? _workspaceContext.GetCurrentWorkspaceId() 
+                        : audit.WorkspaceId,
                     ReportNumber = await GenerateReportNumberAsync("AUDIT"),
                     Title = $"Audit Report - {audit.Title}",
                     Type = "Audit",
@@ -261,6 +273,9 @@ namespace GrcMvc.Services.Implementations
                 {
                     Id = Guid.NewGuid(),
                     TenantId = tenantId,
+                    WorkspaceId = _workspaceContext != null && _workspaceContext.HasWorkspaceContext() 
+                        ? _workspaceContext.GetCurrentWorkspaceId() 
+                        : control.WorkspaceId,
                     ReportNumber = await GenerateReportNumberAsync("CTRL"),
                     Title = $"Control Assessment Report - {control.Name}",
                     Type = "Control",

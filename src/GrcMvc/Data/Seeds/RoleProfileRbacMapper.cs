@@ -95,7 +95,7 @@ public static class RoleProfileRbacMapper
         {
             "CRO" => "RiskManager", // Chief Risk Officer → RiskManager
             "CCO" => "ComplianceManager", // Chief Compliance Officer → ComplianceManager
-            "ED" => "SuperAdmin", // Executive Director → SuperAdmin
+            "ED" => "PlatformAdmin", // Executive Director → PlatformAdmin
             "RM" => "RiskManager",
             "CM" => "ComplianceManager",
             "AM" => "Auditor",

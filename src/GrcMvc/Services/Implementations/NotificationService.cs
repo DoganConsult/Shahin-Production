@@ -13,15 +13,18 @@ namespace GrcMvc.Services.Implementations
     public class NotificationService : INotificationService
     {
         private readonly GrcDbContext _context;
+        private readonly IUserDirectoryService _userDirectory;
         private readonly ISmtpEmailService _emailService;
         private readonly ILogger<NotificationService> _logger;
 
         public NotificationService(
             GrcDbContext context,
+            IUserDirectoryService userDirectory,
             ISmtpEmailService emailService,
             ILogger<NotificationService> logger)
         {
             _context = context;
+            _userDirectory = userDirectory;
             _emailService = emailService;
             _logger = logger;
         }
@@ -391,11 +394,8 @@ namespace GrcMvc.Services.Implementations
         /// </summary>
         private async Task<string?> GetUserEmailAsync(string userId)
         {
-            return await _context.Users
-                .AsNoTracking()
-                .Where(u => u.Id == userId)
-                .Select(u => u.Email)
-                .FirstOrDefaultAsync();
+            var user = await _userDirectory.GetUserByIdAsync(userId);
+            return user?.Email;
         }
 
         /// <summary>

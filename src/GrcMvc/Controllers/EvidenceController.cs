@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Models.DTOs;
+using GrcMvc.Application.Permissions;
+using GrcMvc.Application.Policy;
+using GrcMvc.Authorization;
 using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.Logging;
@@ -10,18 +13,28 @@ using System.Linq;
 namespace GrcMvc.Controllers
 {
     [Authorize]
+    [RequireTenant]
     public class EvidenceController : Controller
     {
         private readonly IEvidenceService _evidenceService;
         private readonly ILogger<EvidenceController> _logger;
+        private readonly IWorkspaceContextService? _workspaceContext;
+        private readonly PolicyEnforcementHelper _policyHelper;
 
-        public EvidenceController(IEvidenceService evidenceService, ILogger<EvidenceController> logger)
+        public EvidenceController(
+            IEvidenceService evidenceService, 
+            ILogger<EvidenceController> logger,
+            PolicyEnforcementHelper policyHelper,
+            IWorkspaceContextService? workspaceContext = null)
         {
             _evidenceService = evidenceService;
             _logger = logger;
+            _policyHelper = policyHelper;
+            _workspaceContext = workspaceContext;
         }
 
         // GET: Evidence
+        [Authorize(GrcPermissions.Evidence.View)]
         public async Task<IActionResult> Index()
         {
             var evidences = await _evidenceService.GetAllAsync();
@@ -29,6 +42,7 @@ namespace GrcMvc.Controllers
         }
 
         // GET: Evidence/Details/5
+        [Authorize(GrcPermissions.Evidence.View)]
         public async Task<IActionResult> Details(Guid id)
         {
             var evidence = await _evidenceService.GetByIdAsync(id);
@@ -48,15 +62,33 @@ namespace GrcMvc.Controllers
         // POST: Evidence/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(GrcPermissions.Evidence.Upload)]
         public async Task<IActionResult> Create(CreateEvidenceDto createEvidenceDto)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // POLICY ENFORCEMENT: Validate governance metadata before creation
+                    await _policyHelper.EnforceCreateAsync(
+                        "Evidence",
+                        createEvidenceDto,
+                        dataClassification: createEvidenceDto.DataClassification,
+                        owner: createEvidenceDto.Owner
+                    );
+
                     var evidence = await _evidenceService.CreateAsync(createEvidenceDto);
                     TempData["Success"] = "Evidence created successfully";
                     return RedirectToAction(nameof(Details), new { id = evidence.Id });
+                }
+                catch (PolicyViolationException pex)
+                {
+                    _logger.LogWarning(pex, "Policy violation creating evidence");
+                    ModelState.AddModelError("", $"Policy Violation: {pex.Message}");
+                    if (!string.IsNullOrEmpty(pex.RemediationHint))
+                    {
+                        ModelState.AddModelError("", $"Remediation: {pex.RemediationHint}");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -68,6 +100,7 @@ namespace GrcMvc.Controllers
         }
 
         // GET: Evidence/Edit/5
+        [Authorize(GrcPermissions.Evidence.Update)]
         public async Task<IActionResult> Edit(Guid id)
         {
             var evidence = await _evidenceService.GetByIdAsync(id);
@@ -98,12 +131,21 @@ namespace GrcMvc.Controllers
         // POST: Evidence/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(GrcPermissions.Evidence.Update)]
         public async Task<IActionResult> Edit(Guid id, UpdateEvidenceDto updateEvidenceDto)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // POLICY ENFORCEMENT: Validate governance metadata before update
+                    await _policyHelper.EnforceUpdateAsync(
+                        "Evidence",
+                        updateEvidenceDto,
+                        dataClassification: updateEvidenceDto.DataClassification,
+                        owner: updateEvidenceDto.Owner
+                    );
+
                     var evidence = await _evidenceService.UpdateAsync(id, updateEvidenceDto);
                     if (evidence == null)
                     {
@@ -111,6 +153,15 @@ namespace GrcMvc.Controllers
                     }
                     TempData["Success"] = "Evidence updated successfully";
                     return RedirectToAction(nameof(Details), new { id = evidence.Id });
+                }
+                catch (PolicyViolationException pex)
+                {
+                    _logger.LogWarning(pex, "Policy violation updating evidence {EvidenceId}", id);
+                    ModelState.AddModelError("", $"Policy Violation: {pex.Message}");
+                    if (!string.IsNullOrEmpty(pex.RemediationHint))
+                    {
+                        ModelState.AddModelError("", $"Remediation: {pex.RemediationHint}");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -135,13 +186,33 @@ namespace GrcMvc.Controllers
         // POST: Evidence/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(GrcPermissions.Evidence.Delete)]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             try
             {
+                // POLICY ENFORCEMENT: Check if deletion is allowed
+                var evidence = await _evidenceService.GetByIdAsync(id);
+                if (evidence != null)
+                {
+                    await _policyHelper.EnforceAsync(
+                        "delete",
+                        "Evidence",
+                        evidence,
+                        dataClassification: evidence.DataClassification,
+                        owner: evidence.Owner
+                    );
+                }
+
                 await _evidenceService.DeleteAsync(id);
                 TempData["Success"] = "Evidence deleted successfully";
                 return RedirectToAction(nameof(Index));
+            }
+            catch (PolicyViolationException pex)
+            {
+                _logger.LogWarning(pex, "Policy violation deleting evidence {EvidenceId}", id);
+                TempData["Error"] = $"Policy Violation: {pex.Message}. {pex.RemediationHint}";
+                return RedirectToAction(nameof(Delete), new { id });
             }
             catch (Exception ex)
             {
@@ -152,6 +223,7 @@ namespace GrcMvc.Controllers
         }
 
         // GET: Evidence/Statistics
+        [Authorize(GrcPermissions.Evidence.View)]
         public async Task<IActionResult> Statistics()
         {
             try
@@ -185,6 +257,7 @@ namespace GrcMvc.Controllers
         }
 
         // GET: Evidence/ByClassification/5
+        [Authorize(GrcPermissions.Evidence.View)]
         public async Task<IActionResult> ByClassification(string classification)
         {
             try
@@ -218,6 +291,7 @@ namespace GrcMvc.Controllers
         }
 
         // GET: Evidence/ByAudit/5
+        [Authorize(GrcPermissions.Evidence.View)]
         public async Task<IActionResult> ByAudit(Guid auditId)
         {
             try

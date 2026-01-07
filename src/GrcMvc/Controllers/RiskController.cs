@@ -2,61 +2,67 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Models.DTOs;
+using GrcMvc.Application.Permissions;
+using GrcMvc.Application.Policy;
+using GrcMvc.Authorization;
 using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.Logging;
-using System.Linq;
 
 namespace GrcMvc.Controllers
 {
     [Authorize]
+    [RequireTenant]
     public class RiskController : Controller
     {
         private readonly IRiskService _riskService;
         private readonly ILogger<RiskController> _logger;
+        private readonly IWorkspaceContextService? _workspaceContext;
+        private readonly PolicyEnforcementHelper _policyHelper;
 
-        public RiskController(IRiskService riskService, ILogger<RiskController> logger)
+        public RiskController(IRiskService riskService, ILogger<RiskController> logger, PolicyEnforcementHelper policyHelper, IWorkspaceContextService? workspaceContext = null)
         {
             _riskService = riskService;
             _logger = logger;
+            _policyHelper = policyHelper;
+            _workspaceContext = workspaceContext;
         }
 
-        // GET: Risk
+        [Authorize(GrcPermissions.Risks.View)]
         public async Task<IActionResult> Index()
         {
             var risks = await _riskService.GetAllAsync();
             return View(risks);
         }
 
-        // GET: Risk/Details/5
+        [Authorize(GrcPermissions.Risks.View)]
         public async Task<IActionResult> Details(Guid id)
         {
             var risk = await _riskService.GetByIdAsync(id);
-            if (risk == null)
-            {
-                return NotFound();
-            }
+            if (risk == null) return NotFound();
             return View(risk);
         }
 
-        // GET: Risk/Create
-        public IActionResult Create()
-        {
-            return View(new CreateRiskDto());
-        }
+        [Authorize(GrcPermissions.Risks.Manage)]
+        public IActionResult Create() => View(new CreateRiskDto());
 
-        // POST: Risk/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateRiskDto createRiskDto)
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Risks.Manage)]
+        public async Task<IActionResult> Create(CreateRiskDto dto)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var risk = await _riskService.CreateAsync(createRiskDto);
+                    await _policyHelper.EnforceCreateAsync("Risk", dto, dataClassification: dto.DataClassification, owner: dto.Owner);
+                    var risk = await _riskService.CreateAsync(dto);
                     TempData["SuccessMessage"] = "Risk created successfully.";
                     return RedirectToAction(nameof(Details), new { id = risk.Id });
+                }
+                catch (PolicyViolationException pex)
+                {
+                    _logger.LogWarning(pex, "Policy violation creating risk");
+                    ModelState.AddModelError("", $"Policy Violation: {pex.Message}");
+                    if (!string.IsNullOrEmpty(pex.RemediationHint)) ModelState.AddModelError("", $"Remediation: {pex.RemediationHint}");
                 }
                 catch (Exception ex)
                 {
@@ -64,17 +70,14 @@ namespace GrcMvc.Controllers
                     ModelState.AddModelError(string.Empty, "An error occurred while creating the risk.");
                 }
             }
-            return View(createRiskDto);
+            return View(dto);
         }
 
-        // GET: Risk/Edit/5
+        [Authorize(GrcPermissions.Risks.Manage)]
         public async Task<IActionResult> Edit(Guid id)
         {
             var risk = await _riskService.GetByIdAsync(id);
-            if (risk == null)
-            {
-                return NotFound();
-            }
+            if (risk == null) return NotFound();
 
             var updateDto = new UpdateRiskDto
             {
@@ -82,94 +85,143 @@ namespace GrcMvc.Controllers
                 Name = risk.Name,
                 Description = risk.Description,
                 Category = risk.Category,
-                Probability = risk.Probability,
                 Impact = risk.Impact,
-                InherentRisk = risk.InherentRisk,
-                ResidualRisk = risk.ResidualRisk,
-                MitigationStrategy = risk.MitigationStrategy,
-                Owner = risk.Owner,
+                Probability = risk.Probability,
+                RiskScore = risk.RiskScore,
                 Status = risk.Status,
-                DueDate = risk.DueDate
+                Owner = risk.Owner,
+                DataClassification = risk.DataClassification,
+                MitigationStrategy = risk.MitigationStrategy,
+                TreatmentPlan = risk.TreatmentPlan
             };
 
             return View(updateDto);
         }
 
-        // POST: Risk/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, UpdateRiskDto updateRiskDto)
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Risks.Manage)]
+        public async Task<IActionResult> Edit(Guid id, UpdateRiskDto dto)
         {
-            if (id != updateRiskDto.Id)
+            // #region agent log
+            try
             {
-                return NotFound();
+                var logPath = "/home/dogan/grc-system/.cursor/debug.log";
+                var logEntry = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    id = $"log_{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid():N}",
+                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                    location = "RiskController.Edit:105",
+                    message = "RiskController.Edit action called",
+                    data = new
+                    {
+                        riskId = id.ToString(),
+                        hasDataClassification = !string.IsNullOrEmpty(dto.DataClassification),
+                        dataClassification = dto.DataClassification ?? "null",
+                        hasOwner = !string.IsNullOrEmpty(dto.Owner),
+                        owner = dto.Owner ?? "null",
+                        modelStateIsValid = ModelState.IsValid
+                    },
+                    sessionId = "debug-session",
+                    runId = "run1",
+                    hypothesisId = "B"
+                }) + "\n";
+                await System.IO.File.AppendAllTextAsync(logPath, logEntry);
             }
+            catch { }
+            // #endregion
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var risk = await _riskService.UpdateAsync(id, updateRiskDto);
+                    // #region agent log
+                    try
+                    {
+                        var logPath = "/home/dogan/grc-system/.cursor/debug.log";
+                        var logEntry = System.Text.Json.JsonSerializer.Serialize(new
+                        {
+                            id = $"log_{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid():N}",
+                            timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                            location = "RiskController.Edit:110",
+                            message = "About to call EnforceUpdateAsync",
+                            data = new
+                            {
+                                riskId = id.ToString(),
+                                dataClassification = dto.DataClassification ?? "null",
+                                owner = dto.Owner ?? "null"
+                            },
+                            sessionId = "debug-session",
+                            runId = "run1",
+                            hypothesisId = "B"
+                        }) + "\n";
+                        await System.IO.File.AppendAllTextAsync(logPath, logEntry);
+                    }
+                    catch { }
+                    // #endregion
+
+                    await _policyHelper.EnforceUpdateAsync("Risk", dto, dataClassification: dto.DataClassification, owner: dto.Owner);
+
+                    // #region agent log
+                    try
+                    {
+                        var logPath = "/home/dogan/grc-system/.cursor/debug.log";
+                        var logEntry = System.Text.Json.JsonSerializer.Serialize(new
+                        {
+                            id = $"log_{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid():N}",
+                            timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                            location = "RiskController.Edit:115",
+                            message = "EnforceUpdateAsync completed, calling service",
+                            data = new { riskId = id.ToString() },
+                            sessionId = "debug-session",
+                            runId = "run1",
+                            hypothesisId = "B"
+                        }) + "\n";
+                        await System.IO.File.AppendAllTextAsync(logPath, logEntry);
+                    }
+                    catch { }
+                    // #endregion
+
+                    var risk = await _riskService.UpdateAsync(id, dto);
+                    if (risk == null) return NotFound();
                     TempData["SuccessMessage"] = "Risk updated successfully.";
                     return RedirectToAction(nameof(Details), new { id = risk.Id });
                 }
+                catch (PolicyViolationException pex)
+                {
+                    _logger.LogWarning(pex, "Policy violation updating risk {RiskId}", id);
+                    ModelState.AddModelError("", $"Policy Violation: {pex.Message}");
+                    if (!string.IsNullOrEmpty(pex.RemediationHint)) ModelState.AddModelError("", $"Remediation: {pex.RemediationHint}");
+                }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error updating risk");
-                    ModelState.AddModelError(string.Empty, "An error occurred while updating the risk.");
+                    _logger.LogError(ex, "Error updating risk {RiskId}", id);
+                    ModelState.AddModelError("", "Error updating risk. Please try again.");
                 }
             }
-            return View(updateRiskDto);
+            return View(dto);
         }
 
-        // GET: Risk/Delete/5
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            var risk = await _riskService.GetByIdAsync(id);
-            if (risk == null)
-            {
-                return NotFound();
-            }
-            return View(risk);
-        }
-
-        // POST: Risk/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Risks.Accept)]
+        public async Task<IActionResult> Accept(Guid id)
         {
             try
             {
-                await _riskService.DeleteAsync(id);
-                TempData["SuccessMessage"] = "Risk deleted successfully.";
-                return RedirectToAction(nameof(Index));
+                var risk = await _riskService.GetByIdAsync(id);
+                if (risk == null) return NotFound();
+                await _policyHelper.EnforceAsync("accept", "Risk", risk, dataClassification: risk.DataClassification, owner: risk.Owner);
+                await _riskService.AcceptAsync(id);
+                TempData["SuccessMessage"] = "Risk accepted successfully.";
+            }
+            catch (PolicyViolationException pex)
+            {
+                _logger.LogWarning(pex, "Policy violation accepting risk {RiskId}", id);
+                TempData["ErrorMessage"] = $"Policy Violation: {pex.Message}. {pex.RemediationHint}";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting risk");
-                TempData["ErrorMessage"] = "An error occurred while deleting the risk.";
-                return RedirectToAction(nameof(Index));
+                _logger.LogError(ex, "Error accepting risk {RiskId}", id);
+                TempData["ErrorMessage"] = "An error occurred while accepting the risk.";
             }
-        }
-
-        // GET: Risk/Matrix
-        public async Task<IActionResult> Matrix()
-        {
-            var risks = await _riskService.GetAllAsync();
-            return View(risks);
-        }
-
-        // GET: Risk/Report
-        public async Task<IActionResult> Report()
-        {
-            var risks = await _riskService.GetAllAsync();
-            ViewBag.HighRiskCount = risks.Count(r => r.InherentRisk >= 15);
-            ViewBag.MediumRiskCount = risks.Count(r => r.InherentRisk >= 8 && r.InherentRisk < 15);
-            ViewBag.LowRiskCount = risks.Count(r => r.InherentRisk < 8);
-            ViewBag.ActiveRiskCount = risks.Count(r => r.Status == "Active");
-            ViewBag.MitigatedRiskCount = risks.Count(r => r.Status == "Mitigated");
-            ViewBag.ClosedRiskCount = risks.Count(r => r.Status == "Closed");
-            return View(risks);
+            return RedirectToAction(nameof(Details), new { id });
         }
     }
 }

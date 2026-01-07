@@ -2,6 +2,26 @@
 
 A clean, secure, single MVC application for enterprise GRC management built with ASP.NET Core 8.0 and Entity Framework Core.
 
+---
+
+## 🌐 **ACTIVE ECOSYSTEM ROADMAP** ⚠️
+
+**📋 IMPORTANT: Complete 24-week roadmap is available and ready for implementation!**
+
+### Quick Access to Roadmap:
+- **[ECOSYSTEM_ROADMAP_INDEX.md](./ECOSYSTEM_ROADMAP_INDEX.md)** ⭐ **START HERE** - Master index with all links
+- **[COMPLETE_ECOSYSTEM_ROADMAP.md](./COMPLETE_ECOSYSTEM_ROADMAP.md)** - Full 24-week implementation plan
+- **[STAKEHOLDER_NEEDS_MATRIX.md](./STAKEHOLDER_NEEDS_MATRIX.md)** - All stakeholder needs analysis
+- **[TECHNOLOGY_VENDOR_INTEGRATION_GUIDE.md](./TECHNOLOGY_VENDOR_INTEGRATION_GUIDE.md)** - Tech vendor integration guide
+
+**Current Phase:** Phase 1 - Foundation (Weeks 1-6)  
+**Status:** ✅ Ready to Start  
+**Investment:** $750K over 24 weeks
+
+**Next Action:** Review [ECOSYSTEM_ROADMAP_INDEX.md](./ECOSYSTEM_ROADMAP_INDEX.md) and start Phase 1, Week 1
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites

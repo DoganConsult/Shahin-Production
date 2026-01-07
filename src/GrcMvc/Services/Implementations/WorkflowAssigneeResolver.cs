@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
+using GrcMvc.Services.Interfaces;
 using Microsoft.Extensions.Logging;
-using GrcMvc.Models.Entities;
 
 namespace GrcMvc.Services.Implementations
 {
@@ -16,15 +16,18 @@ namespace GrcMvc.Services.Implementations
     public class WorkflowAssigneeResolver
     {
         private readonly GrcDbContext _context;
+        private readonly IUserDirectoryService _userDirectory;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<WorkflowAssigneeResolver> _logger;
 
         public WorkflowAssigneeResolver(
             GrcDbContext context,
+            IUserDirectoryService userDirectory,
             UserManager<ApplicationUser> userManager,
             ILogger<WorkflowAssigneeResolver> logger)
         {
             _context = context;
+            _userDirectory = userDirectory;
             _userManager = userManager;
             _logger = logger;
         }
@@ -94,8 +97,7 @@ namespace GrcMvc.Services.Implementations
             }
 
             // Try to resolve from Identity role name
-            var identityRole = await _context.Roles
-                .FirstOrDefaultAsync(r => r.Name == assignee);
+            var identityRole = await _userDirectory.GetRoleByNameAsync(assignee);
 
             if (identityRole != null)
             {

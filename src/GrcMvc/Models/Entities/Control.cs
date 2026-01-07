@@ -1,10 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GrcMvc.Models.Entities
 {
     public class Control : BaseEntity
     {
+        /// <summary>
+        /// Workspace this control belongs to (Market/BU scope).
+        /// Null = applies to all workspaces in the tenant.
+        /// </summary>
+        public Guid? WorkspaceId { get; set; }
+
+        [ForeignKey("WorkspaceId")]
+        public virtual Workspace? Workspace { get; set; }
+
         public string ControlId { get; set; } = string.Empty;
         public string ControlCode { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;

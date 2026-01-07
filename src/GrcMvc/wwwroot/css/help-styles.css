@@ -1,0 +1,132 @@
+/**
+ * Help System Styles
+ * Styles for help center, tooltips, glossary, and tour
+ */
+
+/* Glossary Modal */
+#glossaryModal .modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.glossary-term {
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.glossary-term:hover {
+    text-decoration: underline;
+}
+
+/* Tour Styles */
+.tour-highlight {
+    position: relative;
+    z-index: 9999;
+    outline: 3px solid #0d6efd;
+    outline-offset: 2px;
+    border-radius: 4px;
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+.tour-tooltip {
+    position: fixed;
+    z-index: 10000;
+    background: white;
+    border: 2px solid #0d6efd;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    min-width: 300px;
+}
+
+.tour-tooltip-header {
+    background: #0d6efd;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 6px 6px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tour-tooltip-header h5 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.tour-tooltip-body {
+    padding: 16px;
+}
+
+.tour-tooltip-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Help Cards */
+.help-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.help-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Tooltip Icons */
+.help-icon {
+    cursor: help;
+    font-size: 0.9rem;
+}
+
+/* Empty State Help */
+.empty-state-help {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state-help i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* FAQ Accordion */
+.accordion-button:not(.collapsed) {
+    background-color: #e7f1ff;
+    color: #0d6efd;
+}
+
+/* Glossary Search */
+#glossarySearch:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* RTL Support */
+[dir="rtl"] .tour-tooltip {
+    text-align: right;
+}
+
+[dir="rtl"] .help-icon {
+    margin-left: 0;
+    margin-right: 0.25rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tour-tooltip {
+        max-width: 90vw;
+        min-width: 280px;
+    }
+    
+    .tour-tooltip-footer {
+        flex-direction: column;
+        gap: 8px;
+    }
+}

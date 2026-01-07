@@ -1,4 +1,5 @@
 using GrcMvc.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GrcMvc.Controllers;
@@ -6,6 +7,7 @@ namespace GrcMvc.Controllers;
 /// <summary>
 /// API Controller for support agent chat functionality
 /// </summary>
+[Authorize]
 [ApiController]
 [Route("api/support")]
 public class SupportApiController : ControllerBase

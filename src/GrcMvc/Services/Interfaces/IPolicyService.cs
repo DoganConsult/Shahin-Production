@@ -20,5 +20,7 @@ namespace GrcMvc.Services.Interfaces
         Task<PolicyViolationDto?> AddViolationAsync(Guid policyId, CreatePolicyViolationDto createViolationDto);
         Task<IEnumerable<PolicyViolationDto>> GetViolationsByPolicyIdAsync(Guid policyId);
         Task<bool> ValidateComplianceAsync(Guid policyId);
+        Task ApproveAsync(Guid id);
+        Task PublishAsync(Guid id);
     }
 }

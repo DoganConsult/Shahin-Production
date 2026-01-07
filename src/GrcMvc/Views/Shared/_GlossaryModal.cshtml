@@ -1,0 +1,35 @@
+@* Glossary Modal - Shows term definitions *@
+
+<div class="modal fade" id="glossaryModal" tabindex="-1" aria-labelledby="glossaryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="glossaryModalLabel">
+                    <i class="bi bi-book me-2"></i>
+                    <span id="glossaryTermTitle">Term</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <strong>Definition:</strong>
+                    <p id="glossaryTermDefinition" class="mt-2"></p>
+                </div>
+                <div class="mb-3">
+                    <strong>Category:</strong>
+                    <span id="glossaryTermCategory" class="badge bg-info"></span>
+                </div>
+                <div id="glossaryTermExamples" style="display: none;">
+                    <strong>Examples:</strong>
+                    <ul id="glossaryTermExamplesList"></ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a asp-controller="Help" asp-action="Glossary" class="btn btn-info text-white">
+                    View Full Glossary
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

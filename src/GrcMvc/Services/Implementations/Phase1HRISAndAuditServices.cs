@@ -18,12 +18,14 @@ namespace GrcMvc.Services.Implementations
     public class HRISService : IHRISService
     {
         private readonly GrcDbContext _context;
+        private readonly IUserDirectoryService _userDirectory;
         private readonly ILogger<HRISService> _logger;
         private readonly IAuditTrailService _auditTrail;
 
-        public HRISService(GrcDbContext context, ILogger<HRISService> logger, IAuditTrailService auditTrail)
+        public HRISService(GrcDbContext context, IUserDirectoryService userDirectory, ILogger<HRISService> logger, IAuditTrailService auditTrail)
         {
             _context = context;
+            _userDirectory = userDirectory;
             _logger = logger;
             _auditTrail = auditTrail;
         }
@@ -35,7 +37,7 @@ namespace GrcMvc.Services.Implementations
         {
             try
             {
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId.ToString());
+                var user = await _userDirectory.GetUserByIdAsync(userId.ToString());
                 if (user == null)
                 {
                     _logger.LogWarning($"User {userId} not found in tenant {tenantId}");

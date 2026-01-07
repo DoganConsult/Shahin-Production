@@ -16,17 +16,20 @@ namespace GrcMvc.BackgroundJobs
     public class NotificationDeliveryJob
     {
         private readonly GrcDbContext _context;
+        private readonly IUserDirectoryService _userDirectory;
         private readonly ISmtpEmailService _emailService;
         private readonly ILogger<NotificationDeliveryJob> _logger;
         private readonly WorkflowSettings _settings;
 
         public NotificationDeliveryJob(
             GrcDbContext context,
+            IUserDirectoryService userDirectory,
             ISmtpEmailService emailService,
             ILogger<NotificationDeliveryJob> logger,
             IOptions<WorkflowSettings> settings)
         {
             _context = context;
+            _userDirectory = userDirectory;
             _emailService = emailService;
             _logger = logger;
             _settings = settings.Value;
@@ -263,13 +266,8 @@ namespace GrcMvc.BackgroundJobs
         /// </summary>
         private async Task<string?> GetRecipientEmailAsync(string userId)
         {
-            var user = await _context.Users
-                .AsNoTracking()
-                .Where(u => u.Id == userId)
-                .Select(u => u.Email)
-                .FirstOrDefaultAsync();
-
-            return user;
+            var user = await _userDirectory.GetUserByIdAsync(userId);
+            return user?.Email;
         }
 
         /// <summary>

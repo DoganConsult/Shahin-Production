@@ -2,6 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Models.DTOs;
+using GrcMvc.Application.Permissions;
+using GrcMvc.Application.Policy;
+using GrcMvc.Authorization;
+using GrcMvc.Data;
 using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.Logging;
@@ -9,70 +13,75 @@ using Microsoft.Extensions.Logging;
 namespace GrcMvc.Controllers
 {
     [Authorize]
+    [RequireTenant]
     public class AssessmentController : Controller
     {
         private readonly IAssessmentService _assessmentService;
         private readonly IRiskService _riskService;
         private readonly IControlService _controlService;
         private readonly ILogger<AssessmentController> _logger;
+        private readonly IWorkspaceContextService? _workspaceContext;
+        private readonly PolicyEnforcementHelper _policyHelper;
+        private readonly IUnitOfWork _unitOfWork;
 
         public AssessmentController(
             IAssessmentService assessmentService,
             IRiskService riskService,
             IControlService controlService,
-            ILogger<AssessmentController> logger)
+            ILogger<AssessmentController> logger,
+            PolicyEnforcementHelper policyHelper,
+            IUnitOfWork unitOfWork,
+            IWorkspaceContextService? workspaceContext = null)
         {
             _assessmentService = assessmentService;
             _riskService = riskService;
             _controlService = controlService;
             _logger = logger;
+            _policyHelper = policyHelper;
+            _unitOfWork = unitOfWork;
+            _workspaceContext = workspaceContext;
         }
 
-        // GET: Assessment
+        [Authorize(GrcPermissions.Assessments.View)]
         public async Task<IActionResult> Index()
         {
             var assessments = await _assessmentService.GetAllAsync();
             return View(assessments);
         }
 
-        // GET: Assessment/Details/5
+        [Authorize(GrcPermissions.Assessments.View)]
         public async Task<IActionResult> Details(Guid id)
         {
             var assessment = await _assessmentService.GetByIdAsync(id);
-            if (assessment == null)
-            {
-                return NotFound();
-            }
+            if (assessment == null) return NotFound();
             return View(assessment);
         }
 
-        // GET: Assessment/Create
+        [Authorize(GrcPermissions.Assessments.Create)]
         public async Task<IActionResult> Create(Guid? riskId = null, Guid? controlId = null)
         {
-            var model = new CreateAssessmentDto
-            {
-                RiskId = riskId,
-                ControlId = controlId,
-                StartDate = DateTime.Today,
-                ScheduledDate = DateTime.Today.AddDays(7)
-            };
-
+            var model = new CreateAssessmentDto { RiskId = riskId, ControlId = controlId, StartDate = DateTime.Today, ScheduledDate = DateTime.Today.AddDays(7) };
             await PopulateViewBags(riskId, controlId);
             return View(model);
         }
 
-        // POST: Assessment/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateAssessmentDto createAssessmentDto)
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Assessments.Create)]
+        public async Task<IActionResult> Create(CreateAssessmentDto dto)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var assessment = await _assessmentService.CreateAsync(createAssessmentDto);
+                    await _policyHelper.EnforceCreateAsync("Assessment", dto, dataClassification: dto.DataClassification, owner: dto.Owner);
+                    var assessment = await _assessmentService.CreateAsync(dto);
                     TempData["Success"] = "Assessment created successfully";
                     return RedirectToAction(nameof(Details), new { id = assessment.Id });
+                }
+                catch (PolicyViolationException pex)
+                {
+                    _logger.LogWarning(pex, "Policy violation creating assessment");
+                    ModelState.AddModelError("", $"Policy Violation: {pex.Message}");
+                    if (!string.IsNullOrEmpty(pex.RemediationHint)) ModelState.AddModelError("", $"Remediation: {pex.RemediationHint}");
                 }
                 catch (Exception ex)
                 {
@@ -80,157 +89,137 @@ namespace GrcMvc.Controllers
                     ModelState.AddModelError("", "Error creating assessment. Please try again.");
                 }
             }
-
-            await PopulateViewBags(createAssessmentDto.RiskId, createAssessmentDto.ControlId);
-            return View(createAssessmentDto);
+            await PopulateViewBags(dto.RiskId, dto.ControlId);
+            return View(dto);
         }
 
-        // GET: Assessment/Edit/5
+        [Authorize(GrcPermissions.Assessments.Update)]
         public async Task<IActionResult> Edit(Guid id)
         {
             var assessment = await _assessmentService.GetByIdAsync(id);
-            if (assessment == null)
-            {
-                return NotFound();
-            }
+            if (assessment == null) return NotFound();
 
             var updateDto = new UpdateAssessmentDto
             {
-                AssessmentNumber = assessment.AssessmentNumber,
-                Type = assessment.Type,
+                Id = assessment.Id,
                 Name = assessment.Name,
                 Description = assessment.Description,
-                StartDate = assessment.StartDate,
-                AssignedTo = assessment.AssignedTo,
+                AssessmentType = assessment.AssessmentType,
                 RiskId = assessment.RiskId,
                 ControlId = assessment.ControlId,
-                EndDate = assessment.EndDate,
                 Status = assessment.Status,
-                ReviewedBy = assessment.ReviewedBy,
-                ComplianceScore = assessment.ComplianceScore,
-                Results = assessment.Results,
-                Findings = assessment.Findings,
-                Recommendations = assessment.Recommendations
+                StartDate = assessment.StartDate,
+                ScheduledDate = assessment.ScheduledDate,
+                CompletedDate = assessment.CompletedDate,
+                AssessorId = assessment.AssessorId,
+                Notes = assessment.Notes,
+                DataClassification = assessment.DataClassification,
+                Owner = assessment.Owner
             };
 
             await PopulateViewBags(assessment.RiskId, assessment.ControlId);
             return View(updateDto);
         }
 
-        // POST: Assessment/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, UpdateAssessmentDto updateAssessmentDto)
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Assessments.Update)]
+        public async Task<IActionResult> Edit(Guid id, UpdateAssessmentDto dto)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var assessment = await _assessmentService.UpdateAsync(id, updateAssessmentDto);
-                    if (assessment == null)
-                    {
-                        return NotFound();
-                    }
+                    await _policyHelper.EnforceUpdateAsync("Assessment", dto, dataClassification: dto.DataClassification, owner: dto.Owner);
+                    var assessment = await _assessmentService.UpdateAsync(id, dto);
+                    if (assessment == null) return NotFound();
                     TempData["Success"] = "Assessment updated successfully";
                     return RedirectToAction(nameof(Details), new { id = assessment.Id });
                 }
+                catch (PolicyViolationException pex)
+                {
+                    _logger.LogWarning(pex, "Policy violation updating assessment {AssessmentId}", id);
+                    ModelState.AddModelError("", $"Policy Violation: {pex.Message}");
+                    if (!string.IsNullOrEmpty(pex.RemediationHint)) ModelState.AddModelError("", $"Remediation: {pex.RemediationHint}");
+                }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error updating assessment with ID {AssessmentId}", id);
+                    _logger.LogError(ex, "Error updating assessment {AssessmentId}", id);
                     ModelState.AddModelError("", "Error updating assessment. Please try again.");
                 }
             }
-
-            await PopulateViewBags(updateAssessmentDto.RiskId, updateAssessmentDto.ControlId);
-            return View(updateAssessmentDto);
+            await PopulateViewBags(dto.RiskId, dto.ControlId);
+            return View(dto);
         }
 
-        private async Task PopulateViewBags(Guid? selectedRiskId = null, Guid? selectedControlId = null)
-        {
-            var risks = await _riskService.GetAllAsync();
-            var controls = await _controlService.GetAllAsync();
-
-            ViewBag.RiskId = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(risks, "Id", "Name", selectedRiskId);
-            ViewBag.ControlId = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(controls, "Id", "Name", selectedControlId);
-        }
-
-        // GET: Assessment/Delete/5
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            var assessment = await _assessmentService.GetByIdAsync(id);
-            if (assessment == null)
-            {
-                return NotFound();
-            }
-            return View(assessment);
-        }
-
-        // POST: Assessment/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Assessments.Submit)]
+        public async Task<IActionResult> Submit(Guid id)
         {
             try
             {
-                await _assessmentService.DeleteAsync(id);
-                TempData["Success"] = "Assessment deleted successfully";
-                return RedirectToAction(nameof(Index));
+                var assessment = await _assessmentService.GetByIdAsync(id);
+                if (assessment == null) return NotFound();
+
+                // Get entity for policy enforcement (DTO may not have all properties)
+                var assessmentEntity = await _unitOfWork.Assessments.GetByIdAsync(id);
+                if (assessmentEntity == null) return NotFound();
+
+                await _policyHelper.EnforceSubmitAsync("Assessment", assessmentEntity, 
+                    dataClassification: assessmentEntity.DataClassification, 
+                    owner: assessmentEntity.Owner);
+                
+                await _assessmentService.SubmitAsync(id);
+                TempData["Success"] = "Assessment submitted successfully";
+            }
+            catch (PolicyViolationException pex)
+            {
+                _logger.LogWarning(pex, "Policy violation submitting assessment {AssessmentId}", id);
+                TempData["Error"] = $"Policy Violation: {pex.Message}. {pex.RemediationHint}";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting assessment with ID {AssessmentId}", id);
-                TempData["Error"] = "Error deleting assessment. Please try again.";
-                return RedirectToAction(nameof(Delete), new { id });
+                _logger.LogError(ex, "Error submitting assessment {AssessmentId}", id);
+                TempData["Error"] = "Error submitting assessment. Please try again.";
             }
+            return RedirectToAction(nameof(Details), new { id });
         }
 
-        // GET: Assessment/Statistics
-        public async Task<IActionResult> Statistics()
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Assessments.Approve)]
+        public async Task<IActionResult> Approve(Guid id)
         {
             try
             {
-                var statistics = await _assessmentService.GetStatisticsAsync();
-                return View(statistics);
+                var assessment = await _assessmentService.GetByIdAsync(id);
+                if (assessment == null) return NotFound();
+
+                // Get entity for policy enforcement (DTO may not have all properties)
+                var assessmentEntity = await _unitOfWork.Assessments.GetByIdAsync(id);
+                if (assessmentEntity == null) return NotFound();
+
+                await _policyHelper.EnforceApproveAsync("Assessment", assessmentEntity, 
+                    dataClassification: assessmentEntity.DataClassification, 
+                    owner: assessmentEntity.Owner);
+                
+                await _assessmentService.ApproveAsync(id);
+                TempData["Success"] = "Assessment approved successfully";
+            }
+            catch (PolicyViolationException pex)
+            {
+                _logger.LogWarning(pex, "Policy violation approving assessment {AssessmentId}", id);
+                TempData["Error"] = $"Policy Violation: {pex.Message}. {pex.RemediationHint}";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting assessment statistics");
-                TempData["Error"] = "Error loading statistics. Please try again.";
-                return View(new AssessmentStatisticsDto());
+                _logger.LogError(ex, "Error approving assessment {AssessmentId}", id);
+                TempData["Error"] = "Error approving assessment. Please try again.";
             }
+            return RedirectToAction(nameof(Details), new { id });
         }
 
-        // GET: Assessment/ByControl/5
-        public async Task<IActionResult> ByControl(Guid controlId)
+        private async Task PopulateViewBags(Guid? riskId, Guid? controlId)
         {
-            try
-            {
-                var assessments = await _assessmentService.GetByControlIdAsync(controlId);
-                ViewBag.ControlId = controlId;
-                return View(assessments);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting assessments for control ID {ControlId}", controlId);
-                TempData["Error"] = "Error loading assessments. Please try again.";
-                return View(new List<AssessmentDto>());
-            }
-        }
-
-        // GET: Assessment/Upcoming
-        public async Task<IActionResult> Upcoming()
-        {
-            try
-            {
-                var assessments = await _assessmentService.GetUpcomingAssessmentsAsync(30);
-                return View(assessments);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting upcoming assessments");
-                TempData["Error"] = "Error loading upcoming assessments. Please try again.";
-                return View(new List<AssessmentDto>());
-            }
+            if (riskId.HasValue) ViewBag.RiskName = (await _riskService.GetByIdAsync(riskId.Value))?.Name;
+            if (controlId.HasValue) ViewBag.ControlName = (await _controlService.GetByIdAsync(controlId.Value))?.Name;
+            ViewBag.Risks = await _riskService.GetAllAsync();
+            ViewBag.Controls = await _controlService.GetAllAsync();
         }
     }
 }

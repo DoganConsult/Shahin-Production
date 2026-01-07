@@ -84,9 +84,9 @@ public class AlertService : IAlertService
         }
     }
 
-    public bool ShouldTriggerAlert(CodeAnalysisResult result, AlertConfiguration? config = null)
+    public async Task<bool> ShouldTriggerAlertAsync(CodeAnalysisResult result, AlertConfiguration? config = null)
     {
-        config ??= GetConfigurationAsync().GetAwaiter().GetResult();
+        config ??= await GetConfigurationAsync();
 
         // Check severity
         if (config.AlertOnSeverities.Contains(result.Severity, StringComparer.OrdinalIgnoreCase))

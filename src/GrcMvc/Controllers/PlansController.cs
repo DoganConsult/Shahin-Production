@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -11,6 +12,7 @@ namespace GrcMvc.Controllers
     /// API endpoints for assessment plan management.
     /// Handles plan creation, phase management, and progress tracking.
     /// </summary>
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class PlansController : ControllerBase

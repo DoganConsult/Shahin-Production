@@ -15,7 +15,7 @@ public interface IAlertService
     /// <summary>
     /// Check if alert should be triggered based on result
     /// </summary>
-    bool ShouldTriggerAlert(CodeAnalysisResult result, AlertConfiguration? config = null);
+    Task<bool> ShouldTriggerAlertAsync(CodeAnalysisResult result, AlertConfiguration? config = null);
 
     /// <summary>
     /// Create alert from analysis result

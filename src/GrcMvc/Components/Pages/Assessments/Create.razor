@@ -1,6 +1,9 @@
 @page "/assessments/create"
 @using GrcMvc.Models.Dtos
 @using GrcMvc.Services.Interfaces
+@using GrcMvc.Services
+@using GrcMvc.Application.Policy
+@using GrcMvc.Application.Policy; // Added this line to disambiguate PolicyViolationInfo
 @inject IWorkflowEngineService WorkflowService
 @inject NavigationManager NavManager
 @inject IHttpContextAccessor HttpContextAccessor
@@ -23,8 +26,15 @@
                 <div class="card-body">
                     @if (errorMessage != null)
                     {
-                        <div class="alert alert-danger">@errorMessage</div>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @errorMessage
+                            <button type="button" class="btn-close" @onclick="@(() => errorMessage = null)"></button>
+                        </div>
                     }
+
+                    <PolicyViolationDialog ShowDialog="@showPolicyViolation"
+                                           Violation="@policyViolation"
+                                           OnClose="@(() => showPolicyViolation = false)" />
 
                     <form @onsubmit="HandleCreateAssessment">
                         <div class="mb-3">
@@ -111,6 +121,8 @@
     private AssessmentCreateDto newAssessment = new();
     private bool isSubmitting = false;
     private string? errorMessage;
+    private bool showPolicyViolation = false;
+    private GrcMvc.Application.Policy.PolicyViolationInfo? policyViolation;
 
     private async Task HandleCreateAssessment()
     {
@@ -122,6 +134,7 @@
 
         isSubmitting = true;
         errorMessage = null;
+        showPolicyViolation = false;
 
         try
         {
@@ -133,7 +146,19 @@
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error creating assessment: {ex.Message}";
+            // Try to parse policy violation from exception
+            var violation = PolicyViolationParser.ParseFromException(ex);
+            if (violation != null)
+            {
+                policyViolation = violation;
+                showPolicyViolation = true;
+                errorMessage = null; // Dialog will show the violation
+            }
+            else
+            {
+                errorMessage = $"Error creating assessment: {ex.Message}";
+                showPolicyViolation = false;
+            }
         }
         finally
         {

@@ -18,18 +18,21 @@ namespace GrcMvc.Services.Implementations
     /// </summary>
     public class EvidenceService : IEvidenceService
     {
-        private readonly GrcDbContext _context;
+        private readonly IDbContextFactory<GrcDbContext> _contextFactory;
         private readonly ILogger<EvidenceService> _logger;
         private readonly PolicyEnforcementHelper _policyHelper;
+        private readonly IWorkspaceContextService? _workspaceContext;
 
         public EvidenceService(
-            GrcDbContext context,
+            IDbContextFactory<GrcDbContext> contextFactory,
             ILogger<EvidenceService> logger,
-            PolicyEnforcementHelper policyHelper)
+            PolicyEnforcementHelper policyHelper,
+            IWorkspaceContextService? workspaceContext = null)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _policyHelper = policyHelper ?? throw new ArgumentNullException(nameof(policyHelper));
+            _workspaceContext = workspaceContext;
         }
 
         /// <summary>
@@ -39,7 +42,8 @@ namespace GrcMvc.Services.Implementations
         {
             try
             {
-                var evidences = await _context.Evidences
+                await using var context = _contextFactory.CreateDbContext();
+                var evidences = await context.Evidences
                     .AsNoTracking()
                     .Select(e => MapToDto(e))
                     .ToListAsync();
@@ -61,7 +65,8 @@ namespace GrcMvc.Services.Implementations
         {
             try
             {
-                var evidence = await _context.Evidences
+                await using var context = _contextFactory.CreateDbContext();
+                var evidence = await context.Evidences
                     .AsNoTracking()
                     .FirstOrDefaultAsync(e => e.Id == id);
 
@@ -101,7 +106,10 @@ namespace GrcMvc.Services.Implementations
                     CollectedBy = createEvidenceDto.Owner ?? string.Empty,
                     FilePath = createEvidenceDto.Location ?? string.Empty,
                     Comments = createEvidenceDto.Notes ?? string.Empty,
-                    EvidenceNumber = $"EV-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpper()}"
+                    EvidenceNumber = $"EV-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpper()}",
+                    WorkspaceId = _workspaceContext != null && _workspaceContext.HasWorkspaceContext() 
+                        ? _workspaceContext.GetCurrentWorkspaceId() 
+                        : null
                 };
 
                 // Enforce policies before saving using helper
@@ -111,8 +119,9 @@ namespace GrcMvc.Services.Implementations
                     dataClassification: createEvidenceDto.DataClassification,
                     owner: createEvidenceDto.Owner);
 
-                _context.Evidences.Add(evidence);
-                await _context.SaveChangesAsync();
+                await using var context = _contextFactory.CreateDbContext();
+                context.Evidences.Add(evidence);
+                await context.SaveChangesAsync();
 
                 _logger.LogInformation($"Created evidence '{evidence.Title}' with ID {evidence.Id}");
                 return MapToDto(evidence);
@@ -137,7 +146,8 @@ namespace GrcMvc.Services.Implementations
         {
             try
             {
-                var evidence = await _context.Evidences.FirstOrDefaultAsync(e => e.Id == id);
+                await using var context = _contextFactory.CreateDbContext();
+                var evidence = await context.Evidences.FirstOrDefaultAsync(e => e.Id == id);
                 if (evidence == null)
                 {
                     _logger.LogWarning($"Evidence with ID {id} not found for update");
@@ -150,8 +160,8 @@ namespace GrcMvc.Services.Implementations
                 evidence.VerificationStatus = updateEvidenceDto.Status ?? evidence.VerificationStatus;
                 evidence.Comments = updateEvidenceDto.Notes ?? evidence.Comments;
 
-                _context.Evidences.Update(evidence);
-                await _context.SaveChangesAsync();
+                context.Evidences.Update(evidence);
+                await context.SaveChangesAsync();
 
                 _logger.LogInformation($"Updated evidence with ID {id}");
                 return MapToDto(evidence);
@@ -170,15 +180,16 @@ namespace GrcMvc.Services.Implementations
         {
             try
             {
-                var evidence = await _context.Evidences.FirstOrDefaultAsync(e => e.Id == id);
+                await using var context = _contextFactory.CreateDbContext();
+                var evidence = await context.Evidences.FirstOrDefaultAsync(e => e.Id == id);
                 if (evidence == null)
                 {
                     _logger.LogWarning($"Evidence with ID {id} not found for deletion");
                     return;
                 }
 
-                _context.Evidences.Remove(evidence);
-                await _context.SaveChangesAsync();
+                context.Evidences.Remove(evidence);
+                await context.SaveChangesAsync();
 
                 _logger.LogInformation($"Deleted evidence with ID {id}");
             }
@@ -196,7 +207,8 @@ namespace GrcMvc.Services.Implementations
         {
             try
             {
-                var evidences = await _context.Evidences
+                await using var context = _contextFactory.CreateDbContext();
+                var evidences = await context.Evidences
                     .AsNoTracking()
                     .Where(e => e.Type == type)
                     .Select(e => MapToDto(e))
@@ -219,7 +231,8 @@ namespace GrcMvc.Services.Implementations
         {
             try
             {
-                var evidences = await _context.Evidences
+                await using var context = _contextFactory.CreateDbContext();
+                var evidences = await context.Evidences
                     .AsNoTracking()
                     .Where(e => e.Type == classification)
                     .Select(e => MapToDto(e))
@@ -242,8 +255,9 @@ namespace GrcMvc.Services.Implementations
         {
             try
             {
+                await using var context = _contextFactory.CreateDbContext();
                 var expiryDate = DateTime.UtcNow.AddDays(days);
-                var evidences = await _context.Evidences
+                var evidences = await context.Evidences
                     .AsNoTracking()
                     .Where(e => e.VerificationDate.HasValue && e.VerificationDate <= expiryDate)
                     .Select(e => MapToDto(e))
@@ -266,7 +280,8 @@ namespace GrcMvc.Services.Implementations
         {
             try
             {
-                var evidences = await _context.Evidences
+                await using var context = _contextFactory.CreateDbContext();
+                var evidences = await context.Evidences
                     .AsNoTracking()
                     .Where(e => e.AuditId == auditId)
                     .Select(e => MapToDto(e))
@@ -289,7 +304,8 @@ namespace GrcMvc.Services.Implementations
         {
             try
             {
-                var evidences = await _context.Evidences.AsNoTracking().ToListAsync();
+                await using var context = _contextFactory.CreateDbContext();
+                var evidences = await context.Evidences.AsNoTracking().ToListAsync();
                 var expiryDate = DateTime.UtcNow.AddDays(30);
 
                 var stats = new EvidenceStatisticsDto

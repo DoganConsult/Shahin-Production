@@ -5,7 +5,6 @@ using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Application.Policy;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -24,19 +23,22 @@ namespace GrcMvc.Services.Implementations
         private readonly ILogger<RiskService> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly PolicyEnforcementHelper _policyHelper;
+        private readonly IWorkspaceContextService? _workspaceContext;
 
         public RiskService(
             IUnitOfWork unitOfWork,
             IMapper mapper,
             ILogger<RiskService> logger,
             IHttpContextAccessor httpContextAccessor,
-            PolicyEnforcementHelper policyHelper)
+            PolicyEnforcementHelper policyHelper,
+            IWorkspaceContextService? workspaceContext = null)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _policyHelper = policyHelper ?? throw new ArgumentNullException(nameof(policyHelper));
+            _workspaceContext = workspaceContext;
         }
 
         public async Task<RiskDto?> GetByIdAsync(Guid id)
@@ -44,6 +46,7 @@ namespace GrcMvc.Services.Implementations
             try
             {
                 var risk = await _unitOfWork.Risks.GetByIdAsync(id);
+
                 if (risk == null)
                 {
                     _logger.LogWarning("Risk with ID {Id} not found", id);
@@ -85,6 +88,12 @@ namespace GrcMvc.Services.Implementations
                 // Map DTO to entity
                 var risk = _mapper.Map<Risk>(dto);
 
+                // Set workspace context if available
+                if (_workspaceContext != null && _workspaceContext.HasWorkspaceContext())
+                {
+                    risk.WorkspaceId = _workspaceContext.GetCurrentWorkspaceId();
+                }
+
                 // Set audit fields
                 risk.CreatedBy = GetCurrentUser();
                 risk.CreatedDate = DateTime.UtcNow;
@@ -96,12 +105,13 @@ namespace GrcMvc.Services.Implementations
                     dataClassification: null, // Will be set to "internal" by helper if null
                     owner: risk.Owner);
 
-                // Add to repository
-                var createdRisk = await _unitOfWork.Risks.AddAsync(risk);
+                // Save to database
+                await _unitOfWork.Risks.AddAsync(risk);
+                await _unitOfWork.SaveChangesAsync();
 
-                _logger.LogInformation("Risk created with ID {Id} by {User}", createdRisk.Id, risk.CreatedBy);
+                _logger.LogInformation("Risk created with ID {Id} by {User}", risk.Id, risk.CreatedBy);
 
-                return _mapper.Map<RiskDto>(createdRisk);
+                return _mapper.Map<RiskDto>(risk);
             }
             catch (PolicyViolationException pve)
             {
@@ -146,8 +156,9 @@ namespace GrcMvc.Services.Implementations
                 risk.ModifiedBy = GetCurrentUser();
                 risk.ModifiedDate = DateTime.UtcNow;
 
-                // Update in repository
+                // Update in database
                 await _unitOfWork.Risks.UpdateAsync(risk);
+                await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogInformation("Risk {Id} updated by {User}", id, risk.ModifiedBy);
 
@@ -182,6 +193,7 @@ namespace GrcMvc.Services.Implementations
                 risk.ModifiedDate = DateTime.UtcNow;
 
                 await _unitOfWork.Risks.UpdateAsync(risk);
+                await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogInformation("Risk {Id} soft deleted by {User}", id, risk.ModifiedBy);
             }
@@ -224,8 +236,7 @@ namespace GrcMvc.Services.Implementations
         {
             try
             {
-                var risks = await _unitOfWork.Risks.GetAllAsync();
-                var riskList = risks.ToList();
+                var riskList = (await _unitOfWork.Risks.GetAllAsync()).ToList();
 
                 var statistics = new RiskStatisticsDto
                 {
@@ -236,7 +247,7 @@ namespace GrcMvc.Services.Implementations
                     LowRisks = riskList.Count(r => r.RiskLevel == "Low"),
                     RisksByCategory = riskList
                         .GroupBy(r => r.Category)
-                        .ToDictionary(g => g.Key, g => g.Count()),
+                        .ToDictionary(g => g.Key ?? "Unknown", g => g.Count()),
                     AverageRiskScore = riskList.Any() ? riskList.Average(r => r.RiskScore) : 0
                 };
 
@@ -253,6 +264,32 @@ namespace GrcMvc.Services.Implementations
         {
             var user = _httpContextAccessor.HttpContext?.User;
             return user?.Identity?.Name ?? "System";
+        }
+
+        public async Task AcceptAsync(Guid id)
+        {
+            try
+            {
+                var risk = await _unitOfWork.Risks.GetByIdAsync(id);
+                if (risk == null)
+                {
+                    throw new KeyNotFoundException($"Risk with ID {id} not found");
+                }
+
+                risk.Status = "Accepted";
+                risk.ModifiedBy = GetCurrentUser();
+                risk.ModifiedDate = DateTime.UtcNow;
+
+                await _unitOfWork.Risks.UpdateAsync(risk);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Risk {Id} accepted by {User}", id, risk.ModifiedBy);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error accepting risk {Id}", id);
+                throw;
+            }
         }
     }
 }

@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Models.DTOs;
+using GrcMvc.Application.Permissions;
+using GrcMvc.Application.Policy;
+using GrcMvc.Authorization;
 using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.Logging;
@@ -10,18 +13,25 @@ using System.Linq;
 namespace GrcMvc.Controllers
 {
     [Authorize]
+    [RequireTenant]
     public class WorkflowController : Controller
     {
         private readonly IWorkflowService _workflowService;
         private readonly ILogger<WorkflowController> _logger;
+        private readonly PolicyEnforcementHelper _policyHelper;
 
-        public WorkflowController(IWorkflowService workflowService, ILogger<WorkflowController> logger)
+        public WorkflowController(
+            IWorkflowService workflowService, 
+            ILogger<WorkflowController> logger,
+            PolicyEnforcementHelper policyHelper)
         {
             _workflowService = workflowService;
             _logger = logger;
+            _policyHelper = policyHelper;
         }
 
         // GET: Workflow
+        [Authorize(GrcPermissions.Workflow.View)]
         public async Task<IActionResult> Index()
         {
             var workflows = await _workflowService.GetAllAsync();
@@ -29,6 +39,7 @@ namespace GrcMvc.Controllers
         }
 
         // GET: Workflow/Details/5
+        [Authorize(GrcPermissions.Workflow.View)]
         public async Task<IActionResult> Details(Guid id)
         {
             var workflow = await _workflowService.GetByIdAsync(id);
@@ -40,6 +51,7 @@ namespace GrcMvc.Controllers
         }
 
         // GET: Workflow/Create
+        [Authorize(GrcPermissions.Workflow.Manage)]
         public IActionResult Create()
         {
             return View();
@@ -48,15 +60,33 @@ namespace GrcMvc.Controllers
         // POST: Workflow/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(GrcPermissions.Workflow.Manage)]
         public async Task<IActionResult> Create(CreateWorkflowDto createWorkflowDto)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // POLICY ENFORCEMENT: Validate governance metadata before creation
+                    await _policyHelper.EnforceCreateAsync(
+                        "Workflow",
+                        createWorkflowDto,
+                        dataClassification: createWorkflowDto.DataClassification,
+                        owner: createWorkflowDto.Owner
+                    );
+
                     var workflow = await _workflowService.CreateAsync(createWorkflowDto);
                     TempData["Success"] = "Workflow created successfully";
                     return RedirectToAction(nameof(Details), new { id = workflow.Id });
+                }
+                catch (PolicyViolationException pex)
+                {
+                    _logger.LogWarning(pex, "Policy violation creating workflow");
+                    ModelState.AddModelError("", $"Policy Violation: {pex.Message}");
+                    if (!string.IsNullOrEmpty(pex.RemediationHint))
+                    {
+                        ModelState.AddModelError("", $"Remediation: {pex.RemediationHint}");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -68,6 +98,7 @@ namespace GrcMvc.Controllers
         }
 
         // GET: Workflow/Edit/5
+        [Authorize(GrcPermissions.Workflow.Manage)]
         public async Task<IActionResult> Edit(Guid id)
         {
             var workflow = await _workflowService.GetByIdAsync(id);
@@ -90,7 +121,9 @@ namespace GrcMvc.Controllers
                 DueDate = workflow.DueDate,
                 Steps = workflow.Steps,
                 Conditions = workflow.Conditions,
-                Notifications = workflow.Notifications
+                Notifications = workflow.Notifications,
+                DataClassification = workflow.DataClassification,
+                Owner = workflow.Owner
             };
 
             return View(updateDto);
@@ -99,12 +132,21 @@ namespace GrcMvc.Controllers
         // POST: Workflow/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(GrcPermissions.Workflow.Manage)]
         public async Task<IActionResult> Edit(Guid id, UpdateWorkflowDto updateWorkflowDto)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // POLICY ENFORCEMENT: Validate governance metadata before update
+                    await _policyHelper.EnforceUpdateAsync(
+                        "Workflow",
+                        updateWorkflowDto,
+                        dataClassification: updateWorkflowDto.DataClassification,
+                        owner: updateWorkflowDto.Owner
+                    );
+
                     var workflow = await _workflowService.UpdateAsync(id, updateWorkflowDto);
                     if (workflow == null)
                     {
@@ -112,6 +154,15 @@ namespace GrcMvc.Controllers
                     }
                     TempData["Success"] = "Workflow updated successfully";
                     return RedirectToAction(nameof(Details), new { id = workflow.Id });
+                }
+                catch (PolicyViolationException pex)
+                {
+                    _logger.LogWarning(pex, "Policy violation updating workflow {WorkflowId}", id);
+                    ModelState.AddModelError("", $"Policy Violation: {pex.Message}");
+                    if (!string.IsNullOrEmpty(pex.RemediationHint))
+                    {
+                        ModelState.AddModelError("", $"Remediation: {pex.RemediationHint}");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -123,6 +174,7 @@ namespace GrcMvc.Controllers
         }
 
         // GET: Workflow/Delete/5
+        [Authorize(GrcPermissions.Workflow.Manage)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var workflow = await _workflowService.GetByIdAsync(id);
@@ -136,13 +188,33 @@ namespace GrcMvc.Controllers
         // POST: Workflow/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(GrcPermissions.Workflow.Manage)]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             try
             {
+                // POLICY ENFORCEMENT: Check if deletion is allowed
+                var workflow = await _workflowService.GetByIdAsync(id);
+                if (workflow != null)
+                {
+                    await _policyHelper.EnforceAsync(
+                        "delete",
+                        "Workflow",
+                        workflow,
+                        dataClassification: workflow.DataClassification,
+                        owner: workflow.Owner
+                    );
+                }
+
                 await _workflowService.DeleteAsync(id);
                 TempData["Success"] = "Workflow deleted successfully";
                 return RedirectToAction(nameof(Index));
+            }
+            catch (PolicyViolationException pex)
+            {
+                _logger.LogWarning(pex, "Policy violation deleting workflow {WorkflowId}", id);
+                TempData["Error"] = $"Policy Violation: {pex.Message}. {pex.RemediationHint}";
+                return RedirectToAction(nameof(Delete), new { id });
             }
             catch (Exception ex)
             {
@@ -153,6 +225,7 @@ namespace GrcMvc.Controllers
         }
 
         // GET: Workflow/Statistics
+        [Authorize(GrcPermissions.Workflow.View)]
         public async Task<IActionResult> Statistics()
         {
             try
@@ -169,6 +242,7 @@ namespace GrcMvc.Controllers
         }
 
         // GET: Workflow/ByCategory/5
+        [Authorize(GrcPermissions.Workflow.View)]
         public async Task<IActionResult> ByCategory(string category)
         {
             try
@@ -186,6 +260,7 @@ namespace GrcMvc.Controllers
         }
 
         // GET: Workflow/ByStatus/5
+        [Authorize(GrcPermissions.Workflow.View)]
         public async Task<IActionResult> ByStatus(string status)
         {
             try
@@ -203,6 +278,7 @@ namespace GrcMvc.Controllers
         }
 
         // GET: Workflow/Overdue
+        [Authorize(GrcPermissions.Workflow.View)]
         public async Task<IActionResult> Overdue()
         {
             try
@@ -219,6 +295,7 @@ namespace GrcMvc.Controllers
         }
 
         // GET: Workflow/Executions/5
+        [Authorize(GrcPermissions.Workflow.View)]
         public async Task<IActionResult> Executions(Guid id)
         {
             try
@@ -238,13 +315,33 @@ namespace GrcMvc.Controllers
         // POST: Workflow/Execute/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(GrcPermissions.Workflow.Manage)]
         public async Task<IActionResult> Execute(Guid id)
         {
             try
             {
+                // POLICY ENFORCEMENT: Check if execution is allowed
+                var workflow = await _workflowService.GetByIdAsync(id);
+                if (workflow != null)
+                {
+                    await _policyHelper.EnforceAsync(
+                        "execute",
+                        "Workflow",
+                        workflow,
+                        dataClassification: workflow.DataClassification,
+                        owner: workflow.Owner
+                    );
+                }
+
                 var execution = await _workflowService.ExecuteWorkflowAsync(id);
                 TempData["Success"] = "Workflow execution started successfully";
                 return RedirectToAction(nameof(Executions), new { id });
+            }
+            catch (PolicyViolationException pex)
+            {
+                _logger.LogWarning(pex, "Policy violation executing workflow {WorkflowId}", id);
+                TempData["Error"] = $"Policy Violation: {pex.Message}. {pex.RemediationHint}";
+                return RedirectToAction(nameof(Details), new { id });
             }
             catch (Exception ex)
             {

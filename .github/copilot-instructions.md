@@ -1,126 +1,113 @@
 # GRC System - Copilot Instructions
 
+## Quick Start
+
+**Active Project**: Single MVC app at `src/GrcMvc/`
+**Tech**: ASP.NET Core 8.0, Entity Framework Core 8.0.8, PostgreSQL
+
+**Run Locally**:
+```bash
+cd src/GrcMvc && dotnet run
+# Or via Docker: docker-compose up -d
+```
+
 ## Project Overview
 
-Enterprise **Governance, Risk, and Compliance (GRC)** platform built with **ASP.NET Core 8.0 MVC**, **Entity Framework Core 8.0.8**, and **PostgreSQL**. Single MVC application with RBAC, workflow engine, LLM integration, multi-tenancy, and modular domain areas (Risk, Audit, Control, Policy, Assessment, Evidence, Workflow).
+Enterprise **Governance, Risk, and Compliance (GRC)** platform — single ASP.NET Core 8.0 MVC application with RBAC, workflow engine, LLM integration, multi-tenancy, and modular domain areas (Risk, Audit, Control, Policy, Assessment, Evidence, Workflow).
 
 **Key Stats**: 39 Services, 50+ Entities, 4 Background Jobs, 2 Middleware, Serilog logging, Rate limiting, JWT + Identity authentication.
 
 ## Architecture Patterns
 
-### Layered Architecture
-```
-Controllers → Services → UnitOfWork → GenericRepository → GrcDbContext (EF Core)
-```
-- **Controllers**: MVC views (`{Module}Controller.cs`) + REST APIs (`{Module}ApiController.cs`)
-- **Services**: Interface in `Services/Interfaces/`, implementation in `Services/Implementations/`
-- **Repositories**: Generic pattern via `IUnitOfWork` in [Data/UnitOfWork.cs](src/GrcMvc/Data/UnitOfWork.cs)
-- **DTOs**: Separate Create/Update/Read DTOs in `Models/DTOs/`
+**Layered**: Controllers → Services → UnitOfWork → GenericRepository → GrcDbContext (EF Core)
 
-### Key Conventions
+- **Controllers**: MVC views + REST APIs
+- **Services**: Interface in `Services/Interfaces/`, implementation in `Services/Implementations/`
+- **Repositories**: Generic pattern via `IUnitOfWork` in `src/GrcMvc/Data/UnitOfWork.cs`
+- **DTOs**: Separate Create/Update/Read variants in `Models/DTOs/`
+
+### Key Code Conventions
 
 **Entities** extend `BaseEntity` (provides `Id`, `TenantId`, `CreatedDate`, `ModifiedDate`, `CreatedBy`, `ModifiedBy`, `IsDeleted`):
 ```csharp
 public class Risk : BaseEntity { /* domain properties */ }
 ```
 
-**DTOs** follow naming pattern:
-- `RiskDto` - Read operations
-- `CreateRiskDto` - Creation with validation
-- `UpdateRiskDto` - Updates with Id
+**DTOs** naming: `RiskDto` (read), `CreateRiskDto` (create), `UpdateRiskDto` (update)
 
-**Services** use constructor injection with `IUnitOfWork`, `IMapper`, `ILogger<T>`:
+**Services** use constructor injection:
 ```csharp
-public RiskService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RiskService> logger)
+public RiskService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RiskService> logger) { }
 ```
 
 **API responses** use standardized wrapper:
 ```csharp
 return Ok(ApiResponse<T>.SuccessResponse(data, "Message"));
-return BadRequest(ApiResponse<T>.ErrorResponse("Error message"));
+return BadRequest(ApiResponse<T>.ErrorResponse("Error"));
 ```
 
-## Adding New Entities
+## Critical Project Patterns
 
-1. **Entity**: `Models/Entities/{Entity}.cs` extending `BaseEntity`
-2. **DTOs**: `Models/DTOs/{Entity}Dto.cs` with Create/Update/Read variants
-3. **DbSet**: Add to `Data/GrcDbContext.cs`
-4. **Repository**: Property in `Data/IUnitOfWork.cs` and `UnitOfWork.cs`
-5. **Mapping**: Add to `Mappings/AutoMapperProfile.cs`
-6. **Validator**: `Validators/{Entity}Validators.cs` using FluentValidation
-7. **Service**: Interface in `Services/Interfaces/`, impl in `Services/Implementations/`
-8. **Controller**: MVC in `Controllers/{Entity}Controller.cs`, API in `{Entity}ApiController.cs`
-9. **Migration**: `dotnet ef migrations add Add{Entity} --project src/GrcMvc`
-
-## Build & Run Commands
-
-```bash
-# Development (Docker Compose - recommended)
-docker-compose up -d
-
-# Manual run
-cd src/GrcMvc && dotnet run
-
-# Database migrations
-cd src/GrcMvc
-dotnet ef migrations add MigrationName
-dotnet ef database update
-
-# Run tests
-dotnet test tests/GrcMvc.Tests/GrcMvc.Tests.csproj
-
-# Build solution
-dotnet build GrcMvc.sln
-
-# View logs (Docker)
-docker-compose logs -f grcmvc
-```
-
-## Environment Configuration
-
-All secrets via environment variables (never hardcode). Key variables in `.env`:
-- `CONNECTION_STRING` - PostgreSQL connection
-- `JWT_SECRET` - Minimum 32 characters (generate: `openssl rand -base64 32`)
-- `ALLOWED_HOSTS` - Semicolon-separated list for production
-
-## Domain Modules
-
-| Module | Entity | Controller | Service |
-|--------|--------|------------|---------|
-| Risk | `Risk.cs` | `RiskController` / `RiskApiController` | `IRiskService` |
-| Control | `Control.cs` | `ControlController` / `ControlApiController` | `IControlService` |
-| Audit | `Audit.cs`, `AuditFinding.cs` | `AuditController` | `IAuditService` |
-| Policy | `Policy.cs`, `PolicyViolation.cs` | `PolicyController` | `IPolicyService` |
-| Assessment | `Assessment.cs` | `AssessmentController` | `IAssessmentService` |
-| Evidence | `Evidence.cs` | `EvidenceController` | `IEvidenceService` |
-| Workflow | `WorkflowInstance.cs`, `WorkflowTask.cs` | `WorkflowController` | `IWorkflowService`, `IWorkflowEngineService` |
-
-## Multi-Tenancy
-
-- All entities have optional `TenantId` property from `BaseEntity`
-- Tenant context resolved via `ITenantContextService`
+### Multi-Tenancy Architecture
+- Every entity extends `BaseEntity` with optional `TenantId`
+- Tenant context resolved via `ITenantContextService` (injectable)
+- All queries automatically scoped to current tenant
 - User-tenant mapping in `TenantUsers` table
+- Example: `EvidenceLifecycleService` shows tenant-aware business logic
 
-## RBAC System
+### Workflow Engine (Custom BPMN-style)
+10 specialized workflow types (Control Implementation, Risk Assessment, Approval, Evidence Collection, Compliance Testing, Remediation, Policy Review, Training Assignment, Audit, Exception Handling). Each auto-creates `WorkflowInstance` and `WorkflowTask` entities. State transitions driven by task completion → triggers next task.
 
-Located in `Services/Implementations/RBAC/` and `Services/Interfaces/RBAC/`:
-- `Permission`, `Feature`, `RolePermission`, `RoleFeature` entities
-- Use `IAuthorizationService` for permission checks
-- Role profiles seeded in `Data/Seeds/RoleProfileSeeds.cs`
+### Analytics & Event Sourcing
+- `DashboardProjector` listens to domain events and updates analytics views
+- Event handlers implement `IGrcEvent` interface
+- Real-time projections: compliance trends, risk heatmap, framework comparison, task metrics
+- Used in dashboards without querying raw data
 
-## Validation
+## Advanced Features
 
-FluentValidation in `Validators/` directory:
-```csharp
-public class CreateRiskDtoValidator : AbstractValidator<CreateRiskDto>
-{
-    public CreateRiskDtoValidator()
-    {
-        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.Probability).InclusiveBetween(1, 5);
-    }
-}
-```
+### 1. Hangfire Background Jobs
+**Location**: `src/GrcMvc/BackgroundJobs/`
+- **CodeQualityMonitorJob** — Code analysis
+- **EscalationJob** — Auto-escalate overdue tasks
+- **NotificationDeliveryJob** — Batch email sending
+- **SlaMonitorJob** — Track SLA violations
+- **Dashboard**: http://localhost:8080/hangfire
+
+### 2. LLM Service (Tenant-Configurable AI)
+`src/GrcMvc/Services/Implementations/LlmService.cs` (498 lines)
+- Generate workflow insights, risk analysis, compliance recommendations
+- Tenant-specific configuration (API keys, models, tone)
+- Never hardcode — All LLM config via environment or database
+
+### 3. Security & Middleware
+
+**SecurityHeadersMiddleware** — OWASP security headers (CSP, HSTS, X-Frame-Options), server fingerprint removal
+
+**Rate Limiting**:
+- Global: 100 req/min per user/IP
+- API endpoints: 30 req/min
+- Auth endpoints: 5 req/5min (brute force protection)
+
+**Authentication**:
+- Primary: ASP.NET Core Identity + cookie auth (MVC views)
+- Secondary: JWT Bearer tokens (API endpoints)
+- Password: 12+ chars, upper/lower/digit/special
+- Lockout: 3 failed attempts → 15 min lockout
+
+### 4. Localization (Arabic RTL)
+Default culture: Arabic (ar), Secondary: English (en). Culture preference stored in cookie.
+
+### 5. Email Services (Dual Mode)
+- `SmtpEmailService` — Production SMTP
+- `StubEmailService` — Development (no actual sending)
+- Toggle in `Program.cs` based on environment
+
+### 6. Resilience Pattern
+`ResilienceService` wraps Polly retry policies for database transients and external API failures.
+
+### 7. Request Logging
+`RequestLoggingMiddleware` logs HTTP requests/responses with performance timing via Serilog.
 
 ## All 39 Services (Complete Reference)
 
@@ -166,87 +153,137 @@ public class CreateRiskDtoValidator : AbstractValidator<CreateRiskDto>
 | DashboardService | Dashboard data | IDashboardService |
 | EvidenceLifecycleService | Evidence workflow | IEvidenceLifecycleService |
 
-## Workflow Type Services (10 Specialized)
-Auto-registered in Program.cs:
-- ControlImplementationWorkflow
-- RiskAssessmentWorkflow
-- ApprovalWorkflow
-- EvidenceCollectionWorkflow
-- ComplianceTestingWorkflow
-- RemediationWorkflow
-- PolicyReviewWorkflow
-- TrainingAssignmentWorkflow
-- AuditWorkflow
-- ExceptionHandlingWorkflow
+## Build & Run Commands
 
+```bash
+# Development (Docker Compose - RECOMMENDED)
+docker-compose up -d
 
+# Manual run
+cd src/GrcMvc && dotnet run
 
-## Advanced Features (Often Overlooked)
+# Database migrations
+cd src/GrcMvc
+dotnet ef migrations add MigrationName
+dotnet ef database update
 
-### 1. Hangfire Background Jobs (`Services/BackgroundJobs/`)
-Scheduled/recurring jobs for async processing:
-- `CodeQualityMonitorJob` - Code analysis
-- `EscalationJob` - Auto-escalate overdue tasks
-- `NotificationDeliveryJob` - Send batch notifications
-- `SlaMonitorJob` - Track SLA violations
-```csharp
-// Register in Program.cs (already done)
-builder.Services.AddHangfire(config => config.UsePostgreSqlStorage(connectionString));
-app.UseHangfireServer();
-app.UseHangfireDashboard();
+# Run tests
+dotnet test tests/GrcMvc.Tests/GrcMvc.Tests.csproj
+
+# Build solution
+dotnet build GrcMvc.sln
+
+# View logs (Docker)
+docker-compose logs -f grcmvc
+
+# Access Hangfire dashboard (background jobs)
+# http://localhost:8080/hangfire
 ```
 
-### 2. LLM Service - Enterprise AI Integration (`Services/LlmService.cs`)
-Tenant-specific LLM configuration with insights generation:
+## Environment Configuration
+
+All secrets via environment variables (never hardcode). Key variables in `.env`:
+- `CONNECTION_STRING` — PostgreSQL connection
+- `JWT_SECRET` — Minimum 32 characters (generate: `openssl rand -base64 32`)
+- `ALLOWED_HOSTS` — Semicolon-separated list for production
+
+## Domain Modules
+
+| Module | Entity | Controller | Service |
+|--------|--------|------------|---------|
+| Risk | `Risk.cs` | `RiskController` / `RiskApiController` | `IRiskService` |
+| Control | `Control.cs` | `ControlController` / `ControlApiController` | `IControlService` |
+| Audit | `Audit.cs`, `AuditFinding.cs` | `AuditController` | `IAuditService` |
+| Policy | `Policy.cs`, `PolicyViolation.cs` | `PolicyController` | `IPolicyService` |
+| Assessment | `Assessment.cs` | `AssessmentController` | `IAssessmentService` |
+| Evidence | `Evidence.cs` | `EvidenceController` | `IEvidenceService` |
+| Workflow | `WorkflowInstance.cs`, `WorkflowTask.cs` | `WorkflowController` | `IWorkflowService`, `IWorkflowEngineService` |
+
+## RBAC System
+
+**Location**: `Services/Implementations/RBAC/` and `Services/Interfaces/RBAC/`
+- `Permission`, `Feature`, `RolePermission`, `RoleFeature` entities
+- Use `IAuthorizationService` for permission checks
+- Role profiles seeded in `Data/Seeds/RoleProfileSeeds.cs`
+
+## Validation
+
+FluentValidation in `Validators/` directory:
 ```csharp
-public interface ILlmService
+public class CreateRiskDtoValidator : AbstractValidator<CreateRiskDto>
 {
-    Task<string> GenerateWorkflowInsightAsync(Guid workflowInstanceId, string context);
-    Task<string> GenerateRiskAnalysisAsync(Guid riskId, string riskDescription);
-    Task<string> GenerateComplianceRecommendationAsync(Guid assessmentId, string findings);
-    Task<LlmConfiguration> GetTenantLlmConfigAsync(Guid tenantId);
+    public CreateRiskDtoValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Probability).InclusiveBetween(1, 5);
+    }
 }
 ```
 
-### 3. Security & Middleware
+## Common Workflows
 
-**SecurityHeadersMiddleware** (`Middleware/SecurityHeadersMiddleware.cs`):
-- Adds OWASP security headers (CSP, HSTS, X-Frame-Options, etc.)
-- Removes server fingerprint
+### Adding a New Entity
+1. Create entity in `Models/Entities/{Entity}.cs`, extend `BaseEntity`
+2. Create DTOs in `Models/DTOs/{Entity}Dto.cs` (Read, Create, Update variants)
+3. Add `DbSet<Entity>` to `src/GrcMvc/Data/GrcDbContext.cs`
+4. Add property to `Data/IUnitOfWork.cs` and `UnitOfWork.cs`
+5. Create mapping in `Mappings/AutoMapperProfile.cs`
+6. Create validator in `Validators/{Entity}Validators.cs` using FluentValidation
+7. Create service interface in `Services/Interfaces/`, implementation in `Services/Implementations/`
+8. Add DI in `Program.cs`
+9. Create MVC controller in `Controllers/{Entity}Controller.cs` and API controller if needed
+10. Run migration: `dotnet ef migrations add Add{Entity} && dotnet ef database update`
 
-**Rate Limiting** (in Program.cs):
-- Global: 100 req/min per user/IP
-- API endpoints: 30 req/min
-- Auth endpoints: 5 req/5min (brute force protection)
+### Calling External Services (LLM, Email, File Storage)
+Always **inject via constructor**, never instantiate directly:
+```csharp
+public class RiskService : IRiskService
+{
+    private readonly ILlmService _llmService;
+    private readonly IEmailService _emailService;
 
-**Authentication**:
-- Primary: ASP.NET Core Identity + cookie auth (MVC)
-- Secondary: JWT Bearer tokens (API endpoints)
-- Email confirmation in production
-- Password: 12 chars, uppercase, lowercase, digit, special char
-- Lockout: 3 failed attempts → 15 min lockout
+    public RiskService(ILlmService llmService, IEmailService emailService, ...)
+    {
+        _llmService = llmService;
+        _emailService = emailService;
+    }
+}
+```
 
-### 4. Localization (Arabic RTL Default)
-Default culture: Arabic (ar), Secondary: English (en)
-Culture preference stored in cookie.
+### Ensuring Tenant Isolation
+Every query must filter by `TenantId`. Use `ITenantContextService`:
+```csharp
+var tenantId = _tenantContextService.GetCurrentTenantId();
+var entities = _unitOfWork.Risks
+    .AsQueryable()
+    .Where(r => r.TenantId == tenantId)
+    .ToList();
+```
 
-### 5. Email Services (Dual Mode)
-- `SmtpEmailService` - Production SMTP sender
-- `StubEmailService` - Development (returns success without sending)
+### Handling Domain Events
+Implement `IGrcEvent` and register handler in event bus. `DashboardProjector` is the primary example.
 
-### 6. Resilience Pattern
-`ResilienceService` - Polly retry policies for fault tolerance.
+## Testing Conventions
+- Unit tests in `Tests/` mirror source structure
+- Use xUnit + Moq
+- Mock repositories and external services (LLM, Email)
+- Test tenant context isolation in data access tests
 
-### 7. Request Logging
-`RequestLoggingMiddleware` - Logs all HTTP requests/responses with performance timing.
+## Key Files Quick Reference
 
-## Key Files Reference
+| File | Purpose | Lines |
+|------|---------|-------|
+| `src/GrcMvc/Program.cs` | DI registration, JWT, CORS, rate limiting, Hangfire, Serilog, localization | 1165 |
+| `src/GrcMvc/Data/GrcDbContext.cs` | EF Core DbContext, 50+ DbSets | — |
+| `src/GrcMvc/Mappings/AutoMapperProfile.cs` | Entity↔DTO mappings | ~150 |
+| `src/GrcMvc/Models/Entities/BaseEntity.cs` | Abstract base with multi-tenant support | ~43 |
+| `src/GrcMvc/Services/Implementations/LlmService.cs` | AI-powered insights | 498 |
+| `src/GrcMvc/Services/Analytics/DashboardProjector.cs` | Event-driven analytics | — |
+| `src/GrcMvc/Middleware/SecurityHeadersMiddleware.cs` | OWASP security headers | — |
+| `src/GrcMvc/Models/ApiResponse.cs` | Standardized API response wrapper | — |
+| `docker-compose.yml` | PostgreSQL + GrcMvc containers | — |
 
-- [Program.cs](src/GrcMvc/Program.cs) - 725 lines: DI registration, JWT, CORS, rate limiting, Hangfire, Serilog
-- [GrcDbContext.cs](src/GrcMvc/Data/GrcDbContext.cs) - 50+ DbSets for all entities
-- [AutoMapperProfile.cs](src/GrcMvc/Mappings/AutoMapperProfile.cs) - 148 lines of entity↔DTO mappings
-- [BaseEntity.cs](src/GrcMvc/Models/Entities/BaseEntity.cs) - Abstract base with multi-tenant support
-- [LlmService.cs](src/GrcMvc/Services/LlmService.cs) - 498 lines: AI-powered insights
-- [SecurityHeadersMiddleware.cs](src/GrcMvc/Middleware/SecurityHeadersMiddleware.cs) - OWASP compliance
-- [ApiResponse.cs](src/GrcMvc/Models/ApiResponse.cs) - Standardized API response wrapper
-- [docker-compose.yml](docker-compose.yml) - PostgreSQL + GrcMvc containers
+---
+
+**Last Updated**: January 2026
+**Status**: GrcMvc Phase-based development with ecosystem roadmap (24 weeks)

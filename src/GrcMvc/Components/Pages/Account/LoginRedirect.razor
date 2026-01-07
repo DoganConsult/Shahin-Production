@@ -1,0 +1,57 @@
+@page "/login-redirect"
+@using System
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components
+@using GrcMvc.Services.Interfaces
+@inject NavigationManager Navigation
+@inject IHttpContextAccessor HttpContextAccessor
+@inject ITenantContextService TenantContext
+@inject ILogger<LoginRedirect> Logger
+
+@code {
+    protected override void OnInitialized()
+    {
+        var user = HttpContextAccessor.HttpContext?.User;
+        if (user == null || user.Identity?.IsAuthenticated != true)
+        {
+            Logger.LogWarning("LoginRedirect accessed by unauthenticated user");
+            Navigation.NavigateTo("/Account/Login");
+            return;
+        }
+
+        // Determine redirect based on role (priority order matters)
+        if (user.IsInRole("PlatformAdmin"))
+        {
+            Logger.LogInformation("Redirecting PlatformAdmin to platform dashboard");
+            Navigation.NavigateTo("/platform/dashboard");
+        }
+        else if (user.IsInRole("TenantAdmin"))
+        {
+            var tenantId = TenantContext.GetCurrentTenantId();
+            if (tenantId != Guid.Empty)
+            {
+                Logger.LogInformation("Redirecting TenantAdmin {TenantId} to tenant dashboard", tenantId);
+                Navigation.NavigateTo("/tenant/dashboard");
+            }
+            else
+            {
+                Logger.LogWarning("TenantAdmin has no tenant context, redirecting to onboarding");
+                Navigation.NavigateTo("/onboarding");
+            }
+        }
+        else
+        {
+            var tenantId = TenantContext.GetCurrentTenantId();
+            if (tenantId != Guid.Empty)
+            {
+                Logger.LogInformation("Redirecting regular user to app dashboard");
+                Navigation.NavigateTo("/app/dashboard");
+            }
+            else
+            {
+                Logger.LogWarning("User has no tenant context, redirecting to onboarding");
+                Navigation.NavigateTo("/onboarding");
+            }
+        }
+    }
+}

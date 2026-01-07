@@ -182,6 +182,59 @@ namespace GrcMvc.Services.Implementations
 
             await _context.SaveChangesAsync();
 
+            // ROLE-BASED ACCESS: Assign user to existing tenant workspace (NOT create new)
+            // Workspace is created ONCE during onboarding finalization - users get role-based access
+            try
+            {
+                // Get the tenant's shared workspace (created during onboarding)
+                var tenantWorkspace = await _context.Workspaces
+                    .FirstOrDefaultAsync(w => w.TenantId == tenantUser.TenantId &&
+                                              w.IsDefault && !w.IsDeleted);
+
+                if (tenantWorkspace != null)
+                {
+                    // Check for existing membership
+                    var existingMembership = await _context.WorkspaceMemberships
+                        .FirstOrDefaultAsync(wm => wm.WorkspaceId == tenantWorkspace.Id &&
+                                                   wm.UserId == user.Id && !wm.IsDeleted);
+
+                    if (existingMembership == null)
+                    {
+                        // Create workspace membership with role-based permissions
+                        var membership = new WorkspaceMembership
+                        {
+                            Id = Guid.NewGuid(),
+                            TenantId = tenantUser.TenantId,
+                            WorkspaceId = tenantWorkspace.Id,
+                            UserId = user.Id,
+                            WorkspaceRolesJson = System.Text.Json.JsonSerializer.Serialize(new[] { tenantUser.RoleCode }),
+                            IsPrimary = true,
+                            IsWorkspaceAdmin = tenantUser.RoleCode == "TENANT_ADMIN" || tenantUser.RoleCode == "Admin",
+                            Status = "Active",
+                            JoinedDate = DateTime.UtcNow,
+                            CreatedDate = DateTime.UtcNow,
+                            CreatedBy = tenantUser.InvitedBy ?? "system"
+                        };
+                        _context.WorkspaceMemberships.Add(membership);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    // Auto-map tasks from active assessments based on RACI
+                    await AutoMapTasksForUserAsync(tenantUser.TenantId, user.Id, tenantUser.RoleCode);
+
+                    _logger.LogInformation("Assigned user {UserId} to tenant workspace with role {RoleCode}",
+                        user.Id, tenantUser.RoleCode);
+                }
+                else
+                {
+                    _logger.LogWarning("No default workspace found for tenant {TenantId}", tenantUser.TenantId);
+                }
+            }
+            catch (Exception wsEx)
+            {
+                _logger.LogWarning(wsEx, "Failed to assign workspace access for user {UserId}", user.Id);
+            }
+
             // Log audit event
             await _auditService.LogEventAsync(
                 tenantId: tenantUser.TenantId,
@@ -194,7 +247,8 @@ namespace GrcMvc.Services.Implementations
                 {
                     UserId = user.Id,
                     Email = user.Email,
-                    RoleCode = tenantUser.RoleCode
+                    RoleCode = tenantUser.RoleCode,
+                    WorkspaceAssigned = true
                 }),
                 correlationId: tenantUser.Tenant.CorrelationId
             );
@@ -410,6 +464,63 @@ If you did not expect this invitation, please ignore this email.
 Best regards,
 The GRC Platform Team"
             );
+        }
+
+        /// <summary>
+        /// Auto-map tasks from active assessments based on RACI rules for user's role
+        /// </summary>
+        private async Task AutoMapTasksForUserAsync(Guid tenantId, string userId, string roleCode)
+        {
+            try
+            {
+                // Get RACI assignments where this role is Responsible (R)
+                var raciAssignments = await _context.RACIAssignments
+                    .Where(r => r.TenantId == tenantId &&
+                                r.RoleCode == roleCode &&
+                                r.RACI == "R" &&
+                                r.IsActive && !r.IsDeleted)
+                    .ToListAsync();
+
+                if (!raciAssignments.Any())
+                {
+                    _logger.LogDebug("No RACI assignments found for role {RoleCode}", roleCode);
+                    return;
+                }
+
+                // Get pending unassigned workflow tasks for this tenant
+                var userGuid = Guid.TryParse(userId, out var parsed) ? parsed : (Guid?)null;
+
+                var unassignedTasks = await _context.WorkflowTasks
+                    .Include(t => t.WorkflowInstance)
+                    .Where(t => t.WorkflowInstance.TenantId == tenantId &&
+                                t.AssignedToUserId == null &&
+                                t.Status == "Pending" && !t.IsDeleted)
+                    .Take(20)
+                    .ToListAsync();
+
+                // Match tasks to RACI scope
+                var scopeTypes = raciAssignments.Select(r => r.ScopeType).Distinct().ToList();
+                var tasksToAssign = unassignedTasks
+                    .Where(t => scopeTypes.Any(st => t.TaskName.Contains(st, StringComparison.OrdinalIgnoreCase)))
+                    .ToList();
+
+                foreach (var task in tasksToAssign)
+                {
+                    task.AssignedToUserId = userGuid;
+                    task.ModifiedDate = DateTime.UtcNow;
+                }
+
+                if (tasksToAssign.Any())
+                {
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Auto-mapped {Count} tasks to user {UserId} with role {RoleCode}",
+                        tasksToAssign.Count, userId, roleCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to auto-map tasks for user {UserId}", userId);
+            }
         }
     }
 }

@@ -12,6 +12,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
       - ASPNETCORE_URLS=http://+:80
       - ConnectionStrings__DefaultConnection=${CONNECTION_STRING}
+      - ConnectionStrings__HangfireConnection=${CONNECTION_STRING}
       - JwtSettings__Secret=${JWT_SECRET}
       - JwtSettings__Issuer=${JWT_ISSUER:-https://portal.shahin-ai.com}
       - JwtSettings__Audience=${JWT_AUDIENCE:-https://portal.shahin-ai.com}
@@ -21,6 +22,7 @@ services:
       - EmailSettings__Username=${SMTP_USERNAME}
       - EmailSettings__Password=${SMTP_PASSWORD}
       - EmailSettings__From=${SMTP_FROM}
+      - ClaudeAgents__ApiKey=${CLAUDE_API_KEY}
     depends_on:
       db:
         condition: service_healthy
@@ -56,8 +58,117 @@ services:
       timeout: 5s
       retries: 5
 
+  # ClickHouse OLAP Database
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: grc-clickhouse
+    environment:
+      - CLICKHOUSE_DB=${CLICKHOUSE_DB:-grc_analytics}
+      - CLICKHOUSE_USER=${CLICKHOUSE_USER:-grc_analytics}
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD:-grc_analytics_2026}
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    ports:
+      - "${CLICKHOUSE_HTTP_PORT:-8123}:8123"
+      - "${CLICKHOUSE_NATIVE_PORT:-9000}:9000"
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - ./scripts/clickhouse-init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - grc-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Zookeeper (required for Kafka)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: grc-zookeeper
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000
+    ports:
+      - "${ZOOKEEPER_PORT:-2181}:2181"
+    networks:
+      - grc-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Kafka Message Broker
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: grc-kafka
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:${KAFKA_PORT:-9092}
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+    ports:
+      - "${KAFKA_PORT:-9092}:9092"
+    networks:
+      - grc-network
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # Kafka Connect (for Debezium CDC)
+  kafka-connect:
+    image: debezium/connect:latest
+    container_name: grc-kafka-connect
+    depends_on:
+      - kafka
+      - db
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=connect_configs
+      - OFFSET_STORAGE_TOPIC=connect_offsets
+      - STATUS_STORAGE_TOPIC=connect_statuses
+      - CONNECT_PLUGIN_PATH=/kafka/connect
+    ports:
+      - "${KAFKA_CONNECT_PORT:-8083}:8083"
+    volumes:
+      - ./etc/debezium-connectors:/kafka/connect:ro
+    networks:
+      - grc-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/connectors"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Redis Cache (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: grc-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - grc-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes
+
 volumes:
   grc_db_data:
+  clickhouse_data:
+  redis_data:
 
 networks:
   grc-network:

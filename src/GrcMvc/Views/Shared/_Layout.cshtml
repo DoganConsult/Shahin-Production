@@ -1,6 +1,7 @@
 @using Microsoft.AspNetCore.Localization
-@using Microsoft.Extensions.Options
-@inject IOptions<RequestLocalizationOptions> LocOptions
+@using Microsoft.AspNetCore.Mvc.Localization
+@using GrcMvc.Resources
+@inject IHtmlLocalizer<SharedResource> L
 @{
     var requestCulture = Context.Features.Get<IRequestCultureFeature>();
     var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
@@ -13,7 +14,11 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - GRC Management System</title>
+    <title>@ViewData["Title"] - @L["AppName"]</title>
+    <!-- Google Fonts for Arabic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @if (isRtl)
     {
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" />
@@ -25,6 +30,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/help-styles.css" asp-append-version="true" />
     @if (isRtl)
     {
         <link rel="stylesheet" href="~/css/rtl.css" asp-append-version="true" />
@@ -43,59 +49,58 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">
-                                <i class="bi bi-house"></i> Home
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Onboarding" asp-action="Index">
-                                <i class="bi bi-rocket"></i> Onboarding
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="OrgSetup" asp-action="Index">
-                                <i class="bi bi-building-gear"></i> Org Setup
-                            </a>
-                        </li>
+                        @if (User.Identity?.IsAuthenticated != true)
+                        {
+                            <!-- Unauthenticated: Show only Login and Onboarding -->
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-area="" asp-controller="Account" asp-action="Login">
+                                    <i class="bi bi-box-arrow-in-right"></i> @L["Nav_Login"]
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-area="" asp-controller="Onboarding" asp-action="Index">
+                                    <i class="bi bi-rocket"></i> @L["Nav_Onboarding"]
+                                </a>
+                            </li>
+                        }
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
-                                    <i class="bi bi-exclamation-triangle"></i> Risk Management
+                                    <i class="bi bi-exclamation-triangle"></i> @L["Nav_RiskManagement"]
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" asp-controller="Risk" asp-action="Index"><i class="bi bi-exclamation-diamond me-2"></i>Risks</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Control" asp-action="Index"><i class="bi bi-shield-check me-2"></i>Controls</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Control" asp-action="Matrix"><i class="bi bi-grid-3x3 me-2"></i>Control Matrix</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Assessment" asp-action="Index"><i class="bi bi-clipboard-check me-2"></i>Assessments</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Risk" asp-action="Index"><i class="bi bi-exclamation-diamond me-2"></i>@L["Risks"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Control" asp-action="Index"><i class="bi bi-shield-check me-2"></i>@L["Controls"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Control" asp-action="Matrix"><i class="bi bi-grid-3x3 me-2"></i>@L["ControlMatrix"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Assessment" asp-action="Index"><i class="bi bi-clipboard-check me-2"></i>@L["Assessments"]</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" asp-controller="Risk" asp-action="Report"><i class="bi bi-bar-chart me-2"></i>Risk Reports</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Risk" asp-action="Report"><i class="bi bi-bar-chart me-2"></i>@L["RiskReports"]</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
-                                    <i class="bi bi-clipboard-check"></i> Compliance
+                                    <i class="bi bi-clipboard-check"></i> @L["Nav_Compliance"]
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" asp-controller="Policy" asp-action="Index"><i class="bi bi-file-text me-2"></i>Policies</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Audit" asp-action="Index"><i class="bi bi-search me-2"></i>Audits</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Evidence" asp-action="Index"><i class="bi bi-file-earmark-check me-2"></i>Evidence</a></li>
-                                    <li><a class="dropdown-item" href="/evidence/lifecycle"><i class="bi bi-arrow-repeat me-2"></i>Evidence Lifecycle</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Policy" asp-action="Index"><i class="bi bi-file-text me-2"></i>@L["Policies"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Audit" asp-action="Index"><i class="bi bi-search me-2"></i>@L["Audits"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Evidence" asp-action="Index"><i class="bi bi-file-earmark-check me-2"></i>@L["Evidence"]</a></li>
+                                    <li><a class="dropdown-item" href="/evidence/lifecycle"><i class="bi bi-arrow-repeat me-2"></i>@L["EvidenceLifecycle"]</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" asp-controller="Policy" asp-action="Statistics"><i class="bi bi-pie-chart me-2"></i>Policy Statistics</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Audit" asp-action="Statistics"><i class="bi bi-bar-chart me-2"></i>Audit Statistics</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Evidence" asp-action="Statistics"><i class="bi bi-graph-up me-2"></i>Evidence Statistics</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Policy" asp-action="Statistics"><i class="bi bi-pie-chart me-2"></i>@L["PolicyStatistics"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Audit" asp-action="Statistics"><i class="bi bi-bar-chart me-2"></i>@L["AuditStatistics"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Evidence" asp-action="Statistics"><i class="bi bi-graph-up me-2"></i>@L["EvidenceStatistics"]</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
-                                    <i class="bi bi-speedometer2"></i> Dashboards
+                                    <i class="bi bi-speedometer2"></i> @L["Nav_Dashboards"]
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="/dashboard"><i class="bi bi-graph-up me-2"></i>Main Dashboard</a></li>
-                                    <li><a class="dropdown-item" href="/dashboard/executive"><i class="bi bi-speedometer2 me-2"></i>Executive Dashboard</a></li>
-                                    <li><a class="dropdown-item" href="/inbox"><i class="bi bi-inbox me-2"></i>Inbox</a></li>
+                                    <li><a class="dropdown-item" href="/dashboard"><i class="bi bi-graph-up me-2"></i>@L["MainDashboard"]</a></li>
+                                    <li><a class="dropdown-item" href="/dashboard/executive"><i class="bi bi-speedometer2 me-2"></i>@L["ExecutiveDashboard"]</a></li>
+                                    <li><a class="dropdown-item" href="/inbox"><i class="bi bi-inbox me-2"></i>@L["Inbox"]</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
@@ -135,46 +140,94 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-light" href="/users">
-                                    <i class="bi bi-people"></i> Users
+                                    <i class="bi bi-people"></i> @L["Nav_Users"]
                                 </a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
-                                    <i class="bi bi-diagram-3"></i> Workflows
+                                    <i class="bi bi-diagram-3"></i> @L["Nav_Workflows"]
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" asp-controller="Workflow" asp-action="Index"><i class="bi bi-list me-2"></i>All Workflows</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Workflow" asp-action="ByStatus" asp-route-status="Active"><i class="bi bi-lightning me-2"></i>Active Workflows</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Workflow" asp-action="Statistics"><i class="bi bi-bar-chart me-2"></i>Statistics</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Workflow" asp-action="Index"><i class="bi bi-list me-2"></i>@L["AllWorkflows"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Workflow" asp-action="ByStatus" asp-route-status="Active"><i class="bi bi-lightning me-2"></i>@L["ActiveWorkflows"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Workflow" asp-action="Statistics"><i class="bi bi-bar-chart me-2"></i>@L["Statistics"]</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown help-menu">
+                                <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-question-circle"></i> @L["Nav_Help"]
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-dark">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Help" asp-action="Index">
+                                            <i class="bi bi-house me-2"></i>@L["HelpCenter"]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Help" asp-action="GettingStarted">
+                                            <i class="bi bi-rocket me-2"></i>@L["GettingStarted"]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Help" asp-action="FAQ">
+                                            <i class="bi bi-question-circle me-2"></i>@L["FAQ"]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Help" asp-action="Glossary">
+                                            <i class="bi bi-book me-2"></i>@L["Glossary"]
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Help" asp-action="Contact">
+                                            <i class="bi bi-envelope me-2"></i>@L["ContactSupport"]
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-light" asp-controller="Home" asp-action="Reports">
-                                    <i class="bi bi-file-earmark-bar-graph"></i> Reports
+                                    <i class="bi bi-file-earmark-bar-graph"></i> @L["Reports"]
                                 </a>
                             </li>
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
-                                        <i class="bi bi-gear"></i> Admin
+                                        <i class="bi bi-gear"></i> @L["Nav_Admin"]
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" asp-controller="TenantAdmin" asp-action="Index"><i class="fas fa-building me-2 text-primary"></i>Tenant Admin</a></li>
-                                        <li><a class="dropdown-item" asp-controller="CatalogAdmin" asp-action="Index"><i class="fas fa-database me-2 text-info"></i>Catalog Admin</a></li>
-                                        <li><a class="dropdown-item" asp-controller="RoleDelegation" asp-action="Index"><i class="fas fa-people-arrows me-2 text-success"></i>Role Delegation</a></li>
+                                        <li><a class="dropdown-item" asp-controller="TenantAdmin" asp-action="Index"><i class="fas fa-building me-2 text-primary"></i>@L["TenantAdmin"]</a></li>
+                                        <li><a class="dropdown-item" asp-controller="CatalogAdmin" asp-action="Index"><i class="fas fa-database me-2 text-info"></i>@L["CatalogAdmin"]</a></li>
+                                        <li><a class="dropdown-item" asp-controller="RoleDelegation" asp-action="Index"><i class="fas fa-people-arrows me-2 text-success"></i>@L["RoleDelegation"]</a></li>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" asp-controller="Notifications" asp-action="Index"><i class="fas fa-bell me-2 text-warning"></i>Notifications</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Subscription" asp-action="Index"><i class="fas fa-credit-card me-2 text-success"></i>Subscription</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Subscription" asp-action="WebhookLogs"><i class="fas fa-plug me-2 text-secondary"></i>Webhook Logs</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Notifications" asp-action="Index"><i class="fas fa-bell me-2 text-warning"></i>@L["Nav_Notifications"]</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Subscription" asp-action="Index"><i class="fas fa-credit-card me-2 text-success"></i>@L["Nav_Subscription"]</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Subscription" asp-action="WebhookLogs"><i class="fas fa-plug me-2 text-secondary"></i>@L["WebhookLogs"]</a></li>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" asp-controller="Analytics" asp-action="Index"><i class="fas fa-chart-pie me-2" style="color:#9B59B6;"></i>Analytics</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Analytics" asp-action="Index"><i class="fas fa-chart-pie me-2" style="color:#9B59B6;"></i>@L["Analytics"]</a></li>
                                     </ul>
                                 </li>
                             }
                         }
                     </ul>
                     <ul class="navbar-nav">
+                        <!-- Global Search -->
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item me-2">
+                                <form class="d-flex" action="@Url.Action("Search", "Home")" method="get">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="q" class="form-control bg-dark text-light border-secondary"
+                                               placeholder="@L["Search"]..." style="width: 200px;" aria-label="Search">
+                                        <button class="btn btn-outline-secondary" type="submit">
+                                            <i class="bi bi-search text-light"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </li>
+                        }
                         <!-- Language Switcher -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -190,7 +243,7 @@
                             </a>
                             <ul class="dropdown-menu @(isRtl ? "dropdown-menu-start" : "dropdown-menu-end")">
                                 <li>
-                                    <a class="dropdown-item @(currentCulture == "ar" ? "active" : "")" href="?culture=ar&ui-culture=ar">
+                                    <a class="dropdown-item @(currentCulture == "ar" ? "active" : "")" asp-controller="Home" asp-action="SetLanguage" asp-route-culture="ar" asp-route-returnUrl="@Context.Request.Path">
                                         <i class="bi bi-translate me-2"></i>العربية
                                         @if (currentCulture == "ar")
                                         {
@@ -199,7 +252,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item @(currentCulture == "en" ? "active" : "")" href="?culture=en&ui-culture=en">
+                                    <a class="dropdown-item @(currentCulture == "en" ? "active" : "")" asp-controller="Home" asp-action="SetLanguage" asp-route-culture="en" asp-route-returnUrl="@Context.Request.Path">
                                         <i class="bi bi-translate me-2"></i>English
                                         @if (currentCulture == "en")
                                         {
@@ -211,16 +264,17 @@
                         </li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
+                            @await Component.InvokeAsync("WorkspaceSwitcher")
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
                                     <i class="bi bi-person-circle"></i> @User.Identity.Name
                                 </a>
                                 <ul class="dropdown-menu @(isRtl ? "dropdown-menu-start" : "dropdown-menu-end")">
-                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">@(isRtl ? "الملف الشخصي" : "Profile")</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">@L["Nav_Profile"]</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post">
-                                            <button type="submit" class="dropdown-item">@(isRtl ? "تسجيل الخروج" : "Logout")</button>
+                                            <button type="submit" class="dropdown-item">@L["Nav_Logout"]</button>
                                         </form>
                                     </li>
                                 </ul>
@@ -230,12 +284,12 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-light" asp-controller="Account" asp-action="Login">
-                                    <i class="bi bi-box-arrow-in-right"></i> Login
+                                    <i class="bi bi-box-arrow-in-right"></i> @L["Nav_Login"]
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-light" asp-controller="Account" asp-action="Register">
-                                    <i class="bi bi-person-plus"></i> Register
+                                    <i class="bi bi-person-plus"></i> @L["Nav_Register"]
                                 </a>
                             </li>
                         }
@@ -266,19 +320,77 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted mt-5">
-        <div class="container text-center py-3">
-            &copy; @DateTime.Now.Year - GRC Management System - Version 1.0.0
+    <footer class="border-top footer text-muted bg-dark mt-5">
+        <div class="container-fluid py-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <span class="text-light">&copy; @DateTime.Now.Year - @L["AppName"] - Version 1.0.0</span>
+                </div>
+                <div class="col-md-6 @(isRtl ? "text-start" : "text-end")">
+                    <a asp-controller="Help" asp-action="Index" class="text-light text-decoration-none @(isRtl ? "ms-3" : "me-3")">@L["Nav_Help"]</a>
+                    <a asp-controller="Help" asp-action="FAQ" class="text-light text-decoration-none @(isRtl ? "ms-3" : "me-3")">@L["FAQ"]</a>
+                    <a asp-controller="Help" asp-action="Glossary" class="text-light text-decoration-none @(isRtl ? "ms-3" : "me-3")">@L["Glossary"]</a>
+                    <a asp-controller="Help" asp-action="Contact" class="text-light text-decoration-none">@L["ContactSupport"]</a>
+                </div>
+            </div>
         </div>
     </footer>
 
     @* Support Chat Widget *@
     @await Html.PartialAsync("_SupportChatWidget")
 
+    @* Help System Components *@
+    @await Html.PartialAsync("_GlossaryModal")
+    @await Html.PartialAsync("_WelcomeTour")
+
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/language-switcher.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/help-system.js" asp-append-version="true"></script>
+    <script src="~/js/tour.js" asp-append-version="true"></script>
+
+    <script>
+        async function switchWorkspace(workspaceId) {
+            try {
+                const response = await fetch('/api/workspace/switch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({ workspaceId: workspaceId })
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('@L["Error_WorkspaceSwitchFailed"].Value');
+                }
+            } catch (error) {
+                console.error('Error switching workspace:', error);
+                alert('@L["Error_WorkspaceSwitchError"].Value');
+            }
+        }
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize help system
+            if (typeof HelpSystem !== 'undefined') {
+                HelpSystem.init();
+            }
+
+            // Check for first login tour
+            @if (ViewBag.ShowWelcomeTour == true)
+            {
+                <text>
+                window.showWelcomeTour = true;
+                </text>
+            }
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

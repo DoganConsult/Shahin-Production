@@ -23,17 +23,20 @@ namespace GrcMvc.Services.Implementations
         private readonly IAuditEventService _auditService;
         private readonly ILogger<PlanService> _logger;
         private readonly PolicyEnforcementHelper _policyHelper;
+        private readonly IWorkspaceContextService? _workspaceContext;
 
         public PlanService(
             IUnitOfWork unitOfWork,
             IAuditEventService auditService,
             ILogger<PlanService> logger,
-            PolicyEnforcementHelper policyHelper)
+            PolicyEnforcementHelper policyHelper,
+            IWorkspaceContextService? workspaceContext = null)
         {
             _unitOfWork = unitOfWork;
             _auditService = auditService;
             _logger = logger;
             _policyHelper = policyHelper;
+            _workspaceContext = workspaceContext;
         }
 
         /// <summary>
@@ -78,7 +81,10 @@ namespace GrcMvc.Services.Implementations
                         Templates = templates.Select(t => new { t.TemplateCode, t.TemplateName })
                     }),
                     CreatedDate = DateTime.UtcNow,
-                    CreatedBy = createdBy
+                    CreatedBy = createdBy,
+                    WorkspaceId = _workspaceContext != null && _workspaceContext.HasWorkspaceContext()
+                        ? _workspaceContext.GetCurrentWorkspaceId()
+                        : null
                 };
 
                 // Enforce policy before creating plan

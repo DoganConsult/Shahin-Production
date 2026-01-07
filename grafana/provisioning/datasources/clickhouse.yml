@@ -1,0 +1,37 @@
+# Grafana ClickHouse Datasource Configuration
+# Auto-provisioned on startup
+
+apiVersion: 1
+
+datasources:
+  - name: ClickHouse
+    type: grafana-clickhouse-datasource
+    uid: clickhouse-grc
+    access: proxy
+    url: http://clickhouse:8123
+    isDefault: true
+    jsonData:
+      defaultDatabase: grc_analytics
+      port: 9000
+      server: clickhouse
+      username: grc_analytics
+      tlsSkipVerify: true
+    secureJsonData:
+      password: grc_analytics_2026
+    editable: true
+
+  - name: PostgreSQL
+    type: postgres
+    uid: postgres-grc
+    access: proxy
+    url: db:5432
+    database: GrcMvcDb
+    user: postgres
+    jsonData:
+      sslmode: disable
+      maxOpenConns: 10
+      maxIdleConns: 10
+      connMaxLifetime: 14400
+    secureJsonData:
+      password: postgres
+    editable: true

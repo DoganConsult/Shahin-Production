@@ -12,7 +12,8 @@ RUN dotnet restore "GrcMvc/GrcMvc.csproj"
 
 # Copy all source code
 COPY src/GrcMvc/ GrcMvc/
-COPY scripts/ /scripts/
+# Copy scripts if they exist (optional)
+COPY script[s]/ /scripts/
 
 # ============================================================
 # MANDATORY QUALITY CHECK - Build will fail if validation fails

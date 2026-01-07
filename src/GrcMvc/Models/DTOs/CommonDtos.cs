@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace GrcMvc.Models.DTOs
 {
@@ -37,9 +39,11 @@ namespace GrcMvc.Models.DTOs
         public string AssignedTo { get; set; } = string.Empty;
         public Guid? RiskId { get; set; }
         public Guid? ControlId { get; set; }
+        public string DataClassification { get; set; } = string.Empty;
+        public string Owner { get; set; } = string.Empty;
     }
 
-    public class UpdateAssessmentDto : CreateAssessmentDto
+    public class UpdateAssessmentDto : AssessmentDto
     {
         public DateTime? EndDate { get; set; }
         public string Status { get; set; } = string.Empty;
@@ -71,6 +75,34 @@ namespace GrcMvc.Models.DTOs
         public DateTime PlannedStartDate { get; set; }
         public DateTime PlannedEndDate { get; set; }
         public int FindingsCount { get; set; }
+        public string DataClassification { get; set; } = string.Empty;
+        public string Owner { get; set; } = string.Empty;
+        
+        // Alias properties for controller compatibility (not serialized to avoid duplicates)
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string Title { get => Name; set => Name = value; }
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string AuditType { get => Type; set => Type = value; }
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public DateTime? ScheduledDate 
+        { 
+            get => PlannedStartDate == default(DateTime) ? null : (DateTime?)PlannedStartDate; 
+            set 
+            {
+                if (value.HasValue)
+                    PlannedStartDate = value.Value;
+                // If null is set, preserve existing PlannedStartDate (domain requires non-null)
+                // Alternative: set to DateTime.MinValue or default if domain allows null planning
+            }
+        }
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string AuditorId { get => LeadAuditor; set => LeadAuditor = value; }
+        public string Findings { get; set; } = string.Empty; // Separate from FindingsCount
+        public string Recommendations { get; set; } = string.Empty;
     }
 
     public class CreateAuditDto
@@ -92,9 +124,11 @@ namespace GrcMvc.Models.DTOs
         public DateTime PlannedEndDate { get; set; }
         public string LeadAuditor { get; set; } = string.Empty;
         public string AuditTeam { get; set; } = string.Empty;
+        public string DataClassification { get; set; } = string.Empty;
+        public string Owner { get; set; } = string.Empty;
     }
 
-    public class UpdateAuditDto : CreateAuditDto
+    public class UpdateAuditDto : AuditDto
     {
         public new DateTime StartDate { get; set; }
         public new DateTime EndDate { get; set; }
@@ -108,6 +142,12 @@ namespace GrcMvc.Models.DTOs
         public string ExecutiveSummary { get; set; } = string.Empty;
         public string KeyFindings { get; set; } = string.Empty;
         public string ManagementResponse { get; set; } = string.Empty;
+        public string RiskScore { get; set; } = string.Empty;
+        public string TreatmentPlan { get; set; } = string.Empty;
+        public string AuditTeam { get; set; } = string.Empty;
+        
+        // Note: Alias properties are inherited from AuditDto base class
+        // Missing properties accessed by controller are also inherited from base class
     }
 
     public class AuditFindingDto
@@ -162,6 +202,10 @@ namespace GrcMvc.Models.DTOs
         public string Version { get; set; } = string.Empty;
         public DateTime NextReviewDate { get; set; }
         public int ViolationsCount { get; set; }
+        public string DataClassification { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+        public bool ApprovalRequired { get; set; }
+        public string ReviewFrequency { get; set; } = string.Empty;
     }
 
     public class CreatePolicyDto
@@ -182,9 +226,10 @@ namespace GrcMvc.Models.DTOs
         public string Procedures { get; set; } = string.Empty;
         public string References { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
+        public string DataClassification { get; set; } = string.Empty;
     }
 
-    public class UpdatePolicyDto : CreatePolicyDto
+    public class UpdatePolicyDto : PolicyDto
     {
         public new DateTime? ExpirationDate { get; set; }
         public new DateTime? ReviewDate { get; set; }
@@ -196,6 +241,7 @@ namespace GrcMvc.Models.DTOs
         public DateTime? ExpiryDate { get; set; }
         public string ApprovedBy { get; set; } = string.Empty;
         public DateTime? ApprovalDate { get; set; }
+        public string Content { get; set; } = string.Empty;
     }
 
     // Evidence DTOs
@@ -232,7 +278,7 @@ namespace GrcMvc.Models.DTOs
         public string Notes { get; set; } = string.Empty;
     }
 
-    public class UpdateEvidenceDto : CreateEvidenceDto
+    public class UpdateEvidenceDto : EvidenceDto
     {
         public new DateTime? ExpirationDate { get; set; }
         public new string Status { get; set; } = string.Empty;
@@ -257,6 +303,8 @@ namespace GrcMvc.Models.DTOs
         public string Conditions { get; set; } = string.Empty;
         public string Notifications { get; set; } = string.Empty;
         public int ExecutionsCount { get; set; }
+        public string DataClassification { get; set; } = string.Empty;
+        public string Owner { get; set; } = string.Empty;
     }
 
     public class CreateWorkflowDto
@@ -274,9 +322,11 @@ namespace GrcMvc.Models.DTOs
         public string Steps { get; set; } = string.Empty;
         public string Conditions { get; set; } = string.Empty;
         public string Notifications { get; set; } = string.Empty;
+        public string DataClassification { get; set; } = string.Empty;
+        public string Owner { get; set; } = string.Empty;
     }
 
-    public class UpdateWorkflowDto : CreateWorkflowDto
+    public class UpdateWorkflowDto : WorkflowDto
     {
         public new DateTime? DueDate { get; set; }
         public new string Status { get; set; } = string.Empty;

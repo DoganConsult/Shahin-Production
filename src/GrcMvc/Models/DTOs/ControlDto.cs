@@ -1,4 +1,6 @@
 using System;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace GrcMvc.Models.DTOs
 {
@@ -23,6 +25,40 @@ namespace GrcMvc.Models.DTOs
         public Guid? RiskId { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public string DataClassification { get; set; } = string.Empty;
+        
+        // Alias properties for controller compatibility (not serialized to avoid duplicates)
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string ControlNumber 
+        { 
+            get => ControlId; 
+            set => ControlId = value; 
+        }
+        
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string ControlType 
+        { 
+            get => Type; 
+            set => Type = value; 
+        }
+        
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string TestingFrequency 
+        { 
+            get => Frequency; 
+            set => Frequency = value; 
+        }
+        
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public DateTime? LastTestedDate 
+        { 
+            get => LastTestDate; 
+            set => LastTestDate = value; 
+        }
     }
 
     public class CreateControlDto
@@ -39,10 +75,13 @@ namespace GrcMvc.Models.DTOs
         public DateTime? LastTestDate { get; set; }
         public DateTime? NextTestDate { get; set; }
         public Guid? RiskId { get; set; }
+        public string DataClassification { get; set; } = string.Empty;
     }
 
     public class UpdateControlDto
     {
+        public Guid Id { get; set; } // Add missing Id property
+        
         public string ControlId { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
@@ -59,5 +98,25 @@ namespace GrcMvc.Models.DTOs
         public DateTime? LastTestDate { get; set; }
         public DateTime? NextTestDate { get; set; }
         public Guid? RiskId { get; set; }
+        public string DataClassification { get; set; } = string.Empty;
+        public string TestingFrequency { get; set; } = string.Empty;
+        public DateTime? LastTestedDate { get; set; }
+        
+        // Alias properties for controller compatibility (not serialized to avoid duplicates)
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string ControlNumber 
+        { 
+            get => ControlId; 
+            set => ControlId = value; 
+        }
+        
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string ControlType 
+        { 
+            get => Type; 
+            set => Type = value; 
+        }
     }
 }

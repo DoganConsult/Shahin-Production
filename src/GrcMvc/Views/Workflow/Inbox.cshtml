@@ -1,5 +1,9 @@
 @{
     ViewData["Title"] = "Workflow Inbox";
+    var myTasksCount = ViewBag.MyTasksCount ?? 0;
+    var approvalsCount = ViewBag.ApprovalsCount ?? 0;
+    var escalationsCount = ViewBag.EscalationsCount ?? 0;
+    var delegatedCount = ViewBag.DelegatedCount ?? 0;
 }
 
 <div class="container-fluid mt-4">
@@ -32,22 +36,26 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li class="nav-item">
                     <a class="nav-link active" href="#myTasks" data-bs-toggle="tab">
-                        <i class="fas fa-tasks me-2"></i>My Tasks <span class="badge bg-primary ms-2">5</span>
+                        <i class="fas fa-tasks me-2"></i>My Tasks
+                        @if (myTasksCount > 0) { <span class="badge bg-primary ms-2">@myTasksCount</span> }
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#approvals" data-bs-toggle="tab">
-                        <i class="fas fa-check-circle me-2"></i>Approvals <span class="badge bg-warning ms-2">3</span>
+                        <i class="fas fa-check-circle me-2"></i>Approvals
+                        @if (approvalsCount > 0) { <span class="badge bg-warning ms-2">@approvalsCount</span> }
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#escalations" data-bs-toggle="tab">
-                        <i class="fas fa-fire me-2"></i>Escalations <span class="badge bg-danger ms-2">1</span>
+                        <i class="fas fa-fire me-2"></i>Escalations
+                        @if (escalationsCount > 0) { <span class="badge bg-danger ms-2">@escalationsCount</span> }
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#delegated" data-bs-toggle="tab">
-                        <i class="fas fa-share-alt me-2"></i>Delegated <span class="badge bg-info ms-2">2</span>
+                        <i class="fas fa-share-alt me-2"></i>Delegated
+                        @if (delegatedCount > 0) { <span class="badge bg-info ms-2">@delegatedCount</span> }
                     </a>
                 </li>
                 <li class="nav-item">

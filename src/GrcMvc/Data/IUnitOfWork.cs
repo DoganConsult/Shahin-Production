@@ -22,10 +22,16 @@ namespace GrcMvc.Data
         IGenericRepository<PolicyViolation> PolicyViolations { get; }
         IGenericRepository<Workflow> Workflows { get; }
         IGenericRepository<WorkflowExecution> WorkflowExecutions { get; }
+        IGenericRepository<ActionPlan> ActionPlans { get; }
+        IGenericRepository<Vendor> Vendors { get; }
+        IGenericRepository<Regulator> Regulators { get; }
+        IGenericRepository<ComplianceEvent> ComplianceEvents { get; }
+        IGenericRepository<GrcMvc.Models.Entities.Framework> Frameworks { get; }
 
         // Multi-tenant & onboarding repositories
         IGenericRepository<Tenant> Tenants { get; }
         IGenericRepository<TenantUser> TenantUsers { get; }
+        IGenericRepository<OwnerTenantCreation> OwnerTenantCreations { get; }
         IGenericRepository<OrganizationProfile> OrganizationProfiles { get; }
         IGenericRepository<OnboardingWizard> OnboardingWizards { get; }
 

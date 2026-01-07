@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using GrcMvc.Models.Entities;
 using GrcMvc.Data;
+using GrcMvc.Services.Interfaces;
 
 namespace GrcMvc.Services
 {
@@ -27,11 +28,15 @@ namespace GrcMvc.Services
     public class InboxService : IInboxService
     {
         private readonly GrcDbContext _context;
+        private readonly GrcAuthDbContext _authContext;
+        private readonly IUserDirectoryService _userDirectory;
         private readonly ILogger<InboxService> _logger;
 
-        public InboxService(GrcDbContext context, ILogger<InboxService> logger)
+        public InboxService(GrcDbContext context, GrcAuthDbContext authContext, IUserDirectoryService userDirectory, ILogger<InboxService> logger)
         {
             _context = context;
+            _authContext = authContext;
+            _userDirectory = userDirectory;
             _logger = logger;
         }
 
@@ -42,7 +47,7 @@ namespace GrcMvc.Services
         {
             try
             {
-                var user = await _context.Users
+                var user = await _authContext.Users
                     .Include(u => u.RoleProfile)
                     .FirstOrDefaultAsync(u => u.Id == userId);
 

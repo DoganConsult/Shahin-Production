@@ -1,0 +1,516 @@
+apiVersion: policy.doganconsult.io/v1
+kind: Policy
+
+metadata:
+  name: baseline-governance
+  namespace: default
+  version: "1.1.0"
+  createdAt: "2025-01-22T18:30:00+03:00"
+  labels:
+    owner: "dogan-consult"
+    domain: "governance"
+  annotations:
+    purpose: "Baseline deterministic enforcement rules for all resources"
+
+spec:
+  mode: enforce
+  defaultEffect: allow
+
+  execution:
+    order: sequential
+    shortCircuit: true
+    conflictStrategy: denyOverrides
+
+  target:
+    resourceTypes:
+      - "Any"
+    environments:
+      - "dev"
+      - "staging"
+      - "prod"
+
+  audit:
+    logDecisions: true
+    retentionDays: 365
+    sinks:
+      - type: stdout
+
+  rules:
+    # ===== BASELINE DATA GOVERNANCE RULES =====
+
+    - id: REQUIRE_DATA_CLASSIFICATION
+      priority: 10
+      description: "Every resource must carry a data classification label."
+      enabled: true
+      match:
+        resource:
+          type: "Any"
+          name: "*"
+      when:
+        - op: notMatches
+          path: "metadata.labels.dataClassification"
+          value: "^(public|internal|confidential|restricted)$"
+      effect: deny
+      severity: high
+      message: "Missing/invalid metadata.labels.dataClassification. Allowed: public|internal|confidential|restricted."
+      remediation:
+        hint: "Set metadata.labels.dataClassification to one of the allowed values."
+
+    - id: REQUIRE_OWNER
+      priority: 20
+      description: "Every resource must declare an owner label."
+      enabled: true
+      match:
+        resource:
+          type: "Any"
+          name: "*"
+      when:
+        - op: notMatches
+          path: "metadata.labels.owner"
+          value: "^.{2,256}$"
+      effect: deny
+      severity: medium
+      message: "Missing/invalid metadata.labels.owner."
+      remediation:
+        hint: "Set metadata.labels.owner to a team or individual identifier."
+
+    - id: PROD_RESTRICTED_MUST_HAVE_APPROVAL
+      priority: 30
+      description: "Restricted data in prod requires an approval flag."
+      enabled: true
+      match:
+        resource:
+          type: "Any"
+          name: "*"
+        environment: "prod"
+      when:
+        - op: equals
+          path: "metadata.labels.dataClassification"
+          value: "restricted"
+        - op: notEquals
+          path: "metadata.labels.approvedForProd"
+          value: "true"
+      effect: deny
+      severity: critical
+      message: "Restricted data in prod requires metadata.labels.approvedForProd=true."
+      remediation:
+        hint: "Run the approval workflow and set approvedForProd=true."
+
+    # ===== WORKFLOW STATE TRANSITION VALIDATION =====
+
+    - id: WORKFLOW_VALID_STATE_TRANSITION
+      priority: 100
+      description: "Workflow state transitions must follow allowed paths. Cannot skip states or go backwards without rejection."
+      enabled: true
+      match:
+        resource:
+          type: "WorkflowInstance"
+          name: "*"
+      when:
+        - op: exists
+          path: "previousState"
+        - op: exists
+          path: "currentState"
+        - op: notEquals
+          path: "metadata.labels.transitionValidated"
+          value: "true"
+      effect: deny
+      severity: high
+      message: "Invalid workflow state transition. Transitions must be validated before application."
+      remediation:
+        hint: "Use WorkflowEngineService.TransitionAsync() which validates state transitions automatically."
+
+    - id: WORKFLOW_NO_COMPLETED_MODIFICATION
+      priority: 105
+      description: "Completed workflows cannot be modified."
+      enabled: true
+      match:
+        resource:
+          type: "WorkflowInstance"
+          name: "*"
+      when:
+        - op: in
+          path: "status"
+          value: ["Completed", "Closed", "Cancelled", "Failed"]
+        - op: equals
+          path: "action"
+          value: "update"
+      effect: deny
+      severity: critical
+      message: "Cannot modify a workflow that has reached a terminal state (Completed/Closed/Cancelled/Failed)."
+      remediation:
+        hint: "Create a new workflow instance if changes are required."
+
+    - id: WORKFLOW_REJECTION_REQUIRES_REASON
+      priority: 110
+      description: "Workflow rejection must include a reason."
+      enabled: true
+      match:
+        resource:
+          type: "WorkflowInstance"
+          name: "*"
+      when:
+        - op: equals
+          path: "currentState"
+          value: "Rejected"
+        - op: notMatches
+          path: "rejectionReason"
+          value: "^.{10,}$"
+      effect: deny
+      severity: medium
+      message: "Workflow rejection must include a reason of at least 10 characters."
+      remediation:
+        hint: "Provide a detailed rejection reason explaining why the workflow was rejected."
+
+    # ===== APPROVAL CHAIN VALIDATION =====
+
+    - id: APPROVAL_CHAIN_SEQUENTIAL
+      priority: 200
+      description: "Approval chain must be followed in sequence. Cannot skip approval levels."
+      enabled: true
+      match:
+        resource:
+          type: "WorkflowApproval"
+          name: "*"
+      when:
+        - op: exists
+          path: "approvalLevel"
+        - op: notEquals
+          path: "metadata.labels.previousLevelApproved"
+          value: "true"
+        - op: notIn
+          path: "approvalLevel"
+          value: ["Manager", "Level1", "Initial"]
+      effect: deny
+      severity: high
+      message: "Cannot approve at this level. Previous approval level must be completed first."
+      remediation:
+        hint: "Ensure all preceding approval levels are completed before this approval."
+
+    - id: APPROVAL_SELF_APPROVE_DENIED
+      priority: 210
+      description: "Users cannot approve their own submissions."
+      enabled: true
+      match:
+        resource:
+          type: "WorkflowApproval"
+          name: "*"
+      when:
+        - op: equals
+          path: "approvedByUserId"
+          value: "${submittedByUserId}"
+      effect: deny
+      severity: critical
+      message: "Self-approval is not permitted. A different user must approve this submission."
+      remediation:
+        hint: "Request approval from a different authorized user."
+
+    - id: APPROVAL_REQUIRES_AUTHORITY
+      priority: 220
+      description: "Approver must have the required role for the approval level."
+      enabled: true
+      match:
+        resource:
+          type: "WorkflowApproval"
+          name: "*"
+      when:
+        - op: notEquals
+          path: "metadata.labels.approverAuthorized"
+          value: "true"
+      effect: deny
+      severity: critical
+      message: "Approver does not have the required authority for this approval level."
+      remediation:
+        hint: "Only users with the appropriate role (Manager/ComplianceOfficer/Executive) can approve at this level."
+
+    - id: APPROVAL_EXECUTIVE_PROD_ONLY
+      priority: 230
+      description: "Executive sign-off is required for production deployments."
+      enabled: true
+      match:
+        resource:
+          type: "WorkflowInstance"
+          name: "*"
+        environment: "prod"
+      when:
+        - op: equals
+          path: "workflowType"
+          value: "Deployment"
+        - op: notEquals
+          path: "metadata.labels.executiveApproved"
+          value: "true"
+      effect: deny
+      severity: critical
+      message: "Production deployments require executive sign-off."
+      remediation:
+        hint: "Obtain executive approval before deploying to production."
+
+    # ===== DATA RETENTION COMPLIANCE =====
+
+    - id: RETENTION_MINIMUM_PERIOD
+      priority: 300
+      description: "Compliance records must be retained for minimum regulatory period."
+      enabled: true
+      match:
+        resource:
+          type: "Evidence"
+          name: "*"
+      when:
+        - op: equals
+          path: "action"
+          value: "delete"
+        - op: notEquals
+          path: "metadata.labels.retentionExpired"
+          value: "true"
+      effect: deny
+      severity: critical
+      message: "Cannot delete evidence before retention period expires. Minimum retention: 7 years for compliance records."
+      remediation:
+        hint: "Wait until the retention period expires or obtain legal/compliance approval for early deletion."
+
+    - id: RETENTION_AUDIT_RECORDS
+      priority: 310
+      description: "Audit records must be retained for regulatory compliance period."
+      enabled: true
+      match:
+        resource:
+          type: "Audit"
+          name: "*"
+      when:
+        - op: equals
+          path: "action"
+          value: "delete"
+      effect: deny
+      severity: critical
+      message: "Audit records cannot be deleted. They must be retained indefinitely for compliance."
+      remediation:
+        hint: "Audit records are immutable and cannot be deleted. Contact legal/compliance for exceptions."
+
+    - id: RETENTION_POLICY_DOCUMENTS
+      priority: 320
+      description: "Policy documents must follow version retention rules."
+      enabled: true
+      match:
+        resource:
+          type: "PolicyDocument"
+          name: "*"
+      when:
+        - op: equals
+          path: "action"
+          value: "delete"
+        - op: equals
+          path: "status"
+          value: "Published"
+      effect: deny
+      severity: high
+      message: "Published policy documents cannot be deleted. They must be archived or superseded."
+      remediation:
+        hint: "Create a new version and mark the old policy as 'Superseded' instead of deleting."
+
+    - id: RETENTION_RISK_ASSESSMENTS
+      priority: 330
+      description: "Risk assessments must be retained for audit trail."
+      enabled: true
+      match:
+        resource:
+          type: "Risk"
+          name: "*"
+      when:
+        - op: equals
+          path: "action"
+          value: "delete"
+        - op: in
+          path: "status"
+          value: ["Accepted", "Mitigated", "Closed"]
+      effect: deny
+      severity: high
+      message: "Closed/accepted risk assessments cannot be deleted. They form part of the audit trail."
+      remediation:
+        hint: "Risk records must be retained. Mark as 'Archived' if no longer active."
+
+    # ===== AUDIT TRAIL IMMUTABILITY =====
+
+    - id: AUDIT_TRAIL_NO_MODIFICATION
+      priority: 400
+      description: "Audit trail entries cannot be modified after creation."
+      enabled: true
+      match:
+        resource:
+          type: "AuditLog"
+          name: "*"
+      when:
+        - op: in
+          path: "action"
+          value: ["update", "delete"]
+      effect: deny
+      severity: critical
+      message: "Audit trail entries are immutable and cannot be modified or deleted."
+      remediation:
+        hint: "Audit logs are append-only. Create a correction entry if needed."
+
+    - id: AUDIT_TRAIL_REQUIRED_FIELDS
+      priority: 410
+      description: "Audit trail entries must have all required fields."
+      enabled: true
+      match:
+        resource:
+          type: "AuditLog"
+          name: "*"
+      when:
+        - op: equals
+          path: "action"
+          value: "create"
+        - op: notMatches
+          path: "userId"
+          value: "^.{1,}$"
+      effect: deny
+      severity: high
+      message: "Audit trail entry must include userId."
+      remediation:
+        hint: "Ensure all audit entries include the user who performed the action."
+
+    - id: AUDIT_TRAIL_TIMESTAMP_INTEGRITY
+      priority: 420
+      description: "Audit trail timestamps cannot be backdated."
+      enabled: true
+      match:
+        resource:
+          type: "AuditLog"
+          name: "*"
+      when:
+        - op: equals
+          path: "action"
+          value: "create"
+        - op: equals
+          path: "metadata.labels.timestampManipulated"
+          value: "true"
+      effect: deny
+      severity: critical
+      message: "Audit trail timestamps must be system-generated and cannot be manipulated."
+      remediation:
+        hint: "Allow the system to set the timestamp automatically."
+
+    - id: AUDIT_WORKFLOW_TRANSITIONS
+      priority: 430
+      description: "All workflow state transitions must be audited."
+      enabled: true
+      match:
+        resource:
+          type: "WorkflowTransition"
+          name: "*"
+      when:
+        - op: equals
+          path: "action"
+          value: "create"
+        - op: notExists
+          path: "auditEntryId"
+      effect: deny
+      severity: high
+      message: "Workflow transitions must create an audit trail entry."
+      remediation:
+        hint: "Use WorkflowEngineService which automatically creates audit entries for transitions."
+
+    - id: AUDIT_APPROVAL_ACTIONS
+      priority: 440
+      description: "All approval actions must be audited with decision and reason."
+      enabled: true
+      match:
+        resource:
+          type: "WorkflowApproval"
+          name: "*"
+      when:
+        - op: in
+          path: "decision"
+          value: ["Approved", "Rejected", "NeedsRevision"]
+        - op: notExists
+          path: "auditEntryId"
+      effect: deny
+      severity: high
+      message: "Approval decisions must create an audit trail entry."
+      remediation:
+        hint: "Approval actions are automatically audited. Ensure you're using the approval service."
+
+    # ===== NORMALIZATION RULES (LOW PRIORITY) =====
+
+    - id: NORMALIZE_EMPTY_LABELS
+      priority: 9000
+      description: "Normalize known empty label values to null (deterministic mutation)."
+      enabled: true
+      match:
+        resource:
+          type: "Any"
+          name: "*"
+      when:
+        - op: in
+          path: "metadata.labels.owner"
+          value: ["", "unknown", "n/a"]
+      effect: mutate
+      severity: low
+      message: "Normalizing invalid owner label."
+      mutations:
+        - op: set
+          path: "metadata.labels.owner"
+          value: null
+
+    - id: NORMALIZE_STATUS_CASE
+      priority: 9010
+      description: "Normalize status field to consistent casing."
+      enabled: true
+      match:
+        resource:
+          type: "Any"
+          name: "*"
+      when:
+        - op: in
+          path: "status"
+          value: ["pending", "PENDING", "Pending "]
+      effect: mutate
+      severity: low
+      message: "Normalizing status to 'Pending'."
+      mutations:
+        - op: set
+          path: "status"
+          value: "Pending"
+
+  exceptions:
+    - id: TEMP_EXC_DEV_SANDBOX
+      ruleIds:
+        - PROD_RESTRICTED_MUST_HAVE_APPROVAL
+        - APPROVAL_EXECUTIVE_PROD_ONLY
+      reason: "Dev sandbox does not require prod approval controls."
+      expiresAt: "2026-01-31T23:59:59+03:00"
+      match:
+        resource:
+          type: "Any"
+          name: "*"
+        environment: "dev"
+
+    - id: EXC_SYSTEM_AUDIT_ENTRIES
+      ruleIds:
+        - AUDIT_TRAIL_REQUIRED_FIELDS
+      reason: "System-generated audit entries may not have a human userId."
+      match:
+        resource:
+          type: "AuditLog"
+          name: "*"
+          labels:
+            source: "system"
+        environment: "*"
+
+    - id: EXC_ADMIN_EMERGENCY_DELETE
+      ruleIds:
+        - RETENTION_MINIMUM_PERIOD
+        - RETENTION_POLICY_DOCUMENTS
+        - RETENTION_RISK_ASSESSMENTS
+      reason: "Emergency deletion by admin with legal approval."
+      match:
+        resource:
+          type: "Any"
+          name: "*"
+          labels:
+            emergencyDeletion: "true"
+            legalApproval: "true"
+        principal:
+          roles:
+            - "SuperAdmin"
+        environment: "*"

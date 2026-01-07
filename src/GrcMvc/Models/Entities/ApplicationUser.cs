@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GrcMvc.Models.Entities
 {
@@ -10,7 +11,7 @@ namespace GrcMvc.Models.Entities
         public string FullName => $"{FirstName} {LastName}";
         public string Department { get; set; } = string.Empty;
         public string JobTitle { get; set; } = string.Empty;
-        
+
         /// <summary>
         /// Assigned role profile (for scope-based filtering)
         /// </summary>
@@ -47,5 +48,30 @@ namespace GrcMvc.Models.Entities
         public DateTime? LastLoginDate { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiry { get; set; }
+
+        /// <summary>
+        /// Force user to change password on next login (first login or admin reset)
+        /// </summary>
+        public bool MustChangePassword { get; set; } = true;
+
+        /// <summary>
+        /// Last password change date
+        /// </summary>
+        public DateTime? LastPasswordChangedAt { get; set; }
+
+        // Alias properties for backward compatibility
+        [NotMapped]
+        public DateTime CreatedAt
+        {
+            get => CreatedDate;
+            set => CreatedDate = value;
+        }
+
+        [NotMapped]
+        public DateTime? LastLoginAt
+        {
+            get => LastLoginDate;
+            set => LastLoginDate = value;
+        }
     }
 }

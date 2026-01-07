@@ -15,5 +15,6 @@ namespace GrcMvc.Services.Interfaces
         Task<IEnumerable<RiskDto>> GetByStatusAsync(string status);
         Task<IEnumerable<RiskDto>> GetByCategoryAsync(string category);
         Task<RiskStatisticsDto> GetStatisticsAsync();
+        Task AcceptAsync(Guid id);
     }
 }

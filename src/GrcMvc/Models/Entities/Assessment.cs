@@ -1,10 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GrcMvc.Models.Entities
 {
     public class Assessment : BaseEntity
     {
+        /// <summary>
+        /// Workspace this assessment belongs to (Market/BU scope).
+        /// Null = applies to all workspaces in the tenant.
+        /// </summary>
+        public Guid? WorkspaceId { get; set; }
+
+        [ForeignKey("WorkspaceId")]
+        public virtual Workspace? Workspace { get; set; }
+
         public string AssessmentNumber { get; set; } = string.Empty;
         public string AssessmentCode { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty; // Risk, Control, Compliance

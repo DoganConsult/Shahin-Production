@@ -282,9 +282,8 @@
             return;
         }
 
-        // Update plans table
-        const tbody = document.querySelector('#plansTable tbody');
-        tbody.innerHTML = mockData.recentPlans.map(plan => `
+        // Update plans table with actual data
+        tbody.innerHTML = recentPlans.map(plan => `
         <tr>
             <td>
                 <strong>${plan.name}</strong>
@@ -301,27 +300,34 @@
         </tr>
     `).join('');
 
-        // Update organization profile
+    }
+
+    function renderOrgProfile(organization) {
         const orgSection = document.getElementById('orgProfileSection');
+        if (!organization || !organization.name) {
+            orgSection.innerHTML = '<p class="text-muted">No organization profile available</p>';
+            return;
+        }
+
         orgSection.innerHTML = `
         <dl class="row">
             <dt class="col-sm-6">Organization:</dt>
-            <dd class="col-sm-6"><strong>${mockData.organization.name}</strong></dd>
+            <dd class="col-sm-6"><strong>${organization.name || '-'}</strong></dd>
 
             <dt class="col-sm-6">Type:</dt>
-            <dd class="col-sm-6">${mockData.organization.type}</dd>
+            <dd class="col-sm-6">${organization.type || '-'}</dd>
 
             <dt class="col-sm-6">Sector:</dt>
-            <dd class="col-sm-6">${mockData.organization.sector}</dd>
+            <dd class="col-sm-6">${organization.sector || '-'}</dd>
 
             <dt class="col-sm-6">Country:</dt>
-            <dd class="col-sm-6">${mockData.organization.country}</dd>
+            <dd class="col-sm-6">${organization.country || '-'}</dd>
 
             <dt class="col-sm-6">Size:</dt>
-            <dd class="col-sm-6">${mockData.organization.size}</dd>
+            <dd class="col-sm-6">${organization.size || '-'}</dd>
 
             <dt class="col-sm-6">Maturity:</dt>
-            <dd class="col-sm-6"><span class="badge bg-success">${mockData.organization.maturity}</span></dd>
+            <dd class="col-sm-6"><span class="badge bg-success">${organization.maturity || 'N/A'}</span></dd>
         </dl>
         <a href="@Url.Action("Edit", "Organization")" class="btn btn-sm btn-outline-secondary w-100">
             <i class="fas fa-edit"></i> Edit Profile
@@ -329,28 +335,38 @@
     `;
     }
 
-    function loadRecentActivity(tenantId) {
-        const mockActivity = [
-            { type: 'PlanCreated', message: 'New plan created: 2026 Q1 Full Assessment', time: '2 hours ago', icon: 'fa-plus-circle', color: 'primary' },
-            { type: 'PlanStatusUpdated', message: 'PDPL Compliance Review marked as Active', time: '5 hours ago', icon: 'fa-check-circle', color: 'success' },
-            { type: 'RulesetEvaluated', message: 'Compliance scope derived from rules engine', time: '1 day ago', icon: 'fa-cogs', color: 'info' },
-            { type: 'ProfileUpdated', message: 'Organization profile updated', time: '2 days ago', icon: 'fa-edit', color: 'warning' },
-            { type: 'OnboardingCompleted', message: 'Organization onboarding completed', time: '3 days ago', icon: 'fa-flag-checkered', color: 'success' }
-        ];
+    async function loadRecentActivity(tenantId) {
+        try {
+            const response = await fetch(`/api/dashboard/activity?tenantId=${tenantId || ''}`);
+            const result = await response.json();
 
-        const timeline = document.getElementById('activityTimeline');
-        timeline.innerHTML = mockActivity.map(activity => `
-        <div class="d-flex mb-3">
-            <div class="flex-shrink-0">
-                <span class="badge bg-${activity.color} p-2">
-                    <i class="fas ${activity.icon}"></i>
-                </span>
+            let activities = [];
+            if (result.success && result.data) {
+                activities = result.data;
+            }
+
+            const timeline = document.getElementById('activityTimeline');
+            if (!activities || activities.length === 0) {
+                timeline.innerHTML = '<p class="text-muted text-center py-3">No recent activity</p>';
+                return;
+            }
+
+            timeline.innerHTML = activities.map(activity => `
+            <div class="d-flex mb-3">
+                <div class="flex-shrink-0">
+                    <span class="badge bg-${activity.color || 'secondary'} p-2">
+                        <i class="fas ${activity.icon || 'fa-circle'}"></i>
+                    </span>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <p class="mb-0"><strong>${activity.message || activity.type}</strong></p>
+                    <small class="text-muted">${activity.time || ''}</small>
+                </div>
             </div>
-            <div class="flex-grow-1 ms-3">
-                <p class="mb-0"><strong>${activity.message}</strong></p>
-                <small class="text-muted">${activity.time}</small>
-            </div>
-        </div>
-    `).join('');
+        `).join('');
+        } catch (error) {
+            console.error('Error loading activity:', error);
+            document.getElementById('activityTimeline').innerHTML = '<p class="text-muted text-center py-3">Unable to load activity</p>';
+        }
     }
 </script>

@@ -1,0 +1,207 @@
+@{
+    ViewData["Title"] = "Contact Support";
+    var currentCulture = Context.Request.Cookies["GrcMvc.Culture"] ?? "ar";
+    var isRtl = currentCulture == "ar";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Help" asp-action="Index">@(isRtl ? "مركز المساعدة" : "Help Center")</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@(isRtl ? "اتصل بالدعم" : "Contact Support")</li>
+                </ol>
+            </nav>
+
+            <h1 class="mb-4">
+                <i class="bi bi-envelope text-warning me-2"></i>
+                @(isRtl ? "اتصل بالدعم" : "Contact Support")
+            </h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-chat-dots me-2"></i>
+                        @(isRtl ? "نموذج الاتصال" : "Contact Form")
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="contactForm">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">@(isRtl ? "الاسم" : "Name") *</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="name" 
+                                   name="name"
+                                   required
+                                   minlength="2"
+                                   maxlength="100"
+                                   placeholder="@(isRtl ? "الاسم (2-100 حرف)" : "Name (2-100 characters)")">
+                            <div class="invalid-feedback">@(isRtl ? "الاسم يجب أن يكون بين 2-100 حرف" : "Name must be 2-100 characters")</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">@(isRtl ? "البريد الإلكتروني" : "Email") *</label>
+                            <input type="email" 
+                                   class="form-control" 
+                                   id="email" 
+                                   name="email"
+                                   required
+                                   maxlength="255"
+                                   placeholder="user@example.com">
+                            <div class="invalid-feedback">@(isRtl ? "يرجى إدخال بريد إلكتروني صحيح" : "Please enter a valid email address")</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">@(isRtl ? "الموضوع" : "Subject") *</label>
+                            <select class="form-select" id="subject" name="subject" required>
+                                <option value="">@(isRtl ? "اختر الموضوع" : "Select Subject")</option>
+                                <option value="technical">@(isRtl ? "مشكلة تقنية" : "Technical Issue")</option>
+                                <option value="billing">@(isRtl ? "الفواتير" : "Billing")</option>
+                                <option value="feature">@(isRtl ? "طلب ميزة" : "Feature Request")</option>
+                                <option value="general">@(isRtl ? "استفسار عام" : "General Inquiry")</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="message" class="form-label">@(isRtl ? "الرسالة" : "Message") *</label>
+                            <textarea class="form-control" 
+                                      id="message" 
+                                      name="message"
+                                      rows="5" 
+                                      required
+                                      minlength="10"
+                                      maxlength="1000"
+                                      placeholder="@(isRtl ? "رسالتك (10-1000 حرف)" : "Your message (10-1000 characters)")"></textarea>
+                            <small class="text-muted">
+                                <span id="message-counter">0</span>/1000 @(isRtl ? "حرف" : "characters")
+                            </small>
+                            <div class="invalid-feedback">@(isRtl ? "الرسالة يجب أن تكون بين 10-1000 حرف" : "Message must be 10-1000 characters")</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-send me-2"></i>
+                            @(isRtl ? "إرسال" : "Send Message")
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        @(isRtl ? "معلومات الاتصال" : "Contact Information")
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        <i class="bi bi-envelope me-2"></i>
+                        <strong>@(isRtl ? "البريد الإلكتروني:" : "Email:")</strong><br>
+                        <a href="mailto:support@grc-system.sa">support@grc-system.sa</a>
+                    </p>
+                    <p>
+                        <i class="bi bi-headset me-2"></i>
+                        <strong>@(isRtl ? "الدردشة المباشرة:" : "Live Chat:")</strong><br>
+                        @(isRtl ? "استخدم زر الدردشة في الزاوية السفلية اليمنى" : "Use the chat button in the bottom-right corner")
+                    </p>
+                    <p class="mb-0">
+                        <i class="bi bi-clock me-2"></i>
+                        <strong>@(isRtl ? "ساعات العمل:" : "Business Hours:")</strong><br>
+                        @(isRtl ? "الأحد - الخميس: 9 صباحاً - 5 مساءً" : "Sunday - Thursday: 9 AM - 5 PM")
+                    </p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightbulb me-2"></i>
+                        @(isRtl ? "نصائح" : "Tips")
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            @(isRtl ? "تحقق من الأسئلة الشائعة أولاً" : "Check FAQ first")
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            @(isRtl ? "قدم تفاصيل كافية عن مشكلتك" : "Provide sufficient details about your issue")
+                        </li>
+                        <li>
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            @(isRtl ? "نرد عادة خلال 24 ساعة" : "We typically respond within 24 hours")
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Character counter for message textarea
+    const messageTextarea = document.getElementById('message');
+    const messageCounter = document.getElementById('message-counter');
+    
+    if (messageTextarea && messageCounter) {
+        messageTextarea.addEventListener('input', function() {
+            const current = this.value.length;
+            messageCounter.textContent = current;
+            
+            // Update counter color based on length
+            if (current < 10) {
+                messageCounter.classList.add('text-danger');
+                messageCounter.classList.remove('text-warning');
+            } else if (current > 1000) {
+                messageCounter.classList.add('text-danger');
+                messageCounter.classList.remove('text-warning');
+                // Truncate if exceeds max
+                this.value = this.value.substring(0, 1000);
+                messageCounter.textContent = '1000';
+            } else if (current > 900) {
+                messageCounter.classList.add('text-warning');
+                messageCounter.classList.remove('text-danger');
+            } else {
+                messageCounter.classList.remove('text-danger', 'text-warning');
+            }
+        });
+    }
+    
+    // Form validation
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+        // Check HTML5 validation
+        if (!this.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        this.classList.add('was-validated');
+        
+        // If valid, proceed (or implement actual submission)
+        if (this.checkValidity()) {
+            e.preventDefault();
+            // TODO: Implement actual form submission to server
+            alert('@(isRtl ? "شكراً لتواصلك! سنرد عليك قريباً." : "Thank you for contacting us! We will respond soon.")');
+        }
+    });
+    
+    // Prevent typing beyond maxlength on all inputs
+    document.querySelectorAll('input[maxlength], textarea[maxlength]').forEach(input => {
+        input.addEventListener('input', function() {
+            const maxLength = parseInt(this.getAttribute('maxlength'));
+            if (this.value.length > maxLength) {
+                this.value = this.value.substring(0, maxLength);
+            }
+        });
+    });
+</script>

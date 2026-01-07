@@ -2,61 +2,67 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Models.DTOs;
+using GrcMvc.Application.Permissions;
+using GrcMvc.Application.Policy;
+using GrcMvc.Authorization;
 using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.Logging;
-using System.Linq;
 
 namespace GrcMvc.Controllers
 {
     [Authorize]
+    [RequireTenant]
     public class PolicyController : Controller
     {
         private readonly IPolicyService _policyService;
         private readonly ILogger<PolicyController> _logger;
+        private readonly IWorkspaceContextService? _workspaceContext;
+        private readonly PolicyEnforcementHelper _policyHelper;
 
-        public PolicyController(IPolicyService policyService, ILogger<PolicyController> logger)
+        public PolicyController(IPolicyService policyService, ILogger<PolicyController> logger, PolicyEnforcementHelper policyHelper, IWorkspaceContextService? workspaceContext = null)
         {
             _policyService = policyService;
             _logger = logger;
+            _policyHelper = policyHelper;
+            _workspaceContext = workspaceContext;
         }
 
-        // GET: Policy
+        [Authorize(GrcPermissions.Policies.View)]
         public async Task<IActionResult> Index()
         {
             var policies = await _policyService.GetAllAsync();
             return View(policies);
         }
 
-        // GET: Policy/Details/5
+        [Authorize(GrcPermissions.Policies.View)]
         public async Task<IActionResult> Details(Guid id)
         {
             var policy = await _policyService.GetByIdAsync(id);
-            if (policy == null)
-            {
-                return NotFound();
-            }
+            if (policy == null) return NotFound();
             return View(policy);
         }
 
-        // GET: Policy/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+        [Authorize(GrcPermissions.Policies.Manage)]
+        public IActionResult Create() => View();
 
-        // POST: Policy/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreatePolicyDto createPolicyDto)
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Policies.Manage)]
+        public async Task<IActionResult> Create(CreatePolicyDto dto)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var policy = await _policyService.CreateAsync(createPolicyDto);
+                    await _policyHelper.EnforceCreateAsync("PolicyDocument", dto, dataClassification: dto.DataClassification, owner: dto.Owner);
+                    var policy = await _policyService.CreateAsync(dto);
                     TempData["Success"] = "Policy created successfully";
                     return RedirectToAction(nameof(Details), new { id = policy.Id });
+                }
+                catch (PolicyViolationException pex)
+                {
+                    _logger.LogWarning(pex, "Policy violation creating policy");
+                    ModelState.AddModelError("", $"Policy Violation: {pex.Message}");
+                    if (!string.IsNullOrEmpty(pex.RemediationHint)) ModelState.AddModelError("", $"Remediation: {pex.RemediationHint}");
                 }
                 catch (Exception ex)
                 {
@@ -64,177 +70,118 @@ namespace GrcMvc.Controllers
                     ModelState.AddModelError("", "Error creating policy. Please try again.");
                 }
             }
-            return View(createPolicyDto);
+            return View(dto);
         }
 
-        // GET: Policy/Edit/5
+        [Authorize(GrcPermissions.Policies.Manage)]
         public async Task<IActionResult> Edit(Guid id)
         {
             var policy = await _policyService.GetByIdAsync(id);
-            if (policy == null)
-            {
-                return NotFound();
-            }
+            if (policy == null) return NotFound();
 
             var updateDto = new UpdatePolicyDto
             {
+                Id = policy.Id,
                 PolicyNumber = policy.PolicyNumber,
                 Title = policy.Title,
                 Description = policy.Description,
                 Category = policy.Category,
-                Type = policy.Type,
-                Status = policy.Status,
+                Version = policy.Version,
                 EffectiveDate = policy.EffectiveDate,
                 ExpirationDate = policy.ExpirationDate,
-                ReviewDate = policy.ReviewDate,
+                Status = policy.Status,
                 Owner = policy.Owner,
-                Approver = policy.Approver,
-                Scope = policy.Scope,
-                Requirements = policy.Requirements,
-                Procedures = policy.Procedures,
-                References = policy.References
+                DataClassification = policy.DataClassification,
+                Content = policy.Content,
+                ApprovalRequired = policy.ApprovalRequired,
+                ReviewFrequency = policy.ReviewFrequency
             };
 
             return View(updateDto);
         }
 
-        // POST: Policy/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, UpdatePolicyDto updatePolicyDto)
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Policies.Manage)]
+        public async Task<IActionResult> Edit(Guid id, UpdatePolicyDto dto)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var policy = await _policyService.UpdateAsync(id, updatePolicyDto);
-                    if (policy == null)
-                    {
-                        return NotFound();
-                    }
+                    await _policyHelper.EnforceUpdateAsync("PolicyDocument", dto, dataClassification: dto.DataClassification, owner: dto.Owner);
+                    var policy = await _policyService.UpdateAsync(id, dto);
+                    if (policy == null) return NotFound();
                     TempData["Success"] = "Policy updated successfully";
                     return RedirectToAction(nameof(Details), new { id = policy.Id });
                 }
+                catch (PolicyViolationException pex)
+                {
+                    _logger.LogWarning(pex, "Policy violation updating policy {PolicyId}", id);
+                    ModelState.AddModelError("", $"Policy Violation: {pex.Message}");
+                    if (!string.IsNullOrEmpty(pex.RemediationHint)) ModelState.AddModelError("", $"Remediation: {pex.RemediationHint}");
+                }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error updating policy with ID {PolicyId}", id);
+                    _logger.LogError(ex, "Error updating policy {PolicyId}", id);
                     ModelState.AddModelError("", "Error updating policy. Please try again.");
                 }
             }
-            return View(updatePolicyDto);
+            return View(dto);
         }
 
-        // GET: Policy/Delete/5
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            var policy = await _policyService.GetByIdAsync(id);
-            if (policy == null)
-            {
-                return NotFound();
-            }
-            return View(policy);
-        }
-
-        // POST: Policy/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Policies.Approve)]
+        public async Task<IActionResult> Approve(Guid id)
         {
             try
             {
-                await _policyService.DeleteAsync(id);
-                TempData["Success"] = "Policy deleted successfully";
-                return RedirectToAction(nameof(Index));
+                var policy = await _policyService.GetByIdAsync(id);
+                if (policy == null) return NotFound();
+                await _policyHelper.EnforceApproveAsync("PolicyDocument", policy, dataClassification: policy.DataClassification, owner: policy.Owner);
+                await _policyService.ApproveAsync(id);
+                TempData["Success"] = "Policy approved successfully";
+            }
+            catch (PolicyViolationException pex)
+            {
+                _logger.LogWarning(pex, "Policy violation approving policy {PolicyId}", id);
+                TempData["Error"] = $"Policy Violation: {pex.Message}. {pex.RemediationHint}";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting policy with ID {PolicyId}", id);
-                TempData["Error"] = "Error deleting policy. Please try again.";
-                return RedirectToAction(nameof(Delete), new { id });
+                _logger.LogError(ex, "Error approving policy {PolicyId}", id);
+                TempData["Error"] = "Error approving policy. Please try again.";
             }
+            return RedirectToAction(nameof(Details), new { id });
         }
 
-        // GET: Policy/Statistics
-        public async Task<IActionResult> Statistics()
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Policies.Publish)]
+        public async Task<IActionResult> Publish(Guid id)
         {
             try
             {
-                var statistics = await _policyService.GetStatisticsAsync();
-                return View(statistics);
+                var policy = await _policyService.GetByIdAsync(id);
+                if (policy == null) return NotFound();
+                await _policyHelper.EnforcePublishAsync("PolicyDocument", policy, dataClassification: policy.DataClassification, owner: policy.Owner);
+                await _policyService.PublishAsync(id);
+                TempData["Success"] = "Policy published successfully";
+            }
+            catch (PolicyViolationException pex)
+            {
+                _logger.LogWarning(pex, "Policy violation publishing policy {PolicyId}", id);
+                TempData["Error"] = $"Policy Violation: {pex.Message}. {pex.RemediationHint}";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting policy statistics");
-                TempData["Error"] = "Error loading statistics. Please try again.";
-                return View(new PolicyStatisticsDto());
+                _logger.LogError(ex, "Error publishing policy {PolicyId}", id);
+                TempData["Error"] = "Error publishing policy. Please try again.";
             }
+            return RedirectToAction(nameof(Details), new { id });
         }
 
-        // GET: Policy/ByCategory/5
-        public async Task<IActionResult> ByCategory(string category)
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Policies.Manage)]
+        public async Task<IActionResult> UpdatePolicy(Guid id, [FromBody] UpdatePolicyDto updatePolicyDto)
         {
-            try
-            {
-                var policies = await _policyService.GetByCategoryAsync(category);
-                ViewBag.Category = category;
-                return View(policies);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting policies by category {Category}", category);
-                TempData["Error"] = "Error loading policies. Please try again.";
-                return View(new List<PolicyDto>());
-            }
-        }
-
-        // GET: Policy/ByStatus/5
-        public async Task<IActionResult> ByStatus(string status)
-        {
-            try
-            {
-                var policies = await _policyService.GetByStatusAsync(status);
-                ViewBag.Status = status;
-                return View(policies);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting policies by status {Status}", status);
-                TempData["Error"] = "Error loading policies. Please try again.";
-                return View(new List<PolicyDto>());
-            }
-        }
-
-        // GET: Policy/Expiring
-        public async Task<IActionResult> Expiring()
-        {
-            try
-            {
-                var policies = await _policyService.GetExpiringPoliciesAsync(30);
-                return View(policies);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting expiring policies");
-                TempData["Error"] = "Error loading expiring policies. Please try again.";
-                return View(new List<PolicyDto>());
-            }
-        }
-
-        // GET: Policy/Violations/5
-        public async Task<IActionResult> Violations(Guid id)
-        {
-            try
-            {
-                var violations = await _policyService.GetPolicyViolationsAsync(id);
-                ViewBag.PolicyId = id;
-                return View(violations);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting violations for policy ID {PolicyId}", id);
-                TempData["Error"] = "Error loading violations. Please try again.";
-                return View(new List<PolicyViolationDto>());
-            }
+            var policyDto = await _policyService.UpdateAsync(id, updatePolicyDto);
+            if (policyDto == null) return NotFound();
+            return Ok(policyDto);
         }
     }
 }

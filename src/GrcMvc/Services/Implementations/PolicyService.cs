@@ -18,17 +18,20 @@ namespace GrcMvc.Services.Implementations
         private readonly IMapper _mapper;
         private readonly ILogger<PolicyService> _logger;
         private readonly PolicyEnforcementHelper _policyHelper;
+        private readonly IWorkspaceContextService? _workspaceContext;
 
         public PolicyService(
             IUnitOfWork unitOfWork,
             IMapper mapper,
             ILogger<PolicyService> logger,
-            PolicyEnforcementHelper policyHelper)
+            PolicyEnforcementHelper policyHelper,
+            IWorkspaceContextService? workspaceContext = null)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
             _policyHelper = policyHelper ?? throw new ArgumentNullException(nameof(policyHelper));
+            _workspaceContext = workspaceContext;
         }
 
         public async Task<IEnumerable<PolicyDto>> GetAllAsync()
@@ -70,6 +73,12 @@ namespace GrcMvc.Services.Implementations
                 policy.PolicyCode = GeneratePolicyCode(createPolicyDto.Category);
                 policy.Version = "1.0";
                 policy.IsActive = true;
+
+                // Set workspace context if available
+                if (_workspaceContext != null && _workspaceContext.HasWorkspaceContext())
+                {
+                    policy.WorkspaceId = _workspaceContext.GetCurrentWorkspaceId();
+                }
 
                 // Enforce policies before saving
                 await _policyHelper.EnforceCreateAsync(
@@ -365,6 +374,59 @@ namespace GrcMvc.Services.Implementations
 
             var compliantPolicies = activePolicies.Count - policiesWithViolations;
             return (double)compliantPolicies / activePolicies.Count * 100;
+        }
+
+        public async Task ApproveAsync(Guid id)
+        {
+            try
+            {
+                var policy = await _unitOfWork.Policies.GetByIdAsync(id);
+                if (policy == null)
+                {
+                    _logger.LogWarning("Policy with ID {PolicyId} not found for approval", id);
+                    return;
+                }
+
+                policy.Status = "Approved";
+                policy.ModifiedDate = DateTime.UtcNow;
+
+                await _unitOfWork.Policies.UpdateAsync(policy);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Policy with ID {PolicyId} approved", id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error approving policy with ID {PolicyId}", id);
+                throw;
+            }
+        }
+
+        public async Task PublishAsync(Guid id)
+        {
+            try
+            {
+                var policy = await _unitOfWork.Policies.GetByIdAsync(id);
+                if (policy == null)
+                {
+                    _logger.LogWarning("Policy with ID {PolicyId} not found for publishing", id);
+                    return;
+                }
+
+                policy.Status = "Published";
+                policy.IsActive = true;
+                policy.ModifiedDate = DateTime.UtcNow;
+
+                await _unitOfWork.Policies.UpdateAsync(policy);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Policy with ID {PolicyId} published", id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error publishing policy with ID {PolicyId}", id);
+                throw;
+            }
         }
     }
 }

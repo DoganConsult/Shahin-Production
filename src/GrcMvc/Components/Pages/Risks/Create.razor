@@ -2,6 +2,8 @@
 @using GrcMvc.Models.Dtos
 @using GrcMvc.Services.Interfaces
 @using GrcMvc.Services.Mappers
+@using GrcMvc.Services
+@using GrcMvc.Application.Policy;
 @inject NavigationManager NavManager
 @inject IHttpContextAccessor HttpContextAccessor
 @inject IRiskService RiskService
@@ -36,9 +38,13 @@
                 <div class="card-body">
                     <ErrorAlert Message="@errorMessage" Severity="danger" ShowDismiss="true" />
 
+                    <PolicyViolationDialog ShowDialog="@showPolicyViolation"
+                                           Violation="@policyViolation"
+                                           OnClose="@(() => showPolicyViolation = false)" />
+
                     <EditForm Model="@newRisk" OnValidSubmit="@HandleCreateRisk">
                         <DataAnnotationsValidator />
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Risk Title *</label>
                             <InputText class="form-control" placeholder="e.g., Data Breach - Customer PII"
@@ -204,6 +210,8 @@
     private DateTime targetClosureDate = DateTime.Now.AddMonths(3);
     private bool isSubmitting = false;
     private string? errorMessage;
+    private bool showPolicyViolation = false;
+    private GrcMvc.Application.Policy.PolicyViolationInfo? policyViolation;
 
     private void NavigateBack() => NavManager.NavigateTo("/risks");
 
@@ -238,7 +246,19 @@
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error registering risk: {ex.Message}";
+            // Try to parse policy violation from exception
+            var violation = PolicyViolationParser.ParseFromException(ex);
+            if (violation != null)
+            {
+                policyViolation = violation;
+                showPolicyViolation = true;
+                errorMessage = null; // Dialog will show the violation
+            }
+            else
+            {
+                errorMessage = $"Error registering risk: {ex.Message}";
+                showPolicyViolation = false;
+            }
         }
         finally
         {

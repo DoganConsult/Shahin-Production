@@ -13,6 +13,7 @@ using System.Text;
 using System.Security.Claims;
 using System;
 using System.Linq;
+using GrcMvc.Data;
 
 namespace GrcMvc.Controllers
 {
@@ -24,6 +25,8 @@ namespace GrcMvc.Controllers
         private readonly IConfiguration _configuration;
         private readonly IAppEmailSender _emailSender;
         private readonly ILogger<AccountController> _logger;
+        private readonly ITenantService _tenantService;
+        private readonly GrcDbContext _context;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -31,7 +34,9 @@ namespace GrcMvc.Controllers
             RoleManager<IdentityRole> roleManager,
             IConfiguration configuration,
             IAppEmailSender emailSender,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger,
+            ITenantService tenantService,
+            GrcDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -39,6 +44,8 @@ namespace GrcMvc.Controllers
             _configuration = configuration;
             _emailSender = emailSender;
             _logger = logger;
+            _tenantService = tenantService;
+            _context = context;
         }
 
         // GET: Account/Login
@@ -69,11 +76,65 @@ namespace GrcMvc.Controllers
                 {
                     _logger.LogInformation("User {Email} logged in successfully.", model.Email);
 
-                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    var user = await _userManager.FindByEmailAsync(model.Email);
+                    if (user != null)
                     {
-                        return Redirect(returnUrl);
+                        // Check if user must change password (first login or admin reset)
+                        if (user.MustChangePassword)
+                        {
+                            _logger.LogInformation("User {Email} must change password on first login", model.Email);
+                            return RedirectToAction(nameof(ChangePasswordRequired));
+                        }
+
+                        // Update last login date
+                        user.LastLoginDate = DateTime.UtcNow;
+                        await _userManager.UpdateAsync(user);
+
+                        // Check if user is a tenant admin with incomplete onboarding
+                        var tenantUser = await _context.TenantUsers
+                            .Include(tu => tu.Tenant)
+                            .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
+
+                        // NEW: Add TenantId claim if tenant exists
+                        if (tenantUser?.TenantId != null)
+                        {
+                            // Check if claim already exists
+                            var existingClaims = await _userManager.GetClaimsAsync(user);
+                            var hasTenantClaim = existingClaims.Any(c => c.Type == "TenantId");
+
+                            if (!hasTenantClaim)
+                            {
+                                // Add TenantId claim to user principal
+                                var claims = new List<Claim>
+                                {
+                                    new Claim("TenantId", tenantUser.TenantId.ToString())
+                                };
+                                
+                                await _userManager.AddClaimsAsync(user, claims);
+                                _logger.LogDebug("Added TenantId claim for user {Email}", model.Email);
+                                
+                                // Re-sign in to include new claims
+                                await _signInManager.SignInAsync(user, model.RememberMe);
+                            }
+                        }
+
+                        if (tenantUser?.Tenant != null)
+                        {
+                            var isAdmin = tenantUser.RoleCode == "TENANT_ADMIN" ||
+                                          tenantUser.RoleCode == "Admin" ||
+                                          await _userManager.IsInRoleAsync(user, "Admin");
+
+                            // Redirect to onboarding if tenant admin and onboarding not completed
+                            if (isAdmin && tenantUser.Tenant.OnboardingStatus != "COMPLETED")
+                            {
+                                _logger.LogInformation("Redirecting tenant admin {Email} to onboarding wizard", model.Email);
+                                return RedirectToAction("Index", "OnboardingWizard", new { tenantId = tenantUser.TenantId });
+                            }
+                        }
                     }
-                    return RedirectToAction(nameof(HomeController.Index), "Home");
+
+                    // Redirect to role-based dashboard
+                    return Redirect("/login-redirect");
                 }
 
                 if (result.IsLockedOut)
@@ -93,10 +154,59 @@ namespace GrcMvc.Controllers
             return View(model);
         }
 
+        // GET: Account/DemoLogin - Auto-login with demo credentials
+        [AllowAnonymous]
+        public async Task<IActionResult> DemoLogin()
+        {
+            // Check if demo login is disabled in production
+            var disableDemoLogin = _configuration.GetValue<bool>("GrcFeatureFlags:DisableDemoLogin");
+            if (disableDemoLogin)
+            {
+                _logger.LogWarning("Demo login is disabled in production");
+                TempData["ErrorMessage"] = "Demo login is disabled.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            // Demo credentials from configuration (not hard-coded)
+            var demoEmail = _configuration["Demo:Email"] ?? "support@shahin-ai.com";
+            var demoPassword = _configuration["Demo:Password"];
+
+            if (string.IsNullOrEmpty(demoPassword))
+            {
+                _logger.LogWarning("Demo password not configured");
+                TempData["ErrorMessage"] = "Demo account is not configured.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(
+                demoEmail,
+                demoPassword,
+                isPersistent: false,
+                lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("Demo login successful for {Email}", demoEmail);
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+
+            _logger.LogWarning("Demo login failed for {Email}", demoEmail);
+            TempData["ErrorMessage"] = "Demo account is not available. Please contact support.";
+            return RedirectToAction(nameof(Login));
+        }
+
         // GET: Account/Register
         [AllowAnonymous]
         public IActionResult Register(string? returnUrl = null)
         {
+            // Check if public registration is enabled
+            var allowPublicRegistration = _configuration.GetValue<bool>("Security:AllowPublicRegistration", false);
+            if (!allowPublicRegistration)
+            {
+                TempData["ErrorMessage"] = "Public registration is disabled. Please contact your administrator for an invitation.";
+                return RedirectToAction(nameof(Login));
+            }
+
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
@@ -107,6 +217,14 @@ namespace GrcMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model, string? returnUrl = null)
         {
+            // Check if public registration is enabled
+            var allowPublicRegistration = _configuration.GetValue<bool>("Security:AllowPublicRegistration", false);
+            if (!allowPublicRegistration)
+            {
+                TempData["ErrorMessage"] = "Public registration is disabled. Please contact your administrator for an invitation.";
+                return RedirectToAction(nameof(Login));
+            }
+
             ViewData["ReturnUrl"] = returnUrl;
 
             if (ModelState.IsValid)
@@ -167,6 +285,61 @@ namespace GrcMvc.Controllers
         public IActionResult AccessDenied()
         {
             return View();
+        }
+
+        // GET: Account/ChangePasswordRequired - Force password change on first login
+        [Authorize]
+        public IActionResult ChangePasswordRequired()
+        {
+            return View(new ChangePasswordRequiredViewModel());
+        }
+
+        // POST: Account/ChangePasswordRequired
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePasswordRequired(ChangePasswordRequiredViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            // Verify current password
+            var passwordCheck = await _userManager.CheckPasswordAsync(user, model.CurrentPassword);
+            if (!passwordCheck)
+            {
+                ModelState.AddModelError(nameof(model.CurrentPassword), "Current password is incorrect.");
+                return View(model);
+            }
+
+            // Change password
+            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+            if (result.Succeeded)
+            {
+                // Clear the must change password flag
+                user.MustChangePassword = false;
+                user.LastPasswordChangedAt = DateTime.UtcNow;
+                await _userManager.UpdateAsync(user);
+
+                _logger.LogInformation("User {Email} changed password on first login", user.Email);
+                TempData["SuccessMessage"] = "Password changed successfully. Welcome!";
+
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View(model);
         }
 
         // GET: Account/Manage
@@ -622,6 +795,124 @@ namespace GrcMvc.Controllers
 
             TempData["Success"] = "Notification preferences updated.";
             return RedirectToAction(nameof(Profile));
+        }
+
+        // GET: Account/TenantAdminLogin
+        [HttpGet("TenantAdminLogin")]
+        [AllowAnonymous]
+        public IActionResult TenantAdminLogin(string? returnUrl = null, Guid? tenantId = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View(new TenantAdminLoginViewModel
+            {
+                TenantId = tenantId ?? Guid.Empty,
+                ReturnUrl = returnUrl
+            });
+        }
+
+        // POST: Account/TenantAdminLogin
+        [HttpPost("TenantAdminLogin")]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> TenantAdminLogin(
+            TenantAdminLoginViewModel model,
+            string? returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                // Validate tenant exists
+                var tenant = await _tenantService.GetTenantByIdAsync(model.TenantId);
+                if (tenant == null)
+                {
+                    ModelState.AddModelError("", "Invalid Tenant ID");
+                    return View(model);
+                }
+
+                // Find user by username
+                var user = await _userManager.FindByNameAsync(model.Username);
+                if (user == null)
+                {
+                    ModelState.AddModelError("", "Invalid username or password");
+                    return View(model);
+                }
+
+                // Check TenantUser exists and is Admin
+                var tenantUser = await _context.TenantUsers
+                    .FirstOrDefaultAsync(tu => tu.TenantId == model.TenantId && tu.UserId == user.Id);
+
+                if (tenantUser == null || tenantUser.RoleCode != "Admin" || tenantUser.Status != "Active")
+                {
+                    ModelState.AddModelError("", "Invalid credentials for this tenant");
+                    return View(model);
+                }
+
+                // Check credential expiration if owner-generated
+                if (tenantUser.IsOwnerGenerated && tenantUser.CredentialExpiresAt.HasValue)
+                {
+                    if (tenantUser.CredentialExpiresAt.Value < DateTime.UtcNow)
+                    {
+                        ModelState.AddModelError("", "Your credentials have expired. Please contact the system owner.");
+                        return View(model);
+                    }
+                }
+
+                // Verify password
+                var result = await _signInManager.PasswordSignInAsync(
+                    model.Username,
+                    model.Password,
+                    isPersistent: false,
+                    lockoutOnFailure: true);
+
+                if (result.Succeeded)
+                {
+                    // Add tenant claim
+                    var claims = new List<Claim> { new Claim("TenantId", model.TenantId.ToString()) };
+                    await _userManager.AddClaimsAsync(user, claims);
+
+                    _logger.LogInformation("Tenant admin {Username} logged in for tenant {TenantId}",
+                        model.Username, model.TenantId);
+
+                    // Update last login
+                    user.LastLoginDate = DateTime.UtcNow;
+                    await _userManager.UpdateAsync(user);
+
+                    // Update tenant user activated date if first login
+                    if (tenantUser.ActivatedAt == null)
+                    {
+                        tenantUser.ActivatedAt = DateTime.UtcNow;
+                        await _context.SaveChangesAsync();
+                    }
+
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    {
+                        return Redirect(returnUrl);
+                    }
+
+                    return RedirectToAction("Index", "OnboardingWizard", new { tenantId = model.TenantId });
+                }
+
+                if (result.IsLockedOut)
+                {
+                    _logger.LogWarning("Tenant admin {Username} account locked out", model.Username);
+                    return View("Lockout");
+                }
+
+                ModelState.AddModelError("", "Invalid username or password");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during tenant admin login");
+                ModelState.AddModelError("", "An error occurred during login. Please try again.");
+            }
+
+            return View(model);
         }
     }
 }

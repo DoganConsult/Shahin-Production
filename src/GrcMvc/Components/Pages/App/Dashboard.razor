@@ -1,0 +1,117 @@
+@page "/app/dashboard"
+@page "/dashboard"  // Backward compatibility
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@using GrcMvc.Data
+@using GrcMvc.Models.Entities
+@using GrcMvc.Services.Interfaces
+@using Microsoft.EntityFrameworkCore
+@inject ITenantContextService TenantContext
+@inject IDbContextFactory<GrcDbContext> ContextFactory
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var isRtl = currentCulture == "ar";
+    var dir = isRtl ? "rtl" : "ltr";
+}
+
+<PageTitle>@(isRtl ? "لوحة التحكم" : "My Dashboard")</PageTitle>
+
+<TenantAwareView>
+    <div dir="@dir" class="container-fluid mt-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-6"><i class="bi bi-graph-up me-2"></i>@(isRtl ? "لوحة التحكم" : "My Dashboard")</h1>
+                <p class="text-muted">@(isRtl ? "نظرة عامة على GRC الشخصية" : "Your personal GRC overview")</p>
+            </div>
+        </div>
+        
+        <!-- User-level metrics -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <MetricCard Title="@(isRtl ? "مهامي" : "My Tasks")" 
+                           Value="@myTasks.ToString()" 
+                           Color="primary"
+                           Icon="bi-list-check" />
+            </div>
+            <div class="col-md-3 mb-3">
+                <MetricCard Title="@(isRtl ? "الموافقات المعلقة" : "Pending Approvals")" 
+                           Value="@myPendingApprovals.ToString()" 
+                           Color="warning"
+                           Icon="bi-clock-history" />
+            </div>
+            <div class="col-md-3 mb-3">
+                <MetricCard Title="@(isRtl ? "مخاطري" : "My Risks")" 
+                           Value="@myRisks.ToString()" 
+                           Color="danger"
+                           Icon="bi-exclamation-triangle" />
+            </div>
+            <div class="col-md-3 mb-3">
+                <MetricCard Title="@(isRtl ? "تقييماتي" : "My Assessments")" 
+                           Value="@myAssessments.ToString()" 
+                           Color="info"
+                           Icon="bi-clipboard-check" />
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">@(isRtl ? "إجراءات سريعة" : "Quick Actions")</h5>
+                    </div>
+                    <div class="card-body">
+                        <a href="/inbox" class="btn btn-primary me-2">
+                            <i class="bi bi-inbox me-2"></i>@(isRtl ? "صندوق الوارد" : "Inbox")
+                        </a>
+                        <a href="/workflows" class="btn btn-secondary me-2">
+                            <i class="bi bi-diagram-3 me-2"></i>@(isRtl ? "سير العمل" : "Workflows")
+                        </a>
+                        <a href="/risks/create" class="btn btn-outline-danger me-2">
+                            <i class="bi bi-exclamation-triangle me-2"></i>@(isRtl ? "تسجيل مخاطرة" : "Register Risk")
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</TenantAwareView>
+
+@code {
+    private int myTasks = 0;
+    private int myPendingApprovals = 0;
+    private int myRisks = 0;
+    private int myAssessments = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var tenantId = TenantContext.GetCurrentTenantId();
+        var userId = TenantContext.GetCurrentUserId();
+        if (tenantId == Guid.Empty || string.IsNullOrEmpty(userId)) return;
+
+        try
+        {
+            using var context = ContextFactory.CreateDbContext();
+            
+            // Convert userId string to Guid for WorkflowTask comparison
+            if (Guid.TryParse(userId, out var userIdGuid))
+            {
+                // Query user-specific data
+                myTasks = await context.WorkflowTasks.CountAsync(t => t.AssignedToUserId == userIdGuid && t.Status != "Completed");
+                myPendingApprovals = await context.WorkflowTasks.CountAsync(t => t.AssignedToUserId == userIdGuid && t.Status == "Pending");
+            }
+            
+            // Risk and Assessment use string fields
+            myRisks = await context.Risks.CountAsync(r => r.Owner == userId);
+            myAssessments = await context.Assessments.CountAsync(a => a.AssignedTo == userId);
+        }
+        catch (Exception ex)
+        {
+            // Log error but don't crash the page
+            Console.WriteLine($"Error loading user metrics: {ex.Message}");
+        }
+    }
+}

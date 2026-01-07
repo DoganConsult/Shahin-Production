@@ -55,7 +55,7 @@ public static class UserSeeds
         ILogger logger)
     {
         const string adminEmail = "support@shahin-ai.com";
-        const string adminPassword = "DogCon@2026";
+        const string adminPassword = "ShahinAdmin@2026";
 
         var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
@@ -73,7 +73,8 @@ public static class UserSeeds
                 Department = "IT",
                 JobTitle = "System Administrator",
                 IsActive = true,
-                CreatedDate = DateTime.UtcNow
+                CreatedDate = DateTime.UtcNow,
+                MustChangePassword = true  // Force password change on first login
             };
 
             var createResult = await userManager.CreateAsync(adminUser, adminPassword);
@@ -84,14 +85,14 @@ public static class UserSeeds
                 return;
             }
 
-            // Add to SuperAdmin or TenantAdmin role if it exists
+            // Add to PlatformAdmin or TenantAdmin role if it exists
             try
             {
                 var superAdminRole = await context.Set<Microsoft.AspNetCore.Identity.IdentityRole>()
-                    .FirstOrDefaultAsync(r => r.Name == "SuperAdmin");
+                    .FirstOrDefaultAsync(r => r.Name == "PlatformAdmin");
                 if (superAdminRole != null)
                 {
-                    await userManager.AddToRoleAsync(adminUser, "SuperAdmin");
+                    await userManager.AddToRoleAsync(adminUser, "PlatformAdmin");
                 }
                 else
                 {

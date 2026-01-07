@@ -14,6 +14,7 @@ import PricingPreview from '@/components/sections/PricingPreview';
 import Resources from '@/components/sections/Resources';
 import About from '@/components/sections/About';
 import CtaBanner from '@/components/sections/CtaBanner';
+import OnboardingQuestionnaire from '@/components/sections/OnboardingQuestionnaire';
 
 export default function HomePage() {
   return (
@@ -33,6 +34,7 @@ export default function HomePage() {
       <Resources />
       <About />
       <CtaBanner />
+      <OnboardingQuestionnaire />
       <Footer />
     </main>
   );

@@ -1,0 +1,108 @@
+@{
+    ViewData["Title"] = "Remediation Workflows";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3">
+                <i class="fas fa-tools text-warning me-2"></i>Remediation Workflows
+            </h1>
+            <p class="text-muted">Track and manage remediation activities for findings and gaps</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Remediation
+            </button>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <h3>4</h3><small>Overdue</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body text-center">
+                    <h3>12</h3><small>In Progress</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3>8</h3><small>Pending Verification</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3>35</h3><small>Closed</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Active Remediations</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Remediation ID</th>
+                            <th>Finding</th>
+                            <th>Source</th>
+                            <th>Owner</th>
+                            <th>Due Date</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>REM-2026-001</td>
+                            <td>Access Review Gap</td>
+                            <td>Internal Audit</td>
+                            <td>IT Security</td>
+                            <td class="text-danger">Jan 10, 2026</td>
+                            <td><span class="badge bg-danger">Critical</span></td>
+                            <td><span class="badge bg-danger">Overdue</span></td>
+                            <td>
+                                <div class="progress" style="height:20px;width:100px;">
+                                    <div class="progress-bar bg-danger" style="width:60%">60%</div>
+                                </div>
+                            </td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td>REM-2026-002</td>
+                            <td>Policy Update Required</td>
+                            <td>Assessment</td>
+                            <td>Compliance</td>
+                            <td>Jan 25, 2026</td>
+                            <td><span class="badge bg-warning">High</span></td>
+                            <td><span class="badge bg-info">In Progress</span></td>
+                            <td>
+                                <div class="progress" style="height:20px;width:100px;">
+                                    <div class="progress-bar bg-info" style="width:40%">40%</div>
+                                </div>
+                            </td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

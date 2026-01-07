@@ -18,17 +18,20 @@ namespace GrcMvc.Services.Implementations
         private readonly IMapper _mapper;
         private readonly ILogger<ControlService> _logger;
         private readonly PolicyEnforcementHelper _policyHelper;
+        private readonly IWorkspaceContextService? _workspaceContext;
 
         public ControlService(
             IUnitOfWork unitOfWork,
             IMapper mapper,
             ILogger<ControlService> logger,
-            PolicyEnforcementHelper policyHelper)
+            PolicyEnforcementHelper policyHelper,
+            IWorkspaceContextService? workspaceContext = null)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
             _policyHelper = policyHelper ?? throw new ArgumentNullException(nameof(policyHelper));
+            _workspaceContext = workspaceContext;
         }
 
         public async Task<IEnumerable<ControlDto>> GetAllAsync()
@@ -72,6 +75,12 @@ namespace GrcMvc.Services.Implementations
                 control.Id = Guid.NewGuid();
                 control.CreatedDate = DateTime.UtcNow;
                 control.ControlCode = GenerateControlCode();
+                
+                // Set workspace context if available
+                if (_workspaceContext != null && _workspaceContext.HasWorkspaceContext())
+                {
+                    control.WorkspaceId = _workspaceContext.GetCurrentWorkspaceId();
+                }
 
                 // Enforce policies before saving
                 await _policyHelper.EnforceCreateAsync(

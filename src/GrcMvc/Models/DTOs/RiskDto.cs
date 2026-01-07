@@ -19,6 +19,7 @@ namespace GrcMvc.Models.DTOs
         public string MitigationStrategy { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public string DataClassification { get; set; } = string.Empty;
     }
 
     public class CreateRiskDto
@@ -34,6 +35,7 @@ namespace GrcMvc.Models.DTOs
         public string Owner { get; set; } = string.Empty;
         public DateTime? DueDate { get; set; }
         public string MitigationStrategy { get; set; } = string.Empty;
+        public string DataClassification { get; set; } = string.Empty;
     }
 
     public class UpdateRiskDto
@@ -50,6 +52,7 @@ namespace GrcMvc.Models.DTOs
         public string Owner { get; set; } = string.Empty;
         public DateTime? DueDate { get; set; }
         public string MitigationStrategy { get; set; } = string.Empty;
+        public string DataClassification { get; set; } = string.Empty;
     }
 
     public class RiskStatisticsDto

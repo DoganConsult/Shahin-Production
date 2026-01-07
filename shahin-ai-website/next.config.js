@@ -19,6 +19,18 @@ const nextConfig = {
     defaultLocale: 'ar',
     localeDetection: true,
   },
+  // Suppress development warnings
+  reactStrictMode: true,
+  // Suppress webpack warnings in development
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      config.ignoreWarnings = [
+        { module: /webpack-internal/ },
+        { file: /webpack-internal/ },
+      ];
+    }
+    return config;
+  },
 };
 
 module.exports = nextConfig;

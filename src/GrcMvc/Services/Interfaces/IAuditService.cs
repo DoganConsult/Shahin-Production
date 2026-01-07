@@ -18,5 +18,6 @@ namespace GrcMvc.Services.Interfaces
         Task<AuditStatisticsDto> GetStatisticsAsync();
         Task<AuditFindingDto?> AddFindingAsync(Guid auditId, CreateAuditFindingDto createFindingDto);
         Task<bool> ValidateAuditScopeAsync(Guid auditId);
+        Task CloseAsync(Guid id);
     }
 }

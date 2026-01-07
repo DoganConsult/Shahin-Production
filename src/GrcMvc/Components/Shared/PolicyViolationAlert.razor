@@ -1,31 +1,31 @@
-@using GrcMvc.Application.Policy
 @using GrcMvc.Application.Permissions
 @using Microsoft.AspNetCore.Components
+@using GrcMvc.Application.Policy;
 @inherits ComponentBase
 
-@if (Violation != null)
+@if (GrcMvc.Application.Policy.PolicyViolationInfo != null)
 {
     <div class="alert alert-@GetSeverityClass() alert-dismissible fade show" role="alert">
         <div class="d-flex align-items-start">
             <i class="fas fa-@GetSeverityIcon() me-2 mt-1"></i>
             <div class="flex-grow-1">
                 <h5 class="alert-heading mb-2">@GetSeverityTitle()</h5>
-                <p class="mb-2">@Violation.Message</p>
-                
-                @if (!string.IsNullOrEmpty(Violation.RemediationHint))
+                <p class="mb-2">@GrcMvc.Application.Policy.PolicyViolationInfo.Message</p>
+
+                @if (!string.IsNullOrEmpty(GrcMvc.Application.Policy.PolicyViolationInfo.RemediationHint))
                 {
                     <div class="mt-3">
                         <strong>💡 How to fix:</strong>
-                        <p class="mb-0">@Violation.RemediationHint</p>
+                        <p class="mb-0">@GrcMvc.Application.Policy.PolicyViolationInfo.RemediationHint</p>
                     </div>
                 }
 
-                @if (Violation.FailedConditions?.Any() == true)
+                @if (GrcMvc.Application.Policy.PolicyViolationInfo.FailedConditions?.Any() == true)
                 {
                     <div class="mt-3">
                         <strong>Issues found:</strong>
                         <ul class="mb-0 mt-2">
-                            @foreach (var condition in Violation.FailedConditions)
+                            @foreach (var condition in GrcMvc.Application.Policy.PolicyViolationInfo.FailedConditions)
                             {
                                 <li>@condition</li>
                             }
@@ -48,7 +48,7 @@
 }
 
 @code {
-    [Parameter] public PolicyViolationInfo? Violation { get; set; }
+    [Parameter] public GrcMvc.Application.Policy.PolicyViolationInfo? Violation { get; set; }
     [Parameter] public bool CanAutoFix { get; set; }
     [Parameter] public EventCallback OnAutoFix { get; set; }
     [Inject] protected IHttpContextAccessor HttpContextAccessor { get; set; } = null!;

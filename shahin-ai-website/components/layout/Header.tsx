@@ -19,8 +19,8 @@ export default function Header() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-white shadow-lg py-3'
-          : 'bg-transparent py-5'
+          ? 'bg-white/95 backdrop-blur-md shadow-lg py-3'
+          : 'bg-slate-900/50 backdrop-blur-sm py-5'
       }`}
     >
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -35,26 +35,20 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
-            <Link href="#features" className="text-gray-700 hover:text-[#0E7490] transition-colors">
-              المميزات
+            <Link href="#features" className={`transition-colors ${isScrolled ? 'text-gray-700 hover:text-emerald-600' : 'text-white/80 hover:text-white'}`}>
+              Features
             </Link>
-            <Link href="#solutions" className="text-gray-700 hover:text-[#0E7490] transition-colors">
-              الحلول
+            <Link href="#solutions" className={`transition-colors ${isScrolled ? 'text-gray-700 hover:text-emerald-600' : 'text-white/80 hover:text-white'}`}>
+              Solutions
             </Link>
-            <Link href="#industries" className="text-gray-700 hover:text-[#0E7490] transition-colors">
-              القطاعات
+            <Link href="#industries" className={`transition-colors ${isScrolled ? 'text-gray-700 hover:text-emerald-600' : 'text-white/80 hover:text-white'}`}>
+              Industries
             </Link>
-            <Link href="#pricing" className="text-gray-700 hover:text-[#0E7490] transition-colors">
-              الأسعار
+            <Link href="#pricing" className={`transition-colors ${isScrolled ? 'text-gray-700 hover:text-emerald-600' : 'text-white/80 hover:text-white'}`}>
+              Pricing
             </Link>
-            <Link href="#resources" className="text-gray-700 hover:text-[#0E7490] transition-colors">
-              الموارد
-            </Link>
-            <Link href="#about" className="text-gray-700 hover:text-[#0E7490] transition-colors">
-              من نحن
-            </Link>
-            <Link href="#contact" className="text-gray-700 hover:text-[#0E7490] transition-colors">
-              اتصل بنا
+            <Link href="#about" className={`transition-colors ${isScrolled ? 'text-gray-700 hover:text-emerald-600' : 'text-white/80 hover:text-white'}`}>
+              About
             </Link>
             {/* Login Icon/Button - Links to Portal Login */}
             <Link

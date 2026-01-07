@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using GrcMvc.Data;
 using GrcMvc.Services;
@@ -11,6 +12,7 @@ namespace GrcMvc.Controllers;
 /// Shahin-AI Integration Controller
 /// Shows the full flow: Onboarding → Assessment → Workflow → Evidence
 /// </summary>
+[Authorize]
 public class ShahinAIIntegrationController : Controller
 {
     private readonly GrcDbContext _db;

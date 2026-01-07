@@ -323,10 +323,14 @@ public class GrcMenuContributor : IMenuContributor
                 .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
             var tenantId = tenantUser?.TenantId ?? Guid.Empty;
 
-            // Get all features accessible by user's roles
+            // Get role IDs for user's role names
+            var allRoles = await context.Set<Microsoft.AspNetCore.Identity.IdentityRole>().ToListAsync();
+            var userRoleIds = allRoles.Where(r => userRoles.Contains(r.Name)).Select(r => r.Id).ToList();
+
+            // Get all features accessible by user's roles (using RoleId instead of navigation)
             var accessibleFeatures = await context.RoleFeatures
                 .Include(rf => rf.Feature)
-                .Where(rf => userRoles.Contains(rf.Role.Name) && rf.TenantId == tenantId && rf.IsVisible)
+                .Where(rf => userRoleIds.Contains(rf.RoleId) && rf.TenantId == tenantId && rf.IsVisible)
                 .Select(rf => rf.Feature.Code)
                 .Distinct()
                 .ToListAsync();

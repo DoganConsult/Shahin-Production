@@ -17,6 +17,7 @@ namespace GrcMvc.Controllers.Api
         private readonly CatalogSeederService _catalogSeeder;
         private readonly WorkflowDefinitionSeederService _workflowSeeder;
         private readonly FrameworkControlImportService _controlImporter;
+        private readonly IPocSeederService _pocSeeder;
         private readonly GrcDbContext _context;
         private readonly ILogger<SeedController> _logger;
 
@@ -24,12 +25,14 @@ namespace GrcMvc.Controllers.Api
             CatalogSeederService catalogSeeder,
             WorkflowDefinitionSeederService workflowSeeder,
             FrameworkControlImportService controlImporter,
+            IPocSeederService pocSeeder,
             GrcDbContext context,
             ILogger<SeedController> logger)
         {
             _catalogSeeder = catalogSeeder;
             _workflowSeeder = workflowSeeder;
             _controlImporter = controlImporter;
+            _pocSeeder = pocSeeder;
             _context = context;
             _logger = logger;
         }
@@ -83,16 +86,16 @@ namespace GrcMvc.Controllers.Api
             {
                 // Seed catalogs (roles, titles, baselines, packages, templates, evidence types)
                 await _catalogSeeder.SeedAllCatalogsAsync();
-                
+
                 // Seed workflow definitions
                 await _workflowSeeder.SeedAllWorkflowDefinitionsAsync();
-                
+
                 // Seed regulators (92 KSA + International)
                 await RegulatorSeeds.SeedRegulatorsAsync(_context, _logger);
-                
+
                 // Seed KSA framework controls (NCA-ECC, SAMA-CSF, PDPL)
                 await KsaFrameworkSeeds.SeedAllFrameworksAsync(_context, _logger);
-                
+
                 return Ok(new {
                     message = "All seed data created successfully",
                     catalogs = new[] { "Roles", "Titles", "Baselines", "Packages", "Templates", "EvidenceTypes" },
@@ -137,7 +140,7 @@ namespace GrcMvc.Controllers.Api
             try
             {
                 await KsaFrameworkSeeds.SeedAllFrameworksAsync(_context, _logger);
-                return Ok(new { 
+                return Ok(new {
                     message = "KSA framework controls seeded successfully",
                     frameworks = new {
                         NCA_ECC = "30 controls (sample - full 109 via CSV import)",
@@ -308,6 +311,55 @@ namespace GrcMvc.Controllers.Api
                 _logger.LogError(ex, "Error searching controls");
                 return BadRequest(new { error = ex.Message });
             }
+        }
+        /// <summary>
+        /// Seed POC organization (Shahin-AI) with complete end-to-end data
+        /// 15 sections: Tenant, Wizard, Profile, Baselines, Packages, Plan, Phases, Assessments, Team, Members, RACI, Evidence, Workflow, Audit, PolicyDecisions
+        /// </summary>
+        [HttpPost("poc-organization")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SeedPocOrganization([FromQuery] bool force = false)
+        {
+            try
+            {
+                var result = await _pocSeeder.SeedPocOrganizationAsync(force);
+
+                if (result.Success)
+                {
+                    return Ok(new {
+                        success = true,
+                        message = result.Message,
+                        tenantId = result.TenantId,
+                        tenantSlug = result.TenantSlug,
+                        sectionsSeeded = result.SectionsSeeded,
+                        removed = result.Removed
+                    });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = result.Message });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error seeding POC organization");
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Check if POC organization is already seeded
+        /// </summary>
+        [HttpGet("poc-organization/status")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPocStatus()
+        {
+            var isSeeded = await _pocSeeder.IsPocSeededAsync();
+            return Ok(new {
+                tenantSlug = "shahin-ai",
+                isSeeded,
+                tenantId = isSeeded ? PocOrganizationSeeds.TenantId : (Guid?)null
+            });
         }
     }
 

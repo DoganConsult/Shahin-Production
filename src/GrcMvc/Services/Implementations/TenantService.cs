@@ -18,17 +18,20 @@ namespace GrcMvc.Services.Implementations
         private readonly ILogger<TenantService> _logger;
         private readonly IEmailService _emailService;
         private readonly IAuditEventService _auditService;
+        private readonly ITenantProvisioningService _provisioningService;
 
         public TenantService(
             IUnitOfWork unitOfWork,
             ILogger<TenantService> logger,
             IEmailService emailService,
-            IAuditEventService auditService)
+            IAuditEventService auditService,
+            ITenantProvisioningService provisioningService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _emailService = emailService;
             _auditService = auditService;
+            _provisioningService = provisioningService;
         }
 
         /// <summary>
@@ -64,6 +67,27 @@ namespace GrcMvc.Services.Implementations
 
                 await _unitOfWork.Tenants.AddAsync(tenant);
                 await _unitOfWork.SaveChangesAsync();
+
+                // CRITICAL: Provision tenant database immediately
+                // This creates the isolated database for the tenant
+                try
+                {
+                    var provisioned = await _provisioningService.ProvisionTenantAsync(tenant.Id);
+                    if (!provisioned)
+                    {
+                        _logger.LogError("Failed to provision database for tenant {TenantId}. Tenant record created but database not provisioned.", tenant.Id);
+                        // Don't fail tenant creation - database can be provisioned later
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Successfully provisioned database for tenant {TenantId}", tenant.Id);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error provisioning database for tenant {TenantId}. Tenant record created but database provisioning failed.", tenant.Id);
+                    // Continue - database can be provisioned manually later
+                }
 
                 // Send activation email
                 await SendActivationEmailAsync(tenant);
@@ -123,6 +147,17 @@ namespace GrcMvc.Services.Implementations
 
                 await _unitOfWork.Tenants.UpdateAsync(tenant);
                 await _unitOfWork.SaveChangesAsync();
+
+                // Ensure tenant database is provisioned before activation
+                if (!await _provisioningService.IsTenantProvisionedAsync(tenant.Id))
+                {
+                    _logger.LogWarning("Tenant {TenantId} activated but database not provisioned. Provisioning now...", tenant.Id);
+                    var provisioned = await _provisioningService.ProvisionTenantAsync(tenant.Id);
+                    if (!provisioned)
+                    {
+                        throw new InvalidOperationException($"Failed to provision database for tenant {tenant.Id}. Activation cannot complete.");
+                    }
+                }
 
                 // Log event
                 await _auditService.LogEventAsync(

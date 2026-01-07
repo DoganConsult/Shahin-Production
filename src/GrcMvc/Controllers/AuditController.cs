@@ -2,61 +2,67 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Models.DTOs;
+using GrcMvc.Application.Permissions;
+using GrcMvc.Application.Policy;
+using GrcMvc.Authorization;
 using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.Logging;
-using System.Linq;
 
 namespace GrcMvc.Controllers
 {
     [Authorize]
+    [RequireTenant]
     public class AuditController : Controller
     {
         private readonly IAuditService _auditService;
         private readonly ILogger<AuditController> _logger;
+        private readonly IWorkspaceContextService? _workspaceContext;
+        private readonly PolicyEnforcementHelper _policyHelper;
 
-        public AuditController(IAuditService auditService, ILogger<AuditController> logger)
+        public AuditController(IAuditService auditService, ILogger<AuditController> logger, PolicyEnforcementHelper policyHelper, IWorkspaceContextService? workspaceContext = null)
         {
             _auditService = auditService;
             _logger = logger;
+            _policyHelper = policyHelper;
+            _workspaceContext = workspaceContext;
         }
 
-        // GET: Audit
+        [Authorize(GrcPermissions.Audits.View)]
         public async Task<IActionResult> Index()
         {
             var audits = await _auditService.GetAllAsync();
             return View(audits);
         }
 
-        // GET: Audit/Details/5
+        [Authorize(GrcPermissions.Audits.View)]
         public async Task<IActionResult> Details(Guid id)
         {
             var audit = await _auditService.GetByIdAsync(id);
-            if (audit == null)
-            {
-                return NotFound();
-            }
+            if (audit == null) return NotFound();
             return View(audit);
         }
 
-        // GET: Audit/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+        [Authorize(GrcPermissions.Audits.Manage)]
+        public IActionResult Create() => View();
 
-        // POST: Audit/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateAuditDto createAuditDto)
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Audits.Manage)]
+        public async Task<IActionResult> Create(CreateAuditDto dto)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var audit = await _auditService.CreateAsync(createAuditDto);
+                    await _policyHelper.EnforceCreateAsync("Audit", dto, dataClassification: dto.DataClassification, owner: dto.Owner);
+                    var audit = await _auditService.CreateAsync(dto);
                     TempData["Success"] = "Audit created successfully";
                     return RedirectToAction(nameof(Details), new { id = audit.Id });
+                }
+                catch (PolicyViolationException pex)
+                {
+                    _logger.LogWarning(pex, "Policy violation creating audit");
+                    ModelState.AddModelError("", $"Policy Violation: {pex.Message}");
+                    if (!string.IsNullOrEmpty(pex.RemediationHint)) ModelState.AddModelError("", $"Remediation: {pex.RemediationHint}");
                 }
                 catch (Exception ex)
                 {
@@ -64,158 +70,97 @@ namespace GrcMvc.Controllers
                     ModelState.AddModelError("", "Error creating audit. Please try again.");
                 }
             }
-            return View(createAuditDto);
+            return View(dto);
         }
 
-        // GET: Audit/Edit/5
+        [Authorize(GrcPermissions.Audits.Manage)]
         public async Task<IActionResult> Edit(Guid id)
         {
             var audit = await _auditService.GetByIdAsync(id);
-            if (audit == null)
-            {
-                return NotFound();
-            }
+            if (audit == null) return NotFound();
 
             var updateDto = new UpdateAuditDto
             {
+                Id = audit.Id,
                 AuditNumber = audit.AuditNumber,
-                Type = audit.Type,
-                Name = audit.Name,
+                Title = audit.Title,
                 Description = audit.Description,
+                AuditType = audit.AuditType,
+                Status = audit.Status,
                 StartDate = audit.StartDate,
                 EndDate = audit.EndDate,
-                AssignedTo = audit.AssignedTo,
-                Status = audit.Status,
+                ScheduledDate = audit.ScheduledDate,
+                AuditorId = audit.AuditorId,
                 Scope = audit.Scope,
                 Objectives = audit.Objectives,
-                Criteria = audit.Criteria,
                 Methodology = audit.Methodology,
-                ReportSummary = audit.ReportSummary
+                Findings = audit.Findings,
+                Recommendations = audit.Recommendations,
+                Owner = audit.Owner,
+                DataClassification = audit.DataClassification
             };
 
             return View(updateDto);
         }
 
-        // POST: Audit/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, UpdateAuditDto updateAuditDto)
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Audits.Manage)]
+        public async Task<IActionResult> Edit(Guid id, UpdateAuditDto dto)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var audit = await _auditService.UpdateAsync(id, updateAuditDto);
-                    if (audit == null)
-                    {
-                        return NotFound();
-                    }
+                    await _policyHelper.EnforceUpdateAsync("Audit", dto, dataClassification: dto.DataClassification, owner: dto.Owner);
+                    var audit = await _auditService.UpdateAsync(id, dto);
+                    if (audit == null) return NotFound();
                     TempData["Success"] = "Audit updated successfully";
                     return RedirectToAction(nameof(Details), new { id = audit.Id });
                 }
+                catch (PolicyViolationException pex)
+                {
+                    _logger.LogWarning(pex, "Policy violation updating audit {AuditId}", id);
+                    ModelState.AddModelError("", $"Policy Violation: {pex.Message}");
+                    if (!string.IsNullOrEmpty(pex.RemediationHint)) ModelState.AddModelError("", $"Remediation: {pex.RemediationHint}");
+                }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error updating audit with ID {AuditId}", id);
+                    _logger.LogError(ex, "Error updating audit {AuditId}", id);
                     ModelState.AddModelError("", "Error updating audit. Please try again.");
                 }
             }
-            return View(updateAuditDto);
+            return View(dto);
         }
 
-        // GET: Audit/Delete/5
-        public async Task<IActionResult> Delete(Guid id)
+        [Authorize(GrcPermissions.Audits.Manage)]
+        public async Task<IActionResult> UpdateAudit(Guid id, [FromBody] UpdateAuditDto updateAuditDto)
         {
-            var audit = await _auditService.GetByIdAsync(id);
-            if (audit == null)
-            {
-                return NotFound();
-            }
-            return View(audit);
+            var auditDto = await _auditService.UpdateAsync(id, updateAuditDto);
+            if (auditDto == null) return NotFound();
+            return Ok(auditDto);
         }
 
-        // POST: Audit/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        [HttpPost, ValidateAntiForgeryToken, Authorize(GrcPermissions.Audits.Close)]
+        public async Task<IActionResult> Close(Guid id)
         {
             try
             {
-                await _auditService.DeleteAsync(id);
-                TempData["Success"] = "Audit deleted successfully";
-                return RedirectToAction(nameof(Index));
+                var audit = await _auditService.GetByIdAsync(id);
+                if (audit == null) return NotFound();
+                await _policyHelper.EnforceAsync("close", "Audit", audit, dataClassification: audit.DataClassification, owner: audit.Owner);
+                await _auditService.CloseAsync(id);
+                TempData["Success"] = "Audit closed successfully";
+            }
+            catch (PolicyViolationException pex)
+            {
+                _logger.LogWarning(pex, "Policy violation closing audit {AuditId}", id);
+                TempData["Error"] = $"Policy Violation: {pex.Message}. {pex.RemediationHint}";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting audit with ID {AuditId}", id);
-                TempData["Error"] = "Error deleting audit. Please try again.";
-                return RedirectToAction(nameof(Delete), new { id });
+                _logger.LogError(ex, "Error closing audit {AuditId}", id);
+                TempData["Error"] = "Error closing audit. Please try again.";
             }
-        }
-
-        // GET: Audit/Statistics
-        public async Task<IActionResult> Statistics()
-        {
-            try
-            {
-                var statistics = await _auditService.GetStatisticsAsync();
-                return View(statistics);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting audit statistics");
-                TempData["Error"] = "Error loading statistics. Please try again.";
-                return View(new AuditStatisticsDto());
-            }
-        }
-
-        // GET: Audit/ByType/5
-        public async Task<IActionResult> ByType(string type)
-        {
-            try
-            {
-                var audits = await _auditService.GetByTypeAsync(type);
-                ViewBag.Type = type;
-                return View(audits);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting audits by type {Type}", type);
-                TempData["Error"] = "Error loading audits. Please try again.";
-                return View(new List<AuditDto>());
-            }
-        }
-
-        // GET: Audit/Upcoming
-        public async Task<IActionResult> Upcoming()
-        {
-            try
-            {
-                var audits = await _auditService.GetUpcomingAuditsAsync(30);
-                return View(audits);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting upcoming audits");
-                TempData["Error"] = "Error loading upcoming audits. Please try again.";
-                return View(new List<AuditDto>());
-            }
-        }
-
-        // GET: Audit/Findings/5
-        public async Task<IActionResult> Findings(Guid id)
-        {
-            try
-            {
-                var findings = await _auditService.GetAuditFindingsAsync(id);
-                ViewBag.AuditId = id;
-                return View(findings);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting findings for audit ID {AuditId}", id);
-                TempData["Error"] = "Error loading findings. Please try again.";
-                return View(new List<AuditFindingDto>());
-            }
+            return RedirectToAction(nameof(Details), new { id });
         }
     }
 }

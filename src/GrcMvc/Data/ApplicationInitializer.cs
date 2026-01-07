@@ -1,4 +1,5 @@
 using GrcMvc.Data.Seeds;
+using GrcMvc.Data.Seed;
 using GrcMvc.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -44,6 +45,10 @@ public class ApplicationInitializer
             // Layer 1: Global Catalogs from CSV files (92 regulators, 163 frameworks, 13,528 controls)
             await SeedCatalogsFromCsvAsync();
 
+            // Seed Subscription Plans (MVP, Professional, Enterprise)
+            _logger.LogInformation("📋 Seeding subscription plans...");
+            await SubscriptionPlanSeeds.SeedAsync(_context);
+
             // Seed Role Profiles (STAGE 2 - KSA & Multi-level Approval)
             await RoleProfileSeeds.SeedRoleProfilesAsync(_context, _logger);
 
@@ -57,10 +62,19 @@ public class ApplicationInitializer
                 using var scope = _serviceProvider.CreateScope();
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                 await RbacSeeds.SeedRbacSystemAsync(_context, roleManager, defaultTenant.Id, _logger);
+                
+                // Seed GRC Policy Enforcement Roles (8 baseline roles)
+                using var grcScope = _serviceProvider.CreateScope();
+                var grcLogger = grcScope.ServiceProvider.GetRequiredService<ILogger<GrcRoleDataSeedContributor>>();
+                var grcRoleSeeder = new GrcRoleDataSeedContributor(roleManager, _context, grcLogger);
+                await grcRoleSeeder.SeedAsync();
             }
 
             // Seed Predefined Users (Admin, Manager) - MUST be after RBAC system
             await UserSeeds.SeedUsersAsync(_context, _userManager, _logger);
+
+            // Seed Platform Admin (Dooganlap@gmail.com as Owner)
+            await PlatformAdminSeeds.SeedPlatformAdminAsync(_context, _userManager, _logger);
 
             _logger.LogInformation("✅ Application initialization completed successfully");
         }

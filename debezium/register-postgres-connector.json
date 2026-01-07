@@ -1,0 +1,45 @@
+{
+  "name": "grc-postgres-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "database.hostname": "db",
+    "database.port": "5432",
+    "database.user": "postgres",
+    "database.password": "postgres",
+    "database.dbname": "GrcMvcDb",
+    "database.server.name": "grc",
+    "topic.prefix": "grc",
+    "plugin.name": "pgoutput",
+    "publication.name": "grc_publication",
+    "slot.name": "grc_slot",
+
+    "table.include.list": "public.Risks,public.Controls,public.Assessments,public.AssessmentRequirements,public.WorkflowTasks,public.WorkflowInstances,public.Evidences,public.Plans,public.AuditEvents",
+
+    "column.exclude.list": "public.*.PasswordHash,public.*.SecurityStamp,public.*.ConcurrencyStamp",
+
+    "transforms": "unwrap,route",
+    "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+    "transforms.unwrap.drop.tombstones": "true",
+    "transforms.unwrap.delete.handling.mode": "rewrite",
+    "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
+    "transforms.route.regex": "grc\\.public\\.(.*)",
+    "transforms.route.replacement": "grc.public.$1",
+
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+
+    "snapshot.mode": "initial",
+    "tombstones.on.delete": "false",
+
+    "heartbeat.interval.ms": "10000",
+    "poll.interval.ms": "1000",
+    "max.batch.size": "2048",
+    "max.queue.size": "8192",
+
+    "errors.tolerance": "all",
+    "errors.log.enable": "true",
+    "errors.log.include.messages": "true"
+  }
+}

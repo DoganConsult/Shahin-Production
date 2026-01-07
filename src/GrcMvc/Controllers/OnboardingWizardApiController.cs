@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -12,6 +13,7 @@ namespace GrcMvc.Controllers
     /// Provides RESTful endpoints for all sections A-L (96 questions total).
     /// Supports both full wizard and minimal onboarding flows.
     /// </summary>
+    [Authorize]
     [ApiController]
     [Route("api/onboarding/wizard")]
     [Consumes("application/json")]

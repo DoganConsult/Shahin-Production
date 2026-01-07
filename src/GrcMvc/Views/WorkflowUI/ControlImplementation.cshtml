@@ -1,0 +1,165 @@
+@{
+    ViewData["Title"] = "Control Implementation Workflows";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3">
+                <i class="fas fa-cogs text-primary me-2"></i>Control Implementation Workflows
+            </h1>
+            <p class="text-muted">Manage control implementation tasks and track progress</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newWorkflowModal">
+                <i class="fas fa-plus"></i> New Implementation
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3 id="totalCount">0</h3>
+                    <small>Total Implementations</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body text-center">
+                    <h3 id="pendingCount">0</h3>
+                    <small>Pending</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3 id="inProgressCount">0</h3>
+                    <small>In Progress</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3 id="completedCount">0</h3>
+                    <small>Completed</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <select class="form-select" id="filterStatus">
+                        <option value="">All Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="InProgress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Overdue">Overdue</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="filterFramework">
+                        <option value="">All Frameworks</option>
+                        <option value="NCA-ECC">NCA ECC</option>
+                        <option value="SAMA-CSF">SAMA CSF</option>
+                        <option value="PDPL">PDPL</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="searchInput" placeholder="Search controls...">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-primary w-100" onclick="applyFilters()">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workflows Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="workflowsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Control</th>
+                            <th>Framework</th>
+                            <th>Assigned To</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workflowsBody">
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="fas fa-spinner fa-spin me-2"></i>Loading workflows...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(document).ready(function() {
+        loadWorkflows();
+    });
+
+    function loadWorkflows() {
+        // Simulated data - replace with API call
+        var sampleData = [
+            { id: '1', controlNumber: 'ECC-1-1-1', framework: 'NCA-ECC', assignedTo: 'Ahmed', dueDate: '2026-01-15', status: 'InProgress', progress: 60 },
+            { id: '2', controlNumber: 'ECC-1-2-1', framework: 'NCA-ECC', assignedTo: 'Sara', dueDate: '2026-01-20', status: 'Pending', progress: 0 },
+            { id: '3', controlNumber: 'SAMA-1-1', framework: 'SAMA-CSF', assignedTo: 'Mohammed', dueDate: '2026-01-10', status: 'Completed', progress: 100 }
+        ];
+
+        renderWorkflows(sampleData);
+        updateStats(sampleData);
+    }
+
+    function renderWorkflows(data) {
+        var html = '';
+        data.forEach(function(item) {
+            var statusClass = item.status === 'Completed' ? 'success' : item.status === 'InProgress' ? 'info' : item.status === 'Overdue' ? 'danger' : 'warning';
+            html += '<tr>' +
+                '<td><a href="' + '@Url.Action("ControlImplementationDetail", "WorkflowUI")' + '?id=' + item.id + '">' + item.controlNumber + '</a></td>' +
+                '<td>' + item.framework + '</td>' +
+                '<td>' + item.assignedTo + '</td>' +
+                '<td>' + item.dueDate + '</td>' +
+                '<td><span class="badge bg-' + statusClass + '">' + item.status + '</span></td>' +
+                '<td><div class="progress" style="height:20px;"><div class="progress-bar bg-' + statusClass + '" style="width:' + item.progress + '%">' + item.progress + '%</div></div></td>' +
+                '<td><a href="' + '@Url.Action("ControlImplementationDetail", "WorkflowUI")' + '?id=' + item.id + '" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a></td>' +
+                '</tr>';
+        });
+        $('#workflowsBody').html(html);
+    }
+
+    function updateStats(data) {
+        $('#totalCount').text(data.length);
+        $('#pendingCount').text(data.filter(x => x.status === 'Pending').length);
+        $('#inProgressCount').text(data.filter(x => x.status === 'InProgress').length);
+        $('#completedCount').text(data.filter(x => x.status === 'Completed').length);
+    }
+
+    function applyFilters() {
+        loadWorkflows();
+    }
+</script>
+}

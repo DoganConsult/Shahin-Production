@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
 using GrcMvc.Models.Entities.Catalogs;
+using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace GrcMvc.Controllers;
@@ -9,15 +11,18 @@ namespace GrcMvc.Controllers;
 /// <summary>
 /// Role Profile Controller - Manage roles, titles, and user assignments
 /// </summary>
+[Authorize]
 [Route("[controller]")]
 public class RoleProfileController : Controller
 {
     private readonly GrcDbContext _db;
+    private readonly IUserDirectoryService _userDirectory;
     private readonly ILogger<RoleProfileController> _logger;
 
-    public RoleProfileController(GrcDbContext db, ILogger<RoleProfileController> logger)
+    public RoleProfileController(GrcDbContext db, IUserDirectoryService userDirectory, ILogger<RoleProfileController> logger)
     {
         _db = db;
+        _userDirectory = userDirectory;
         _logger = logger;
     }
 
@@ -31,7 +36,7 @@ public class RoleProfileController : Controller
         {
             Roles = await _db.RoleCatalogs.Where(r => r.IsActive).OrderBy(r => r.DisplayOrder).ToListAsync(),
             Titles = await _db.TitleCatalogs.Where(t => t.IsActive).OrderBy(t => t.DisplayOrder).ToListAsync(),
-            TotalUsers = await _db.Users.CountAsync(),
+            TotalUsers = await _userDirectory.GetUserCountAsync(),
             TotalRoles = await _db.RoleCatalogs.CountAsync(r => r.IsActive),
             TotalTitles = await _db.TitleCatalogs.CountAsync(t => t.IsActive)
         };
@@ -67,7 +72,7 @@ public class RoleProfileController : Controller
         var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId)) return RedirectToAction("Login", "Account");
 
-        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        var user = await _userDirectory.GetUserByIdAsync(userId);
         return View(user);
     }
 }

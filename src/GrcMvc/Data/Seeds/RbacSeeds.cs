@@ -502,11 +502,22 @@ public static class RbacSeeds
 
         var roles = new Dictionary<string, IdentityRole>();
 
-        // Define all GRC roles
+        // Define all GRC roles - 4 Level Hierarchy
         var roleDefinitions = new[]
         {
-            new { Name = "SuperAdmin", Description = "Super Administrator - Full system access" },
-            new { Name = "TenantAdmin", Description = "Tenant Administrator - Tenant management" },
+            // Level 1: Platform Administration (Shahin-AI staff)
+            new { Name = "PlatformAdmin", Description = "Platform Administrator - Full system access, manages all tenants" },
+
+            // Level 2: Tenant Administration
+            new { Name = "TenantAdmin", Description = "Tenant Administrator - Tenant management, users, roles within tenant" },
+
+            // Level 3: Application User Administration (delegated)
+            new { Name = "AppUserAdmin", Description = "Application User Admin - Manages users within tenant (delegated by TenantAdmin)" },
+
+            // Level 4: Basic User
+            new { Name = "User", Description = "Basic User - Standard authenticated user with assigned permissions" },
+
+            // Operational Roles (assigned to Users)
             new { Name = "ComplianceManager", Description = "Compliance Manager - Compliance oversight" },
             new { Name = "RiskManager", Description = "Risk Manager - Risk management" },
             new { Name = "Auditor", Description = "Auditor - Audit activities" },
@@ -567,14 +578,14 @@ public static class RbacSeeds
 
         var rolePermissions = new List<RolePermission>();
 
-        // SuperAdmin - All permissions
-        if (roles.ContainsKey("SuperAdmin"))
+        // PlatformAdmin - All permissions
+        if (roles.ContainsKey("PlatformAdmin"))
         {
             foreach (var permission in permissions.Values)
             {
                 rolePermissions.Add(new RolePermission
                 {
-                    RoleId = roles["SuperAdmin"].Id,
+                    RoleId = roles["PlatformAdmin"].Id,
                     PermissionId = permission.Id,
                     TenantId = tenantId,
                     AssignedBy = "System"
@@ -597,6 +608,49 @@ public static class RbacSeeds
                     rolePermissions.Add(new RolePermission
                     {
                         RoleId = roles["TenantAdmin"].Id,
+                        PermissionId = permissions[permCode].Id,
+                        TenantId = tenantId,
+                        AssignedBy = "System"
+                    });
+                }
+            }
+        }
+
+        // AppUserAdmin - User management within tenant (delegated by TenantAdmin)
+        if (roles.ContainsKey("AppUserAdmin"))
+        {
+            var appUserAdminPermissions = new[] {
+                "Grc.Home", "Grc.Dashboard",
+                "Grc.Admin.Access", "Grc.Admin.Users"
+            };
+            foreach (var permCode in appUserAdminPermissions)
+            {
+                if (permissions.ContainsKey(permCode))
+                {
+                    rolePermissions.Add(new RolePermission
+                    {
+                        RoleId = roles["AppUserAdmin"].Id,
+                        PermissionId = permissions[permCode].Id,
+                        TenantId = tenantId,
+                        AssignedBy = "System"
+                    });
+                }
+            }
+        }
+
+        // User - Basic authenticated user (Home + Dashboard only, other permissions assigned per user)
+        if (roles.ContainsKey("User"))
+        {
+            var userPermissions = new[] {
+                "Grc.Home", "Grc.Dashboard"
+            };
+            foreach (var permCode in userPermissions)
+            {
+                if (permissions.ContainsKey(permCode))
+                {
+                    rolePermissions.Add(new RolePermission
+                    {
+                        RoleId = roles["User"].Id,
                         PermissionId = permissions[permCode].Id,
                         TenantId = tenantId,
                         AssignedBy = "System"
@@ -863,14 +917,14 @@ public static class RbacSeeds
 
         var roleFeatures = new List<RoleFeature>();
 
-        // SuperAdmin - All features visible
-        if (roles.ContainsKey("SuperAdmin"))
+        // PlatformAdmin - All features visible
+        if (roles.ContainsKey("PlatformAdmin"))
         {
             foreach (var feature in features.Values)
             {
                 roleFeatures.Add(new RoleFeature
                 {
-                    RoleId = roles["SuperAdmin"].Id,
+                    RoleId = roles["PlatformAdmin"].Id,
                     FeatureId = feature.Id,
                     TenantId = tenantId,
                     IsVisible = true,
@@ -890,6 +944,46 @@ public static class RbacSeeds
                     roleFeatures.Add(new RoleFeature
                     {
                         RoleId = roles["TenantAdmin"].Id,
+                        FeatureId = features[featureCode].Id,
+                        TenantId = tenantId,
+                        IsVisible = true,
+                        AssignedBy = "System"
+                    });
+                }
+            }
+        }
+
+        // AppUserAdmin - Admin section only
+        if (roles.ContainsKey("AppUserAdmin"))
+        {
+            var appUserAdminFeatures = new[] { "Home", "Dashboard", "Admin" };
+            foreach (var featureCode in appUserAdminFeatures)
+            {
+                if (features.ContainsKey(featureCode))
+                {
+                    roleFeatures.Add(new RoleFeature
+                    {
+                        RoleId = roles["AppUserAdmin"].Id,
+                        FeatureId = features[featureCode].Id,
+                        TenantId = tenantId,
+                        IsVisible = true,
+                        AssignedBy = "System"
+                    });
+                }
+            }
+        }
+
+        // User - Home and Dashboard only
+        if (roles.ContainsKey("User"))
+        {
+            var userFeatures = new[] { "Home", "Dashboard" };
+            foreach (var featureCode in userFeatures)
+            {
+                if (features.ContainsKey(featureCode))
+                {
+                    roleFeatures.Add(new RoleFeature
+                    {
+                        RoleId = roles["User"].Id,
                         FeatureId = features[featureCode].Id,
                         TenantId = tenantId,
                         IsVisible = true,

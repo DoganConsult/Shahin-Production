@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GrcMvc.Controllers
 {
     /// <summary>
     /// API Health check endpoint
+    /// PUBLIC: Health check for monitoring systems
     /// </summary>
+    [AllowAnonymous]
     [Route("api")]
     [ApiController]
     public class ApiHealthController : ControllerBase

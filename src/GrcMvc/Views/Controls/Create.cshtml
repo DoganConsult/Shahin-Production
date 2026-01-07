@@ -1,0 +1,207 @@
+@{
+    ViewData["Title"] = "Add Control - Shahin MAP";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Controls")">Controls</a></li>
+            <li class="breadcrumb-item active">Add Control</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">
+                <i class="fas fa-plus-circle text-primary me-2"></i>
+                Add New Control
+            </h1>
+            <p class="text-muted">Add a custom control to your control library</p>
+        </div>
+    </div>
+
+    <form asp-action="Create" method="post" id="createControlForm">
+        <div class="row">
+            <!-- Main Form -->
+            <div class="col-lg-8">
+                <!-- Basic Information -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label"><span class="text-danger">*</span> Control Number</label>
+                                <input type="text" class="form-control" name="ControlNumber" required
+                                       placeholder="e.g., CTRL-001">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label"><span class="text-danger">*</span> Framework</label>
+                                <select class="form-select" name="FrameworkCode" required>
+                                    <option value="">-- Select Framework --</option>
+                                    <option value="NCA-ECC">NCA ECC 2:2024</option>
+                                    <option value="SAMA-CSF">SAMA CSF</option>
+                                    <option value="PDPL">PDPL</option>
+                                    <option value="NCA-CSCC">NCA CSCC</option>
+                                    <option value="ISO27001">ISO 27001</option>
+                                    <option value="CUSTOM">Custom</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label"><span class="text-danger">*</span> Domain</label>
+                                <select class="form-select" name="Domain" required>
+                                    <option value="">-- Select Domain --</option>
+                                    <option value="GOV">Governance</option>
+                                    <option value="DEF">Defense</option>
+                                    <option value="RES">Resilience</option>
+                                    <option value="TP">Third Party</option>
+                                    <option value="IC">Industrial Control</option>
+                                    <option value="DATA">Data Protection</option>
+                                    <option value="ACCESS">Access Control</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Control Type</label>
+                                <select class="form-select" name="ControlType">
+                                    <option value="Preventive">Preventive</option>
+                                    <option value="Detective">Detective</option>
+                                    <option value="Corrective">Corrective</option>
+                                    <option value="Compensating">Compensating</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Control Details -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Control Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label"><span class="text-danger">*</span> Title (English)</label>
+                            <input type="text" class="form-control" name="TitleEn" required
+                                   placeholder="Control title in English">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Title (Arabic)</label>
+                            <input type="text" class="form-control" name="TitleAr" dir="rtl"
+                                   placeholder="عنوان الضابط بالعربية">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><span class="text-danger">*</span> Requirement (English)</label>
+                            <textarea class="form-control" name="RequirementEn" rows="4" required
+                                      placeholder="Describe the control requirement..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Requirement (Arabic)</label>
+                            <textarea class="form-control" name="RequirementAr" rows="4" dir="rtl"
+                                      placeholder="وصف متطلبات الضابط..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Implementation Guidance -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-book me-2"></i>Implementation Guidance</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Implementation Guidance</label>
+                            <textarea class="form-control" name="ImplementationGuidanceEn" rows="4"
+                                      placeholder="Provide implementation guidance..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Evidence Requirements</label>
+                            <textarea class="form-control" name="EvidenceRequirements" rows="3"
+                                      placeholder="Describe what evidence is required..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Mappings -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-link me-2"></i>Framework Mappings</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">ISO 27001 Mapping</label>
+                            <input type="text" class="form-control" name="MappingIso27001"
+                                   placeholder="e.g., A.5.1.1">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">NIST CSF Mapping</label>
+                            <input type="text" class="form-control" name="MappingNist"
+                                   placeholder="e.g., ID.AM-1">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Maturity -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-layer-group me-2"></i>Maturity Level</h6>
+                    </div>
+                    <div class="card-body">
+                        <select class="form-select" name="MaturityLevel">
+                            <option value="1">Level 1 - Initial</option>
+                            <option value="2">Level 2 - Managed</option>
+                            <option value="3" selected>Level 3 - Defined</option>
+                            <option value="4">Level 4 - Quantitatively Managed</option>
+                            <option value="5">Level 5 - Optimizing</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <button type="submit" class="btn btn-primary w-100 mb-2">
+                            <i class="fas fa-save me-2"></i>Create Control
+                        </button>
+                        <a href="@Url.Action("Index", "Controls")" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+<script>
+    $(document).ready(function() {
+        $('#createControlForm').on('submit', function(e) {
+            e.preventDefault();
+
+            var formData = $(this).serialize();
+
+            $.post('@Url.Action("Create", "Controls")', formData)
+                .done(function(response) {
+                    if (response.success) {
+                        window.location.href = '@Url.Action("Index", "Controls")';
+                    } else {
+                        alert(response.message || 'Error creating control');
+                    }
+                })
+                .fail(function() {
+                    alert('Error creating control. Please try again.');
+                });
+        });
+    });
+</script>
+}

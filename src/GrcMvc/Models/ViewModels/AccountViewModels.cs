@@ -142,4 +142,44 @@ namespace GrcMvc.Models.ViewModels
         [Display(Name = "Recovery Code")]
         public string RecoveryCode { get; set; } = string.Empty;
     }
+
+    public class TenantAdminLoginViewModel
+    {
+        [Required(ErrorMessage = "Tenant ID is required")]
+        [Display(Name = "Tenant ID")]
+        public Guid TenantId { get; set; }
+
+        [Required(ErrorMessage = "Username is required")]
+        [Display(Name = "Username")]
+        public string Username { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Password is required")]
+        [DataType(DataType.Password)]
+        [Display(Name = "Password")]
+        public string Password { get; set; } = string.Empty;
+
+        public string? ReturnUrl { get; set; }
+    }
+
+    /// <summary>
+    /// ViewModel for forced password change on first login
+    /// </summary>
+    public class ChangePasswordRequiredViewModel
+    {
+        [Required(ErrorMessage = "Current password is required")]
+        [DataType(DataType.Password)]
+        [Display(Name = "Current Password")]
+        public string CurrentPassword { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "New password is required")]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 8)]
+        [DataType(DataType.Password)]
+        [Display(Name = "New Password")]
+        public string NewPassword { get; set; } = string.Empty;
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm New Password")]
+        [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
 }

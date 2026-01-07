@@ -1,0 +1,91 @@
+@{
+    ViewData["Title"] = "Exception Workflows";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3">
+                <i class="fas fa-exclamation-circle text-warning me-2"></i>Exception Workflows
+            </h1>
+            <p class="text-muted">Manage control exceptions and waivers</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newExceptionModal">
+                <i class="fas fa-plus"></i> Request Exception
+            </button>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body text-center">
+                    <h3>5</h3><small>Pending Review</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3>12</h3><small>Approved</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <h3>3</h3><small>Expiring Soon</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body text-center">
+                    <h3>8</h3><small>Expired</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Exception ID</th>
+                            <th>Control</th>
+                            <th>Requested By</th>
+                            <th>Expiry Date</th>
+                            <th>Status</th>
+                            <th>Risk Level</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><a href="@Url.Action("ExceptionDetail", "WorkflowUI", new { id = "1" })">EXC-2026-001</a></td>
+                            <td>ECC-2-1-1</td>
+                            <td>Ahmed</td>
+                            <td>Mar 31, 2026</td>
+                            <td><span class="badge bg-warning">Pending</span></td>
+                            <td><span class="badge bg-danger">High</span></td>
+                            <td><a href="@Url.Action("ExceptionDetail", "WorkflowUI", new { id = "1" })" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td><a href="@Url.Action("ExceptionDetail", "WorkflowUI", new { id = "2" })">EXC-2026-002</a></td>
+                            <td>ECC-3-2-1</td>
+                            <td>Sara</td>
+                            <td>Jun 30, 2026</td>
+                            <td><span class="badge bg-success">Approved</span></td>
+                            <td><span class="badge bg-warning">Medium</span></td>
+                            <td><a href="@Url.Action("ExceptionDetail", "WorkflowUI", new { id = "2" })" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

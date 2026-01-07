@@ -32,6 +32,45 @@ namespace GrcMvc.Models.Entities
         /// </summary>
         public string CorrelationId { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Owner-created tenant tracking
+        /// </summary>
+        public string? CreatedByOwnerId { get; set; } // ApplicationUser.Id of owner who created this tenant (string from Identity)
+        public bool IsOwnerCreated { get; set; } = false; // Flag for owner-created tenants
+        public bool BypassPayment { get; set; } = false; // Indicates payment bypass
+        public DateTime? CredentialExpiresAt { get; set; } // Expiration for admin credentials
+        public bool AdminAccountGenerated { get; set; } = false; // Tracks if admin account was generated
+        public DateTime? AdminAccountGeneratedAt { get; set; } // When credentials were generated
+
+        // =============================================================================
+        // ONBOARDING LINKAGE (One workspace per tenant, created during finalization)
+        // =============================================================================
+
+        /// <summary>
+        /// Default workspace ID - created ONCE during onboarding finalization
+        /// </summary>
+        public Guid? DefaultWorkspaceId { get; set; }
+
+        /// <summary>
+        /// Assessment template ID - auto-generated during onboarding (100Q baseline)
+        /// </summary>
+        public Guid? AssessmentTemplateId { get; set; }
+
+        /// <summary>
+        /// GRC Plan ID - auto-generated during onboarding
+        /// </summary>
+        public Guid? GrcPlanId { get; set; }
+
+        /// <summary>
+        /// Onboarding status: NOT_STARTED, IN_PROGRESS, FAILED, COMPLETED
+        /// </summary>
+        public string OnboardingStatus { get; set; } = "NOT_STARTED";
+
+        /// <summary>
+        /// When onboarding was completed
+        /// </summary>
+        public DateTime? OnboardingCompletedAt { get; set; }
+
         // Navigation properties
         public virtual ICollection<TenantUser> Users { get; set; } = new List<TenantUser>();
         public virtual OrganizationProfile? OrganizationProfile { get; set; }

@@ -1,5 +1,6 @@
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
+using GrcMvc.Services.Interfaces;
 using GrcMvc.Services.Interfaces.RBAC;
 using Microsoft.EntityFrameworkCore;
 
@@ -398,11 +399,13 @@ namespace GrcMvc.Services.Implementations.RBAC
     public class UserRoleAssignmentService : IUserRoleAssignmentService
     {
         private readonly GrcDbContext _context;
+        private readonly IUserDirectoryService _userDirectory;
         private readonly ILogger<UserRoleAssignmentService> _logger;
 
-        public UserRoleAssignmentService(GrcDbContext context, ILogger<UserRoleAssignmentService> logger)
+        public UserRoleAssignmentService(GrcDbContext context, IUserDirectoryService userDirectory, ILogger<UserRoleAssignmentService> logger)
         {
             _context = context;
+            _userDirectory = userDirectory;
             _logger = logger;
         }
 
@@ -432,20 +435,18 @@ namespace GrcMvc.Services.Implementations.RBAC
 
         public async Task<List<UserRoleAssignment>> GetUserRolesAsync(string userId)
         {
+            // Note: Role navigation removed - use IUserDirectoryService.GetRolesByIdsAsync for role details
             return await _context.UserRoleAssignments
                 .Where(ura => ura.UserId == userId && ura.IsActive)
-                .Include(ura => ura.Role)
                 .Include(ura => ura.Tenant)
                 .ToListAsync();
         }
 
         public async Task<List<UserRoleAssignment>> GetRoleUsersAsync(string roleId, Guid tenantId)
         {
+            // Note: User navigation removed - use IUserDirectoryService.GetUsersByIdsAsync for user details
             return await _context.UserRoleAssignments
                 .Where(ura => ura.RoleId == roleId && ura.TenantId == tenantId && ura.IsActive)
-                .Include(ura => ura.User)
-                .OrderBy(ura => ura.User.LastName)
-                .ThenBy(ura => ura.User.FirstName)
                 .ToListAsync();
         }
 
@@ -485,13 +486,17 @@ namespace GrcMvc.Services.Implementations.RBAC
 
         public async Task<List<ApplicationUser>> GetUsersWithRoleAsync(string roleId, Guid tenantId)
         {
-            return await _context.UserRoleAssignments
+            // Get user IDs from role assignments, then batch lookup users from auth DB
+            var userIds = await _context.UserRoleAssignments
                 .Where(ura => ura.RoleId == roleId && ura.TenantId == tenantId && ura.IsActive)
-                .Include(ura => ura.User)
-                .Select(ura => ura.User)
+                .Select(ura => ura.UserId)
+                .ToListAsync();
+
+            var usersDict = await _userDirectory.GetUsersByIdsAsync(userIds);
+            return usersDict.Values
                 .OrderBy(u => u.LastName)
                 .ThenBy(u => u.FirstName)
-                .ToListAsync();
+                .ToList();
         }
     }
 

@@ -19,17 +19,20 @@ namespace GrcMvc.Services.Implementations
         private readonly IMapper _mapper;
         private readonly ILogger<AssessmentService> _logger;
         private readonly PolicyEnforcementHelper _policyHelper;
+        private readonly IWorkspaceContextService? _workspaceContext;
 
         public AssessmentService(
             IUnitOfWork unitOfWork,
             IMapper mapper,
             ILogger<AssessmentService> logger,
-            PolicyEnforcementHelper policyHelper)
+            PolicyEnforcementHelper policyHelper,
+            IWorkspaceContextService? workspaceContext = null)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
             _policyHelper = policyHelper ?? throw new ArgumentNullException(nameof(policyHelper));
+            _workspaceContext = workspaceContext;
         }
 
         public async Task<IEnumerable<AssessmentDto>> GetAllAsync()
@@ -73,6 +76,12 @@ namespace GrcMvc.Services.Implementations
                 assessment.Id = Guid.NewGuid();
                 assessment.ModifiedDate = DateTime.UtcNow;
                 assessment.AssessmentCode = GenerateAssessmentCode();
+                
+                // Set workspace context if available
+                if (_workspaceContext != null && _workspaceContext.HasWorkspaceContext())
+                {
+                    assessment.WorkspaceId = _workspaceContext.GetCurrentWorkspaceId();
+                }
 
                 // Enforce policies before saving
                 await _policyHelper.EnforceCreateAsync(
@@ -357,6 +366,87 @@ namespace GrcMvc.Services.Implementations
                 .Where(a => a.PlanId == planId && !a.IsDeleted)
                 .OrderBy(a => a.CreatedDate)
                 .ToListAsync();
+        }
+
+        /// <summary>
+        /// Submit an assessment for review/approval
+        /// </summary>
+        public async Task<AssessmentDto> SubmitAsync(Guid id)
+        {
+            try
+            {
+                var assessment = await _unitOfWork.Assessments.GetByIdAsync(id);
+                if (assessment == null)
+                {
+                    throw new InvalidOperationException($"Assessment with ID {id} not found");
+                }
+
+                // Validate assessment can be submitted
+                if (assessment.Status != "Draft" && assessment.Status != "In Progress")
+                {
+                    throw new InvalidOperationException($"Assessment in status '{assessment.Status}' cannot be submitted. Only Draft or In Progress assessments can be submitted.");
+                }
+
+                // Update status
+                assessment.Status = "Submitted";
+                assessment.ModifiedDate = DateTime.UtcNow;
+                assessment.ModifiedBy = GetCurrentUser();
+
+                await _unitOfWork.Assessments.UpdateAsync(assessment);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Assessment {AssessmentId} submitted successfully", id);
+                return _mapper.Map<AssessmentDto>(assessment);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error submitting assessment {AssessmentId}", id);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Approve an assessment
+        /// </summary>
+        public async Task<AssessmentDto> ApproveAsync(Guid id)
+        {
+            try
+            {
+                var assessment = await _unitOfWork.Assessments.GetByIdAsync(id);
+                if (assessment == null)
+                {
+                    throw new InvalidOperationException($"Assessment with ID {id} not found");
+                }
+
+                // Validate assessment can be approved
+                if (assessment.Status != "Submitted")
+                {
+                    throw new InvalidOperationException($"Assessment in status '{assessment.Status}' cannot be approved. Only Submitted assessments can be approved.");
+                }
+
+                // Update status
+                assessment.Status = "Approved";
+                assessment.ModifiedDate = DateTime.UtcNow;
+                assessment.ModifiedBy = GetCurrentUser();
+
+                await _unitOfWork.Assessments.UpdateAsync(assessment);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Assessment {AssessmentId} approved successfully", id);
+                return _mapper.Map<AssessmentDto>(assessment);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error approving assessment {AssessmentId}", id);
+                throw;
+            }
+        }
+
+        private string? GetCurrentUser()
+        {
+            // This should be injected via ICurrentUserService or IHttpContextAccessor
+            // For now, return a placeholder - should be replaced with actual user context
+            return System.Threading.Thread.CurrentPrincipal?.Identity?.Name ?? "System";
         }
     }
 }

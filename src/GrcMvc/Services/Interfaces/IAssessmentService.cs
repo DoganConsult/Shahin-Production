@@ -27,5 +27,15 @@ namespace GrcMvc.Services.Interfaces
         /// Get assessments for a specific plan.
         /// </summary>
         Task<IEnumerable<Assessment>> GetAssessmentsByPlanAsync(Guid planId);
+
+        /// <summary>
+        /// Submit an assessment for review/approval
+        /// </summary>
+        Task<AssessmentDto> SubmitAsync(Guid id);
+
+        /// <summary>
+        /// Approve an assessment
+        /// </summary>
+        Task<AssessmentDto> ApproveAsync(Guid id);
     }
 }

@@ -1,0 +1,107 @@
+@{
+    ViewData["Title"] = "Control Testing Workflows";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3">
+                <i class="fas fa-vial text-purple me-2"></i>Control Testing Workflows
+            </h1>
+            <p class="text-muted">Manage control testing and effectiveness evaluation</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-primary">
+                <i class="fas fa-plus"></i> Schedule Test
+            </button>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3>24</h3><small>Scheduled Tests</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3>8</h3><small>In Progress</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3>45</h3><small>Passed</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <h3>5</h3><small>Failed</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Testing Queue</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Test ID</th>
+                            <th>Control</th>
+                            <th>Test Type</th>
+                            <th>Tester</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Result</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>TST-2026-001</td>
+                            <td>ECC-1-1-1</td>
+                            <td>Design Effectiveness</td>
+                            <td>Sara</td>
+                            <td>Jan 15, 2026</td>
+                            <td><span class="badge bg-info">In Progress</span></td>
+                            <td>-</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-clipboard-check"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td>TST-2026-002</td>
+                            <td>ECC-2-1-1</td>
+                            <td>Operating Effectiveness</td>
+                            <td>Mohammed</td>
+                            <td>Jan 20, 2026</td>
+                            <td><span class="badge bg-warning">Scheduled</span></td>
+                            <td>-</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-play"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td>TST-2026-003</td>
+                            <td>ECC-3-1-1</td>
+                            <td>Design Effectiveness</td>
+                            <td>Ahmed</td>
+                            <td>Jan 10, 2026</td>
+                            <td><span class="badge bg-success">Completed</span></td>
+                            <td><span class="badge bg-success">Pass</span></td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

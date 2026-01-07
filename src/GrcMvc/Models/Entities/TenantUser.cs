@@ -33,6 +33,14 @@ namespace GrcMvc.Models.Entities
         public DateTime? ActivatedAt { get; set; }
         public string InvitedBy { get; set; } = string.Empty;
         
+        /// <summary>
+        /// Owner-generated account tracking
+        /// </summary>
+        public bool IsOwnerGenerated { get; set; } = false; // Marks owner-generated admin accounts
+        public string? GeneratedByOwnerId { get; set; } // Which owner (ApplicationUser.Id) generated this account (string from Identity)
+        public DateTime? CredentialExpiresAt { get; set; } // Expiration for this specific account
+        public bool MustChangePasswordOnFirstLogin { get; set; } = false; // Security requirement (default: true for owner-generated)
+        
         // Navigation properties
         public virtual Tenant Tenant { get; set; } = null!;
         public virtual ApplicationUser User { get; set; } = null!;

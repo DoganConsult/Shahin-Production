@@ -26,6 +26,9 @@ namespace GrcMvc
                 // Find the admin user
                 var adminUser = await userManager.FindByEmailAsync("support@shahin-ai.com");
 
+                // Get password from environment variable or generate secure one
+                var newPassword = Environment.GetEnvironmentVariable("GRC_ADMIN_PASSWORD") ?? GenerateSecurePassword();
+
                 if (adminUser == null)
                 {
                     Console.WriteLine("Admin user not found. Creating new admin user...");
@@ -41,7 +44,7 @@ namespace GrcMvc
                         EmailConfirmed = true
                     };
 
-                    var createResult = await userManager.CreateAsync(adminUser, "DogCon@2026");
+                    var createResult = await userManager.CreateAsync(adminUser, newPassword);
 
                     if (!createResult.Succeeded)
                     {
@@ -56,9 +59,9 @@ namespace GrcMvc
                 {
                     Console.WriteLine($"Found admin user: {adminUser.Email}");
 
-                    // Reset password to known value
+                    // Reset password to new value
                     var token = await userManager.GeneratePasswordResetTokenAsync(adminUser);
-                    var resetResult = await userManager.ResetPasswordAsync(adminUser, token, "DogCon@2026");
+                    var resetResult = await userManager.ResetPasswordAsync(adminUser, token, newPassword);
 
                     if (!resetResult.Succeeded)
                     {
@@ -83,7 +86,7 @@ namespace GrcMvc
                 Console.WriteLine("\n==============================");
                 Console.WriteLine("Login Credentials:");
                 Console.WriteLine($"Email: support@shahin-ai.com");
-                Console.WriteLine($"Password: DogCon@2026");
+                Console.WriteLine($"Password: {newPassword}");
                 Console.WriteLine("==============================\n");
 
                 return true;
@@ -93,6 +96,18 @@ namespace GrcMvc
                 Console.WriteLine($"Error resetting password: {ex.Message}");
                 return false;
             }
+        }
+
+        private static string GenerateSecurePassword()
+        {
+            const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%&*";
+            var password = new char[16];
+            using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
+            var bytes = new byte[16];
+            rng.GetBytes(bytes);
+            for (int i = 0; i < 16; i++)
+                password[i] = chars[bytes[i] % chars.Length];
+            return new string(password);
         }
     }
 }

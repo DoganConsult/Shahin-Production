@@ -235,10 +235,19 @@
                 <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg me-2">
                     <i class="bi bi-box-arrow-in-right"></i> Login
                 </a>
-                <a asp-controller="Account" asp-action="Register" class="btn btn-secondary btn-lg">
-                    <i class="bi bi-person-plus"></i> Register
+                <a asp-controller="Onboarding" asp-action="Index" class="btn btn-success btn-lg">
+                    <i class="bi bi-rocket"></i> Onboarding
                 </a>
             </p>
+
+            <!-- Demo Access -->
+            <div class="mt-4 p-4 bg-light rounded">
+                <p class="text-muted mb-2">Want to explore the platform first?</p>
+                <a asp-controller="Account" asp-action="DemoLogin" class="btn btn-outline-success btn-lg">
+                    <i class="bi bi-play-circle"></i> Try Demo (POC Tenant)
+                </a>
+                <p class="small text-muted mt-2">Pre-configured Shahin-AI demo organization</p>
+            </div>
         </div>
 
         <div class="row mt-5">

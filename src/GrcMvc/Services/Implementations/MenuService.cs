@@ -48,10 +48,14 @@ public class MenuService : IMenuService
                 .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
             var tenantId = tenantUser?.TenantId ?? Guid.Empty;
 
-            // Get all features accessible by user's roles
+            // Get role IDs for user's role names (lookup from auth DB via UserManager)
+            var allRoles = await _context.Set<Microsoft.AspNetCore.Identity.IdentityRole>().ToListAsync();
+            var userRoleIds = allRoles.Where(r => userRoles.Contains(r.Name)).Select(r => r.Id).ToList();
+
+            // Get all features accessible by user's roles (using RoleId instead of navigation)
             var accessibleFeatures = await _context.RoleFeatures
                 .Include(rf => rf.Feature)
-                .Where(rf => userRoles.Contains(rf.Role.Name) && rf.TenantId == tenantId && rf.IsVisible)
+                .Where(rf => userRoleIds.Contains(rf.RoleId) && rf.TenantId == tenantId && rf.IsVisible)
                 .Select(rf => rf.Feature.Code)
                 .Distinct()
                 .ToListAsync();
@@ -417,9 +421,13 @@ public class MenuService : IMenuService
             if (featureCode == "Home" || featureCode == "Dashboard")
                 return true;
 
+            // Get role IDs for user's role names
+            var allRoles = await _context.Set<Microsoft.AspNetCore.Identity.IdentityRole>().ToListAsync();
+            var userRoleIds = allRoles.Where(r => userRoles.Contains(r.Name)).Select(r => r.Id).ToList();
+
             return await _context.RoleFeatures
                 .Include(rf => rf.Feature)
-                .AnyAsync(rf => userRoles.Contains(rf.Role.Name) &&
+                .AnyAsync(rf => userRoleIds.Contains(rf.RoleId) &&
                                rf.Feature.Code == featureCode &&
                                rf.TenantId == tenantId &&
                                rf.IsVisible);
@@ -446,9 +454,13 @@ public class MenuService : IMenuService
                 .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
             var tenantId = tenantUser?.TenantId ?? Guid.Empty;
 
+            // Get role IDs for user's role names
+            var allRoles = await _context.Set<Microsoft.AspNetCore.Identity.IdentityRole>().ToListAsync();
+            var userRoleIds = allRoles.Where(r => userRoles.Contains(r.Name)).Select(r => r.Id).ToList();
+
             return await _context.RolePermissions
                 .Include(rp => rp.Permission)
-                .AnyAsync(rp => userRoles.Contains(rp.Role.Name) &&
+                .AnyAsync(rp => userRoleIds.Contains(rp.RoleId) &&
                                rp.Permission.Code == permissionCode &&
                                rp.TenantId == tenantId);
         }

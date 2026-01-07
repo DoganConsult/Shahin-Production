@@ -1,0 +1,30 @@
+{
+  "name": "grc-postgres-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "database.hostname": "db",
+    "database.port": "5432",
+    "database.user": "postgres",
+    "database.password": "postgres",
+    "database.dbname": "GrcMvcDb",
+    "database.server.name": "grc-postgres",
+    "table.include.list": "public.\"AuditEvents\",public.\"Risks\",public.\"Controls\",public.\"Assessments\",public.\"Evidences\",public.\"Plans\",public.\"WorkflowTasks\"",
+    "plugin.name": "pgoutput",
+    "slot.name": "grc_debezium_slot",
+    "publication.name": "grc_debezium_pub",
+    "publication.autocreate.mode": "filtered",
+    "topic.prefix": "grc",
+    "transforms": "unwrap,route",
+    "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+    "transforms.unwrap.drop.tombstones": "false",
+    "transforms.unwrap.delete.handling.mode": "rewrite",
+    "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
+    "transforms.route.regex": "grc.public.(.*)",
+    "transforms.route.replacement": "grc.domain.events",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter.schemas.enable": "false"
+  }
+}

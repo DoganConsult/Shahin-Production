@@ -1,0 +1,51 @@
+@* Welcome Tour Modal - Shown on first login *@
+
+@{
+    var currentCulture = Context.Request.Cookies["GrcMvc.Culture"] ?? "ar";
+    var isRtl = currentCulture == "ar";
+}
+
+@if (ViewBag.ShowWelcomeTour == true)
+{
+    <div class="modal fade" id="welcomeTourModal" tabindex="-1" aria-labelledby="welcomeTourModalLabel" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="welcomeTourModalLabel">
+                        <i class="bi bi-rocket me-2"></i>
+                        @(isRtl ? "مرحباً بك في نظام GRC!" : "Welcome to GRC System!")
+                    </h5>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4 class="mb-3">@(isRtl ? "حسابك جاهز!" : "Your account is ready!")</h4>
+                    <p class="lead mb-4">
+                        @(isRtl ? "نحن هنا لمساعدتك في البدء. هل تريد جولة سريعة في النظام؟" : "We're here to help you get started. Would you like a quick tour of the system?")
+                    </p>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        @(isRtl ? "الجولة تستغرق دقيقتين فقط وستتعرف على الميزات الرئيسية." : "The tour takes just 2 minutes and will introduce you to key features.")
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary" onclick="Tour.endTour(); $('#welcomeTourModal').modal('hide');">
+                        <i class="bi bi-x-circle me-2"></i>
+                        @(isRtl ? "تخطي" : "Skip Tour")
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="Tour.startWelcomeTour(); $('#welcomeTourModal').modal('hide');">
+                        <i class="bi bi-play-circle me-2"></i>
+                        @(isRtl ? "ابدأ الجولة" : "Start Tour")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#welcomeTourModal').modal('show');
+        });
+    </script>
+}

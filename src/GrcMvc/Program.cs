@@ -1,5 +1,6 @@
 using GrcMvc.BackgroundJobs;
 using GrcMvc.Data;
+using GrcMvc.Data.Seeds;
 using GrcMvc.Exceptions;
 using GrcMvc.Security;
 using GrcMvc.Services.Implementations;
@@ -8,9 +9,13 @@ using GrcMvc.Services.Interfaces;
 using GrcMvc.Services.Interfaces.Workflows;
 using GrcMvc.Services.Interfaces.RBAC;
 using GrcMvc.Services.Implementations.RBAC;
-// Hangfire temporarily disabled
-// using Hangfire;
-// using Hangfire.PostgreSql;
+// Hangfire for background jobs
+using Hangfire;
+using Hangfire.PostgreSql;
+// MassTransit for message queue
+using MassTransit;
+using GrcMvc.Messaging.Consumers;
+using GrcMvc.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Polly;
@@ -182,17 +187,33 @@ if (string.IsNullOrWhiteSpace(connectionString))
         "Please set it via environment variable: ConnectionStrings__DefaultConnection");
 }
 
+// Register master DbContext for tenant metadata (uses default connection)
 builder.Services.AddDbContext<GrcDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(connectionString), ServiceLifetime.Scoped);
+
+// Register Auth DbContext for Identity (separate database)
+var authConnectionString = builder.Configuration.GetConnectionString("GrcAuthDb") ?? connectionString;
+builder.Services.AddDbContext<GrcAuthDbContext>(options =>
+    options.UseNpgsql(authConnectionString), ServiceLifetime.Scoped);
+
+// Register tenant database resolver
+builder.Services.AddScoped<ITenantDatabaseResolver, TenantDatabaseResolver>();
+
+// Register tenant-aware DbContext factory
+builder.Services.AddScoped<IDbContextFactory<GrcDbContext>, TenantAwareDbContextFactory>();
 
 // Add Health Checks
 builder.Services.AddHealthChecks()
     .AddNpgSql(
         connectionString!,
-        name: "database",
+        name: "master-database",
         failureStatus: HealthStatus.Unhealthy,
-        tags: new[] { "db", "postgresql" })
-    .AddCheck("self", () => HealthCheckResult.Healthy("Application is running"),
+        tags: new[] { "db", "postgresql", "master" })
+    .AddCheck<GrcMvc.HealthChecks.TenantDatabaseHealthCheck>(
+        name: "tenant-database",
+        failureStatus: HealthStatus.Unhealthy,
+        tags: new[] { "db", "postgresql", "tenant" })
+    .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy("Application is running"),
         tags: new[] { "api" });
 
 // Configure Data Protection
@@ -262,7 +283,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.SignIn.RequireConfirmedEmail = builder.Environment.IsProduction();
     options.SignIn.RequireConfirmedAccount = builder.Environment.IsProduction();
 })
-.AddEntityFrameworkStores<GrcDbContext>()
+.AddEntityFrameworkStores<GrcAuthDbContext>()
 .AddDefaultTokenProviders();
 
 // Configure JWT Authentication (for API endpoints)
@@ -306,7 +327,25 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("ComplianceOfficer", policy => policy.RequireRole("ComplianceOfficer", "Admin"));
     options.AddPolicy("RiskManager", policy => policy.RequireRole("RiskManager", "Admin"));
     options.AddPolicy("Auditor", policy => policy.RequireRole("Auditor", "Admin"));
+
+    // Platform Admin policy: requires PlatformAdmin role AND active PlatformAdmin record
+    options.AddPolicy("ActivePlatformAdmin", policy =>
+        policy.RequireRole("PlatformAdmin")
+              .AddRequirements(new GrcMvc.Authorization.ActivePlatformAdminRequirement()));
+
+    // Tenant Admin policy: requires TenantAdmin role AND active TenantAdmin record
+    options.AddPolicy("ActiveTenantAdmin", policy =>
+        policy.RequireRole("TenantAdmin")
+              .AddRequirements(new GrcMvc.Authorization.ActiveTenantAdminRequirement()));
 });
+
+// Register ActivePlatformAdmin authorization handler
+builder.Services.AddScoped<Microsoft.AspNetCore.Authorization.IAuthorizationHandler,
+    GrcMvc.Authorization.ActivePlatformAdminHandler>();
+
+// Register ActiveTenantAdmin authorization handler
+builder.Services.AddScoped<Microsoft.AspNetCore.Authorization.IAuthorizationHandler,
+    GrcMvc.Authorization.ActiveTenantAdminHandler>();
 
 // Add session support with enhanced security
 builder.Services.AddSession(options =>
@@ -336,6 +375,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Register services
+// RiskService migrated to IDbContextFactory for tenant database isolation
 builder.Services.AddScoped<IRiskService, RiskService>();
 builder.Services.AddScoped<IControlService, ControlService>();
 builder.Services.AddScoped<IAssessmentService, AssessmentService>();
@@ -343,6 +383,11 @@ builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IPolicyService, PolicyService>();
 builder.Services.AddScoped<IWorkflowService, WorkflowService>();
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+builder.Services.AddScoped<IActionPlanService, ActionPlanService>();
+builder.Services.AddScoped<IVendorService, VendorService>();
+builder.Services.AddScoped<IRegulatorService, RegulatorService>();
+builder.Services.AddScoped<IComplianceCalendarService, ComplianceCalendarService>();
+builder.Services.AddScoped<IFrameworkManagementService, FrameworkManagementService>();
 builder.Services.AddTransient<IAppEmailSender, SmtpEmailSender>();
 
 // PHASE 1: Register critical services for Framework Data, HRIS, Audit Trail, and Rules Engine
@@ -357,8 +402,28 @@ builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<IOnboardingService, OnboardingService>();
 builder.Services.AddScoped<IOnboardingWizardService, OnboardingWizardService>();
 builder.Services.AddScoped<IAuditEventService, AuditEventService>();
-builder.Services.AddScoped<IEmailService, StubEmailService>();
+// Use real SMTP email service via adapter (replaces StubEmailService)
+builder.Services.AddScoped<IEmailService, EmailServiceAdapter>();
 builder.Services.AddScoped<IPlanService, PlanService>();
+
+// Workflow Services
+builder.Services.AddScoped<GrcMvc.Services.Interfaces.IEvidenceWorkflowService, GrcMvc.Services.Implementations.EvidenceWorkflowService>();
+builder.Services.AddScoped<GrcMvc.Services.Interfaces.IRiskWorkflowService, GrcMvc.Services.Implementations.RiskWorkflowService>();
+
+// Owner tenant management
+builder.Services.AddScoped<IOwnerTenantService, OwnerTenantService>();
+builder.Services.AddScoped<IOwnerSetupService, OwnerSetupService>();
+builder.Services.AddScoped<ICredentialDeliveryService, CredentialDeliveryService>();
+
+// Platform Admin (Multi-Tenant Administration - Layer 0)
+builder.Services.AddScoped<IPlatformAdminService, PlatformAdminService>();
+
+// Serial Number Service (system-generated document numbers)
+builder.Services.AddScoped<ISerialNumberService, SerialNumberService>();
+
+// Caching & Policy Decision Audit Service
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<IGrcCachingService, GrcCachingService>();
 
 // Onboarding Provisioning Service (auto-creates default teams + RACI)
 builder.Services.AddScoped<IOnboardingProvisioningService, OnboardingProvisioningService>();
@@ -400,6 +465,21 @@ builder.Services.AddScoped<IUserProfileService, UserProfileServiceImpl>();
 
 // Register Tenant Context Service
 builder.Services.AddScoped<ITenantContextService, TenantContextService>();
+
+// Register Claims Transformation (adds TenantId claim automatically)
+builder.Services.AddScoped<Microsoft.AspNetCore.Authentication.IClaimsTransformation, GrcMvc.Services.Implementations.ClaimsTransformationService>();
+
+// User Directory Service (batch lookups from Auth DB - replaces cross-DB joins)
+builder.Services.AddScoped<IUserDirectoryService, UserDirectoryService>();
+
+// Register Workspace Context Service (for "Workspace inside Tenant" model)
+builder.Services.AddScoped<IWorkspaceContextService, WorkspaceContextService>();
+
+// Register Workspace Management Service (for managing workspaces within a tenant)
+builder.Services.AddScoped<IWorkspaceManagementService, WorkspaceManagementService>();
+
+// Register Tenant Provisioning Service
+builder.Services.AddScoped<ITenantProvisioningService, TenantProvisioningService>();
 
 // Register STAGE 2 Enterprise LLM service
 builder.Services.AddScoped<ILlmService, LlmService>();
@@ -453,6 +533,7 @@ builder.Services.AddScoped<IResilienceService, ResilienceService>();
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 
 // Integration Services (Email, File Storage, Payment, SSO)
+builder.Services.AddHttpClient(); // Default HttpClient for services like DiagnosticAgent
 builder.Services.AddHttpClient("Email");
 builder.Services.AddHttpClient("Stripe");
 builder.Services.AddHttpClient("SSO");
@@ -471,6 +552,7 @@ builder.Services.AddScoped<IReportGenerator, ReportGeneratorService>();
 builder.Services.AddScoped<IReportService, EnhancedReportServiceFixed>();
 
 // Register Menu Service (RBAC-based navigation)
+builder.Services.AddScoped<GrcMvc.Data.Menu.GrcMenuContributor>();
 builder.Services.AddScoped<IMenuService, MenuService>();
 
 // Register Authentication and Authorization services
@@ -493,6 +575,25 @@ builder.Services.AddScoped<GrcMvc.Application.Permissions.PermissionSeederServic
 // Policy Validation Helper (for UX enhancements)
 builder.Services.AddScoped<GrcMvc.Application.Policy.PolicyValidationHelper>();
 
+// =============================================================================
+// MIGRATION SERVICES (Parallel V2 Architecture - Complete Security Enhancement)
+// =============================================================================
+
+// Feature Flags for gradual migration
+builder.Services.Configure<GrcFeatureOptions>(
+    builder.Configuration.GetSection(GrcFeatureOptions.SectionName));
+
+// Metrics Service (track legacy vs enhanced usage)
+builder.Services.AddSingleton<IMetricsService, MetricsService>();
+
+// Enhanced Security Services
+builder.Services.AddScoped<ISecurePasswordGenerator, SecurePasswordGenerator>();
+builder.Services.AddScoped<IEnhancedAuthService, EnhancedAuthService>();
+builder.Services.AddScoped<IEnhancedTenantResolver, EnhancedTenantResolver>();
+
+// User Management Facade (routes between legacy and enhanced)
+builder.Services.AddScoped<IUserManagementFacade, UserManagementFacade>();
+
 // Register Application Initializer for seed data
 builder.Services.AddScoped<ApplicationInitializer>();
 
@@ -508,14 +609,100 @@ builder.Services.AddScoped<WorkflowDefinitionSeederService>();
 // Register Framework Control Import Service
 builder.Services.AddScoped<FrameworkControlImportService>();
 
+// Register POC Seeder Service (Shahin-AI demo organization)
+builder.Services.AddScoped<IPocSeederService, PocSeederService>();
+
 // PHASE 6: User Invitation Service
 builder.Services.AddScoped<IUserInvitationService, UserInvitationService>();
+
+// PHASE 6.1: Tenant Onboarding Provisioner (workspace, assessment template, GRC plan)
+builder.Services.AddScoped<ITenantOnboardingProvisioner, TenantOnboardingProvisioner>();
 
 // PHASE 8: Evidence Lifecycle Service
 builder.Services.AddScoped<IEvidenceLifecycleService, EvidenceLifecycleService>();
 
 // PHASE 9: Dashboard Service
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+
+// =============================================================================
+// ANALYTICS SERVICES (ClickHouse OLAP + SignalR + Redis)
+// =============================================================================
+
+// Configuration
+builder.Services.Configure<GrcMvc.Configuration.ClickHouseSettings>(
+    builder.Configuration.GetSection(GrcMvc.Configuration.ClickHouseSettings.SectionName));
+builder.Services.Configure<GrcMvc.Configuration.RedisSettings>(
+    builder.Configuration.GetSection(GrcMvc.Configuration.RedisSettings.SectionName));
+builder.Services.Configure<GrcMvc.Configuration.KafkaSettings>(
+    builder.Configuration.GetSection(GrcMvc.Configuration.KafkaSettings.SectionName));
+builder.Services.Configure<GrcMvc.Configuration.SignalRSettings>(
+    builder.Configuration.GetSection(GrcMvc.Configuration.SignalRSettings.SectionName));
+builder.Services.Configure<GrcMvc.Configuration.AnalyticsSettings>(
+    builder.Configuration.GetSection(GrcMvc.Configuration.AnalyticsSettings.SectionName));
+
+// ClickHouse Service
+var clickHouseEnabled = builder.Configuration.GetValue<bool>("ClickHouse:Enabled", false);
+if (clickHouseEnabled)
+{
+    builder.Services.AddHttpClient<GrcMvc.Services.Analytics.IClickHouseService, GrcMvc.Services.Analytics.ClickHouseService>(client =>
+    {
+        client.Timeout = TimeSpan.FromSeconds(30);
+    });
+    builder.Services.AddScoped<GrcMvc.Services.Analytics.IDashboardProjector, GrcMvc.Services.Analytics.DashboardProjector>();
+    builder.Services.AddScoped<GrcMvc.BackgroundJobs.AnalyticsProjectionJob>();
+}
+else
+{
+    // Register stub implementations when ClickHouse is disabled
+    builder.Services.AddScoped<GrcMvc.Services.Analytics.IClickHouseService, GrcMvc.Services.Analytics.StubClickHouseService>();
+    builder.Services.AddScoped<GrcMvc.Services.Analytics.IDashboardProjector, GrcMvc.Services.Analytics.StubDashboardProjector>();
+}
+
+// Redis Cache (optional - falls back to IMemoryCache)
+// TODO: Add Microsoft.Extensions.Caching.StackExchangeRedis package to enable
+var redisEnabled = builder.Configuration.GetValue<bool>("Redis:Enabled", false);
+if (redisEnabled)
+{
+    // var redisConnectionString = builder.Configuration.GetValue<string>("Redis:ConnectionString") ?? "localhost:6379";
+    // builder.Services.AddStackExchangeRedisCache(options =>
+    // {
+    //     options.Configuration = redisConnectionString;
+    //     options.InstanceName = builder.Configuration.GetValue<string>("Redis:InstanceName") ?? "GrcCache_";
+    // });
+    // Redis caching disabled - missing Microsoft.Extensions.Caching.StackExchangeRedis package
+}
+
+// SignalR Hub
+var signalREnabled = builder.Configuration.GetValue<bool>("SignalR:Enabled", true);
+if (signalREnabled)
+{
+    var signalRBuilder = builder.Services.AddSignalR(options =>
+    {
+        options.EnableDetailedErrors = builder.Environment.IsDevelopment();
+        options.KeepAliveInterval = TimeSpan.FromSeconds(
+            builder.Configuration.GetValue<int>("SignalR:KeepAliveIntervalSeconds", 15));
+        options.ClientTimeoutInterval = TimeSpan.FromSeconds(
+            builder.Configuration.GetValue<int>("SignalR:ClientTimeoutSeconds", 30));
+        options.MaximumReceiveMessageSize =
+            builder.Configuration.GetValue<int>("SignalR:MaximumReceiveMessageSize", 32768);
+    });
+
+    // Use Redis backplane for SignalR if enabled
+    // TODO: Add Microsoft.AspNetCore.SignalR.StackExchangeRedis package to enable
+    var useRedisBackplane = builder.Configuration.GetValue<bool>("SignalR:UseRedisBackplane", false);
+    if (useRedisBackplane && redisEnabled)
+    {
+        // var redisConnectionString = builder.Configuration.GetValue<string>("Redis:ConnectionString") ?? "localhost:6379";
+        // signalRBuilder.AddStackExchangeRedis(redisConnectionString, options =>
+        // {
+        //     options.Configuration.ChannelPrefix = "GrcSignalR";
+        // });
+        // SignalR Redis backplane disabled - missing Microsoft.AspNetCore.SignalR.StackExchangeRedis package
+    }
+}
+
+// Dashboard Hub Service (for pushing updates to clients)
+builder.Services.AddScoped<GrcMvc.Hubs.IDashboardHubService, GrcMvc.Hubs.DashboardHubService>();
 
 // PHASE 10: Admin Catalog Management Service
 builder.Services.AddScoped<IAdminCatalogService, AdminCatalogService>();
@@ -555,15 +742,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 // =============================================================================
 
 // =============================================================================
-// 3. HANGFIRE CONFIGURATION (Background Jobs) - DISABLED
+// 3. HANGFIRE CONFIGURATION (Background Jobs)
 // =============================================================================
 
-// Hangfire is temporarily disabled to prevent startup failures
-// TODO: Re-enable when database connection is stable
-var enableHangfire = false; // builder.Configuration.GetValue<bool>("WorkflowSettings:EnableBackgroundJobs", false);
+var enableHangfire = builder.Configuration.GetValue<bool>("Hangfire:Enabled", true);
 
-// Hangfire configuration disabled - uncomment using statements at top of file to re-enable
-/*
 if (enableHangfire)
 {
     try
@@ -586,28 +769,104 @@ if (enableHangfire)
 
         builder.Services.AddHangfireServer(options =>
         {
-            options.WorkerCount = Environment.ProcessorCount * 2;
+            options.WorkerCount = builder.Configuration.GetValue<int>("Hangfire:WorkerCount", Environment.ProcessorCount * 2);
             options.Queues = new[] { "critical", "default", "low" };
         });
 
-        Console.WriteLine("Hangfire configured successfully");
+        Console.WriteLine("✅ Hangfire configured successfully");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Hangfire disabled: Database connection test failed - {ex.Message}");
+        Console.WriteLine($"⚠️ Hangfire disabled: Database connection test failed - {ex.Message}");
+        enableHangfire = false;
     }
 }
 else
 {
-    Console.WriteLine("Hangfire disabled (temporarily disabled to prevent startup issues)");
+    Console.WriteLine("⚠️ Hangfire disabled via configuration");
 }
-*/
-Console.WriteLine("Hangfire background jobs disabled");
 
-// Register background job classes (disabled when Hangfire is disabled)
-// builder.Services.AddScoped<EscalationJob>();
-// builder.Services.AddScoped<NotificationDeliveryJob>();
-// builder.Services.AddScoped<SlaMonitorJob>();
+// Register background job classes
+builder.Services.AddScoped<EscalationJob>();
+builder.Services.AddScoped<NotificationDeliveryJob>();
+builder.Services.AddScoped<SlaMonitorJob>();
+builder.Services.AddScoped<WebhookRetryJob>();
+
+// =============================================================================
+// 3b. MASSTRANSIT CONFIGURATION (Message Queue)
+// =============================================================================
+
+var rabbitMqSettings = builder.Configuration.GetSection("RabbitMq").Get<RabbitMqSettings>() ?? new RabbitMqSettings();
+
+if (rabbitMqSettings.Enabled)
+{
+    builder.Services.AddMassTransit(x =>
+    {
+        // Register consumers
+        x.AddConsumer<NotificationConsumer>();
+        x.AddConsumer<WebhookConsumer>();
+        x.AddConsumer<GrcEventConsumer>();
+
+        x.UsingRabbitMq((context, cfg) =>
+        {
+            cfg.Host(rabbitMqSettings.Host, rabbitMqSettings.VirtualHost, h =>
+            {
+                h.Username(rabbitMqSettings.Username);
+                h.Password(rabbitMqSettings.Password);
+            });
+
+            cfg.PrefetchCount = rabbitMqSettings.PrefetchCount;
+
+            // Configure retry policy
+            cfg.UseMessageRetry(r =>
+            {
+                r.Intervals(rabbitMqSettings.RetryIntervals.Select(i => TimeSpan.FromSeconds(i)).ToArray());
+            });
+
+            // Configure endpoints
+            cfg.ReceiveEndpoint("grc-notifications", e =>
+            {
+                e.ConfigureConsumer<NotificationConsumer>(context);
+                e.ConcurrentMessageLimit = rabbitMqSettings.ConcurrencyLimit;
+            });
+
+            cfg.ReceiveEndpoint("grc-webhooks", e =>
+            {
+                e.ConfigureConsumer<WebhookConsumer>(context);
+                e.ConcurrentMessageLimit = rabbitMqSettings.ConcurrencyLimit;
+            });
+
+            cfg.ReceiveEndpoint("grc-events", e =>
+            {
+                e.ConfigureConsumer<GrcEventConsumer>(context);
+                e.ConcurrentMessageLimit = rabbitMqSettings.ConcurrencyLimit;
+            });
+
+            cfg.ConfigureEndpoints(context);
+        });
+    });
+
+    Console.WriteLine("✅ MassTransit configured with RabbitMQ");
+}
+else
+{
+    // Use in-memory transport for development/testing when RabbitMQ is not available
+    builder.Services.AddMassTransit(x =>
+    {
+        x.AddConsumer<NotificationConsumer>();
+        x.AddConsumer<WebhookConsumer>();
+        x.AddConsumer<GrcEventConsumer>();
+
+        x.UsingInMemory((context, cfg) =>
+        {
+            cfg.ConfigureEndpoints(context);
+        });
+    });
+
+    Console.WriteLine("⚠️ MassTransit using in-memory transport (RabbitMQ disabled)");
+}
+
+builder.Services.Configure<RabbitMqSettings>(builder.Configuration.GetSection("RabbitMq"));
 
 // =============================================================================
 // 4. CACHING CONFIGURATION
@@ -659,6 +918,22 @@ builder.Services.AddHttpClient("EmailService")
 // Core services
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ISmtpEmailService, SmtpEmailService>();
+builder.Services.AddScoped<IWebhookService, WebhookService>();
+
+// Diagnostic agent service
+builder.Services.AddScoped<IDiagnosticAgentService, DiagnosticAgentService>();
+builder.Services.Configure<ClaudeApiSettings>(builder.Configuration.GetSection(ClaudeApiSettings.SectionName));
+
+// Multi-channel notification services
+builder.Services.AddScoped<ISlackNotificationService, SlackNotificationService>();
+builder.Services.AddScoped<ITeamsNotificationService, TeamsNotificationService>();
+builder.Services.AddScoped<ISmsNotificationService, TwilioSmsService>();
+
+// Configuration bindings
+builder.Services.Configure<WebhookSettings>(builder.Configuration.GetSection("Webhooks"));
+builder.Services.Configure<SlackSettings>(builder.Configuration.GetSection("Slack"));
+builder.Services.Configure<TeamsSettings>(builder.Configuration.GetSection("Teams"));
+builder.Services.Configure<TwilioSettings>(builder.Configuration.GetSection("Twilio"));
 
 // Workflow services (add your existing workflow services here)
 // builder.Services.AddScoped<IControlImplementationService, ControlImplementationService>();
@@ -729,12 +1004,22 @@ var localizationOptions = app.Services.GetRequiredService<IOptions<RequestLocali
 app.UseRequestLocalization(localizationOptions);
 
 // Policy Violation Exception Middleware (early in pipeline for API error handling)
+// Owner Setup Middleware (must run early, before authentication)
+app.UseMiddleware<GrcMvc.Middleware.OwnerSetupMiddleware>();
+
 app.UseMiddleware<GrcMvc.Middleware.PolicyViolationExceptionMiddleware>();
+
+// Optional: Domain-based tenant resolution middleware
+// Only uncomment if you're using subdomains (e.g., acme.grcsystem.com)
+// app.UseMiddleware<GrcMvc.Middleware.TenantResolutionMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// Session (required for workspace context storage)
+app.UseSession();
 
 // CORS
 app.UseCors("AllowSpecificOrigins");
@@ -747,24 +1032,122 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // =============================================================================
-// 12. HANGFIRE DASHBOARD (Disabled)
+// 12. HANGFIRE DASHBOARD
 // =============================================================================
 
-// Hangfire dashboard is disabled - Hangfire is not configured
-// Uncomment below when Hangfire is re-enabled
 var appLogger = app.Services.GetRequiredService<ILogger<Program>>();
-appLogger.LogInformation("⚠️ Hangfire dashboard disabled (Hangfire temporarily disabled)");
+
+if (enableHangfire)
+{
+    var dashboardPath = builder.Configuration.GetValue<string>("Hangfire:DashboardPath", "/hangfire");
+    app.UseHangfireDashboard(dashboardPath, new DashboardOptions
+    {
+        Authorization = new[] { new HangfireAuthFilter() },
+        DashboardTitle = "Shahin GRC - Background Jobs",
+        DisplayStorageConnectionString = false
+    });
+    appLogger.LogInformation("✅ Hangfire dashboard enabled at {Path}", dashboardPath);
+}
+else
+{
+    appLogger.LogWarning("⚠️ Hangfire dashboard disabled");
+}
 
 // =============================================================================
-// 13. CONFIGURE RECURRING JOBS (Disabled - Hangfire not configured)
+// 13. CONFIGURE RECURRING JOBS
 // =============================================================================
 
-// Recurring jobs are disabled because Hangfire is not configured
-// Uncomment when Hangfire is re-enabled
-// Recurring jobs disabled - Hangfire not configured
+if (enableHangfire)
+{
+    // Notification delivery - every 5 minutes
+    RecurringJob.AddOrUpdate<NotificationDeliveryJob>(
+        "notification-delivery",
+        job => job.ExecuteAsync(),
+        "*/5 * * * *",
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+    // Escalation check - every hour
+    RecurringJob.AddOrUpdate<EscalationJob>(
+        "escalation-check",
+        job => job.ExecuteAsync(),
+        "0 * * * *",
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+    // SLA monitoring - every 15 minutes
+    RecurringJob.AddOrUpdate<SlaMonitorJob>(
+        "sla-monitor",
+        job => job.ExecuteAsync(),
+        "*/15 * * * *",
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+    // Webhook retry - every 2 minutes
+    RecurringJob.AddOrUpdate<WebhookRetryJob>(
+        "webhook-retry",
+        job => job.ExecuteAsync(),
+        "*/2 * * * *",
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+    // Analytics projection jobs (only if ClickHouse is enabled)
+    var analyticsEnabled = builder.Configuration.GetValue<bool>("Analytics:Enabled", false);
+    if (analyticsEnabled)
+    {
+        // Full analytics projection - every 15 minutes
+        RecurringJob.AddOrUpdate<GrcMvc.BackgroundJobs.AnalyticsProjectionJob>(
+            "analytics-full-projection",
+            job => job.ExecuteAsync(),
+            "*/15 * * * *",
+            new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+        // Snapshot projection - every 5 minutes (lighter weight)
+        RecurringJob.AddOrUpdate<GrcMvc.BackgroundJobs.AnalyticsProjectionJob>(
+            "analytics-snapshot",
+            job => job.ExecuteSnapshotsOnlyAsync(),
+            "*/5 * * * *",
+            new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+        // Top actions - every 2 minutes (real-time feel)
+        RecurringJob.AddOrUpdate<GrcMvc.BackgroundJobs.AnalyticsProjectionJob>(
+            "analytics-top-actions",
+            job => job.ExecuteTopActionsAsync(),
+            "*/2 * * * *",
+            new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+        appLogger.LogInformation("✅ Analytics projection jobs configured");
+    }
+
+    appLogger.LogInformation("✅ Recurring jobs configured: notification-delivery, escalation-check, sla-monitor, webhook-retry");
+}
 // =============================================================================
 // 14. ENDPOINT MAPPING
 // =============================================================================
+
+// SignalR Hub for real-time dashboard updates
+var signalREnabledForHub = app.Configuration.GetValue<bool>("SignalR:Enabled", true);
+if (signalREnabledForHub)
+{
+    app.MapHub<GrcMvc.Hubs.DashboardHub>("/hubs/dashboard");
+    appLogger.LogInformation("✅ SignalR Dashboard Hub mapped to /hubs/dashboard");
+}
+
+// Owner routes (PlatformAdmin only)
+app.MapControllerRoute(
+    name: "owner",
+    pattern: "owner/{controller=Owner}/{action=Index}/{id?}",
+    defaults: new { controller = "Owner" });
+
+// Tenant-specific routes
+app.MapControllerRoute(
+    name: "tenant",
+    pattern: "tenant/{slug}/{controller=Home}/{action=Index}/{id?}",
+    constraints: new { slug = @"[a-z0-9-]+" },
+    defaults: new { controller = "Home" });
+
+// Tenant admin routes
+app.MapControllerRoute(
+    name: "tenant-admin",
+    pattern: "tenant/{slug}/admin/{controller=Dashboard}/{action=Index}/{id?}",
+    constraints: new { slug = @"[a-z0-9-]+" },
+    defaults: new { controller = "Dashboard" });
 
 // Onboarding Wizard Routes (12-step wizard)
 app.MapControllerRoute(

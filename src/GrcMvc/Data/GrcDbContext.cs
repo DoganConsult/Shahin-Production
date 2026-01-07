@@ -1,26 +1,78 @@
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using GrcMvc.Models.Entities;
 using GrcMvc.Models.Entities.Catalogs;
 using GrcMvc.Models;
+using GrcMvc.Services.Interfaces;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace GrcMvc.Data
 {
-    public partial class GrcDbContext : IdentityDbContext<ApplicationUser>
+    /// <summary>
+    /// Main application DbContext for GRC data.
+    /// Identity/Auth data is in GrcAuthDbContext (separate database).
+    /// </summary>
+    public partial class GrcDbContext : DbContext
     {
+        private ITenantContextService? _tenantContextService;
+        private IWorkspaceContextService? _workspaceContextService;
+
         public GrcDbContext(DbContextOptions<GrcDbContext> options)
             : base(options)
         {
+        }
+
+        /// <summary>
+        /// Gets the current tenant ID from the service provider
+        /// Used for global query filters
+        /// </summary>
+        private Guid? GetCurrentTenantId()
+        {
+            if (_tenantContextService == null)
+            {
+                _tenantContextService = this.GetService<ITenantContextService>();
+            }
+
+            if (_tenantContextService == null || !_tenantContextService.IsAuthenticated())
+            {
+                return null; // No tenant context for unauthenticated requests
+            }
+
+            var tenantId = _tenantContextService.GetCurrentTenantId();
+            return tenantId == Guid.Empty ? null : tenantId;
+        }
+
+        /// <summary>
+        /// Gets the current workspace ID from the service provider
+        /// Used for global query filters
+        /// Returns null if no workspace context (allows cross-workspace queries when needed)
+        /// </summary>
+        private Guid? GetCurrentWorkspaceId()
+        {
+            if (_workspaceContextService == null)
+            {
+                _workspaceContextService = this.GetService<IWorkspaceContextService>();
+            }
+
+            if (_workspaceContextService == null || !_workspaceContextService.HasWorkspaceContext())
+            {
+                return null; // No workspace context - allows cross-workspace queries
+            }
+
+            var workspaceId = _workspaceContextService.GetCurrentWorkspaceId();
+            return workspaceId == Guid.Empty ? null : workspaceId;
         }
 
         // DbSets for all entities
         // Multi-tenant core
         public DbSet<Tenant> Tenants { get; set; } = null!;
         public DbSet<TenantUser> TenantUsers { get; set; } = null!;
+        public DbSet<OwnerTenantCreation> OwnerTenantCreations { get; set; } = null!;
+        public DbSet<PlatformAdmin> PlatformAdmins { get; set; } = null!;
         public DbSet<OrganizationProfile> OrganizationProfiles { get; set; } = null!;
         public DbSet<OnboardingWizard> OnboardingWizards { get; set; } = null!;
 
@@ -28,6 +80,14 @@ namespace GrcMvc.Data
         public DbSet<Team> Teams { get; set; } = null!;
         public DbSet<TeamMember> TeamMembers { get; set; } = null!;
         public DbSet<RACIAssignment> RACIAssignments { get; set; } = null!;
+
+        // Workspace (sub-scope within Tenant: Market/BU/Entity)
+        public DbSet<Workspace> Workspaces { get; set; } = null!;
+        public DbSet<WorkspaceMembership> WorkspaceMemberships { get; set; } = null!;
+        public DbSet<WorkspaceControl> WorkspaceControls { get; set; } = null!;
+        public DbSet<WorkspaceApprovalGate> WorkspaceApprovalGates { get; set; } = null!;
+        public DbSet<WorkspaceApprovalGateApprover> WorkspaceApprovalGateApprovers { get; set; } = null!;
+        public DbSet<RoleLandingConfig> RoleLandingConfigs { get; set; } = null!;
 
         // Asset inventory (for recognition & scoping)
         public DbSet<Asset> Assets { get; set; } = null!;
@@ -41,6 +101,13 @@ namespace GrcMvc.Data
         public DbSet<TenantBaseline> TenantBaselines { get; set; } = null!;
         public DbSet<TenantPackage> TenantPackages { get; set; } = null!;
         public DbSet<TenantTemplate> TenantTemplates { get; set; } = null!;
+        public DbSet<TenantWorkflowConfig> TenantWorkflowConfigs { get; set; } = null!;
+
+        // Serial Number Tracking
+        public DbSet<Services.Implementations.SerialNumberCounter> SerialNumberCounters { get; set; } = null!;
+
+        // Policy Decision Audit Trail
+        public DbSet<PolicyDecision> PolicyDecisions { get; set; } = null!;
 
         // Planning (Layer 3)
         public DbSet<Plan> Plans { get; set; } = null!;
@@ -48,6 +115,10 @@ namespace GrcMvc.Data
 
         // Audit trail
         public DbSet<AuditEvent> AuditEvents { get; set; } = null!;
+
+        // Webhooks (Outbound event delivery)
+        public DbSet<WebhookSubscription> WebhookSubscriptions { get; set; } = null!;
+        public DbSet<WebhookDeliveryLog> WebhookDeliveryLogs { get; set; } = null!;
 
         // Existing entities
         public DbSet<Risk> Risks { get; set; } = null!;
@@ -60,6 +131,11 @@ namespace GrcMvc.Data
         public DbSet<PolicyViolation> PolicyViolations { get; set; } = null!;
         public DbSet<Workflow> Workflows { get; set; } = null!;
         public DbSet<WorkflowExecution> WorkflowExecutions { get; set; } = null!;
+        public DbSet<ActionPlan> ActionPlans { get; set; } = null!;
+        public DbSet<Vendor> Vendors { get; set; } = null!;
+        public DbSet<Regulator> Regulators { get; set; } = null!;
+        public DbSet<ComplianceEvent> ComplianceEvents { get; set; } = null!;
+        public DbSet<GrcMvc.Models.Entities.Framework> Frameworks { get; set; } = null!;
 
         // STAGE 2: Workflow infrastructure
         public DbSet<WorkflowDefinition> WorkflowDefinitions { get; set; } = null!;
@@ -267,6 +343,9 @@ namespace GrcMvc.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Apply global query filters for multi-tenant isolation
+            ApplyGlobalQueryFilters(modelBuilder);
+
             // Configure Risk entity
             modelBuilder.Entity<Risk>(entity =>
             {
@@ -275,7 +354,12 @@ namespace GrcMvc.Data
                 entity.Property(e => e.Category).HasMaxLength(100);
                 entity.Property(e => e.Owner).HasMaxLength(100);
                 entity.HasIndex(e => e.Name);
-                entity.HasQueryFilter(e => !e.IsDeleted);
+                entity.HasIndex(e => e.TenantId); // Index for performance
+
+                // RowVersion for concurrency control
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
             });
 
             // Configure Control entity
@@ -463,6 +547,58 @@ namespace GrcMvc.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
+            // Configure PlatformAdmin (Layer 0 - Platform Level)
+            modelBuilder.Entity<PlatformAdmin>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
+                entity.Property(e => e.DisplayName).IsRequired().HasMaxLength(256);
+                entity.Property(e => e.ContactEmail).IsRequired().HasMaxLength(256);
+                entity.Property(e => e.ContactPhone).HasMaxLength(50);
+                entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.StatusReason).HasMaxLength(500);
+                entity.Property(e => e.AllowedRegions).HasMaxLength(500);
+                entity.Property(e => e.AllowedTenantIds).HasMaxLength(2000);
+                entity.Property(e => e.LastLoginIp).HasMaxLength(50);
+                entity.Property(e => e.CreatedByAdminId).HasMaxLength(450);
+                entity.Property(e => e.Notes).HasMaxLength(2000);
+
+                entity.HasIndex(e => e.UserId).IsUnique();
+                entity.HasIndex(e => e.AdminLevel);
+                entity.HasIndex(e => e.Status);
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
+                    .HasPrincipalKey(u => u.Id)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Configure OwnerTenantCreation
+            modelBuilder.Entity<OwnerTenantCreation>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.AdminUsername).IsRequired().HasMaxLength(256);
+                entity.Property(e => e.DeliveryMethod).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.DeliveryNotes).HasMaxLength(1000);
+                entity.HasIndex(e => e.TenantId);
+                entity.HasIndex(e => e.OwnerId);
+                entity.HasIndex(e => new { e.TenantId, e.OwnerId });
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.Tenant)
+                    .WithMany()
+                    .HasForeignKey(e => e.TenantId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Owner)
+                    .WithMany()
+                    .HasForeignKey(e => e.OwnerId)
+                    .HasPrincipalKey(u => u.Id)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
             // Configure OrganizationProfile
             modelBuilder.Entity<OrganizationProfile>(entity =>
             {
@@ -486,7 +622,7 @@ namespace GrcMvc.Data
             modelBuilder.Entity<OnboardingWizard>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                
+
                 // Section A: Organization Identity
                 entity.Property(e => e.OrganizationLegalNameEn).IsRequired().HasMaxLength(255);
                 entity.Property(e => e.OrganizationLegalNameAr).HasMaxLength(255);
@@ -498,33 +634,33 @@ namespace GrcMvc.Data
                 entity.Property(e => e.DomainVerificationMethod).HasMaxLength(50);
                 entity.Property(e => e.OrganizationType).HasMaxLength(50);
                 entity.Property(e => e.IndustrySector).HasMaxLength(100);
-                
+
                 // Section B: Assurance Objective
                 entity.Property(e => e.PrimaryDriver).HasMaxLength(100);
                 entity.Property(e => e.DesiredMaturity).HasMaxLength(50);
-                
+
                 // Section C: Regulatory Applicability
                 entity.Property(e => e.AuditScopeType).HasMaxLength(50);
-                
+
                 // Section D: Scope Definition
                 entity.Property(e => e.InScopeEnvironments).HasMaxLength(50);
-                
+
                 // Section E: Data & Risk Profile
                 entity.Property(e => e.CustomerVolumeTier).HasMaxLength(50);
                 entity.Property(e => e.TransactionVolumeTier).HasMaxLength(50);
-                
-                // Section F: Technology Landscape
-                entity.Property(e => e.IdentityProvider).HasMaxLength(100);
-                entity.Property(e => e.ItsmPlatform).HasMaxLength(100);
-                entity.Property(e => e.EvidenceRepository).HasMaxLength(100);
-                entity.Property(e => e.SiemPlatform).HasMaxLength(100);
-                entity.Property(e => e.VulnerabilityManagementTool).HasMaxLength(100);
-                entity.Property(e => e.EdrPlatform).HasMaxLength(100);
-                entity.Property(e => e.ErpSystem).HasMaxLength(100);
-                entity.Property(e => e.CmdbSource).HasMaxLength(100);
-                entity.Property(e => e.CiCdTooling).HasMaxLength(100);
-                entity.Property(e => e.BackupDrTooling).HasMaxLength(100);
-                
+
+                // Section F: Technology Landscape (all optional)
+                entity.Property(e => e.IdentityProvider).HasMaxLength(100).HasDefaultValue(string.Empty);
+                entity.Property(e => e.ItsmPlatform).HasMaxLength(100).HasDefaultValue(string.Empty);
+                entity.Property(e => e.EvidenceRepository).HasMaxLength(100).HasDefaultValue(string.Empty);
+                entity.Property(e => e.SiemPlatform).HasMaxLength(100).HasDefaultValue(string.Empty);
+                entity.Property(e => e.VulnerabilityManagementTool).HasMaxLength(100).HasDefaultValue(string.Empty);
+                entity.Property(e => e.EdrPlatform).HasMaxLength(100).HasDefaultValue(string.Empty);
+                entity.Property(e => e.ErpSystem).HasMaxLength(100).HasDefaultValue(string.Empty);
+                entity.Property(e => e.CmdbSource).HasMaxLength(100).HasDefaultValue(string.Empty);
+                entity.Property(e => e.CiCdTooling).HasMaxLength(100).HasDefaultValue(string.Empty);
+                entity.Property(e => e.BackupDrTooling).HasMaxLength(100).HasDefaultValue(string.Empty);
+
                 // Section G: Control Ownership
                 entity.Property(e => e.ControlOwnershipApproach).HasMaxLength(50);
                 entity.Property(e => e.DefaultControlOwnerTeam).HasMaxLength(100);
@@ -533,11 +669,11 @@ namespace GrcMvc.Data
                 entity.Property(e => e.ControlEffectivenessSignoffRole).HasMaxLength(100);
                 entity.Property(e => e.InternalAuditStakeholder).HasMaxLength(255);
                 entity.Property(e => e.RiskCommitteeCadence).HasMaxLength(50);
-                
+
                 // Section H: Teams & Roles
                 entity.Property(e => e.NotificationPreference).HasMaxLength(50);
                 entity.Property(e => e.EscalationTarget).HasMaxLength(100);
-                
+
                 // Section I: Workflow Cadence
                 entity.Property(e => e.AccessReviewsFrequency).HasMaxLength(50);
                 entity.Property(e => e.VulnerabilityPatchReviewFrequency).HasMaxLength(50);
@@ -546,14 +682,14 @@ namespace GrcMvc.Data
                 entity.Property(e => e.DrExerciseCadence).HasMaxLength(50);
                 entity.Property(e => e.IncidentTabletopCadence).HasMaxLength(50);
                 entity.Property(e => e.AuditRequestHandling).HasMaxLength(50);
-                
+
                 // Section J: Evidence Standards
                 entity.Property(e => e.EvidenceNamingPattern).HasMaxLength(255);
-                
+
                 // Wizard Metadata
                 entity.Property(e => e.WizardStatus).HasMaxLength(50);
                 entity.Property(e => e.CompletedByUserId).HasMaxLength(100);
-                
+
                 // Indexes
                 entity.HasIndex(e => e.TenantId).IsUnique();
                 entity.HasIndex(e => e.WizardStatus);
@@ -656,6 +792,54 @@ namespace GrcMvc.Data
 
                 entity.HasOne(e => e.Tenant)
                     .WithMany(t => t.ApplicableTemplates)
+                    .HasForeignKey(e => e.TenantId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure TenantWorkflowConfig
+            modelBuilder.Entity<TenantWorkflowConfig>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.WorkflowCode).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.WorkflowName).HasMaxLength(200);
+                entity.Property(e => e.ActivatedBy).HasMaxLength(100);
+                entity.Property(e => e.DeactivatedBy).HasMaxLength(100);
+                entity.Property(e => e.SlaMultiplier).HasPrecision(5, 2);
+                entity.HasIndex(e => new { e.TenantId, e.WorkflowCode }).IsUnique();
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.Tenant)
+                    .WithMany()
+                    .HasForeignKey(e => e.TenantId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure SerialNumberCounter
+            modelBuilder.Entity<Services.Implementations.SerialNumberCounter>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.EntityType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.DateKey).IsRequired().HasMaxLength(8);
+                entity.HasIndex(e => new { e.TenantId, e.EntityType, e.DateKey }).IsUnique();
+            });
+
+            // Configure PolicyDecision (Audit Trail)
+            modelBuilder.Entity<PolicyDecision>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.PolicyType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.PolicyVersion).HasMaxLength(20);
+                entity.Property(e => e.ContextHash).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Decision).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Reason).HasMaxLength(1000);
+                entity.Property(e => e.RelatedEntityType).HasMaxLength(100);
+                entity.Property(e => e.EvaluatedBy).HasMaxLength(100);
+                entity.HasIndex(e => new { e.TenantId, e.PolicyType, e.EvaluatedAt });
+                entity.HasIndex(e => e.ContextHash);
+                entity.HasIndex(e => e.EvaluatedAt);
+
+                entity.HasOne(e => e.Tenant)
+                    .WithMany()
                     .HasForeignKey(e => e.TenantId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
@@ -1069,17 +1253,180 @@ namespace GrcMvc.Data
             });
         }
 
+        private void ApplyGlobalQueryFilters(ModelBuilder modelBuilder)
+        {
+            // Apply soft delete AND TenantId filters for multi-tenant isolation.
+            //
+            // CRITICAL: This provides database-level tenant isolation.
+            // Even if a developer forgets to filter by TenantId in a query,
+            // EF Core will automatically apply the filter.
+            //
+            // The GetCurrentTenantId() method is called at query execution time,
+            // returning the authenticated user's tenant.
+            //
+            // For unauthenticated requests (e.g., seed data, migrations),
+            // GetCurrentTenantId() returns null which allows access to all records.
+
+            // Core GRC entities with TenantId + WorkspaceId + soft delete
+            // WorkspaceId filter: null = cross-workspace, non-null = specific workspace
+            modelBuilder.Entity<Risk>().HasQueryFilter(e =>
+                !e.IsDeleted &&
+                (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()) &&
+                (GetCurrentWorkspaceId() == null || e.WorkspaceId == null || e.WorkspaceId == GetCurrentWorkspaceId()));
+
+            modelBuilder.Entity<Evidence>().HasQueryFilter(e =>
+                !e.IsDeleted &&
+                (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()) &&
+                (GetCurrentWorkspaceId() == null || e.WorkspaceId == null || e.WorkspaceId == GetCurrentWorkspaceId()));
+
+            modelBuilder.Entity<Assessment>().HasQueryFilter(e =>
+                !e.IsDeleted &&
+                (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()) &&
+                (GetCurrentWorkspaceId() == null || e.WorkspaceId == null || e.WorkspaceId == GetCurrentWorkspaceId()));
+
+            modelBuilder.Entity<Policy>().HasQueryFilter(e =>
+                !e.IsDeleted &&
+                (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()) &&
+                (GetCurrentWorkspaceId() == null || e.WorkspaceId == null || e.WorkspaceId == GetCurrentWorkspaceId()));
+
+            modelBuilder.Entity<Control>().HasQueryFilter(e =>
+                !e.IsDeleted &&
+                (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()) &&
+                (GetCurrentWorkspaceId() == null || e.WorkspaceId == null || e.WorkspaceId == GetCurrentWorkspaceId()));
+
+            modelBuilder.Entity<Audit>().HasQueryFilter(e =>
+                !e.IsDeleted &&
+                (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()) &&
+                (GetCurrentWorkspaceId() == null || e.WorkspaceId == null || e.WorkspaceId == GetCurrentWorkspaceId()));
+
+            // Workflow entities
+            modelBuilder.Entity<WorkflowInstance>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<WorkflowTask>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            // Team entities (with optional workspace scope - null means shared team)
+            modelBuilder.Entity<Team>().HasQueryFilter(e =>
+                !e.IsDeleted &&
+                (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()) &&
+                (GetCurrentWorkspaceId() == null || e.WorkspaceId == null || e.WorkspaceId == GetCurrentWorkspaceId()));
+
+            modelBuilder.Entity<TeamMember>().HasQueryFilter(e =>
+                !e.IsDeleted &&
+                (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()) &&
+                (GetCurrentWorkspaceId() == null || e.WorkspaceId == null || e.WorkspaceId == GetCurrentWorkspaceId()));
+
+            modelBuilder.Entity<RACIAssignment>().HasQueryFilter(e =>
+                !e.IsDeleted &&
+                (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()) &&
+                (GetCurrentWorkspaceId() == null || e.WorkspaceId == null || e.WorkspaceId == GetCurrentWorkspaceId()));
+
+            // Planning and reporting
+            modelBuilder.Entity<Plan>().HasQueryFilter(e =>
+                !e.IsDeleted &&
+                (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()) &&
+                (GetCurrentWorkspaceId() == null || e.WorkspaceId == null || e.WorkspaceId == GetCurrentWorkspaceId()));
+
+            modelBuilder.Entity<Report>().HasQueryFilter(e =>
+                !e.IsDeleted &&
+                (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()) &&
+                (GetCurrentWorkspaceId() == null || e.WorkspaceId == null || e.WorkspaceId == GetCurrentWorkspaceId()));
+
+            modelBuilder.Entity<AuditEvent>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            // Workspace entities (new)
+            modelBuilder.Entity<Workspace>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<WorkspaceMembership>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<WorkspaceControl>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<WorkspaceApprovalGate>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<WorkspaceApprovalGateApprover>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            // UserWorkspace entities
+            modelBuilder.Entity<UserWorkspace>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<UserWorkspaceTask>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            // Asset inventory
+            modelBuilder.Entity<Asset>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            // Tenant lookup tables - no TenantId filter (cross-tenant lookup allowed)
+            modelBuilder.Entity<TenantUser>().HasQueryFilter(e => !e.IsDeleted);
+            modelBuilder.Entity<Tenant>().HasQueryFilter(e => !e.IsDeleted);
+        }
+
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
+            var currentTenantId = GetCurrentTenantId();
+
             foreach (var entry in ChangeTracker.Entries<BaseEntity>())
             {
                 switch (entry.State)
                 {
                     case EntityState.Added:
                         entry.Entity.CreatedDate = DateTime.UtcNow;
+
+                        // Auto-inject TenantId for new entities if not set and we have tenant context
+                        if (currentTenantId.HasValue && currentTenantId.Value != Guid.Empty)
+                        {
+                            // Check if entity has TenantId property and it's not set
+                            if (entry.Entity.TenantId == null || entry.Entity.TenantId == Guid.Empty)
+                            {
+                                entry.Entity.TenantId = currentTenantId.Value;
+                            }
+                            else if (entry.Entity.TenantId != currentTenantId.Value)
+                            {
+                                // SECURITY: Prevent cross-tenant data creation
+                                throw new InvalidOperationException(
+                                    $"Cross-tenant data creation attempt detected. " +
+                                    $"Entity TenantId: {entry.Entity.TenantId}, Current TenantId: {currentTenantId}");
+                            }
+                        }
                         break;
+
                     case EntityState.Modified:
                         entry.Entity.ModifiedDate = DateTime.UtcNow;
+
+                        // SECURITY: Prevent cross-tenant data modification
+                        if (currentTenantId.HasValue && currentTenantId.Value != Guid.Empty)
+                        {
+                            if (entry.Entity.TenantId.HasValue &&
+                                entry.Entity.TenantId.Value != Guid.Empty &&
+                                entry.Entity.TenantId.Value != currentTenantId.Value)
+                            {
+                                throw new InvalidOperationException(
+                                    $"Cross-tenant data modification attempt detected. " +
+                                    $"Entity TenantId: {entry.Entity.TenantId}, Current TenantId: {currentTenantId}");
+                            }
+                        }
+                        break;
+
+                    case EntityState.Deleted:
+                        // SECURITY: Prevent cross-tenant data deletion
+                        if (currentTenantId.HasValue && currentTenantId.Value != Guid.Empty)
+                        {
+                            if (entry.Entity.TenantId.HasValue &&
+                                entry.Entity.TenantId.Value != Guid.Empty &&
+                                entry.Entity.TenantId.Value != currentTenantId.Value)
+                            {
+                                throw new InvalidOperationException(
+                                    $"Cross-tenant data deletion attempt detected. " +
+                                    $"Entity TenantId: {entry.Entity.TenantId}, Current TenantId: {currentTenantId}");
+                            }
+                        }
                         break;
                 }
             }

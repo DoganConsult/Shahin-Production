@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
 using GrcMvc.Models.Entities.Catalogs;
+using GrcMvc.Services.Interfaces;
+using GrcMvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace GrcMvc.Controllers;
@@ -82,20 +84,23 @@ public class CatalogAdminController : Controller
 /// Role Delegation Controller - Assign/delegate roles
 /// </summary>
 [Route("[controller]")]
+[Authorize]
 public class RoleDelegationController : Controller
 {
     private readonly GrcDbContext _db;
+    private readonly IUserDirectoryService _userDirectory;
 
-    public RoleDelegationController(GrcDbContext db)
+    public RoleDelegationController(GrcDbContext db, IUserDirectoryService userDirectory)
     {
         _db = db;
+        _userDirectory = userDirectory;
     }
 
     [HttpGet]
     public async Task<IActionResult> Index()
     {
         var roles = await _db.RoleCatalogs.Where(r => r.IsActive).ToListAsync();
-        var users = await _db.Users.Take(50).ToListAsync();
+        var users = await _userDirectory.GetAllActiveUsersAsync();
 
         ViewBag.Delegations = new List<object>();
         ViewBag.Roles = roles;
@@ -136,15 +141,17 @@ public class DelegationDto
 }
 
 /// <summary>
-/// Multi-Tenant Admin Controller - Manage tenants
+/// Legacy Multi-Tenant Admin Controller - Basic tenant management
+/// Note: Use TenantAdminController at /t/{slug}/admin for full functionality
 /// </summary>
-[Route("[controller]")]
+[Route("legacy-tenant-admin")]
 [Authorize(Roles = "Admin")]
-public class TenantAdminController : Controller
+[RequireTenant]
+public class LegacyTenantAdminController : Controller
 {
     private readonly GrcDbContext _db;
 
-    public TenantAdminController(GrcDbContext db)
+    public LegacyTenantAdminController(GrcDbContext db)
     {
         _db = db;
     }
