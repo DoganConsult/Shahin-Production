@@ -3,100 +3,374 @@
     Layout = "~/Views/Landing/_LandingLayout.cshtml";
 }
 
-<main class="terms-page">
-    <div class="container py-5">
+<main class="terms-page" style="padding-top: 100px; min-height: 100vh;">
+    <!-- Hero Section -->
+    <section class="terms-hero" style="padding: 4rem 0; background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);">
+        <div class="container text-center">
+            <div class="section-badge fade-up">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>الاتفاقية القانونية</span>
+            </div>
+            <h1 class="display-4 mb-3 fade-up" style="font-weight: 800;">الشروط والأحكام</h1>
+            <p class="lead text-muted mb-4 fade-up" style="max-width: 700px; margin: 0 auto;">
+                اتفاقية استخدام منصة شاهين لإدارة الحوكمة والمخاطر والامتثال
+            </p>
+            <p class="fade-up" style="color: var(--text-secondary);">آخر تحديث: يناير 2026</p>
+        </div>
+    </section>
+
+    <!-- Quick Summary -->
+    <section class="container py-5">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <h1 class="display-5 mb-4">الشروط والأحكام</h1>
-                <p class="text-muted mb-4">آخر تحديث: يناير 2026</p>
-
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-body p-4">
-                        <h4>1. القبول بالشروط</h4>
-                        <p>باستخدامك لمنصة شاهين، فإنك توافق على الالتزام بهذه الشروط والأحكام. إذا كنت لا توافق على أي من هذه الشروط، يرجى عدم استخدام المنصة.</p>
+            <div class="col-lg-10">
+                <div class="summary-card fade-up" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1)); border: 2px solid var(--border); border-radius: 24px; padding: 2.5rem;">
+                    <div class="d-flex align-items-start gap-3 mb-4">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="bi bi-lightning-fill" style="font-size: 1.5rem; color: white;"></i>
+                        </div>
+                        <div>
+                            <h4 style="font-weight: 700; margin-bottom: 0.5rem;">ملخص سريع</h4>
+                            <p style="color: var(--text-secondary); margin: 0;">أهم النقاط التي يجب معرفتها</p>
+                        </div>
                     </div>
-                </div>
-
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-body p-4">
-                        <h4>2. وصف الخدمة</h4>
-                        <p>شاهين هي منصة متكاملة لإدارة الحوكمة والمخاطر والامتثال (GRC) تقدم:</p>
-                        <ul>
-                            <li>إدارة الأطر التنظيمية والضوابط</li>
-                            <li>تقييمات الامتثال وإدارة الأدلة</li>
-                            <li>إدارة المخاطر والتقارير</li>
-                            <li>سير العمل والإشعارات الآلية</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-body p-4">
-                        <h4>3. حسابات المستخدمين</h4>
-                        <ul>
-                            <li>أنت مسؤول عن الحفاظ على سرية بيانات حسابك</li>
-                            <li>يجب أن تكون المعلومات المقدمة دقيقة ومحدثة</li>
-                            <li>يجب إبلاغنا فوراً عن أي استخدام غير مصرح به</li>
-                            <li>نحتفظ بحق إنهاء الحسابات التي تنتهك هذه الشروط</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-body p-4">
-                        <h4>4. الاستخدام المقبول</h4>
-                        <p>يجب عدم استخدام المنصة في:</p>
-                        <ul>
-                            <li>أي نشاط غير قانوني أو احتيالي</li>
-                            <li>انتهاك حقوق الملكية الفكرية للآخرين</li>
-                            <li>نقل برامج ضارة أو فيروسات</li>
-                            <li>محاولة الوصول غير المصرح به للأنظمة</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-body p-4">
-                        <h4>5. الملكية الفكرية</h4>
-                        <p>جميع حقوق الملكية الفكرية للمنصة والمحتوى مملوكة لشركة دوغان للاستشارات. لا يجوز نسخ أو توزيع أو تعديل أي جزء من المنصة دون إذن كتابي مسبق.</p>
-                    </div>
-                </div>
-
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-body p-4">
-                        <h4>6. حماية البيانات</h4>
-                        <p>نلتزم بحماية بياناتك وفقاً لـ:</p>
-                        <ul>
-                            <li>نظام حماية البيانات الشخصية (PDPL)</li>
-                            <li>ضوابط الأمن السيبراني (NCA ECC)</li>
-                            <li>سياسة الخصوصية الخاصة بنا</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-body p-4">
-                        <h4>7. تحديد المسؤولية</h4>
-                        <p>المنصة مقدمة "كما هي" ونحن لا نضمن أن تكون خالية من الأخطاء أو الانقطاعات. لن نكون مسؤولين عن أي أضرار غير مباشرة ناتجة عن استخدام المنصة.</p>
-                    </div>
-                </div>
-
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-body p-4">
-                        <h4>8. القانون المعمول به</h4>
-                        <p>تخضع هذه الشروط لقوانين المملكة العربية السعودية، وأي نزاع يتم حله من خلال المحاكم المختصة في مدينة الرياض.</p>
-                    </div>
-                </div>
-
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <h4>9. التواصل</h4>
-                        <p>لأي استفسارات حول هذه الشروط:</p>
-                        <p><strong>البريد الإلكتروني:</strong> <a href="mailto:legal@shahin-ai.com">legal@shahin-ai.com</a></p>
-                        <p><strong>العنوان:</strong> طريق الملك فهد، الرياض، المملكة العربية السعودية</p>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill" style="color: #10b981; margin-top: 0.25rem;"></i>
+                                <span>أنت مسؤول عن حماية بيانات حسابك</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill" style="color: #10b981; margin-top: 0.25rem;"></i>
+                                <span>نحن نحمي بياناتك وفق أعلى المعايير</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill" style="color: #10b981; margin-top: 0.25rem;"></i>
+                                <span>يمكنك إلغاء اشتراكك في أي وقت</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill" style="color: #10b981; margin-top: 0.25rem;"></i>
+                                <span>الدعم متاح على مدار الساعة</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+
+    <!-- Progress Navigation -->
+    <section class="container">
+        <div class="progress-nav fade-up" style="position: sticky; top: 80px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 1rem 2rem; margin-bottom: 2rem; z-index: 100; display: flex; gap: 1rem; overflow-x: auto;">
+            <a href="#section1" class="progress-link active" style="padding: 0.5rem 1rem; border-radius: 50px; text-decoration: none; white-space: nowrap; font-weight: 500; color: var(--text-secondary); transition: all 0.3s;">القبول</a>
+            <a href="#section2" class="progress-link" style="padding: 0.5rem 1rem; border-radius: 50px; text-decoration: none; white-space: nowrap; font-weight: 500; color: var(--text-secondary); transition: all 0.3s;">الخدمة</a>
+            <a href="#section3" class="progress-link" style="padding: 0.5rem 1rem; border-radius: 50px; text-decoration: none; white-space: nowrap; font-weight: 500; color: var(--text-secondary); transition: all 0.3s;">الحسابات</a>
+            <a href="#section4" class="progress-link" style="padding: 0.5rem 1rem; border-radius: 50px; text-decoration: none; white-space: nowrap; font-weight: 500; color: var(--text-secondary); transition: all 0.3s;">الاستخدام</a>
+            <a href="#section5" class="progress-link" style="padding: 0.5rem 1rem; border-radius: 50px; text-decoration: none; white-space: nowrap; font-weight: 500; color: var(--text-secondary); transition: all 0.3s;">الملكية</a>
+            <a href="#section6" class="progress-link" style="padding: 0.5rem 1rem; border-radius: 50px; text-decoration: none; white-space: nowrap; font-weight: 500; color: var(--text-secondary); transition: all 0.3s;">المسؤولية</a>
+            <a href="#section7" class="progress-link" style="padding: 0.5rem 1rem; border-radius: 50px; text-decoration: none; white-space: nowrap; font-weight: 500; color: var(--text-secondary); transition: all 0.3s;">القانون</a>
+        </div>
+    </section>
+
+    <!-- Terms Sections -->
+    <section class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Section 1 -->
+                <div id="section1" class="terms-section fade-up" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem;">
+                    <div class="section-number" style="width: 50px; height: 50px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <span style="color: white; font-weight: 800; font-size: 1.25rem;">1</span>
+                    </div>
+                    <h3 style="font-weight: 700; margin-bottom: 1rem;">القبول بالشروط</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.8;">
+                        باستخدامك لمنصة شاهين، فإنك توافق على الالتزام بهذه الشروط والأحكام. إذا كنت لا توافق على أي من هذه الشروط، يرجى عدم استخدام المنصة.
+                    </p>
+                    <div class="alert-box" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 1rem; margin-top: 1.5rem; display: flex; align-items: start; gap: 0.75rem;">
+                        <i class="bi bi-exclamation-triangle-fill" style="color: #f59e0b; font-size: 1.25rem;"></i>
+                        <p style="margin: 0; color: var(--text);">استخدامك للمنصة يُعد قبولاً ضمنياً لهذه الشروط</p>
+                    </div>
+                </div>
+
+                <!-- Section 2 -->
+                <div id="section2" class="terms-section fade-up" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem;">
+                    <div class="section-number" style="width: 50px; height: 50px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <span style="color: white; font-weight: 800; font-size: 1.25rem;">2</span>
+                    </div>
+                    <h3 style="font-weight: 700; margin-bottom: 1rem;">وصف الخدمة</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 1.5rem;">
+                        شاهين هي منصة متكاملة لإدارة الحوكمة والمخاطر والامتثال (GRC) تقدم:
+                    </p>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="service-item" style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 12px;">
+                                <i class="bi bi-shield-check" style="color: #10b981; font-size: 1.25rem;"></i>
+                                <span>إدارة الأطر التنظيمية والضوابط</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="service-item" style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 12px;">
+                                <i class="bi bi-clipboard-check" style="color: #3b82f6; font-size: 1.25rem;"></i>
+                                <span>تقييمات الامتثال وإدارة الأدلة</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="service-item" style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 12px;">
+                                <i class="bi bi-exclamation-triangle" style="color: #f59e0b; font-size: 1.25rem;"></i>
+                                <span>إدارة المخاطر والتقارير</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="service-item" style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 12px;">
+                                <i class="bi bi-diagram-3" style="color: #8b5cf6; font-size: 1.25rem;"></i>
+                                <span>سير العمل والإشعارات الآلية</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3 -->
+                <div id="section3" class="terms-section fade-up" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem;">
+                    <div class="section-number" style="width: 50px; height: 50px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <span style="color: white; font-weight: 800; font-size: 1.25rem;">3</span>
+                    </div>
+                    <h3 style="font-weight: 700; margin-bottom: 1rem;">حسابات المستخدمين</h3>
+                    <div class="responsibility-list">
+                        <div class="responsibility-item" style="display: flex; align-items: start; gap: 1rem; padding: 1.25rem; border-bottom: 1px solid var(--border);">
+                            <div style="width: 40px; height: 40px; background: rgba(16, 185, 129, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="bi bi-key" style="color: #10b981;"></i>
+                            </div>
+                            <div>
+                                <h6 style="font-weight: 600; margin-bottom: 0.25rem;">حماية بيانات الدخول</h6>
+                                <p style="color: var(--text-secondary); margin: 0;">أنت مسؤول عن الحفاظ على سرية بيانات حسابك</p>
+                            </div>
+                        </div>
+                        <div class="responsibility-item" style="display: flex; align-items: start; gap: 1rem; padding: 1.25rem; border-bottom: 1px solid var(--border);">
+                            <div style="width: 40px; height: 40px; background: rgba(59, 130, 246, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="bi bi-check2-circle" style="color: #3b82f6;"></i>
+                            </div>
+                            <div>
+                                <h6 style="font-weight: 600; margin-bottom: 0.25rem;">دقة المعلومات</h6>
+                                <p style="color: var(--text-secondary); margin: 0;">يجب أن تكون المعلومات المقدمة دقيقة ومحدثة</p>
+                            </div>
+                        </div>
+                        <div class="responsibility-item" style="display: flex; align-items: start; gap: 1rem; padding: 1.25rem; border-bottom: 1px solid var(--border);">
+                            <div style="width: 40px; height: 40px; background: rgba(239, 68, 68, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="bi bi-shield-exclamation" style="color: #ef4444;"></i>
+                            </div>
+                            <div>
+                                <h6 style="font-weight: 600; margin-bottom: 0.25rem;">الإبلاغ عن الاختراقات</h6>
+                                <p style="color: var(--text-secondary); margin: 0;">يجب إبلاغنا فوراً عن أي استخدام غير مصرح به</p>
+                            </div>
+                        </div>
+                        <div class="responsibility-item" style="display: flex; align-items: start; gap: 1rem; padding: 1.25rem;">
+                            <div style="width: 40px; height: 40px; background: rgba(139, 92, 246, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="bi bi-x-octagon" style="color: #8b5cf6;"></i>
+                            </div>
+                            <div>
+                                <h6 style="font-weight: 600; margin-bottom: 0.25rem;">إنهاء الحساب</h6>
+                                <p style="color: var(--text-secondary); margin: 0;">نحتفظ بحق إنهاء الحسابات التي تنتهك هذه الشروط</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4 -->
+                <div id="section4" class="terms-section fade-up" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem;">
+                    <div class="section-number" style="width: 50px; height: 50px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <span style="color: white; font-weight: 800; font-size: 1.25rem;">4</span>
+                    </div>
+                    <h3 style="font-weight: 700; margin-bottom: 1rem;">الاستخدام المقبول</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 1.5rem;">
+                        يجب عدم استخدام المنصة في:
+                    </p>
+                    <div class="prohibited-list">
+                        <div class="prohibited-item" style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; margin-bottom: 0.75rem;">
+                            <i class="bi bi-x-circle-fill" style="color: #ef4444;"></i>
+                            <span>أي نشاط غير قانوني أو احتيالي</span>
+                        </div>
+                        <div class="prohibited-item" style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; margin-bottom: 0.75rem;">
+                            <i class="bi bi-x-circle-fill" style="color: #ef4444;"></i>
+                            <span>انتهاك حقوق الملكية الفكرية للآخرين</span>
+                        </div>
+                        <div class="prohibited-item" style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; margin-bottom: 0.75rem;">
+                            <i class="bi bi-x-circle-fill" style="color: #ef4444;"></i>
+                            <span>نقل برامج ضارة أو فيروسات</span>
+                        </div>
+                        <div class="prohibited-item" style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px;">
+                            <i class="bi bi-x-circle-fill" style="color: #ef4444;"></i>
+                            <span>محاولة الوصول غير المصرح به للأنظمة</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 5 -->
+                <div id="section5" class="terms-section fade-up" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem;">
+                    <div class="section-number" style="width: 50px; height: 50px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <span style="color: white; font-weight: 800; font-size: 1.25rem;">5</span>
+                    </div>
+                    <h3 style="font-weight: 700; margin-bottom: 1rem;">الملكية الفكرية</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.8;">
+                        جميع حقوق الملكية الفكرية للمنصة والمحتوى مملوكة لشركة دوغان للاستشارات. لا يجوز نسخ أو توزيع أو تعديل أي جزء من المنصة دون إذن كتابي مسبق.
+                    </p>
+                    <div class="ip-visual" style="margin-top: 2rem; display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;">
+                        <div style="text-align: center;">
+                            <div style="width: 80px; height: 80px; background: rgba(245, 158, 11, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                                <i class="bi bi-c-circle" style="font-size: 2.5rem; color: #f59e0b;"></i>
+                            </div>
+                            <span style="font-weight: 600;">حقوق النشر</span>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 80px; height: 80px; background: rgba(245, 158, 11, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                                <i class="bi bi-award" style="font-size: 2.5rem; color: #f59e0b;"></i>
+                            </div>
+                            <span style="font-weight: 600;">العلامات التجارية</span>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 80px; height: 80px; background: rgba(245, 158, 11, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                                <i class="bi bi-file-code" style="font-size: 2.5rem; color: #f59e0b;"></i>
+                            </div>
+                            <span style="font-weight: 600;">براءات الاختراع</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 6 -->
+                <div id="section6" class="terms-section fade-up" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem;">
+                    <div class="section-number" style="width: 50px; height: 50px; background: linear-gradient(135deg, #ec4899, #be185d); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <span style="color: white; font-weight: 800; font-size: 1.25rem;">6</span>
+                    </div>
+                    <h3 style="font-weight: 700; margin-bottom: 1rem;">تحديد المسؤولية</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.8;">
+                        المنصة مقدمة "كما هي" ونحن لا نضمن أن تكون خالية من الأخطاء أو الانقطاعات. لن نكون مسؤولين عن أي أضرار غير مباشرة ناتجة عن استخدام المنصة.
+                    </p>
+                    <div class="info-box" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 1.25rem; margin-top: 1.5rem; display: flex; align-items: start; gap: 0.75rem;">
+                        <i class="bi bi-info-circle-fill" style="color: #3b82f6; font-size: 1.25rem;"></i>
+                        <p style="margin: 0; color: var(--text);">نسعى لتوفير خدمة بجودة عالية مع ضمان وقت تشغيل 99.9%</p>
+                    </div>
+                </div>
+
+                <!-- Section 7 -->
+                <div id="section7" class="terms-section fade-up" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem;">
+                    <div class="section-number" style="width: 50px; height: 50px; background: linear-gradient(135deg, #6366f1, #4338ca); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                        <span style="color: white; font-weight: 800; font-size: 1.25rem;">7</span>
+                    </div>
+                    <h3 style="font-weight: 700; margin-bottom: 1rem;">القانون المعمول به</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.8;">
+                        تخضع هذه الشروط لقوانين المملكة العربية السعودية، وأي نزاع يتم حله من خلال المحاكم المختصة في مدينة الرياض.
+                    </p>
+                    <div class="jurisdiction-visual" style="margin-top: 2rem; text-align: center;">
+                        <div style="display: inline-flex; align-items: center; gap: 1rem; background: var(--bg-tertiary); padding: 1.5rem 2.5rem; border-radius: 16px;">
+                            <img src="/images/saudi-flag.svg" alt="المملكة العربية السعودية" style="width: 48px; height: 32px; border-radius: 4px; object-fit: cover;" onerror="this.outerHTML='<i class=\'bi bi-flag\' style=\'font-size: 2rem; color: #10b981;\'></i>'">
+                            <div style="text-align: right;">
+                                <div style="font-weight: 700;">المملكة العربية السعودية</div>
+                                <div style="color: var(--text-secondary); font-size: 0.9rem;">محاكم الرياض</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Accept Terms CTA -->
+    <section class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="accept-cta fade-up" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.15)); border: 2px solid var(--border); border-radius: 24px; padding: 3rem; text-align: center;">
+                    <h3 style="font-weight: 800; margin-bottom: 1rem;">هل لديك أسئلة؟</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+                        فريقنا القانوني جاهز للإجابة على استفساراتك حول هذه الشروط
+                    </p>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <a href="mailto:legal@shahin-ai.com" class="btn btn-primary btn-lg">
+                            <i class="bi bi-envelope-fill me-2"></i>legal@shahin-ai.com
+                        </a>
+                        <a href="/Onboarding" class="btn btn-outline btn-lg">
+                            <i class="bi bi-rocket-takeoff me-2"></i>ابدأ الآن
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </main>
+
+@section Styles {
+<style>
+    .progress-link.active {
+        background: var(--accent);
+        color: white !important;
+    }
+    .progress-link:hover {
+        background: var(--bg-tertiary);
+        color: var(--text) !important;
+    }
+    .terms-section {
+        scroll-margin-top: 160px;
+        transition: all 0.3s;
+    }
+    .terms-section:hover {
+        border-color: var(--accent);
+    }
+    .terms-section:target {
+        border-color: var(--accent);
+        box-shadow: var(--shadow-lg);
+    }
+</style>
+}
+
+@section Scripts {
+<script>
+    // Update active progress link on scroll
+    const sections = document.querySelectorAll('.terms-section');
+    const progressLinks = document.querySelectorAll('.progress-link');
+
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (scrollY >= sectionTop - 200) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        progressLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + current) {
+                link.classList.add('active');
+            }
+        });
+    });
+
+    // Smooth scroll for progress links
+    progressLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            target.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+
+    // Animate on scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-up').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(el);
+    });
+</script>
+}
