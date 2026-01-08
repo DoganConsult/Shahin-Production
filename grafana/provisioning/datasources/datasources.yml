@@ -1,0 +1,50 @@
+# Grafana Datasources Configuration
+# Auto-provisioned on startup
+
+apiVersion: 1
+
+datasources:
+  # PostgreSQL - Main GRC Database
+  - name: GRC-PostgreSQL
+    type: postgres
+    url: db:5432
+    database: GrcMvcDb
+    user: postgres
+    secureJsonData:
+      password: ${DB_PASSWORD:-postgres}
+    jsonData:
+      sslmode: disable
+      maxOpenConns: 10
+      maxIdleConns: 10
+      connMaxLifetime: 14400
+      postgresVersion: 1500
+      timescaledb: false
+    isDefault: true
+    editable: true
+
+  # ClickHouse - Analytics OLAP Database  
+  - name: GRC-ClickHouse
+    type: grafana-clickhouse-datasource
+    url: http://clickhouse:8123
+    database: grc_analytics
+    user: grc_analytics
+    secureJsonData:
+      password: ${CLICKHOUSE_PASSWORD:-grc_analytics_2026}
+    jsonData:
+      defaultDatabase: grc_analytics
+    editable: true
+
+  # Redis - Cache Monitoring
+  - name: GRC-Redis
+    type: redis-datasource
+    url: redis:6379
+    jsonData:
+      client: standalone
+    editable: true
+
+  # Prometheus (if added later)
+  # - name: Prometheus
+  #   type: prometheus
+  #   url: http://prometheus:9090
+  #   isDefault: false
+  #   editable: true

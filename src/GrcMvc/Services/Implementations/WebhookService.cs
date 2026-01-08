@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -86,7 +87,7 @@ namespace GrcMvc.Services.Implementations
         {
             var subscription = await _context.WebhookSubscriptions
                 .FirstOrDefaultAsync(w => w.Id == subscriptionId && !w.IsDeleted)
-                ?? throw new InvalidOperationException($"Webhook subscription {subscriptionId} not found");
+                ?? throw new EntityNotFoundException("WebhookSubscription", subscriptionId);
 
             if (request.Name != null) subscription.Name = request.Name;
             if (request.TargetUrl != null) subscription.TargetUrl = request.TargetUrl;
@@ -442,7 +443,7 @@ namespace GrcMvc.Services.Implementations
         {
             var subscription = await _context.WebhookSubscriptions
                 .FirstOrDefaultAsync(w => w.Id == subscriptionId && !w.IsDeleted)
-                ?? throw new InvalidOperationException($"Webhook subscription {subscriptionId} not found");
+                ?? throw new EntityNotFoundException("WebhookSubscription", subscriptionId);
 
             var testPayload = new
             {

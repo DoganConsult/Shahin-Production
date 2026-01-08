@@ -14,7 +14,21 @@ namespace GrcMvc.Models.Entities
         [ForeignKey("WorkspaceId")]
         public virtual Workspace? Workspace { get; set; }
 
+        // =====================================================================
+        // EVIDENCE IDENTIFICATION (Serial Code System)
+        // =====================================================================
+
+        /// <summary>
+        /// Stable evidence reference code (use BusinessCode from BaseEntity).
+        /// Format: {TENANTCODE}-EVD-{YYYY}-{SEQUENCE}
+        /// Example: ACME-EVD-2026-000778
+        /// </summary>
         public string EvidenceNumber { get; set; } = string.Empty;
+
+        // =====================================================================
+        // EVIDENCE METADATA
+        // =====================================================================
+
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty; // Document, Screenshot, Log, Report, etc.
@@ -29,6 +43,50 @@ namespace GrcMvc.Models.Entities
         public DateTime? VerificationDate { get; set; }
         public string Comments { get; set; } = string.Empty;
 
+        // =====================================================================
+        // CHAIN OF CUSTODY (Critical for audit trail)
+        // =====================================================================
+
+        /// <summary>
+        /// SHA-256 hash of the file content for integrity verification
+        /// </summary>
+        public string? FileHash { get; set; }
+
+        /// <summary>
+        /// File version (increments when file is replaced)
+        /// </summary>
+        public int FileVersion { get; set; } = 1;
+
+        /// <summary>
+        /// Original upload timestamp (never changes)
+        /// </summary>
+        public DateTime? OriginalUploadDate { get; set; }
+
+        /// <summary>
+        /// Original uploader (never changes)
+        /// </summary>
+        public string? OriginalUploader { get; set; }
+
+        /// <summary>
+        /// Retention period end date (when evidence can be archived/deleted)
+        /// </summary>
+        public DateTime? RetentionEndDate { get; set; }
+
+        /// <summary>
+        /// Evidence period start (the timeframe this evidence covers)
+        /// </summary>
+        public DateTime? EvidencePeriodStart { get; set; }
+
+        /// <summary>
+        /// Evidence period end (the timeframe this evidence covers)
+        /// </summary>
+        public DateTime? EvidencePeriodEnd { get; set; }
+
+        /// <summary>
+        /// Source system from which evidence was collected
+        /// </summary>
+        public string? SourceSystem { get; set; }
+
         // Navigation properties
         public Guid? AssessmentId { get; set; }
         public virtual Assessment? Assessment { get; set; }
@@ -36,5 +94,11 @@ namespace GrcMvc.Models.Entities
         public virtual Audit? Audit { get; set; }
         public Guid? ControlId { get; set; }
         public virtual Control? Control { get; set; }
+
+        /// <summary>
+        /// Link to specific assessment requirement (for per-requirement evidence)
+        /// </summary>
+        public Guid? AssessmentRequirementId { get; set; }
+        public virtual AssessmentRequirement? AssessmentRequirement { get; set; }
     }
 }

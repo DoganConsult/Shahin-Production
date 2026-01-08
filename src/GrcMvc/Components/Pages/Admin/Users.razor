@@ -93,25 +93,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // #region agent log
-        try { System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "Admin/Users.razor:OnInitializedAsync", message = "Admin Users page initialized", data = new { }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
-        // Load real data from database
         try
         {
             var tenant = await DbContext.Tenants.FirstOrDefaultAsync(t => !t.IsDeleted);
             currentTenantId = tenant?.Id ?? Guid.Empty;
-            // #region agent log
-            try { System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "Admin/Users.razor:OnInitializedAsync", message = "Tenant found", data = new { tenantFound = tenant != null, tenantId = currentTenantId.ToString() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
 
             var tenantUsers = await DbContext.TenantUsers
                 .Where(tu => tu.TenantId == currentTenantId && !tu.IsDeleted)
                 .Include(tu => tu.User)
                 .ToListAsync();
-            // #region agent log
-            try { System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "Admin/Users.razor:OnInitializedAsync", message = "TenantUsers loaded", data = new { tenantUsersCount = tenantUsers.Count }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
 
             users = tenantUsers.Select(tu => new UserListItemDto
             {
@@ -122,15 +112,9 @@
                 IsActive = tu.Status == "Active",
                 LastLogin = tu.User?.LastLoginDate
             }).ToList();
-            // #region agent log
-            try { System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "Admin/Users.razor:OnInitializedAsync", message = "Users DTOs created", data = new { usersCount = users?.Count ?? 0 }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText("/home/dogan/grc-system/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "Admin/Users.razor:OnInitializedAsync", message = "Exception loading users", data = new { exceptionType = ex.GetType().Name, message = ex.Message, stackTrace = ex.StackTrace }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             users = new List<UserListItemDto>();
         }
     }

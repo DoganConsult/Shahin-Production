@@ -1,4 +1,5 @@
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Models.Entities.Catalogs;
 using GrcMvc.Services.Interfaces;
@@ -227,7 +228,7 @@ public class CatalogDataService : ICatalogDataService
                 .FirstOrDefaultAsync(f => f.Id == frameworkId);
 
             if (framework == null)
-                throw new InvalidOperationException($"Framework {frameworkId} not found");
+                throw CatalogException.NotFound("Framework", frameworkId);
 
             var query = _context.ControlCatalogs
                 .Where(c => c.FrameworkId == frameworkId);
@@ -740,7 +741,7 @@ public class CatalogDataService : ICatalogDataService
                 .FirstOrDefaultAsync(f => f.Id == frameworkId);
 
             if (framework == null)
-                throw new InvalidOperationException($"Framework {frameworkId} not found");
+                throw CatalogException.NotFound("Framework", frameworkId);
 
             var controls = await GetControlsAsync(frameworkId, version, null, true);
 

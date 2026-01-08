@@ -259,38 +259,35 @@
 
         async function loadEvidence() {
             try {
-                const response = await fetch('/api/workflows/list/evidence');
+                const response = await fetch('/api/workflows/evidence');
+                if (!response.ok) throw new Error('Failed to load evidence');
+                
                 const data = await response.json();
 
-                // Update status counts
-                const stats = {
-                    pendingReview: data.workflows?.filter(w => w.status === 'Submitted').length || 0,
-                    underReview: data.workflows?.filter(w => w.status === 'UnderReview').length || 0,
-                    approved: data.workflows?.filter(w => w.status === 'Approved').length || 0,
-                    rejected: data.workflows?.filter(w => w.status === 'Rejected').length || 0
-                };
-
-                document.getElementById('pendingReview').textContent = stats.pendingReview;
-                document.getElementById('underReview').textContent = stats.underReview;
-                document.getElementById('approved').textContent = stats.approved;
-                document.getElementById('rejected').textContent = stats.rejected;
+                // Update status counts from stats
+                document.getElementById('pendingReview').textContent = data.stats?.pending || 0;
+                document.getElementById('underReview').textContent = data.stats?.underReview || 0;
+                document.getElementById('approved').textContent = data.stats?.approved || 0;
+                document.getElementById('rejected').textContent = data.stats?.rejected || 0;
 
                 // Update table
                 const tbody = document.getElementById('evidenceTableBody');
-                if (data.workflows && data.workflows.length > 0) {
-                    tbody.innerHTML = data.workflows.map(w => `
+                const workflows = data.workflows || [];
+                
+                if (workflows.length > 0) {
+                    tbody.innerHTML = workflows.map(w => `
                         <tr>
-                            <td>${w.controlId}</td>
-                            <td>${w.submittedByUserId}</td>
+                            <td><code>${w.controlId || 'N/A'}</code></td>
+                            <td>${w.submittedByUserId || 'Unknown'}</td>
                             <td>${new Date(w.submittedDate).toLocaleDateString()}</td>
                             <td>${getEvidenceStatusBadge(w.status)}</td>
-                            <td><span class="badge bg-secondary">${w.fileCount} files</span></td>
+                            <td><span class="badge bg-secondary">${w.fileCount || 1} files</span></td>
                             <td>
-                                <button class="btn btn-sm btn-info" onclick="viewEvidenceDetail(${w.id})">
+                                <button class="btn btn-sm btn-info" onclick="viewEvidenceDetail('${w.id}')">
                                     <i class="fas fa-eye"></i> View
                                 </button>
-                                ${w.status === 'Submitted' ? `
-                                    <button class="btn btn-sm btn-success" onclick="approveEvidenceQuick(${w.id})">
+                                ${w.status === 'Submitted' || w.status === 'Pending' ? `
+                                    <button class="btn btn-sm btn-success" onclick="approveEvidenceQuick('${w.id}')">
                                         <i class="fas fa-check"></i>
                                     </button>
                                 ` : ''}
@@ -302,6 +299,8 @@
                 }
             } catch (error) {
                 console.error('Error loading evidence:', error);
+                document.getElementById('evidenceTableBody').innerHTML = 
+                    '<tr><td colspan="6" class="text-center text-danger">Error loading evidence</td></tr>';
             }
         }
 

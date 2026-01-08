@@ -132,13 +132,13 @@
 // Form Validation Helper
 window.GrcFormValidation = {
     messages: {
-        required: '@L["Validation_Required"]',
-        email: '@L["Validation_InvalidEmail"]',
-        phone: '@L["Validation_InvalidPhone"]',
-        minLength: '@L["Validation_MinLength"]',
-        maxLength: '@L["Validation_MaxLength"]',
-        passwordMismatch: '@L["Validation_PasswordMismatch"]',
-        invalidFormat: '@L["Validation_InvalidFormat"]'
+        required: '@Html.Raw(L["Validation_Required"].Value)',
+        email: '@Html.Raw(L["Validation_InvalidEmail"].Value)',
+        phone: '@Html.Raw(L["Validation_InvalidPhone"].Value)',
+        minLength: '@Html.Raw(L["Validation_MinLength"].Value)',
+        maxLength: '@Html.Raw(L["Validation_MaxLength"].Value)',
+        passwordMismatch: '@Html.Raw(L["Validation_PasswordMismatch"].Value)',
+        invalidFormat: '@Html.Raw(L["Validation_InvalidFormat"].Value)'
     },
 
     // Initialize validation on a form

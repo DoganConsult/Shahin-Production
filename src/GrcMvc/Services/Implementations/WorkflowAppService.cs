@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Services.Interfaces;
@@ -41,19 +42,19 @@ namespace GrcMvc.Services.Implementations
             StartWorkflowDto input)
         {
             if (tenantId == Guid.Empty)
-                throw new InvalidOperationException("Tenant ID is required");
+                throw new TenantRequiredException();
             if (userId == Guid.Empty)
-                throw new InvalidOperationException("User ID is required");
+                throw new ValidationException("UserId", "User ID is required");
 
             // Validate workflow definition exists
             var definition = await _context.WorkflowDefinitions
                 .FirstOrDefaultAsync(d => d.Id == input.WorkflowDefinitionId && (d.TenantId == tenantId || d.TenantId == null));
             
             if (definition == null)
-                throw new InvalidOperationException($"Workflow definition {input.WorkflowDefinitionId} not found");
+                throw new EntityNotFoundException("WorkflowDefinition", input.WorkflowDefinitionId);
 
             if (definition.Status != "Active" && definition.IsActive != true)
-                throw new InvalidOperationException($"Workflow definition {input.WorkflowDefinitionId} is not active");
+                throw new GrcException($"Workflow definition {input.WorkflowDefinitionId} is not active", GrcErrorCodes.InvalidState);
 
             // Start workflow instance
             var instance = await _workflowEngine.StartWorkflowAsync(
@@ -72,12 +73,12 @@ namespace GrcMvc.Services.Implementations
         public async Task<WorkflowInstanceDto> GetInstanceAsync(Guid tenantId, Guid instanceId)
         {
             if (tenantId == Guid.Empty)
-                throw new InvalidOperationException("Tenant ID is required");
+                throw new TenantRequiredException();
             
             var instance = await _workflowEngine.GetWorkflowAsync(tenantId, instanceId);
             
             if (instance == null)
-                throw new InvalidOperationException($"Workflow instance {instanceId} not found");
+                throw new EntityNotFoundException("WorkflowInstance", instanceId);
 
             return MapToDto(instance);
         }
@@ -88,9 +89,9 @@ namespace GrcMvc.Services.Implementations
         public async Task<bool> CompleteTaskAsync(Guid tenantId, Guid userId, CompleteTaskDto input)
         {
             if (tenantId == Guid.Empty)
-                throw new InvalidOperationException("Tenant ID is required");
+                throw new TenantRequiredException();
             if (userId == Guid.Empty)
-                throw new InvalidOperationException("User ID is required");
+                throw new ValidationException("UserId", "User ID is required");
 
             return await _workflowEngine.CompleteTaskAsync(
                 tenantId,
@@ -106,9 +107,9 @@ namespace GrcMvc.Services.Implementations
         public async Task<List<WorkflowTaskDto>> GetUserTasksAsync(Guid tenantId, Guid userId)
         {
             if (tenantId == Guid.Empty)
-                throw new InvalidOperationException("Tenant ID is required");
+                throw new TenantRequiredException();
             if (userId == Guid.Empty)
-                throw new InvalidOperationException("User ID is required");
+                throw new ValidationException("UserId", "User ID is required");
 
             var workflows = await _workflowEngine.GetUserWorkflowsAsync(tenantId);
             var allTasks = new List<WorkflowTaskDto>();

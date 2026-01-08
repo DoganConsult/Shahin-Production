@@ -29,5 +29,26 @@ namespace GrcMvc.Services.Interfaces
         /// Get tenant by ID.
         /// </summary>
         Task<Tenant?> GetTenantByIdAsync(Guid tenantId);
+
+        /// <summary>
+        /// Suspend a tenant (temporary deactivation).
+        /// HIGH FIX: Missing lifecycle operation.
+        /// </summary>
+        Task<Tenant> SuspendTenantAsync(Guid tenantId, string suspendedBy, string? reason = null);
+
+        /// <summary>
+        /// Reactivate a suspended tenant.
+        /// </summary>
+        Task<Tenant> ReactivateTenantAsync(Guid tenantId, string reactivatedBy);
+
+        /// <summary>
+        /// Archive a tenant (soft delete with data retention).
+        /// </summary>
+        Task<Tenant> ArchiveTenantAsync(Guid tenantId, string archivedBy, string? reason = null);
+
+        /// <summary>
+        /// Permanently delete a tenant (requires admin confirmation).
+        /// </summary>
+        Task<bool> DeleteTenantAsync(Guid tenantId, string deletedBy, bool hardDelete = false);
     }
 }

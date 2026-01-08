@@ -1,4 +1,5 @@
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -106,7 +107,7 @@ public class SupportAgentService : ISupportAgentService
     {
         var conversation = await _unitOfWork.SupportConversations.GetByIdAsync(conversationId);
         if (conversation == null)
-            throw new InvalidOperationException($"Conversation {conversationId} not found");
+            throw new EntityNotFoundException("Conversation", conversationId);
 
         conversation.Status = "Escalated";
         conversation.IsAgentHandled = false;
@@ -129,7 +130,7 @@ public class SupportAgentService : ISupportAgentService
     {
         var conversation = await _unitOfWork.SupportConversations.GetByIdAsync(conversationId);
         if (conversation == null)
-            throw new InvalidOperationException($"Conversation {conversationId} not found");
+            throw new EntityNotFoundException("Conversation", conversationId);
 
         conversation.Status = "Resolved";
         conversation.ResolvedAt = DateTime.UtcNow;

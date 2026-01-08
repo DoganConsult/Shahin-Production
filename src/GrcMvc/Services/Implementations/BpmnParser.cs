@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using GrcMvc.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace GrcMvc.Services.Implementations
@@ -76,7 +77,7 @@ namespace GrcMvc.Services.Implementations
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error parsing BPMN XML");
-                throw new InvalidOperationException($"Failed to parse BPMN XML: {ex.Message}", ex);
+                throw new ValidationException("BPMN", $"Failed to parse BPMN XML: {ex.Message}");
             }
         }
 

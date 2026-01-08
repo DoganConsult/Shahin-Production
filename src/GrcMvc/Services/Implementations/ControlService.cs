@@ -196,6 +196,146 @@ namespace GrcMvc.Services.Implementations
             }
         }
 
+        /// <summary>
+        /// Test a control and update effectiveness score
+        /// </summary>
+        public async Task<Interfaces.ControlTestResultDto> TestControlAsync(Guid controlId, Interfaces.ControlTestRequest request)
+        {
+            try
+            {
+                var control = await _unitOfWork.Controls.GetByIdAsync(controlId);
+                if (control == null)
+                {
+                    throw new InvalidOperationException($"Control {controlId} not found");
+                }
+
+                var previousEffectiveness = control.EffectivenessScore;
+
+                // Update effectiveness based on test result
+                control.EffectivenessScore = request.Score;
+                control.LastTestDate = DateTime.UtcNow;
+                control.ModifiedDate = DateTime.UtcNow;
+
+                await _unitOfWork.Controls.UpdateAsync(control);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Control {ControlId} tested. Score: {Score}, Result: {Result}", 
+                    controlId, request.Score, request.Result);
+
+                return new Interfaces.ControlTestResultDto
+                {
+                    ControlId = controlId,
+                    TestId = Guid.NewGuid(),
+                    TestedDate = DateTime.UtcNow,
+                    TestType = request.TestType,
+                    TesterName = request.TesterName,
+                    Score = request.Score,
+                    Result = request.Result,
+                    PreviousEffectiveness = previousEffectiveness,
+                    NewEffectiveness = request.Score
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error testing control {ControlId}", controlId);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Get control effectiveness score
+        /// </summary>
+        public async Task<int> GetEffectivenessScoreAsync(Guid controlId)
+        {
+            try
+            {
+                var control = await _unitOfWork.Controls.GetByIdAsync(controlId);
+                return control?.EffectivenessScore ?? 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting effectiveness score for control {ControlId}", controlId);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Assign control owner
+        /// </summary>
+        public async Task<ControlDto> AssignOwnerAsync(Guid controlId, string ownerId, string ownerName)
+        {
+            try
+            {
+                var control = await _unitOfWork.Controls.GetByIdAsync(controlId);
+                if (control == null)
+                {
+                    throw new InvalidOperationException($"Control {controlId} not found");
+                }
+
+                control.Owner = ownerName;
+                control.ModifiedDate = DateTime.UtcNow;
+
+                await _unitOfWork.Controls.UpdateAsync(control);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Control {ControlId} assigned to {OwnerName}", controlId, ownerName);
+                return _mapper.Map<ControlDto>(control);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error assigning owner to control {ControlId}", controlId);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Get controls by framework
+        /// </summary>
+        public async Task<IEnumerable<ControlDto>> GetByFrameworkAsync(string frameworkCode)
+        {
+            try
+            {
+                // Note: Controls don't have direct FrameworkCode - filter by Control assessments or related framework controls
+                var controls = await _unitOfWork.Controls.FindAsync(c => c.Status == "Active");
+                return _mapper.Map<IEnumerable<ControlDto>>(controls);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting controls for framework {FrameworkCode}", frameworkCode);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Link control to risk
+        /// </summary>
+        public async Task LinkToRiskAsync(Guid controlId, Guid riskId, int expectedEffectiveness)
+        {
+            try
+            {
+                var control = await _unitOfWork.Controls.GetByIdAsync(controlId);
+                if (control == null)
+                {
+                    throw new InvalidOperationException($"Control {controlId} not found");
+                }
+
+                // Update control with risk link
+                control.RiskId = riskId;
+                control.ModifiedDate = DateTime.UtcNow;
+
+                await _unitOfWork.Controls.UpdateAsync(control);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Control {ControlId} linked to risk {RiskId} with expected effectiveness {Effectiveness}", 
+                    controlId, riskId, expectedEffectiveness);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error linking control {ControlId} to risk {RiskId}", controlId, riskId);
+                throw;
+            }
+        }
+
         private string GenerateControlCode()
         {
             return $"CTRL-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}";

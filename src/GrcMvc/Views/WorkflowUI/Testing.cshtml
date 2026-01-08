@@ -12,46 +12,56 @@
             <p class="text-muted">Manage control testing and effectiveness evaluation</p>
         </div>
         <div class="col-md-4 text-end">
-            <button class="btn btn-primary">
+            <button class="btn btn-primary" onclick="scheduleNewTest()">
                 <i class="fas fa-plus"></i> Schedule Test
             </button>
         </div>
     </div>
 
+    <!-- KPI Cards -->
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="card bg-primary text-white">
                 <div class="card-body text-center">
-                    <h3>24</h3><small>Scheduled Tests</small>
+                    <h3 id="scheduledCount">0</h3><small>Scheduled Tests</small>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card bg-info text-white">
                 <div class="card-body text-center">
-                    <h3>8</h3><small>In Progress</small>
+                    <h3 id="inProgressCount">0</h3><small>In Progress</small>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card bg-success text-white">
                 <div class="card-body text-center">
-                    <h3>45</h3><small>Passed</small>
+                    <h3 id="passedCount">0</h3><small>Passed</small>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card bg-danger text-white">
                 <div class="card-body text-center">
-                    <h3>5</h3><small>Failed</small>
+                    <h3 id="failedCount">0</h3><small>Failed</small>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Testing Queue Table -->
     <div class="card shadow-sm">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0"><i class="fas fa-list me-2"></i>Testing Queue</h5>
+            <div>
+                <select class="form-select form-select-sm d-inline-block w-auto" id="testFilter" onchange="loadTestingData()">
+                    <option value="">All Status</option>
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -60,6 +70,7 @@
                         <tr>
                             <th>Test ID</th>
                             <th>Control</th>
+                            <th>Control Title</th>
                             <th>Test Type</th>
                             <th>Tester</th>
                             <th>Due Date</th>
@@ -68,36 +79,11 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="testsTableBody">
                         <tr>
-                            <td>TST-2026-001</td>
-                            <td>ECC-1-1-1</td>
-                            <td>Design Effectiveness</td>
-                            <td>Sara</td>
-                            <td>Jan 15, 2026</td>
-                            <td><span class="badge bg-info">In Progress</span></td>
-                            <td>-</td>
-                            <td><a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-clipboard-check"></i></a></td>
-                        </tr>
-                        <tr>
-                            <td>TST-2026-002</td>
-                            <td>ECC-2-1-1</td>
-                            <td>Operating Effectiveness</td>
-                            <td>Mohammed</td>
-                            <td>Jan 20, 2026</td>
-                            <td><span class="badge bg-warning">Scheduled</span></td>
-                            <td>-</td>
-                            <td><a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-play"></i></a></td>
-                        </tr>
-                        <tr>
-                            <td>TST-2026-003</td>
-                            <td>ECC-3-1-1</td>
-                            <td>Design Effectiveness</td>
-                            <td>Ahmed</td>
-                            <td>Jan 10, 2026</td>
-                            <td><span class="badge bg-success">Completed</span></td>
-                            <td><span class="badge bg-success">Pass</span></td>
-                            <td><a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a></td>
+                            <td colspan="9" class="text-center">
+                                <i class="fas fa-spinner fa-spin"></i> Loading tests...
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -105,3 +91,191 @@
         </div>
     </div>
 </div>
+
+<!-- Test Execution Modal -->
+<div class="modal fade" id="executeTestModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Execute Control Test</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="executeTestForm">
+                    <input type="hidden" id="testId">
+                    <div class="mb-3">
+                        <label class="form-label">Control ID</label>
+                        <input type="text" class="form-control" id="testControlId" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Test Result</label>
+                        <select class="form-select" id="testResult" required>
+                            <option value="">Select result...</option>
+                            <option value="Pass">Pass - Control is effective</option>
+                            <option value="Fail">Fail - Control is not effective</option>
+                            <option value="Partial">Partial - Some issues identified</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Score (0-100)</label>
+                        <input type="number" class="form-control" id="testScore" min="0" max="100">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Comments</label>
+                        <textarea class="form-control" id="testComments" rows="3" placeholder="Enter test observations and findings..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Evidence</label>
+                        <input type="file" class="form-control" id="testEvidence" multiple>
+                        <small class="text-muted">Attach screenshots or documents</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitTestResult()">
+                    <i class="fas fa-check"></i> Submit Result
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    async function loadTestingData() {
+        try {
+            const response = await fetch('/api/workflows/testing');
+            if (!response.ok) throw new Error('Failed to load tests');
+            
+            const data = await response.json();
+            
+            // Update KPI cards
+            document.getElementById('scheduledCount').textContent = data.stats?.scheduled || 0;
+            document.getElementById('inProgressCount').textContent = data.stats?.inProgress || 0;
+            document.getElementById('passedCount').textContent = data.stats?.passed || 0;
+            document.getElementById('failedCount').textContent = data.stats?.failed || 0;
+            
+            // Update table
+            const tbody = document.getElementById('testsTableBody');
+            const filter = document.getElementById('testFilter').value;
+            let tests = data.tests || [];
+            
+            if (filter) {
+                tests = tests.filter(t => t.status === filter);
+            }
+            
+            if (tests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No tests found</td></tr>';
+            } else {
+                tbody.innerHTML = tests.map(t => `
+                    <tr>
+                        <td>${t.testId}</td>
+                        <td><code>${t.controlId}</code></td>
+                        <td>${t.controlTitle || ''}</td>
+                        <td>${t.testType}</td>
+                        <td>${t.tester || 'Unassigned'}</td>
+                        <td>${formatDate(t.dueDate)}</td>
+                        <td>${getStatusBadge(t.status)}</td>
+                        <td>${getResultBadge(t.result)}</td>
+                        <td>
+                            ${t.status === 'Scheduled' ? `
+                                <button class="btn btn-sm btn-success" onclick="startTest('${t.id}')">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                            ` : t.status === 'In Progress' ? `
+                                <button class="btn btn-sm btn-primary" onclick="executeTest('${t.id}', '${t.controlId}')">
+                                    <i class="fas fa-clipboard-check"></i>
+                                </button>
+                            ` : `
+                                <a href="/ControlAssessments/Details/${t.id}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            `}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            
+        } catch (error) {
+            console.error('Error loading testing data:', error);
+            document.getElementById('testsTableBody').innerHTML = 
+                '<tr><td colspan="9" class="text-center text-danger">Error loading data</td></tr>';
+        }
+    }
+    
+    function getStatusBadge(status) {
+        const badges = {
+            'Scheduled': 'bg-warning',
+            'In Progress': 'bg-info',
+            'Completed': 'bg-success'
+        };
+        return `<span class="badge ${badges[status] || 'bg-secondary'}">${status}</span>`;
+    }
+    
+    function getResultBadge(result) {
+        if (!result || result === '-') return '-';
+        const badges = {
+            'Pass': 'bg-success',
+            'Fail': 'bg-danger',
+            'Partial': 'bg-warning'
+        };
+        return `<span class="badge ${badges[result] || 'bg-secondary'}">${result}</span>`;
+    }
+    
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    
+    function scheduleNewTest() {
+        window.location.href = '/ControlAssessments/Create';
+    }
+    
+    function startTest(testId) {
+        // Update status to In Progress
+        fetch(`/api/control-assessments/${testId}/start`, { method: 'POST' })
+            .then(() => loadTestingData())
+            .catch(err => console.error(err));
+    }
+    
+    function executeTest(testId, controlId) {
+        document.getElementById('testId').value = testId;
+        document.getElementById('testControlId').value = controlId;
+        new bootstrap.Modal(document.getElementById('executeTestModal')).show();
+    }
+    
+    async function submitTestResult() {
+        const testId = document.getElementById('testId').value;
+        const result = document.getElementById('testResult').value;
+        const score = document.getElementById('testScore').value;
+        const comments = document.getElementById('testComments').value;
+        
+        if (!result) {
+            alert('Please select a test result');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/control-assessments/${testId}/complete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ result, score: parseInt(score) || 0, comments })
+            });
+            
+            if (response.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('executeTestModal')).hide();
+                loadTestingData();
+                alert('Test result submitted successfully');
+            }
+        } catch (error) {
+            console.error('Error submitting result:', error);
+            alert('Error submitting test result');
+        }
+    }
+    
+    // Load data on page load
+    document.addEventListener('DOMContentLoaded', loadTestingData);
+</script>
+}

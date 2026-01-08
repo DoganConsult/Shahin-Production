@@ -45,6 +45,11 @@ namespace GrcMvc.Models.DTOs
         public DateTime? ModifiedDate { get; set; }
         public bool IsOverdue { get; set; }
         public List<EvidenceListItemDto> Evidences { get; set; } = new();
+
+        // MEDIUM FIX: Added missing fields for framework/template linkage
+        public string TemplateCode { get; set; } = string.Empty;
+        public string FrameworkCode { get; set; } = string.Empty;
+        public Guid? PlanId { get; set; }
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -113,12 +114,12 @@ public class PlatformAdminService : IPlatformAdminService
         // Validate user exists
         var user = await _userManager.FindByIdAsync(dto.UserId);
         if (user == null)
-            throw new InvalidOperationException($"User {dto.UserId} not found");
+            throw new UserNotFoundException(dto.UserId);
 
         // Check if already a platform admin
         var existing = await GetByUserIdAsync(dto.UserId);
         if (existing != null)
-            throw new InvalidOperationException($"User {dto.UserId} is already a Platform Admin");
+            throw new EntityExistsException("PlatformAdmin", "UserId", dto.UserId.ToString());
 
         // Verify creator has permission
         if (!string.IsNullOrEmpty(createdByAdminId))
@@ -190,7 +191,7 @@ public class PlatformAdminService : IPlatformAdminService
     {
         var admin = await GetByIdAsync(id);
         if (admin == null)
-            throw new InvalidOperationException($"Platform Admin {id} not found");
+            throw new EntityNotFoundException("PlatformAdmin", id);
 
         // Update fields if provided
         if (!string.IsNullOrEmpty(dto.DisplayName))

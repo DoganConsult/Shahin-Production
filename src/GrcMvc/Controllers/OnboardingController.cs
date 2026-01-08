@@ -87,10 +87,15 @@ namespace GrcMvc.Controllers
                     activationUrl = $"{Request.Scheme}://{Request.Host}/auth/activate?slug={tenant.TenantSlug}&token={tenant.ActivationToken}"
                 });
             }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Validation error creating tenant");
+                return BadRequest(new { error = "GRC:VALIDATION_ERROR", message = ex.Message });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating tenant");
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { error = "GRC:INTERNAL_ERROR", message = "An error occurred while creating the tenant. Please try again." });
             }
         }
 
@@ -105,7 +110,7 @@ namespace GrcMvc.Controllers
                 if (string.IsNullOrWhiteSpace(request.TenantSlug) ||
                     string.IsNullOrWhiteSpace(request.ActivationToken))
                 {
-                    return BadRequest("Tenant slug and activation token are required.");
+                    return BadRequest(new { error = "GRC:VALIDATION_ERROR", message = "Tenant slug and activation token are required." });
                 }
 
                 var userId = User?.FindFirst("sub")?.Value ?? "SYSTEM";
@@ -121,10 +126,15 @@ namespace GrcMvc.Controllers
                     message = "Tenant activated successfully. Proceed to organizational profiling."
                 });
             }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Validation error activating tenant");
+                return BadRequest(new { error = "GRC:VALIDATION_ERROR", message = ex.Message });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error activating tenant");
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { error = "GRC:INTERNAL_ERROR", message = "An error occurred while activating the tenant. Please try again." });
             }
         }
 
@@ -162,7 +172,7 @@ namespace GrcMvc.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving organization profile");
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { error = "GRC:INTERNAL_ERROR", message = "An error occurred while saving the organization profile. Please try again." });
             }
         }
 
@@ -187,7 +197,7 @@ namespace GrcMvc.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error completing onboarding");
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { error = "GRC:INTERNAL_ERROR", message = "An error occurred while completing onboarding. Please try again." });
             }
         }
 
@@ -204,10 +214,15 @@ namespace GrcMvc.Controllers
 
                 return Ok(result);
             }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Validation error in smart onboarding for tenant {TenantId}", tenantId);
+                return BadRequest(new { error = "GRC:VALIDATION_ERROR", message = ex.Message });
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error completing smart onboarding");
-                return BadRequest(new { error = ex.Message });
+                _logger.LogError(ex, "Error completing smart onboarding for tenant {TenantId}", tenantId);
+                return StatusCode(500, new { error = "GRC:INTERNAL_ERROR", message = "An error occurred during smart onboarding. Please try again." });
             }
         }
 
@@ -229,10 +244,15 @@ namespace GrcMvc.Controllers
 
                 return Ok(result);
             }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Validation error in full smart onboarding for tenant {TenantId}", tenantId);
+                return BadRequest(new { error = "GRC:VALIDATION_ERROR", message = ex.Message });
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error completing full smart onboarding");
-                return BadRequest(new { error = ex.Message });
+                _logger.LogError(ex, "Error completing full smart onboarding for tenant {TenantId}", tenantId);
+                return StatusCode(500, new { error = "GRC:INTERNAL_ERROR", message = "An error occurred during full onboarding. Please try again." });
             }
         }
 
@@ -251,7 +271,7 @@ namespace GrcMvc.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting scope");
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { error = "GRC:INTERNAL_ERROR", message = "An error occurred while fetching the scope. Please try again." });
             }
         }
 
@@ -281,7 +301,7 @@ namespace GrcMvc.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error refreshing scope");
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { error = "GRC:INTERNAL_ERROR", message = "An error occurred while refreshing the scope. Please try again." });
             }
         }
 
@@ -304,7 +324,7 @@ namespace GrcMvc.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting tenant");
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { error = "GRC:INTERNAL_ERROR", message = "An error occurred while fetching the tenant. Please try again." });
             }
         }
 
@@ -327,7 +347,115 @@ namespace GrcMvc.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting tenant");
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { error = "GRC:INTERNAL_ERROR", message = "An error occurred while fetching the tenant. Please try again." });
+            }
+        }
+
+        // ============================================
+        // Enhanced UX Endpoints for Smooth Onboarding
+        // ============================================
+
+        /// <summary>
+        /// Get onboarding status and progress for a tenant.
+        /// Returns step info, completion percentage, and next actions.
+        /// </summary>
+        [HttpGet("tenants/{tenantId:guid}/status")]
+        public async Task<IActionResult> GetOnboardingStatusAsync(Guid tenantId)
+        {
+            try
+            {
+                var status = await _onboardingService.GetOnboardingStatusAsync(tenantId);
+                return Ok(status);
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Tenant not found: {TenantId}", tenantId);
+                return NotFound(new { error = "GRC:NOT_FOUND", message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting onboarding status for tenant {TenantId}", tenantId);
+                return StatusCode(500, new { error = "GRC:INTERNAL_ERROR", message = "An error occurred while fetching onboarding status." });
+            }
+        }
+
+        /// <summary>
+        /// Check if tenant can proceed to a specific onboarding step.
+        /// </summary>
+        [HttpGet("tenants/{tenantId:guid}/can-proceed/{stepName}")]
+        public async Task<IActionResult> CanProceedToStepAsync(Guid tenantId, string stepName)
+        {
+            try
+            {
+                var result = await _onboardingService.CanProceedToStepAsync(tenantId, stepName);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking step access for tenant {TenantId}", tenantId);
+                return StatusCode(500, new { error = "GRC:INTERNAL_ERROR", message = "An error occurred while checking step access." });
+            }
+        }
+
+        /// <summary>
+        /// Get recommended next step based on current progress.
+        /// </summary>
+        [HttpGet("tenants/{tenantId:guid}/next-step")]
+        public async Task<IActionResult> GetNextStepAsync(Guid tenantId)
+        {
+            try
+            {
+                var nextStep = await _onboardingService.GetNextStepAsync(tenantId);
+                return Ok(nextStep);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting next step for tenant {TenantId}", tenantId);
+                return StatusCode(500, new { error = "GRC:INTERNAL_ERROR", message = "An error occurred while determining next step." });
+            }
+        }
+
+        /// <summary>
+        /// Resume onboarding from last saved state.
+        /// </summary>
+        [HttpGet("tenants/{tenantId:guid}/resume")]
+        public async Task<IActionResult> ResumeOnboardingAsync(Guid tenantId)
+        {
+            try
+            {
+                var result = await _onboardingService.ResumeOnboardingAsync(tenantId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error resuming onboarding for tenant {TenantId}", tenantId);
+                return StatusCode(500, new { error = "GRC:INTERNAL_ERROR", message = "An error occurred while resuming onboarding." });
+            }
+        }
+
+        /// <summary>
+        /// Get onboarding completion percentage.
+        /// </summary>
+        [HttpGet("tenants/{tenantId:guid}/progress")]
+        public async Task<IActionResult> GetProgressAsync(Guid tenantId)
+        {
+            try
+            {
+                var percentage = await _onboardingService.GetCompletionPercentageAsync(tenantId);
+                var hasProfile = await _onboardingService.HasOrganizationProfileAsync(tenantId);
+
+                return Ok(new
+                {
+                    TenantId = tenantId,
+                    CompletionPercentage = percentage,
+                    HasOrganizationProfile = hasProfile,
+                    ProgressBar = $"{percentage}%"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting progress for tenant {TenantId}", tenantId);
+                return StatusCode(500, new { error = "GRC:INTERNAL_ERROR", message = "An error occurred while fetching progress." });
             }
         }
     }
@@ -340,13 +468,16 @@ namespace GrcMvc.Controllers
     public class OnboardingController : Controller
     {
         private readonly ITenantService _tenantService;
+        private readonly IOnboardingService _onboardingService;
         private readonly ILogger<OnboardingController> _logger;
 
         public OnboardingController(
             ITenantService tenantService,
+            IOnboardingService onboardingService,
             ILogger<OnboardingController> logger)
         {
             _tenantService = tenantService;
+            _onboardingService = onboardingService;
             _logger = logger;
         }
 
@@ -369,21 +500,6 @@ namespace GrcMvc.Controllers
         [AllowAnonymous] // Trial users just registered and signed in
         public async Task<IActionResult> Start(string tenantSlug)
         {
-            // #region agent log
-            try {
-                using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                await logFile.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(new {
-                    sessionId = "debug-session",
-                    runId = "run1",
-                    hypothesisId = "A",
-                    location = "OnboardingController.cs:352",
-                    message = "Start action called",
-                    data = new { tenantSlug, isEmpty = string.IsNullOrWhiteSpace(tenantSlug) },
-                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                }));
-            } catch {}
-            // #endregion
-
             if (string.IsNullOrWhiteSpace(tenantSlug))
             {
                 _logger.LogWarning("Start called with empty tenantSlug");
@@ -395,20 +511,6 @@ namespace GrcMvc.Controllers
                 // Get tenant by slug
                 var tenant = await _tenantService.GetTenantBySlugAsync(tenantSlug);
 
-                // #region agent log
-                try {
-                    using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                    await logFile.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(new {
-                        sessionId = "debug-session",
-                        runId = "run1",
-                        hypothesisId = "B",
-                        location = "OnboardingController.cs:365",
-                        message = "Tenant lookup result",
-                        data = new { tenantSlug, found = tenant != null, tenantId = tenant != null ? tenant.Id.ToString() : null, orgName = tenant?.OrganizationName },
-                        timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                    }));
-                } catch {}
-                // #endregion
                 if (tenant == null)
                 {
                     _logger.LogWarning("Tenant not found for slug: {TenantSlug}", tenantSlug);
@@ -422,8 +524,8 @@ namespace GrcMvc.Controllers
                 ViewBag.OrganizationName = tenant.OrganizationName;
                 ViewBag.IsTrial = tenant.IsTrial;
                 ViewBag.TrialEndsAt = tenant.TrialEndsAt;
-                ViewBag.TrialDaysRemaining = tenant.TrialEndsAt.HasValue 
-                    ? (int)(tenant.TrialEndsAt.Value - DateTime.UtcNow).TotalDays 
+                ViewBag.TrialDaysRemaining = tenant.TrialEndsAt.HasValue
+                    ? (int)(tenant.TrialEndsAt.Value - DateTime.UtcNow).TotalDays
                     : 0;
 
                 // Store in TempData for subsequent steps
@@ -431,29 +533,7 @@ namespace GrcMvc.Controllers
                 TempData["TenantSlug"] = tenantSlug;
                 TempData["OrganizationName"] = tenant.OrganizationName;
 
-                // #region agent log
-                try {
-                    using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                    await logFile.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(new {
-                        sessionId = "debug-session",
-                        runId = "run1",
-                        hypothesisId = "C",
-                        location = "OnboardingController.cs:374",
-                        message = "ViewBag set",
-                        data = new {
-                            tenantSlug = ViewBag.TenantSlug?.ToString(),
-                            tenantId = ViewBag.TenantId?.ToString(),
-                            orgName = ViewBag.OrganizationName?.ToString(),
-                            isTrial = ViewBag.IsTrial?.ToString(),
-                            trialEndsAt = ViewBag.TrialEndsAt?.ToString(),
-                            trialDaysRemaining = ViewBag.TrialDaysRemaining?.ToString()
-                        },
-                        timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                    }));
-                } catch {}
-                // #endregion
-
-                _logger.LogInformation("Starting onboarding for trial tenant: {TenantSlug} ({TenantId})", 
+                _logger.LogInformation("Starting onboarding for trial tenant: {TenantSlug} ({TenantId})",
                     tenantSlug, tenant.Id);
 
                 // Reuse existing Index view which shows the 12-step wizard
@@ -461,21 +541,6 @@ namespace GrcMvc.Controllers
             }
             catch (Exception ex)
             {
-                // #region agent log
-                try {
-                    using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                    var stackTrace = ex.StackTrace ?? string.Empty;
-                    await logFile.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(new {
-                        sessionId = "debug-session",
-                        runId = "run1",
-                        hypothesisId = "B",
-                        location = "OnboardingController.cs:403",
-                        message = "Start action exception",
-                        data = new { tenantSlug, error = ex.Message, stackTrace = stackTrace.Substring(0, Math.Min(500, stackTrace.Length)) },
-                        timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                    }));
-                } catch {}
-                // #endregion
                 _logger.LogError(ex, "Error starting onboarding for tenant: {TenantSlug}", tenantSlug);
                 TempData["ErrorMessage"] = "An error occurred. Please try again.";
                 return RedirectToAction("Index");
@@ -489,21 +554,6 @@ namespace GrcMvc.Controllers
         [AllowAnonymous] // Must be public for new organization registration
         public IActionResult Signup()
         {
-            // #region agent log
-            try {
-                using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                logFile.WriteLine(System.Text.Json.JsonSerializer.Serialize(new {
-                    sessionId = "debug-session",
-                    runId = "run1",
-                    hypothesisId = "BUTTON_TEST",
-                    location = "OnboardingController.cs:470",
-                    message = "BUTTON 3: New Organization clicked - Signup page",
-                    data = new { isAuthenticated = User.Identity?.IsAuthenticated },
-                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                }));
-            } catch {}
-            // #endregion
-
             return View(new CreateTenantDto());
         }
 
@@ -586,56 +636,134 @@ namespace GrcMvc.Controllers
 
         /// <summary>
         /// MVC Route: Process organization profile and redirect to ReviewScope
+        /// Persists profile to database and triggers scope derivation.
         /// </summary>
         [HttpPost("OrgProfile")]
         [HttpPost("SaveOrgProfile")]
         [ValidateAntiForgeryToken]
-        public IActionResult SaveOrgProfile(OrganizationProfileDto model)
+        public async Task<IActionResult> SaveOrgProfile(OrganizationProfileDto model)
         {
             if (!ModelState.IsValid)
             {
                 return View(nameof(OrgProfile), model);
             }
 
-            // Store profile in TempData for scope derivation
-            TempData["OrganizationType"] = model.OrganizationType;
-            TempData["Sector"] = model.Sector;
-            TempData["Country"] = model.Country;
-            TempData["HostingModel"] = model.HostingModel;
-            TempData["Size"] = model.Size;
-            TempData["TenantId"] = model.TenantId.ToString();
-            TempData.Keep("TenantSlug");
-            TempData.Keep("OrganizationName");
+            try
+            {
+                // Get user ID for audit trail
+                var userId = User?.FindFirst("sub")?.Value
+                          ?? User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                          ?? "ANONYMOUS";
 
-            return RedirectToAction(nameof(ReviewScope));
+                // Build questionnaire dictionary from form data
+                var questionnaire = new Dictionary<string, string>
+                {
+                    { "OrganizationType", model.OrganizationType ?? "" },
+                    { "Sector", model.Sector ?? "" },
+                    { "Country", model.Country ?? "" },
+                    { "HostingModel", model.HostingModel ?? "" },
+                    { "DataTypes", model.DataTypes ?? "" },
+                    { "Size", model.Size ?? "" },
+                    { "Maturity", model.Maturity ?? "" },
+                    { "Vendors", model.Vendors ?? "" }
+                };
+
+                // PERSIST TO DATABASE (this is what was missing!)
+                await _onboardingService.SaveOrganizationProfileAsync(
+                    tenantId: model.TenantId,
+                    orgType: model.OrganizationType ?? "",
+                    sector: model.Sector ?? "",
+                    country: model.Country ?? "SA",
+                    dataTypes: model.DataTypes ?? "",
+                    hostingModel: model.HostingModel ?? "",
+                    organizationSize: model.Size ?? "",
+                    complianceMaturity: model.Maturity ?? "",
+                    vendors: model.Vendors ?? "",
+                    questionnaire: questionnaire,
+                    userId: userId);
+
+                _logger.LogInformation("Organization profile saved for tenant {TenantId}", model.TenantId);
+
+                // Store TenantId for next step
+                TempData["TenantId"] = model.TenantId.ToString();
+                TempData.Keep("TenantSlug");
+                TempData.Keep("OrganizationName");
+
+                return RedirectToAction(nameof(ReviewScope));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving organization profile for tenant {TenantId}", model.TenantId);
+                ModelState.AddModelError("", "Failed to save organization profile. Please try again.");
+                return View(nameof(OrgProfile), model);
+            }
         }
 
         /// <summary>
         /// MVC Route: Display scope review page
+        /// Triggers Rules Engine to derive applicable baselines/packages/templates.
         /// </summary>
         [HttpGet("ReviewScope")]
         [HttpGet("review-scope")]
-        public IActionResult ReviewScope()
+        public async Task<IActionResult> ReviewScope()
         {
             var tenantIdStr = TempData["TenantId"]?.ToString();
             TempData.Keep("TenantId");
             TempData.Keep("TenantSlug");
-            TempData.Keep("OrganizationType");
-            TempData.Keep("Sector");
+            TempData.Keep("OrganizationName");
 
-            // Build scope based on profile (simplified - real implementation uses RulesEngine)
-            var scope = new OnboardingScopeDto
+            // Validate TenantId
+            if (string.IsNullOrEmpty(tenantIdStr) || !Guid.TryParse(tenantIdStr, out var tenantId))
             {
-                ApplicableBaselines = new List<BaselineDto>
-                {
-                    new BaselineDto { BaselineCode = "NCA-ECC", ReasonJson = "Required for all Saudi organizations" },
-                    new BaselineDto { BaselineCode = "PDPL", ReasonJson = "Personal data protection requirement" }
-                },
-                ApplicablePackages = new List<PackageDto>(),
-                ApplicableTemplates = new List<TemplateDto>()
-            };
+                _logger.LogWarning("ReviewScope: TenantId not found in TempData");
+                TempData["ErrorMessage"] = "Session expired. Please start the onboarding process again.";
+                return RedirectToAction(nameof(Signup));
+            }
 
-            return View(scope);
+            try
+            {
+                // Get user ID for audit trail
+                var userId = User?.FindFirst("sub")?.Value
+                          ?? User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                          ?? "SYSTEM";
+
+                // STEP 1: Trigger Rules Engine to derive scope
+                var executionLog = await _onboardingService.CompleteOnboardingAsync(tenantId, userId);
+                _logger.LogInformation("Scope derived for tenant {TenantId}. ExecutionLog: {LogId}, Status: {Status}",
+                    tenantId, executionLog?.Id, executionLog?.Status);
+
+                // STEP 2: Fetch the derived scope from database
+                var scope = await _onboardingService.GetDerivedScopeAsync(tenantId);
+
+                // STEP 3: Return view with actual derived data
+                return View(scope);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("No active ruleset") || ex.Message.Contains("Organization profile not found"))
+            {
+                _logger.LogWarning(ex, "Scope derivation prerequisite missing for tenant {TenantId}", tenantId);
+
+                // Fallback to defaults if no ruleset exists or profile missing
+                var fallbackScope = new OnboardingScopeDto
+                {
+                    TenantId = tenantId,
+                    ApplicableBaselines = new List<BaselineDto>
+                    {
+                        new BaselineDto { BaselineCode = "NCA-ECC", ReasonJson = "Default baseline (rules engine unavailable)" },
+                        new BaselineDto { BaselineCode = "PDPL", ReasonJson = "Default data protection baseline" }
+                    },
+                    ApplicablePackages = new List<PackageDto>(),
+                    ApplicableTemplates = new List<TemplateDto>()
+                };
+
+                TempData["WarningMessage"] = "Using default scope. Rules engine configuration pending.";
+                return View(fallbackScope);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deriving scope for tenant {TenantId}", tenantId);
+                TempData["ErrorMessage"] = "Failed to derive compliance scope. Please try again.";
+                return RedirectToAction(nameof(OrgProfile));
+            }
         }
 
         /// <summary>

@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
@@ -117,13 +118,13 @@ namespace GrcMvc.Services.Implementations
                 var tenant = await _unitOfWork.Tenants.GetByIdAsync(tenantId);
                 if (tenant == null)
                 {
-                    throw new InvalidOperationException($"Tenant {tenantId} not found.");
+                    throw new EntityNotFoundException("Tenant", tenantId);
                 }
 
                 // Check if admin account already generated
                 if (tenant.AdminAccountGenerated)
                 {
-                    throw new InvalidOperationException("Admin account already generated for this tenant.");
+                    throw new EntityExistsException("AdminAccount", "TenantId", tenantId.ToString());
                 }
 
                 // Generate secure username: admin-{tenant-slug}
@@ -156,7 +157,7 @@ namespace GrcMvc.Services.Implementations
                 if (!createResult.Succeeded)
                 {
                     var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
-                    throw new InvalidOperationException($"Failed to create user: {errors}");
+                    throw new GrcException($"Failed to create user: {errors}", GrcErrorCodes.ValidationFailed);
                 }
 
                 // Ensure Admin role exists

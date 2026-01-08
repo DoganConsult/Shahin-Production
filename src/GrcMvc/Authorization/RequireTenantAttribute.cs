@@ -2,14 +2,19 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Data;
 using System;
+using System.Linq;
+using System.Security.Claims;
 
 namespace GrcMvc.Authorization;
 
 /// <summary>
 /// Authorization attribute that ensures tenant context is properly set before action execution.
 /// Validates that user has access to the tenant and tenant context is available.
+/// CRITICAL: Also verifies user actually belongs to the requested tenant (prevents tenant hopping).
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 public class RequireTenantAttribute : Attribute, IAuthorizationFilter
@@ -17,7 +22,7 @@ public class RequireTenantAttribute : Attribute, IAuthorizationFilter
     public void OnAuthorization(AuthorizationFilterContext context)
     {
         var tenantContextService = context.HttpContext.RequestServices.GetService<ITenantContextService>();
-        
+
         if (tenantContextService == null)
         {
             context.Result = new UnauthorizedObjectResult("Tenant context service not available");
@@ -37,6 +42,45 @@ public class RequireTenantAttribute : Attribute, IAuthorizationFilter
             return;
         }
 
-        // Tenant context is valid, allow action to proceed
+        // CRITICAL FIX: Verify user actually belongs to this tenant
+        // This prevents authorization bypass where any authenticated user could access any tenant
+        var userId = context.HttpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            context.Result = new UnauthorizedObjectResult("User identity not found");
+            return;
+        }
+
+        // Check if user has TenantId claim matching the resolved tenant
+        var tenantIdClaim = context.HttpContext.User?.FindFirstValue("TenantId");
+        if (!string.IsNullOrEmpty(tenantIdClaim) && Guid.TryParse(tenantIdClaim, out var claimTenantId))
+        {
+            if (claimTenantId == tenantId)
+            {
+                // Claim matches - fast path, allow access
+                return;
+            }
+        }
+
+        // Fallback: Verify via database that user belongs to this tenant
+        var dbContext = context.HttpContext.RequestServices.GetService<GrcDbContext>();
+        if (dbContext == null)
+        {
+            context.Result = new StatusCodeResult(500);
+            return;
+        }
+
+        var userBelongsToTenant = dbContext.TenantUsers
+            .AsNoTracking()
+            .Any(tu => tu.UserId == userId && tu.TenantId == tenantId && tu.Status == "Active" && !tu.IsDeleted);
+
+        if (!userBelongsToTenant)
+        {
+            // User does not belong to this tenant - deny access
+            context.Result = new ForbidResult();
+            return;
+        }
+
+        // User verified to belong to tenant, allow action to proceed
     }
 }

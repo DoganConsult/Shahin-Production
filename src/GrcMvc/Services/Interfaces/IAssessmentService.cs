@@ -37,5 +37,30 @@ namespace GrcMvc.Services.Interfaces
         /// Approve an assessment
         /// </summary>
         Task<AssessmentDto> ApproveAsync(Guid id);
+
+        /// <summary>
+        /// Reject an assessment (return to draft)
+        /// </summary>
+        Task<AssessmentDto> RejectAsync(Guid id, string reason);
+
+        /// <summary>
+        /// Cancel an assessment
+        /// </summary>
+        Task<AssessmentDto> CancelAsync(Guid id, string reason);
+
+        /// <summary>
+        /// Start review of a submitted assessment
+        /// </summary>
+        Task<AssessmentDto> StartReviewAsync(Guid id);
+
+        /// <summary>
+        /// Complete an approved assessment
+        /// </summary>
+        Task<AssessmentDto> CompleteAsync(Guid id);
+
+        /// <summary>
+        /// Archive a completed assessment
+        /// </summary>
+        Task<AssessmentDto> ArchiveAsync(Guid id);
     }
 }

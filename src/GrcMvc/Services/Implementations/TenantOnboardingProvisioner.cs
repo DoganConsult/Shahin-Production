@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +36,7 @@ namespace GrcMvc.Services.Implementations
             // Check if tenant already has a default workspace
             var tenant = await _context.Tenants.FirstOrDefaultAsync(t => t.Id == tenantId);
             if (tenant == null)
-                throw new InvalidOperationException($"Tenant {tenantId} not found");
+                throw new EntityNotFoundException("Tenant", tenantId);
 
             // IDEMPOTENCY: If DefaultWorkspaceId already set, return it
             if (tenant.DefaultWorkspaceId.HasValue)
@@ -104,7 +105,7 @@ namespace GrcMvc.Services.Implementations
         {
             var tenant = await _context.Tenants.FirstOrDefaultAsync(t => t.Id == tenantId);
             if (tenant == null)
-                throw new InvalidOperationException($"Tenant {tenantId} not found");
+                throw new EntityNotFoundException("Tenant", tenantId);
 
             // IDEMPOTENCY: If AssessmentTemplateId already set, return it
             if (tenant.AssessmentTemplateId.HasValue)
@@ -148,7 +149,7 @@ namespace GrcMvc.Services.Implementations
         {
             var tenant = await _context.Tenants.FirstOrDefaultAsync(t => t.Id == tenantId);
             if (tenant == null)
-                throw new InvalidOperationException($"Tenant {tenantId} not found");
+                throw new EntityNotFoundException("Tenant", tenantId);
 
             // IDEMPOTENCY: If GrcPlanId already set, return it
             if (tenant.GrcPlanId.HasValue)

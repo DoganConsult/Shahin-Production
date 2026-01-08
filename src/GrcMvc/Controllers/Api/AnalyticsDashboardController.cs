@@ -346,7 +346,7 @@ namespace GrcMvc.Controllers.Api
         /// <summary>
         /// Get top actions - with SQL Server fallback
         /// </summary>
-        [HttpGet("top-actions")]
+        [HttpGet("priority-actions")]
         public async Task<IActionResult> GetTopActionsWithFallback([FromQuery] int limit = 10)
         {
             var tenantId = GetTenantId();

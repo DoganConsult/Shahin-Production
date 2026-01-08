@@ -1,4 +1,5 @@
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Models.Entities.Catalogs;
 using Microsoft.EntityFrameworkCore;
@@ -236,7 +237,7 @@ public class PROVEService : IPROVEService
     public async Task<AutoTaggedEvidence> ApproveEvidenceAsync(Guid id, string userId, string? notes)
     {
         var evidence = await _db.AutoTaggedEvidences.FirstOrDefaultAsync(e => e.Id == id);
-        if (evidence == null) throw new Exception("Evidence not found");
+        if (evidence == null) throw new EntityNotFoundException("AutoTaggedEvidence", id);
 
         evidence.Status = "Approved";
         evidence.ReviewedBy = userId;
@@ -249,7 +250,7 @@ public class PROVEService : IPROVEService
     public async Task<AutoTaggedEvidence> RejectEvidenceAsync(Guid id, string userId, string reason)
     {
         var evidence = await _db.AutoTaggedEvidences.FirstOrDefaultAsync(e => e.Id == id);
-        if (evidence == null) throw new Exception("Evidence not found");
+        if (evidence == null) throw new EntityNotFoundException("AutoTaggedEvidence", id);
 
         evidence.Status = "Rejected";
         evidence.ReviewedBy = userId;
@@ -325,7 +326,7 @@ public class WATCHService : IWATCHService
     public async Task<RiskIndicatorAlert> AcknowledgeAlertAsync(Guid alertId, string userId)
     {
         var alert = await _db.RiskIndicatorAlerts.FirstOrDefaultAsync(a => a.Id == alertId);
-        if (alert == null) throw new Exception("Alert not found");
+        if (alert == null) throw new EntityNotFoundException("RiskIndicatorAlert", alertId);
 
         alert.Status = "Acknowledged";
         alert.AcknowledgedBy = userId;
@@ -385,7 +386,7 @@ public class FIXService : IFIXService
     public async Task<ControlException> ApproveExceptionAsync(Guid id, string userId)
     {
         var exception = await _db.ControlExceptions.FirstOrDefaultAsync(e => e.Id == id);
-        if (exception == null) throw new Exception("Exception not found");
+        if (exception == null) throw new EntityNotFoundException("ControlException", id);
 
         exception.Status = "Approved";
         exception.ApprovedBy = userId;
@@ -397,7 +398,7 @@ public class FIXService : IFIXService
     public async Task<ControlException> ExtendExceptionAsync(Guid id, DateTime newExpiry, string reason)
     {
         var exception = await _db.ControlExceptions.FirstOrDefaultAsync(e => e.Id == id);
-        if (exception == null) throw new Exception("Exception not found");
+        if (exception == null) throw new EntityNotFoundException("ControlException", id);
 
         exception.ExpiryDate = newExpiry;
 
@@ -467,111 +468,6 @@ public class VAULTService : IVAULTService
 
 #endregion
 
-#region Assessment Execution Service
-
-public interface IAssessmentExecutionService
-{
-    Task<Assessment> CreateAssessmentAsync(Guid tenantId, string name, Guid? templateId, string createdBy);
-    Task<List<Assessment>> GetAssessmentsAsync(Guid tenantId);
-    Task<Assessment?> GetAssessmentAsync(Guid id);
-    Task<Assessment> StartAssessmentAsync(Guid id, string userId);
-    Task<Assessment> CompleteAssessmentAsync(Guid id, string userId);
-    Task<List<AssessmentRequirement>> GetRequirementsAsync(Guid assessmentId);
-    Task<AssessmentRequirement> UpdateRequirementStatusAsync(Guid requirementId, string status, string? notes);
-    Task<AssessmentRequirement> AttachEvidenceAsync(Guid requirementId, Guid evidenceId);
-}
-
-public class AssessmentExecutionService : IAssessmentExecutionService
-{
-    private readonly GrcDbContext _db;
-    private readonly ILogger<AssessmentExecutionService> _logger;
-
-    public AssessmentExecutionService(GrcDbContext db, ILogger<AssessmentExecutionService> logger)
-    {
-        _db = db;
-        _logger = logger;
-    }
-
-    public async Task<Assessment> CreateAssessmentAsync(Guid tenantId, string name, Guid? templateId, string createdBy)
-    {
-        var assessment = new Assessment
-        {
-            Id = Guid.NewGuid(),
-            TenantId = tenantId,
-            Name = name,
-            Status = "Draft",
-            CreatedDate = DateTime.UtcNow,
-            CreatedBy = createdBy
-        };
-
-        _db.Assessments.Add(assessment);
-        await _db.SaveChangesAsync();
-
-        _logger.LogInformation("Assessment {Id} created for tenant {TenantId}", assessment.Id, tenantId);
-        return assessment;
-    }
-
-    public async Task<List<Assessment>> GetAssessmentsAsync(Guid tenantId)
-    {
-        return await _db.Assessments.Where(a => a.TenantId == tenantId).OrderByDescending(a => a.CreatedDate).ToListAsync();
-    }
-
-    public async Task<Assessment?> GetAssessmentAsync(Guid id)
-    {
-        return await _db.Assessments.FirstOrDefaultAsync(a => a.Id == id);
-    }
-
-    public async Task<Assessment> StartAssessmentAsync(Guid id, string userId)
-    {
-        var assessment = await _db.Assessments.FirstOrDefaultAsync(a => a.Id == id);
-        if (assessment == null) throw new Exception("Assessment not found");
-
-        assessment.Status = "InProgress";
-        assessment.StartDate = DateTime.UtcNow;
-
-        await _db.SaveChangesAsync();
-        return assessment;
-    }
-
-    public async Task<Assessment> CompleteAssessmentAsync(Guid id, string userId)
-    {
-        var assessment = await _db.Assessments.FirstOrDefaultAsync(a => a.Id == id);
-        if (assessment == null) throw new Exception("Assessment not found");
-
-        assessment.Status = "Completed";
-
-        await _db.SaveChangesAsync();
-        return assessment;
-    }
-
-    public async Task<List<AssessmentRequirement>> GetRequirementsAsync(Guid assessmentId)
-    {
-        return await _db.AssessmentRequirements.Where(r => r.AssessmentId == assessmentId).ToListAsync();
-    }
-
-    public async Task<AssessmentRequirement> UpdateRequirementStatusAsync(Guid requirementId, string status, string? notes)
-    {
-        var requirement = await _db.AssessmentRequirements.FirstOrDefaultAsync(r => r.Id == requirementId);
-        if (requirement == null) throw new Exception("Requirement not found");
-
-        requirement.Status = status;
-
-        await _db.SaveChangesAsync();
-        return requirement;
-    }
-
-    public async Task<AssessmentRequirement> AttachEvidenceAsync(Guid requirementId, Guid evidenceId)
-    {
-        var requirement = await _db.AssessmentRequirements.FirstOrDefaultAsync(r => r.Id == requirementId);
-        if (requirement == null) throw new Exception("Requirement not found");
-
-        await _db.SaveChangesAsync();
-        return requirement;
-    }
-}
-
-#endregion
-
 #region Workflow Integration Service
 
 public interface IWorkflowIntegrationService
@@ -624,7 +520,7 @@ public class WorkflowIntegrationService : IWorkflowIntegrationService
     public async Task<WorkflowTask> CompleteTaskAsync(Guid taskId, string userId, string action, string? notes = null)
     {
         var task = await _db.WorkflowTasks.FirstOrDefaultAsync(t => t.Id == taskId);
-        if (task == null) throw new Exception("Task not found");
+        if (task == null) throw new EntityNotFoundException("WorkflowTask", taskId);
 
         task.Status = action;
         task.CompletedAt = DateTime.UtcNow;

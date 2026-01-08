@@ -4,10 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Application.Policy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -20,18 +22,21 @@ namespace GrcMvc.Services.Implementations
         private readonly ILogger<AssessmentService> _logger;
         private readonly PolicyEnforcementHelper _policyHelper;
         private readonly IWorkspaceContextService? _workspaceContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public AssessmentService(
             IUnitOfWork unitOfWork,
             IMapper mapper,
             ILogger<AssessmentService> logger,
             PolicyEnforcementHelper policyHelper,
+            IHttpContextAccessor httpContextAccessor,
             IWorkspaceContextService? workspaceContext = null)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
             _policyHelper = policyHelper ?? throw new ArgumentNullException(nameof(policyHelper));
+            _httpContextAccessor = httpContextAccessor;
             _workspaceContext = workspaceContext;
         }
 
@@ -76,7 +81,7 @@ namespace GrcMvc.Services.Implementations
                 assessment.Id = Guid.NewGuid();
                 assessment.ModifiedDate = DateTime.UtcNow;
                 assessment.AssessmentCode = GenerateAssessmentCode();
-                
+
                 // Set workspace context if available
                 if (_workspaceContext != null && _workspaceContext.HasWorkspaceContext())
                 {
@@ -207,7 +212,7 @@ namespace GrcMvc.Services.Implementations
                 {
                     TotalAssessments = assessmentsList.Count,
                     CompletedAssessments = assessmentsList.Count(a => a.Status == "Completed"),
-                    PendingAssessments = assessmentsList.Count(a => a.Status == "Scheduled" || a.Status == "In Progress"),
+                    PendingAssessments = assessmentsList.Count(a => a.Status == "Scheduled" || a.Status == "InProgress" || a.Status == "In Progress" || a.Status == "Draft"),
                     OverdueAssessments = assessmentsList.Count(a =>
                         a.ScheduledDate < DateTime.UtcNow && a.Status != "Completed"),
                     AverageScore = assessmentsList.Where(a => a.Score > 0).Any()
@@ -258,7 +263,7 @@ namespace GrcMvc.Services.Implementations
             {
                 var plan = await _unitOfWork.Plans.GetByIdAsync(planId);
                 if (plan == null)
-                    throw new InvalidOperationException($"Plan '{planId}' not found.");
+                    throw new EntityNotFoundException("Plan", planId);
 
                 // Get tenant's derived templates
                 var tenantTemplates = await _unitOfWork.TenantTemplates
@@ -321,13 +326,16 @@ namespace GrcMvc.Services.Implementations
         /// </summary>
         private async Task GenerateAssessmentRequirementsAsync(Assessment assessment, string frameworkCode, string createdBy)
         {
-            // Get controls for this framework from FrameworkControls table
+            // Get all controls for this framework from FrameworkControls table
+            // No artificial limit - frameworks may have varying control counts
             var controls = await _unitOfWork.FrameworkControls
                 .Query()
                 .Where(c => c.FrameworkCode == frameworkCode)
                 .OrderBy(c => c.ControlNumber)
-                .Take(500) // Limit for performance
                 .ToListAsync();
+
+            _logger.LogInformation("Generating {Count} requirements for framework {Framework}",
+                controls.Count, frameworkCode);
 
             foreach (var control in controls)
             {
@@ -378,13 +386,14 @@ namespace GrcMvc.Services.Implementations
                 var assessment = await _unitOfWork.Assessments.GetByIdAsync(id);
                 if (assessment == null)
                 {
-                    throw new InvalidOperationException($"Assessment with ID {id} not found");
+                    throw new AssessmentException(id, "Assessment not found");
                 }
 
                 // Validate assessment can be submitted
-                if (assessment.Status != "Draft" && assessment.Status != "In Progress")
+                // MEDIUM FIX: Status string should be "InProgress" (no space) to match entity convention
+                if (assessment.Status != "Draft" && assessment.Status != "InProgress")
                 {
-                    throw new InvalidOperationException($"Assessment in status '{assessment.Status}' cannot be submitted. Only Draft or In Progress assessments can be submitted.");
+                    throw new AssessmentException(id, $"Assessment in status '{assessment.Status}' cannot be submitted. Only Draft or InProgress assessments can be submitted.");
                 }
 
                 // Update status
@@ -415,13 +424,13 @@ namespace GrcMvc.Services.Implementations
                 var assessment = await _unitOfWork.Assessments.GetByIdAsync(id);
                 if (assessment == null)
                 {
-                    throw new InvalidOperationException($"Assessment with ID {id} not found");
+                    throw new AssessmentException(id, "Assessment not found");
                 }
 
                 // Validate assessment can be approved
                 if (assessment.Status != "Submitted")
                 {
-                    throw new InvalidOperationException($"Assessment in status '{assessment.Status}' cannot be approved. Only Submitted assessments can be approved.");
+                    throw new AssessmentException(id, $"Assessment in status '{assessment.Status}' cannot be approved. Only Submitted assessments can be approved.");
                 }
 
                 // Update status
@@ -442,11 +451,194 @@ namespace GrcMvc.Services.Implementations
             }
         }
 
+        /// <summary>
+        /// Reject an assessment (return to draft)
+        /// </summary>
+        public async Task<AssessmentDto> RejectAsync(Guid id, string reason)
+        {
+            try
+            {
+                var assessment = await _unitOfWork.Assessments.GetByIdAsync(id);
+                if (assessment == null)
+                {
+                    throw new AssessmentException(id, "Assessment not found");
+                }
+
+                // Validate assessment can be rejected
+                if (assessment.Status != "Submitted" && assessment.Status != "UnderReview")
+                {
+                    throw new AssessmentException(id, $"Assessment in status '{assessment.Status}' cannot be rejected.");
+                }
+
+                assessment.Status = "Draft";
+                assessment.Findings = string.IsNullOrEmpty(assessment.Findings) 
+                    ? $"Rejected: {reason}" 
+                    : $"{assessment.Findings}\nRejected: {reason}";
+                assessment.ModifiedDate = DateTime.UtcNow;
+                assessment.ModifiedBy = GetCurrentUser();
+
+                await _unitOfWork.Assessments.UpdateAsync(assessment);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Assessment {AssessmentId} rejected: {Reason}", id, reason);
+                return _mapper.Map<AssessmentDto>(assessment);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error rejecting assessment {AssessmentId}", id);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Cancel an assessment
+        /// </summary>
+        public async Task<AssessmentDto> CancelAsync(Guid id, string reason)
+        {
+            try
+            {
+                var assessment = await _unitOfWork.Assessments.GetByIdAsync(id);
+                if (assessment == null)
+                {
+                    throw new AssessmentException(id, "Assessment not found");
+                }
+
+                // Cannot cancel completed or archived assessments
+                if (assessment.Status == "Completed" || assessment.Status == "Archived")
+                {
+                    throw new AssessmentException(id, $"Assessment in status '{assessment.Status}' cannot be cancelled.");
+                }
+
+                assessment.Status = "Cancelled";
+                assessment.Findings = string.IsNullOrEmpty(assessment.Findings) 
+                    ? $"Cancelled: {reason}" 
+                    : $"{assessment.Findings}\nCancelled: {reason}";
+                assessment.ModifiedDate = DateTime.UtcNow;
+                assessment.ModifiedBy = GetCurrentUser();
+
+                await _unitOfWork.Assessments.UpdateAsync(assessment);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Assessment {AssessmentId} cancelled: {Reason}", id, reason);
+                return _mapper.Map<AssessmentDto>(assessment);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error cancelling assessment {AssessmentId}", id);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Start review of a submitted assessment
+        /// </summary>
+        public async Task<AssessmentDto> StartReviewAsync(Guid id)
+        {
+            try
+            {
+                var assessment = await _unitOfWork.Assessments.GetByIdAsync(id);
+                if (assessment == null)
+                {
+                    throw new AssessmentException(id, "Assessment not found");
+                }
+
+                if (assessment.Status != "Submitted")
+                {
+                    throw new AssessmentException(id, $"Assessment in status '{assessment.Status}' cannot start review. Only Submitted assessments can be reviewed.");
+                }
+
+                assessment.Status = "UnderReview";
+                assessment.ModifiedDate = DateTime.UtcNow;
+                assessment.ModifiedBy = GetCurrentUser();
+
+                await _unitOfWork.Assessments.UpdateAsync(assessment);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Assessment {AssessmentId} started review", id);
+                return _mapper.Map<AssessmentDto>(assessment);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error starting review for assessment {AssessmentId}", id);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Complete an approved assessment
+        /// </summary>
+        public async Task<AssessmentDto> CompleteAsync(Guid id)
+        {
+            try
+            {
+                var assessment = await _unitOfWork.Assessments.GetByIdAsync(id);
+                if (assessment == null)
+                {
+                    throw new AssessmentException(id, "Assessment not found");
+                }
+
+                if (assessment.Status != "Approved")
+                {
+                    throw new AssessmentException(id, $"Assessment in status '{assessment.Status}' cannot be completed. Only Approved assessments can be completed.");
+                }
+
+                assessment.Status = "Completed";
+                assessment.EndDate = DateTime.UtcNow;
+                assessment.ModifiedDate = DateTime.UtcNow;
+                assessment.ModifiedBy = GetCurrentUser();
+
+                await _unitOfWork.Assessments.UpdateAsync(assessment);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Assessment {AssessmentId} completed", id);
+                return _mapper.Map<AssessmentDto>(assessment);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error completing assessment {AssessmentId}", id);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Archive a completed assessment
+        /// </summary>
+        public async Task<AssessmentDto> ArchiveAsync(Guid id)
+        {
+            try
+            {
+                var assessment = await _unitOfWork.Assessments.GetByIdAsync(id);
+                if (assessment == null)
+                {
+                    throw new AssessmentException(id, "Assessment not found");
+                }
+
+                if (assessment.Status != "Completed")
+                {
+                    throw new AssessmentException(id, $"Assessment in status '{assessment.Status}' cannot be archived. Only Completed assessments can be archived.");
+                }
+
+                assessment.Status = "Archived";
+                assessment.ModifiedDate = DateTime.UtcNow;
+                assessment.ModifiedBy = GetCurrentUser();
+
+                await _unitOfWork.Assessments.UpdateAsync(assessment);
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Assessment {AssessmentId} archived", id);
+                return _mapper.Map<AssessmentDto>(assessment);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error archiving assessment {AssessmentId}", id);
+                throw;
+            }
+        }
+
         private string? GetCurrentUser()
         {
-            // This should be injected via ICurrentUserService or IHttpContextAccessor
-            // For now, return a placeholder - should be replaced with actual user context
-            return System.Threading.Thread.CurrentPrincipal?.Identity?.Name ?? "System";
+            // Use injected IHttpContextAccessor for proper user identification
+            return _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "System";
         }
     }
 }

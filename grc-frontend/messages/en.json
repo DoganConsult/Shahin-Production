@@ -1,0 +1,274 @@
+{
+  "common": {
+    "appName": "Shahin",
+    "appNameFull": "Shahin GRC",
+    "tagline": "Governance, Risk & Compliance Management Platform",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "all": "All",
+    "none": "None",
+    "required": "Required",
+    "optional": "Optional",
+    "actions": "Actions",
+    "status": "Status",
+    "date": "Date",
+    "description": "Description",
+    "name": "Name",
+    "type": "Type",
+    "category": "Category",
+    "priority": "Priority",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "createdBy": "Created By",
+    "modifiedBy": "Modified By"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "compliance": "Compliance",
+    "risks": "Risks",
+    "audits": "Audits",
+    "policies": "Policies",
+    "frameworks": "Frameworks",
+    "workflow": "Workflow",
+    "reports": "Reports",
+    "vendors": "Vendors",
+    "users": "Users",
+    "calendar": "Calendar",
+    "settings": "Settings",
+    "help": "Help",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register"
+  },
+  "landing": {
+    "hero": {
+      "title": "AI-Powered Compliance Management",
+      "subtitle": "For Saudi Enterprises",
+      "description": "Comprehensive platform for Governance, Risk, and Compliance management with full support for Saudi regulatory frameworks and national cybersecurity standards",
+      "cta_primary": "Start Free Trial",
+      "cta_secondary": "Book a Demo"
+    },
+    "stats": {
+      "clients": "Active Clients",
+      "compliance_rate": "Compliance Rate",
+      "frameworks": "Regulatory Frameworks",
+      "time_saved": "Time Saved"
+    },
+    "features": {
+      "title": "Everything You Need in One Platform",
+      "subtitle": "Comprehensive GRC platform with integrated tools for all your organization's requirements",
+      "compliance": {
+        "title": "Compliance Management",
+        "description": "Complete compliance tracking with all Saudi and international regulatory frameworks"
+      },
+      "risks": {
+        "title": "Risk Management",
+        "description": "Professional risk assessment and analysis with interactive heat maps"
+      },
+      "audits": {
+        "title": "Audit Management",
+        "description": "Efficient planning and execution of internal and external audits"
+      },
+      "workflow": {
+        "title": "Workflow Engine",
+        "description": "Automate processes and approvals with advanced workflow engine"
+      },
+      "policies": {
+        "title": "Policy Management",
+        "description": "Create, distribute, and track organizational policies and procedures"
+      },
+      "vendors": {
+        "title": "Vendor Management",
+        "description": "Assess and monitor third-party and vendor risks"
+      }
+    },
+    "regulators": {
+      "title": "Full Support for Saudi Regulatory Requirements",
+      "subtitle": "Compliant with all regulatory frameworks and standards issued by Saudi government entities"
+    },
+    "testimonials": {
+      "title": "What Our Clients Say",
+      "subtitle": "Proud to be trusted by over 500 Saudi organizations"
+    },
+    "cta": {
+      "title": "Start Your Compliance Journey Today",
+      "subtitle": "Join over 500 Saudi organizations that trust Shahin for compliance and risk management",
+      "benefit_1": "14-day free trial",
+      "benefit_2": "No credit card required",
+      "benefit_3": "Arabic language support",
+      "benefit_4": "Quick setup in minutes"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome to Shahin GRC System",
+    "last_updated": "Last Updated",
+    "compliance_rate": "Overall Compliance Rate",
+    "open_risks": "Open Risks",
+    "active_audits": "Active Audits",
+    "completed_tasks": "Completed Tasks",
+    "compliance_by_framework": "Compliance by Framework",
+    "upcoming_deadlines": "Upcoming Deadlines",
+    "recent_activity": "Recent Activity",
+    "from_last_month": "from last month"
+  },
+  "compliance": {
+    "title": "Compliance Management",
+    "assessments": "Assessments",
+    "controls": "Controls",
+    "evidence": "Evidence",
+    "gaps": "Gaps",
+    "status": {
+      "compliant": "Compliant",
+      "non_compliant": "Non-Compliant",
+      "partially_compliant": "Partially Compliant",
+      "not_applicable": "Not Applicable",
+      "not_assessed": "Not Assessed"
+    }
+  },
+  "risks": {
+    "title": "Risk Management",
+    "register": "Risk Register",
+    "assessment": "Risk Assessment",
+    "treatment": "Risk Treatment",
+    "monitoring": "Risk Monitoring",
+    "level": {
+      "critical": "Critical",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "status": {
+      "open": "Open",
+      "mitigated": "Mitigated",
+      "accepted": "Accepted",
+      "transferred": "Transferred",
+      "closed": "Closed"
+    }
+  },
+  "audits": {
+    "title": "Audit Management",
+    "planning": "Audit Planning",
+    "execution": "Audit Execution",
+    "findings": "Audit Findings",
+    "reports": "Audit Reports",
+    "status": {
+      "planned": "Planned",
+      "in_progress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
+  "policies": {
+    "title": "Policy Management",
+    "library": "Policy Library",
+    "drafts": "Drafts",
+    "published": "Published",
+    "archived": "Archived",
+    "status": {
+      "draft": "Draft",
+      "review": "Under Review",
+      "approved": "Approved",
+      "published": "Published",
+      "archived": "Archived"
+    }
+  },
+  "frameworks": {
+    "title": "Regulatory Frameworks",
+    "nca": "National Cybersecurity Authority",
+    "sama": "Saudi Central Bank",
+    "cma": "Capital Market Authority",
+    "citc": "Communications and Information Technology Commission",
+    "sdaia": "Saudi Data and Artificial Intelligence Authority",
+    "pdpl": "Personal Data Protection Law"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "subtitle": "Welcome back! Enter your credentials to continue",
+      "email": "Email",
+      "password": "Password",
+      "remember_me": "Remember me",
+      "forgot_password": "Forgot password?",
+      "submit": "Login",
+      "no_account": "Don't have an account?",
+      "register_link": "Start free trial",
+      "or": "or",
+      "google": "Sign in with Google",
+      "microsoft": "Sign in with Microsoft"
+    },
+    "register": {
+      "title": "Start Your Free Trial",
+      "subtitle": "Create your account and enjoy all features for 14 days free",
+      "first_name": "First Name",
+      "last_name": "Last Name",
+      "company": "Company Name",
+      "email": "Email",
+      "phone": "Phone Number",
+      "password": "Password",
+      "terms": "I agree to the Terms of Service and Privacy Policy",
+      "submit": "Start Free Trial",
+      "has_account": "Already have an account?",
+      "login_link": "Login"
+    }
+  },
+  "analytics": {
+    "title": "Analytics & Reports",
+    "subtitle": "Interactive dashboards and advanced analytical insights",
+    "superset": "Advanced Analytics",
+    "grafana": "Live Monitoring",
+    "metabase": "Data Exploration",
+    "date_range": {
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days",
+      "1y": "Last year"
+    }
+  },
+  "priority": {
+    "urgent": "Urgent",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email address",
+    "min_length": "Must be at least {min} characters",
+    "max_length": "Must not exceed {max} characters",
+    "password_weak": "Password is too weak",
+    "passwords_mismatch": "Passwords do not match"
+  },
+  "errors": {
+    "general": "An error occurred. Please try again",
+    "network": "Network error. Please check your internet connection",
+    "unauthorized": "You are not authorized to access this resource",
+    "not_found": "The requested page was not found",
+    "server": "Server error. Please try again later"
+  },
+  "success": {
+    "saved": "Saved successfully",
+    "deleted": "Deleted successfully",
+    "updated": "Updated successfully",
+    "created": "Created successfully"
+  }
+}

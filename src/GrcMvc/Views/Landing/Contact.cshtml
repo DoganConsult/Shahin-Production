@@ -1,5 +1,7 @@
 @using GrcMvc.Services
+@using GrcMvc.Services.Interfaces
 @inject IAppInfoService AppInfo
+@inject ISiteSettingsService SiteSettings
 @{
     ViewData["Title"] = "تواصل معنا - " + AppInfo.Name;
     Layout = "_LandingLayout";
@@ -21,7 +23,7 @@
         <div class="contact-content fade-up">
             <div class="contact-info">
                 <h3>طرق التواصل</h3>
-                
+
                 <div class="contact-item">
                     <div class="contact-icon"><i class="bi bi-envelope"></i></div>
                     <div class="contact-details">
@@ -35,8 +37,8 @@
                     <div class="contact-icon"><i class="bi bi-telephone"></i></div>
                     <div class="contact-details">
                         <h4>الهاتف</h4>
-                        <p dir="ltr">+966 XX XXX XXXX</p>
-                        <p class="note">متاح من الأحد إلى الخميس، 9 ص - 5 م</p>
+                        <p dir="ltr">@SiteSettings.PhoneNumberDisplay</p>
+                        <p class="note">@SiteSettings.BusinessHoursAr</p>
                     </div>
                 </div>
 
@@ -44,7 +46,7 @@
                     <div class="contact-icon"><i class="bi bi-geo-alt"></i></div>
                     <div class="contact-details">
                         <h4>العنوان</h4>
-                        <p>الرياض، المملكة العربية السعودية</p>
+                        <p>@SiteSettings.FullAddressAr</p>
                     </div>
                 </div>
 
@@ -52,7 +54,7 @@
                     <div class="contact-icon"><i class="bi bi-clock"></i></div>
                     <div class="contact-details">
                         <h4>ساعات العمل</h4>
-                        <p>الأحد - الخميس: 9:00 ص - 5:00 م</p>
+                        <p>@SiteSettings.BusinessHoursAr</p>
                         <p>الجمعة - السبت: مغلق</p>
                     </div>
                 </div>
@@ -60,41 +62,93 @@
                 <div class="social-links">
                     <h4>تابعنا</h4>
                     <div class="social-icons">
-                        <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
-                        <a href="#" class="social-icon"><i class="bi bi-twitter-x"></i></a>
-                        <a href="#" class="social-icon"><i class="bi bi-youtube"></i></a>
+                        @if (SiteSettings.HasLinkedIn)
+                        {
+                            <a href="@SiteSettings.LinkedInUrl" target="_blank" rel="noopener" class="social-icon"><i class="bi bi-linkedin"></i></a>
+                        }
+                        @if (SiteSettings.HasTwitter)
+                        {
+                            <a href="@SiteSettings.TwitterUrl" target="_blank" rel="noopener" class="social-icon"><i class="bi bi-twitter-x"></i></a>
+                        }
+                        @if (SiteSettings.HasYouTube)
+                        {
+                            <a href="@SiteSettings.YouTubeUrl" target="_blank" rel="noopener" class="social-icon"><i class="bi bi-youtube"></i></a>
+                        }
                     </div>
                 </div>
             </div>
 
             <div class="contact-form-wrapper">
                 <h3>أرسل رسالة</h3>
-                <form id="contactForm" class="contact-form">
+                <form id="contactForm" class="contact-form" novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <div id="form-success" class="alert alert-success d-none" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        شكراً لتواصلك معنا! سنرد عليك في أقرب وقت.
+                    </div>
+
+                    <div id="form-error" class="alert alert-danger d-none" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.
+                    </div>
+
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="name">الاسم الكامل</label>
-                            <input type="text" id="name" name="name" required placeholder="أدخل اسمك">
+                            <label for="name">الاسم الكامل <span class="text-danger">*</span></label>
+                            <input type="text"
+                                   id="name"
+                                   name="name"
+                                   required
+                                   minlength="2"
+                                   maxlength="100"
+                                   placeholder="أدخل اسمك"
+                                   aria-required="true"
+                                   aria-describedby="name-error">
+                            <div id="name-error" class="invalid-feedback">يرجى إدخال الاسم الكامل (على الأقل حرفين)</div>
                         </div>
                         <div class="form-group">
-                            <label for="email">البريد الإلكتروني</label>
-                            <input type="email" id="email" name="email" required placeholder="example@domain.com">
+                            <label for="email">البريد الإلكتروني <span class="text-danger">*</span></label>
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   required
+                                   pattern="[a-z0-9._%+-]+@@[a-z0-9.-]+\.[a-z]{2,}$"
+                                   placeholder="example@domain.com"
+                                   aria-required="true"
+                                   aria-describedby="email-error">
+                            <div id="email-error" class="invalid-feedback">يرجى إدخال بريد إلكتروني صحيح</div>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label for="company">اسم المنظمة</label>
-                            <input type="text" id="company" name="company" placeholder="اسم شركتك (اختياري)">
+                            <input type="text"
+                                   id="company"
+                                   name="company"
+                                   maxlength="150"
+                                   placeholder="اسم شركتك (اختياري)">
                         </div>
                         <div class="form-group">
                             <label for="phone">رقم الهاتف</label>
-                            <input type="tel" id="phone" name="phone" placeholder="+966 XX XXX XXXX">
+                            <input type="tel"
+                                   id="phone"
+                                   name="phone"
+                                   pattern="[\+]?[0-9\s\-]{8,20}"
+                                   placeholder="+966 XX XXX XXXX"
+                                   aria-describedby="phone-error">
+                            <div id="phone-error" class="invalid-feedback">يرجى إدخال رقم هاتف صحيح</div>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="subject">الموضوع</label>
-                        <select id="subject" name="subject" required>
+                        <label for="subject">الموضوع <span class="text-danger">*</span></label>
+                        <select id="subject"
+                                name="subject"
+                                required
+                                aria-required="true"
+                                aria-describedby="subject-error">
                             <option value="">اختر موضوع الرسالة</option>
                             <option value="sales">استفسار عن المبيعات</option>
                             <option value="demo">طلب عرض توضيحي</option>
@@ -102,16 +156,27 @@
                             <option value="partnership">الشراكات</option>
                             <option value="other">أخرى</option>
                         </select>
+                        <div id="subject-error" class="invalid-feedback">يرجى اختيار موضوع الرسالة</div>
                     </div>
 
                     <div class="form-group">
-                        <label for="message">الرسالة</label>
-                        <textarea id="message" name="message" rows="5" required placeholder="اكتب رسالتك هنا..."></textarea>
+                        <label for="message">الرسالة <span class="text-danger">*</span></label>
+                        <textarea id="message"
+                                  name="message"
+                                  rows="5"
+                                  required
+                                  minlength="10"
+                                  maxlength="2000"
+                                  placeholder="اكتب رسالتك هنا..."
+                                  aria-required="true"
+                                  aria-describedby="message-error"></textarea>
+                        <div id="message-error" class="invalid-feedback">يرجى كتابة رسالتك (على الأقل 10 أحرف)</div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="bi bi-send"></i>
-                        إرسال الرسالة
+                    <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                        <i class="bi bi-send" aria-hidden="true"></i>
+                        <span id="submitText">إرسال الرسالة</span>
+                        <span id="submitSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                     </button>
                 </form>
             </div>
@@ -380,25 +445,106 @@
 
 @section Scripts {
 <script>
-    document.getElementById('contactForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const data = Object.fromEntries(formData.entries());
-        
-        // Here you would typically send to an API
-        // For now, show a success message
-        fetch('/api/contact', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        }).then(() => {
-            alert('شكراً لتواصلك معنا! سنرد عليك في أقرب وقت.');
-            this.reset();
-        }).catch(() => {
-            alert('شكراً لتواصلك! سنتواصل معك قريباً.');
-            this.reset();
+(function() {
+    const form = document.getElementById('contactForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitText = document.getElementById('submitText');
+    const submitSpinner = document.getElementById('submitSpinner');
+    const successAlert = document.getElementById('form-success');
+    const errorAlert = document.getElementById('form-error');
+
+    // Add validation classes
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateField(this);
+        });
+        input.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                validateField(this);
+            }
         });
     });
+
+    function validateField(field) {
+        const isValid = field.checkValidity();
+        field.classList.toggle('is-valid', isValid && field.value);
+        field.classList.toggle('is-invalid', !isValid && field.value);
+        return isValid;
+    }
+
+    function validateForm() {
+        let isValid = true;
+        inputs.forEach(input => {
+            if (!validateField(input)) {
+                isValid = false;
+            }
+        });
+        return isValid;
+    }
+
+    function setLoading(loading) {
+        submitBtn.disabled = loading;
+        submitText.classList.toggle('d-none', loading);
+        submitSpinner.classList.toggle('d-none', !loading);
+    }
+
+    function showMessage(type, show) {
+        successAlert.classList.toggle('d-none', type !== 'success' || !show);
+        errorAlert.classList.toggle('d-none', type !== 'error' || !show);
+    }
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        showMessage('', false);
+
+        // Validate all fields
+        if (!validateForm()) {
+            const firstInvalid = form.querySelector('.is-invalid');
+            if (firstInvalid) firstInvalid.focus();
+            return;
+        }
+
+        setLoading(true);
+
+        const formData = new FormData(this);
+        const token = formData.get('__RequestVerificationToken');
+
+        const data = {
+            name: formData.get('name'),
+            email: formData.get('email'),
+            company: formData.get('company'),
+            phone: formData.get('phone'),
+            subject: formData.get('subject'),
+            message: formData.get('message')
+        };
+
+        try {
+            const response = await fetch('/api/Landing/Contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                showMessage('success', true);
+                form.reset();
+                inputs.forEach(i => i.classList.remove('is-valid', 'is-invalid'));
+            } else {
+                const result = await response.json().catch(() => null);
+                console.error('Form submission error:', result);
+                showMessage('error', true);
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+            showMessage('error', true);
+        } finally {
+            setLoading(false);
+        }
+    });
+})();
 </script>
 }

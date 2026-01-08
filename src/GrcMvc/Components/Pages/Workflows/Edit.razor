@@ -1,5 +1,7 @@
 @page "/workflows/{WorkflowId:guid}/edit"
 @using GrcMvc.Models.DTOs
+@using GrcMvc.Services.Interfaces
+@inject IWorkflowService WorkflowService
 @inject NavigationManager NavManager
 @inject IHttpContextAccessor HttpContextAccessor
 
@@ -129,21 +131,22 @@
     {
         try
         {
-            // TODO: Load from service using WorkflowId
-            // For now, demo data
-            await Task.Delay(500); // Simulate loading
-            workflow = new WorkflowEditDto
+            var workflowDto = await WorkflowService.GetByIdAsync(WorkflowId);
+            if (workflowDto != null)
             {
-                Id = WorkflowId,
-                WorkflowNumber = "WF-SEC-001",
-                Name = "Security Assessment Q1 2024",
-                Description = "Comprehensive security assessment for first quarter",
-                Category = "Assessment",
-                RequiresApproval = true,
-                Approvers = "manager@company.com, security.lead@company.com",
-                Status = "Active",
-                CreatedDate = DateTime.Now.AddDays(-30)
-            };
+                workflow = new WorkflowEditDto
+                {
+                    Id = workflowDto.Id,
+                    WorkflowNumber = workflowDto.WorkflowNumber ?? $"WF-{workflowDto.Id.ToString()[..8]}",
+                    Name = workflowDto.Name ?? "Unnamed Workflow",
+                    Description = workflowDto.Description ?? string.Empty,
+                    Category = workflowDto.Category ?? "General",
+                    RequiresApproval = false,
+                    Approvers = string.Empty,
+                    Status = workflowDto.Status ?? "Active",
+                    CreatedDate = DateTime.UtcNow
+                };
+            }
         }
         catch (Exception ex)
         {
@@ -169,11 +172,14 @@
 
         try
         {
-            await Task.Delay(1000); // Simulate API call
+            var updateDto = new UpdateWorkflowDto
+            {
+                Name = workflow.Name,
+                Description = workflow.Description,
+                Category = workflow.Category
+            };
+            await WorkflowService.UpdateAsync(workflow.Id, updateDto);
             successMessage = "Workflow saved successfully!";
-
-            // TODO: Call service to save workflow
-            // await WorkflowService.UpdateWorkflowAsync(workflow);
         }
         catch (Exception ex)
         {

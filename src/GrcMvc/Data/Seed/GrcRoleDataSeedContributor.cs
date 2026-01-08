@@ -288,6 +288,102 @@ public class GrcRoleDataSeedContributor
                     GrcPermissions.Reports.View
                     // Note: NO Export permission for Viewer
                 }
+            },
+
+            // =====================================
+            // BusinessAnalyst - Business Analysis & Reporting
+            // =====================================
+            {
+                "BusinessAnalyst",
+                new List<string>
+                {
+                    GrcPermissions.Home.Default,
+                    GrcPermissions.Dashboard.Default,
+                    GrcPermissions.Dashboard.Operations,
+                    GrcPermissions.Assessments.View,
+                    GrcPermissions.Assessments.Create,
+                    GrcPermissions.Assessments.Update,
+                    GrcPermissions.ControlAssessments.View,
+                    GrcPermissions.ControlAssessments.Manage,
+                    GrcPermissions.Risks.View,
+                    GrcPermissions.Risks.Manage,
+                    GrcPermissions.Evidence.View,
+                    GrcPermissions.Controls.View,
+                    GrcPermissions.Reports.View,
+                    GrcPermissions.Reports.Export,
+                    GrcPermissions.Reports.Generate,
+                    GrcPermissions.Notifications.View
+                }
+            },
+
+            // =====================================
+            // OperationalManager - Operations & Workflow Management
+            // =====================================
+            {
+                "OperationalManager",
+                new List<string>
+                {
+                    GrcPermissions.Home.Default,
+                    GrcPermissions.Dashboard.Default,
+                    GrcPermissions.Dashboard.Operations,
+                    GrcPermissions.Workflow.View,
+                    GrcPermissions.Workflow.Manage,
+                    GrcPermissions.Workflow.AssignTask,
+                    GrcPermissions.Workflow.Monitor,
+                    GrcPermissions.ActionPlans.View,
+                    GrcPermissions.ActionPlans.Manage,
+                    GrcPermissions.ActionPlans.Assign,
+                    GrcPermissions.ActionPlans.Close,
+                    GrcPermissions.Risks.View,
+                    GrcPermissions.Assessments.View,
+                    GrcPermissions.Evidence.View,
+                    GrcPermissions.Notifications.View,
+                    GrcPermissions.Notifications.Manage,
+                    GrcPermissions.Reports.View,
+                    GrcPermissions.Reports.Export
+                }
+            },
+
+            // =====================================
+            // FinanceManager - Financial Oversight
+            // =====================================
+            {
+                "FinanceManager",
+                new List<string>
+                {
+                    GrcPermissions.Home.Default,
+                    GrcPermissions.Dashboard.Default,
+                    GrcPermissions.ActionPlans.View,
+                    GrcPermissions.Risks.View,
+                    GrcPermissions.Assessments.View,
+                    GrcPermissions.Audits.View,
+                    GrcPermissions.Policies.View,
+                    GrcPermissions.Reports.View,
+                    GrcPermissions.Reports.Export,
+                    GrcPermissions.Notifications.View
+                }
+            },
+
+            // =====================================
+            // BoardMember - Executive Read-Only Oversight
+            // =====================================
+            {
+                "BoardMember",
+                new List<string>
+                {
+                    GrcPermissions.Home.Default,
+                    GrcPermissions.Dashboard.Default,
+                    GrcPermissions.Dashboard.Executive,
+                    GrcPermissions.Risks.View,
+                    GrcPermissions.Assessments.View,
+                    GrcPermissions.Audits.View,
+                    GrcPermissions.ActionPlans.View,
+                    GrcPermissions.Policies.View,
+                    GrcPermissions.ComplianceCalendar.View,
+                    GrcPermissions.Reports.View,
+                    GrcPermissions.Reports.Export,
+                    GrcPermissions.Notifications.View
+                }
             }
         };
     }

@@ -1,5 +1,7 @@
 @page "/audits/create"
 @using GrcMvc.Models.DTOs
+@using GrcMvc.Services.Interfaces
+@inject IAuditService AuditService
 @inject NavigationManager NavManager
 @inject IHttpContextAccessor HttpContextAccessor
 
@@ -134,10 +136,17 @@
 
         try
         {
-            // TODO: Call service to create audit
-            // await AuditService.CreateAsync(newAudit);
-
-            await Task.Delay(1000); // Simulate API call
+            var createDto = new CreateAuditDto
+            {
+                Name = newAudit.Title ?? string.Empty,
+                Type = newAudit.Type ?? "Internal",
+                Scope = newAudit.Scope ?? string.Empty,
+                StartDate = newAudit.PlannedStartDate,
+                EndDate = newAudit.PlannedEndDate,
+                PlannedStartDate = newAudit.PlannedStartDate,
+                PlannedEndDate = newAudit.PlannedEndDate
+            };
+            await AuditService.CreateAsync(createDto);
             NavManager.NavigateTo("/audits");
         }
         catch (Exception ex)

@@ -1,4 +1,5 @@
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
@@ -46,16 +47,18 @@ public class RoleDelegationService : IRoleDelegationService
                 .FirstOrDefaultAsync(t => t.Id == taskId && t.TenantId == tenantId);
 
             if (task == null)
-                throw new InvalidOperationException($"Task {taskId} not found");
+                throw new EntityNotFoundException("WorkflowTask", taskId);
 
             if (task.AssignedToUserId != fromUserId)
-                throw new InvalidOperationException($"Task is not assigned to user {fromUserId}");
+                throw new DelegationException(taskId, fromUserId, toUserId, "Task is not assigned to the source user");
 
             var fromUser = await _userManager.FindByIdAsync(fromUserId.ToString());
             var toUser = await _userManager.FindByIdAsync(toUserId.ToString());
 
-            if (fromUser == null || toUser == null)
-                throw new InvalidOperationException("User not found");
+            if (fromUser == null)
+                throw new UserNotFoundException(fromUserId);
+            if (toUser == null)
+                throw new UserNotFoundException(toUserId);
 
             // Create delegation record
             var delegation = new TaskDelegation
@@ -125,18 +128,18 @@ public class RoleDelegationService : IRoleDelegationService
                 .FirstOrDefaultAsync(t => t.Id == taskId && t.TenantId == tenantId);
 
             if (task == null)
-                throw new InvalidOperationException($"Task {taskId} not found");
+                throw new EntityNotFoundException("WorkflowTask", taskId);
 
             var fromUser = await _userManager.FindByIdAsync(fromUserId.ToString());
             if (fromUser == null)
-                throw new InvalidOperationException($"User {fromUserId} not found");
+                throw new UserNotFoundException(fromUserId);
 
             // Validate agent type
             var validAgentTypes = new[] { "ComplianceAgent", "RiskAgent", "AuditAgent", "PolicyAgent", 
                 "WorkflowAgent", "AnalyticsAgent", "IntegrationAgent", "SecurityAgent", "ReportingAgent" };
             
             if (!validAgentTypes.Contains(agentType))
-                throw new InvalidOperationException($"Invalid agent type: {agentType}");
+                throw AgentException.InvalidType(agentType);
 
             // Create delegation record
             var delegation = new TaskDelegation
@@ -205,15 +208,15 @@ public class RoleDelegationService : IRoleDelegationService
                 .FirstOrDefaultAsync(t => t.Id == taskId && t.TenantId == tenantId);
 
             if (task == null)
-                throw new InvalidOperationException($"Task {taskId} not found");
+                throw new EntityNotFoundException("WorkflowTask", taskId);
 
             // Verify task is currently assigned to agent
             if (!task.AssignedToUserName?.StartsWith("[AGENT]") == true)
-                throw new InvalidOperationException($"Task is not assigned to an agent");
+                throw new DelegationException(taskId, Guid.Empty, toUserId, "Task is not assigned to an agent");
 
             var toUser = await _userManager.FindByIdAsync(toUserId.ToString());
             if (toUser == null)
-                throw new InvalidOperationException($"User {toUserId} not found");
+                throw new UserNotFoundException(toUserId);
 
             // Create delegation record
             var delegation = new TaskDelegation
@@ -281,14 +284,14 @@ public class RoleDelegationService : IRoleDelegationService
                 .FirstOrDefaultAsync(t => t.Id == taskId && t.TenantId == tenantId);
 
             if (task == null)
-                throw new InvalidOperationException($"Task {taskId} not found");
+                throw new EntityNotFoundException("WorkflowTask", taskId);
 
             // Validate agent types
             var validAgentTypes = new[] { "ComplianceAgent", "RiskAgent", "AuditAgent", "PolicyAgent", 
                 "WorkflowAgent", "AnalyticsAgent", "IntegrationAgent", "SecurityAgent", "ReportingAgent" };
             
             if (!validAgentTypes.Contains(fromAgentType) || !validAgentTypes.Contains(toAgentType))
-                throw new InvalidOperationException("Invalid agent type");
+                throw AgentException.InvalidType($"{fromAgentType} or {toAgentType}");
 
             // Create delegation record
             var delegation = new TaskDelegation
@@ -357,11 +360,11 @@ public class RoleDelegationService : IRoleDelegationService
                 .FirstOrDefaultAsync(t => t.Id == taskId && t.TenantId == tenantId);
 
             if (task == null)
-                throw new InvalidOperationException($"Task {taskId} not found");
+                throw new EntityNotFoundException("WorkflowTask", taskId);
 
             var fromUser = await _userManager.FindByIdAsync(fromUserId.ToString());
             if (fromUser == null)
-                throw new InvalidOperationException($"User {fromUserId} not found");
+                throw new UserNotFoundException(fromUserId);
 
             // Validate agent types
             var validAgentTypes = new[] { "ComplianceAgent", "RiskAgent", "AuditAgent", "PolicyAgent", 
@@ -370,7 +373,7 @@ public class RoleDelegationService : IRoleDelegationService
             foreach (var agentType in agentTypes)
             {
                 if (!validAgentTypes.Contains(agentType))
-                    throw new InvalidOperationException($"Invalid agent type: {agentType}");
+                    throw AgentException.InvalidType(agentType);
             }
 
             // Determine which agent to assign based on strategy
@@ -466,16 +469,16 @@ public class RoleDelegationService : IRoleDelegationService
                 .FirstOrDefaultAsync(t => t.Id == task2Id && t.TenantId == tenantId);
 
             if (task1 == null || task2 == null)
-                throw new InvalidOperationException("One or both tasks not found");
+                throw new EntityNotFoundException("WorkflowTask", $"{task1Id}/{task2Id}");
 
             if (task1.AssignedToUserId != user1Id || task2.AssignedToUserId != user2Id)
-                throw new InvalidOperationException("Tasks are not assigned to the specified users");
+                throw new DelegationException(task1Id, user1Id, user2Id, "Tasks are not assigned to the specified users");
 
             var user1 = await _userManager.FindByIdAsync(user1Id.ToString());
             var user2 = await _userManager.FindByIdAsync(user2Id.ToString());
 
             if (user1 == null || user2 == null)
-                throw new InvalidOperationException("User not found");
+                throw new UserNotFoundException(user1 == null ? user1Id : user2Id);
 
             // Create delegation records for both directions
             var delegation1 = new TaskDelegation
@@ -565,17 +568,17 @@ public class RoleDelegationService : IRoleDelegationService
                 .FirstOrDefaultAsync(t => t.Id == taskId && t.TenantId == tenantId);
 
             if (task == null)
-                throw new InvalidOperationException($"Task {taskId} not found");
+                throw new EntityNotFoundException("WorkflowTask", taskId);
 
             var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)
-                throw new InvalidOperationException($"User {userId} not found");
+                throw new UserNotFoundException(userId);
 
             bool isCurrentlyHuman = task.AssignedToUserId.HasValue;
             bool isCurrentlyAgent = task.AssignedToUserName?.StartsWith("[AGENT]") == true;
 
             if (!isCurrentlyHuman && !isCurrentlyAgent)
-                throw new InvalidOperationException("Task is not assigned to a human or agent");
+                throw new DelegationException(taskId, Guid.Empty, userId, "Task is not assigned to a human or agent");
 
             // Create delegation record
             var delegation = new TaskDelegation

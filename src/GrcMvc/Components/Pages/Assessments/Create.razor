@@ -3,7 +3,7 @@
 @using GrcMvc.Services.Interfaces
 @using GrcMvc.Services
 @using GrcMvc.Application.Policy
-@using GrcMvc.Application.Policy; // Added this line to disambiguate PolicyViolationInfo
+@inject IAssessmentService AssessmentService
 @inject IWorkflowEngineService WorkflowService
 @inject NavigationManager NavManager
 @inject IHttpContextAccessor HttpContextAccessor
@@ -138,10 +138,13 @@
 
         try
         {
-            // TODO: Call service to create assessment
-            // await AssessmentService.CreateAsync(newAssessment);
-
-            await Task.Delay(1000); // Simulate API call
+            var createDto = new CreateAssessmentDto
+            {
+                Name = newAssessment.Name,
+                Type = newAssessment.Type,
+                Description = newAssessment.Description
+            };
+            await AssessmentService.CreateAsync(createDto);
             NavManager.NavigateTo("/assessments");
         }
         catch (Exception ex)

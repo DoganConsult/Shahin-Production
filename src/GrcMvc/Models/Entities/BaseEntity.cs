@@ -20,6 +20,23 @@ namespace GrcMvc.Models.Entities
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedAt { get; set; }
 
+        // =====================================================================
+        // BUSINESS REFERENCE CODE (Serial Code)
+        // =====================================================================
+
+        /// <summary>
+        /// Human-readable business reference code for this entity.
+        /// Format: {TENANTCODE}-{OBJECTTYPE}-{YYYY}-{SEQUENCE}
+        /// Example: ACME-CTRL-2026-000143
+        /// 
+        /// Key principles:
+        /// - Stable and immutable once assigned
+        /// - Never reused, even after deletion
+        /// - Used in UI, audits, exports, and communications
+        /// - Different from internal Id (GUID) which is for DB relations
+        /// </summary>
+        public string? BusinessCode { get; set; }
+
         // Alias properties for backward compatibility
         [NotMapped]
         public DateTime CreatedAt

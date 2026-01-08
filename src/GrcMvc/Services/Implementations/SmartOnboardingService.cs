@@ -1,4 +1,5 @@
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
@@ -59,7 +60,7 @@ public class SmartOnboardingService : ISmartOnboardingService
 
             if (profile == null)
             {
-                throw new InvalidOperationException($"Organization profile not found for tenant {tenantId}");
+                throw new EntityNotFoundException("OrganizationProfile", $"tenant:{tenantId}");
             }
 
             // Step 3: Get derived scope
@@ -169,7 +170,7 @@ public class SmartOnboardingService : ISmartOnboardingService
 
             if (profile == null)
             {
-                throw new InvalidOperationException($"Organization profile not found for tenant {tenantId}");
+                throw new EntityNotFoundException("OrganizationProfile", $"tenant:{tenantId}");
             }
 
             // Get applicable frameworks
@@ -586,7 +587,7 @@ public class SmartOnboardingService : ISmartOnboardingService
         {
             var plan = await _unitOfWork.Plans.GetByIdAsync(planId);
             if (plan == null)
-                throw new InvalidOperationException($"Plan {planId} not found");
+                throw new EntityNotFoundException("Plan", planId);
 
             foreach (var template in templates)
             {

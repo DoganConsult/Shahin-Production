@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -64,7 +65,7 @@ namespace GrcMvc.Services.Implementations
                 .FirstOrDefaultAsync(r => r.Id == assessmentRequirementId);
 
             if (requirement == null)
-                throw new InvalidOperationException("Assessment requirement not found.");
+                throw RequirementException.NotFound(assessmentRequirementId);
 
             var evidence = new Evidence
             {
@@ -149,14 +150,14 @@ namespace GrcMvc.Services.Implementations
         {
             var evidence = await GetEvidenceAsync(evidenceId);
             if (evidence == null)
-                throw new InvalidOperationException("Evidence not found.");
+                throw new EntityNotFoundException("Evidence", evidenceId);
 
             // Find evidence review workflow definition
             var workflowDef = await _context.WorkflowDefinitions
                 .FirstOrDefaultAsync(w => w.Category == "EvidenceReview" && w.Status == "Active");
 
             if (workflowDef == null)
-                throw new InvalidOperationException("Evidence review workflow not configured.");
+                throw new EntityNotFoundException("WorkflowDefinition", "EvidenceReview (Active)");
 
             // Start workflow instance
             var tenantId = evidence.Assessment?.TenantId ?? Guid.Empty;
@@ -174,11 +175,11 @@ namespace GrcMvc.Services.Implementations
         {
             var evidence = await GetEvidenceAsync(evidenceId);
             if (evidence == null)
-                throw new InvalidOperationException("Evidence not found.");
+                throw new EntityNotFoundException("Evidence", evidenceId);
 
             if (evidence.VerificationStatus != STATUS_DRAFT &&
                 evidence.VerificationStatus != STATUS_CHANGES_REQUESTED)
-                throw new InvalidOperationException($"Cannot submit evidence in '{evidence.VerificationStatus}' status.");
+                throw new EvidenceException(evidenceId, $"Cannot submit evidence in '{evidence.VerificationStatus}' status. Must be Draft or ChangesRequested.");
 
             evidence.VerificationStatus = STATUS_SUBMITTED;
             evidence.ModifiedDate = DateTime.UtcNow;
@@ -194,10 +195,10 @@ namespace GrcMvc.Services.Implementations
         {
             var evidence = await GetEvidenceAsync(evidenceId);
             if (evidence == null)
-                throw new InvalidOperationException("Evidence not found.");
+                throw new EntityNotFoundException("Evidence", evidenceId);
 
             if (evidence.VerificationStatus != STATUS_IN_REVIEW)
-                throw new InvalidOperationException($"Cannot request changes on evidence in '{evidence.VerificationStatus}' status.");
+                throw new EvidenceException(evidenceId, $"Cannot request changes on evidence in '{evidence.VerificationStatus}' status. Must be InReview.");
 
             evidence.VerificationStatus = STATUS_CHANGES_REQUESTED;
             evidence.Comments = comments;
@@ -214,10 +215,10 @@ namespace GrcMvc.Services.Implementations
         {
             var evidence = await GetEvidenceAsync(evidenceId);
             if (evidence == null)
-                throw new InvalidOperationException("Evidence not found.");
+                throw new EntityNotFoundException("Evidence", evidenceId);
 
             if (evidence.VerificationStatus != STATUS_CHANGES_REQUESTED)
-                throw new InvalidOperationException($"Cannot resubmit evidence in '{evidence.VerificationStatus}' status.");
+                throw new EvidenceException(evidenceId, $"Cannot resubmit evidence in '{evidence.VerificationStatus}' status. Must be ChangesRequested.");
 
             evidence.VerificationStatus = STATUS_IN_REVIEW;
             evidence.Comments = comments;
@@ -246,7 +247,7 @@ namespace GrcMvc.Services.Implementations
 
             var evidence = await GetEvidenceAsync(evidenceId);
             if (evidence == null)
-                throw new InvalidOperationException("Evidence not found.");
+                throw new EntityNotFoundException("Evidence", evidenceId);
 
             // Mark previous scores as not final
             var previousScores = await _context.Set<EvidenceScore>()
@@ -323,11 +324,11 @@ namespace GrcMvc.Services.Implementations
         {
             var evidence = await GetEvidenceAsync(evidenceId);
             if (evidence == null)
-                throw new InvalidOperationException("Evidence not found.");
+                throw new EntityNotFoundException("Evidence", evidenceId);
 
             if (evidence.VerificationStatus != STATUS_IN_REVIEW &&
                 evidence.VerificationStatus != STATUS_SUBMITTED)
-                throw new InvalidOperationException($"Cannot approve evidence in '{evidence.VerificationStatus}' status.");
+                throw new EvidenceException(evidenceId, $"Cannot approve evidence in '{evidence.VerificationStatus}' status. Must be InReview or Submitted.");
 
             evidence.VerificationStatus = STATUS_APPROVED;
             evidence.VerifiedBy = approvedBy;
@@ -358,11 +359,11 @@ namespace GrcMvc.Services.Implementations
         {
             var evidence = await GetEvidenceAsync(evidenceId);
             if (evidence == null)
-                throw new InvalidOperationException("Evidence not found.");
+                throw new EntityNotFoundException("Evidence", evidenceId);
 
             if (evidence.VerificationStatus != STATUS_IN_REVIEW &&
                 evidence.VerificationStatus != STATUS_SUBMITTED)
-                throw new InvalidOperationException($"Cannot reject evidence in '{evidence.VerificationStatus}' status.");
+                throw new EvidenceException(evidenceId, $"Cannot reject evidence in '{evidence.VerificationStatus}' status. Must be InReview or Submitted.");
 
             evidence.VerificationStatus = STATUS_REJECTED;
             evidence.VerifiedBy = rejectedBy;
@@ -387,7 +388,7 @@ namespace GrcMvc.Services.Implementations
                 .FirstOrDefaultAsync(r => r.Id == assessmentRequirementId);
 
             if (requirement == null)
-                throw new InvalidOperationException("Assessment requirement not found.");
+                throw RequirementException.NotFound(assessmentRequirementId);
 
             // Get all evidence for this requirement
             var evidences = await _context.Evidences

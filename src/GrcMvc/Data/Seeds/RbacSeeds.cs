@@ -625,6 +625,12 @@ public static class RbacSeeds
             new { Name = "RiskAnalyst", Description = "Risk Analyst - Risk analysis" },
             new { Name = "PolicyManager", Description = "Policy Manager - Policy management" },
             new { Name = "WorkflowManager", Description = "Workflow Manager - Workflow management" },
+
+            // Additional Business Roles
+            new { Name = "BusinessAnalyst", Description = "Business Analyst - Business analysis & reporting" },
+            new { Name = "OperationalManager", Description = "Operational Manager - Operations & workflow management" },
+            new { Name = "FinanceManager", Description = "Finance Manager - Financial oversight" },
+            new { Name = "BoardMember", Description = "Board Member - Executive read-only oversight" },
         };
 
         foreach (var roleDef in roleDefinitions)
@@ -991,6 +997,115 @@ public static class RbacSeeds
             }
         }
 
+        // BusinessAnalyst - Business analysis & reporting
+        if (roles.ContainsKey("BusinessAnalyst"))
+        {
+            var businessAnalystPermissions = new[] {
+                "Grc.Home", "Grc.Dashboard",
+                "Grc.Assessments.View", "Grc.Assessments.Create", "Grc.Assessments.Update",
+                "Grc.ControlAssessments.View", "Grc.ControlAssessments.Manage",
+                "Grc.Risks.View", "Grc.Risks.Manage",
+                "Grc.Evidence.View",
+                "Grc.Reports.View", "Grc.Reports.Export", "Grc.Reports.Generate"
+            };
+            foreach (var permCode in businessAnalystPermissions)
+            {
+                if (permissions.ContainsKey(permCode))
+                {
+                    rolePermissions.Add(new RolePermission
+                    {
+                        RoleId = roles["BusinessAnalyst"].Id,
+                        PermissionId = permissions[permCode].Id,
+                        TenantId = tenantId,
+                        AssignedBy = "System"
+                    });
+                }
+            }
+        }
+
+        // OperationalManager - Operations & workflow management
+        if (roles.ContainsKey("OperationalManager"))
+        {
+            var operationalManagerPermissions = new[] {
+                "Grc.Home", "Grc.Dashboard",
+                "Grc.Workflow.View", "Grc.Workflow.Manage", "Grc.Workflow.AssignTask", "Grc.Workflow.Monitor",
+                "Grc.ActionPlans.View", "Grc.ActionPlans.Manage", "Grc.ActionPlans.Assign", "Grc.ActionPlans.Close",
+                "Grc.Risks.View",
+                "Grc.Assessments.View",
+                "Grc.Evidence.View",
+                "Grc.Notifications.View", "Grc.Notifications.Manage",
+                "Grc.Reports.View", "Grc.Reports.Export"
+            };
+            foreach (var permCode in operationalManagerPermissions)
+            {
+                if (permissions.ContainsKey(permCode))
+                {
+                    rolePermissions.Add(new RolePermission
+                    {
+                        RoleId = roles["OperationalManager"].Id,
+                        PermissionId = permissions[permCode].Id,
+                        TenantId = tenantId,
+                        AssignedBy = "System"
+                    });
+                }
+            }
+        }
+
+        // FinanceManager - Financial oversight
+        if (roles.ContainsKey("FinanceManager"))
+        {
+            var financeManagerPermissions = new[] {
+                "Grc.Home", "Grc.Dashboard",
+                "Grc.ActionPlans.View",
+                "Grc.Risks.View",
+                "Grc.Assessments.View",
+                "Grc.Audits.View",
+                "Grc.Policies.View",
+                "Grc.Reports.View", "Grc.Reports.Export"
+            };
+            foreach (var permCode in financeManagerPermissions)
+            {
+                if (permissions.ContainsKey(permCode))
+                {
+                    rolePermissions.Add(new RolePermission
+                    {
+                        RoleId = roles["FinanceManager"].Id,
+                        PermissionId = permissions[permCode].Id,
+                        TenantId = tenantId,
+                        AssignedBy = "System"
+                    });
+                }
+            }
+        }
+
+        // BoardMember - Executive read-only oversight
+        if (roles.ContainsKey("BoardMember"))
+        {
+            var boardMemberPermissions = new[] {
+                "Grc.Home", "Grc.Dashboard",
+                "Grc.Risks.View",
+                "Grc.Assessments.View",
+                "Grc.Audits.View",
+                "Grc.ActionPlans.View",
+                "Grc.Policies.View",
+                "Grc.ComplianceCalendar.View",
+                "Grc.Reports.View", "Grc.Reports.Export"
+            };
+            foreach (var permCode in boardMemberPermissions)
+            {
+                if (permissions.ContainsKey(permCode))
+                {
+                    rolePermissions.Add(new RolePermission
+                    {
+                        RoleId = roles["BoardMember"].Id,
+                        PermissionId = permissions[permCode].Id,
+                        TenantId = tenantId,
+                        AssignedBy = "System"
+                    });
+                }
+            }
+        }
+
         await context.RolePermissions.AddRangeAsync(rolePermissions);
         await context.SaveChangesAsync();
 
@@ -1280,6 +1395,86 @@ public static class RbacSeeds
                     roleFeatures.Add(new RoleFeature
                     {
                         RoleId = roles["WorkflowManager"].Id,
+                        FeatureId = features[featureCode].Id,
+                        TenantId = tenantId,
+                        IsVisible = true,
+                        AssignedBy = "System"
+                    });
+                }
+            }
+        }
+
+        // BusinessAnalyst - Assessments, ControlAssessments, Risks, Evidence, Reports
+        if (roles.ContainsKey("BusinessAnalyst"))
+        {
+            var businessAnalystFeatures = new[] { "Home", "Dashboard", "Assessments", "ControlAssessments", "Risks", "Evidence", "Reports" };
+            foreach (var featureCode in businessAnalystFeatures)
+            {
+                if (features.ContainsKey(featureCode))
+                {
+                    roleFeatures.Add(new RoleFeature
+                    {
+                        RoleId = roles["BusinessAnalyst"].Id,
+                        FeatureId = features[featureCode].Id,
+                        TenantId = tenantId,
+                        IsVisible = true,
+                        AssignedBy = "System"
+                    });
+                }
+            }
+        }
+
+        // OperationalManager - Workflow, ActionPlans, Risks, Assessments, Evidence, Reports
+        if (roles.ContainsKey("OperationalManager"))
+        {
+            var operationalManagerFeatures = new[] { "Home", "Dashboard", "Workflow", "ActionPlans", "Risks", "Assessments", "Evidence", "Reports" };
+            foreach (var featureCode in operationalManagerFeatures)
+            {
+                if (features.ContainsKey(featureCode))
+                {
+                    roleFeatures.Add(new RoleFeature
+                    {
+                        RoleId = roles["OperationalManager"].Id,
+                        FeatureId = features[featureCode].Id,
+                        TenantId = tenantId,
+                        IsVisible = true,
+                        AssignedBy = "System"
+                    });
+                }
+            }
+        }
+
+        // FinanceManager - ActionPlans, Risks, Assessments, Audits, Policies, Reports
+        if (roles.ContainsKey("FinanceManager"))
+        {
+            var financeManagerFeatures = new[] { "Home", "Dashboard", "ActionPlans", "Risks", "Assessments", "Audits", "Policies", "Reports" };
+            foreach (var featureCode in financeManagerFeatures)
+            {
+                if (features.ContainsKey(featureCode))
+                {
+                    roleFeatures.Add(new RoleFeature
+                    {
+                        RoleId = roles["FinanceManager"].Id,
+                        FeatureId = features[featureCode].Id,
+                        TenantId = tenantId,
+                        IsVisible = true,
+                        AssignedBy = "System"
+                    });
+                }
+            }
+        }
+
+        // BoardMember - Executive oversight (all major features read-only)
+        if (roles.ContainsKey("BoardMember"))
+        {
+            var boardMemberFeatures = new[] { "Home", "Dashboard", "Risks", "Assessments", "Audits", "ActionPlans", "Policies", "ComplianceCalendar", "Reports" };
+            foreach (var featureCode in boardMemberFeatures)
+            {
+                if (features.ContainsKey(featureCode))
+                {
+                    roleFeatures.Add(new RoleFeature
+                    {
+                        RoleId = roles["BoardMember"].Id,
                         FeatureId = features[featureCode].Id,
                         TenantId = tenantId,
                         IsVisible = true,

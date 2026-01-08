@@ -69,7 +69,7 @@ if (File.Exists(envFile))
     {
         if (string.IsNullOrWhiteSpace(line) || line.TrimStart().StartsWith("#"))
             continue;
-        
+
         var parts = line.Split('=', 2);
         if (parts.Length == 2)
         {
@@ -238,6 +238,11 @@ builder.Services.Configure<ApplicationSettings>(
     builder.Configuration.GetSection(ApplicationSettings.SectionName));
 builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection(EmailSettings.SectionName));
+builder.Services.Configure<SiteSettings>(
+    builder.Configuration.GetSection(SiteSettings.SectionName));
+
+// Register SiteSettings service
+builder.Services.AddScoped<ISiteSettingsService, SiteSettingsService>();
 
 // Validate configuration at startup
 builder.Services.AddSingleton<IValidateOptions<JwtSettings>, JwtSettingsValidator>();
@@ -455,6 +460,7 @@ builder.Services.AddSingleton<IAppInfoService, AppInfoService>();
 builder.Services.AddScoped<IRiskService, RiskService>();
 builder.Services.AddScoped<IControlService, ControlService>();
 builder.Services.AddScoped<IAssessmentService, AssessmentService>();
+builder.Services.AddScoped<IAssessmentExecutionService, AssessmentExecutionService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IPolicyService, PolicyService>();
 builder.Services.AddScoped<IWorkflowService, WorkflowService>();
@@ -493,10 +499,15 @@ builder.Services.AddScoped<IPlanService, PlanService>();
 builder.Services.AddScoped<GrcMvc.Services.Interfaces.IEvidenceWorkflowService, GrcMvc.Services.Implementations.EvidenceWorkflowService>();
 builder.Services.AddScoped<GrcMvc.Services.Interfaces.IRiskWorkflowService, GrcMvc.Services.Implementations.RiskWorkflowService>();
 
+// Resilience & Sustainability Services (GRC Lifecycle Stages 4 & 5)
+builder.Services.AddScoped<IResilienceService, ResilienceService>();
+builder.Services.AddScoped<ISustainabilityService, SustainabilityService>();
+
 // Owner tenant management
 builder.Services.AddScoped<IOwnerTenantService, OwnerTenantService>();
 builder.Services.AddScoped<IOwnerSetupService, OwnerSetupService>();
 builder.Services.AddScoped<ICredentialDeliveryService, CredentialDeliveryService>();
+builder.Services.AddScoped<ICredentialExpirationService, CredentialExpirationService>(); // HIGH FIX: Credential expiration checks
 
 // Platform Admin (Multi-Tenant Administration - Layer 0)
 builder.Services.AddScoped<IPlatformAdminService, PlatformAdminService>();
@@ -639,6 +650,38 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
 builder.Services.AddScoped<IReportGenerator, ReportGeneratorService>();
 builder.Services.AddScoped<IReportService, EnhancedReportServiceFixed>();
+builder.Services.AddScoped<IDocumentGenerationService, DocumentGenerationService>(); // Document generation for templates
+
+// ============================================
+// Enterprise Government GRC Services
+// خدمات الحوكمة والمخاطر والامتثال للقطاع الحكومي
+// ============================================
+
+// Vision 2030 Alignment Service - رؤية 2030
+builder.Services.AddScoped<IVision2030AlignmentService, Vision2030AlignmentService>();
+
+// National Compliance Hub - مركز الامتثال الوطني
+builder.Services.AddScoped<INationalComplianceHub, NationalComplianceHubService>();
+
+// Regulatory Calendar Service - التقويم التنظيمي
+builder.Services.AddScoped<IRegulatoryCalendarService, RegulatoryCalendarService>();
+
+// Arabic Compliance Assistant - مساعد الامتثال العربي
+builder.Services.AddScoped<IArabicComplianceAssistant, ArabicComplianceAssistantService>();
+
+// Attestation Service - خدمة التصديق والشهادات
+builder.Services.AddScoped<IAttestationService, AttestationService>();
+
+// Government Integration Service - التكامل الحكومي (Nafath, Absher, Etimad, etc.)
+builder.Services.AddScoped<IGovernmentIntegrationService, GovernmentIntegrationService>();
+
+// GRC Process Orchestrator - منسق عمليات الحوكمة والمخاطر والامتثال
+// Complete lifecycle: Assessment → Compliance → Resilience → Excellence
+builder.Services.AddScoped<IGrcProcessOrchestrator, GrcProcessOrchestrator>();
+
+// Compliance Gap Management Service - إدارة فجوات الامتثال
+// Gap lifecycle: Identify → Plan → Remediate → Validate → Close
+builder.Services.AddScoped<IComplianceGapService, ComplianceGapService>();
 
 // Register Menu Service (RBAC-based navigation)
 builder.Services.AddScoped<GrcMvc.Data.Menu.GrcMenuContributor>();
@@ -1013,17 +1056,18 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ISmtpEmailService, SmtpEmailService>();
 builder.Services.AddScoped<IWebhookService, WebhookService>();
 
-// AI Agent services - Claude powered
+// AI Agent services - Multi-provider support (Claude, OpenAI, Azure, Gemini, Local LLMs)
 builder.Services.AddScoped<IDiagnosticAgentService, DiagnosticAgentService>();
 builder.Services.AddScoped<IClaudeAgentService, ClaudeAgentService>();
+builder.Services.AddScoped<IUnifiedAiService, UnifiedAiService>();
 builder.Services.Configure<ClaudeApiSettings>(builder.Configuration.GetSection(ClaudeApiSettings.SectionName));
 
 // Email Operations Services (Shahin + Dogan Consult)
-builder.Services.AddHttpClient<GrcMvc.Services.EmailOperations.IMicrosoftGraphEmailService, 
+builder.Services.AddHttpClient<GrcMvc.Services.EmailOperations.IMicrosoftGraphEmailService,
     GrcMvc.Services.EmailOperations.MicrosoftGraphEmailService>();
-builder.Services.AddScoped<GrcMvc.Services.EmailOperations.IEmailAiService, 
+builder.Services.AddScoped<GrcMvc.Services.EmailOperations.IEmailAiService,
     GrcMvc.Services.EmailOperations.EmailAiService>();
-builder.Services.AddScoped<GrcMvc.Services.EmailOperations.IEmailOperationsService, 
+builder.Services.AddScoped<GrcMvc.Services.EmailOperations.IEmailOperationsService,
     GrcMvc.Services.EmailOperations.EmailOperationsService>();
 builder.Services.AddScoped<GrcMvc.Services.EmailOperations.EmailProcessingJob>();
 
@@ -1118,9 +1162,10 @@ app.UseMiddleware<GrcMvc.Middleware.OwnerSetupMiddleware>();
 
 app.UseMiddleware<GrcMvc.Middleware.PolicyViolationExceptionMiddleware>();
 
-// Optional: Domain-based tenant resolution middleware
-// Only uncomment if you're using subdomains (e.g., acme.grcsystem.com)
-// app.UseMiddleware<GrcMvc.Middleware.TenantResolutionMiddleware>();
+// Domain-based tenant resolution middleware
+// Resolves tenant from subdomain (e.g., acme.grcsystem.com) and stores in HttpContext.Items
+// CRITICAL: Enabled for early tenant resolution - improves performance by avoiding repeated DB lookups
+app.UseMiddleware<GrcMvc.Middleware.TenantResolutionMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -1369,7 +1414,7 @@ public class SmtpSettings
     public string FromName { get; set; } = "GRC System";
     public string? Username { get; set; }
     public string? Password { get; set; }
-    
+
     // OAuth2 settings for Office 365 (recommended for production)
     public bool UseOAuth2 { get; set; } = false;
     public string? TenantId { get; set; }

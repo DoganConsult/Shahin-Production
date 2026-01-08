@@ -33,7 +33,6 @@ namespace GrcMvc.Controllers
         /// Query params: ?page=1&size=10&sortBy=date&order=desc&status=active&type=internal&q=searchterm
         /// </summary>
         [HttpGet]
-        [AllowAnonymous]
         public async Task<IActionResult> GetAssessments(
             [FromQuery] int page = 1,
             [FromQuery] int size = 10,
@@ -90,22 +89,45 @@ namespace GrcMvc.Controllers
         /// Bulk create assessments
         /// </summary>
         [HttpPost("bulk")]
-        public async Task<IActionResult> BulkCreateAssessments([FromBody] BulkOperationRequest bulkRequest)
+        public async Task<IActionResult> BulkCreateAssessments([FromBody] List<CreateAssessmentDto> assessments)
         {
             try
             {
-                if (bulkRequest?.Items == null || bulkRequest.Items.Count == 0)
-                    return BadRequest(ApiResponse<object>.ErrorResponse("Items are required for bulk operation"));
+                if (assessments == null || assessments.Count == 0)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Assessments are required for bulk operation"));
+
+                var createdAssessments = new List<AssessmentDto>();
+                var errors = new List<string>();
+
+                foreach (var assessment in assessments)
+                {
+                    try
+                    {
+                        if (string.IsNullOrWhiteSpace(assessment.Name))
+                        {
+                            errors.Add($"Assessment at index {assessments.IndexOf(assessment)} has no name");
+                            continue;
+                        }
+                        var created = await _assessmentService.CreateAsync(assessment);
+                        createdAssessments.Add(created);
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add($"Assessment '{assessment.Name}': {ex.Message}");
+                    }
+                }
 
                 var result = new BulkOperationResult
                 {
-                    TotalItems = bulkRequest.Items.Count,
-                    SuccessfulItems = bulkRequest.Items.Count,
-                    FailedItems = 0,
+                    TotalItems = assessments.Count,
+                    SuccessfulItems = createdAssessments.Count,
+                    FailedItems = errors.Count,
+                    Errors = errors,
                     CompletedAt = DateTime.Now
                 };
 
-                return Ok(ApiResponse<BulkOperationResult>.SuccessResponse(result, "Bulk operation completed successfully"));
+                return Ok(ApiResponse<BulkOperationResult>.SuccessResponse(result, 
+                    $"Bulk assessment creation completed: {createdAssessments.Count}/{assessments.Count} successful"));
             }
             catch (Exception ex)
             {
@@ -283,7 +305,7 @@ namespace GrcMvc.Controllers
         /// Updates specific fields of an assessment (partial update)
         /// </summary>
         [HttpPatch("{id}")]
-        public async Task<IActionResult> PatchAssessment(Guid id, [FromBody] dynamic patchData)
+        public async Task<IActionResult> PatchAssessment(Guid id, [FromBody] PatchAssessmentDto patchData)
         {
             try
             {
@@ -297,23 +319,56 @@ namespace GrcMvc.Controllers
                 if (assessment == null)
                     return NotFound(ApiResponse<object>.ErrorResponse("Assessment not found"));
 
-                // Build update DTO from patch data
+                // Validate status transition if status is being changed
+                if (!string.IsNullOrEmpty(patchData.Status) && patchData.Status != assessment.Status)
+                {
+                    if (!Configuration.AssessmentConfiguration.Transitions.IsValidTransition(
+                        assessment.Status ?? "Draft", patchData.Status))
+                    {
+                        var validTransitions = Configuration.AssessmentConfiguration.Transitions.GetValidTransitions(
+                            assessment.Status ?? "Draft");
+                        return BadRequest(ApiResponse<object>.ErrorResponse(
+                            $"Invalid status transition from '{assessment.Status}' to '{patchData.Status}'. " +
+                            $"Valid transitions: {string.Join(", ", validTransitions)}"));
+                    }
+                }
+
+                // Build update DTO from patch data (only update provided fields)
                 var updateDto = new UpdateAssessmentDto
                 {
-                    Type = ((string?)patchData.type) ?? assessment.Type,
-                    Name = ((string?)patchData.name) ?? assessment.Name,
-                    Description = ((string?)patchData.description) ?? assessment.Description,
-                    Status = ((string?)patchData.status) ?? assessment.Status
+                    Type = patchData.Type ?? assessment.Type,
+                    Name = patchData.Name ?? assessment.Name,
+                    Description = patchData.Description ?? assessment.Description,
+                    Status = patchData.Status ?? assessment.Status,
+                    AssignedTo = patchData.AssignedTo ?? assessment.AssignedTo,
+                    Score = patchData.Score ?? assessment.Score,
+                    Findings = patchData.Findings ?? assessment.Findings,
+                    Recommendations = patchData.Recommendations ?? assessment.Recommendations
                 };
 
                 var patchedAssessment = await _assessmentService.UpdateAsync(id, updateDto);
 
-                return Ok(ApiResponse<object>.SuccessResponse(patchedAssessment, "Assessment updated successfully"));
+                return Ok(ApiResponse<AssessmentDto>.SuccessResponse(patchedAssessment, "Assessment updated successfully"));
             }
             catch (Exception ex)
             {
                 return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
             }
         }
+    }
+
+    /// <summary>
+    /// DTO for partial assessment updates
+    /// </summary>
+    public class PatchAssessmentDto
+    {
+        public string? Type { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+        public string? Status { get; set; }
+        public string? AssignedTo { get; set; }
+        public int? Score { get; set; }
+        public string? Findings { get; set; }
+        public string? Recommendations { get; set; }
     }
 }

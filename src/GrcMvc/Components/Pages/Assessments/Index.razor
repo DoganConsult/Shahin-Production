@@ -1,6 +1,7 @@
 @page "/assessments"
 @using GrcMvc.Models.DTOs
 @using GrcMvc.Services.Interfaces
+@inject IAssessmentService AssessmentService
 @inject IWorkflowEngineService WorkflowService
 @inject NavigationManager NavManager
 @inject IHttpContextAccessor HttpContextAccessor
@@ -76,22 +77,32 @@
 
 @code {
     private List<AssessmentListItemDto>? assessments;
+    private bool isLoading = true;
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        // TODO: Load from service - for now, demo data
-        assessments = new List<AssessmentListItemDto>
-{
-new() { Id = Guid.NewGuid(), AssessmentNumber = "ASMT-SEC-001", Name = "Security Assessment Q1 2024", Type = "Risk",
-Status = "In Progress", AssignedTo = "Ahmed Al-Mansouri", StartDate = DateTime.Now.AddDays(-5), IsOverdue = false, Score
-= 75 },
-new() { Id = Guid.NewGuid(), AssessmentNumber = "ASMT-COMP-001", Name = "Compliance Assessment", Type = "Compliance",
-Status = "Pending", AssignedTo = "Fatima Al-Dosari", StartDate = DateTime.Now.AddDays(5), IsOverdue = false },
-new() { Id = Guid.NewGuid(), AssessmentNumber = "ASMT-CTRL-001", Name = "Control Effectiveness Review", Type =
-"Control", Status = "Completed", AssignedTo = "Sarah Johnson", StartDate = DateTime.Now.AddDays(-30), EndDate =
-DateTime.Now.AddDays(-5), IsOverdue = false, Score = 88 }
-};
-        return Task.CompletedTask;
+        try
+        {
+            var allAssessments = await AssessmentService.GetAllAsync();
+            assessments = allAssessments.Select(a => new AssessmentListItemDto
+            {
+                Id = a.Id,
+                AssessmentNumber = a.AssessmentNumber ?? $"ASMT-{a.Id.ToString()[..8]}",
+                Name = a.Name ?? "Unnamed Assessment",
+                Type = a.Type ?? "Compliance",
+                Status = a.Status ?? "Draft",
+                AssignedTo = a.AssignedTo ?? "Unassigned",
+                StartDate = a.StartDate,
+                EndDate = a.EndDate,
+                IsOverdue = a.EndDate.HasValue && a.EndDate < DateTime.UtcNow && a.Status != "Completed",
+                Score = a.Score
+            }).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading assessments: {ex.Message}");
+            assessments = new List<AssessmentListItemDto>();
+        }
     }
 
     private string GetStatusColor(string status) => status switch

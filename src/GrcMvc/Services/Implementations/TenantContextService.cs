@@ -13,6 +13,7 @@ namespace GrcMvc.Services.Implementations
     /// <summary>
     /// Service to get current tenant context from authenticated user
     /// Supports multi-layer resolution: Domain/Subdomain → Claims → Database
+    /// HIGH FIX: Cache is now stored in HttpContext.Items to avoid stale cache issues
     /// </summary>
     public class TenantContextService : ITenantContextService
     {
@@ -20,10 +21,12 @@ namespace GrcMvc.Services.Implementations
         private readonly GrcDbContext _context; // Master DB for tenant metadata
         private readonly ILogger<TenantContextService>? _logger;
         private readonly IServiceProvider _serviceProvider;
-        private Guid? _cachedTenantId;
+
+        // Cache key for HttpContext.Items (per-request cache instead of instance cache)
+        private const string TenantIdCacheKey = "__TenantContextService_TenantId";
 
         public TenantContextService(
-            IHttpContextAccessor httpContextAccessor, 
+            IHttpContextAccessor httpContextAccessor,
             GrcDbContext context,
             IServiceProvider serviceProvider,
             ILogger<TenantContextService>? logger = null)
@@ -36,14 +39,19 @@ namespace GrcMvc.Services.Implementations
 
         public Guid GetCurrentTenantId()
         {
-            if (_cachedTenantId.HasValue)
-                return _cachedTenantId.Value;
+            // HIGH FIX: Use HttpContext.Items for per-request caching instead of instance field
+            // This prevents stale cache issues when user changes tenant mid-session
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext?.Items.TryGetValue(TenantIdCacheKey, out var cached) == true && cached is Guid cachedId)
+            {
+                return cachedId;
+            }
 
             // 1. Try Domain/Subdomain first (for public access - e.g., acme.grcsystem.com)
             var tenantId = ResolveFromDomain();
             if (tenantId != Guid.Empty)
             {
-                _cachedTenantId = tenantId;
+                CacheTenantId(tenantId);
                 return tenantId;
             }
 
@@ -51,21 +59,45 @@ namespace GrcMvc.Services.Implementations
             tenantId = ResolveFromClaims();
             if (tenantId != Guid.Empty)
             {
-                _cachedTenantId = tenantId;
+                CacheTenantId(tenantId);
                 return tenantId;
             }
-            
+
             // 3. Fallback to database lookup (existing logic - ~50ms)
             // Only happens if domain and claim missing (edge case)
             tenantId = ResolveFromDatabase();
             if (tenantId != Guid.Empty)
             {
-                _cachedTenantId = tenantId;
+                CacheTenantId(tenantId);
                 return tenantId;
             }
 
             _logger?.LogWarning("Could not resolve tenant from domain, claims, or database");
             return Guid.Empty;
+        }
+
+        /// <summary>
+        /// Cache tenant ID in HttpContext.Items for per-request caching.
+        /// </summary>
+        private void CacheTenantId(Guid tenantId)
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext != null)
+            {
+                httpContext.Items[TenantIdCacheKey] = tenantId;
+            }
+        }
+
+        /// <summary>
+        /// Clear cached tenant ID (useful when user switches tenant).
+        /// </summary>
+        public void ClearTenantCache()
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext != null)
+            {
+                httpContext.Items.Remove(TenantIdCacheKey);
+            }
         }
 
         private Guid ResolveFromDomain()
@@ -80,7 +112,7 @@ namespace GrcMvc.Services.Implementations
                 return Guid.Empty; // No subdomain
 
             var subdomain = parts[0].ToLower();
-            
+
             // Skip common subdomains (www, api, admin, etc.)
             var skipSubdomains = new[] { "www", "api", "admin", "app", "portal", "www2", "localhost" };
             if (skipSubdomains.Contains(subdomain))
@@ -121,9 +153,14 @@ namespace GrcMvc.Services.Implementations
                 return Guid.Empty;
             }
 
+            // CRITICAL FIX: Use deterministic ordering to ensure consistent tenant selection
+            // when user has multiple tenants (order by activation date - most recently activated first, then by creation date)
             var tenantUser = _context.TenantUsers
                 .AsNoTracking()
-                .FirstOrDefault(tu => tu.UserId == userId && tu.Status == "Active" && !tu.IsDeleted);
+                .Where(tu => tu.UserId == userId && tu.Status == "Active" && !tu.IsDeleted)
+                .OrderByDescending(tu => tu.ActivatedAt ?? tu.CreatedDate) // Most recently activated
+                .ThenBy(tu => tu.CreatedDate) // Creation date as tiebreaker
+                .FirstOrDefault();
 
             if (tenantUser != null)
             {
@@ -154,7 +191,7 @@ namespace GrcMvc.Services.Implementations
         {
             var tenantId = GetCurrentTenantId();
             if (tenantId == Guid.Empty) return null;
-            
+
             var resolver = _serviceProvider.GetRequiredService<ITenantDatabaseResolver>();
             return resolver.GetConnectionString(tenantId);
         }

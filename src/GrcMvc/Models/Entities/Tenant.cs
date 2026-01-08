@@ -14,6 +14,21 @@ namespace GrcMvc.Models.Entities
         public string AdminEmail { get; set; } = string.Empty;
 
         /// <summary>
+        /// Immutable tenant code used as prefix for all business reference codes.
+        /// Format: 2-10 uppercase alphanumeric characters (e.g., ACME, STC, NCA).
+        /// This is DIFFERENT from TenantSlug - TenantCode is for auditing, TenantSlug is for URLs.
+        /// Once assigned, TenantCode should NEVER change.
+        /// </summary>
+        public string TenantCode { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Business reference code for this tenant.
+        /// Format: {TENANTCODE}-TEN-{YYYY}-{SEQUENCE}
+        /// Example: ACME-TEN-2026-000001
+        /// </summary>
+        public string BusinessCode { get; set; } = string.Empty;
+
+        /// <summary>
         /// Status: Pending (awaiting admin activation), Active, Suspended, Deleted
         /// </summary>
         public string Status { get; set; } = "Pending";

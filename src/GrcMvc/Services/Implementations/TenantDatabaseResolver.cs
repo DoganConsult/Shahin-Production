@@ -1,4 +1,5 @@
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -30,7 +31,7 @@ namespace GrcMvc.Services.Implementations
             
             // Get base connection string from configuration
             _baseConnectionString = configuration.GetConnectionString("DefaultConnection") 
-                ?? throw new InvalidOperationException("DefaultConnection string not configured");
+                ?? throw new GrcException("DefaultConnection string not configured", GrcErrorCodes.GeneralError);
 
             // Parse connection string to extract components
             var builder = new NpgsqlConnectionStringBuilder(_baseConnectionString);

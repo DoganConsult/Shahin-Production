@@ -109,6 +109,12 @@ namespace GrcMvc.Controllers.Api
                 
                 // Seed GOSI 70+ sub-sector mappings to 18 main sectors
                 await GosiSectorSeeds.SeedSubSectorMappingsAsync(_context, _logger);
+                
+                // Seed marketing content (testimonials, case studies, pricing)
+                await MarketingSeeds.SeedMarketingDataAsync(_context);
+                
+                // Seed document templates for Document Center
+                await DocumentTemplateSeeds.SeedDocumentTemplatesAsync(_context);
 
                 return Ok(new {
                     message = "All seed data created successfully",
@@ -118,7 +124,9 @@ namespace GrcMvc.Controllers.Api
                     workflows = new[] { "NCA ECC", "SAMA CSF", "PDPL PIA", "ERM", "Evidence Review", "Audit Remediation", "Policy Review" },
                     evidenceScoring = "29 evidence scoring criteria",
                     sectorIndex = "18 main sectors with framework mappings",
-                    gosiMappings = "70+ GOSI sub-sectors mapped to 18 main GRC sectors (based on KSA ISIC Rev 4)"
+                    gosiMappings = "70+ GOSI sub-sectors mapped to 18 main GRC sectors (based on KSA ISIC Rev 4)",
+                    marketing = "4 testimonials, 5 case studies, 4 pricing plans",
+                    documentTemplates = "20 GRC document templates (policies, forms, checklists, reports)"
                 });
             }
             catch (Exception ex)
@@ -427,6 +435,43 @@ namespace GrcMvc.Controllers.Api
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deduplicating controls");
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Seed derivation rules (50+ rules for scope derivation via Rules Engine)
+        /// </summary>
+        [HttpPost("rules")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SeedDerivationRules()
+        {
+            try
+            {
+                await DerivationRulesSeeds.SeedAsync(_context, _logger);
+
+                var rulesetCount = await _context.Rulesets.CountAsync();
+                var ruleCount = await _context.Rules.CountAsync();
+
+                return Ok(new {
+                    message = "Derivation rules seeded successfully",
+                    rulesets = rulesetCount,
+                    rules = ruleCount,
+                    sections = new[] {
+                        "Country & Region (Priority 1-10)",
+                        "Sector-based (Priority 11-40)",
+                        "Data Types (Priority 41-60)",
+                        "Infrastructure (Priority 61-80)",
+                        "Organization Size (Priority 81-90)",
+                        "Vendor/Third-party (Priority 91-100)",
+                        "International (Priority 101-110)",
+                        "Certifications (Priority 111-120)"
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error seeding derivation rules");
                 return BadRequest(new { error = ex.Message });
             }
         }

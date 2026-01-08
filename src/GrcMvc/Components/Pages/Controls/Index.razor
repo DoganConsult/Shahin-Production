@@ -169,55 +169,88 @@
 
 @code {
     private List<ControlListItemDto> controls = new();
+    private List<ControlListItemDto> allControls = new();
     private bool isLoading = true;
+
+    // Filter state
+    private string? statusFilter;
+    private string? typeFilter;
+    private string? effectivenessFilter;
 
     protected override async Task OnInitializedAsync()
     {
-        // TODO: Load from service
-        // var controlService = GetService<IControlService>();
-        // controls = (await controlService.GetAllAsync()).ToList();
+        // Demo data - in production, load from IControlService
+        allControls = new List<ControlListItemDto>
+        {
+            new() { Id = Guid.NewGuid(), ControlNumber = "CTRL-001", Name = "Firewall - Internet Perimeter", Type = "Detective",
+                Category = "Technical", Status = "Active", Effectiveness = "Effective", Owner = "IT Security",
+                LastTestedDate = DateTime.Now.AddDays(-7), LinkedRiskCount = 5, LinkedAssessmentCount = 2 },
+            new() { Id = Guid.NewGuid(), ControlNumber = "CTRL-002", Name = "Access Control List (ACL)", Type = "Preventive",
+                Category = "Technical", Status = "Active", Effectiveness = "Effective", Owner = "IT Operations",
+                LastTestedDate = DateTime.Now.AddDays(-14), LinkedRiskCount = 8, LinkedAssessmentCount = 3 },
+            new() { Id = Guid.NewGuid(), ControlNumber = "CTRL-003", Name = "Data Encryption at Rest", Type = "Preventive",
+                Category = "Technical", Status = "Active", Effectiveness = "Effective", Owner = "IT Security",
+                LastTestedDate = DateTime.Now.AddDays(-30), LinkedRiskCount = 12, LinkedAssessmentCount = 4 },
+            new() { Id = Guid.NewGuid(), ControlNumber = "CTRL-004", Name = "Employee Security Awareness Training", Type = "Preventive",
+                Category = "Administrative", Status = "Active", Effectiveness = "Partially Effective", Owner = "HR/Compliance",
+                LastTestedDate = DateTime.Now.AddDays(-60), LinkedRiskCount = 6, LinkedAssessmentCount = 2 },
+            new() { Id = Guid.NewGuid(), ControlNumber = "CTRL-005", Name = "Segregation of Duties (SoD)", Type = "Detective",
+                Category = "Administrative", Status = "Active", Effectiveness = "Effective", Owner = "Finance",
+                LastTestedDate = DateTime.Now.AddDays(-45), LinkedRiskCount = 4, LinkedAssessmentCount = 2 },
+            new() { Id = Guid.NewGuid(), ControlNumber = "CTRL-006", Name = "Incident Response Plan", Type = "Corrective",
+                Category = "Administrative", Status = "Inactive", Effectiveness = "Ineffective", Owner = "IT Security",
+                LastTestedDate = DateTime.Now.AddDays(-90), LinkedRiskCount = 3, LinkedAssessmentCount = 1 },
+            new() { Id = Guid.NewGuid(), ControlNumber = "CTRL-007", Name = "Backup & Recovery", Type = "Corrective",
+                Category = "Technical", Status = "Pending", Effectiveness = "Partially Effective", Owner = "IT Operations",
+                LastTestedDate = null, LinkedRiskCount = 2, LinkedAssessmentCount = 1 },
+        };
 
-        // Demo data
-        controls = new List<ControlListItemDto>
-{
-new() { Id = Guid.NewGuid(), ControlNumber = "CTRL-001", Name = "Firewall - Internet Perimeter", Type = "Detective",
-Category = "Technical", Status = "Active", Effectiveness = "Effective", Owner = "IT Security", LastTestedDate =
-DateTime.Now.AddDays(-7), LinkedRiskCount = 5, LinkedAssessmentCount = 2 },
-new() { Id = Guid.NewGuid(), ControlNumber = "CTRL-002", Name = "Access Control List (ACL)", Type = "Preventive",
-Category = "Technical", Status = "Active", Effectiveness = "Effective", Owner = "IT Operations", LastTestedDate =
-DateTime.Now.AddDays(-14), LinkedRiskCount = 8, LinkedAssessmentCount = 3 },
-new() { Id = Guid.NewGuid(), ControlNumber = "CTRL-003", Name = "Data Encryption at Rest", Type = "Preventive", Category
-= "Technical", Status = "Active", Effectiveness = "Effective", Owner = "IT Security", LastTestedDate =
-DateTime.Now.AddDays(-30), LinkedRiskCount = 12, LinkedAssessmentCount = 4 },
-new() { Id = Guid.NewGuid(), ControlNumber = "CTRL-004", Name = "Employee Security Awareness Training", Type =
-"Preventive", Category = "Administrative", Status = "Active", Effectiveness = "Partially Effective", Owner =
-"HR/Compliance", LastTestedDate = DateTime.Now.AddDays(-60), LinkedRiskCount = 6, LinkedAssessmentCount = 2 },
-new() { Id = Guid.NewGuid(), ControlNumber = "CTRL-005", Name = "Segregation of Duties (SoD)", Type = "Detective",
-Category = "Administrative", Status = "Active", Effectiveness = "Effective", Owner = "Finance", LastTestedDate =
-DateTime.Now.AddDays(-45), LinkedRiskCount = 4, LinkedAssessmentCount = 2 },
-};
-
+        controls = allControls.ToList();
         await Task.CompletedTask;
         isLoading = false;
     }
 
     private void FilterByStatus(ChangeEventArgs e)
     {
-        // TODO: Implement filtering
+        statusFilter = e.Value?.ToString();
+        ApplyFilters();
     }
 
     private void FilterByType(ChangeEventArgs e)
     {
-        // TODO: Implement filtering
+        typeFilter = e.Value?.ToString();
+        ApplyFilters();
     }
 
     private void FilterByEffectiveness(ChangeEventArgs e)
     {
-        // TODO: Implement filtering
+        effectivenessFilter = e.Value?.ToString();
+        ApplyFilters();
     }
 
     private void ResetFilters()
     {
-        // TODO: Reset filter state
+        statusFilter = null;
+        typeFilter = null;
+        effectivenessFilter = null;
+        controls = allControls.ToList();
+        StateHasChanged();
+    }
+
+    private void ApplyFilters()
+    {
+        var filtered = allControls.AsEnumerable();
+
+        if (!string.IsNullOrEmpty(statusFilter))
+            filtered = filtered.Where(c => c.Status == statusFilter);
+
+        if (!string.IsNullOrEmpty(typeFilter))
+            filtered = filtered.Where(c => c.Type == typeFilter);
+
+        if (!string.IsNullOrEmpty(effectivenessFilter))
+            filtered = filtered.Where(c => c.Effectiveness == effectivenessFilter);
+
+        controls = filtered.ToList();
+        StateHasChanged();
     }
 }

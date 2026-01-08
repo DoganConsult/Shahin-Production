@@ -159,44 +159,11 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Disable form submit links in sidebar
+            // Disable form submit links in sidebar for incomplete steps
             document.querySelectorAll('.list-group-item.disabled').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                 });
-            });
-
-            // Track button clicks for debugging
-            ['btn-start-wizard', 'btn-org-setup', 'btn-new-org'].forEach(btnId => {
-                const btn = document.getElementById(btnId);
-                if (btn) {
-                    btn.addEventListener('click', function(e) {
-                        const buttonType = this.getAttribute('data-button-type');
-                        const href = this.getAttribute('href');
-                        
-                        // Log to server via fetch
-                        fetch('http://localhost:7256/ingest/e0dc8edc-729f-42ea-a384-254fbd926e6a', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                sessionId: 'debug-session',
-                                runId: 'run1',
-                                hypothesisId: 'BUTTON_CLICK',
-                                location: 'Onboarding/Index.cshtml',
-                                message: 'Button clicked',
-                                data: {
-                                    buttonType: buttonType,
-                                    buttonId: btnId,
-                                    href: href,
-                                    userId: '@(User.Identity?.Name ?? "anonymous")',
-                                    isAuthenticated: @(User.Identity?.IsAuthenticated == true ? "true" : "false"),
-                                    tenantId: '@tenantId'
-                                },
-                                timestamp: Date.now()
-                            })
-                        }).catch(() => {});
-                    });
-                }
             });
         });
     </script>

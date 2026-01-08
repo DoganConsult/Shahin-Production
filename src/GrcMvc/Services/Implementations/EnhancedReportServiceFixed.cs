@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Services.Interfaces;
@@ -250,7 +251,7 @@ namespace GrcMvc.Services.Implementations
                 var audit = await _unitOfWork.Audits.GetByIdAsync(auditId);
                 if (audit == null)
                 {
-                    throw new InvalidOperationException($"Audit '{auditId}' not found.");
+                    throw new EntityNotFoundException("Audit", auditId);
                 }
 
                 var tenantId = audit.TenantId ?? _currentUser.GetTenantId();
@@ -424,7 +425,7 @@ namespace GrcMvc.Services.Implementations
 
                 if (report == null || report.IsDeleted)
                 {
-                    throw new InvalidOperationException($"Report {reportId} not found");
+                    throw new EntityNotFoundException("Report", reportId);
                 }
 
                 // Verify tenant access
@@ -972,7 +973,7 @@ namespace GrcMvc.Services.Implementations
                 .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
 
             if (report == null)
-                throw new InvalidOperationException("Report not found");
+                throw new EntityNotFoundException("Report", reportId);
 
             if (!string.IsNullOrEmpty(dto.Title))
                 report.Title = dto.Title;
@@ -1031,7 +1032,7 @@ namespace GrcMvc.Services.Implementations
                 .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
 
             if (report == null)
-                throw new InvalidOperationException("Report not found");
+                throw new EntityNotFoundException("Report", reportId);
 
             report.Status = "Delivered";
             report.DeliveredTo = deliveredTo;

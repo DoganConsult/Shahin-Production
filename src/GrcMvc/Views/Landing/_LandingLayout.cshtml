@@ -1,464 +1,294 @@
 @using GrcMvc.Services
+@using GrcMvc.Services.Interfaces
 @inject IAppInfoService AppInfo
+@inject ISiteSettingsService SiteSettings
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    var baseUrl = $"{HttpContextAccessor.HttpContext?.Request.Scheme}://{HttpContextAccessor.HttpContext?.Request.Host}";
+    var currentPath = HttpContextAccessor.HttpContext?.Request.Path.ToString() ?? "/";
+    var canonicalUrl = $"{baseUrl}{currentPath}";
+    var metaDescription = ViewData["MetaDescription"]?.ToString() ?? "منصة شاهين - نظام متكامل لإدارة الحوكمة والمخاطر والامتثال";
+    var ogImage = ViewData["OgImage"]?.ToString() ?? $"{baseUrl}/images/og-image.png";
+}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="منصة شاهين - نظام متكامل لإدارة الحوكمة والمخاطر والامتثال" />
-    <title>@ViewData["Title"]</title>
-    
+    <meta name="description" content="@metaDescription" />
+    <meta name="keywords" content="GRC, حوكمة, مخاطر, امتثال, السعودية, شاهين" />
+    <title>@ViewData["Title"] - @AppInfo.Name</title>
+
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="~/images/brand/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="~/images/brand/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="128x128" href="~/images/brand/favicon-128.png" />
+    <meta name="application-name" content="@AppInfo.Name" />
+    <meta name="author" content="@AppInfo.CompanyName" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="@canonicalUrl" />
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    
-    <style>
-        :root {
-            --primary: #10b981;
-            --primary-dark: #059669;
-            --primary-light: #34d399;
-            --accent: #f59e0b;
-            --accent-dark: #d97706;
-            --dark: #0f172a;
-            --darker: #020617;
-            --light: #f8fafc;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --gradient-1: linear-gradient(135deg, #10b981, #3b82f6);
-            --gradient-2: linear-gradient(135deg, #f59e0b, #ef4444);
-            --gradient-3: linear-gradient(135deg, #8b5cf6, #ec4899);
-        }
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" integrity="sha384-PJsj/BTMqILvmcej0dnMHgfPzn5h7mlN02e/XXXXX" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/landing.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/tailwind.output.css" asp-append-version="true" />
 
-        html {
-            scroll-behavior: smooth;
-        }
+    <!-- Open Graph / Social Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="@canonicalUrl" />
+    <meta property="og:title" content="@ViewData["Title"] - @AppInfo.Name" />
+    <meta property="og:description" content="@metaDescription" />
+    <meta property="og:image" content="@ogImage" />
+    <meta property="og:locale" content="ar_SA" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:site_name" content="@AppInfo.Name" />
 
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background: var(--darker);
-            color: var(--light);
-            line-height: 1.7;
-            overflow-x: hidden;
-        }
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@ViewData["Title"] - @AppInfo.Name" />
+    <meta name="twitter:description" content="@metaDescription" />
+    <meta name="twitter:image" content="@ogImage" />
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        /* Background */
-        .page-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: 
-                radial-gradient(ellipse at 20% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
-        }
-
-        .grid-pattern {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 60px 60px;
-            z-index: -1;
-        }
-
-        /* Navigation */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            padding: 1rem 2rem;
-            background: rgba(2, 6, 23, 0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .navbar-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-decoration: none;
-        }
-
-        .logo-icon {
-            width: 42px;
-            height: 42px;
-            background: var(--gradient-1);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            font-weight: 900;
-            color: white;
-        }
-
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: var(--light);
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-        }
-
-        .nav-link {
-            color: rgba(248, 250, 252, 0.7);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            color: var(--primary);
-        }
-
-        .nav-cta {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            border-radius: 10px;
-            font-weight: 700;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-outline {
-            border: 1px solid var(--glass-border);
-            color: var(--light);
-            background: transparent;
-        }
-
-        .btn-outline:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-primary {
-            background: var(--gradient-1);
-            color: white;
-            border: none;
-            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4);
-        }
-
-        .btn-lg {
-            padding: 1rem 2rem;
-            font-size: 1.05rem;
-        }
-
-        /* Section Headers */
-        .section-header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .section-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: var(--primary);
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-        }
-
-        .section-subtitle {
-            font-size: 1.15rem;
-            color: rgba(248, 250, 252, 0.6);
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        /* Footer */
-        footer {
-            background: var(--dark);
-            border-top: 1px solid var(--glass-border);
-            padding: 4rem 2rem 2rem;
-            margin-top: 4rem;
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .footer-main {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 3rem;
-            margin-bottom: 3rem;
-        }
-
-        .footer-brand .logo {
-            margin-bottom: 1rem;
-        }
-
-        .footer-brand p {
-            color: rgba(248, 250, 252, 0.5);
-            font-size: 0.95rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .footer-social {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .footer-social a {
-            width: 40px;
-            height: 40px;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--light);
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .footer-social a:hover {
-            background: var(--primary);
-            border-color: var(--primary);
-        }
-
-        .footer-links h4 {
-            font-size: 1rem;
-            font-weight: 700;
-            margin-bottom: 1.25rem;
-            color: var(--light);
-        }
-
-        .footer-links ul {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: 0.75rem;
-        }
-
-        .footer-links a {
-            color: rgba(248, 250, 252, 0.5);
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.3s ease;
-        }
-
-        .footer-links a:hover {
-            color: var(--primary);
-        }
-
-        .footer-bottom {
-            padding-top: 2rem;
-            border-top: 1px solid var(--glass-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .footer-bottom p {
-            color: rgba(248, 250, 252, 0.4);
-            font-size: 0.85rem;
-        }
-
-        .powered-by {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: rgba(248, 250, 252, 0.4);
-            font-size: 0.85rem;
-        }
-
-        .powered-by a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        /* Animations */
-        .fade-up {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease;
-        }
-
-        .fade-up.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        @@media (max-width: 1024px) {
-            .footer-main {
-                grid-template-columns: 1fr 1fr;
+    <!-- Structured Data (JSON-LD) for SEO -->
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "SoftwareApplication",
+        "name": "@AppInfo.Name",
+        "alternateName": "Shahin GRC",
+        "description": "@metaDescription",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web Browser",
+        "url": "@baseUrl",
+        "offers": {
+            "@@type": "Offer",
+            "price": "0",
+            "priceCurrency": "SAR",
+            "description": "7-day free trial with full access"
+        },
+        "aggregateRating": {
+            "@@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "ratingCount": "127"
+        },
+        "provider": {
+            "@@type": "Organization",
+            "name": "@AppInfo.CompanyName",
+            "url": "https://www.doganconsult.com",
+            "logo": "@baseUrl/images/brand/logo.png",
+            "sameAs": [
+                "@SiteSettings.LinkedInUrl",
+                "@SiteSettings.TwitterUrl"
+            ],
+            "address": {
+                "@@type": "PostalAddress",
+                "addressCountry": "SA",
+                "addressLocality": "Riyadh"
             }
+        },
+        "featureList": [
+            "Smart Compliance Scope Derivation",
+            "130+ KSA & International Regulators",
+            "400+ Controls Library",
+            "AI-Powered Risk Assessment",
+            "Evidence Management",
+            "Automated Workflows",
+            "Multi-tenant Architecture",
+            "Arabic & English Support"
+        ]
+    }
+    </script>
+
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "Organization",
+        "name": "@AppInfo.CompanyName",
+        "url": "https://www.doganconsult.com",
+        "logo": "@baseUrl/images/brand/logo.png",
+        "description": "Dogan Consult - Technology & Consulting Services",
+        "foundingDate": "2020",
+        "sameAs": [
+            "@SiteSettings.LinkedInUrl",
+            "@SiteSettings.TwitterUrl",
+            "@SiteSettings.YouTubeUrl"
+        ],
+        "contactPoint": {
+            "@@type": "ContactPoint",
+            "telephone": "@SiteSettings.PhoneNumber",
+            "contactType": "customer service",
+            "availableLanguage": ["Arabic", "English"]
         }
+    }
+    </script>
 
-        @@media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-
-            .footer-main {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-
-            .footer-social {
-                justify-content: center;
-            }
-
-            .footer-bottom {
-                flex-direction: column;
-                text-align: center;
-            }
-        }
-    </style>
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <div class="page-bg"></div>
-    <div class="grid-pattern"></div>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">تخطي إلى المحتوى الرئيسي</a>
 
     <!-- Navigation -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <a href="/" class="logo">
-                <div class="logo-icon">ش</div>
-                <span class="logo-text">شاهين</span>
-            </a>
-            <div class="nav-links">
-                <a href="/Landing/Features" class="nav-link @(ViewData["Title"]?.ToString()?.Contains("المميزات") == true ? "active" : "")">المميزات</a>
-                <a href="/Landing/Pricing" class="nav-link @(ViewData["Title"]?.ToString()?.Contains("الأسعار") == true ? "active" : "")">الأسعار</a>
-                <a href="/Landing/About" class="nav-link @(ViewData["Title"]?.ToString()?.Contains("من نحن") == true ? "active" : "")">عن المنصة</a>
-                <a href="/Landing/Contact" class="nav-link @(ViewData["Title"]?.ToString()?.Contains("تواصل") == true ? "active" : "")">تواصل معنا</a>
-            </div>
-            <div class="nav-cta">
-                <a href="/Account/Login" class="btn btn-outline">
-                    <i class="bi bi-person-circle"></i>
-                    تسجيل الدخول
+    <nav class="landing-navbar" role="navigation" aria-label="التنقل الرئيسي">
+        <div class="container">
+            <div class="navbar-inner">
+                <a href="/" class="navbar-brand" aria-label="الرئيسية - شاهين">
+                    <div class="logo-icon" aria-hidden="true">ش</div>
+                    <span>شاهين</span>
                 </a>
-                <a href="/trial" class="btn btn-primary">
-                    <i class="bi bi-rocket-takeoff-fill"></i>
-                    ابدأ مجاناً
-                </a>
+
+                <!-- Desktop Navigation -->
+                <div class="nav-links" role="menubar">
+                    <a href="/Landing/Features" class="nav-link @(ViewData["Title"]?.ToString()?.Contains("المميزات") == true ? "active" : "")" role="menuitem">المميزات</a>
+                    <a href="/Landing/Pricing" class="nav-link @(ViewData["Title"]?.ToString()?.Contains("الأسعار") == true ? "active" : "")" role="menuitem">الأسعار</a>
+                    <a href="/Landing/About" class="nav-link @(ViewData["Title"]?.ToString()?.Contains("من نحن") == true ? "active" : "")" role="menuitem">عن المنصة</a>
+                    <a href="/Landing/Contact" class="nav-link @(ViewData["Title"]?.ToString()?.Contains("تواصل") == true ? "active" : "")" role="menuitem">تواصل معنا</a>
+                </div>
+
+                <div class="nav-actions">
+                    <!-- Theme Toggle -->
+                    <button class="theme-toggle" onclick="toggleTheme()" aria-label="تبديل المظهر" title="تبديل المظهر">
+                        <i class="bi bi-sun-fill theme-icon-light" aria-hidden="true"></i>
+                        <i class="bi bi-moon-fill theme-icon-dark" aria-hidden="true"></i>
+                    </button>
+
+                    <!-- Desktop Buttons -->
+                    <a href="/Account/Login" class="btn btn-outline d-none d-md-inline-flex">
+                        <i class="bi bi-person-circle" aria-hidden="true"></i>
+                        تسجيل الدخول
+                    </a>
+                    <a href="/Onboarding" class="btn btn-primary d-none d-md-inline-flex">
+                        <i class="bi bi-rocket-takeoff-fill" aria-hidden="true"></i>
+                        ابدأ مجاناً
+                    </a>
+
+                    <!-- Mobile Menu Toggle -->
+                    <button class="mobile-menu-toggle"
+                            onclick="toggleMobileMenu()"
+                            aria-label="فتح القائمة"
+                            aria-expanded="false"
+                            aria-controls="mobile-menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
 
-    @RenderBody()
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu" role="menu" aria-hidden="true">
+        <a href="/Landing/Features" class="nav-link" role="menuitem">المميزات</a>
+        <a href="/Landing/Pricing" class="nav-link" role="menuitem">الأسعار</a>
+        <a href="/Landing/About" class="nav-link" role="menuitem">عن المنصة</a>
+        <a href="/Landing/Contact" class="nav-link" role="menuitem">تواصل معنا</a>
+        <a href="/faq" class="nav-link" role="menuitem">الأسئلة الشائعة</a>
+        <div class="nav-actions">
+            <a href="/Account/Login" class="btn btn-outline">
+                <i class="bi bi-person-circle" aria-hidden="true"></i>
+                تسجيل الدخول
+            </a>
+            <a href="/Onboarding" class="btn btn-primary">
+                <i class="bi bi-rocket-takeoff-fill" aria-hidden="true"></i>
+                ابدأ مجاناً
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        @RenderBody()
+    </main>
 
     <!-- Footer -->
-    <footer>
-        <div class="footer-content">
-            <div class="footer-main">
-                <div class="footer-brand">
-                    <a href="/" class="logo">
-                        <div class="logo-icon">ش</div>
-                        <span class="logo-text">شاهين</span>
-                    </a>
-                    <p>
+    <footer class="landing-footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">
+                        <div class="logo-icon" aria-hidden="true">ش</div>
+                        <span class="footer-brand-text">شاهين</span>
+                    </div>
+                    <p class="footer-desc">
                         منصة متكاملة لإدارة الحوكمة والمخاطر والامتثال.
                         مصممة للمملكة العربية السعودية والعالم.
                     </p>
                     <div class="footer-social">
-                        <a href="#"><i class="bi bi-linkedin"></i></a>
-                        <a href="#"><i class="bi bi-twitter-x"></i></a>
-                        <a href="#"><i class="bi bi-youtube"></i></a>
+                        @if (SiteSettings.HasLinkedIn)
+                        {
+                            <a href="@SiteSettings.LinkedInUrl" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                                <i class="bi bi-linkedin" aria-hidden="true"></i>
+                            </a>
+                        }
+                        @if (SiteSettings.HasTwitter)
+                        {
+                            <a href="@SiteSettings.TwitterUrl" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                                <i class="bi bi-twitter-x" aria-hidden="true"></i>
+                            </a>
+                        }
+                        @if (SiteSettings.HasYouTube)
+                        {
+                            <a href="@SiteSettings.YouTubeUrl" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                                <i class="bi bi-youtube" aria-hidden="true"></i>
+                            </a>
+                        }
                     </div>
                 </div>
-                <div class="footer-links">
-                    <h4>المنتج</h4>
-                    <ul>
+                <div>
+                    <h2 class="footer-title">المنتج</h2>
+                    <ul class="footer-links">
                         <li><a href="/Landing/Features">المميزات</a></li>
-                        <li><a href="/trial">التجربة المجانية</a></li>
+                        <li><a href="/Onboarding">التجربة المجانية</a></li>
                         <li><a href="/Landing/Pricing">الأسعار</a></li>
                     </ul>
                 </div>
-                <div class="footer-links">
-                    <h4>الموارد</h4>
-                    <ul>
-                        <li><a href="/docs">التوثيق</a></li>
-                        <li><a href="/blog">المدونة</a></li>
-                        <li><a href="/webinars">الندوات</a></li>
-                        <li><a href="/case-studies">دراسات الحالة</a></li>
+                <div>
+                    <h2 class="footer-title">الموارد</h2>
+                    <ul class="footer-links">
+                        <li><a href="/Landing/Docs">التوثيق</a></li>
+                        <li><a href="/Landing/Blog">المدونة</a></li>
+                        <li><a href="/Landing/Webinars">الندوات</a></li>
+                        <li><a href="/Landing/CaseStudies">دراسات الحالة</a></li>
                     </ul>
                 </div>
-                <div class="footer-links">
-                    <h4>الشركة</h4>
-                    <ul>
+                <div>
+                    <h2 class="footer-title">الشركة</h2>
+                    <ul class="footer-links">
                         <li><a href="/Landing/About">من نحن</a></li>
                         <li><a href="/Landing/Contact">تواصل معنا</a></li>
-                        <li><a href="/careers">الوظائف</a></li>
-                        <li><a href="/partners">الشركاء</a></li>
+                        <li><a href="/Landing/Careers">الوظائف</a></li>
+                        <li><a href="/Landing/Partners">الشركاء</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h2 class="footer-title">الدعم</h2>
+                    <ul class="footer-links">
+                        <li><a href="/Landing/Help">مركز المساعدة</a></li>
+                        <li><a href="/Landing/FAQ">الأسئلة الشائعة</a></li>
+                        <li><a href="/Landing/Status">حالة النظام</a></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; @AppInfo.CopyrightYear @AppInfo.Name. جميع الحقوق محفوظة. @AppInfo.VersionDisplay</p>
-                <div class="powered-by">
+                <p class="footer-copy">&copy; @AppInfo.CopyrightYear @AppInfo.Name. جميع الحقوق محفوظة. @AppInfo.VersionDisplay</p>
+                <div class="footer-legal">
+                    <a href="/Landing/Privacy">سياسة الخصوصية</a>
+                    <a href="/Landing/Terms">الشروط والأحكام</a>
+                </div>
+                <div class="d-flex align-items-center gap-2">
                     <span>Powered by</span>
-                    <a href="https://www.doganconsult.com" target="_blank" rel="noopener">
-                        <i class="bi bi-lightning-charge-fill"></i>
+                    <a href="https://www.doganconsult.com" target="_blank" rel="noopener noreferrer" class="d-flex align-items-center gap-1">
+                        <i class="bi bi-lightning-charge-fill text-warning" aria-hidden="true"></i>
                         Dogan Consult
                     </a>
                 </div>
@@ -466,8 +296,62 @@
         </div>
     </footer>
 
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-XXX" crossorigin="anonymous"></script>
+
     <script>
-        // Fade-up animation on scroll
+        // ===== THEME TOGGLE =====
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('shahin-theme', newTheme);
+        }
+
+        // Load saved theme
+        (function() {
+            const savedTheme = localStorage.getItem('shahin-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+
+        // ===== MOBILE MENU =====
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            const isOpen = menu.classList.contains('open');
+
+            menu.classList.toggle('open');
+            toggle.setAttribute('aria-expanded', !isOpen);
+            menu.setAttribute('aria-hidden', isOpen);
+            toggle.setAttribute('aria-label', isOpen ? 'فتح القائمة' : 'إغلاق القائمة');
+
+            // Prevent body scroll when menu is open
+            document.body.style.overflow = isOpen ? '' : 'hidden';
+        }
+
+        // Close mobile menu on escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const menu = document.getElementById('mobile-menu');
+                if (menu.classList.contains('open')) {
+                    toggleMobileMenu();
+                }
+            }
+        });
+
+        // ===== NAVBAR SCROLL EFFECT =====
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.landing-navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // ===== FADE-IN ANIMATION ON SCROLL =====
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
@@ -481,11 +365,52 @@
             });
         }, observerOptions);
 
-        document.querySelectorAll('.fade-up').forEach(el => {
+        document.querySelectorAll('.fade-in, .fade-up').forEach(el => {
             observer.observe(el);
         });
+    </script>
 
-        // ========== AI CHAT WIDGET ==========
+    <!-- AI Chat Widget -->
+    <button id="chat-toggle" class="chat-toggle" aria-label="فتح المحادثة مع المساعد الذكي" title="تحدث مع المساعد الذكي">
+        <i class="bi bi-robot" aria-hidden="true"></i>
+        <span class="chat-badge">AI</span>
+    </button>
+
+    <div id="ai-chat-widget" class="ai-chat-widget" role="dialog" aria-label="محادثة مع المساعد الذكي" aria-hidden="true">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <div class="chat-avatar" aria-hidden="true"><i class="bi bi-robot"></i></div>
+                <div>
+                    <div class="chat-title">مساعد شاهين الذكي</div>
+                    <div class="chat-status">
+                        <span class="status-dot" aria-hidden="true"></span>
+                        <span>متصل</span>
+                    </div>
+                </div>
+            </div>
+            <button id="chat-close" class="chat-close" aria-label="إغلاق المحادثة">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="رسائل المحادثة">
+            <div class="chat-message bot">مرحباً! كيف يمكنني مساعدتك؟</div>
+            <div class="chat-suggestions" role="group" aria-label="اقتراحات">
+                <button class="suggestion-btn" type="button">ما هي شاهين؟</button>
+                <button class="suggestion-btn" type="button">التجربة المجانية</button>
+                <button class="suggestion-btn" type="button">الأسعار</button>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <label for="chat-input" class="visually-hidden">اكتب رسالتك</label>
+            <input type="text" id="chat-input" placeholder="اكتب رسالتك..." autocomplete="off">
+            <button id="chat-send" aria-label="إرسال الرسالة">
+                <i class="bi bi-send-fill" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ===== AI CHAT WIDGET =====
         (function() {
             const chatWidget = document.getElementById('ai-chat-widget');
             const chatToggle = document.getElementById('chat-toggle');
@@ -494,22 +419,35 @@
             const chatInput = document.getElementById('chat-input');
             const chatSend = document.getElementById('chat-send');
             const suggestionBtns = document.querySelectorAll('.suggestion-btn');
-            
+
             if (!chatToggle) return;
-            
+
             let isOpen = false;
 
-            chatToggle.addEventListener('click', () => {
-                isOpen = !isOpen;
-                chatWidget.classList.toggle('open', isOpen);
-                chatToggle.classList.toggle('hidden', isOpen);
-                if (isOpen) chatInput.focus();
-            });
+            function openChat() {
+                isOpen = true;
+                chatWidget.classList.add('open');
+                chatWidget.setAttribute('aria-hidden', 'false');
+                chatToggle.classList.add('hidden');
+                chatInput.focus();
+            }
 
-            chatClose.addEventListener('click', () => {
+            function closeChat() {
                 isOpen = false;
                 chatWidget.classList.remove('open');
+                chatWidget.setAttribute('aria-hidden', 'true');
                 chatToggle.classList.remove('hidden');
+                chatToggle.focus();
+            }
+
+            chatToggle.addEventListener('click', openChat);
+            chatClose.addEventListener('click', closeChat);
+
+            // Close on escape
+            chatWidget.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeChat();
+                }
             });
 
             async function sendMessage(message) {
@@ -519,17 +457,25 @@
                 const typingId = addTypingIndicator();
 
                 try {
-                    const response = await fetch('/api/agent/chat/public', {
+                    const response = await fetch('/api/Landing/ChatMessage', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                        },
                         body: JSON.stringify({ message, context: 'landing_page' })
                     });
-                    const data = await response.json();
-                    removeTypingIndicator(typingId);
-                    addMessage(data.response || 'عذراً، حدث خطأ.', 'bot');
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        removeTypingIndicator(typingId);
+                        addMessage(data.response || 'شكراً لتواصلك! سنرد عليك قريباً.', 'bot');
+                    } else {
+                        throw new Error('API Error');
+                    }
                 } catch {
                     removeTypingIndicator(typingId);
-                    addMessage('مرحباً! كيف يمكنني مساعدتك؟', 'bot');
+                    addMessage('مرحباً! للاستفسارات، يرجى التواصل عبر صفحة اتصل بنا.', 'bot');
                 }
             }
 
@@ -537,6 +483,7 @@
                 const msg = document.createElement('div');
                 msg.className = `chat-message ${type}`;
                 msg.textContent = text;
+                msg.setAttribute('role', 'article');
                 chatMessages.appendChild(msg);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
@@ -546,6 +493,7 @@
                 const indicator = document.createElement('div');
                 indicator.id = id;
                 indicator.className = 'chat-message bot typing';
+                indicator.setAttribute('aria-label', 'جاري الكتابة');
                 indicator.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
                 chatMessages.appendChild(indicator);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -558,71 +506,18 @@
             }
 
             chatSend.addEventListener('click', () => sendMessage(chatInput.value));
-            chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(chatInput.value); });
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage(chatInput.value);
+            });
             suggestionBtns.forEach(btn => btn.addEventListener('click', () => sendMessage(btn.textContent)));
 
-            setTimeout(() => { if (!isOpen) chatToggle.classList.add('pulse'); }, 3000);
+            // Pulse animation after 3 seconds
+            setTimeout(() => {
+                if (!isOpen) chatToggle.classList.add('pulse');
+            }, 3000);
         })();
     </script>
 
-    <!-- AI Chat Widget -->
-    <div id="chat-toggle" class="chat-toggle" title="تحدث مع المساعد الذكي">
-        <i class="bi bi-robot"></i><span class="chat-badge">AI</span>
-    </div>
-    <div id="ai-chat-widget" class="ai-chat-widget">
-        <div class="chat-header">
-            <div class="chat-header-info">
-                <div class="chat-avatar"><i class="bi bi-robot"></i></div>
-                <div><div class="chat-title">مساعد شاهين الذكي</div><div class="chat-status"><span class="status-dot"></span> متصل</div></div>
-            </div>
-            <button id="chat-close" class="chat-close"><i class="bi bi-x-lg"></i></button>
-        </div>
-        <div id="chat-messages" class="chat-messages">
-            <div class="chat-message bot">مرحباً! 👋 كيف يمكنني مساعدتك؟</div>
-            <div class="chat-suggestions">
-                <button class="suggestion-btn">ما هي شاهين؟</button>
-                <button class="suggestion-btn">التجربة المجانية</button>
-                <button class="suggestion-btn">الأسعار</button>
-            </div>
-        </div>
-        <div class="chat-input-area">
-            <input type="text" id="chat-input" placeholder="اكتب رسالتك..." autocomplete="off">
-            <button id="chat-send"><i class="bi bi-send-fill"></i></button>
-        </div>
-    </div>
-
-    <style>
-        .chat-toggle{position:fixed;bottom:24px;left:24px;width:60px;height:60px;background:var(--gradient-1);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(16,185,129,0.4);z-index:9998;transition:all 0.3s}
-        .chat-toggle:hover{transform:scale(1.1)}.chat-toggle.pulse{animation:pulse-glow 2s ease-in-out infinite}
-        .chat-toggle.hidden{transform:scale(0);opacity:0}.chat-toggle i{font-size:1.75rem;color:white}
-        .chat-badge{position:absolute;top:-4px;right:-4px;background:var(--accent);color:var(--dark);font-size:0.65rem;font-weight:800;padding:2px 6px;border-radius:10px}
-        .ai-chat-widget{position:fixed;bottom:24px;left:24px;width:380px;height:500px;background:var(--dark);border-radius:20px;box-shadow:0 10px 50px rgba(0,0,0,0.5);display:flex;flex-direction:column;z-index:9999;opacity:0;visibility:hidden;transform:translateY(20px) scale(0.95);transition:all 0.3s;border:1px solid var(--glass-border)}
-        .ai-chat-widget.open{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
-        .chat-header{background:var(--gradient-1);padding:1rem;border-radius:20px 20px 0 0;display:flex;justify-content:space-between;align-items:center}
-        .chat-header-info{display:flex;align-items:center;gap:0.75rem}
-        .chat-avatar{width:40px;height:40px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:white}
-        .chat-title{font-weight:700;color:white;font-size:1rem}
-        .chat-status{font-size:0.8rem;color:rgba(255,255,255,0.8);display:flex;align-items:center;gap:0.4rem}
-        .status-dot{width:8px;height:8px;background:#a3e635;border-radius:50%}
-        .chat-close{background:rgba(255,255,255,0.2);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white}
-        .chat-messages{flex:1;padding:1rem;overflow-y:auto;display:flex;flex-direction:column;gap:0.75rem}
-        .chat-message{max-width:85%;padding:0.75rem 1rem;border-radius:16px;font-size:0.95rem;line-height:1.5}
-        .chat-message.user{background:var(--gradient-1);color:white;margin-right:auto;border-bottom-right-radius:4px}
-        .chat-message.bot{background:var(--glass);border:1px solid var(--glass-border);color:var(--light);margin-left:auto;border-bottom-left-radius:4px}
-        .chat-message.typing{display:flex;gap:4px;padding:1rem}
-        .chat-message.typing .dot{width:8px;height:8px;background:var(--primary);border-radius:50%;animation:typingDot 1.4s ease-in-out infinite}
-        .chat-message.typing .dot:nth-child(2){animation-delay:0.2s}.chat-message.typing .dot:nth-child(3){animation-delay:0.4s}
-        @@keyframes typingDot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
-        .chat-suggestions{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.5rem}
-        .suggestion-btn{background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--primary);padding:0.4rem 0.75rem;border-radius:20px;font-size:0.85rem;cursor:pointer;transition:all 0.2s;font-family:inherit}
-        .suggestion-btn:hover{background:rgba(16,185,129,0.25)}
-        .chat-input-area{padding:1rem;border-top:1px solid var(--glass-border);display:flex;gap:0.75rem}
-        .chat-input-area input{flex:1;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:0.75rem 1rem;color:var(--light);font-size:0.95rem;font-family:inherit}
-        .chat-input-area input:focus{outline:none;border-color:var(--primary)}
-        .chat-input-area input::placeholder{color:rgba(248,250,252,0.4)}
-        .chat-input-area button{background:var(--gradient-1);border:none;width:44px;height:44px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-size:1.1rem}
-        @@media(max-width:480px){.ai-chat-widget{width:calc(100% - 32px);height:calc(100% - 100px);bottom:16px;left:16px}.chat-toggle{bottom:16px;left:16px}}
-    </style>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

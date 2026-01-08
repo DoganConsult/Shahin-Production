@@ -1,8 +1,12 @@
 @using GrcMvc.Services
+@model GrcMvc.Controllers.CaseStudiesViewModel
 @inject IAppInfoService AppInfo
 @{
     ViewData["Title"] = "دراسات الحالة - " + AppInfo.Name;
     Layout = "_LandingLayout";
+    var featured = Model?.CaseStudies?.FirstOrDefault(c => c.IsFeatured);
+    var otherCases = Model?.CaseStudies?.Where(c => !c.IsFeatured).ToList() ?? new List<GrcMvc.Controllers.CaseStudyItem>();
+    var testimonials = Model?.Testimonials ?? new List<GrcMvc.Controllers.TestimonialItem>();
 }
 
 <section class="casestudies-hero">
@@ -18,137 +22,111 @@
             </p>
         </div>
 
+        @if (featured != null)
+        {
         <!-- Featured Case Study -->
         <div class="featured-case fade-up">
             <div class="case-image">
-                <span class="industry-badge">القطاع المالي</span>
+                <span class="industry-badge">@(featured.IndustryAr ?? featured.Industry)</span>
             </div>
             <div class="case-content">
-                <h2>بنك رائد يحقق الامتثال الكامل لـ SAMA CSF في 3 أشهر</h2>
-                <p>كيف استخدم أحد أكبر البنوك في المملكة منصة شاهين لتقييم وضعه الحالي، وتحديد الفجوات، وتحقيق الامتثال الكامل قبل الموعد المحدد.</p>
+                <h2>@(featured.TitleAr ?? featured.Title)</h2>
+                <p>@(featured.SummaryAr ?? featured.Summary)</p>
                 <div class="case-stats">
+                    @if (!string.IsNullOrEmpty(featured.ImprovementMetric))
+                    {
                     <div class="stat">
-                        <span class="stat-value">70%</span>
-                        <span class="stat-label">توفير في الوقت</span>
+                        <span class="stat-value">@featured.ImprovementMetric</span>
+                        <span class="stat-label">@(featured.ImprovementLabelAr ?? featured.ImprovementLabel)</span>
                     </div>
+                    }
+                    @if (!string.IsNullOrEmpty(featured.TimeToCompliance))
+                    {
                     <div class="stat">
-                        <span class="stat-value">3</span>
-                        <span class="stat-label">أشهر للامتثال</span>
+                        <span class="stat-value">@featured.TimeToCompliance.Replace(" months", "").Replace(" month", "")</span>
+                        <span class="stat-label">@(featured.TimeToCompliance.Contains("month") ? "أشهر للامتثال" : featured.TimeToCompliance)</span>
                     </div>
+                    }
+                    @if (!string.IsNullOrEmpty(featured.ComplianceScore))
+                    {
                     <div class="stat">
-                        <span class="stat-value">100%</span>
+                        <span class="stat-value">@featured.ComplianceScore</span>
                         <span class="stat-label">نسبة الامتثال</span>
                     </div>
+                    }
                 </div>
-                <a href="#" class="btn btn-primary">اقرأ القصة كاملة</a>
+                @if (!string.IsNullOrEmpty(featured.Slug))
+                {
+                <a href="/case-studies/@featured.Slug" class="btn btn-primary">اقرأ القصة كاملة</a>
+                }
+                else
+                {
+                <a href="/Landing/Contact" class="btn btn-primary">تواصل معنا للمزيد</a>
+                }
             </div>
         </div>
+        }
 
         <!-- Case Studies Grid -->
         <div class="cases-grid fade-up">
+            @foreach (var caseStudy in otherCases.Take(4))
+            {
             <div class="case-card">
                 <div class="card-header">
-                    <span class="industry">الرعاية الصحية</span>
+                    <span class="industry">@(caseStudy.IndustryAr ?? caseStudy.Industry)</span>
                 </div>
-                <h3>مستشفى خاص يحقق اعتماد CBAHI</h3>
-                <p>رحلة مستشفى خاص من صفر إلى الاعتماد الكامل باستخدام أدوات شاهين لإدارة الأدلة وسير العمل.</p>
+                <h3>@(caseStudy.TitleAr ?? caseStudy.Title)</h3>
+                <p>@(caseStudy.SummaryAr ?? caseStudy.Summary)</p>
                 <div class="case-results">
+                    @if (!string.IsNullOrEmpty(caseStudy.FrameworkCode))
+                    {
                     <div class="result-item">
                         <i class="bi bi-check-circle-fill"></i>
-                        <span>اعتماد CBAHI كامل</span>
+                        <span>@(caseStudy.FrameworkCode == "Multi" ? "توحيد 5 أنظمة" : $"امتثال {caseStudy.FrameworkCode}")</span>
                     </div>
+                    }
+                    @if (!string.IsNullOrEmpty(caseStudy.TimeToCompliance))
+                    {
                     <div class="result-item">
                         <i class="bi bi-clock"></i>
-                        <span>6 أشهر</span>
+                        <span>@caseStudy.TimeToCompliance.Replace("months", "أشهر").Replace("month", "شهر")</span>
                     </div>
+                    }
                 </div>
-                <a href="#" class="btn btn-outline">اقرأ المزيد</a>
+                @if (!string.IsNullOrEmpty(caseStudy.Slug))
+                {
+                <a href="/case-studies/@caseStudy.Slug" class="btn btn-outline">اقرأ المزيد</a>
+                }
+                else
+                {
+                <a href="/Landing/Contact" class="btn btn-outline">تواصل معنا</a>
+                }
             </div>
-
-            <div class="case-card">
-                <div class="card-header">
-                    <span class="industry">التقنية</span>
-                </div>
-                <h3>شركة تقنية ناشئة تحقق امتثال NCA ECC</h3>
-                <p>كيف ساعدت شاهين شركة SaaS ناشئة على الحصول على شهادة الأمن السيبراني للتأهل للعقود الحكومية.</p>
-                <div class="case-results">
-                    <div class="result-item">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>شهادة NCA ECC</span>
-                    </div>
-                    <div class="result-item">
-                        <i class="bi bi-clock"></i>
-                        <span>4 أشهر</span>
-                    </div>
-                </div>
-                <a href="#" class="btn btn-outline">اقرأ المزيد</a>
-            </div>
-
-            <div class="case-card">
-                <div class="card-header">
-                    <span class="industry">التجزئة</span>
-                </div>
-                <h3>سلسلة تجزئة كبرى تطبق PDPL</h3>
-                <p>تحول كامل في إدارة البيانات الشخصية لأكثر من 2 مليون عميل مع ضمان الامتثال لـ PDPL.</p>
-                <div class="case-results">
-                    <div class="result-item">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>امتثال PDPL</span>
-                    </div>
-                    <div class="result-item">
-                        <i class="bi bi-clock"></i>
-                        <span>5 أشهر</span>
-                    </div>
-                </div>
-                <a href="#" class="btn btn-outline">اقرأ المزيد</a>
-            </div>
-
-            <div class="case-card">
-                <div class="card-header">
-                    <span class="industry">الاتصالات</span>
-                </div>
-                <h3>مزود اتصالات يوحد إطار GRC</h3>
-                <p>دمج عدة أنظمة منفصلة في منصة واحدة متكاملة لإدارة الحوكمة والمخاطر والامتثال.</p>
-                <div class="case-results">
-                    <div class="result-item">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>توحيد 5 أنظمة</span>
-                    </div>
-                    <div class="result-item">
-                        <i class="bi bi-graph-down-arrow"></i>
-                        <span>40% توفير</span>
-                    </div>
-                </div>
-                <a href="#" class="btn btn-outline">اقرأ المزيد</a>
-            </div>
+            }
         </div>
 
         <!-- Testimonials -->
+        @if (testimonials.Any())
+        {
         <div class="testimonials fade-up">
             <h2>ماذا يقول عملاؤنا</h2>
             <div class="testimonials-grid">
+                @foreach (var testimonial in testimonials.Take(2))
+                {
                 <div class="testimonial-card">
                     <div class="quote-icon"><i class="bi bi-quote"></i></div>
-                    <p>"شاهين اختصرت علينا أشهراً من العمل. الاشتقاق الذكي للنطاق وفّر علينا الكثير من الجهد في تحديد ما ينطبق علينا."</p>
+                    <p>"@(testimonial.QuoteAr ?? testimonial.Quote)"</p>
                     <div class="testimonial-author">
                         <div class="author-info">
-                            <strong>م. خالد السعيد</strong>
-                            <span>مدير الامتثال - بنك رائد</span>
+                            <strong>@(testimonial.AuthorAr ?? testimonial.Author)</strong>
+                            <span>@(testimonial.CompanyAr ?? testimonial.Company)</span>
                         </div>
                     </div>
                 </div>
-                <div class="testimonial-card">
-                    <div class="quote-icon"><i class="bi bi-quote"></i></div>
-                    <p>"أخيراً منصة GRC تفهم المتطلبات السعودية. لم نعد نحتاج لترجمة الأُطر الدولية."</p>
-                    <div class="testimonial-author">
-                        <div class="author-info">
-                            <strong>د. سارة العمري</strong>
-                            <span>CISO - شركة تقنية</span>
-                        </div>
-                    </div>
-                </div>
+                }
             </div>
         </div>
+        }
 
         <!-- CTA -->
         <div class="casestudies-cta fade-up">

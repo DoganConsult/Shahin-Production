@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Data;
@@ -155,7 +156,7 @@ namespace GrcMvc.Services.Implementations
                 var plan = await _unitOfWork.Plans.GetByIdAsync(planId);
                 if (plan == null)
                 {
-                    throw new InvalidOperationException($"Plan '{planId}' not found.");
+                    throw new EntityNotFoundException("Plan", planId);
                 }
 
                 plan.Status = status;
@@ -220,7 +221,7 @@ namespace GrcMvc.Services.Implementations
                 var phase = await _unitOfWork.PlanPhases.GetByIdAsync(phaseId);
                 if (phase == null)
                 {
-                    throw new InvalidOperationException($"Phase '{phaseId}' not found.");
+                    throw new EntityNotFoundException("Phase", phaseId);
                 }
 
                 phase.Status = status;

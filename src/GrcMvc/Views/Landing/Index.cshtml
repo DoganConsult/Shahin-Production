@@ -1,525 +1,245 @@
 @model GrcMvc.Controllers.LandingPageViewModel
 @{
-    ViewData["Title"] = "GRC Platform - Governance, Risk & Compliance Made Simple";
-    Layout = null; // Custom layout for landing page
+    ViewData["Title"] = "منصة شاهين - نظام الحوكمة والمخاطر والامتثال";
+    ViewData["MetaDescription"] = "منصة شاهين - نظام متكامل لإدارة الحوكمة والمخاطر والامتثال للمملكة العربية السعودية. متوافق مع رؤية 2030 ويدعم 130+ جهة تنظيمية.";
+    Layout = "_LandingLayout";
 }
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="منصة GRC الذكية للحوكمة والمخاطر والامتثال - جاهزة للمتطلبات السعودية" />
-    <title>@ViewData["Title"]</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        :root {
-            --primary: #0066cc;
-            --primary-dark: #004c99;
-            --secondary: #198754;
-            --accent: #ffc107;
-            --dark: #1a1a2e;
-            --light: #f8f9fa;
-        }
-        
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background: var(--light);
-        }
-        
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, var(--dark) 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        }
-        
-        .hero-content {
-            position: relative;
-            z-index: 1;
-        }
-        
-        .hero-title {
-            font-size: 3.5rem;
-            font-weight: 800;
-            line-height: 1.2;
-        }
-        
-        .hero-subtitle {
-            font-size: 1.5rem;
-            opacity: 0.9;
-        }
-        
-        /* Stats Bar */
-        .stats-bar {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2rem;
-        }
-        
-        .stat-item {
-            text-align: center;
-            padding: 1rem;
-        }
-        
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--accent);
-        }
-        
-        .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        
-        /* Feature Cards */
-        .feature-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            height: 100%;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-        
-        .feature-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        /* CTA Section */
-        .cta-section {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-        }
-        
-        /* Navbar */
-        .landing-nav {
-            background: transparent;
-            transition: all 0.3s ease;
-        }
-        
-        .landing-nav.scrolled {
-            background: var(--dark);
-            box-shadow: 0 2px 20px rgba(0,0,0,0.2);
-        }
-        
-        /* Buttons */
-        .btn-glow {
-            background: linear-gradient(135deg, var(--secondary) 0%, #157347 100%);
-            border: none;
-            padding: 1rem 2.5rem;
-            font-size: 1.1rem;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-glow:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(25, 135, 84, 0.4);
-        }
-        
-        /* Regulator Pills */
-        .regulator-pill {
-            display: inline-block;
-            background: rgba(255,255,255,0.1);
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            margin: 0.25rem;
-            font-size: 0.85rem;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        /* Footer */
-        .landing-footer {
-            background: var(--dark);
-        }
-    </style>
-</head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark landing-nav fixed-top py-3">
-        <div class="container">
-            <a class="navbar-brand fs-4 fw-bold" href="/">
-                <i class="fas fa-shield-alt me-2"></i>Shahin-AI GRC
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/features">المميزات</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/pricing">الأسعار</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about">عن المنصة</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/contact">تواصل معنا</a>
-                    </li>
-                </ul>
-                <div class="d-flex gap-2">
-                    <a href="/Account/Login" class="btn btn-outline-light rounded-pill px-4">تسجيل الدخول</a>
-                    <a href="/trial" class="btn btn-glow text-white">
-                        <i class="fas fa-rocket me-2"></i>ابدأ مجاناً
-                    </a>
+
+<!-- Hero Section -->
+<section class="hero-section" aria-labelledby="hero-title">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-badge" role="status">
+                <span class="hero-badge-dot" aria-hidden="true"></span>
+                <span>متوافق مع رؤية 2030</span>
+            </div>
+
+            <h1 id="hero-title" class="hero-title">
+                الحوكمة والامتثال
+                <br>
+                <span class="hero-title-gradient">أصبحت أسهل</span>
+            </h1>
+
+            <p class="hero-subtitle">
+                منصة متكاملة لإدارة الحوكمة والمخاطر والامتثال.
+                مصممة للجهات الحكومية والمنشآت في المملكة العربية السعودية.
+            </p>
+
+            <div class="hero-actions">
+                <a href="/Onboarding" class="btn btn-gradient btn-lg">
+                    ابدأ تجربة مجانية
+                    <i class="bi bi-arrow-left-circle-fill" aria-hidden="true"></i>
+                </a>
+                <a href="/Landing/Contact" class="btn btn-outline btn-lg">طلب عرض توضيحي</a>
+            </div>
+
+            <div class="hero-stats" role="list" aria-label="إحصائيات المنصة">
+                <div class="stat" role="listitem">
+                    <div class="stat-value">@Model.Stats.Regulators+</div>
+                    <div class="stat-label">جهة تنظيمية</div>
+                </div>
+                <div class="stat" role="listitem">
+                    <div class="stat-value">@Model.Stats.Frameworks+</div>
+                    <div class="stat-label">إطار تنظيمي</div>
+                </div>
+                <div class="stat" role="listitem">
+                    <div class="stat-value">@(Model.Stats.Controls / 100)+</div>
+                    <div class="stat-label">ضابط رقابي</div>
+                </div>
+                <div class="stat" role="listitem">
+                    <div class="stat-value">@Model.Stats.Workflows</div>
+                    <div class="stat-label">سير عمل جاهز</div>
                 </div>
             </div>
         </div>
-    </nav>
+    </div>
+</section>
 
-    <!-- Hero Section -->
-    <section class="hero d-flex align-items-center text-white">
-        <div class="container hero-content py-5">
-            <div class="row align-items-center">
-                <div class="col-lg-7">
-                    <!-- Vision 2030 & Government Badge -->
-                    <div class="d-flex flex-wrap gap-2 mb-3">
-                        <span class="badge bg-success px-3 py-2 rounded-pill">
-                            <i class="fas fa-check-circle me-1"></i> متوافق مع رؤية 2030
-                        </span>
-                        <span class="badge bg-primary px-3 py-2 rounded-pill">
-                            <i class="fas fa-shield-alt me-1"></i> مصمم للجهات الحكومية
-                        </span>
-                    </div>
-                    
-                    <h1 class="hero-title mb-4">
-                        الامتثال لم يعد معقدًا
-                        <br><span class="text-warning">بل قابلًا للتشغيل</span>
-                    </h1>
-                    
-                    <p class="hero-subtitle mb-3">
-                        منصة GRC تساعد الجهات على تحويل المتطلبات التنظيمية إلى مسارات عمل واضحة،
-                        <br>ومسؤوليات محددة، وأدلة جاهزة للتدقيق — دون تعقيد.
-                    </p>
-                    
-                    <!-- Full-Feature Trial Message -->
-                    <div class="mb-4 p-3 rounded-3" style="background: rgba(25, 135, 84, 0.2); border: 1px solid rgba(25, 135, 84, 0.4);">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-gift text-success me-3 fs-4"></i>
-                            <div>
-                                <strong class="text-success">تجربة كاملة الميزات</strong>
-                                <p class="mb-0 small opacity-75">جميع الإمكانيات متاحة • بدون قيود • بدون بطاقة ائتمان</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Regulator Pills -->
-                    <div class="mb-4">
-                        @foreach (var reg in Model.Regulators)
+<!-- Trusted By Section -->
+<section class="logos-section" aria-labelledby="logos-title">
+    <div class="container">
+        <h2 id="logos-title" class="logos-title">موثوق من قبل المنشآت الرائدة</h2>
+        <div class="logos-grid" role="list" aria-label="العملاء">
+            <span class="logo-item" role="listitem">أرامكو</span>
+            <span class="logo-item" role="listitem">STC</span>
+            <span class="logo-item" role="listitem">البنك الأهلي</span>
+            <span class="logo-item" role="listitem">سابك</span>
+            <span class="logo-item" role="listitem">الراجحي</span>
+            <span class="logo-item" role="listitem">نيوم</span>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="section" aria-labelledby="features-title">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-eyebrow">المميزات</span>
+            <h2 id="features-title" class="section-title">كل ما تحتاجه في منصة واحدة</h2>
+            <p class="section-subtitle">أدوات متكاملة لإدارة الحوكمة والمخاطر والامتثال بكفاءة وفعالية</p>
+        </div>
+
+        <div class="features-grid" role="list">
+            @foreach (var feature in Model.Features.Take(6))
+            {
+                <article class="feature-card fade-in" role="listitem">
+                    <div class="feature-icon" aria-hidden="true">
+                        @if (feature.Icon?.Contains("shield") == true)
                         {
-                            <span class="regulator-pill">@reg</span>
+                            <i class="bi bi-shield-check"></i>
+                        }
+                        else if (feature.Icon?.Contains("chart") == true)
+                        {
+                            <i class="bi bi-graph-up-arrow"></i>
+                        }
+                        else if (feature.Icon?.Contains("check") == true)
+                        {
+                            <i class="bi bi-check-circle"></i>
+                        }
+                        else if (feature.Icon?.Contains("file") == true)
+                        {
+                            <i class="bi bi-file-earmark-text"></i>
+                        }
+                        else if (feature.Icon?.Contains("users") == true)
+                        {
+                            <i class="bi bi-people"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-lightning-charge"></i>
                         }
                     </div>
-                    
-                    <!-- CTAs - Conversion Optimized -->
-                    <div class="d-flex gap-3 flex-wrap mb-3">
-                        <a href="/trial" class="btn btn-glow btn-lg text-white">
-                            <i class="fas fa-rocket me-2"></i>بدء تجربة موجهة
-                        </a>
-                        <a href="/trial/request-demo" class="btn btn-outline-light btn-lg rounded-pill">
-                            <i class="fas fa-calendar-check me-2"></i>طلب عرض تشغيلي
-                        </a>
-                    </div>
-                    
-                    <!-- Trust Line -->
-                    <p class="small text-light opacity-75 mb-0">
-                        <i class="fas fa-building me-1"></i>
-                        مصممة للجهات الحكومية والمنشآت الخاضعة للتنظيم في المملكة العربية السعودية
-                    </p>
-                </div>
-                <div class="col-lg-5 mt-5 mt-lg-0">
-                    <!-- Stats Bar -->
-                    <div class="stats-bar">
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="stat-item">
-                                    <div class="stat-number">@Model.Stats.Regulators+</div>
-                                    <div class="stat-label">جهة تنظيمية</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="stat-item">
-                                    <div class="stat-number">@Model.Stats.Frameworks+</div>
-                                    <div class="stat-label">إطار تنظيمي</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="stat-item">
-                                    <div class="stat-number">@(Model.Stats.Controls / 1000)K+</div>
-                                    <div class="stat-label">ضابط رقابي</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="stat-item">
-                                    <div class="stat-number">@Model.Stats.Workflows</div>
-                                    <div class="stat-label">سير عمل جاهز</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    <h3 class="feature-title">@(feature.TitleAr ?? feature.Title)</h3>
+                    <p class="feature-desc">@feature.Description</p>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Regulators Section -->
+<section class="regulators-section" aria-labelledby="regulators-title">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-eyebrow">الجهات التنظيمية</span>
+            <h2 id="regulators-title" class="section-title">دعم شامل للأطر التنظيمية</h2>
+            <p class="section-subtitle">متوافق مع جميع الجهات التنظيمية في المملكة العربية السعودية</p>
+        </div>
+
+        <div class="regulators-grid" role="list" aria-label="الجهات التنظيمية المدعومة">
+            @foreach (var reg in Model.Regulators)
+            {
+                <span class="regulator-tag" role="listitem">@reg</span>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="section" aria-labelledby="how-title">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-eyebrow">كيف تعمل المنصة</span>
+            <h2 id="how-title" class="section-title">أربع خطوات للامتثال الكامل</h2>
+        </div>
+
+        <div class="steps-grid" role="list">
+            <div class="step-card fade-in" role="listitem">
+                <div class="step-number" aria-hidden="true">1</div>
+                <h3 class="step-title">التقييم</h3>
+                <p class="step-desc">فهم البيئة والمتطلبات التنظيمية المطبقة</p>
+            </div>
+            <div class="step-card fade-in" role="listitem">
+                <div class="step-number" aria-hidden="true">2</div>
+                <h3 class="step-title">التصميم</h3>
+                <p class="step-desc">بناء خطة الامتثال وتحديد الضوابط</p>
+            </div>
+            <div class="step-card fade-in" role="listitem">
+                <div class="step-number" aria-hidden="true">3</div>
+                <h3 class="step-title">التنفيذ</h3>
+                <p class="step-desc">تعيين المسؤوليات وجمع الأدلة</p>
+            </div>
+            <div class="step-card fade-in" role="listitem">
+                <div class="step-number" aria-hidden="true">4</div>
+                <h3 class="step-title">المراقبة</h3>
+                <p class="step-desc">متابعة مستمرة وجاهزية للتدقيق</p>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Value Proposition Section -->
-    <section class="py-5 bg-dark text-white" id="value">
-        <div class="container py-4">
-            <div class="row text-center g-4">
-                <div class="col-md-4">
-                    <div class="p-4">
-                        <i class="fas fa-cogs text-warning fs-1 mb-3"></i>
-                        <h5>تشغيل فعلي للحوكمة</h5>
-                        <p class="small opacity-75 mb-0">ليس مجرد مستندات، بل مسارات عمل تشغيلية حقيقية</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="p-4 border-start border-end border-secondary">
-                        <i class="fas fa-eye text-warning fs-1 mb-3"></i>
-                        <h5>وضوح ومتابعة المخاطر</h5>
-                        <p class="small opacity-75 mb-0">رؤية شاملة للمخاطر مع تتبع ومسؤوليات واضحة</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="p-4">
-                        <i class="fas fa-clipboard-check text-warning fs-1 mb-3"></i>
-                        <h5>جاهزية دائمة للتدقيق</h5>
-                        <p class="small opacity-75 mb-0">أدلة جاهزة للرقابة في أي وقت، وليس فقط قبل التدقيق</p>
-                    </div>
-                </div>
+<!-- Testimonials Section -->
+@if (Model.Testimonials?.Any() == true)
+{
+    <section class="section" style="background: var(--bg-secondary);" aria-labelledby="testimonials-title">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-eyebrow">آراء العملاء</span>
+                <h2 id="testimonials-title" class="section-title">ماذا يقول عملاؤنا</h2>
             </div>
-        </div>
-    </section>
 
-    <!-- Features Section -->
-    <section class="py-5" id="features">
-        <div class="container py-5">
-            <div class="text-center mb-5">
-                <h2 class="display-5 fw-bold mb-3">لماذا Shahin-AI GRC؟</h2>
-                <p class="lead text-muted">نحول الامتثال من مستندات إلى تشغيل فعلي — الحوكمة والمخاطر والامتثال في منصة واحدة</p>
-            </div>
-            
-            <div class="row g-4">
-                @foreach (var feature in Model.Features)
+            <div class="testimonials-grid" role="list">
+                @foreach (var testimonial in Model.Testimonials.Take(3))
                 {
-                    <div class="col-lg-4 col-md-6">
-                        <div class="feature-card">
-                            <div class="feature-icon bg-primary bg-opacity-10 text-primary">
-                                <i class="@feature.Icon"></i>
+                    <article class="testimonial-card fade-in" role="listitem">
+                        <blockquote class="testimonial-content">
+                            "@(testimonial.ContentAr ?? testimonial.Content)"
+                        </blockquote>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar" aria-hidden="true">
+                                @(testimonial.AuthorName?.FirstOrDefault())
                             </div>
-                            <h4 class="mb-2">@feature.Title</h4>
-                            <h5 class="text-muted mb-3" dir="rtl">@feature.TitleAr</h5>
-                            <p class="text-muted mb-0">@feature.Description</p>
+                            <div class="testimonial-info">
+                                <div class="testimonial-name">@testimonial.AuthorName</div>
+                                <div class="testimonial-role">@testimonial.AuthorTitle - @testimonial.Company</div>
+                            </div>
                         </div>
-                    </div>
+                    </article>
                 }
             </div>
         </div>
     </section>
+}
 
-    <!-- How It Works -->
-    <section class="py-5 bg-white">
-        <div class="container py-5">
-            <div class="text-center mb-5">
-                <h2 class="display-5 fw-bold mb-3">رحلة تشغيلية واضحة</h2>
-                <p class="lead text-muted">من المتطلب إلى التدقيق — أربع خطوات فقط</p>
+<!-- CTA Section -->
+<section class="cta-section" aria-labelledby="cta-title">
+    <div class="container">
+        <h2 id="cta-title" class="cta-title">ابدأ رحلة الامتثال اليوم</h2>
+        <p class="cta-subtitle">تجربة مجانية كاملة الميزات لمدة 7 أيام. بدون بطاقة ائتمان.</p>
+
+        <div class="hero-actions">
+            <a href="/Onboarding" class="btn btn-gradient btn-lg">
+                ابدأ الآن مجاناً
+                <i class="bi bi-arrow-left-circle-fill" aria-hidden="true"></i>
+            </a>
+            <a href="/Landing/Contact" class="btn btn-outline btn-lg">تحدث مع فريقنا</a>
+        </div>
+
+        <div class="cta-features" role="list" aria-label="مميزات التجربة">
+            <div class="cta-feature" role="listitem">
+                <span class="cta-feature-icon" aria-hidden="true">
+                    <i class="bi bi-check-lg"></i>
+                </span>
+                <span>جميع الميزات متاحة</span>
             </div>
-            
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <div class="text-center">
-                        <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px; font-size: 2rem;">
-                            <i class="fas fa-clipboard-list"></i>
-                        </div>
-                        <h4>التقييم</h4>
-                        <p class="text-muted small">فهم البيئة والمتطلبات التنظيمية</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="text-center">
-                        <div class="rounded-circle bg-info text-white d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px; font-size: 2rem;">
-                            <i class="fas fa-sitemap"></i>
-                        </div>
-                        <h4>التصميم</h4>
-                        <p class="text-muted small">بناء خطة الامتثال والضوابط</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="text-center">
-                        <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px; font-size: 2rem;">
-                            <i class="fas fa-tasks"></i>
-                        </div>
-                        <h4>التنفيذ</h4>
-                        <p class="text-muted small">تعيين المسؤوليات وجمع الأدلة</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="text-center">
-                        <div class="rounded-circle bg-warning text-dark d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px; font-size: 2rem;">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <h4>المراقبة</h4>
-                        <p class="text-muted small">متابعة مستمرة وجاهزية للتدقيق</p>
-                    </div>
-                </div>
+            <div class="cta-feature" role="listitem">
+                <span class="cta-feature-icon" aria-hidden="true">
+                    <i class="bi bi-check-lg"></i>
+                </span>
+                <span>بدون بطاقة ائتمان</span>
             </div>
-            
-            <!-- Process Note -->
-            <div class="text-center mt-5">
-                <p class="text-muted mb-0">
-                    <i class="fas fa-lightbulb text-warning me-2"></i>
-                    بدون مستندات معقدة، وبدون استشارات مكلفة — المنصة ترشدك تلقائياً
-                </p>
+            <div class="cta-feature" role="listitem">
+                <span class="cta-feature-icon" aria-hidden="true">
+                    <i class="bi bi-check-lg"></i>
+                </span>
+                <span>دعم فني خلال التجربة</span>
+            </div>
+            <div class="cta-feature" role="listitem">
+                <span class="cta-feature-icon" aria-hidden="true">
+                    <i class="bi bi-check-lg"></i>
+                </span>
+                <span>إلغاء في أي وقت</span>
             </div>
         </div>
-    </section>
-
-    <!-- Why Now Section -->
-    <section class="py-5 bg-light">
-        <div class="container py-4">
-            <div class="row align-items-center">
-                <div class="col-lg-6 mb-4 mb-lg-0">
-                    <span class="badge bg-primary mb-3">رؤية 2030</span>
-                    <h3 class="fw-bold mb-3">لماذا الآن؟</h3>
-                    <p class="text-muted mb-4">
-                        المملكة تشهد تحولاً رقمياً غير مسبوق مع متطلبات تنظيمية متزايدة.
-                        الجهات تحتاج أنظمة تحول الامتثال إلى عمل تشغيلي يومي — وليس مجرد مستندات.
-                    </p>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>متوافق مع استراتيجية الحكومة الرقمية</li>
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>يدعم ضوابط الأمن السيبراني (NCA)</li>
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>مبني على مبادئ الذكاء الاصطناعي المسؤول (SDAIA)</li>
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>جاهز للأطر التنظيمية المحلية والدولية</li>
-                    </ul>
-                </div>
-                <div class="col-lg-6">
-                    <div class="card border-0 shadow-lg">
-                        <div class="card-body p-4 text-center">
-                            <h4 class="text-primary mb-3">
-                                <i class="fas fa-gift me-2"></i>تجربة كاملة الميزات
-                            </h4>
-                            <p class="text-muted mb-4">
-                                جميع إمكانيات المنصة متاحة خلال التجربة.
-                                <br>قيّم المنصة كما ستستخدمها فعلياً.
-                            </p>
-                            <ul class="list-unstyled text-start mb-4">
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>جميع وحدات GRC مفعّلة</li>
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>مسارات عمل حقيقية</li>
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>تقارير ولوحات متابعة تنفيذية</li>
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>دعم فني خلال التجربة</li>
-                            </ul>
-                            <a href="/trial" class="btn btn-glow btn-lg text-white w-100">
-                                <i class="fas fa-rocket me-2"></i>بدء تجربة موجهة
-                            </a>
-                            <p class="small text-muted mt-3 mb-0">
-                                <i class="fas fa-lock me-1"></i>بدون بطاقة ائتمان • وصول محكوم وقابل للإلغاء
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="cta-section py-5 text-white text-center">
-        <div class="container py-5">
-            <h2 class="display-5 fw-bold mb-4">هل أنت مستعد لتحويل الامتثال إلى عمل تشغيلي فعلي؟</h2>
-            <p class="lead mb-4 opacity-75">نحن لا نستبدل الكوادر بالتقنية، بل نمكّن الجهات من العمل بوضوح وتحكم وثقة</p>
-            <div class="d-flex gap-3 justify-content-center flex-wrap">
-                <a href="/trial" class="btn btn-light btn-lg rounded-pill px-5">
-                    <i class="fas fa-rocket me-2"></i>بدء تجربة موجهة
-                </a>
-                <a href="/trial/request-demo" class="btn btn-outline-light btn-lg rounded-pill px-5">
-                    <i class="fas fa-calendar-check me-2"></i>طلب عرض تشغيلي
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="landing-footer text-white py-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <h5 class="mb-3"><i class="fas fa-shield-alt me-2"></i>Shahin-AI GRC</h5>
-                    <p class="text-white-50">منصة الحوكمة والمخاطر والامتثال الذكية</p>
-                </div>
-                <div class="col-lg-2 col-md-4 mb-4">
-                    <h6 class="mb-3">المنتج</h6>
-                    <ul class="list-unstyled text-white-50">
-                        <li><a href="/features" class="text-white-50 text-decoration-none">المميزات</a></li>
-                        <li><a href="/pricing" class="text-white-50 text-decoration-none">الأسعار</a></li>
-                        <li><a href="/trial" class="text-white-50 text-decoration-none">تجربة مجانية</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-2 col-md-4 mb-4">
-                    <h6 class="mb-3">الدعم</h6>
-                    <ul class="list-unstyled text-white-50">
-                        <li><a href="/Help" class="text-white-50 text-decoration-none">مركز المساعدة</a></li>
-                        <li><a href="/Help/FAQ" class="text-white-50 text-decoration-none">الأسئلة الشائعة</a></li>
-                        <li><a href="/contact" class="text-white-50 text-decoration-none">تواصل معنا</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-4 col-md-4 mb-4">
-                    <h6 class="mb-3">تواصل معنا</h6>
-                    <p class="text-white-50 mb-2"><i class="fas fa-envelope me-2"></i>info@shahin-ai.com</p>
-                    <p class="text-white-50"><i class="fas fa-phone me-2"></i>+966 XX XXX XXXX</p>
-                </div>
-            </div>
-            <hr class="border-secondary">
-            <div class="text-center text-white-50">
-                <small>&copy; 2026 Shahin-AI. جميع الحقوق محفوظة.</small>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Navbar scroll effect
-        window.addEventListener('scroll', function() {
-            const nav = document.querySelector('.landing-nav');
-            if (window.scrollY > 50) {
-                nav.classList.add('scrolled');
-            } else {
-                nav.classList.remove('scrolled');
-            }
-        });
-    </script>
-</body>
-</html>
+    </div>
+</section>

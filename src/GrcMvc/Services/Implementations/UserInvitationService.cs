@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Application.Policy;
@@ -54,7 +55,7 @@ namespace GrcMvc.Services.Implementations
             // Validate tenant exists
             var tenant = await _context.Tenants.FindAsync(tenantId);
             if (tenant == null)
-                throw new InvalidOperationException($"Tenant '{tenantId}' not found.");
+                throw new EntityNotFoundException("Tenant", tenantId);
 
             // Check if user already exists in this tenant
             var existingTenantUser = await _context.TenantUsers
@@ -62,7 +63,7 @@ namespace GrcMvc.Services.Implementations
                     tu.User.Email == email && !tu.IsDeleted);
 
             if (existingTenantUser != null)
-                throw new InvalidOperationException($"User '{email}' is already a member of this tenant.");
+                throw new EntityExistsException("TenantUser", "Email", email);
 
             // Check if user exists in system
             var existingUser = await _userManager.FindByEmailAsync(email);
@@ -89,7 +90,7 @@ namespace GrcMvc.Services.Implementations
                 if (!result.Succeeded)
                 {
                     var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                    throw new InvalidOperationException($"Failed to create user: {errors}");
+                    throw new GrcException($"Failed to create user: {errors}", GrcErrorCodes.ValidationFailed);
                 }
 
                 userId = newUser.Id;
@@ -154,7 +155,7 @@ namespace GrcMvc.Services.Implementations
                     tu.Status == "Pending" && !tu.IsDeleted);
 
             if (tenantUser == null)
-                throw new InvalidOperationException("Invalid or expired invitation token.");
+                throw new ValidationException("Token", "Invalid or expired invitation token");
 
             // Activate user account
             var user = tenantUser.User;
@@ -170,7 +171,7 @@ namespace GrcMvc.Services.Implementations
                 if (!result.Succeeded)
                 {
                     var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                    throw new InvalidOperationException($"Failed to set password: {errors}");
+                    throw new GrcException($"Failed to set password: {errors}", GrcErrorCodes.ValidationFailed);
                 }
             }
 
@@ -334,7 +335,7 @@ namespace GrcMvc.Services.Implementations
                 .FirstOrDefaultAsync(tu => tu.Id == tenantUserId && !tu.IsDeleted);
 
             if (tenantUser == null)
-                throw new InvalidOperationException("Tenant user not found.");
+                throw new EntityNotFoundException("TenantUser", "by token");
 
             var oldRoleCode = tenantUser.RoleCode;
             var oldTitleCode = tenantUser.TitleCode;

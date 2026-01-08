@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 
@@ -76,19 +77,19 @@ public class EnhancedAuthService : IEnhancedAuthService
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext?.User?.Identity?.IsAuthenticated != true)
         {
-            throw new InvalidOperationException("User is not authenticated");
+            throw new AuthenticationException("User is not authenticated");
         }
         
         var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
         {
-            throw new InvalidOperationException("User ID not found in claims");
+            throw new AuthenticationException("User ID not found in claims");
         }
         
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null)
         {
-            throw new InvalidOperationException($"User {userId} not found");
+            throw new UserNotFoundException(userId);
         }
         
         // Sign out and re-sign in with new tenant context

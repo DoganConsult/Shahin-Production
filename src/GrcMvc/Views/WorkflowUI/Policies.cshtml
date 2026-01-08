@@ -12,46 +12,57 @@
             <p class="text-muted">Manage policy review, approval, and publication workflows</p>
         </div>
         <div class="col-md-4 text-end">
-            <button class="btn btn-primary">
+            <button class="btn btn-primary" onclick="createNewPolicy()">
                 <i class="fas fa-plus"></i> New Policy
             </button>
         </div>
     </div>
 
+    <!-- KPI Cards -->
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="card bg-secondary text-white">
                 <div class="card-body text-center">
-                    <h3>5</h3><small>Draft</small>
+                    <h3 id="draftCount">0</h3><small>Draft</small>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card bg-warning text-dark">
                 <div class="card-body text-center">
-                    <h3>8</h3><small>Under Review</small>
+                    <h3 id="underReviewCount">0</h3><small>Under Review</small>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card bg-info text-white">
                 <div class="card-body text-center">
-                    <h3>3</h3><small>Pending Approval</small>
+                    <h3 id="pendingApprovalCount">0</h3><small>Pending Approval</small>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card bg-success text-white">
                 <div class="card-body text-center">
-                    <h3>42</h3><small>Published</small>
+                    <h3 id="publishedCount">0</h3><small>Published</small>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Policy Queue Table -->
     <div class="card shadow-sm">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0"><i class="fas fa-stream me-2"></i>Policy Workflow Queue</h5>
+            <div>
+                <select class="form-select form-select-sm d-inline-block w-auto" id="statusFilter" onchange="loadPolicyData()">
+                    <option value="">All Status</option>
+                    <option value="Draft">Draft</option>
+                    <option value="UnderReview">Under Review</option>
+                    <option value="PendingApproval">Pending Approval</option>
+                    <option value="Published">Published</option>
+                </select>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -67,36 +78,11 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="policiesTableBody">
                         <tr>
-                            <td>Information Security Policy</td>
-                            <td>v2.1</td>
-                            <td>Security</td>
-                            <td>CISO</td>
-                            <td><span class="badge bg-info">Pending Approval</span></td>
-                            <td>Jan 15, 2026</td>
-                            <td>
-                                <button class="btn btn-sm btn-success me-1"><i class="fas fa-check"></i></button>
-                                <button class="btn btn-sm btn-danger"><i class="fas fa-times"></i></button>
+                            <td colspan="7" class="text-center">
+                                <i class="fas fa-spinner fa-spin"></i> Loading policies...
                             </td>
-                        </tr>
-                        <tr>
-                            <td>Data Classification Policy</td>
-                            <td>v1.3</td>
-                            <td>Data Protection</td>
-                            <td>DPO</td>
-                            <td><span class="badge bg-warning">Under Review</span></td>
-                            <td>Jan 20, 2026</td>
-                            <td><a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a></td>
-                        </tr>
-                        <tr>
-                            <td>Access Control Policy</td>
-                            <td>v3.0</td>
-                            <td>Security</td>
-                            <td>IT Security</td>
-                            <td><span class="badge bg-secondary">Draft</span></td>
-                            <td>Feb 1, 2026</td>
-                            <td><a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a></td>
                         </tr>
                     </tbody>
                 </table>
@@ -104,3 +90,223 @@
         </div>
     </div>
 </div>
+
+<!-- Reject Policy Modal -->
+<div class="modal fade" id="rejectPolicyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-times me-2"></i>Reject Policy</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="rejectPolicyId">
+                <p>Please provide a reason for rejecting this policy:</p>
+                <div class="mb-3">
+                    <label class="form-label">Rejection Reason</label>
+                    <textarea class="form-control" id="rejectionReason" rows="4" 
+                              placeholder="Describe what needs to be changed or corrected..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmRejectPolicy()">
+                    <i class="fas fa-times"></i> Reject & Return
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Approval Confirmation Modal -->
+<div class="modal fade" id="approvePolicyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-check me-2"></i>Approve Policy</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="approvePolicyId">
+                <p>Are you sure you want to approve and publish this policy?</p>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Once approved, the policy will be published and visible to all users.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="confirmApprovePolicy()">
+                    <i class="fas fa-check"></i> Approve & Publish
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    async function loadPolicyData() {
+        try {
+            const response = await fetch('/api/workflows/policies');
+            if (!response.ok) throw new Error('Failed to load policies');
+            
+            const data = await response.json();
+            
+            // Update KPI cards
+            document.getElementById('draftCount').textContent = data.stats?.draft || 0;
+            document.getElementById('underReviewCount').textContent = data.stats?.underReview || 0;
+            document.getElementById('pendingApprovalCount').textContent = data.stats?.pendingApproval || 0;
+            document.getElementById('publishedCount').textContent = data.stats?.published || 0;
+            
+            // Update table
+            const tbody = document.getElementById('policiesTableBody');
+            const filter = document.getElementById('statusFilter').value;
+            let policies = data.policies || [];
+            
+            if (filter) {
+                policies = policies.filter(p => p.status === filter);
+            }
+            
+            if (policies.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No policies found</td></tr>';
+            } else {
+                tbody.innerHTML = policies.map(p => `
+                    <tr>
+                        <td>${p.title}</td>
+                        <td><span class="badge bg-secondary">${p.version}</span></td>
+                        <td>${p.category}</td>
+                        <td>${p.owner}</td>
+                        <td>${getStatusBadge(p.status)}</td>
+                        <td>${formatDate(p.reviewDate)}</td>
+                        <td>
+                            ${p.status === 'PendingApproval' ? `
+                                <button class="btn btn-sm btn-success me-1" onclick="approvePolicy('${p.id}')" title="Approve">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger me-1" onclick="rejectPolicy('${p.id}')" title="Reject">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            ` : p.status === 'Draft' || p.status === 'UnderReview' ? `
+                                <a href="/Policies/Edit/${p.id}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            ` : `
+                                <a href="/Policies/Details/${p.id}" class="btn btn-sm btn-outline-info" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            `}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            
+        } catch (error) {
+            console.error('Error loading policy data:', error);
+            document.getElementById('policiesTableBody').innerHTML = 
+                '<tr><td colspan="7" class="text-center text-danger">Error loading data</td></tr>';
+        }
+    }
+    
+    function getStatusBadge(status) {
+        const badges = {
+            'Draft': 'bg-secondary',
+            'UnderReview': 'bg-warning',
+            'PendingApproval': 'bg-info',
+            'Published': 'bg-success',
+            'Active': 'bg-success'
+        };
+        const labels = {
+            'UnderReview': 'Under Review',
+            'PendingApproval': 'Pending Approval'
+        };
+        return `<span class="badge ${badges[status] || 'bg-secondary'}">${labels[status] || status}</span>`;
+    }
+    
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    
+    function createNewPolicy() {
+        window.location.href = '/Policies/Create';
+    }
+    
+    function approvePolicy(policyId) {
+        document.getElementById('approvePolicyId').value = policyId;
+        new bootstrap.Modal(document.getElementById('approvePolicyModal')).show();
+    }
+    
+    function rejectPolicy(policyId) {
+        document.getElementById('rejectPolicyId').value = policyId;
+        document.getElementById('rejectionReason').value = '';
+        new bootstrap.Modal(document.getElementById('rejectPolicyModal')).show();
+    }
+    
+    async function confirmApprovePolicy() {
+        const policyId = document.getElementById('approvePolicyId').value;
+        
+        try {
+            const response = await fetch(`/api/workflows/policies/${policyId}/approve`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            if (response.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('approvePolicyModal')).hide();
+                loadPolicyData();
+                showToast('Policy approved and published successfully', 'success');
+            } else {
+                const error = await response.json();
+                showToast(error.error || 'Error approving policy', 'danger');
+            }
+        } catch (error) {
+            console.error('Error approving policy:', error);
+            showToast('Error approving policy', 'danger');
+        }
+    }
+    
+    async function confirmRejectPolicy() {
+        const policyId = document.getElementById('rejectPolicyId').value;
+        const reason = document.getElementById('rejectionReason').value;
+        
+        if (!reason.trim()) {
+            alert('Please provide a rejection reason');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/workflows/policies/${policyId}/reject`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason })
+            });
+            
+            if (response.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('rejectPolicyModal')).hide();
+                loadPolicyData();
+                showToast('Policy returned for revision', 'warning');
+            } else {
+                const error = await response.json();
+                showToast(error.error || 'Error rejecting policy', 'danger');
+            }
+        } catch (error) {
+            console.error('Error rejecting policy:', error);
+            showToast('Error rejecting policy', 'danger');
+        }
+    }
+    
+    function showToast(message, type) {
+        // Simple alert fallback if toast not available
+        if (typeof window.showToastNotification === 'function') {
+            window.showToastNotification(message, type);
+        } else {
+            alert(message);
+        }
+    }
+    
+    // Load data on page load
+    document.addEventListener('DOMContentLoaded', loadPolicyData);
+</script>
+}

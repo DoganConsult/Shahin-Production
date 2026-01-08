@@ -71,21 +71,6 @@ namespace GrcMvc.Controllers
         [HttpGet("Index")]
         public async Task<IActionResult> Index(Guid? tenantId)
         {
-            // #region agent log
-            try {
-                using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                await logFile.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(new {
-                    sessionId = "debug-session",
-                    runId = "run1",
-                    hypothesisId = "BUTTON_TEST",
-                    location = "OnboardingWizardController.cs:72",
-                    message = "Wizard Index accessed",
-                    data = new { tenantId, isAuthenticated = User.Identity?.IsAuthenticated, userName = User.Identity?.Name },
-                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                }));
-            } catch {}
-            // #endregion
-
             // Check authentication if tenantId is provided
             if (tenantId.HasValue)
             {
@@ -124,99 +109,25 @@ namespace GrcMvc.Controllers
         [HttpGet("StepA/{tenantId:guid}")]
         public async Task<IActionResult> StepA(Guid tenantId)
         {
-            // #region agent log
-            try {
-                using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                await logFile.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(new {
-                    sessionId = "debug-session",
-                    runId = "run1",
-                    hypothesisId = "BUTTON_TEST",
-                    location = "OnboardingWizardController.cs:109",
-                    message = "BUTTON 1: Start Wizard clicked - StepA accessed",
-                    data = new { tenantId, isAuthenticated = User.Identity?.IsAuthenticated, userName = User.Identity?.Name },
-                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                }));
-            } catch {}
-            // #endregion
-
             // Check authentication
             var isAuthenticated = await CheckTenantAdminAuthAsync(tenantId);
             if (!isAuthenticated)
             {
-                // #region agent log
-                try {
-                    using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                    await logFile.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(new {
-                        sessionId = "debug-session",
-                        runId = "run1",
-                        hypothesisId = "BUTTON_TEST",
-                        location = "OnboardingWizardController.cs:118",
-                        message = "BUTTON 1: Auth failed - redirecting to login",
-                        data = new { tenantId },
-                        timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                    }));
-                } catch {}
-                // #endregion
                 TempData["Error"] = "You must be authenticated as a tenant admin to access onboarding.";
                 return RedirectToAction("TenantAdminLogin", "Account", new { tenantId, returnUrl = Request.Path });
             }
 
             var wizard = await GetOrCreateWizardAsync(tenantId);
-            
-            // #region agent log
-            try {
-                using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                await logFile.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(new {
-                    sessionId = "debug-session",
-                    runId = "run1",
-                    hypothesisId = "BUTTON_TEST",
-                    location = "OnboardingWizardController.cs:164",
-                    message = "BUTTON 1: Wizard retrieved",
-                    data = new { tenantId, wizardStatus = wizard?.WizardStatus, wizardCurrentStep = wizard?.CurrentStep, isCompleted = wizard?.WizardStatus == "Completed" },
-                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                }));
-            } catch {}
-            // #endregion
 
             // If wizard is already completed, redirect to dashboard with message
             if (wizard.WizardStatus == "Completed")
             {
-                // #region agent log
-                try {
-                    using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                    await logFile.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(new {
-                        sessionId = "debug-session",
-                        runId = "run1",
-                        hypothesisId = "BUTTON_TEST",
-                        location = "OnboardingWizardController.cs:177",
-                        message = "BUTTON 1: Wizard already completed - redirecting to dashboard",
-                        data = new { tenantId, wizardStatus = wizard.WizardStatus },
-                        timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                    }));
-                } catch {}
-                // #endregion
-
                 TempData["InfoMessage"] = "Onboarding is already complete. You can review your configuration in Organization Setup.";
                 return RedirectToAction("Index", "Dashboard");
             }
 
             var dto = MapToStepADto(wizard);
             ViewData["WizardSummary"] = BuildWizardSummary(wizard);
-            
-            // #region agent log
-            try {
-                using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                await logFile.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(new {
-                    sessionId = "debug-session",
-                    runId = "run1",
-                    hypothesisId = "BUTTON_TEST",
-                    location = "OnboardingWizardController.cs:194",
-                    message = "BUTTON 1: Wizard started successfully - showing StepA",
-                    data = new { tenantId, wizardCurrentStep = wizard?.CurrentStep, wizardStatus = wizard?.WizardStatus },
-                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                }));
-            } catch {}
-            // #endregion
             
             return View("StepA", dto);
         }

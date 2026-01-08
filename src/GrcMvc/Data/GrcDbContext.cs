@@ -106,6 +106,9 @@ namespace GrcMvc.Data
         // Serial Number Tracking
         public DbSet<Services.Implementations.SerialNumberCounter> SerialNumberCounters { get; set; } = null!;
 
+        // Business Reference Code Counters (New Format: TENANTCODE-OBJTYPE-YYYY-SEQUENCE)
+        public DbSet<SerialCounter> SerialCounters { get; set; } = null!;
+
         // Policy Decision Audit Trail
         public DbSet<PolicyDecision> PolicyDecisions { get; set; } = null!;
 
@@ -122,6 +125,11 @@ namespace GrcMvc.Data
 
         // Existing entities
         public DbSet<Risk> Risks { get; set; } = null!;
+        public DbSet<RiskControlMapping> RiskControlMappings { get; set; } = null!;
+        public DbSet<RiskCategory> RiskCategories { get; set; } = null!;
+        public DbSet<RiskType> RiskTypes { get; set; } = null!;
+        public DbSet<RiskTreatment> RiskTreatments { get; set; } = null!;
+        public DbSet<RiskTreatmentControl> RiskTreatmentControls { get; set; } = null!;
         public DbSet<Control> Controls { get; set; } = null!;
         public DbSet<Assessment> Assessments { get; set; } = null!;
         public DbSet<Audit> Audits { get; set; } = null!;
@@ -133,6 +141,28 @@ namespace GrcMvc.Data
         public DbSet<WorkflowExecution> WorkflowExecutions { get; set; } = null!;
         public DbSet<ActionPlan> ActionPlans { get; set; } = null!;
         public DbSet<Vendor> Vendors { get; set; } = null!;
+
+        // Marketing entities - Core
+        public DbSet<Models.Entities.Marketing.Testimonial> Testimonials { get; set; } = null!;
+        public DbSet<Models.Entities.Marketing.CaseStudy> CaseStudies { get; set; } = null!;
+        public DbSet<Models.Entities.Marketing.PricingPlan> PricingPlans { get; set; } = null!;
+        public DbSet<Models.Entities.Marketing.ClientLogo> ClientLogos { get; set; } = null!;
+
+        // Marketing entities - Trust & Content
+        public DbSet<Models.Entities.Marketing.TrustBadge> TrustBadges { get; set; } = null!;
+        public DbSet<Models.Entities.Marketing.BlogPost> BlogPosts { get; set; } = null!;
+        public DbSet<Models.Entities.Marketing.Faq> Faqs { get; set; } = null!;
+        public DbSet<Models.Entities.Marketing.MarketingTeamMember> MarketingTeamMembers { get; set; } = null!;
+        public DbSet<Models.Entities.Marketing.Webinar> Webinars { get; set; } = null!;
+
+        // Marketing entities - Landing Page CMS
+        public DbSet<Models.Entities.Marketing.LandingPageContent> LandingPageContents { get; set; } = null!;
+        public DbSet<Models.Entities.Marketing.LandingStatistic> LandingStatistics { get; set; } = null!;
+        public DbSet<Models.Entities.Marketing.FeatureHighlight> FeatureHighlights { get; set; } = null!;
+        public DbSet<Models.Entities.Marketing.Partner> Partners { get; set; } = null!;
+
+        // Document Center
+        public DbSet<DocumentTemplate> DocumentTemplates { get; set; } = null!;
         public DbSet<Regulator> Regulators { get; set; } = null!;
         public DbSet<ComplianceEvent> ComplianceEvents { get; set; } = null!;
         public DbSet<GrcMvc.Models.Entities.Framework> Frameworks { get; set; } = null!;
@@ -156,6 +186,7 @@ namespace GrcMvc.Data
 
         // STAGE 2: Enterprise LLM integration
         public DbSet<LlmConfiguration> LlmConfigurations { get; set; } = null!;
+        public DbSet<AiProviderConfiguration> AiProviderConfigurations { get; set; } = null!;
 
         // Subscription & Billing
         public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; } = null!;
@@ -200,12 +231,15 @@ namespace GrcMvc.Data
         public DbSet<SectorFrameworkIndex> SectorFrameworkIndexes { get; set; } = null!;
         public DbSet<EvidenceScoringCriteria> EvidenceScoringCriteria { get; set; } = null!;
         public DbSet<TenantEvidenceRequirement> TenantEvidenceRequirements { get; set; } = null!;
-        
+
         // GOSI Sub-Sector Mappings (70+ sub-sectors → 18 main sectors)
         public DbSet<GrcSubSectorMapping> GrcSubSectorMappings { get; set; } = null!;
 
         // Assessment Requirements (Layer 3: Operational)
         public DbSet<AssessmentRequirement> AssessmentRequirements { get; set; } = null!;
+
+        // Requirement Notes (per-requirement comments/notes)
+        public DbSet<RequirementNote> RequirementNotes { get; set; } = null!;
 
         // SLA, Escalation, Delegation Rules
         public DbSet<SlaRule> SlaRules { get; set; } = null!;
@@ -475,6 +509,27 @@ namespace GrcMvc.Data
                     .WithMany(c => c.Evidences)
                     .HasForeignKey(e => e.ControlId)
                     .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(e => e.AssessmentRequirement)
+                    .WithMany(ar => ar.Evidences)
+                    .HasForeignKey(e => e.AssessmentRequirementId)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            // Configure RequirementNote entity
+            modelBuilder.Entity<RequirementNote>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Content).IsRequired();
+                entity.Property(e => e.NoteType).HasMaxLength(50);
+                entity.HasIndex(e => e.AssessmentRequirementId);
+                entity.HasIndex(e => new { e.AssessmentRequirementId, e.CreatedDate });
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.AssessmentRequirement)
+                    .WithMany(ar => ar.Notes)
+                    .HasForeignKey(e => e.AssessmentRequirementId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             // Configure Policy entity
@@ -1393,14 +1448,14 @@ namespace GrcMvc.Data
             // =====================================================
             // SECTOR-FRAMEWORK INDEX CONFIGURATION (Fast Lookup)
             // =====================================================
-            
+
             // SectorFrameworkIndex - Fast sector→framework lookups for onboarding
             modelBuilder.Entity<SectorFrameworkIndex>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.SectorCode).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.FrameworkCode).IsRequired().HasMaxLength(50);
-                
+
                 // Composite indexes for fast lookup
                 entity.HasIndex(e => new { e.SectorCode, e.OrgType })
                     .HasDatabaseName("IX_SectorFrameworkIndex_Sector_OrgType");
@@ -1418,7 +1473,7 @@ namespace GrcMvc.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.EvidenceTypeCode).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.EvidenceTypeName).IsRequired().HasMaxLength(200);
-                
+
                 entity.HasIndex(e => e.EvidenceTypeCode)
                     .IsUnique()
                     .HasDatabaseName("IX_EvidenceScoringCriteria_TypeCode");
@@ -1436,7 +1491,7 @@ namespace GrcMvc.Data
                 entity.Property(e => e.FrameworkCode).HasMaxLength(50);
                 entity.Property(e => e.ControlNumber).HasMaxLength(50);
                 entity.Property(e => e.Status).HasMaxLength(30);
-                
+
                 // Indexes for fast tenant-specific queries
                 entity.HasIndex(e => e.TenantId)
                     .HasDatabaseName("IX_TenantEvidenceRequirement_Tenant");
@@ -1450,7 +1505,7 @@ namespace GrcMvc.Data
                     .HasDatabaseName("IX_TenantEvidenceRequirement_Workspace");
                 entity.HasIndex(e => e.AssignedToUserId)
                     .HasDatabaseName("IX_TenantEvidenceRequirement_AssignedTo");
-                    
+
                 // Unique constraint to prevent duplicates
                 entity.HasIndex(e => new { e.TenantId, e.FrameworkCode, e.ControlNumber, e.EvidenceTypeCode })
                     .IsUnique()

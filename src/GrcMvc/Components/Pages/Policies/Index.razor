@@ -1,5 +1,7 @@
 @page "/policies"
 @using GrcMvc.Models.DTOs
+@using GrcMvc.Services.Interfaces
+@inject IPolicyService PolicyService
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
@@ -77,22 +79,28 @@
 
 @code {
     private List<PolicyListItemDto>? policies;
+    private bool isLoading = true;
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        // TODO: Load from service - for now, demo data
-        policies = new List<PolicyListItemDto>
-{
-new() { Id = Guid.NewGuid(), Name = "Information Security Policy", Status = "Active", Category = "Security",
-LastReviewDate = DateTime.Now.AddDays(-30), ViolationCount = 2 },
-new() { Id = Guid.NewGuid(), Name = "Data Privacy Policy", Status = "Active", Category = "Privacy", LastReviewDate =
-DateTime.Now.AddDays(-15), ViolationCount = 0 },
-new() { Id = Guid.NewGuid(), Name = "Acceptable Use Policy", Status = "Active", Category = "Compliance", LastReviewDate
-= DateTime.Now.AddDays(-60), ViolationCount = 5 },
-new() { Id = Guid.NewGuid(), Name = "Disaster Recovery Policy", Status = "Pending Review", Category = "Operations",
-LastReviewDate = DateTime.Now.AddDays(-180), ViolationCount = 0 }
-};
-        return Task.CompletedTask;
+        try
+        {
+            var allPolicies = await PolicyService.GetAllAsync();
+            policies = allPolicies.Select(p => new PolicyListItemDto
+            {
+                Id = p.Id,
+                Name = p.Title ?? "Unnamed Policy",
+                Status = p.Status ?? "Draft",
+                Category = p.Category ?? "General",
+                LastReviewDate = p.ReviewDate ?? DateTime.UtcNow,
+                ViolationCount = 0
+            }).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading policies: {ex.Message}");
+            policies = new List<PolicyListItemDto>();
+        }
     }
 
     private string GetStatusColor(string status) => status switch

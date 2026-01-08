@@ -69,7 +69,7 @@ namespace GrcMvc.Controllers
                 // Get tenant ID from claims (standard pattern in this codebase)
                 var tenantIdClaim = User?.FindFirst("TenantId")?.Value;
                 Guid tenantId;
-                
+
                 if (!string.IsNullOrEmpty(tenantIdClaim) && Guid.TryParse(tenantIdClaim, out tenantId))
                 {
                     // Try to get tenant by ID from claim
@@ -86,7 +86,7 @@ namespace GrcMvc.Controllers
                 {
                     var tenantUser = await _dbContext.Set<TenantUser>()
                         .FirstOrDefaultAsync(tu => tu.UserId == userId);
-                    
+
                     if (tenantUser != null)
                     {
                         var currentTenant = await _dbContext.Tenants.FirstOrDefaultAsync(t => t.Id == tenantUser.TenantId);
@@ -395,10 +395,47 @@ namespace GrcMvc.Controllers
             return View(user);
         }
 
+        /// <summary>
+        /// Get tenant by slug with ownership verification.
+        /// CRITICAL FIX: Verifies user belongs to the tenant before returning.
+        /// </summary>
         private async Task<Tenant?> GetTenantBySlugAsync(string tenantSlug)
         {
-            return await _dbContext.Tenants
-                .FirstOrDefaultAsync(t => t.TenantSlug == tenantSlug);
+            var tenant = await _dbContext.Tenants
+                .FirstOrDefaultAsync(t => t.TenantSlug.ToLower() == tenantSlug.ToLower() && !t.IsDeleted);
+
+            if (tenant == null) return null;
+
+            // CRITICAL: Verify current user belongs to this tenant
+            var userId = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                _logger.LogWarning("GetTenantBySlugAsync called without authenticated user");
+                return null;
+            }
+
+            var userBelongsToTenant = await _dbContext.TenantUsers
+                .AnyAsync(tu => tu.UserId == userId && tu.TenantId == tenant.Id && tu.Status == "Active" && !tu.IsDeleted);
+
+            if (!userBelongsToTenant)
+            {
+                _logger.LogWarning("User {UserId} attempted to access tenant {TenantSlug} without membership", userId, tenantSlug);
+                return null; // Return null to trigger NotFound, preventing tenant data exposure
+            }
+
+            return tenant;
+        }
+
+        /// <summary>
+        /// Verify user has access to tenant (for additional security checks).
+        /// </summary>
+        private async Task<bool> VerifyTenantAccessAsync(Guid tenantId)
+        {
+            var userId = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId)) return false;
+
+            return await _dbContext.TenantUsers
+                .AnyAsync(tu => tu.UserId == userId && tu.TenantId == tenantId && tu.Status == "Active" && !tu.IsDeleted);
         }
     }
 }

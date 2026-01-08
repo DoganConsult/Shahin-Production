@@ -1,4 +1,5 @@
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -117,7 +118,7 @@ public class ConsentService : IConsentService
             .FirstOrDefaultAsync(c => c.UserId == userId && c.ConsentType == consentType && !c.IsDeleted);
 
         if (consent == null)
-            throw new InvalidOperationException($"Consent {consentType} not found for user {userId}");
+            throw new EntityNotFoundException("Consent", $"{consentType}:user:{userId}");
 
         consent.IsGranted = false;
         consent.WithdrawnAt = DateTime.UtcNow;

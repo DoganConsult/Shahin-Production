@@ -496,10 +496,24 @@ namespace GrcMvc.Models.DTOs
     /// </summary>
     public class CreateTenantDto
     {
+        [Required(ErrorMessage = "Organization name is required")]
+        [MinLength(2, ErrorMessage = "Organization name must be at least 2 characters")]
+        [MaxLength(255, ErrorMessage = "Organization name cannot exceed 255 characters")]
         public string OrganizationName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Admin email is required")]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address")]
+        [MaxLength(255, ErrorMessage = "Email cannot exceed 255 characters")]
         public string AdminEmail { get; set; } = string.Empty;
+
+        [MaxLength(63, ErrorMessage = "Tenant slug cannot exceed 63 characters")]
+        [RegularExpression(@"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$", ErrorMessage = "Tenant slug must be lowercase alphanumeric with optional hyphens")]
         public string TenantSlug { get; set; } = string.Empty;
+
+        [MaxLength(50)]
         public string SubscriptionTier { get; set; } = "Professional";
+
+        [MaxLength(2, ErrorMessage = "Country code must be 2 characters")]
         public string Country { get; set; } = string.Empty;
     }
 
@@ -508,7 +522,12 @@ namespace GrcMvc.Models.DTOs
     /// </summary>
     public class ActivateTenantDto
     {
+        [Required(ErrorMessage = "Tenant slug is required")]
+        [MaxLength(63)]
         public string TenantSlug { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Activation token is required")]
+        [MaxLength(255)]
         public string ActivationToken { get; set; } = string.Empty;
     }
 
@@ -517,19 +536,48 @@ namespace GrcMvc.Models.DTOs
     /// </summary>
     public class OrganizationProfileDto
     {
+        [Required(ErrorMessage = "Tenant ID is required")]
         public Guid TenantId { get; set; }
+
+        [MaxLength(255, ErrorMessage = "Organization name cannot exceed 255 characters")]
         public string OrganizationName { get; set; } = string.Empty;
+
+        [MaxLength(100)]
         public string OrgType { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Organization type is required")]
+        [MaxLength(100, ErrorMessage = "Organization type cannot exceed 100 characters")]
         public string OrganizationType { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Sector is required")]
+        [MaxLength(100, ErrorMessage = "Sector cannot exceed 100 characters")]
         public string Sector { get; set; } = string.Empty;
+
+        [MaxLength(2, ErrorMessage = "Country code must be 2 characters")]
         public string Country { get; set; } = string.Empty;
+
+        [MaxLength(500, ErrorMessage = "Data types cannot exceed 500 characters")]
         public string DataTypes { get; set; } = string.Empty;
+
+        [MaxLength(100, ErrorMessage = "Hosting model cannot exceed 100 characters")]
         public string HostingModel { get; set; } = string.Empty;
+
+        [MaxLength(50)]
         public string OrganizationSize { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Organization size is required")]
+        [MaxLength(50, ErrorMessage = "Size cannot exceed 50 characters")]
         public string Size { get; set; } = string.Empty;
+
+        [MaxLength(50)]
         public string ComplianceMaturity { get; set; } = string.Empty;
+
+        [MaxLength(50, ErrorMessage = "Maturity level cannot exceed 50 characters")]
         public string Maturity { get; set; } = string.Empty;
+
         public bool IsCriticalInfrastructure { get; set; }
+
+        [MaxLength(500, ErrorMessage = "Vendors cannot exceed 500 characters")]
         public string Vendors { get; set; } = string.Empty;
     }
 

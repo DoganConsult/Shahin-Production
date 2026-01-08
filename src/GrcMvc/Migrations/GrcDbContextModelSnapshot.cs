@@ -32,6 +32,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasColumnType("text");
@@ -162,6 +165,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<int?>("ConfidenceScore")
                         .HasColumnType("integer");
 
@@ -268,6 +274,9 @@ namespace GrcMvc.Migrations
                     b.Property<int>("AutoRejectHours")
                         .HasColumnType("integer");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<int>("BypassConfidenceThreshold")
                         .HasColumnType("integer");
 
@@ -350,6 +359,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<Guid>("AgentId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CapabilityCode")
                         .IsRequired()
@@ -434,6 +446,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<Guid>("ActionId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("ConfidenceLevel")
                         .IsRequired()
@@ -538,6 +553,9 @@ namespace GrcMvc.Migrations
                     b.Property<int>("AutoApprovalConfidenceThreshold")
                         .HasColumnType("integer");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CapabilitiesJson")
                         .HasColumnType("text");
 
@@ -637,6 +655,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -715,6 +736,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Action2Id")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -781,6 +805,134 @@ namespace GrcMvc.Migrations
                     b.ToTable("AgentSoDViolations");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.AiProviderConfiguration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AllowedUseCases")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ApiEndpoint")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ApiKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ApiVersion")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ConfiguredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ConfiguredBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CurrentMonthUsage")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CustomHeaders")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastUsageResetDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MaxTokens")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ModelId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MonthlyUsageLimit")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RequestTemplate")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ResponsePath")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("SystemPrompt")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Temperature")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("TimeoutSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("TopP")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("AiProviderConfigurations");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.ApplicabilityEntry", b =>
                 {
                     b.Property<Guid>("Id")
@@ -796,6 +948,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<Guid?>("AssessmentId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("BusinessLineDriver")
                         .HasMaxLength(100)
@@ -918,6 +1073,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<Guid?>("ControlId")
                         .HasColumnType("uuid");
 
@@ -1012,6 +1170,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("ConditionExpression")
                         .IsRequired()
@@ -1218,6 +1379,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1285,6 +1449,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<Guid>("ApprovalChainId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
@@ -1388,6 +1555,9 @@ namespace GrcMvc.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("AssignedTo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessCode")
                         .HasColumnType("text");
 
                     b.Property<string>("Comments")
@@ -1504,6 +1674,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("AssignedTo")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessCode")
                         .HasColumnType("text");
 
                     b.Property<int?>("ComplianceScore")
@@ -1648,6 +1821,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("BestPractices")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessCode")
                         .HasColumnType("text");
 
                     b.Property<string>("CommonGaps")
@@ -1830,6 +2006,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid?>("AssessmentId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("BusinessLines")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -1942,6 +2121,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("AttributesJson")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessCode")
                         .HasColumnType("text");
 
                     b.Property<string>("BusinessOwner")
@@ -2102,6 +2284,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -2224,6 +2409,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CorrelationId")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -2323,6 +2511,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<Guid>("AuditId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("Category")
                         .IsRequired()
@@ -2428,6 +2619,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<Guid?>("CCMTestExecutionId")
                         .HasColumnType("uuid");
@@ -2583,6 +2777,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("BaselineSetId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("ControlId")
                         .HasColumnType("uuid");
 
@@ -2654,6 +2851,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -2727,6 +2927,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("AutoCreateTicket")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<Guid?>("ControlId")
                         .HasColumnType("uuid");
@@ -2873,6 +3076,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -2992,6 +3198,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -3101,6 +3310,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("AttendeesJson")
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("CadenceId")
                         .HasColumnType("uuid");
 
@@ -3176,6 +3388,9 @@ namespace GrcMvc.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("ApplicabilityJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessCode")
                         .HasColumnType("text");
 
                     b.Property<string>("ControlId")
@@ -3289,6 +3504,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CapturedAt")
                         .HasColumnType("timestamp with time zone");
@@ -3439,6 +3657,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<int>("ControlCount")
                         .HasColumnType("integer");
 
@@ -3519,6 +3740,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("ControlId")
                         .IsRequired()
@@ -3664,6 +3888,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -3744,6 +3971,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("Category")
                         .IsRequired()
@@ -3862,6 +4092,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid?>("BaselineCatalogId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -3941,6 +4174,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("Category")
                         .IsRequired()
@@ -4040,6 +4276,9 @@ namespace GrcMvc.Migrations
                     b.Property<int>("ApprovalLevel")
                         .HasColumnType("integer");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<bool>("CanApprove")
                         .HasColumnType("boolean");
 
@@ -4129,6 +4368,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -4216,6 +4458,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -4290,6 +4535,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("AssignedTo")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessCode")
                         .HasColumnType("text");
 
                     b.Property<string>("Category")
@@ -4395,6 +4643,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<Guid?>("ControlId")
                         .HasColumnType("uuid");
 
@@ -4493,6 +4744,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -4569,6 +4823,15 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("bytea");
 
+                    b.Property<string>("SourceControlCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SourceControlTitle")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SourceFrameworkCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
@@ -4613,6 +4876,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("ApprovedBy")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("ChangeReason")
                         .HasMaxLength(1000)
@@ -4695,6 +4961,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -4769,6 +5038,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("ControlId")
                         .HasColumnType("uuid");
 
@@ -4838,6 +5110,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("ApprovedBy")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CompensatingControls")
                         .HasMaxLength(2000)
@@ -4960,6 +5235,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -5035,6 +5313,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("ControlId")
                         .HasColumnType("uuid");
 
@@ -5097,6 +5378,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -5196,6 +5480,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -5289,6 +5576,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<int>("AccuracyScore")
                         .HasColumnType("integer");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CalculatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -5386,6 +5676,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -5496,6 +5789,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -5572,6 +5868,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<Guid?>("ApprovedByUserId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<bool>("CanApprove")
                         .HasColumnType("boolean");
@@ -5701,11 +6000,120 @@ namespace GrcMvc.Migrations
                     b.ToTable("DelegationRules");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.DocumentTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DescriptionAr")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("DescriptionEn")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Domain")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("DownloadCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FieldsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileFormat")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("FilePathAr")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("FilePathEn")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("FrameworkCodes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("InstructionsAr")
+                        .HasColumnType("text");
+
+                    b.Property<string>("InstructionsEn")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsBilingual")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SectionsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("TitleAr")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("TitleEn")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DocumentTemplates");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.DomainEvent", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CorrelationId")
                         .IsRequired()
@@ -5814,6 +6222,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -5912,6 +6323,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -6004,6 +6418,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("AvailableModules")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("ConnectionConfigJson")
                         .HasColumnType("text");
@@ -6099,6 +6516,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("ContentId")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -6188,6 +6608,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("BodyPattern")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -6289,6 +6712,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("ClientId")
                         .HasMaxLength(100)
@@ -6416,6 +6842,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CcRecipients")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -6531,6 +6960,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -6635,6 +7067,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -6715,6 +7150,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("AssignedToUserName")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<int>("Classification")
                         .HasColumnType("integer");
@@ -6840,6 +7278,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -6964,6 +7405,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime>("AttemptedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -7041,6 +7485,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -7126,6 +7573,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -7219,8 +7669,14 @@ namespace GrcMvc.Migrations
                     b.Property<Guid?>("AssessmentId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("AssessmentRequirementId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("AuditId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CollectedBy")
                         .IsRequired()
@@ -7257,6 +7713,15 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<DateTime?>("EvidencePeriodEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("EvidencePeriodStart")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FileHash")
+                        .HasColumnType("text");
+
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -7268,6 +7733,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<long>("FileSize")
                         .HasColumnType("bigint");
+
+                    b.Property<int>("FileVersion")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -7285,13 +7753,25 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("OriginalUploadDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OriginalUploader")
+                        .HasColumnType("text");
+
                     b.Property<string>("Owner")
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("RetentionEndDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("bytea");
+
+                    b.Property<string>("SourceSystem")
+                        .HasColumnType("text");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
@@ -7323,6 +7803,8 @@ namespace GrcMvc.Migrations
 
                     b.HasIndex("AssessmentId");
 
+                    b.HasIndex("AssessmentRequirementId");
+
                     b.HasIndex("AuditId");
 
                     b.HasIndex("ControlId");
@@ -7340,6 +7822,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -7418,6 +7903,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -7509,6 +7997,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<int>("BaseScore")
                         .HasColumnType("integer");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("Category")
                         .IsRequired()
@@ -7629,6 +8120,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("ConnectionConfigJson")
                         .HasColumnType("text");
@@ -7794,6 +8288,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -7891,6 +8388,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("ControlNumber")
                         .IsRequired()
@@ -8043,6 +8543,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("BaselineSetId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -8134,6 +8637,9 @@ namespace GrcMvc.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("ActivitiesJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessCode")
                         .HasColumnType("text");
 
                     b.Property<string>("CadenceCode")
@@ -8260,6 +8766,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("ActivitiesJson")
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -8346,6 +8855,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -8483,6 +8995,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -8567,6 +9082,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("Category")
                         .IsRequired()
@@ -8683,6 +9201,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("ConnectionConfigJson")
                         .HasColumnType("text");
 
@@ -8775,6 +9296,9 @@ namespace GrcMvc.Migrations
                     b.Property<decimal?>("AlertThreshold")
                         .HasColumnType("numeric");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("ConnectorId")
                         .HasColumnType("uuid");
 
@@ -8853,6 +9377,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<decimal>("AmountPaid")
                         .HasColumnType("numeric");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -8952,6 +9479,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("ContentAr")
                         .HasColumnType("text");
 
@@ -9050,6 +9580,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("ConfiguredDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -9142,6 +9675,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid?>("BaselineSetId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("ConfigCode")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -9226,6 +9762,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("ConfidenceRating")
                         .IsRequired()
@@ -9338,6 +9877,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Comments")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
@@ -9433,6 +9975,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -9496,6 +10041,851 @@ namespace GrcMvc.Migrations
                     b.ToTable("MappingWorkflowTemplates");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.Marketing.BlogPost", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Author")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("AuthorAr")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("AuthorAvatarUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContentAr")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Excerpt")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ExcerptAr")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("FeaturedImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("MetaDescription")
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
+                    b.Property<string>("MetaTitle")
+                        .HasMaxLength(70)
+                        .HasColumnType("character varying(70)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("PublishDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ReadTimeMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ScheduledPublishDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("TagsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("TitleAr")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BlogPosts");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Marketing.CaseStudy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CompanyName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("CompanyNameAr")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ComplianceScore")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FrameworkCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("FullContent")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FullContentAr")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ImprovementLabel")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ImprovementLabelAr")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ImprovementMetric")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Industry")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("IndustryAr")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("PublishDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Slug")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("SummaryAr")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("TimeToCompliance")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("TitleAr")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CaseStudies");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Marketing.ClientLogo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ClientName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ClientNameAr")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Industry")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("IndustryAr")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LogoUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("WebsiteUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ClientLogos");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Marketing.Faq", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("AnswerAr")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("QuestionAr")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Faqs");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Marketing.FeatureHighlight", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("DescriptionAr")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("IconClass")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LearnMoreUrl")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("TitleAr")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FeatureHighlights");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Marketing.LandingPageContent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContentKey")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("ContentValue")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContentValueAr")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PageKey")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("SectionKey")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LandingPageContents");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Marketing.LandingStatistic", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("IconClass")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("LabelAr")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Suffix")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LandingStatistics");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Marketing.MarketingTeamMember", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Bio")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("BioAr")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LinkedInUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("NameAr")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("PhotoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("TitleAr")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("TwitterUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MarketingTeamMembers");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Marketing.Partner", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("DescriptionAr")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LogoUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("NameAr")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Tier")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("WebsiteUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Partners");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Marketing.PricingPlan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("DescriptionAr")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FeaturesJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FeaturesJsonAr")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("HasApiAccess")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("HasPrioritySupport")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsPopular")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("MaxFrameworks")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MaxUsers")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MaxWorkspaces")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("NameAr")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Period")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PricingPlans");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Marketing.Testimonial", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AuthorName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("AuthorNameAr")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("AuthorTitle")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("AuthorTitleAr")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("CompanyNameAr")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Industry")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("IndustryAr")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Quote")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("QuoteAr")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Testimonials");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Marketing.TrustBadge", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BadgeCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("DescriptionAr")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("NameAr")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("VerificationUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TrustBadges");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Marketing.Webinar", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("DescriptionAr")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("RegistrationCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RegistrationUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("ScheduledDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Slug")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("SpeakersJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ThumbnailUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("TitleAr")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("TopicsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("VideoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Webinars");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.OnboardingWizard", b =>
                 {
                     b.Property<Guid>("Id")
@@ -9555,6 +10945,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<decimal?>("BaselineRemediationClosureDays")
                         .HasColumnType("numeric");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("BusinessLinesJson")
                         .IsRequired()
@@ -10077,6 +11470,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("ContactInfo")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -10185,6 +11581,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("AppliedOverlays")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -10305,6 +11704,9 @@ namespace GrcMvc.Migrations
                     b.Property<int>("BranchCount")
                         .HasColumnType("integer");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CeoEmail")
                         .IsRequired()
                         .HasColumnType("text");
@@ -10318,6 +11720,10 @@ namespace GrcMvc.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("CfoName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ChamberMembership")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -10355,6 +11761,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
+                    b.Property<DateTime?>("CrExpiryDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -10373,6 +11782,10 @@ namespace GrcMvc.Migrations
 
                     b.Property<int>("DataSubjectCount")
                         .HasColumnType("integer");
+
+                    b.Property<string>("DataTransferCountries")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("DataTypes")
                         .IsRequired()
@@ -10400,7 +11813,20 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("GosiNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("HasCrossBorderTransfer")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("HasDataCenterInKSA")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("HasEInvoicingPhase1")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("HasEInvoicingPhase2")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("HasExternalAuditor")
@@ -10438,6 +11864,9 @@ namespace GrcMvc.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsSubsidiary")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsTadawulListed")
                         .HasColumnType("boolean");
 
                     b.Property<string>("ItSystemsJson")
@@ -10478,11 +11907,27 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("MisaLicenseNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MisaLicenseType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MunicipalLicense")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NitaqatCategory")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("OnboardingCompletedAt")
                         .HasColumnType("timestamp with time zone");
@@ -10538,6 +11983,15 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("ProcessesBiometricData")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("ProcessesLocationData")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("ProcessesNationalIdData")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("ProcessesPersonalData")
                         .HasColumnType("boolean");
 
@@ -10560,10 +12014,26 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("RequiresDataLocalization")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("RequiresEsgReporting")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("RequiresIfrsCompliance")
+                        .HasColumnType("boolean");
+
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("bytea");
+
+                    b.Property<string>("SasoCertification")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("SaudizationPercent")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("SecondaryRegulators")
                         .IsRequired()
@@ -10603,6 +12073,17 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Vision2030Kpis")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Vision2030Program")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ZakatCertExpiry")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
                     b.HasIndex("TenantId")
@@ -10621,6 +12102,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -10710,6 +12194,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("ControlId")
                         .HasColumnType("uuid");
 
@@ -10775,6 +12262,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<Guid?>("ControlId")
                         .HasColumnType("uuid");
@@ -10855,6 +12345,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -10933,6 +12426,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -11044,6 +12540,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("AssignedApproverName")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -11176,6 +12675,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("ControlId")
                         .HasColumnType("uuid");
 
@@ -11272,6 +12774,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime?>("ActualStartDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CorrelationId")
                         .IsRequired()
@@ -11376,6 +12881,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ActualStartDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -11469,6 +12977,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("AllowedTenantIds")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<bool>("CanAccessTenantData")
                         .HasColumnType("boolean");
@@ -11633,6 +13144,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -11712,6 +13226,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("SupersedesDocumentCode")
+                        .HasColumnType("text");
+
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
 
@@ -11724,6 +13241,15 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<int>("VersionMajor")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("VersionMinor")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("VersionNotes")
+                        .HasColumnType("text");
 
                     b.Property<Guid?>("WorkspaceId")
                         .HasColumnType("uuid");
@@ -11743,6 +13269,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<int>("ConfidenceScore")
                         .HasColumnType("integer");
@@ -11855,6 +13384,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -11953,6 +13485,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -12033,6 +13568,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("ContactEmail")
                         .IsRequired()
@@ -12129,6 +13667,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -12233,6 +13774,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("ContentType")
                         .HasColumnType("text");
@@ -12398,6 +13942,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<int>("ConfidenceLevel")
                         .HasColumnType("integer");
 
@@ -12468,6 +14015,74 @@ namespace GrcMvc.Migrations
                     b.ToTable("RequirementMappings");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.RequirementNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AssessmentRequirementId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsInternal")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NoteType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssessmentRequirementId");
+
+                    b.HasIndex("AssessmentRequirementId", "CreatedDate");
+
+                    b.ToTable("RequirementNotes");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.Resilience", b =>
                 {
                     b.Property<Guid>("Id")
@@ -12504,6 +14119,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<decimal?>("BusinessContinuityScore")
                         .HasColumnType("numeric");
@@ -12631,6 +14249,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -12737,6 +14358,201 @@ namespace GrcMvc.Migrations
                     b.ToTable("Risks");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.RiskCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("ColorCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<int>("DefaultRiskAppetite")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("DescriptionAr")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("EscalationRoles")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("EscalationThreshold")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("IconClass")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ParentCategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentCategoryId");
+
+                    b.ToTable("RiskCategories");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.RiskControlMapping", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ActualEffectiveness")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("AssessmentNotes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ControlId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ExpectedEffectiveness")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastAssessedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("LastAssessedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MappingStrength")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Rationale")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<Guid>("RiskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ControlId");
+
+                    b.HasIndex("RiskId");
+
+                    b.ToTable("RiskControlMappings");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.RiskIndicator", b =>
                 {
                     b.Property<Guid>("Id")
@@ -12745,6 +14561,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("AutoEscalate")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("Category")
                         .IsRequired()
@@ -12879,6 +14698,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -12979,6 +14801,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("Commentary")
                         .HasMaxLength(1000)
@@ -13084,6 +14909,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("CompletedDate")
                         .HasColumnType("timestamp with time zone");
@@ -13202,6 +15030,260 @@ namespace GrcMvc.Migrations
                     b.ToTable("RiskResiliences");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.RiskTreatment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AcceptanceJustification")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<decimal?>("ActualCost")
+                        .HasColumnType("numeric");
+
+                    b.Property<int?>("ActualResidualRisk")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ApprovalDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ApprovedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("CompletionDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<decimal>("EstimatedCost")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("ExpectedResidualRisk")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("RiskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("TargetDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TransferParty")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("TreatmentType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RiskId");
+
+                    b.ToTable("RiskTreatments");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.RiskTreatmentControl", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ControlId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ExpectedEffectiveness")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TreatmentId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ControlId");
+
+                    b.HasIndex("TreatmentId");
+
+                    b.ToTable("RiskTreatmentControls");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.RiskType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("RiskTypes");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.RoleFeature", b =>
                 {
                     b.Property<int>("Id")
@@ -13251,6 +15333,9 @@ namespace GrcMvc.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("AssignableTaskTypesJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessCode")
                         .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
@@ -13388,6 +15473,9 @@ namespace GrcMvc.Migrations
                     b.Property<int>("ApprovalLevel")
                         .HasColumnType("integer");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<bool>("CanApprove")
                         .HasColumnType("boolean");
 
@@ -13500,6 +15588,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -13591,6 +15682,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("BusinessReason")
                         .IsRequired()
                         .HasColumnType("text");
@@ -13674,6 +15768,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CorrelationId")
                         .IsRequired()
@@ -13761,6 +15858,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("ActivatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("ChangeNotes")
                         .IsRequired()
                         .HasColumnType("text");
@@ -13837,6 +15937,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("ComputedAt")
                         .HasColumnType("timestamp with time zone");
@@ -13993,6 +16096,39 @@ namespace GrcMvc.Migrations
                     b.ToTable("SectorFrameworkIndex");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.SerialCounter", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("NextValue")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ObjectType")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SerialCounters");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.ShahinAIBrandConfig", b =>
                 {
                     b.Property<Guid>("Id")
@@ -14023,6 +16159,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -14135,6 +16274,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -14242,6 +16384,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -14351,6 +16496,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("BreachEscalationRuleCode")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessCode")
                         .HasColumnType("text");
 
                     b.Property<string>("BusinessHoursJson")
@@ -14475,6 +16623,9 @@ namespace GrcMvc.Migrations
                     b.Property<DateTime?>("AcceptanceExpiryDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("ConflictCode")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -14581,6 +16732,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("BusinessRiskDescription")
                         .HasMaxLength(1000)
@@ -14694,6 +16848,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CollectionGuidance")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
@@ -14789,6 +16946,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CapabilityArea")
                         .IsRequired()
@@ -14896,6 +17056,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -14973,6 +17136,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<decimal>("AnnualPrice")
                         .HasColumnType("numeric");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -15070,6 +17236,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("ControlId")
                         .HasColumnType("uuid");
 
@@ -15152,6 +17321,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("AssignedOwnerName")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<Guid>("ControlId")
                         .HasColumnType("uuid");
@@ -15243,6 +17415,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("AssignedAgentId")
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Category")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -15330,6 +17505,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text");
@@ -15407,6 +17585,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
@@ -15490,6 +17671,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<Guid>("ConnectorId")
                         .HasColumnType("uuid");
@@ -15606,6 +17790,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -15678,6 +17865,9 @@ namespace GrcMvc.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("AttachmentUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessCode")
                         .HasColumnType("text");
 
                     b.Property<string>("Comment")
@@ -15753,6 +17943,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -15883,6 +18076,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("BusinessUnit")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -15983,6 +18179,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<bool>("CanApprove")
                         .HasColumnType("boolean");
 
@@ -16066,6 +18265,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("ChannelId")
                         .HasMaxLength(255)
@@ -16179,6 +18381,10 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<bool>("BypassPayment")
                         .HasColumnType("boolean");
 
@@ -16267,6 +18473,10 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("TenantCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
 
@@ -16311,6 +18521,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -16373,6 +18586,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<Guid?>("AssignedToUserId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CollectionFrequency")
                         .IsRequired()
@@ -16502,6 +18718,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -16611,6 +18830,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -16682,6 +18904,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<DateTime?>("ActivatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -16783,6 +19008,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -16861,6 +19089,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -16945,6 +19176,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<int>("ConcentrationRiskScore")
                         .HasColumnType("integer");
@@ -17060,6 +19294,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Country")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -17172,6 +19409,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -17265,6 +19505,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("AgentPrompt")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessCode")
                         .HasColumnType("text");
 
                     b.Property<string>("ConditionExpression")
@@ -17404,6 +19647,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -17476,6 +19722,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("ControlFamily")
                         .IsRequired()
@@ -17574,6 +19823,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CollectionGuidance")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -17666,6 +19918,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("ConsentType")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -17754,6 +20009,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -17846,6 +20104,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasColumnType("text");
@@ -17934,6 +20195,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<string>("AssignedBy")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessCode")
                         .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
@@ -18045,6 +20309,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -18136,6 +20403,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("ActionUrl")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -18234,6 +20504,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -18328,6 +20601,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<bool>("BlockOnFailure")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -18514,6 +20790,9 @@ namespace GrcMvc.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasColumnType("text");
@@ -18615,6 +20894,9 @@ namespace GrcMvc.Migrations
 
                     b.Property<int>("AttemptCount")
                         .HasColumnType("integer");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -18734,6 +21016,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<int>("ConsecutiveFailures")
                         .HasColumnType("integer");
@@ -18859,6 +21144,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -18970,6 +21258,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("AdditionalData")
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -19053,6 +21344,9 @@ namespace GrcMvc.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("BpmnXml")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessCode")
                         .HasColumnType("text");
 
                     b.Property<string>("Category")
@@ -19213,6 +21507,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("AcknowledgedBy")
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -19291,6 +21588,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("Context")
                         .IsRequired()
@@ -19389,6 +21689,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
@@ -19512,6 +21815,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("AssignedToUserName")
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -19615,6 +21921,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("ConfigJson")
                         .HasColumnType("text");
 
@@ -19716,6 +22025,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -19815,6 +22127,9 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
@@ -19871,6 +22186,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<Guid>("ControlId")
                         .HasColumnType("uuid");
@@ -19949,6 +22267,9 @@ namespace GrcMvc.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -20030,6 +22351,9 @@ namespace GrcMvc.Migrations
                     b.Property<string>("AssignableTaskTypes")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
@@ -20312,6 +22636,9 @@ namespace GrcMvc.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("Comments")
                         .IsRequired()
                         .HasColumnType("text");
@@ -20439,6 +22766,15 @@ namespace GrcMvc.Migrations
                     b.Navigation("Action1");
 
                     b.Navigation("Rule");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.AiProviderConfiguration", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.ApplicabilityEntry", b =>
@@ -21062,6 +23398,11 @@ namespace GrcMvc.Migrations
                         .HasForeignKey("AssessmentId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("GrcMvc.Models.Entities.AssessmentRequirement", "AssessmentRequirement")
+                        .WithMany("Evidences")
+                        .HasForeignKey("AssessmentRequirementId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("GrcMvc.Models.Entities.Audit", "Audit")
                         .WithMany("Evidences")
                         .HasForeignKey("AuditId")
@@ -21077,6 +23418,8 @@ namespace GrcMvc.Migrations
                         .HasForeignKey("WorkspaceId");
 
                     b.Navigation("Assessment");
+
+                    b.Navigation("AssessmentRequirement");
 
                     b.Navigation("Audit");
 
@@ -21536,6 +23879,17 @@ namespace GrcMvc.Migrations
                     b.Navigation("Requirement");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.RequirementNote", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.AssessmentRequirement", "AssessmentRequirement")
+                        .WithMany("Notes")
+                        .HasForeignKey("AssessmentRequirementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssessmentRequirement");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.Risk", b =>
                 {
                     b.HasOne("GrcMvc.Models.Entities.Workspace", "Workspace")
@@ -21543,6 +23897,34 @@ namespace GrcMvc.Migrations
                         .HasForeignKey("WorkspaceId");
 
                     b.Navigation("Workspace");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.RiskCategory", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.RiskCategory", "ParentCategory")
+                        .WithMany("ChildCategories")
+                        .HasForeignKey("ParentCategoryId");
+
+                    b.Navigation("ParentCategory");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.RiskControlMapping", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Control", "Control")
+                        .WithMany()
+                        .HasForeignKey("ControlId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GrcMvc.Models.Entities.Risk", "Risk")
+                        .WithMany("RiskControlMappings")
+                        .HasForeignKey("RiskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Control");
+
+                    b.Navigation("Risk");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.RiskIndicator", b =>
@@ -21588,6 +23970,47 @@ namespace GrcMvc.Migrations
                         .IsRequired();
 
                     b.Navigation("Indicator");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.RiskTreatment", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Risk", "Risk")
+                        .WithMany()
+                        .HasForeignKey("RiskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Risk");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.RiskTreatmentControl", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Control", "Control")
+                        .WithMany()
+                        .HasForeignKey("ControlId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GrcMvc.Models.Entities.RiskTreatment", "Treatment")
+                        .WithMany("TreatmentControls")
+                        .HasForeignKey("TreatmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Control");
+
+                    b.Navigation("Treatment");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.RiskType", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.RiskCategory", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.RoleFeature", b =>
@@ -22369,6 +24792,13 @@ namespace GrcMvc.Migrations
                     b.Navigation("Requirements");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.AssessmentRequirement", b =>
+                {
+                    b.Navigation("Evidences");
+
+                    b.Navigation("Notes");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.Audit", b =>
                 {
                     b.Navigation("Evidences");
@@ -22558,6 +24988,13 @@ namespace GrcMvc.Migrations
                     b.Navigation("Assessments");
 
                     b.Navigation("Controls");
+
+                    b.Navigation("RiskControlMappings");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.RiskCategory", b =>
+                {
+                    b.Navigation("ChildCategories");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.RiskIndicator", b =>
@@ -22565,6 +25002,11 @@ namespace GrcMvc.Migrations
                     b.Navigation("Alerts");
 
                     b.Navigation("Measurements");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.RiskTreatment", b =>
+                {
+                    b.Navigation("TreatmentControls");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.RoleProfile", b =>

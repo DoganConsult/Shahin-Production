@@ -1,6 +1,7 @@
 using GrcMvc.Models.DTOs;
 using GrcMvc.Models.Entities;
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Application.Policy;
 using Microsoft.EntityFrameworkCore;
@@ -130,7 +131,7 @@ namespace GrcMvc.Services.Implementations
                 .Include(s => s.Plan)
                 .FirstOrDefaultAsync(s => s.Id == subscriptionId);
             if (subscription == null)
-                throw new Exception($"Subscription {subscriptionId} not found");
+                throw new SubscriptionException($"Subscription {subscriptionId} not found", subscriptionId);
 
             string oldStatus = subscription.Status;
             subscription.Status = newStatus;
@@ -280,7 +281,7 @@ namespace GrcMvc.Services.Implementations
         {
             var subscription = await _dbContext.Subscriptions.FirstOrDefaultAsync(s => s.Id == subscriptionId);
             if (subscription == null)
-                throw new Exception($"Subscription {subscriptionId} not found");
+                throw new SubscriptionException($"Subscription {subscriptionId} not found", subscriptionId);
 
             var payment = new Payment
             {
@@ -451,7 +452,7 @@ namespace GrcMvc.Services.Implementations
         {
             var subscription = await _dbContext.Subscriptions.FirstOrDefaultAsync(s => s.Id == subscriptionId);
             if (subscription == null)
-                throw new Exception($"Subscription {subscriptionId} not found");
+                throw new SubscriptionException($"Subscription {subscriptionId} not found", subscriptionId);
 
             var invoice = new Invoice
             {

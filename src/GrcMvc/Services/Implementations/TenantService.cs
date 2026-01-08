@@ -1,9 +1,11 @@
 using System;
 using System.Threading.Tasks;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Data;
 using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace GrcMvc.Services.Implementations
@@ -19,19 +21,22 @@ namespace GrcMvc.Services.Implementations
         private readonly IEmailService _emailService;
         private readonly IAuditEventService _auditService;
         private readonly ITenantProvisioningService _provisioningService;
+        private readonly IConfiguration _configuration;
 
         public TenantService(
             IUnitOfWork unitOfWork,
             ILogger<TenantService> logger,
             IEmailService emailService,
             IAuditEventService auditService,
-            ITenantProvisioningService provisioningService)
+            ITenantProvisioningService provisioningService,
+            IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _emailService = emailService;
             _auditService = auditService;
             _provisioningService = provisioningService;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -42,14 +47,16 @@ namespace GrcMvc.Services.Implementations
         {
             try
             {
-                // Validate tenant slug is unique
+                // Validate tenant slug is unique (case-insensitive)
+                // HIGH FIX: Normalize slug to lowercase for consistent comparison
+                tenantSlug = tenantSlug.ToLower().Trim();
                 var existingTenant = await _unitOfWork.Tenants
                     .Query()
-                    .FirstOrDefaultAsync(t => t.TenantSlug == tenantSlug);
-                
+                    .FirstOrDefaultAsync(t => t.TenantSlug.ToLower() == tenantSlug);
+
                 if (existingTenant != null)
                 {
-                    throw new InvalidOperationException($"Tenant slug '{tenantSlug}' is already taken.");
+                    throw new EntityExistsException("Tenant", "Slug", tenantSlug);
                 }
 
                 var tenant = new Tenant
@@ -127,17 +134,17 @@ namespace GrcMvc.Services.Implementations
 
                 if (tenant == null)
                 {
-                    throw new InvalidOperationException($"Tenant '{tenantSlug}' not found.");
+                    throw new EntityNotFoundException("Tenant", tenantSlug);
                 }
 
                 if (tenant.ActivationToken != activationToken)
                 {
-                    throw new InvalidOperationException("Invalid activation token.");
+                    throw new ValidationException("ActivationToken", "Invalid activation token");
                 }
 
                 if (tenant.Status != "Pending")
                 {
-                    throw new InvalidOperationException($"Tenant is already {tenant.Status}.");
+                    throw new TenantStateException(tenant.Status, "Pending");
                 }
 
                 tenant.Status = "Active";
@@ -155,7 +162,7 @@ namespace GrcMvc.Services.Implementations
                     var provisioned = await _provisioningService.ProvisionTenantAsync(tenant.Id);
                     if (!provisioned)
                     {
-                        throw new InvalidOperationException($"Failed to provision database for tenant {tenant.Id}. Activation cannot complete.");
+                        throw new IntegrationException("TenantProvisioning", $"Failed to provision database for tenant {tenant.Id}");
                     }
                 }
 
@@ -209,7 +216,7 @@ namespace GrcMvc.Services.Implementations
             try
             {
                 var activationUrl = $"https://yourdomain.com/auth/activate?slug={tenant.TenantSlug}&token={tenant.ActivationToken}";
-                
+
                 var emailBody = $@"
                     <h2>Welcome to GRC Platform!</h2>
                     <p>Your organization <strong>{tenant.OrganizationName}</strong> has been registered.</p>
@@ -240,6 +247,161 @@ namespace GrcMvc.Services.Implementations
         private string GenerateActivationToken()
         {
             return Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32));
+        }
+
+        /// <summary>
+        /// Suspend a tenant (temporary deactivation).
+        /// HIGH FIX: Added missing lifecycle operation.
+        /// </summary>
+        public async Task<Tenant> SuspendTenantAsync(Guid tenantId, string suspendedBy, string? reason = null)
+        {
+            var tenant = await _unitOfWork.Tenants.GetByIdAsync(tenantId);
+            if (tenant == null)
+                throw new EntityNotFoundException("Tenant", tenantId);
+
+            if (tenant.Status == "Suspended")
+                throw new TenantStateException("Suspended", "Active");
+
+            tenant.Status = "Suspended";
+            tenant.IsActive = false;
+            tenant.ModifiedDate = DateTime.UtcNow;
+            tenant.ModifiedBy = suspendedBy;
+
+            await _unitOfWork.Tenants.UpdateAsync(tenant);
+            await _unitOfWork.SaveChangesAsync();
+
+            await _auditService.LogEventAsync(
+                tenantId: tenant.Id,
+                eventType: "TenantSuspended",
+                affectedEntityType: "Tenant",
+                affectedEntityId: tenant.Id.ToString(),
+                action: "Suspend",
+                actor: suspendedBy,
+                payloadJson: System.Text.Json.JsonSerializer.Serialize(new { tenant.Id, tenant.Status, Reason = reason }),
+                correlationId: tenant.CorrelationId
+            );
+
+            _logger.LogInformation("Tenant {TenantId} suspended by {SuspendedBy}. Reason: {Reason}", tenantId, suspendedBy, reason ?? "Not specified");
+            return tenant;
+        }
+
+        /// <summary>
+        /// Reactivate a suspended tenant.
+        /// </summary>
+        public async Task<Tenant> ReactivateTenantAsync(Guid tenantId, string reactivatedBy)
+        {
+            var tenant = await _unitOfWork.Tenants.GetByIdAsync(tenantId);
+            if (tenant == null)
+                throw new EntityNotFoundException("Tenant", tenantId);
+
+            if (tenant.Status != "Suspended")
+                throw new TenantStateException(tenant.Status, "Suspended");
+
+            tenant.Status = "Active";
+            tenant.IsActive = true;
+            tenant.ModifiedDate = DateTime.UtcNow;
+            tenant.ModifiedBy = reactivatedBy;
+
+            await _unitOfWork.Tenants.UpdateAsync(tenant);
+            await _unitOfWork.SaveChangesAsync();
+
+            await _auditService.LogEventAsync(
+                tenantId: tenant.Id,
+                eventType: "TenantReactivated",
+                affectedEntityType: "Tenant",
+                affectedEntityId: tenant.Id.ToString(),
+                action: "Reactivate",
+                actor: reactivatedBy,
+                payloadJson: System.Text.Json.JsonSerializer.Serialize(new { tenant.Id, tenant.Status }),
+                correlationId: tenant.CorrelationId
+            );
+
+            _logger.LogInformation("Tenant {TenantId} reactivated by {ReactivatedBy}", tenantId, reactivatedBy);
+            return tenant;
+        }
+
+        /// <summary>
+        /// Archive a tenant (soft delete with data retention).
+        /// </summary>
+        public async Task<Tenant> ArchiveTenantAsync(Guid tenantId, string archivedBy, string? reason = null)
+        {
+            var tenant = await _unitOfWork.Tenants.GetByIdAsync(tenantId);
+            if (tenant == null)
+                throw new EntityNotFoundException("Tenant", tenantId);
+
+            if (tenant.Status == "Archived")
+                throw new TenantStateException("Archived", "Active");
+
+            tenant.Status = "Archived";
+            tenant.IsActive = false;
+            tenant.IsDeleted = true; // Soft delete flag
+            tenant.DeletedAt = DateTime.UtcNow;
+            tenant.ModifiedDate = DateTime.UtcNow;
+            tenant.ModifiedBy = archivedBy;
+
+            await _unitOfWork.Tenants.UpdateAsync(tenant);
+            await _unitOfWork.SaveChangesAsync();
+
+            await _auditService.LogEventAsync(
+                tenantId: tenant.Id,
+                eventType: "TenantArchived",
+                affectedEntityType: "Tenant",
+                affectedEntityId: tenant.Id.ToString(),
+                action: "Archive",
+                actor: archivedBy,
+                payloadJson: System.Text.Json.JsonSerializer.Serialize(new { tenant.Id, tenant.Status, Reason = reason }),
+                correlationId: tenant.CorrelationId
+            );
+
+            _logger.LogInformation("Tenant {TenantId} archived by {ArchivedBy}. Reason: {Reason}", tenantId, archivedBy, reason ?? "Not specified");
+            return tenant;
+        }
+
+        /// <summary>
+        /// Permanently delete a tenant.
+        /// </summary>
+        public async Task<bool> DeleteTenantAsync(Guid tenantId, string deletedBy, bool hardDelete = false)
+        {
+            var tenant = await _unitOfWork.Tenants.GetByIdAsync(tenantId);
+            if (tenant == null)
+            {
+                _logger.LogWarning("Attempt to delete non-existent tenant {TenantId}", tenantId);
+                return false;
+            }
+
+            // Log before deletion
+            await _auditService.LogEventAsync(
+                tenantId: tenant.Id,
+                eventType: hardDelete ? "TenantHardDeleted" : "TenantSoftDeleted",
+                affectedEntityType: "Tenant",
+                affectedEntityId: tenant.Id.ToString(),
+                action: hardDelete ? "HardDelete" : "SoftDelete",
+                actor: deletedBy,
+                payloadJson: System.Text.Json.JsonSerializer.Serialize(new { tenant.Id, tenant.OrganizationName, HardDelete = hardDelete }),
+                correlationId: tenant.CorrelationId
+            );
+
+            if (hardDelete)
+            {
+                // WARNING: This permanently removes data - should require additional confirmation
+                _logger.LogWarning("HARD DELETE requested for tenant {TenantId} by {DeletedBy}", tenantId, deletedBy);
+                await _unitOfWork.Tenants.DeleteAsync(tenant);
+            }
+            else
+            {
+                // Soft delete - mark as deleted but retain data
+                tenant.Status = "Deleted";
+                tenant.IsActive = false;
+                tenant.IsDeleted = true;
+                tenant.DeletedAt = DateTime.UtcNow;
+                tenant.ModifiedDate = DateTime.UtcNow;
+                tenant.ModifiedBy = deletedBy;
+                await _unitOfWork.Tenants.UpdateAsync(tenant);
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+            _logger.LogInformation("Tenant {TenantId} {DeleteType} by {DeletedBy}", tenantId, hardDelete ? "hard deleted" : "soft deleted", deletedBy);
+            return true;
         }
     }
 }

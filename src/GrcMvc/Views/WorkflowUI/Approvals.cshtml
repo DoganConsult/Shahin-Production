@@ -267,51 +267,94 @@
 
         async function loadApprovals() {
             try {
-                const response = await fetch('/api/workflows/list/approval');
+                const response = await fetch('/api/workflows/approvals');
+                if (!response.ok) throw new Error('Failed to load approvals');
+                
                 const data = await response.json();
 
-                // Update status counts
-                const awaitingManager = data.workflows?.filter(w => w.currentState === 'Submitted').length || 0;
-                const managerApproved = data.workflows?.filter(w => w.currentState === 'ManagerApproved').length || 0;
-                const awaitingCompliance = data.workflows?.filter(w => w.currentState === 'PendingComplianceReview').length || 0;
-                const rejected = data.workflows?.filter(w => w.currentState === 'Rejected').length || 0;
+                // Update status counts from stats
+                document.getElementById('awaitingManager').textContent = data.stats?.tasks || 0;
+                document.getElementById('managerApproved').textContent = data.stats?.policies || 0;
+                document.getElementById('awaitingCompliance').textContent = data.stats?.exceptions || 0;
+                document.getElementById('rejected').textContent = data.stats?.evidence || 0;
 
-                document.getElementById('awaitingManager').textContent = awaitingManager;
-                document.getElementById('managerApproved').textContent = managerApproved;
-                document.getElementById('awaitingCompliance').textContent = awaitingCompliance;
-                document.getElementById('rejected').textContent = rejected;
-
-                // Update table
+                // Update table with combined approvals
                 const tbody = document.getElementById('approvalsTableBody');
-                if (data.workflows && data.workflows.length > 0) {
-                    tbody.innerHTML = data.workflows.map(w => `
+                const approvals = data.approvals || [];
+                
+                if (approvals.length > 0) {
+                    tbody.innerHTML = approvals.map(a => `
                         <tr>
-                            <td>${w.id}</td>
-                            <td>${w.entityType}</td>
-                            <td>${w.createdByUserId}</td>
-                            <td><span class="badge bg-info">${w.currentState}</span></td>
-                            <td>${getStatusBadge(w.currentState)}</td>
-                            <td>${new Date(w.createdAt).toLocaleDateString()}</td>
+                            <td>${a.id?.toString().substring(0, 8)}...</td>
+                            <td>${a.type}</td>
+                            <td>${a.requestedBy || 'Unknown'}</td>
+                            <td><span class="badge bg-info">${a.status}</span></td>
+                            <td>${getStatusBadge(a.status)}</td>
+                            <td>${a.dueDate ? new Date(a.dueDate).toLocaleDateString() : '-'}</td>
                             <td>
-                                <button class="btn btn-sm btn-info" onclick="viewApprovalDetail(${w.id})">
+                                <button class="btn btn-sm btn-info" onclick="viewApprovalDetail('${a.id}')">
                                     <i class="fas fa-eye"></i> View
                                 </button>
-                                ${w.currentState === 'Submitted' ? `
-                                    <button class="btn btn-sm btn-success" onclick="approveAsManager(${w.id})">
-                                        <i class="fas fa-check"></i> Approve
+                                ${a.status === 'Pending' ? `
+                                    <button class="btn btn-sm btn-success" onclick="approveItem('${a.id}', '${a.type}')">
+                                        <i class="fas fa-check"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-danger" onclick="rejectApproval(${w.id})">
-                                        <i class="fas fa-times"></i> Reject
+                                    <button class="btn btn-sm btn-danger" onclick="rejectItem('${a.id}', '${a.type}')">
+                                        <i class="fas fa-times"></i>
                                     </button>
                                 ` : ''}
                             </td>
                         </tr>
                     `).join('');
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No approvals found</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No pending approvals</td></tr>';
                 }
             } catch (error) {
                 console.error('Error loading approvals:', error);
+                document.getElementById('approvalsTableBody').innerHTML = 
+                    '<tr><td colspan="7" class="text-center text-danger">Error loading approvals</td></tr>';
+            }
+        }
+        
+        async function approveItem(id, type) {
+            try {
+                let endpoint;
+                if (type === 'Policy') endpoint = `/api/workflows/policies/${id}/approve`;
+                else if (type === 'Exception') endpoint = `/api/workflows/exceptions/${id}/approve`;
+                else if (type === 'Evidence') endpoint = `/api/workflows/evidence/${id}/approve`;
+                else endpoint = `/api/workflow/tasks/${id}/complete`;
+                
+                const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+                if (response.ok) {
+                    loadApprovals();
+                    alert('Item approved');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+        async function rejectItem(id, type) {
+            const reason = prompt('Enter rejection reason:');
+            if (!reason) return;
+            
+            try {
+                let endpoint;
+                if (type === 'Policy') endpoint = `/api/workflows/policies/${id}/reject`;
+                else if (type === 'Exception') endpoint = `/api/workflows/exceptions/${id}/reject`;
+                else endpoint = `/api/workflow/tasks/${id}/reject`;
+                
+                const response = await fetch(endpoint, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
+                if (response.ok) {
+                    loadApprovals();
+                    alert('Item rejected');
+                }
+            } catch (error) {
+                console.error('Error:', error);
             }
         }
 

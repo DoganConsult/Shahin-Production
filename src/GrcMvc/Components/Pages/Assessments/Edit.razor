@@ -1,6 +1,7 @@
 @page "/assessments/{AssessmentId:guid}/edit"
 @using GrcMvc.Models.DTOs
 @using GrcMvc.Services.Interfaces
+@inject IAssessmentService AssessmentService
 @inject IWorkflowEngineService WorkflowService
 @inject NavigationManager NavManager
 @inject IHttpContextAccessor HttpContextAccessor
@@ -165,28 +166,37 @@
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        // TODO: Load from service using AssessmentId
-        // For now, demo data
-        assessment = new AssessmentEditDto
+        try
         {
-            Id = AssessmentId,
-            AssessmentNumber = "ASMT-SEC-001",
-            Name = "Security Assessment Q1 2024",
-            Description = "Comprehensive security assessment",
-            Type = "Risk",
-            Status = "In Progress",
-            AssignedTo = "Ahmed Al-Mansouri",
-            ReviewedBy = "Sarah Johnson",
-            StartDate = DateTime.Now.AddDays(-5),
-            EndDate = null,
-            Score = 75,
-            Findings = "Initial findings: 3 medium severity issues identified",
-            Recommendations = "Implement security patch management process",
-            CreatedDate = DateTime.Now.AddDays(-10)
-        };
-        return Task.CompletedTask;
+            var assessmentDto = await AssessmentService.GetByIdAsync(AssessmentId);
+            if (assessmentDto != null)
+            {
+                assessment = new AssessmentEditDto
+                {
+                    Id = assessmentDto.Id,
+                    AssessmentNumber = assessmentDto.AssessmentNumber ?? $"ASMT-{assessmentDto.Id.ToString()[..8]}",
+                    Name = assessmentDto.Name ?? "Unnamed Assessment",
+                    Description = assessmentDto.Description ?? string.Empty,
+                    Type = assessmentDto.Type ?? "Compliance",
+                    Status = assessmentDto.Status ?? "Draft",
+                    AssignedTo = assessmentDto.AssignedTo ?? string.Empty,
+                    ReviewedBy = assessmentDto.ReviewedBy ?? string.Empty,
+                    StartDate = assessmentDto.StartDate,
+                    EndDate = assessmentDto.EndDate,
+                    Score = assessmentDto.Score,
+                    Findings = assessmentDto.Findings ?? string.Empty,
+                    Recommendations = assessmentDto.Recommendations ?? string.Empty,
+                    CreatedDate = DateTime.UtcNow
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading assessment: {ex.Message}");
+            errorMessage = "Failed to load assessment";
+        }
     }
 
     private async Task HandleSaveAssessment()
@@ -203,10 +213,18 @@
 
         try
         {
-            // TODO: Call service to update assessment
-            // await AssessmentService.UpdateAsync(assessment);
-
-            await Task.Delay(1000); // Simulate API call
+            var updateDto = new UpdateAssessmentDto
+            {
+                Name = assessment.Name,
+                Description = assessment.Description,
+                Type = assessment.Type,
+                Status = assessment.Status,
+                AssignedTo = assessment.AssignedTo,
+                Score = assessment.Score ?? 0,
+                Findings = assessment.Findings,
+                Recommendations = assessment.Recommendations
+            };
+            await AssessmentService.UpdateAsync(assessment.Id, updateDto);
             successMessage = "Assessment saved successfully!";
         }
         catch (Exception ex)

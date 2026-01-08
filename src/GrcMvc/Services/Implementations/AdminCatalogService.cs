@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Models.Entities.Catalogs;
 using GrcMvc.Services.Interfaces;
@@ -64,7 +65,7 @@ namespace GrcMvc.Services.Implementations
         {
             var existing = await _context.RegulatorCatalogs.FindAsync(id);
             if (existing == null)
-                throw new InvalidOperationException("Regulator not found.");
+                throw CatalogException.NotFound("Regulator", id);
 
             var oldValue = JsonSerializer.Serialize(existing);
 
@@ -158,7 +159,7 @@ namespace GrcMvc.Services.Implementations
         {
             var existing = await _context.FrameworkCatalogs.FindAsync(id);
             if (existing == null)
-                throw new InvalidOperationException("Framework not found.");
+                throw CatalogException.NotFound("Framework", id);
 
             var oldValue = JsonSerializer.Serialize(existing);
 
@@ -205,7 +206,7 @@ namespace GrcMvc.Services.Implementations
                 .FirstOrDefaultAsync(f => f.Id == id);
 
             if (existing == null)
-                throw new InvalidOperationException("Framework not found.");
+                throw CatalogException.NotFound("Framework", id);
 
             // Retire old version
             existing.Status = "Retired";
@@ -289,7 +290,7 @@ namespace GrcMvc.Services.Implementations
         {
             var existing = await _context.ControlCatalogs.FindAsync(id);
             if (existing == null)
-                throw new InvalidOperationException("Control not found.");
+                throw CatalogException.NotFound("Control", id);
 
             var oldValue = JsonSerializer.Serialize(existing);
 
@@ -371,7 +372,7 @@ namespace GrcMvc.Services.Implementations
         {
             var existing = await _context.RoleCatalogs.FindAsync(id);
             if (existing == null)
-                throw new InvalidOperationException("Role not found.");
+                throw CatalogException.NotFound("Role", id);
 
             existing.RoleCode = role.RoleCode;
             existing.RoleName = role.RoleName;
@@ -432,7 +433,7 @@ namespace GrcMvc.Services.Implementations
         {
             var existing = await _context.TitleCatalogs.FindAsync(id);
             if (existing == null)
-                throw new InvalidOperationException("Title not found.");
+                throw CatalogException.NotFound("Title", id);
 
             existing.TitleCode = title.TitleCode;
             existing.TitleName = title.TitleName;
@@ -487,7 +488,7 @@ namespace GrcMvc.Services.Implementations
         {
             var existing = await _context.BaselineCatalogs.FindAsync(id);
             if (existing == null)
-                throw new InvalidOperationException("Baseline not found.");
+                throw CatalogException.NotFound("Baseline", id);
 
             existing.BaselineCode = baseline.BaselineCode;
             existing.BaselineName = baseline.BaselineName;
@@ -546,7 +547,7 @@ namespace GrcMvc.Services.Implementations
         {
             var existing = await _context.PackageCatalogs.FindAsync(id);
             if (existing == null)
-                throw new InvalidOperationException("Package not found.");
+                throw CatalogException.NotFound("Package", id);
 
             existing.PackageCode = package.PackageCode;
             existing.PackageName = package.PackageName;
@@ -604,7 +605,7 @@ namespace GrcMvc.Services.Implementations
         {
             var existing = await _context.TemplateCatalogs.FindAsync(id);
             if (existing == null)
-                throw new InvalidOperationException("Template not found.");
+                throw CatalogException.NotFound("Template", id);
 
             existing.TemplateCode = template.TemplateCode;
             existing.TemplateName = template.TemplateName;
@@ -663,7 +664,7 @@ namespace GrcMvc.Services.Implementations
         {
             var existing = await _context.EvidenceTypeCatalogs.FindAsync(id);
             if (existing == null)
-                throw new InvalidOperationException("Evidence type not found.");
+                throw CatalogException.NotFound("EvidenceType", id);
 
             existing.EvidenceTypeCode = evidenceType.EvidenceTypeCode;
             existing.EvidenceTypeName = evidenceType.EvidenceTypeName;
@@ -721,7 +722,7 @@ namespace GrcMvc.Services.Implementations
                 .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
 
             if (ruleset == null)
-                throw new InvalidOperationException("Ruleset not found.");
+                throw CatalogException.NotFound("Ruleset", id);
 
             return ruleset;
         }
@@ -744,7 +745,7 @@ namespace GrcMvc.Services.Implementations
         {
             var existing = await _context.Rulesets.FindAsync(id);
             if (existing == null)
-                throw new InvalidOperationException("Ruleset not found.");
+                throw CatalogException.NotFound("Ruleset", id);
 
             existing.RulesetCode = ruleset.RulesetCode;
             existing.Name = ruleset.Name;
@@ -802,7 +803,7 @@ namespace GrcMvc.Services.Implementations
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (existing == null)
-                throw new InvalidOperationException("Ruleset not found.");
+                throw CatalogException.NotFound("Ruleset", id);
 
             var newRuleset = new Ruleset
             {
@@ -872,7 +873,7 @@ namespace GrcMvc.Services.Implementations
         {
             var existing = await _context.Rules.FindAsync(id);
             if (existing == null)
-                throw new InvalidOperationException("Rule not found.");
+                throw CatalogException.NotFound("Rule", id);
 
             existing.RuleCode = rule.RuleCode;
             existing.Name = rule.Name;

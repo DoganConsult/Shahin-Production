@@ -13,6 +13,7 @@ namespace GrcMvc.Data
     {
         // Repositories
         IGenericRepository<Risk> Risks { get; }
+        IGenericRepository<RiskControlMapping> RiskControlMappings { get; }
         IGenericRepository<Control> Controls { get; }
         IGenericRepository<Assessment> Assessments { get; }
         IGenericRepository<Audit> Audits { get; }

@@ -46,21 +46,6 @@ namespace GrcMvc.Controllers
         [HttpGet("Index")]
         public async Task<IActionResult> Index()
         {
-            // #region agent log
-            try {
-                using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                await logFile.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(new {
-                    sessionId = "debug-session",
-                    runId = "run1",
-                    hypothesisId = "BUTTON_TEST",
-                    location = "OrgSetupController.cs:47",
-                    message = "BUTTON 2: Organization Setup clicked",
-                    data = new { isAuthenticated = User.Identity?.IsAuthenticated, userName = User.Identity?.Name },
-                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                }));
-            } catch {}
-            // #endregion
-
             var tenantId = _currentUserService.GetTenantId();
 
             var model = new OrgSetupDashboardDto
@@ -71,21 +56,6 @@ namespace GrcMvc.Controllers
                 Users = await GetUsersSummaryAsync(tenantId),
                 SetupProgress = await CalculateSetupProgressAsync(tenantId)
             };
-
-            // #region agent log
-            try {
-                using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                await logFile.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(new {
-                    sessionId = "debug-session",
-                    runId = "run1",
-                    hypothesisId = "BUTTON_TEST",
-                    location = "OrgSetupController.cs:62",
-                    message = "BUTTON 2: OrgSetup page loaded",
-                    data = new { tenantId, setupProgress = model.SetupProgress },
-                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                }));
-            } catch {}
-            // #endregion
 
             return View(model);
         }

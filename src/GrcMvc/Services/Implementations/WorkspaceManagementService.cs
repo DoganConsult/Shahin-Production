@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -65,7 +66,7 @@ namespace GrcMvc.Services.Implementations
                     await _context.SaveChangesAsync();
                     return existing;
                 }
-                throw new InvalidOperationException($"Workspace code '{request.WorkspaceCode}' already exists in tenant");
+                throw new EntityExistsException("Workspace", "Code", request.WorkspaceCode);
             }
 
             var workspace = new Workspace
@@ -171,7 +172,7 @@ namespace GrcMvc.Services.Implementations
         {
             var workspace = await _context.Workspaces.FindAsync(workspaceId);
             if (workspace == null)
-                throw new InvalidOperationException($"Workspace {workspaceId} not found");
+                throw new EntityNotFoundException("Workspace", workspaceId);
 
             if (!string.IsNullOrEmpty(request.Name))
                 workspace.Name = request.Name;
@@ -211,7 +212,7 @@ namespace GrcMvc.Services.Implementations
             // Set new default
             var workspace = await _context.Workspaces.FindAsync(workspaceId);
             if (workspace == null)
-                throw new InvalidOperationException($"Workspace {workspaceId} not found");
+                throw new EntityNotFoundException("Workspace", workspaceId);
 
             workspace.IsDefault = true;
             await _context.SaveChangesAsync();
@@ -228,7 +229,7 @@ namespace GrcMvc.Services.Implementations
         {
             var workspace = await _context.Workspaces.FindAsync(workspaceId);
             if (workspace == null)
-                throw new InvalidOperationException($"Workspace {workspaceId} not found");
+                throw new EntityNotFoundException("Workspace", workspaceId);
 
             // Check for existing membership
             var existing = await _context.WorkspaceMemberships
@@ -301,7 +302,7 @@ namespace GrcMvc.Services.Implementations
                 .FirstOrDefaultAsync(m => m.WorkspaceId == workspaceId && m.UserId == userId && !m.IsDeleted);
 
             if (membership == null)
-                throw new InvalidOperationException($"Membership not found for user {userId} in workspace {workspaceId}");
+                throw new EntityNotFoundException("WorkspaceMembership", $"{userId}:{workspaceId}");
 
             membership.WorkspaceRolesJson = JsonSerializer.Serialize(roles);
             membership.ModifiedDate = DateTime.UtcNow;
@@ -338,7 +339,7 @@ namespace GrcMvc.Services.Implementations
         {
             var workspace = await _context.Workspaces.FindAsync(workspaceId);
             if (workspace == null)
-                throw new InvalidOperationException($"Workspace {workspaceId} not found");
+                throw new EntityNotFoundException("Workspace", workspaceId);
 
             // Check for existing
             var existing = await _context.WorkspaceControls
@@ -393,7 +394,7 @@ namespace GrcMvc.Services.Implementations
         {
             var workspace = await _context.Workspaces.FindAsync(workspaceId);
             if (workspace == null)
-                throw new InvalidOperationException($"Workspace {workspaceId} not found");
+                throw new EntityNotFoundException("Workspace", workspaceId);
 
             var gate = new WorkspaceApprovalGate
             {
@@ -431,7 +432,7 @@ namespace GrcMvc.Services.Implementations
         {
             var gate = await _context.WorkspaceApprovalGates.FindAsync(gateId);
             if (gate == null)
-                throw new InvalidOperationException($"Approval gate {gateId} not found");
+                throw new EntityNotFoundException("ApprovalGate", gateId);
 
             var approver = new WorkspaceApprovalGateApprover
             {

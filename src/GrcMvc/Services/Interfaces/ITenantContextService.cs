@@ -20,5 +20,11 @@ namespace GrcMvc.Services.Interfaces
         /// Checks if tenant context is available
         /// </summary>
         bool HasTenantContext();
+
+        /// <summary>
+        /// Clear cached tenant ID (useful when user switches tenant).
+        /// HIGH FIX: Added to support tenant switching without stale cache.
+        /// </summary>
+        void ClearTenantCache();
     }
 }

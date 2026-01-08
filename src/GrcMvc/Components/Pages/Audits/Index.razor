@@ -1,5 +1,7 @@
 @page "/audits"
 @using GrcMvc.Models.DTOs
+@using GrcMvc.Services.Interfaces
+@inject IAuditService AuditService
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
@@ -75,24 +77,32 @@
 
 @code {
     private List<AuditListItemDto>? audits;
+    private bool isLoading = true;
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        // TODO: Load from service - for now, demo data
-        audits = new List<AuditListItemDto>
-{
-new() { Id = Guid.NewGuid(), AuditNumber = "AUD-INT-001", Title = "Internal IT Audit 2024", Type = "Internal", Status =
-"In Progress", LeadAuditor = "Ahmed Al-Mansouri", PlannedStartDate = DateTime.Now.AddDays(-10), PlannedEndDate =
-DateTime.Now.AddDays(10), FindingCount = 5, IsOverdue = false },
-new() { Id = Guid.NewGuid(), AuditNumber = "AUD-REG-001", Title = "Regulatory Compliance Audit", Type = "Regulatory",
-Status = "Planned", LeadAuditor = "Sarah Johnson", PlannedStartDate = DateTime.Now.AddDays(30), PlannedEndDate =
-DateTime.Now.AddDays(60), FindingCount = 0, IsOverdue = false },
-new() { Id = Guid.NewGuid(), AuditNumber = "AUD-EXT-001", Title = "External Security Audit", Type = "External", Status =
-"Completed", LeadAuditor = "Fatima Al-Dosari", PlannedStartDate = DateTime.Now.AddDays(-90), PlannedEndDate =
-DateTime.Now.AddDays(-30), ActualStartDate = DateTime.Now.AddDays(-90), ActualEndDate = DateTime.Now.AddDays(-25),
-FindingCount = 8, IsOverdue = false }
-};
-        return Task.CompletedTask;
+        try
+        {
+            var allAudits = await AuditService.GetAllAsync();
+            audits = allAudits.Select(a => new AuditListItemDto
+            {
+                Id = a.Id,
+                AuditNumber = a.AuditNumber ?? $"AUD-{a.Id.ToString()[..8]}",
+                Title = a.Name ?? "Unnamed Audit",
+                Type = a.Type ?? "Internal",
+                Status = a.Status ?? "Planned",
+                LeadAuditor = a.LeadAuditor ?? "Unassigned",
+                PlannedStartDate = a.StartDate,
+                PlannedEndDate = a.EndDate,
+                FindingCount = 0,
+                IsOverdue = a.EndDate < DateTime.UtcNow && a.Status != "Completed"
+            }).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading audits: {ex.Message}");
+            audits = new List<AuditListItemDto>();
+        }
     }
 
     private string GetStatusColor(string status) => status switch

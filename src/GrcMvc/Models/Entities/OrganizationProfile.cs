@@ -77,6 +77,148 @@ namespace GrcMvc.Models.Entities
         public bool IsCriticalInfrastructure { get; set; } = false;
         public string ComplianceMaturity { get; set; } = "Initial"; // Initial, Repeatable, Defined, Managed, Optimized
 
+        // ===== KSA-SPECIFIC REGULATORY COMPLIANCE =====
+        /// <summary>
+        /// GOSI registration number - General Organization for Social Insurance
+        /// Required for all Saudi employers
+        /// </summary>
+        public string GosiNumber { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Nitaqat category (Saudization program)
+        /// Values: Platinum, Green, Yellow, Red, NotApplicable
+        /// </summary>
+        public string NitaqatCategory { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Current Saudization percentage (0-100)
+        /// Required by MHRSD (Ministry of Human Resources)
+        /// </summary>
+        public decimal SaudizationPercent { get; set; } = 0;
+
+        /// <summary>
+        /// Commercial Registration (CR) expiry date
+        /// MOC (Ministry of Commerce) requirement
+        /// </summary>
+        public DateTime? CrExpiryDate { get; set; }
+
+        /// <summary>
+        /// Zakat certificate expiry date
+        /// ZATCA (Zakat, Tax and Customs Authority) requirement
+        /// </summary>
+        public DateTime? ZakatCertExpiry { get; set; }
+
+        /// <summary>
+        /// E-Invoicing Phase 1 (Generation) compliance
+        /// ZATCA Fatoorah requirement
+        /// </summary>
+        public bool HasEInvoicingPhase1 { get; set; } = false;
+
+        /// <summary>
+        /// E-Invoicing Phase 2 (Integration) compliance
+        /// ZATCA Fatoorah requirement
+        /// </summary>
+        public bool HasEInvoicingPhase2 { get; set; } = false;
+
+        /// <summary>
+        /// SASO (Saudi Standards Organization) certification
+        /// Product compliance for manufacturing/import
+        /// </summary>
+        public string SasoCertification { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Municipal license number (Balady)
+        /// Required for physical business locations
+        /// </summary>
+        public string MunicipalLicense { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Chamber of Commerce membership number
+        /// Business requirement for trade activities
+        /// </summary>
+        public string ChamberMembership { get; set; } = string.Empty;
+
+        // ===== KSA MARKET REQUIREMENTS =====
+        /// <summary>
+        /// Listed on Tadawul (Saudi Stock Exchange)
+        /// Triggers ESG and IFRS requirements
+        /// </summary>
+        public bool IsTadawulListed { get; set; } = false;
+
+        /// <summary>
+        /// Requires ESG (Environmental, Social, Governance) reporting
+        /// Mandatory for Tadawul-listed companies
+        /// </summary>
+        public bool RequiresEsgReporting { get; set; } = false;
+
+        /// <summary>
+        /// IFRS (International Financial Reporting Standards) compliance required
+        /// Required for listed and large companies
+        /// </summary>
+        public bool RequiresIfrsCompliance { get; set; } = false;
+
+        /// <summary>
+        /// MISA (Ministry of Investment) license type
+        /// For foreign investment entities
+        /// Values: Industrial, Service, Trading, Regional HQ, etc.
+        /// </summary>
+        public string MisaLicenseType { get; set; } = string.Empty;
+
+        /// <summary>
+        /// MISA license number for foreign investment
+        /// </summary>
+        public string MisaLicenseNumber { get; set; } = string.Empty;
+
+        // ===== DATA RESIDENCY & SOVEREIGNTY =====
+        /// <summary>
+        /// Data must remain within KSA borders
+        /// Required for government and critical infrastructure data
+        /// </summary>
+        public bool RequiresDataLocalization { get; set; } = false;
+
+        /// <summary>
+        /// Organization transfers data across borders
+        /// Triggers PDPL cross-border transfer requirements
+        /// </summary>
+        public bool HasCrossBorderTransfer { get; set; } = false;
+
+        /// <summary>
+        /// Countries where data is transferred (JSON array)
+        /// Required for PDPL compliance reporting
+        /// </summary>
+        public string DataTransferCountries { get; set; } = string.Empty;
+
+        /// <summary>
+        /// National ID (Iqama) data processing
+        /// Special PDPL Article 5 requirements
+        /// </summary>
+        public bool ProcessesNationalIdData { get; set; } = false;
+
+        /// <summary>
+        /// Biometric data processing
+        /// Special PDPL Article 6 requirements
+        /// </summary>
+        public bool ProcessesBiometricData { get; set; } = false;
+
+        /// <summary>
+        /// Location/GPS data processing
+        /// Special PDPL Article 7 requirements
+        /// </summary>
+        public bool ProcessesLocationData { get; set; } = false;
+
+        // ===== VISION 2030 ALIGNMENT =====
+        /// <summary>
+        /// Primary Vision 2030 program alignment
+        /// e.g., "Quality of Life", "Financial Sector Development", etc.
+        /// </summary>
+        public string Vision2030Program { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Vision 2030 KPIs being tracked (JSON array)
+        /// For government reporting requirements
+        /// </summary>
+        public string Vision2030Kpis { get; set; } = string.Empty;
+
         // ===== DATA & TECHNOLOGY =====
         public string DataTypes { get; set; } = string.Empty; // PersonalData, FinancialData, HealthData, etc.
         public string HostingModel { get; set; } = string.Empty; // OnPremise, PublicCloud, HybridCloud, Private

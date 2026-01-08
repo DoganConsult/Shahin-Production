@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
@@ -206,7 +207,7 @@ namespace GrcMvc.Services.Implementations
 
                 if (!workflow.IsActive)
                 {
-                    throw new InvalidOperationException("Cannot start inactive workflow");
+                    throw new GrcException("Cannot start inactive workflow", GrcErrorCodes.InvalidState);
                 }
 
                 var execution = new WorkflowExecution
@@ -248,7 +249,7 @@ namespace GrcMvc.Services.Implementations
 
                 if (execution.Status != "In Progress")
                 {
-                    throw new InvalidOperationException("Cannot complete step for non-active execution");
+                    throw new GrcException("Cannot complete step for non-active execution", GrcErrorCodes.InvalidState);
                 }
 
                 var workflow = await _unitOfWork.Workflows.GetByIdAsync(execution.WorkflowId);

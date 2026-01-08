@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -587,7 +588,7 @@ namespace GrcMvc.Services.Implementations
                 .FirstOrDefaultAsync(a => a.Id == assessmentId && !a.IsDeleted);
 
             if (assessment == null)
-                throw new InvalidOperationException("Assessment not found.");
+                throw new EntityNotFoundException("Assessment", assessmentId);
 
             var requirements = await _context.AssessmentRequirements
                 .Where(r => r.AssessmentId == assessmentId && !r.IsDeleted)
@@ -627,7 +628,7 @@ namespace GrcMvc.Services.Implementations
                 .FirstOrDefaultAsync(r => r.Id == requirementId && !r.IsDeleted);
 
             if (requirement == null)
-                throw new InvalidOperationException("Requirement not found.");
+                throw new EntityNotFoundException("AssessmentRequirement", requirementId);
 
             var evidences = await _context.Evidences
                 .Where(e => e.AssessmentId == requirement.AssessmentId && !e.IsDeleted)
@@ -672,7 +673,7 @@ namespace GrcMvc.Services.Implementations
         {
             var tenant = await _context.Tenants.FindAsync(tenantId);
             if (tenant == null)
-                throw new InvalidOperationException("Tenant not found.");
+                throw new EntityNotFoundException("Tenant", tenantId);
 
             var executiveSummary = await GetExecutiveDashboardAsync(tenantId);
 

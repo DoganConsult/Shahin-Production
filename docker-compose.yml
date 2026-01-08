@@ -210,12 +210,175 @@ services:
       retries: 5
     command: redis-server --appendonly yes
 
+  # ============================================
+  # ANALYTICS & BI TOOLS (Apache Licensed)
+  # ============================================
+
+  # Apache Superset - Enterprise BI & Dashboards
+  superset:
+    image: apache/superset:latest
+    container_name: grc-superset
+    environment:
+      - SUPERSET_SECRET_KEY=${SUPERSET_SECRET_KEY:-grc_superset_secret_key_2026}
+      - DATABASE_DB=superset
+      - DATABASE_HOST=superset-db
+      - DATABASE_PASSWORD=${SUPERSET_DB_PASSWORD:-superset}
+      - DATABASE_USER=superset
+      - DATABASE_PORT=5432
+      - DATABASE_DIALECT=postgresql
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SUPERSET_LOAD_EXAMPLES=no
+      - SUPERSET_ENV=production
+    ports:
+      - "${SUPERSET_PORT:-8088}:8088"
+    depends_on:
+      superset-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - superset_home:/app/superset_home
+      - ./superset/superset_config.py:/app/pythonpath/superset_config.py:ro
+    networks:
+      - grc-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    command: >
+      bash -c "
+        superset db upgrade &&
+        superset fab create-admin --username admin --firstname Admin --lastname User --email admin@shahin-ai.com --password admin123 || true &&
+        superset init &&
+        /usr/bin/run-server.sh
+      "
+
+  # Superset Metadata Database
+  superset-db:
+    image: postgres:15-alpine
+    container_name: grc-superset-db
+    environment:
+      - POSTGRES_USER=superset
+      - POSTGRES_PASSWORD=${SUPERSET_DB_PASSWORD:-superset}
+      - POSTGRES_DB=superset
+    volumes:
+      - superset_db_data:/var/lib/postgresql/data
+    networks:
+      - grc-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U superset -d superset"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Grafana - Real-time Monitoring & Alerting
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grc-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-http://localhost:3030}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel
+      - GF_DATABASE_TYPE=postgres
+      - GF_DATABASE_HOST=db:5432
+      - GF_DATABASE_NAME=grafana
+      - GF_DATABASE_USER=postgres
+      - GF_DATABASE_PASSWORD=${DB_PASSWORD:-postgres}
+    ports:
+      - "${GRAFANA_PORT:-3030}:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - grc-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # n8n - Workflow Automation (Fair Code License - Free for self-hosted)
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: grc-n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-admin123}
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=db
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=postgres
+      - DB_POSTGRESDB_PASSWORD=${DB_PASSWORD:-postgres}
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - grc-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Metabase - Open Source BI (AGPL - Free for self-hosted)
+  metabase:
+    image: metabase/metabase:latest
+    container_name: grc-metabase
+    environment:
+      - MB_DB_TYPE=postgres
+      - MB_DB_DBNAME=metabase
+      - MB_DB_PORT=5432
+      - MB_DB_USER=postgres
+      - MB_DB_PASS=${DB_PASSWORD:-postgres}
+      - MB_DB_HOST=db
+    ports:
+      - "${METABASE_PORT:-3033}:3000"
+    volumes:
+      - metabase_data:/metabase-data
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - grc-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
 volumes:
   grc_db_data:
   clickhouse_data:
   redis_data:
   camunda_data:
   kafka_data:
+  superset_home:
+  superset_db_data:
+  grafana_data:
+  n8n_data:
+  metabase_data:
 
 networks:
   grc-network:

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -240,7 +241,7 @@ namespace GrcMvc.Services.Implementations
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error generating Excel report");
-                throw new InvalidOperationException("Failed to generate Excel report", ex);
+                throw new IntegrationException("Excel", "Failed to generate Excel report", ex);
             }
         }
 

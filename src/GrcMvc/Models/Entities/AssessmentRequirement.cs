@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace GrcMvc.Models.Entities
 {
@@ -65,5 +66,15 @@ namespace GrcMvc.Models.Entities
 
         // Navigation
         public virtual Assessment Assessment { get; set; } = null!;
+
+        /// <summary>
+        /// Evidence files attached to this specific requirement
+        /// </summary>
+        public virtual ICollection<Evidence> Evidences { get; set; } = new List<Evidence>();
+
+        /// <summary>
+        /// Notes/comments on this requirement
+        /// </summary>
+        public virtual ICollection<RequirementNote> Notes { get; set; } = new List<RequirementNote>();
     }
 }

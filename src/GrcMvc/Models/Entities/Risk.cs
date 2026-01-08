@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using GrcMvc.Configuration;
 
 namespace GrcMvc.Models.Entities
 {
@@ -24,7 +25,12 @@ namespace GrcMvc.Models.Entities
         public int InherentRisk { get; set; }
         public int ResidualRisk { get; set; }
         public int RiskScore => Likelihood * Impact;
-        public string RiskLevel => GetRiskLevel();
+        
+        /// <summary>
+        /// Risk level computed from score using centralized thresholds
+        /// </summary>
+        public string RiskLevel => RiskScoringConfiguration.GetRiskLevel(RiskScore);
+        
         public string Status { get; set; } = "Active";
         public string Owner { get; set; } = string.Empty;
         public DateTime? ReviewDate { get; set; }
@@ -44,16 +50,6 @@ namespace GrcMvc.Models.Entities
         // Navigation properties
         public virtual ICollection<Control> Controls { get; set; } = new List<Control>();
         public virtual ICollection<Assessment> Assessments { get; set; } = new List<Assessment>();
-
-        private string GetRiskLevel()
-        {
-            return RiskScore switch
-            {
-                <= 3 => "Low",
-                <= 6 => "Medium",
-                <= 12 => "High",
-                _ => "Critical"
-            };
-        }
+        public virtual ICollection<RiskControlMapping> RiskControlMappings { get; set; } = new List<RiskControlMapping>();
     }
 }

@@ -1,4 +1,6 @@
+@model GrcMvc.Controllers.PartnersViewModel
 @using GrcMvc.Services
+@using GrcMvc.Controllers
 @inject IAppInfoService AppInfo
 @{
     ViewData["Title"] = "الشركاء - " + AppInfo.Name;
@@ -61,28 +63,70 @@
             </div>
         </div>
 
-        <!-- Current Partners -->
+        <!-- Current Partners (Dynamic) -->
         <div class="current-partners fade-up">
             <h2>شركاؤنا الحاليون</h2>
             <div class="partners-logos">
-                <div class="partner-logo">
-                    <span>Anthropic</span>
-                    <p>شريك التقنية</p>
-                </div>
-                <div class="partner-logo">
-                    <span>Microsoft Azure</span>
-                    <p>شريك البنية التحتية</p>
-                </div>
-                <div class="partner-logo">
-                    <span>AWS</span>
-                    <p>شريك البنية التحتية</p>
-                </div>
-                <div class="partner-logo">
-                    <span>Dogan Consult</span>
-                    <p>شريك التطوير</p>
-                </div>
+                @if (Model?.Partners?.Any() == true)
+                {
+                    @foreach (var partner in Model.Partners.Where(p => p.IsFeatured))
+                    {
+                        <div class="partner-logo">
+                            @if (!string.IsNullOrEmpty(partner.LogoUrl))
+                            {
+                                <img src="@partner.LogoUrl" alt="@partner.Name" style="height: 40px; object-fit: contain;" />
+                            }
+                            else
+                            {
+                                <span>@(partner.NameAr ?? partner.Name)</span>
+                            }
+                            <p>
+                                @switch(partner.Type)
+                                {
+                                    case "Technology": <text>شريك التقنية</text> break;
+                                    case "Consulting": <text>شريك الاستشارات</text> break;
+                                    case "Integration": <text>شريك التكامل</text> break;
+                                    case "Reseller": <text>موزع معتمد</text> break;
+                                    default: @partner.Type break;
+                                }
+                            </p>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <!-- Fallback static partners -->
+                    <div class="partner-logo"><span>Anthropic</span><p>شريك التقنية</p></div>
+                    <div class="partner-logo"><span>Microsoft Azure</span><p>شريك البنية التحتية</p></div>
+                    <div class="partner-logo"><span>AWS</span><p>شريك البنية التحتية</p></div>
+                    <div class="partner-logo"><span>Dogan Consult</span><p>شريك التطوير</p></div>
+                }
             </div>
         </div>
+
+        <!-- Trust Badges -->
+        @if (Model?.TrustBadges?.Any() == true)
+        {
+            <div class="trust-badges-section fade-up" style="margin-bottom: 4rem;">
+                <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 2rem;">شهادات واعتمادات</h2>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    @foreach (var badge in Model.TrustBadges.Take(6))
+                    {
+                        <div class="badge-card" style="background: var(--glass); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1rem 1.5rem; text-align: center;">
+                            @if (!string.IsNullOrEmpty(badge.ImageUrl))
+                            {
+                                <img src="@badge.ImageUrl" alt="@badge.Name" style="height: 32px; object-fit: contain; margin-bottom: 0.5rem;" />
+                            }
+                            else
+                            {
+                                <i class="bi bi-patch-check-fill text-success" style="font-size: 1.5rem;"></i>
+                            }
+                            <p style="font-size: 0.85rem; color: rgba(248, 250, 252, 0.7); margin: 0;">@(badge.NameAr ?? badge.Name)</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
 
         <!-- Benefits -->
         <div class="partner-benefits fade-up">

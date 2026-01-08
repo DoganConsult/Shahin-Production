@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +36,7 @@ namespace GrcMvc.Services.Implementations
             var exists = await _context.Assets
                 .AnyAsync(a => a.TenantId == tenantId && a.AssetCode == dto.AssetCode && !a.IsDeleted);
             if (exists)
-                throw new InvalidOperationException($"Asset with code '{dto.AssetCode}' already exists");
+                throw new EntityExistsException("Asset", "AssetCode", dto.AssetCode);
 
             var asset = new Asset
             {
@@ -133,7 +134,7 @@ namespace GrcMvc.Services.Implementations
         {
             var asset = await _context.Assets.FindAsync(assetId);
             if (asset == null || asset.IsDeleted)
-                throw new InvalidOperationException("Asset not found");
+                throw new EntityNotFoundException("Asset", assetId);
 
             if (!string.IsNullOrEmpty(dto.Name)) asset.Name = dto.Name;
             if (!string.IsNullOrEmpty(dto.Description)) asset.Description = dto.Description;
@@ -184,7 +185,7 @@ namespace GrcMvc.Services.Implementations
         {
             var asset = await _context.Assets.FindAsync(assetId);
             if (asset == null || asset.IsDeleted)
-                throw new InvalidOperationException("Asset not found");
+                throw new EntityNotFoundException("Asset", assetId);
 
             asset.Criticality = criticality;
             asset.DataClassification = dataClassification;
@@ -237,7 +238,7 @@ namespace GrcMvc.Services.Implementations
         {
             var asset = await _context.Assets.FindAsync(assetId);
             if (asset == null || asset.IsDeleted)
-                throw new InvalidOperationException("Asset not found");
+                throw new EntityNotFoundException("Asset", assetId);
 
             asset.OwnerUserId = userId;
             asset.OwnerTeamId = teamId;
@@ -288,7 +289,7 @@ namespace GrcMvc.Services.Implementations
         {
             var asset = await _context.Assets.FindAsync(assetId);
             if (asset == null || asset.IsDeleted)
-                throw new InvalidOperationException("Asset not found");
+                throw new EntityNotFoundException("Asset", assetId);
 
             asset.IsInScope = inScope;
             asset.ModifiedDate = DateTime.UtcNow;

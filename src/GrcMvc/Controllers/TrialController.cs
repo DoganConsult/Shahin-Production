@@ -182,76 +182,17 @@ namespace GrcMvc.Controllers
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                // #region agent log
-                try {
-                    using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                    await logFile.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(new {
-                        sessionId = "debug-session",
-                        runId = "run1",
-                        hypothesisId = "A",
-                        location = "TrialController.cs:182",
-                        message = "Trial registration saved successfully",
-                        data = new { tenantId, tenantSlug, userId = user.Id, email = model.Email },
-                        timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                    }));
-                } catch {}
-                // #endregion
-
                 // Sign in the new user
                 await _signInManager.SignInAsync(user, isPersistent: true);
-
-                // #region agent log
-                try {
-                    using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                    await logFile.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(new {
-                        sessionId = "debug-session",
-                        runId = "run1",
-                        hypothesisId = "E",
-                        location = "TrialController.cs:190",
-                        message = "Sign-in completed",
-                        data = new { userId = user.Id, email = user.Email, isAuthenticated = User.Identity?.IsAuthenticated },
-                        timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                    }));
-                } catch {}
-                // #endregion
 
                 _logger.LogInformation("Trial registered: TenantId={TenantId}, Email={Email}", tenantId, model.Email);
 
                 // Redirect to onboarding with tenant context
-                // #region agent log
-                try {
-                    using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                    await logFile.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(new {
-                        sessionId = "debug-session",
-                        runId = "run1",
-                        hypothesisId = "A",
-                        location = "TrialController.cs:198",
-                        message = "Redirecting to onboarding",
-                        data = new { tenantSlug, action = "Start", controller = "Onboarding" },
-                        timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                    }));
-                } catch {}
-                // #endregion
                 return RedirectToAction("Start", "Onboarding", new { tenantSlug = tenantSlug });
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                // #region agent log
-                try {
-                    using var logFile = System.IO.File.AppendText("/home/dogan/grc-system/.cursor/debug.log");
-                    var stackTrace = ex.StackTrace ?? string.Empty;
-                    await logFile.WriteLineAsync(System.Text.Json.JsonSerializer.Serialize(new {
-                        sessionId = "debug-session",
-                        runId = "run1",
-                        hypothesisId = "D",
-                        location = "TrialController.cs:206",
-                        message = "Trial registration exception",
-                        data = new { error = ex.Message, stackTrace = stackTrace.Substring(0, Math.Min(500, stackTrace.Length)) },
-                        timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                    }));
-                } catch {}
-                // #endregion
                 _logger.LogError(ex, "Trial registration failed");
                 ModelState.AddModelError("", "Registration failed. Please try again.");
                 return View("Index", model);

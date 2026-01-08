@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using GrcMvc.Configuration;
+using GrcMvc.Exceptions;
 using GrcMvc.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Identity;
@@ -49,7 +50,7 @@ public class UserManagementFacade : IUserManagementFacade
                 // Use enhanced UserManager approach
                 var user = await _userManager.FindByIdAsync(userId);
                 if (user == null)
-                    throw new InvalidOperationException($"User {userId} not found");
+                    throw new UserNotFoundException(userId);
                 
                 var roles = await _userManager.GetRolesAsync(user);
                 
@@ -67,7 +68,7 @@ public class UserManagementFacade : IUserManagementFacade
                 // Use legacy service
                 var legacyUser = await _legacyService.GetByUserIdAsync(userId);
                 if (legacyUser == null)
-                    throw new InvalidOperationException($"User {userId} not found");
+                    throw new UserNotFoundException(userId);
                 
                 var identityUser = await _userManager.FindByIdAsync(userId);
                 var roles = identityUser != null ? await _userManager.GetRolesAsync(identityUser) : new List<string>();

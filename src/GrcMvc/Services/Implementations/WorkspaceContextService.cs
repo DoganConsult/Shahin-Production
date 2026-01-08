@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -172,7 +173,7 @@ namespace GrcMvc.Services.Implementations
             var httpContext = _httpContextAccessor.HttpContext;
             if (httpContext?.Session == null)
             {
-                throw new InvalidOperationException("No HTTP session available");
+                throw new AuthenticationException("No HTTP session available");
             }
 
             httpContext.Session.SetString(WorkspaceIdSessionKey, workspaceId.ToString());

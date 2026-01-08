@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -221,14 +222,14 @@ namespace GrcMvc.Services.Implementations
                 .FirstOrDefaultAsync(p => p.TenantId == tenantId);
 
             if (profile == null)
-                throw new InvalidOperationException("Organization profile not found. Complete onboarding questionnaire first.");
+                throw new EntityNotFoundException("OrganizationProfile", "Complete onboarding questionnaire first.");
 
             // Get active ruleset (global or tenant-specific)
             var ruleset = await _context.Rulesets
                 .FirstOrDefaultAsync(r => r.Status == "Active");
 
             if (ruleset == null)
-                throw new InvalidOperationException("No active ruleset found.");
+                throw new EntityNotFoundException("Ruleset", "No active ruleset found.");
 
             // ===== ASSET-BASED RECOGNITION (NEW) =====
             // Aggregate asset characteristics to enrich rule context
@@ -315,7 +316,8 @@ namespace GrcMvc.Services.Implementations
 
             try
             {
-                var condition = System.Text.Json.JsonSerializer.Deserialize<RuleCondition>(conditionJson);
+                var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var condition = System.Text.Json.JsonSerializer.Deserialize<RuleCondition>(conditionJson, options);
                 if (condition == null) return false;
 
                 // Evaluate based on condition type
@@ -371,7 +373,8 @@ namespace GrcMvc.Services.Implementations
 
             try
             {
-                var actions = System.Text.Json.JsonSerializer.Deserialize<List<ActionItem>>(actionsJson);
+                var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var actions = System.Text.Json.JsonSerializer.Deserialize<List<ActionItem>>(actionsJson, options);
                 var result = new RuleActions();
 
                 foreach (var action in actions ?? new List<ActionItem>())
