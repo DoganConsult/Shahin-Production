@@ -1,6 +1,8 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model GrcMvc.Models.ViewModels.LoginViewModel
 @{
-    ViewData["Title"] = "Login (V2 - Enhanced Security)";
+    ViewData["Title"] = L["Auth_LoginV2Title"].Value;
     Layout = "_Layout";
     var version = ViewData["Version"] as string;
 }
@@ -8,7 +10,7 @@
 <div class="auth-form">
     <div class="card">
         <div class="card-header text-center bg-success text-white">
-            <h4><i class="bi bi-shield-check"></i> Login - Enhanced Security</h4>
+            <h4><i class="bi bi-shield-check"></i> @L["Auth_LoginEnhancedSecurity"]</h4>
             @if (!string.IsNullOrEmpty(version))
             {
                 <small class="badge bg-light text-dark">@version</small>
@@ -17,7 +19,7 @@
         <div class="card-body">
             <div class="alert alert-info">
                 <i class="bi bi-info-circle"></i>
-                <strong>Enhanced Security:</strong> This login uses crypto-safe session management and structured logging.
+                <strong>@L["Auth_EnhancedSecurityInfo"]</strong>
             </div>
             
             <form asp-action="Login" asp-controller="AccountV2" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
@@ -28,7 +30,7 @@
                     <label asp-for="Email" class="form-label"></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                        <input asp-for="Email" class="form-control" placeholder="email@example.com" autofocus />
+                        <input asp-for="Email" class="form-control" placeholder="@L["Auth_EmailPlaceholder"]" autofocus />
                     </div>
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
@@ -37,7 +39,7 @@
                     <label asp-for="Password" class="form-label"></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                        <input asp-for="Password" class="form-control" type="password" placeholder="Enter your password" />
+                        <input asp-for="Password" class="form-control" type="password" placeholder="@L["Auth_PasswordPlaceholder"]" />
                     </div>
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
@@ -49,7 +51,7 @@
 
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-success">
-                        <i class="bi bi-shield-check"></i> Login (Enhanced)
+                        <i class="bi bi-shield-check"></i> @L["Auth_LoginEnhanced"]
                     </button>
                 </div>
 
@@ -57,26 +59,26 @@
 
                 <div class="text-center">
                     <p>
-                        <a asp-action="ForgotPassword" asp-controller="Account">Forgot your password?</a> |
-                        <a asp-action="Register" asp-controller="Account">Register as a new user</a>
+                        <a asp-action="ForgotPassword" asp-controller="Account">@L["Auth_ForgotPassword"]</a> |
+                        <a asp-action="Register" asp-controller="Account">@L["Auth_RegisterAsNewUser"]</a>
                     </p>
                     <p>
                         <a href="/account/v2/demo-login" class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-play-circle"></i> Demo Login (Development Only)
+                            <i class="bi bi-play-circle"></i> @L["Auth_DemoLogin"]
                         </a>
                     </p>
                 </div>
             </form>
             
             <div class="mt-3">
-                <h6>V2 Enhancements:</h6>
+                <h6>@L["Auth_V2Enhancements"]</h6>
                 <ul class="small">
-                    <li><i class="bi bi-check-circle text-success"></i> Session-based authentication (no DB claims)</li>
-                    <li><i class="bi bi-check-circle text-success"></i> Structured logging (no file I/O)</li>
-                    <li><i class="bi bi-check-circle text-success"></i> Enhanced security monitoring</li>
-                    <li><i class="bi bi-check-circle text-success"></i> Deterministic tenant resolution</li>
+                    <li><i class="bi bi-check-circle text-success"></i> @L["Auth_SessionBasedAuth"]</li>
+                    <li><i class="bi bi-check-circle text-success"></i> @L["Auth_StructuredLogging"]</li>
+                    <li><i class="bi bi-check-circle text-success"></i> @L["Auth_EnhancedSecurityMonitoring"]</li>
+                    <li><i class="bi bi-check-circle text-success"></i> @L["Auth_DeterministicTenantResolution"]</li>
                 </ul>
-                <a href="/account/login" class="btn btn-sm btn-link">Switch to Legacy Login</a>
+                <a href="/account/login" class="btn btn-sm btn-link">@L["Auth_SwitchToLegacyLogin"]</a>
             </div>
         </div>
     </div>

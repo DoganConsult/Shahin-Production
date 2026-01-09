@@ -1,6 +1,8 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model GrcMvc.Models.ViewModels.LoginWithRecoveryCodeViewModel
 @{
-    ViewData["Title"] = "Recovery code verification";
+    ViewData["Title"] = L["Auth_RecoveryCodeLogin"].Value;
     Layout = "_Layout";
 }
 
@@ -9,12 +11,11 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h4><i class="bi bi-shield-lock"></i> Recovery Code Login</h4>
+                    <h4><i class="bi bi-shield-lock"></i> @L["Auth_RecoveryCodeLogin"]</h4>
                 </div>
                 <div class="card-body">
                     <p>
-                        You have requested to log in with a recovery code. This login will not be remembered until you provide
-                        an authenticator app code at login or disable 2FA and log in again.
+                        @L["Auth_RecoveryCodeLoginMessage"]
                     </p>
                     <form asp-action="LoginWithRecoveryCode" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -24,7 +25,7 @@
                             <span asp-validation-for="RecoveryCode" class="text-danger"></span>
                         </div>
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Log in</button>
+                            <button type="submit" class="btn btn-primary">@L["Auth_LoginTitle"]</button>
                         </div>
                     </form>
                 </div>

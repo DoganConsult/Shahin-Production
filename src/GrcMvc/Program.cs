@@ -81,17 +81,45 @@ if (File.Exists(envFile))
     Console.WriteLine($"[ENV] Loaded environment variables from: {envFile}");
 }
 
-// Build connection string from environment variables
-var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
-var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "GrcMvcDb";
-var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "postgres";
-var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "postgres";
-var connectionString = $"Host={dbHost};Database={dbName};Username={dbUser};Password={dbPassword};Port={dbPort}";
+// ══════════════════════════════════════════════════════════════
+// Connection String Configuration (ASP.NET Core Best Practices)
+// ══════════════════════════════════════════════════════════════
+// ASP.NET Core automatically loads configuration in this order:
+// 1. appsettings.json
+// 2. appsettings.{Environment}.json
+// 3. Environment variables (ConnectionStrings__DefaultConnection)
+// 4. Command-line arguments
+//
+// We support multiple formats for flexibility:
+// - Standard: ConnectionStrings__DefaultConnection (Docker Compose)
+// - Individual: DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
+// - Fallback: appsettings.json defaults
 
-// Override configuration with environment variables
-builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
-builder.Configuration["ConnectionStrings:GrcAuthDb"] = connectionString;
+string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// If not set via standard configuration, try building from individual DB_* variables
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
+    var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
+    var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "GrcMvcDb";
+    var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "postgres";
+    var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "postgres";
+    
+    // Only build if DB_HOST is explicitly set (avoid localhost fallback)
+    if (!string.IsNullOrWhiteSpace(dbHost))
+    {
+        connectionString = $"Host={dbHost};Database={dbName};Username={dbUser};Password={dbPassword};Port={dbPort}";
+        builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
+    }
+}
+
+// Get auth connection string (or use default if not set)
+string? authConnectionString = builder.Configuration.GetConnectionString("GrcAuthDb") ?? connectionString;
+if (string.IsNullOrWhiteSpace(authConnectionString) && !string.IsNullOrWhiteSpace(connectionString))
+{
+    builder.Configuration["ConnectionStrings:GrcAuthDb"] = connectionString;
+}
 builder.Configuration["JwtSettings:Secret"] = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "ShahinAI-Dev-SecretKey-2026-MustBeAtLeast32Chars!";
 builder.Configuration["ClaudeAgents:ApiKey"] = Environment.GetEnvironmentVariable("CLAUDE_API_KEY") ?? "";
 builder.Configuration["ClaudeAgents:Model"] = Environment.GetEnvironmentVariable("CLAUDE_MODEL") ?? "claude-sonnet-4-20250514";
@@ -251,23 +279,33 @@ builder.Services.AddScoped<ISiteSettingsService, SiteSettingsService>();
 builder.Services.AddSingleton<IValidateOptions<JwtSettings>, JwtSettingsValidator>();
 builder.Services.AddSingleton<IValidateOptions<ApplicationSettings>, ApplicationSettingsValidator>();
 
-// Configure Entity Framework with PostgreSQL
-// Note: connectionString already set from environment variables above
+// ══════════════════════════════════════════════════════════════
+// Entity Framework Configuration
+// ══════════════════════════════════════════════════════════════
+// Use GetConnectionString() which respects all configuration sources:
+// 1. Environment variables (ConnectionStrings__DefaultConnection)
+// 2. appsettings.{Environment}.json
+// 3. appsettings.json
+
+// Validate connection string is available
 if (string.IsNullOrWhiteSpace(connectionString))
 {
     throw new InvalidOperationException(
         "Database connection string 'DefaultConnection' not found. " +
-        "Please set it via environment variable: DB_HOST, DB_NAME, DB_USER, DB_PASSWORD");
+        "Please set it via one of the following methods:\n" +
+        "1. Environment variable: ConnectionStrings__DefaultConnection\n" +
+        "2. Environment variables: DB_HOST, DB_NAME, DB_USER, DB_PASSWORD\n" +
+        "3. appsettings.{Environment}.json: ConnectionStrings.DefaultConnection");
 }
 
 // Register master DbContext for tenant metadata (uses default connection)
 builder.Services.AddDbContext<GrcDbContext>(options =>
-    options.UseNpgsql(connectionString), ServiceLifetime.Scoped);
+    options.UseNpgsql(connectionString!), ServiceLifetime.Scoped);
 
 // Register Auth DbContext for Identity (separate database)
-var authConnectionString = builder.Configuration.GetConnectionString("GrcAuthDb") ?? connectionString;
+var finalAuthConnectionString = authConnectionString ?? connectionString!;
 builder.Services.AddDbContext<GrcAuthDbContext>(options =>
-    options.UseNpgsql(authConnectionString), ServiceLifetime.Scoped);
+    options.UseNpgsql(finalAuthConnectionString), ServiceLifetime.Scoped);
 
 // Register tenant database resolver
 builder.Services.AddScoped<ITenantDatabaseResolver, TenantDatabaseResolver>();
@@ -278,7 +316,7 @@ builder.Services.AddScoped<IDbContextFactory<GrcDbContext>, TenantAwareDbContext
 // Add Health Checks
 builder.Services.AddHealthChecks()
     .AddNpgSql(
-        connectionString!,
+        connectionString ?? throw new InvalidOperationException("Connection string not configured"),
         name: "master-database",
         failureStatus: HealthStatus.Unhealthy,
         tags: new[] { "db", "postgresql", "master" })
@@ -904,8 +942,12 @@ if (enableHangfire)
 {
     try
     {
+        // Get connection string from configuration
+        var hangfireConnectionString = connectionString ?? 
+            throw new InvalidOperationException("Connection string not configured for Hangfire");
+        
         // Test database connection before configuring Hangfire
-        using var testConnection = new NpgsqlConnection(connectionString);
+        using var testConnection = new NpgsqlConnection(hangfireConnectionString);
         testConnection.Open();
         testConnection.Close();
 
@@ -916,7 +958,7 @@ if (enableHangfire)
                   .UseRecommendedSerializerSettings()
                   .UsePostgreSqlStorage(options =>
                   {
-                      options.UseNpgsqlConnection(connectionString);
+                      options.UseNpgsqlConnection(hangfireConnectionString);
                   });
         });
 

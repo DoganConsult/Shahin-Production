@@ -1,13 +1,15 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model GrcMvc.Models.ViewModels.UserProfileViewModel
 @{
-    ViewData["Title"] = "My Profile";
+    ViewData["Title"] = L["Auth_MyProfile"].Value;
 }
 
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-12">
-            <h2><i class="bi bi-person-circle me-2"></i>My Profile</h2>
-            <p class="text-muted">View and manage your account settings</p>
+            <h2><i class="bi bi-person-circle me-2"></i>@L["Auth_MyProfile"]</h2>
+            <p class="text-muted">@L["Auth_ViewManageAccountSettings"]</p>
         </div>
     </div>
 
@@ -34,24 +36,24 @@
 
             <div class="card mt-3">
                 <div class="card-header bg-light">
-                    <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h6>
+                    <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>@L["Auth_QuickActions"]</h6>
                 </div>
                 <div class="list-group list-group-flush">
                     <a href="/inbox" class="list-group-item list-group-item-action">
-                        <i class="bi bi-inbox me-2"></i>My Inbox
+                        <i class="bi bi-inbox me-2"></i>@L["Auth_MyInbox"]
                         @if (Model.PendingTasksCount > 0)
                         {
                             <span class="badge bg-warning float-end">@Model.PendingTasksCount</span>
                         }
                     </a>
                     <a href="/Workflow/Inbox" class="list-group-item list-group-item-action">
-                        <i class="bi bi-list-task me-2"></i>My Tasks
+                        <i class="bi bi-list-task me-2"></i>@L["Auth_MyTasks"]
                     </a>
                     <a asp-action="ChangePassword" class="list-group-item list-group-item-action">
-                        <i class="bi bi-key me-2"></i>Change Password
+                        <i class="bi bi-key me-2"></i>@L["Auth_ChangePassword"]
                     </a>
                     <a asp-action="Manage" class="list-group-item list-group-item-action">
-                        <i class="bi bi-gear me-2"></i>Account Settings
+                        <i class="bi bi-gear me-2"></i>@L["Auth_AccountSettings"]
                     </a>
                 </div>
             </div>
@@ -62,7 +64,7 @@
             <!-- Assigned Profiles -->
             <div class="card mb-3">
                 <div class="card-header bg-light">
-                    <h6 class="mb-0"><i class="bi bi-person-badge me-2"></i>Assigned Profiles</h6>
+                    <h6 class="mb-0"><i class="bi bi-person-badge me-2"></i>@L["Auth_AssignedProfiles"]</h6>
                 </div>
                 <div class="card-body">
                     @if (Model.AssignedProfiles != null && Model.AssignedProfiles.Any())
@@ -81,7 +83,7 @@
                     }
                     else
                     {
-                        <p class="text-muted mb-0">No profiles assigned yet.</p>
+                        <p class="text-muted mb-0">@L["Auth_NoProfilesAssigned"]</p>
                     }
                 </div>
             </div>
@@ -89,7 +91,7 @@
             <!-- Permissions -->
             <div class="card mb-3">
                 <div class="card-header bg-light">
-                    <h6 class="mb-0"><i class="bi bi-shield-check me-2"></i>Permissions</h6>
+                    <h6 class="mb-0"><i class="bi bi-shield-check me-2"></i>@L["Auth_Permissions"]</h6>
                 </div>
                 <div class="card-body">
                     @if (Model.Permissions != null && Model.Permissions.Any())
@@ -100,12 +102,12 @@
                         }
                         @if (Model.Permissions.Count > 20)
                         {
-                            <span class="badge bg-secondary">+@(Model.Permissions.Count - 20) more</span>
+                            <span class="badge bg-secondary">+@(Model.Permissions.Count - 20) @L["Auth_More"]</span>
                         }
                     }
                     else
                     {
-                        <p class="text-muted mb-0">No permissions assigned.</p>
+                        <p class="text-muted mb-0">@L["Auth_NoPermissionsAssigned"]</p>
                     }
                 </div>
             </div>
@@ -113,7 +115,7 @@
             <!-- Workflow Roles -->
             <div class="card mb-3">
                 <div class="card-header bg-light">
-                    <h6 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>Workflow Roles</h6>
+                    <h6 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>@L["Auth_WorkflowRoles"]</h6>
                 </div>
                 <div class="card-body">
                     @if (Model.WorkflowRoles != null && Model.WorkflowRoles.Any())
@@ -125,7 +127,7 @@
                     }
                     else
                     {
-                        <p class="text-muted mb-0">No workflow roles assigned.</p>
+                        <p class="text-muted mb-0">@L["Auth_NoWorkflowRolesAssigned"]</p>
                     }
                 </div>
             </div>
@@ -133,9 +135,9 @@
             <!-- Notification Preferences -->
             <div class="card">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0"><i class="bi bi-bell me-2"></i>Notification Preferences</h6>
+                    <h6 class="mb-0"><i class="bi bi-bell me-2"></i>@L["Auth_NotificationPreferences"]</h6>
                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#notificationModal">
-                        <i class="bi bi-pencil"></i> Edit
+                        <i class="bi bi-pencil"></i> @L["Edit"]
                     </button>
                 </div>
                 <div class="card-body">
@@ -143,20 +145,20 @@
                         <div class="col-md-6">
                             <p class="mb-1">
                                 <i class="bi @(Model.NotificationPreferences?.EmailEnabled == true ? "bi-check-circle text-success" : "bi-x-circle text-danger") me-2"></i>
-                                Email Notifications
+                                @L["Auth_EmailNotifications"]
                             </p>
                             <p class="mb-1">
                                 <i class="bi @(Model.NotificationPreferences?.SmsEnabled == true ? "bi-check-circle text-success" : "bi-x-circle text-danger") me-2"></i>
-                                SMS Notifications
+                                @L["Auth_SmsNotifications"]
                             </p>
                         </div>
                         <div class="col-md-6">
                             <p class="mb-1">
                                 <i class="bi @(Model.NotificationPreferences?.InAppEnabled == true ? "bi-check-circle text-success" : "bi-x-circle text-danger") me-2"></i>
-                                In-App Notifications
+                                @L["Auth_InAppNotifications"]
                             </p>
                             <p class="mb-0">
-                                <strong>Digest:</strong> @(Model.NotificationPreferences?.DigestFrequency ?? "Immediate")
+                                <strong>@L["Auth_Digest"]</strong> @(Model.NotificationPreferences?.DigestFrequency ?? L["Auth_Immediate"].Value)
                             </p>
                         </div>
                     </div>
@@ -171,7 +173,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Notification Preferences</h5>
+                <h5 class="modal-title">@L["Auth_NotificationPreferences"]</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form asp-action="UpdateNotificationPreferences" method="post">
@@ -179,30 +181,30 @@
                     <div class="form-check mb-2">
                         <input class="form-check-input" type="checkbox" id="emailEnabled" name="EmailEnabled"
                                @(Model.NotificationPreferences?.EmailEnabled == true ? "checked" : "")>
-                        <label class="form-check-label" for="emailEnabled">Email Notifications</label>
+                        <label class="form-check-label" for="emailEnabled">@L["Auth_EmailNotifications"]</label>
                     </div>
                     <div class="form-check mb-2">
                         <input class="form-check-input" type="checkbox" id="smsEnabled" name="SmsEnabled"
                                @(Model.NotificationPreferences?.SmsEnabled == true ? "checked" : "")>
-                        <label class="form-check-label" for="smsEnabled">SMS Notifications</label>
+                        <label class="form-check-label" for="smsEnabled">@L["Auth_SmsNotifications"]</label>
                     </div>
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="inAppEnabled" name="InAppEnabled"
                                @(Model.NotificationPreferences?.InAppEnabled == true ? "checked" : "")>
-                        <label class="form-check-label" for="inAppEnabled">In-App Notifications</label>
+                        <label class="form-check-label" for="inAppEnabled">@L["Auth_InAppNotifications"]</label>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Digest Frequency</label>
+                        <label class="form-label">@L["Auth_Digest"]</label>
                         <select class="form-select" name="DigestFrequency">
-                            <option value="Immediate" selected="@(Model.NotificationPreferences?.DigestFrequency == "Immediate")">Immediate</option>
-                            <option value="Daily" selected="@(Model.NotificationPreferences?.DigestFrequency == "Daily")">Daily</option>
-                            <option value="Weekly" selected="@(Model.NotificationPreferences?.DigestFrequency == "Weekly")">Weekly</option>
+                            <option value="Immediate" selected="@(Model.NotificationPreferences?.DigestFrequency == "Immediate")">@L["Auth_Immediate"]</option>
+                            <option value="Daily" selected="@(Model.NotificationPreferences?.DigestFrequency == "Daily")">@L["Auth_Daily"]</option>
+                            <option value="Weekly" selected="@(Model.NotificationPreferences?.DigestFrequency == "Weekly")">@L["Auth_Weekly"]</option>
                         </select>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@L["Cancel"]</button>
+                    <button type="submit" class="btn btn-primary">@L["Auth_SaveChanges"]</button>
                 </div>
             </form>
         </div>

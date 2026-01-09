@@ -1826,4 +1826,472 @@
   <data name="Auth_ImportantNotes" xml:space="preserve">
     <value>Important Notes:</value>
   </data>
+  <data name="Note" xml:space="preserve">
+    <value>Note</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>Copied!</value>
+  </data>
+  <data name="Auth_ChangePasswordRequired" xml:space="preserve">
+    <value>Change Password Required</value>
+  </data>
+  <data name="Auth_PasswordChangeRequired" xml:space="preserve">
+    <value>Password Change Required</value>
+  </data>
+  <data name="Auth_MustChangePassword" xml:space="preserve">
+    <value>For security reasons, you must change your password before continuing.</value>
+  </data>
+  <data name="Auth_EnterCurrentPassword" xml:space="preserve">
+    <value>Enter your current password</value>
+  </data>
+  <data name="Auth_EnterNewPassword" xml:space="preserve">
+    <value>Enter a new password</value>
+  </data>
+  <data name="Auth_ConfirmNewPassword" xml:space="preserve">
+    <value>Confirm New Password</value>
+  </data>
+  <data name="Auth_ConfirmNewPasswordPlaceholder" xml:space="preserve">
+    <value>Confirm your new password</value>
+  </data>
+  <data name="Auth_PasswordMin8Chars" xml:space="preserve">
+    <value>Minimum 8 characters</value>
+  </data>
+  <data name="Auth_PasswordEncryptedSecure" xml:space="preserve">
+    <value>Your password is encrypted and secure</value>
+  </data>
+  <data name="Auth_AccountLocked" xml:space="preserve">
+    <value>Account Locked</value>
+  </data>
+  <data name="Auth_AccountLockedMessage" xml:space="preserve">
+    <value>Your account has been temporarily locked due to multiple failed login attempts.</value>
+  </data>
+  <data name="Auth_TryAgainLater" xml:space="preserve">
+    <value>Please try again later or contact support if you need immediate assistance.</value>
+  </data>
+  <data name="Auth_GoToHome" xml:space="preserve">
+    <value>Go to Home</value>
+  </data>
+  <data name="Auth_AccessDenied" xml:space="preserve">
+    <value>Access Denied</value>
+  </data>
+  <data name="Auth_AccessDeniedMessage" xml:space="preserve">
+    <value>You do not have permission to access this resource.</value>
+  </data>
+  <data name="Auth_ContactAdministrator" xml:space="preserve">
+    <value>If you believe you should have access to this page, please contact your system administrator.</value>
+  </data>
+  <data name="Auth_GoToDashboard" xml:space="preserve">
+    <value>Go to Dashboard</value>
+  </data>
+  <data name="Auth_TwoFactorAuthentication" xml:space="preserve">
+    <value>Two-Factor Authentication</value>
+  </data>
+  <data name="Auth_EnterAuthenticatorCode" xml:space="preserve">
+    <value>Your login is protected with an authenticator app. Enter your authenticator code below.</value>
+  </data>
+  <data name="Auth_TwoFactorCode" xml:space="preserve">
+    <value>Authenticator Code</value>
+  </data>
+  <data name="Auth_RememberMachine" xml:space="preserve">
+    <value>Remember this machine</value>
+  </data>
+  <data name="Auth_NoAccessToAuthenticator" xml:space="preserve">
+    <value>Don't have access to your authenticator device? You can log in with a recovery code.</value>
+  </data>
+  <data name="Auth_LoginWithRecoveryCode" xml:space="preserve">
+    <value>log in with a recovery code</value>
+  </data>
+  <data name="Auth_RecoveryCodeLogin" xml:space="preserve">
+    <value>Recovery Code Login</value>
+  </data>
+  <data name="Auth_RecoveryCodeLoginMessage" xml:space="preserve">
+    <value>You have requested to log in with a recovery code. This login will not be remembered until you provide an authenticator app code at login or disable 2FA and log in again.</value>
+  </data>
+  <data name="Auth_RecoveryCode" xml:space="preserve">
+    <value>Recovery Code</value>
+  </data>
+  <data name="Auth_VerifyMfa" xml:space="preserve">
+    <value>Two-Factor Verification</value>
+  </data>
+  <data name="Auth_VerificationCodeSent" xml:space="preserve">
+    <value>Verification code has been sent to your email</value>
+  </data>
+  <data name="Auth_VerificationCode" xml:space="preserve">
+    <value>Verification Code</value>
+  </data>
+  <data name="Auth_Verify" xml:space="preserve">
+    <value>Verify</value>
+  </data>
+  <data name="Auth_CodeValidFor" xml:space="preserve">
+    <value>Code is valid for:</value>
+  </data>
+  <data name="Auth_ResendCode" xml:space="preserve">
+    <value>Resend Code</value>
+  </data>
+  <data name="Auth_AccountProtectionPriority" xml:space="preserve">
+    <value>Protecting your account is our priority</value>
+  </data>
+  <data name="Auth_Expired" xml:space="preserve">
+    <value>Expired</value>
+  </data>
+  <data name="Auth_ManageProfile" xml:space="preserve">
+    <value>Manage Your Profile</value>
+  </data>
+  <data name="Auth_EmailCannotBeChanged" xml:space="preserve">
+    <value>Email cannot be changed</value>
+  </data>
+  <data name="Auth_PhoneNumber" xml:space="preserve">
+    <value>Phone Number</value>
+  </data>
+  <data name="Auth_SaveChanges" xml:space="preserve">
+    <value>Save Changes</value>
+  </data>
+  <data name="Auth_MyProfile" xml:space="preserve">
+    <value>My Profile</value>
+  </data>
+  <data name="Auth_ViewManageAccountSettings" xml:space="preserve">
+    <value>View and manage your account settings</value>
+  </data>
+  <data name="Auth_QuickActions" xml:space="preserve">
+    <value>Quick Actions</value>
+  </data>
+  <data name="Auth_MyInbox" xml:space="preserve">
+    <value>My Inbox</value>
+  </data>
+  <data name="Auth_MyTasks" xml:space="preserve">
+    <value>My Tasks</value>
+  </data>
+  <data name="Auth_AccountSettings" xml:space="preserve">
+    <value>Account Settings</value>
+  </data>
+  <data name="Auth_AssignedProfiles" xml:space="preserve">
+    <value>Assigned Profiles</value>
+  </data>
+  <data name="Auth_NoProfilesAssigned" xml:space="preserve">
+    <value>No profiles assigned yet.</value>
+  </data>
+  <data name="Auth_Permissions" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
+  <data name="Auth_NoPermissionsAssigned" xml:space="preserve">
+    <value>No permissions assigned.</value>
+  </data>
+  <data name="Auth_More" xml:space="preserve">
+    <value>more</value>
+  </data>
+  <data name="Auth_WorkflowRoles" xml:space="preserve">
+    <value>Workflow Roles</value>
+  </data>
+  <data name="Auth_NoWorkflowRolesAssigned" xml:space="preserve">
+    <value>No workflow roles assigned.</value>
+  </data>
+  <data name="Auth_NotificationPreferences" xml:space="preserve">
+    <value>Notification Preferences</value>
+  </data>
+  <data name="Auth_EmailNotifications" xml:space="preserve">
+    <value>Email Notifications</value>
+  </data>
+  <data name="Auth_SmsNotifications" xml:space="preserve">
+    <value>SMS Notifications</value>
+  </data>
+  <data name="Auth_InAppNotifications" xml:space="preserve">
+    <value>In-App Notifications</value>
+  </data>
+  <data name="Auth_Digest" xml:space="preserve">
+    <value>Digest:</value>
+  </data>
+  <data name="Auth_Immediate" xml:space="preserve">
+    <value>Immediate</value>
+  </data>
+  <data name="Auth_Daily" xml:space="preserve">
+    <value>Daily</value>
+  </data>
+  <data name="Auth_Weekly" xml:space="preserve">
+    <value>Weekly</value>
+  </data>
+  <data name="Auth_LoginV2Title" xml:space="preserve">
+    <value>Login (V2 - Enhanced Security)</value>
+  </data>
+  <data name="Auth_LoginEnhancedSecurity" xml:space="preserve">
+    <value>Login - Enhanced Security</value>
+  </data>
+  <data name="Auth_EnhancedSecurityInfo" xml:space="preserve">
+    <value>Enhanced Security: This login uses crypto-safe session management and structured logging.</value>
+  </data>
+  <data name="Auth_LoginEnhanced" xml:space="preserve">
+    <value>Login (Enhanced)</value>
+  </data>
+  <data name="Auth_RegisterAsNewUser" xml:space="preserve">
+    <value>Register as a new user</value>
+  </data>
+  <data name="Auth_DemoLogin" xml:space="preserve">
+    <value>Demo Login (Development Only)</value>
+  </data>
+  <data name="Auth_V2Enhancements" xml:space="preserve">
+    <value>V2 Enhancements:</value>
+  </data>
+  <data name="Auth_SessionBasedAuth" xml:space="preserve">
+    <value>Session-based authentication (no DB claims)</value>
+  </data>
+  <data name="Auth_StructuredLogging" xml:space="preserve">
+    <value>Structured logging (no file I/O)</value>
+  </data>
+  <data name="Auth_EnhancedSecurityMonitoring" xml:space="preserve">
+    <value>Enhanced security monitoring</value>
+  </data>
+  <data name="Auth_DeterministicTenantResolution" xml:space="preserve">
+    <value>Deterministic tenant resolution</value>
+  </data>
+  <data name="Auth_SwitchToLegacyLogin" xml:space="preserve">
+    <value>Switch to Legacy Login</value>
+  </data>
+  <data name="Auth_TenantAdminLoginTitle" xml:space="preserve">
+    <value>Tenant Admin Login</value>
+  </data>
+  <data name="Auth_EnterTenantIdUsernamePassword" xml:space="preserve">
+    <value>Enter your Tenant ID, Username, and Password to access onboarding</value>
+  </data>
+  <data name="Auth_TenantIdProvided" xml:space="preserve">
+    <value>Your Tenant ID was provided when your account was created.</value>
+  </data>
+  <data name="Auth_TenantIdPlaceholder" xml:space="preserve">
+    <value>00000000-0000-0000-0000-000000000000</value>
+  </data>
+  <data name="Auth_UsernamePlaceholder" xml:space="preserve">
+    <value>admin-tenant-slug</value>
+  </data>
+  <data name="Auth_LoginToOnboarding" xml:space="preserve">
+    <value>Login to Onboarding</value>
+  </data>
+  <data name="Auth_BackToRegularLogin" xml:space="preserve">
+    <value>Back to Regular Login</value>
+  </data>
+  <data name="Auth_TenantLoginV2Title" xml:space="preserve">
+    <value>Tenant Login (V2 - Session-Based Claims)</value>
+  </data>
+  <data name="Auth_TenantLoginEnhanced" xml:space="preserve">
+    <value>Tenant Login - Enhanced</value>
+  </data>
+  <data name="Auth_SessionBasedTenantClaims" xml:space="preserve">
+    <value>Enhanced Security: This login uses session-based tenant claims (not persisted to database).</value>
+  </data>
+  <data name="Auth_Tenant" xml:space="preserve">
+    <value>Tenant:</value>
+  </data>
+  <data name="Auth_TenantSlugLabel" xml:space="preserve">
+    <value>Tenant Slug (Optional)</value>
+  </data>
+  <data name="Auth_TenantSlugPlaceholder" xml:space="preserve">
+    <value>tenant-slug</value>
+  </data>
+  <data name="Auth_RoleLabel" xml:space="preserve">
+    <value>Role (Optional)</value>
+  </data>
+  <data name="Auth_SelectRole" xml:space="preserve">
+    <value>-- Select Role --</value>
+  </data>
+  <data name="Auth_LoginToTenantEnhanced" xml:space="preserve">
+    <value>Login to Tenant (Enhanced)</value>
+  </data>
+  <data name="Auth_RegularLogin" xml:space="preserve">
+    <value>Regular Login</value>
+  </data>
+  <data name="Auth_V2SessionBasedClaims" xml:space="preserve">
+    <value>V2 Session-Based Claims:</value>
+  </data>
+  <data name="Auth_TenantContextInSession" xml:space="preserve">
+    <value>Tenant context stored in session (NOT database)</value>
+  </data>
+  <data name="Auth_FixesClaimsBug" xml:space="preserve">
+    <value>Fixes bug: Claims no longer persist to AspNetUserClaims table</value>
+  </data>
+  <data name="Auth_FasterTenantSwitching" xml:space="preserve">
+    <value>Faster tenant switching</value>
+  </data>
+  <data name="Auth_NoDatabaseOverhead" xml:space="preserve">
+    <value>No database overhead for tenant context</value>
+  </data>
+  <data name="Auth_SwitchToLegacyTenantLogin" xml:space="preserve">
+    <value>Switch to Legacy Tenant Login</value>
+  </data>
+  <data name="Landing_Title" xml:space="preserve">
+    <value>Shahin Platform - Governance, Risk, and Compliance System</value>
+  </data>
+  <data name="Landing_MetaDescription" xml:space="preserve">
+    <value>Shahin Platform - Integrated system for managing governance, risk, and compliance for Saudi Arabia. Compatible with Vision 2030 and supports 130+ regulatory bodies.</value>
+  </data>
+  <data name="Landing_HeroBadge" xml:space="preserve">
+    <value>Leading GRC Platform in the Kingdom</value>
+  </data>
+  <data name="Landing_HeroTitle" xml:space="preserve">
+    <value>Compliance Management</value>
+  </data>
+  <data name="Landing_HeroTitleAI" xml:space="preserve">
+    <value>with Artificial Intelligence</value>
+  </data>
+  <data name="Landing_HeroTitleFor" xml:space="preserve">
+    <value>for Saudi Organizations</value>
+  </data>
+  <data name="Landing_HeroSubtitle" xml:space="preserve">
+    <value>Integrated platform for managing governance, risk, and compliance with full support for Saudi regulatory frameworks and national cybersecurity standards</value>
+  </data>
+  <data name="Landing_StartFreeTrial" xml:space="preserve">
+    <value>Start Your Free Trial</value>
+  </data>
+  <data name="Landing_BookDemo" xml:space="preserve">
+    <value>Book a Demo</value>
+  </data>
+  <data name="Landing_RegulatoryBodies" xml:space="preserve">
+    <value>Regulatory Bodies</value>
+  </data>
+  <data name="Landing_LocalAndInternational" xml:space="preserve">
+    <value>Local and International</value>
+  </data>
+  <data name="Landing_Frameworks" xml:space="preserve">
+    <value>Regulatory Frameworks</value>
+  </data>
+  <data name="Landing_CertifiedAndUpdated" xml:space="preserve">
+    <value>Certified and Updated</value>
+  </data>
+  <data name="Landing_Controls" xml:space="preserve">
+    <value>Controls</value>
+  </data>
+  <data name="Landing_ReadyToApply" xml:space="preserve">
+    <value>Ready to Apply</value>
+  </data>
+  <data name="Landing_AIAgents" xml:space="preserve">
+    <value>AI Agents</value>
+  </data>
+  <data name="Landing_Specialized" xml:space="preserve">
+    <value>Specialized</value>
+  </data>
+  <data name="Landing_Challenges" xml:space="preserve">
+    <value>Challenges</value>
+  </data>
+  <data name="Landing_DoYouFaceTheseChallenges" xml:space="preserve">
+    <value>Do you face these challenges?</value>
+  </data>
+  <data name="Landing_MostSaudiOrganizations" xml:space="preserve">
+    <value>Most Saudi organizations face the same challenges in managing compliance and risk</value>
+  </data>
+  <data name="Landing_DataFragmentation" xml:space="preserve">
+    <value>Data Fragmentation</value>
+  </data>
+  <data name="Landing_DataFragmentationDesc" xml:space="preserve">
+    <value>Compliance information scattered across Excel files, emails, and various folders</value>
+  </data>
+  <data name="Landing_TimeWaste" xml:space="preserve">
+    <value>Time Waste</value>
+  </data>
+  <data name="Landing_TimeWasteDesc" xml:space="preserve">
+    <value>Long hours wasted manually collecting evidence and searching for documents for audits</value>
+  </data>
+  <data name="Landing_ComplianceRisks" xml:space="preserve">
+    <value>Compliance Risks</value>
+  </data>
+  <data name="Landing_ComplianceRisksDesc" xml:space="preserve">
+    <value>Large financial fines and reputational damage from not tracking regulatory requirements</value>
+  </data>
+  <data name="Landing_SkillsGap" xml:space="preserve">
+    <value>Skills Gap</value>
+  </data>
+  <data name="Landing_SkillsGapDesc" xml:space="preserve">
+    <value>Difficulty finding qualified compliance experts and high cost of training and recruitment</value>
+  </data>
+  <data name="Landing_ShahinSolvesAll" xml:space="preserve">
+    <value>Shahin platform solves all these challenges in one integrated platform</value>
+  </data>
+  <data name="Landing_Features" xml:space="preserve">
+    <value>Features</value>
+  </data>
+  <data name="Landing_EverythingYouNeed" xml:space="preserve">
+    <value>Everything you need in one platform</value>
+  </data>
+  <data name="Landing_ComprehensivePlatform" xml:space="preserve">
+    <value>Comprehensive platform for managing governance, risk, and compliance with integrated tools for all your organization's requirements</value>
+  </data>
+  <data name="Landing_ComplianceManagement" xml:space="preserve">
+    <value>Compliance Management</value>
+  </data>
+  <data name="Landing_ComplianceManagementDesc" xml:space="preserve">
+    <value>Comprehensive compliance tracking with all Saudi and international regulatory frameworks</value>
+  </data>
+  <data name="Landing_RiskManagement" xml:space="preserve">
+    <value>Risk Management</value>
+  </data>
+  <data name="Landing_RiskManagementDesc" xml:space="preserve">
+    <value>Professional risk assessment and analysis with interactive heat maps</value>
+  </data>
+  <data name="Landing_AuditManagement" xml:space="preserve">
+    <value>Audit Management</value>
+  </data>
+  <data name="Landing_AuditManagementDesc" xml:space="preserve">
+    <value>Efficient planning and execution of internal and external audit operations</value>
+  </data>
+  <data name="Landing_WorkflowEngine" xml:space="preserve">
+    <value>Workflow Engine</value>
+  </data>
+  <data name="Landing_WorkflowEngineDesc" xml:space="preserve">
+    <value>Process and approval automation with advanced workflow engine</value>
+  </data>
+  <data name="Landing_PolicyManagement" xml:space="preserve">
+    <value>Policy Management</value>
+  </data>
+  <data name="Landing_PolicyManagementDesc" xml:space="preserve">
+    <value>Create, distribute, and track policies and regulatory procedures</value>
+  </data>
+  <data name="Landing_VendorManagement" xml:space="preserve">
+    <value>Vendor Management</value>
+  </data>
+  <data name="Landing_VendorManagementDesc" xml:space="preserve">
+    <value>Assess and track third-party and vendor risks</value>
+  </data>
+  <data name="Landing_SmartAlerts" xml:space="preserve">
+    <value>Smart Alerts</value>
+  </data>
+  <data name="Landing_SmartAlertsDesc" xml:space="preserve">
+    <value>Automatic notifications and alerts for deadlines and due tasks</value>
+  </data>
+  <data name="Landing_ActionPlans" xml:space="preserve">
+    <value>Action Plans</value>
+  </data>
+  <data name="Landing_ActionPlansDesc" xml:space="preserve">
+    <value>Manage and track remediation plans and continuous improvement</value>
+  </data>
+  <data name="Landing_RegulatoryFrameworks" xml:space="preserve">
+    <value>Regulatory Frameworks</value>
+  </data>
+  <data name="Landing_RegulatoryFrameworksDesc" xml:space="preserve">
+    <value>Comprehensive library of Saudi and international regulatory frameworks</value>
+  </data>
+  <data name="Landing_AdvancedSecurity" xml:space="preserve">
+    <value>Advanced Security</value>
+  </data>
+  <data name="Landing_AdvancedSecurityDesc" xml:space="preserve">
+    <value>Advanced encryption and multi-level access control</value>
+  </data>
+  <data name="Landing_Integration" xml:space="preserve">
+    <value>Integration</value>
+  </data>
+  <data name="Landing_IntegrationDesc" xml:space="preserve">
+    <value>Easy integration with existing systems and cybersecurity tools</value>
+  </data>
+  <data name="Landing_Dashboards" xml:space="preserve">
+    <value>Dashboards</value>
+  </data>
+  <data name="Landing_DashboardsDesc" xml:space="preserve">
+    <value>Interactive dashboards with advanced reports and charts</value>
+  </data>
+  <data name="Landing_LearnMore" xml:space="preserve">
+    <value>Learn More</value>
+  </data>
+  <data name="Landing_WhyShahin" xml:space="preserve">
+    <value>Why Shahin?</value>
+  </data>
+  <data name="Landing_WhatMakesUsDifferent" xml:space="preserve">
+    <value>What makes us different</value>
+  </data>
+  <data name="Landing_ShahinDesignedForSaudi" xml:space="preserve">
+    <value>Shahin platform is specifically designed for the Saudi market with advanced technologies you won't find in any other platform</value>
+  </data>
 </root>

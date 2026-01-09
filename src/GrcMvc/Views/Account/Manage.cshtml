@@ -1,6 +1,8 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model GrcMvc.Models.ViewModels.ManageViewModel
 @{
-    ViewData["Title"] = "Manage Profile";
+    ViewData["Title"] = L["Auth_ManageProfile"].Value;
     Layout = "_Layout";
 }
 
@@ -9,7 +11,7 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h4><i class="bi bi-person-gear"></i> Manage Your Profile</h4>
+                    <h4><i class="bi bi-person-gear"></i> @L["Auth_ManageProfile"]</h4>
                 </div>
                 <div class="card-body">
                     @if (TempData["SuccessMessage"] != null)
@@ -26,7 +28,7 @@
                         <div class="mb-3">
                             <label asp-for="Email" class="form-label"></label>
                             <input asp-for="Email" class="form-control" readonly />
-                            <small class="form-text text-muted">Email cannot be changed</small>
+                            <small class="form-text text-muted">@L["Auth_EmailCannotBeChanged"]</small>
                         </div>
 
                         <div class="row">
@@ -57,10 +59,10 @@
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save"></i> Save Changes
+                                <i class="bi bi-save"></i> @L["Auth_SaveChanges"]
                             </button>
                             <a asp-action="ChangePassword" class="btn btn-secondary">
-                                <i class="bi bi-key"></i> Change Password
+                                <i class="bi bi-key"></i> @L["Auth_ChangePassword"]
                             </a>
                         </div>
                     </form>

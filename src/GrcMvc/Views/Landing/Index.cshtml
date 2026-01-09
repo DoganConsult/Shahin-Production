@@ -1,7 +1,9 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model GrcMvc.Controllers.LandingPageViewModel
 @{
-    ViewData["Title"] = "منصة شاهين - نظام الحوكمة والمخاطر والامتثال";
-    ViewData["MetaDescription"] = "منصة شاهين - نظام متكامل لإدارة الحوكمة والمخاطر والامتثال للمملكة العربية السعودية. متوافق مع رؤية 2030 ويدعم 130+ جهة تنظيمية.";
+    ViewData["Title"] = L["Landing_Title"].Value;
+    ViewData["MetaDescription"] = L["Landing_MetaDescription"].Value;
     Layout = "_LandingLayout";
 }
 
@@ -11,28 +13,27 @@
         <div class="hero-content">
             <div class="hero-badge scroll-reveal" role="status">
                 <span class="hero-badge-dot" aria-hidden="true"></span>
-                <span>منصة الحوكمة والمخاطر والامتثال الأولى في المملكة</span>
+                <span>@L["Landing_HeroBadge"]</span>
             </div>
 
             <h1 id="hero-title" class="hero-title scroll-reveal scroll-reveal-delay-1">
-                إدارة الامتثال
+                @L["Landing_HeroTitle"]
                 <br>
-                <span class="hero-title-gradient">بذكاء اصطناعي</span>
+                <span class="hero-title-gradient">@L["Landing_HeroTitleAI"]</span>
                 <br>
-                للمؤسسات السعودية
+                @L["Landing_HeroTitleFor"]
             </h1>
 
             <p class="hero-subtitle scroll-reveal scroll-reveal-delay-2">
-                منصة متكاملة لإدارة الحوكمة والمخاطر والامتثال مع دعم كامل للأطر التنظيمية السعودية
-                ومعايير الأمن السيبراني الوطنية
+                @L["Landing_HeroSubtitle"]
             </p>
 
             <div class="hero-actions scroll-reveal scroll-reveal-delay-3">
                 <a href="/trial" class="btn btn-gradient btn-lg">
-                    ابدأ تجربتك المجانية
+                    @L["Landing_StartFreeTrial"]
                     <i class="bi bi-arrow-left-circle-fill" aria-hidden="true"></i>
                 </a>
-                <a href="/contact" class="btn btn-outline btn-lg">احجز عرض توضيحي</a>
+                <a href="/contact" class="btn btn-outline btn-lg">@L["Landing_BookDemo"]</a>
             </div>
         </div>
     </div>
@@ -50,32 +51,32 @@
                     <i class="bi bi-building"></i>
                 </div>
                 <div class="stat-value-animated counter-animated" data-target="120" data-suffix="+">0</div>
-                <div class="stat-label-main">جهة تنظيمية</div>
-                <div class="stat-label-sub">محلية ودولية</div>
+                <div class="stat-label-main">@L["Landing_RegulatoryBodies"]</div>
+                <div class="stat-label-sub">@L["Landing_LocalAndInternational"]</div>
             </div>
             <div class="stat-card scroll-reveal" role="listitem">
                 <div class="stat-icon-circle" aria-hidden="true">
                     <i class="bi bi-shield-check"></i>
                 </div>
                 <div class="stat-value-animated counter-animated" data-target="240" data-suffix="+">0</div>
-                <div class="stat-label-main">إطار تنظيمي</div>
-                <div class="stat-label-sub">معتمد ومحدث</div>
+                <div class="stat-label-main">@L["Landing_Frameworks"]</div>
+                <div class="stat-label-sub">@L["Landing_CertifiedAndUpdated"]</div>
             </div>
             <div class="stat-card scroll-reveal" role="listitem">
                 <div class="stat-icon-circle" aria-hidden="true">
                     <i class="bi bi-list-check"></i>
                 </div>
                 <div class="stat-value-animated counter-animated" data-target="57000" data-suffix="+">0</div>
-                <div class="stat-label-main">ضابط رقابي</div>
-                <div class="stat-label-sub">جاهز للتطبيق</div>
+                <div class="stat-label-main">@L["Landing_Controls"]</div>
+                <div class="stat-label-sub">@L["Landing_ReadyToApply"]</div>
             </div>
             <div class="stat-card scroll-reveal" role="listitem">
                 <div class="stat-icon-circle" aria-hidden="true">
                     <i class="bi bi-robot"></i>
                 </div>
                 <div class="stat-value-animated counter-animated" data-target="9">0</div>
-                <div class="stat-label-main">وكيل ذكاء اصطناعي</div>
-                <div class="stat-label-sub">متخصص</div>
+                <div class="stat-label-main">@L["Landing_AIAgents"]</div>
+                <div class="stat-label-sub">@L["Landing_Specialized"]</div>
             </div>
         </div>
     </div>
@@ -85,9 +86,9 @@
 <section class="challenges-section" aria-labelledby="challenges-title">
     <div class="container">
         <div class="section-header scroll-reveal">
-            <span class="section-eyebrow" style="color: #ef4444;">التحديات</span>
-            <h2 id="challenges-title" class="section-title">هل تواجه هذه التحديات؟</h2>
-            <p class="section-subtitle">معظم المؤسسات السعودية تعاني من نفس التحديات في إدارة الامتثال والمخاطر</p>
+            <span class="section-eyebrow" style="color: #ef4444;">@L["Landing_Challenges"]</span>
+            <h2 id="challenges-title" class="section-title">@L["Landing_DoYouFaceTheseChallenges"]</h2>
+            <p class="section-subtitle">@L["Landing_MostSaudiOrganizations"]</p>
         </div>
 
         <div class="challenges-grid-2x2 stagger-container" role="list">
@@ -96,8 +97,8 @@
                 <div class="challenge-icon" style="background: linear-gradient(135deg, #ef4444, #f97316);" aria-hidden="true">
                     <i class="bi bi-file-earmark-x"></i>
                 </div>
-                <h3 class="feature-title">تشتت البيانات</h3>
-                <p class="feature-desc">معلومات الامتثال مبعثرة في ملفات Excel ورسائل البريد الإلكتروني والمجلدات المختلفة</p>
+                <h3 class="feature-title">@L["Landing_DataFragmentation"]</h3>
+                <p class="feature-desc">@L["Landing_DataFragmentationDesc"]</p>
                 <div class="challenge-stat">
                     <div class="challenge-stat-value">73%</div>
                     <div class="challenge-stat-label">من المؤسسات تعاني من تشتت البيانات</div>
@@ -109,8 +110,8 @@
                 <div class="challenge-icon" style="background: linear-gradient(135deg, #f97316, #f59e0b);" aria-hidden="true">
                     <i class="bi bi-clock-history"></i>
                 </div>
-                <h3 class="feature-title">ضياع الوقت</h3>
-                <p class="feature-desc">ساعات طويلة تُهدر في جمع الأدلة يدوياً والبحث عن الوثائق للتدقيق</p>
+                <h3 class="feature-title">@L["Landing_TimeWaste"]</h3>
+                <p class="feature-desc">@L["Landing_TimeWasteDesc"]</p>
                 <div class="challenge-stat">
                     <div class="challenge-stat-value">40%</div>
                     <div class="challenge-stat-label">من وقت الفريق يضيع في العمل اليدوي</div>
@@ -122,8 +123,8 @@
                 <div class="challenge-icon" style="background: linear-gradient(135deg, #f59e0b, #eab308);" aria-hidden="true">
                     <i class="bi bi-exclamation-triangle"></i>
                 </div>
-                <h3 class="feature-title">مخاطر عدم الامتثال</h3>
-                <p class="feature-desc">غرامات مالية كبيرة وأضرار بالسمعة نتيجة عدم متابعة المتطلبات التنظيمية</p>
+                <h3 class="feature-title">@L["Landing_ComplianceRisks"]</h3>
+                <p class="feature-desc">@L["Landing_ComplianceRisksDesc"]</p>
                 <div class="challenge-stat">
                     <div class="challenge-stat-value">5M+</div>
                     <div class="challenge-stat-label">ريال متوسط غرامات عدم الامتثال</div>
@@ -135,8 +136,8 @@
                 <div class="challenge-icon" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);" aria-hidden="true">
                     <i class="bi bi-people"></i>
                 </div>
-                <h3 class="feature-title">نقص الكفاءات</h3>
-                <p class="feature-desc">صعوبة إيجاد خبراء الامتثال المؤهلين وارتفاع تكلفة التدريب والاستقطاب</p>
+                <h3 class="feature-title">@L["Landing_SkillsGap"]</h3>
+                <p class="feature-desc">@L["Landing_SkillsGapDesc"]</p>
                 <div class="challenge-stat">
                     <div class="challenge-stat-value">68%</div>
                     <div class="challenge-stat-label">من المؤسسات تواجه فجوة في المهارات</div>
@@ -146,7 +147,7 @@
 
         <div class="text-center scroll-reveal" style="margin-top: 48px;">
             <p style="font-size: 1.1rem; color: var(--text-secondary);">
-                منصة <span style="font-weight: 700; color: #10b981;">شاهين</span> تحل كل هذه التحديات في منصة واحدة متكاملة
+                @L["Landing_ShahinSolvesAll"]
             </p>
         </div>
     </div>
@@ -156,9 +157,9 @@
 <section class="section" aria-labelledby="features-title">
     <div class="container">
         <div class="section-header scroll-reveal">
-            <span class="section-eyebrow">المميزات</span>
-            <h2 id="features-title" class="section-title">كل ما تحتاجه في منصة واحدة</h2>
-            <p class="section-subtitle">منصة شاملة لإدارة الحوكمة والمخاطر والامتثال مع أدوات متكاملة لجميع متطلبات مؤسستك</p>
+            <span class="section-eyebrow">@L["Landing_Features"]</span>
+            <h2 id="features-title" class="section-title">@L["Landing_EverythingYouNeed"]</h2>
+            <p class="section-subtitle">@L["Landing_ComprehensivePlatform"]</p>
         </div>
 
         <div class="features-grid stagger-container" role="list" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">

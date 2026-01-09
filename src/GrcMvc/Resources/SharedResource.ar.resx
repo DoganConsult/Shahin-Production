@@ -1730,4 +1730,472 @@
   <data name="Auth_ImportantNotes" xml:space="preserve">
     <value>ملاحظات هامة:</value>
   </data>
+  <data name="Note" xml:space="preserve">
+    <value>ملاحظة</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>تم النسخ!</value>
+  </data>
+  <data name="Auth_ChangePasswordRequired" xml:space="preserve">
+    <value>تغيير كلمة المرور مطلوب</value>
+  </data>
+  <data name="Auth_PasswordChangeRequired" xml:space="preserve">
+    <value>تغيير كلمة المرور مطلوب</value>
+  </data>
+  <data name="Auth_MustChangePassword" xml:space="preserve">
+    <value>لأسباب أمنية، يجب عليك تغيير كلمة المرور قبل المتابعة.</value>
+  </data>
+  <data name="Auth_EnterCurrentPassword" xml:space="preserve">
+    <value>أدخل كلمة المرور الحالية</value>
+  </data>
+  <data name="Auth_EnterNewPassword" xml:space="preserve">
+    <value>أدخل كلمة مرور جديدة</value>
+  </data>
+  <data name="Auth_ConfirmNewPassword" xml:space="preserve">
+    <value>تأكيد كلمة المرور الجديدة</value>
+  </data>
+  <data name="Auth_ConfirmNewPasswordPlaceholder" xml:space="preserve">
+    <value>أكد كلمة المرور الجديدة</value>
+  </data>
+  <data name="Auth_PasswordMin8Chars" xml:space="preserve">
+    <value>8 أحرف على الأقل</value>
+  </data>
+  <data name="Auth_PasswordEncryptedSecure" xml:space="preserve">
+    <value>كلمة المرور الخاصة بك مشفرة وآمنة</value>
+  </data>
+  <data name="Auth_AccountLocked" xml:space="preserve">
+    <value>الحساب مقفل</value>
+  </data>
+  <data name="Auth_AccountLockedMessage" xml:space="preserve">
+    <value>تم قفل حسابك مؤقتاً بسبب محاولات تسجيل دخول فاشلة متعددة.</value>
+  </data>
+  <data name="Auth_TryAgainLater" xml:space="preserve">
+    <value>يرجى المحاولة مرة أخرى لاحقاً أو الاتصال بالدعم إذا كنت بحاجة إلى مساعدة فورية.</value>
+  </data>
+  <data name="Auth_GoToHome" xml:space="preserve">
+    <value>انتقل إلى الصفحة الرئيسية</value>
+  </data>
+  <data name="Auth_AccessDenied" xml:space="preserve">
+    <value>تم رفض الوصول</value>
+  </data>
+  <data name="Auth_AccessDeniedMessage" xml:space="preserve">
+    <value>ليس لديك إذن للوصول إلى هذا المورد.</value>
+  </data>
+  <data name="Auth_ContactAdministrator" xml:space="preserve">
+    <value>إذا كنت تعتقد أنه يجب أن يكون لديك حق الوصول إلى هذه الصفحة، يرجى الاتصال بمسؤول النظام.</value>
+  </data>
+  <data name="Auth_GoToDashboard" xml:space="preserve">
+    <value>انتقل إلى لوحة التحكم</value>
+  </data>
+  <data name="Auth_TwoFactorAuthentication" xml:space="preserve">
+    <value>المصادقة بخطوتين</value>
+  </data>
+  <data name="Auth_EnterAuthenticatorCode" xml:space="preserve">
+    <value>تسجيل الدخول الخاص بك محمي بتطبيق المصادقة. أدخل رمز المصادقة أدناه.</value>
+  </data>
+  <data name="Auth_TwoFactorCode" xml:space="preserve">
+    <value>رمز المصادقة</value>
+  </data>
+  <data name="Auth_RememberMachine" xml:space="preserve">
+    <value>تذكر هذا الجهاز</value>
+  </data>
+  <data name="Auth_NoAccessToAuthenticator" xml:space="preserve">
+    <value>لا يمكنك الوصول إلى جهاز المصادقة الخاص بك؟ يمكنك تسجيل الدخول برمز الاسترداد.</value>
+  </data>
+  <data name="Auth_LoginWithRecoveryCode" xml:space="preserve">
+    <value>تسجيل الدخول برمز الاسترداد</value>
+  </data>
+  <data name="Auth_RecoveryCodeLogin" xml:space="preserve">
+    <value>تسجيل الدخول برمز الاسترداد</value>
+  </data>
+  <data name="Auth_RecoveryCodeLoginMessage" xml:space="preserve">
+    <value>لقد طلبت تسجيل الدخول برمز استرداد. لن يتم تذكر هذا تسجيل الدخول حتى تقدم رمز تطبيق المصادقة عند تسجيل الدخول أو تعطيل المصادقة بخطوتين وتسجيل الدخول مرة أخرى.</value>
+  </data>
+  <data name="Auth_RecoveryCode" xml:space="preserve">
+    <value>رمز الاسترداد</value>
+  </data>
+  <data name="Auth_VerifyMfa" xml:space="preserve">
+    <value>التحقق بخطوتين</value>
+  </data>
+  <data name="Auth_VerificationCodeSent" xml:space="preserve">
+    <value>تم إرسال رمز التحقق إلى بريدك الإلكتروني</value>
+  </data>
+  <data name="Auth_VerificationCode" xml:space="preserve">
+    <value>رمز التحقق</value>
+  </data>
+  <data name="Auth_Verify" xml:space="preserve">
+    <value>تحقق</value>
+  </data>
+  <data name="Auth_CodeValidFor" xml:space="preserve">
+    <value>الرمز صالح لمدة:</value>
+  </data>
+  <data name="Auth_ResendCode" xml:space="preserve">
+    <value>إعادة إرسال الرمز</value>
+  </data>
+  <data name="Auth_AccountProtectionPriority" xml:space="preserve">
+    <value>حماية حسابك أولويتنا</value>
+  </data>
+  <data name="Auth_Expired" xml:space="preserve">
+    <value>انتهت الصلاحية</value>
+  </data>
+  <data name="Auth_ManageProfile" xml:space="preserve">
+    <value>إدارة ملفك الشخصي</value>
+  </data>
+  <data name="Auth_EmailCannotBeChanged" xml:space="preserve">
+    <value>لا يمكن تغيير البريد الإلكتروني</value>
+  </data>
+  <data name="Auth_PhoneNumber" xml:space="preserve">
+    <value>رقم الهاتف</value>
+  </data>
+  <data name="Auth_SaveChanges" xml:space="preserve">
+    <value>حفظ التغييرات</value>
+  </data>
+  <data name="Auth_MyProfile" xml:space="preserve">
+    <value>ملفي الشخصي</value>
+  </data>
+  <data name="Auth_ViewManageAccountSettings" xml:space="preserve">
+    <value>عرض وإدارة إعدادات حسابك</value>
+  </data>
+  <data name="Auth_QuickActions" xml:space="preserve">
+    <value>إجراءات سريعة</value>
+  </data>
+  <data name="Auth_MyInbox" xml:space="preserve">
+    <value>صندوق الوارد الخاص بي</value>
+  </data>
+  <data name="Auth_MyTasks" xml:space="preserve">
+    <value>مهامي</value>
+  </data>
+  <data name="Auth_AccountSettings" xml:space="preserve">
+    <value>إعدادات الحساب</value>
+  </data>
+  <data name="Auth_AssignedProfiles" xml:space="preserve">
+    <value>الملفات الشخصية المعينة</value>
+  </data>
+  <data name="Auth_NoProfilesAssigned" xml:space="preserve">
+    <value>لم يتم تعيين ملفات شخصية بعد.</value>
+  </data>
+  <data name="Auth_Permissions" xml:space="preserve">
+    <value>الصلاحيات</value>
+  </data>
+  <data name="Auth_NoPermissionsAssigned" xml:space="preserve">
+    <value>لم يتم تعيين صلاحيات.</value>
+  </data>
+  <data name="Auth_More" xml:space="preserve">
+    <value>المزيد</value>
+  </data>
+  <data name="Auth_WorkflowRoles" xml:space="preserve">
+    <value>أدوار سير العمل</value>
+  </data>
+  <data name="Auth_NoWorkflowRolesAssigned" xml:space="preserve">
+    <value>لم يتم تعيين أدوار سير العمل.</value>
+  </data>
+  <data name="Auth_NotificationPreferences" xml:space="preserve">
+    <value>تفضيلات الإشعارات</value>
+  </data>
+  <data name="Auth_EmailNotifications" xml:space="preserve">
+    <value>إشعارات البريد الإلكتروني</value>
+  </data>
+  <data name="Auth_SmsNotifications" xml:space="preserve">
+    <value>إشعارات الرسائل النصية</value>
+  </data>
+  <data name="Auth_InAppNotifications" xml:space="preserve">
+    <value>الإشعارات داخل التطبيق</value>
+  </data>
+  <data name="Auth_Digest" xml:space="preserve">
+    <value>ملخص:</value>
+  </data>
+  <data name="Auth_Immediate" xml:space="preserve">
+    <value>فوري</value>
+  </data>
+  <data name="Auth_Daily" xml:space="preserve">
+    <value>يومي</value>
+  </data>
+  <data name="Auth_Weekly" xml:space="preserve">
+    <value>أسبوعي</value>
+  </data>
+  <data name="Auth_LoginV2Title" xml:space="preserve">
+    <value>تسجيل الدخول (V2 - أمان محسّن)</value>
+  </data>
+  <data name="Auth_LoginEnhancedSecurity" xml:space="preserve">
+    <value>تسجيل الدخول - أمان محسّن</value>
+  </data>
+  <data name="Auth_EnhancedSecurityInfo" xml:space="preserve">
+    <value>أمان محسّن: يستخدم تسجيل الدخول هذا إدارة جلسات آمنة تشفيرياً وتسجيل منظم.</value>
+  </data>
+  <data name="Auth_LoginEnhanced" xml:space="preserve">
+    <value>تسجيل الدخول (محسّن)</value>
+  </data>
+  <data name="Auth_RegisterAsNewUser" xml:space="preserve">
+    <value>التسجيل كمستخدم جديد</value>
+  </data>
+  <data name="Auth_DemoLogin" xml:space="preserve">
+    <value>تسجيل الدخول التجريبي (للتطوير فقط)</value>
+  </data>
+  <data name="Auth_V2Enhancements" xml:space="preserve">
+    <value>تحسينات V2:</value>
+  </data>
+  <data name="Auth_SessionBasedAuth" xml:space="preserve">
+    <value>المصادقة المستندة إلى الجلسة (بدون مطالبات قاعدة البيانات)</value>
+  </data>
+  <data name="Auth_StructuredLogging" xml:space="preserve">
+    <value>تسجيل منظم (بدون إدخال/إخراج ملفات)</value>
+  </data>
+  <data name="Auth_EnhancedSecurityMonitoring" xml:space="preserve">
+    <value>مراقبة أمنية محسّنة</value>
+  </data>
+  <data name="Auth_DeterministicTenantResolution" xml:space="preserve">
+    <value>حل المستأجر الحتمي</value>
+  </data>
+  <data name="Auth_SwitchToLegacyLogin" xml:space="preserve">
+    <value>التبديل إلى تسجيل الدخول القديم</value>
+  </data>
+  <data name="Auth_TenantAdminLoginTitle" xml:space="preserve">
+    <value>تسجيل دخول مسؤول المستأجر</value>
+  </data>
+  <data name="Auth_EnterTenantIdUsernamePassword" xml:space="preserve">
+    <value>أدخل معرف المستأجر واسم المستخدم وكلمة المرور للوصول إلى الإعداد</value>
+  </data>
+  <data name="Auth_TenantIdProvided" xml:space="preserve">
+    <value>تم توفير معرف المستأجر الخاص بك عند إنشاء حسابك.</value>
+  </data>
+  <data name="Auth_TenantIdPlaceholder" xml:space="preserve">
+    <value>00000000-0000-0000-0000-000000000000</value>
+  </data>
+  <data name="Auth_UsernamePlaceholder" xml:space="preserve">
+    <value>admin-tenant-slug</value>
+  </data>
+  <data name="Auth_LoginToOnboarding" xml:space="preserve">
+    <value>تسجيل الدخول إلى الإعداد</value>
+  </data>
+  <data name="Auth_BackToRegularLogin" xml:space="preserve">
+    <value>العودة إلى تسجيل الدخول العادي</value>
+  </data>
+  <data name="Auth_TenantLoginV2Title" xml:space="preserve">
+    <value>تسجيل دخول المستأجر (V2 - مطالبات مستندة إلى الجلسة)</value>
+  </data>
+  <data name="Auth_TenantLoginEnhanced" xml:space="preserve">
+    <value>تسجيل دخول المستأجر - محسّن</value>
+  </data>
+  <data name="Auth_SessionBasedTenantClaims" xml:space="preserve">
+    <value>أمان محسّن: يستخدم تسجيل الدخول هذا مطالبات مستأجر مستندة إلى الجلسة (غير محفوظة في قاعدة البيانات).</value>
+  </data>
+  <data name="Auth_Tenant" xml:space="preserve">
+    <value>المستأجر:</value>
+  </data>
+  <data name="Auth_TenantSlugLabel" xml:space="preserve">
+    <value>معرف المستأجر المختصر (اختياري)</value>
+  </data>
+  <data name="Auth_TenantSlugPlaceholder" xml:space="preserve">
+    <value>tenant-slug</value>
+  </data>
+  <data name="Auth_RoleLabel" xml:space="preserve">
+    <value>الدور (اختياري)</value>
+  </data>
+  <data name="Auth_SelectRole" xml:space="preserve">
+    <value>-- اختر الدور --</value>
+  </data>
+  <data name="Auth_LoginToTenantEnhanced" xml:space="preserve">
+    <value>تسجيل الدخول إلى المستأجر (محسّن)</value>
+  </data>
+  <data name="Auth_RegularLogin" xml:space="preserve">
+    <value>تسجيل الدخول العادي</value>
+  </data>
+  <data name="Auth_V2SessionBasedClaims" xml:space="preserve">
+    <value>مطالبات V2 المستندة إلى الجلسة:</value>
+  </data>
+  <data name="Auth_TenantContextInSession" xml:space="preserve">
+    <value>سياق المستأجر مخزن في الجلسة (وليس في قاعدة البيانات)</value>
+  </data>
+  <data name="Auth_FixesClaimsBug" xml:space="preserve">
+    <value>إصلاح خطأ: لم تعد المطالبات تُحفظ في جدول AspNetUserClaims</value>
+  </data>
+  <data name="Auth_FasterTenantSwitching" xml:space="preserve">
+    <value>تبديل مستأجر أسرع</value>
+  </data>
+  <data name="Auth_NoDatabaseOverhead" xml:space="preserve">
+    <value>لا يوجد عبء قاعدة بيانات لسياق المستأجر</value>
+  </data>
+  <data name="Auth_SwitchToLegacyTenantLogin" xml:space="preserve">
+    <value>التبديل إلى تسجيل دخول المستأجر القديم</value>
+  </data>
+  <data name="Landing_Title" xml:space="preserve">
+    <value>منصة شاهين - نظام الحوكمة والمخاطر والامتثال</value>
+  </data>
+  <data name="Landing_MetaDescription" xml:space="preserve">
+    <value>منصة شاهين - نظام متكامل لإدارة الحوكمة والمخاطر والامتثال للمملكة العربية السعودية. متوافق مع رؤية 2030 ويدعم 130+ جهة تنظيمية.</value>
+  </data>
+  <data name="Landing_HeroBadge" xml:space="preserve">
+    <value>منصة الحوكمة والمخاطر والامتثال الأولى في المملكة</value>
+  </data>
+  <data name="Landing_HeroTitle" xml:space="preserve">
+    <value>إدارة الامتثال</value>
+  </data>
+  <data name="Landing_HeroTitleAI" xml:space="preserve">
+    <value>بذكاء اصطناعي</value>
+  </data>
+  <data name="Landing_HeroTitleFor" xml:space="preserve">
+    <value>للمؤسسات السعودية</value>
+  </data>
+  <data name="Landing_HeroSubtitle" xml:space="preserve">
+    <value>منصة متكاملة لإدارة الحوكمة والمخاطر والامتثال مع دعم كامل للأطر التنظيمية السعودية ومعايير الأمن السيبراني الوطنية</value>
+  </data>
+  <data name="Landing_StartFreeTrial" xml:space="preserve">
+    <value>ابدأ تجربتك المجانية</value>
+  </data>
+  <data name="Landing_BookDemo" xml:space="preserve">
+    <value>احجز عرض توضيحي</value>
+  </data>
+  <data name="Landing_RegulatoryBodies" xml:space="preserve">
+    <value>جهة تنظيمية</value>
+  </data>
+  <data name="Landing_LocalAndInternational" xml:space="preserve">
+    <value>محلية ودولية</value>
+  </data>
+  <data name="Landing_Frameworks" xml:space="preserve">
+    <value>إطار تنظيمي</value>
+  </data>
+  <data name="Landing_CertifiedAndUpdated" xml:space="preserve">
+    <value>معتمد ومحدث</value>
+  </data>
+  <data name="Landing_Controls" xml:space="preserve">
+    <value>ضابط رقابي</value>
+  </data>
+  <data name="Landing_ReadyToApply" xml:space="preserve">
+    <value>جاهز للتطبيق</value>
+  </data>
+  <data name="Landing_AIAgents" xml:space="preserve">
+    <value>وكيل ذكاء اصطناعي</value>
+  </data>
+  <data name="Landing_Specialized" xml:space="preserve">
+    <value>متخصص</value>
+  </data>
+  <data name="Landing_Challenges" xml:space="preserve">
+    <value>التحديات</value>
+  </data>
+  <data name="Landing_DoYouFaceTheseChallenges" xml:space="preserve">
+    <value>هل تواجه هذه التحديات؟</value>
+  </data>
+  <data name="Landing_MostSaudiOrganizations" xml:space="preserve">
+    <value>معظم المؤسسات السعودية تعاني من نفس التحديات في إدارة الامتثال والمخاطر</value>
+  </data>
+  <data name="Landing_DataFragmentation" xml:space="preserve">
+    <value>تشتت البيانات</value>
+  </data>
+  <data name="Landing_DataFragmentationDesc" xml:space="preserve">
+    <value>معلومات الامتثال مبعثرة في ملفات Excel ورسائل البريد الإلكتروني والمجلدات المختلفة</value>
+  </data>
+  <data name="Landing_TimeWaste" xml:space="preserve">
+    <value>ضياع الوقت</value>
+  </data>
+  <data name="Landing_TimeWasteDesc" xml:space="preserve">
+    <value>ساعات طويلة تُهدر في جمع الأدلة يدوياً والبحث عن الوثائق للتدقيق</value>
+  </data>
+  <data name="Landing_ComplianceRisks" xml:space="preserve">
+    <value>مخاطر عدم الامتثال</value>
+  </data>
+  <data name="Landing_ComplianceRisksDesc" xml:space="preserve">
+    <value>غرامات مالية كبيرة وأضرار بالسمعة نتيجة عدم متابعة المتطلبات التنظيمية</value>
+  </data>
+  <data name="Landing_SkillsGap" xml:space="preserve">
+    <value>نقص الكفاءات</value>
+  </data>
+  <data name="Landing_SkillsGapDesc" xml:space="preserve">
+    <value>صعوبة إيجاد خبراء الامتثال المؤهلين وارتفاع تكلفة التدريب والاستقطاب</value>
+  </data>
+  <data name="Landing_ShahinSolvesAll" xml:space="preserve">
+    <value>منصة شاهين تحل كل هذه التحديات في منصة واحدة متكاملة</value>
+  </data>
+  <data name="Landing_Features" xml:space="preserve">
+    <value>المميزات</value>
+  </data>
+  <data name="Landing_EverythingYouNeed" xml:space="preserve">
+    <value>كل ما تحتاجه في منصة واحدة</value>
+  </data>
+  <data name="Landing_ComprehensivePlatform" xml:space="preserve">
+    <value>منصة شاملة لإدارة الحوكمة والمخاطر والامتثال مع أدوات متكاملة لجميع متطلبات مؤسستك</value>
+  </data>
+  <data name="Landing_ComplianceManagement" xml:space="preserve">
+    <value>إدارة الامتثال</value>
+  </data>
+  <data name="Landing_ComplianceManagementDesc" xml:space="preserve">
+    <value>متابعة شاملة للامتثال مع جميع الأطر التنظيمية السعودية والدولية</value>
+  </data>
+  <data name="Landing_RiskManagement" xml:space="preserve">
+    <value>إدارة المخاطر</value>
+  </data>
+  <data name="Landing_RiskManagementDesc" xml:space="preserve">
+    <value>تقييم وتحليل المخاطر بأساليب احترافية مع خرائط حرارية تفاعلية</value>
+  </data>
+  <data name="Landing_AuditManagement" xml:space="preserve">
+    <value>إدارة التدقيق</value>
+  </data>
+  <data name="Landing_AuditManagementDesc" xml:space="preserve">
+    <value>تخطيط وتنفيذ عمليات التدقيق الداخلي والخارجي بكفاءة</value>
+  </data>
+  <data name="Landing_WorkflowEngine" xml:space="preserve">
+    <value>محرك سير العمل</value>
+  </data>
+  <data name="Landing_WorkflowEngineDesc" xml:space="preserve">
+    <value>أتمتة العمليات والموافقات مع محرك سير عمل متقدم</value>
+  </data>
+  <data name="Landing_PolicyManagement" xml:space="preserve">
+    <value>إدارة السياسات</value>
+  </data>
+  <data name="Landing_PolicyManagementDesc" xml:space="preserve">
+    <value>إنشاء وتوزيع ومتابعة السياسات والإجراءات التنظيمية</value>
+  </data>
+  <data name="Landing_VendorManagement" xml:space="preserve">
+    <value>إدارة الموردين</value>
+  </data>
+  <data name="Landing_VendorManagementDesc" xml:space="preserve">
+    <value>تقييم ومتابعة مخاطر الأطراف الثالثة والموردين</value>
+  </data>
+  <data name="Landing_SmartAlerts" xml:space="preserve">
+    <value>التنبيهات الذكية</value>
+  </data>
+  <data name="Landing_SmartAlertsDesc" xml:space="preserve">
+    <value>إشعارات وتنبيهات آلية للمواعيد والمهام المستحقة</value>
+  </data>
+  <data name="Landing_ActionPlans" xml:space="preserve">
+    <value>خطط العمل</value>
+  </data>
+  <data name="Landing_ActionPlansDesc" xml:space="preserve">
+    <value>إدارة ومتابعة خطط المعالجة والتحسين المستمر</value>
+  </data>
+  <data name="Landing_RegulatoryFrameworks" xml:space="preserve">
+    <value>الأطر التنظيمية</value>
+  </data>
+  <data name="Landing_RegulatoryFrameworksDesc" xml:space="preserve">
+    <value>مكتبة شاملة للأطر التنظيمية السعودية والدولية</value>
+  </data>
+  <data name="Landing_AdvancedSecurity" xml:space="preserve">
+    <value>الأمان المتقدم</value>
+  </data>
+  <data name="Landing_AdvancedSecurityDesc" xml:space="preserve">
+    <value>تشفير متقدم وتحكم في الوصول متعدد المستويات</value>
+  </data>
+  <data name="Landing_Integration" xml:space="preserve">
+    <value>التكامل</value>
+  </data>
+  <data name="Landing_IntegrationDesc" xml:space="preserve">
+    <value>تكامل سهل مع الأنظمة الموجودة وأدوات الأمن السيبراني</value>
+  </data>
+  <data name="Landing_Dashboards" xml:space="preserve">
+    <value>لوحات المعلومات</value>
+  </data>
+  <data name="Landing_DashboardsDesc" xml:space="preserve">
+    <value>لوحات تحكم تفاعلية مع تقارير ورسوم بيانية متقدمة</value>
+  </data>
+  <data name="Landing_LearnMore" xml:space="preserve">
+    <value>اعرف المزيد</value>
+  </data>
+  <data name="Landing_WhyShahin" xml:space="preserve">
+    <value>لماذا شاهين؟</value>
+  </data>
+  <data name="Landing_WhatMakesUsDifferent" xml:space="preserve">
+    <value>ما يميزنا عن غيرنا</value>
+  </data>
+  <data name="Landing_ShahinDesignedForSaudi" xml:space="preserve">
+    <value>منصة شاهين مصممة خصيصاً للسوق السعودي مع تقنيات متقدمة لا تجدها في أي منصة أخرى</value>
+  </data>
 </root>

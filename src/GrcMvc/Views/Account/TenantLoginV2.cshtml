@@ -1,6 +1,8 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model GrcMvc.Controllers.TenantLoginViewModel
 @{
-    ViewData["Title"] = "Tenant Login (V2 - Session-Based Claims)";
+    ViewData["Title"] = L["Auth_TenantLoginV2Title"].Value;
     Layout = "_Layout";
     var version = ViewData["Version"] as string;
     var tenantSlug = ViewData["TenantSlug"] as string;
@@ -9,7 +11,7 @@
 <div class="auth-form">
     <div class="card">
         <div class="card-header text-center bg-primary text-white">
-            <h4><i class="bi bi-building"></i> Tenant Login - Enhanced</h4>
+            <h4><i class="bi bi-building"></i> @L["Auth_TenantLoginEnhanced"]</h4>
             @if (!string.IsNullOrEmpty(version))
             {
                 <small class="badge bg-light text-dark">@version</small>
@@ -18,13 +20,13 @@
         <div class="card-body">
             <div class="alert alert-info">
                 <i class="bi bi-shield-check"></i>
-                <strong>Enhanced Security:</strong> This login uses session-based tenant claims (not persisted to database).
+                <strong>@L["Auth_SessionBasedTenantClaims"]</strong>
             </div>
             
             @if (!string.IsNullOrEmpty(tenantSlug))
             {
                 <div class="alert alert-success">
-                    <strong>Tenant:</strong> @tenantSlug
+                    <strong>@L["Auth_Tenant"]</strong> @tenantSlug
                 </div>
             }
             
@@ -36,7 +38,7 @@
                     <label asp-for="Email" class="form-label">Email</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                        <input asp-for="Email" class="form-control" placeholder="email@example.com" autofocus required />
+                        <input asp-for="Email" class="form-control" placeholder="@L["Auth_EmailPlaceholder"]" autofocus required />
                     </div>
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
@@ -45,7 +47,7 @@
                     <label asp-for="Password" class="form-label">Password</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                        <input asp-for="Password" class="form-control" type="password" placeholder="Enter your password" required />
+                        <input asp-for="Password" class="form-control" type="password" placeholder="@L["Auth_PasswordPlaceholder"]" required />
                     </div>
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
@@ -54,23 +56,23 @@
                     <label asp-for="TenantId" class="form-label">Tenant ID</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-building"></i></span>
-                        <input asp-for="TenantId" class="form-control" placeholder="00000000-0000-0000-0000-000000000000" required />
+                        <input asp-for="TenantId" class="form-control" placeholder="@L["Auth_TenantIdPlaceholder"]" required />
                     </div>
                     <span asp-validation-for="TenantId" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="TenantSlug" class="form-label">Tenant Slug (Optional)</label>
+                    <label asp-for="TenantSlug" class="form-label">@L["Auth_TenantSlugLabel"]</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-tag"></i></span>
-                        <input asp-for="TenantSlug" class="form-control" placeholder="tenant-slug" value="@tenantSlug" />
+                        <input asp-for="TenantSlug" class="form-control" placeholder="@L["Auth_TenantSlugPlaceholder"]" value="@tenantSlug" />
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Role" class="form-label">Role (Optional)</label>
+                    <label asp-for="Role" class="form-label">@L["Auth_RoleLabel"]</label>
                     <select asp-for="Role" class="form-select">
-                        <option value="">-- Select Role --</option>
+                        <option value="">@L["Auth_SelectRole"]</option>
                         <option value="TenantAdmin">Tenant Admin</option>
                         <option value="TenantUser">Tenant User</option>
                         <option value="ComplianceOfficer">Compliance Officer</option>
@@ -88,7 +90,7 @@
 
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-box-arrow-in-right"></i> Login to Tenant (Enhanced)
+                        <i class="bi bi-box-arrow-in-right"></i> @L["Auth_LoginToTenantEnhanced"]
                     </button>
                 </div>
 
@@ -96,21 +98,21 @@
 
                 <div class="text-center">
                     <p>
-                        <a asp-action="Login" asp-controller="AccountV2">Regular Login</a> |
-                        <a asp-action="ForgotPassword" asp-controller="Account">Forgot Password?</a>
+                        <a asp-action="Login" asp-controller="AccountV2">@L["Auth_RegularLogin"]</a> |
+                        <a asp-action="ForgotPassword" asp-controller="Account">@L["Auth_ForgotPassword"]</a>
                     </p>
                 </div>
             </form>
             
             <div class="mt-3">
-                <h6>V2 Session-Based Claims:</h6>
+                <h6>@L["Auth_V2SessionBasedClaims"]</h6>
                 <ul class="small">
-                    <li><i class="bi bi-check-circle text-success"></i> Tenant context stored in session (NOT database)</li>
-                    <li><i class="bi bi-check-circle text-success"></i> Fixes bug: Claims no longer persist to AspNetUserClaims table</li>
-                    <li><i class="bi bi-check-circle text-success"></i> Faster tenant switching</li>
-                    <li><i class="bi bi-check-circle text-success"></i> No database overhead for tenant context</li>
+                    <li><i class="bi bi-check-circle text-success"></i> @L["Auth_TenantContextInSession"]</li>
+                    <li><i class="bi bi-check-circle text-success"></i> @L["Auth_FixesClaimsBug"]</li>
+                    <li><i class="bi bi-check-circle text-success"></i> @L["Auth_FasterTenantSwitching"]</li>
+                    <li><i class="bi bi-check-circle text-success"></i> @L["Auth_NoDatabaseOverhead"]</li>
                 </ul>
-                <a href="/account/tenant-login" class="btn btn-sm btn-link">Switch to Legacy Tenant Login</a>
+                <a href="/account/tenant-login" class="btn btn-sm btn-link">@L["Auth_SwitchToLegacyTenantLogin"]</a>
             </div>
         </div>
     </div>
