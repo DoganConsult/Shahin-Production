@@ -1,6 +1,8 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model GrcMvc.Models.DTOs.RiskDto
 @{
-    ViewData["Title"] = "Risk Details";
+    ViewData["Title"] = L["Risk_Details"].Value;
     Layout = "_Layout";
 }
 
@@ -9,40 +11,40 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h4><i class="bi bi-exclamation-triangle"></i> Risk Details</h4>
+                    <h4><i class="bi bi-exclamation-triangle"></i> @L["Risk_Details"]</h4>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
-                        <div class="col-md-3"><strong>Risk ID:</strong></div>
+                        <div class="col-md-3"><strong>@L["Risk_RiskId"]</strong></div>
                         <div class="col-md-9">@Model.Id</div>
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-md-3"><strong>Name:</strong></div>
+                        <div class="col-md-3"><strong>@L["Name"]:</strong></div>
                         <div class="col-md-9">@Model.Name</div>
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-md-3"><strong>Description:</strong></div>
+                        <div class="col-md-3"><strong>@L["Description"]:</strong></div>
                         <div class="col-md-9">@Model.Description</div>
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-md-3"><strong>Category:</strong></div>
+                        <div class="col-md-3"><strong>@L["Category"]:</strong></div>
                         <div class="col-md-9">
                             <span class="badge bg-info">@Model.Category</span>
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-md-3"><strong>Status:</strong></div>
+                        <div class="col-md-3"><strong>@L["Status"]:</strong></div>
                         <div class="col-md-9">
                             <span class="badge @GetStatusBadgeClass(Model.Status)">@Model.Status</span>
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-md-3"><strong>Probability:</strong></div>
+                        <div class="col-md-3"><strong>@L["Probability"]:</strong></div>
                         <div class="col-md-9">
                             <span class="badge @GetProbabilityBadgeClass(Model.Probability)">
                                 @Model.Probability - @GetProbabilityText(Model.Probability)
@@ -51,7 +53,7 @@
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-md-3"><strong>Impact:</strong></div>
+                        <div class="col-md-3"><strong>@L["Impact"]:</strong></div>
                         <div class="col-md-9">
                             <span class="badge @GetImpactBadgeClass(Model.Impact)">
                                 @Model.Impact - @GetImpactText(Model.Impact)
@@ -60,7 +62,7 @@
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-md-3"><strong>Inherent Risk Score:</strong></div>
+                        <div class="col-md-3"><strong>@L["Risk_InherentRiskScore"]</strong></div>
                         <div class="col-md-9">
                             <span class="badge @GetRiskScoreBadgeClass(Model.InherentRisk) fs-6">
                                 @Model.InherentRisk
@@ -70,7 +72,7 @@
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-md-3"><strong>Residual Risk Score:</strong></div>
+                        <div class="col-md-3"><strong>@L["Risk_ResidualRiskScore"]</strong></div>
                         <div class="col-md-9">
                             <span class="badge @GetRiskScoreBadgeClass(Model.ResidualRisk) fs-6">
                                 @Model.ResidualRisk
@@ -80,29 +82,29 @@
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-md-3"><strong>Mitigation Strategy:</strong></div>
+                        <div class="col-md-3"><strong>@L["Risk_MitigationStrategy"]:</strong></div>
                         <div class="col-md-9">@Model.MitigationStrategy</div>
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-md-3"><strong>Risk Owner:</strong></div>
+                        <div class="col-md-3"><strong>@L["Risk_RiskOwner"]</strong></div>
                         <div class="col-md-9">@Model.Owner</div>
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-md-3"><strong>Due Date:</strong></div>
+                        <div class="col-md-3"><strong>@L["Risk_DueDate"]:</strong></div>
                         <div class="col-md-9">
                             @if (Model.DueDate.HasValue)
                             {
                                 @Model.DueDate.Value.ToString("MMMM dd, yyyy")
                                 @if (Model.DueDate.Value < DateTime.Now)
                                 {
-                                    <span class="badge bg-danger ms-2">Overdue</span>
+                                    <span class="badge bg-danger ms-2">@L["Risk_Overdue"]</span>
                                 }
                             }
                             else
                             {
-                                <span class="text-muted">Not set</span>
+                                <span class="text-muted">@L["Risk_NotSet"]</span>
                             }
                         </div>
                     </div>
@@ -110,27 +112,27 @@
                     <hr />
 
                     <div class="row mb-3">
-                        <div class="col-md-3"><strong>Created Date:</strong></div>
+                        <div class="col-md-3"><strong>@L["Risk_CreatedDate"]:</strong></div>
                         <div class="col-md-9">@Model.CreatedDate.ToString("MMMM dd, yyyy HH:mm")</div>
                     </div>
 
                     @if (Model.ModifiedDate.HasValue)
                     {
                         <div class="row mb-3">
-                            <div class="col-md-3"><strong>Last Modified:</strong></div>
+                            <div class="col-md-3"><strong>@L["Risk_LastModified"]:</strong></div>
                             <div class="col-md-9">@Model.ModifiedDate.Value.ToString("MMMM dd, yyyy HH:mm")</div>
                         </div>
                     }
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
-                            <i class="bi bi-pencil"></i> Edit
+                            <i class="bi bi-pencil"></i> @L["Edit"]
                         </a>
                         <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
-                            <i class="bi bi-trash"></i> Delete
+                            <i class="bi bi-trash"></i> @L["Delete"]
                         </a>
                         <a asp-action="Index" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> Back to List
+                            <i class="bi bi-arrow-left"></i> @L["Risk_BackToList"]
                         </a>
                     </div>
                 </div>
@@ -141,7 +143,7 @@
             <!-- Risk Matrix Visualization -->
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5>Risk Position</h5>
+                    <h5>@L["Risk_RiskPosition"]</h5>
                 </div>
                 <div class="card-body">
                     <div class="text-center">
@@ -153,18 +155,18 @@
             <!-- Related Actions -->
             <div class="card">
                 <div class="card-header">
-                    <h5>Quick Actions</h5>
+                    <h5>@L["QuickActions"]</h5>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a href="#" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-plus"></i> Add Control
+                            <i class="bi bi-plus"></i> @L["Risk_AddControl"]
                         </a>
                         <a href="#" class="btn btn-sm btn-outline-info">
-                            <i class="bi bi-calendar-event"></i> Schedule Assessment
+                            <i class="bi bi-calendar-event"></i> @L["Risk_ScheduleAssessment"]
                         </a>
                         <a href="#" class="btn btn-sm btn-outline-warning">
-                            <i class="bi bi-file-earmark-pdf"></i> Generate Report
+                            <i class="bi bi-file-earmark-pdf"></i> @L["Risk_GenerateReport"]
                         </a>
                     </div>
                 </div>
@@ -178,12 +180,12 @@
     {
         return probability switch
         {
-            1 => "Very Low",
-            2 => "Low",
-            3 => "Medium",
-            4 => "High",
-            5 => "Very High",
-            _ => "Unknown"
+            1 => L["Risk_Probability_VeryLow"].Value.Replace(" (1)", ""),
+            2 => L["Risk_Probability_Low"].Value.Replace(" (2)", ""),
+            3 => L["Risk_Probability_Medium"].Value.Replace(" (3)", ""),
+            4 => L["Risk_Probability_High"].Value.Replace(" (4)", ""),
+            5 => L["Risk_Probability_VeryHigh"].Value.Replace(" (5)", ""),
+            _ => L["Risk_Unknown"].Value
         };
     }
 
@@ -191,12 +193,12 @@
     {
         return impact switch
         {
-            1 => "Negligible",
-            2 => "Minor",
-            3 => "Moderate",
-            4 => "Major",
-            5 => "Catastrophic",
-            _ => "Unknown"
+            1 => L["Risk_Impact_Negligible"].Value.Replace(" (1)", ""),
+            2 => L["Risk_Impact_Minor"].Value.Replace(" (2)", ""),
+            3 => L["Risk_Impact_Moderate"].Value.Replace(" (3)", ""),
+            4 => L["Risk_Impact_Major"].Value.Replace(" (4)", ""),
+            5 => L["Risk_Impact_Catastrophic"].Value.Replace(" (5)", ""),
+            _ => L["Risk_Unknown"].Value
         };
     }
 
@@ -204,11 +206,11 @@
     {
         return score switch
         {
-            >= 20 => "Critical Risk",
-            >= 15 => "High Risk",
-            >= 8 => "Medium Risk",
-            >= 4 => "Low Risk",
-            _ => "Very Low Risk"
+            >= 20 => L["Risk_CriticalRisk"].Value,
+            >= 15 => L["Risk_HighRisk"].Value,
+            >= 8 => L["Risk_MediumRisk"].Value,
+            >= 4 => L["Risk_LowRisk"].Value,
+            _ => L["Risk_VeryLowRisk"].Value
         };
     }
 

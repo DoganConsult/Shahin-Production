@@ -1,6 +1,8 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model GrcMvc.Models.DTOs.RiskDto
 @{
-    ViewData["Title"] = "Delete Risk";
+    ViewData["Title"] = L["Risk_Delete"].Value;
     Layout = "_Layout";
 }
 
@@ -9,35 +11,35 @@
         <div class="col-md-6">
             <div class="card border-danger">
                 <div class="card-header bg-danger text-white">
-                    <h4><i class="bi bi-exclamation-triangle"></i> Delete Risk</h4>
+                    <h4><i class="bi bi-exclamation-triangle"></i> @L["Risk_Delete"]</h4>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-danger" role="alert">
-                        <i class="bi bi-exclamation-circle"></i> <strong>Warning!</strong>
-                        Are you sure you want to delete this risk? This action cannot be undone.
+                        <i class="bi bi-exclamation-circle"></i> <strong>@L["Warning"]!</strong>
+                        @L["Risk_DeleteWarning"]
                     </div>
 
                     <dl class="row">
-                        <dt class="col-sm-4">Risk Name:</dt>
+                        <dt class="col-sm-4">@L["Risk_RiskName"]</dt>
                         <dd class="col-sm-8"><strong>@Model.Name</strong></dd>
 
-                        <dt class="col-sm-4">Category:</dt>
+                        <dt class="col-sm-4">@L["Category"]:</dt>
                         <dd class="col-sm-8">@Model.Category</dd>
 
-                        <dt class="col-sm-4">Status:</dt>
+                        <dt class="col-sm-4">@L["Status"]:</dt>
                         <dd class="col-sm-8">
                             <span class="badge @GetStatusBadgeClass(Model.Status)">@Model.Status</span>
                         </dd>
 
-                        <dt class="col-sm-4">Risk Score:</dt>
+                        <dt class="col-sm-4">@L["RiskScore"]:</dt>
                         <dd class="col-sm-8">
                             <span class="badge @GetRiskScoreBadgeClass(Model.InherentRisk)">@Model.InherentRisk</span>
                         </dd>
 
-                        <dt class="col-sm-4">Owner:</dt>
+                        <dt class="col-sm-4">@L["Risk_Owner"]:</dt>
                         <dd class="col-sm-8">@Model.Owner</dd>
 
-                        <dt class="col-sm-4">Description:</dt>
+                        <dt class="col-sm-4">@L["Description"]:</dt>
                         <dd class="col-sm-8">@Model.Description</dd>
                     </dl>
 
@@ -45,10 +47,10 @@
                         <input type="hidden" asp-for="Id" />
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <button type="submit" class="btn btn-danger">
-                                <i class="bi bi-trash"></i> Yes, Delete
+                                <i class="bi bi-trash"></i> @L["Risk_YesDelete"]
                             </button>
                             <a asp-action="Index" class="btn btn-secondary">
-                                <i class="bi bi-x-circle"></i> Cancel
+                                <i class="bi bi-x-circle"></i> @L["Cancel"]
                             </a>
                         </div>
                     </form>
