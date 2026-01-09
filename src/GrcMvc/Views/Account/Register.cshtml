@@ -1,13 +1,15 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model GrcMvc.Models.ViewModels.RegisterViewModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = L["Auth_RegisterTitle"].Value;
     Layout = "_Layout";
 }
 
 <div class="auth-form">
     <div class="card">
         <div class="card-header text-center">
-            <h4><i class="bi bi-person-plus"></i> Create New Account</h4>
+            <h4><i class="bi bi-person-plus"></i> @L["Auth_CreateNewAccount"]</h4>
         </div>
         <div class="card-body">
             <form asp-action="Register" method="post">
@@ -18,7 +20,7 @@
                         <label asp-for="FirstName" class="form-label"></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-person"></i></span>
-                            <input asp-for="FirstName" class="form-control" placeholder="John" />
+                            <input asp-for="FirstName" class="form-control" placeholder="@L["Auth_FirstNamePlaceholder"]" />
                         </div>
                         <span asp-validation-for="FirstName" class="text-danger"></span>
                     </div>
@@ -27,7 +29,7 @@
                         <label asp-for="LastName" class="form-label"></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-person"></i></span>
-                            <input asp-for="LastName" class="form-control" placeholder="Doe" />
+                            <input asp-for="LastName" class="form-control" placeholder="@L["Auth_LastNamePlaceholder"]" />
                         </div>
                         <span asp-validation-for="LastName" class="text-danger"></span>
                     </div>
@@ -37,7 +39,7 @@
                     <label asp-for="Email" class="form-label"></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                        <input asp-for="Email" class="form-control" placeholder="email@example.com" />
+                        <input asp-for="Email" class="form-control" placeholder="@L["Auth_EmailPlaceholder"]" />
                     </div>
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
@@ -46,7 +48,7 @@
                     <label asp-for="Department" class="form-label"></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-building"></i></span>
-                        <input asp-for="Department" class="form-control" placeholder="IT Department" />
+                        <input asp-for="Department" class="form-control" placeholder="@L["Auth_DepartmentPlaceholder"]" />
                     </div>
                     <span asp-validation-for="Department" class="text-danger"></span>
                 </div>
@@ -55,7 +57,7 @@
                     <label asp-for="Password" class="form-label"></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                        <input asp-for="Password" class="form-control" placeholder="Create a strong password" />
+                        <input asp-for="Password" class="form-control" placeholder="@L["Auth_PasswordCreatePlaceholder"]" />
                     </div>
                     <span asp-validation-for="Password" class="text-danger"></span>
                     <small class="form-text text-muted">
@@ -67,14 +69,14 @@
                     <label asp-for="ConfirmPassword" class="form-label"></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                        <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm your password" />
+                        <input asp-for="ConfirmPassword" class="form-control" placeholder="@L["Auth_ConfirmPasswordPlaceholder"]" />
                     </div>
                     <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                 </div>
 
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-person-plus"></i> Register
+                        <i class="bi bi-person-plus"></i> @L["Nav_Register"]
                     </button>
                 </div>
 
@@ -82,7 +84,7 @@
 
                 <div class="text-center">
                     <p>
-                        Already have an account? <a asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]">Login here</a>
+                        @L["Auth_AlreadyHaveAccount"] <a asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]">@L["Auth_LoginHere"]</a>
                     </p>
                 </div>
             </form>

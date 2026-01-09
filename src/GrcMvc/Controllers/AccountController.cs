@@ -90,58 +90,8 @@ namespace GrcMvc.Controllers
                             return RedirectToAction(nameof(ChangePasswordRequired));
                         }
 
-                        // Update last login date
-                        user.LastLoginDate = DateTime.UtcNow;
-                        await _userManager.UpdateAsync(user);
-
-                        // Check if user is a tenant admin with incomplete onboarding
-                        var tenantUser = await _context.TenantUsers
-                            .Include(tu => tu.Tenant)
-                            .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
-
-                        // NEW: Add TenantId claim if tenant exists
-                        if (tenantUser?.TenantId != null)
-                        {
-                            // Check if claim already exists
-                            var existingClaims = await _userManager.GetClaimsAsync(user);
-                            var hasTenantClaim = existingClaims.Any(c => c.Type == "TenantId");
-
-                            if (!hasTenantClaim)
-                            {
-                                // Add TenantId claim to user principal
-                                var claims = new List<Claim>
-                                {
-                                    new Claim("TenantId", tenantUser.TenantId.ToString())
-                                };
-
-                                await _userManager.AddClaimsAsync(user, claims);
-                                _logger.LogDebug("Added TenantId claim for user {Email}", model.Email);
-
-                                // Re-sign in to include new claims
-                                await _signInManager.SignInAsync(user, model.RememberMe);
-                            }
-                        }
-
-                        // Check onboarding status for ALL users with a tenant
-                        if (tenantUser != null)
-                        {
-                            var tenant = tenantUser.Tenant ?? await _context.Tenants.FirstOrDefaultAsync(t => t.Id == tenantUser.TenantId);
-                            
-                            if (tenant != null)
-                            {
-                                _logger.LogInformation("User {Email} - TenantId: {TenantId}, OnboardingStatus: {Status}", 
-                                    model.Email, tenant.Id, tenant.OnboardingStatus);
-
-                                // Redirect to onboarding if NOT completed
-                                // This applies to ALL users - they need to complete onboarding first
-                                if (tenant.OnboardingStatus != "COMPLETED")
-                                {
-                                    _logger.LogInformation("Redirecting user {Email} to onboarding wizard (status: {Status})", 
-                                        model.Email, tenant.OnboardingStatus);
-                                    return RedirectToAction("Index", "OnboardingWizard", new { tenantId = tenant.Id });
-                                }
-                            }
-                        }
+                        // Process post-login logic (add tenant claim, check onboarding, determine redirect)
+                        return await ProcessPostLoginAsync(user, model.RememberMe);
                     }
 
                     // Redirect to role-based dashboard
@@ -181,6 +131,81 @@ namespace GrcMvc.Controllers
             }
 
             return View(model);
+        }
+
+        /// <summary>
+        /// Process post-login logic: add tenant claim, check onboarding, determine redirect
+        /// Called after successful login OR after password change
+        /// </summary>
+        private async Task<IActionResult> ProcessPostLoginAsync(ApplicationUser user, bool rememberMe)
+        {
+            // Update last login date
+            user.LastLoginDate = DateTime.UtcNow;
+            await _userManager.UpdateAsync(user);
+
+            // Get tenant user record
+            var tenantUser = await _context.TenantUsers
+                .Include(tu => tu.Tenant)
+                .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
+
+            if (tenantUser?.TenantId == null)
+            {
+                // No tenant - go to dashboard (or appropriate default)
+                return RedirectToAction(nameof(LoginRedirect));
+            }
+
+            // Add TenantId claim if tenant exists
+            var existingClaims = await _userManager.GetClaimsAsync(user);
+            var hasTenantClaim = existingClaims.Any(c => c.Type == "TenantId");
+
+            if (!hasTenantClaim)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim("TenantId", tenantUser.TenantId.ToString())
+                };
+                await _userManager.AddClaimsAsync(user, claims);
+                _logger.LogDebug("Added TenantId claim for user {Email}", user.Email);
+            }
+
+            // Re-sign in to include claims in cookie
+            await _signInManager.SignInAsync(user, rememberMe);
+
+            // Get tenant
+            var tenant = tenantUser.Tenant ?? 
+                await _context.Tenants.FirstOrDefaultAsync(t => t.Id == tenantUser.TenantId);
+            
+            if (tenant == null)
+            {
+                return RedirectToAction(nameof(LoginRedirect));
+            }
+
+            _logger.LogInformation("User {Email} - TenantId: {TenantId}, OnboardingStatus: {Status}, Role: {Role}", 
+                user.Email, tenant.Id, tenant.OnboardingStatus, tenantUser.RoleCode);
+
+            // Check if user is admin (credentials already verified)
+            bool isAdmin = tenantUser.RoleCode == "Admin" || 
+                           tenantUser.RoleCode == "TENANT_ADMIN" || 
+                           tenantUser.RoleCode == "ADMINISTRATOR";
+
+            // For admin users: prioritize onboarding redirect if incomplete
+            if (isAdmin && tenant.OnboardingStatus != "COMPLETED")
+            {
+                _logger.LogInformation("Admin user {Email} - Direct redirect to onboarding (TenantId: {TenantId})", 
+                    user.Email, tenant.Id);
+                return RedirectToAction("Index", "OnboardingWizard", new { tenantId = tenant.Id });
+            }
+
+            // For all users: check onboarding status
+            if (tenant.OnboardingStatus != "COMPLETED")
+            {
+                _logger.LogInformation("Redirecting user {Email} to onboarding wizard (status: {Status})", 
+                    user.Email, tenant.OnboardingStatus);
+                return RedirectToAction("Index", "OnboardingWizard", new { tenantId = tenant.Id });
+            }
+
+            // All checks passed - go to role-based dashboard
+            return RedirectToAction(nameof(LoginRedirect));
         }
 
         /// <summary>
@@ -401,7 +426,8 @@ namespace GrcMvc.Controllers
                 _logger.LogInformation("User {Email} changed password on first login", user.Email);
                 TempData["SuccessMessage"] = "Password changed successfully. Welcome!";
 
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                // Process post-login logic (add tenant claim, check onboarding)
+                return await ProcessPostLoginAsync(user, rememberMe: false);
             }
 
             foreach (var error in result.Errors)
@@ -1006,6 +1032,89 @@ namespace GrcMvc.Controllers
             }
 
             return View(model);
+        }
+
+        // GET: Account/ForgotTenantId
+        [HttpGet("Account/ForgotTenantId")]
+        [AllowAnonymous]
+        public IActionResult ForgotTenantId()
+        {
+            return View(new ForgotTenantIdViewModel());
+        }
+
+        // POST: Account/ForgotTenantId
+        [HttpPost("Account/ForgotTenantId")]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotTenantId(ForgotTenantIdViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                // Find user by email
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user == null)
+                {
+                    // Don't reveal if user exists - security best practice
+                    model.TenantIdFound = false;
+                    return View(model);
+                }
+
+                // Verify password before revealing Tenant ID
+                var passwordValid = await _userManager.CheckPasswordAsync(user, model.Password);
+                if (!passwordValid)
+                {
+                    // Invalid password - don't reveal if user exists
+                    model.TenantIdFound = false;
+                    return View(model);
+                }
+
+                // Find active tenant for this user
+                var tenantUser = await _context.TenantUsers
+                    .Include(tu => tu.Tenant)
+                    .Where(tu => tu.UserId == user.Id 
+                        && tu.Status == "Active" 
+                        && !tu.IsDeleted)
+                    .OrderByDescending(tu => tu.ActivatedAt ?? tu.CreatedDate)
+                    .FirstOrDefaultAsync();
+
+                if (tenantUser?.Tenant == null)
+                {
+                    model.TenantIdFound = false;
+                    return View(model);
+                }
+
+                // Only return tenant info for Admin/TENANT_ADMIN users (password verified)
+                if (tenantUser.RoleCode == "Admin" || tenantUser.RoleCode == "TENANT_ADMIN" || tenantUser.RoleCode == "ADMINISTRATOR")
+                {
+                    model.TenantIdFound = true;
+                    model.TenantId = tenantUser.Tenant.Id;
+                    model.OrganizationName = tenantUser.Tenant.OrganizationName;
+                    model.TenantSlug = tenantUser.Tenant.TenantSlug;
+                    
+                    _logger.LogInformation("Tenant ID lookup successful for email: {Email}, TenantId: {TenantId}, Role: {Role}", 
+                        model.Email, model.TenantId, tenantUser.RoleCode);
+                }
+                else
+                {
+                    // Non-admin users - don't reveal tenant ID even with correct password
+                    model.TenantIdFound = false;
+                    _logger.LogWarning("Tenant ID lookup attempted by non-admin user: {Email}, Role: {Role}", 
+                        model.Email, tenantUser.RoleCode);
+                }
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during tenant ID lookup for email: {Email}", model.Email);
+                ModelState.AddModelError("", "An error occurred. Please try again later.");
+                return View(model);
+            }
         }
     }
 }

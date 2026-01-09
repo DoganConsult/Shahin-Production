@@ -1,6 +1,6 @@
 @model GrcMvc.Controllers.TrialSuccessViewModel
 @using Microsoft.AspNetCore.Mvc.Localization
-@inject IHtmlLocalizer<GrcMvc.Resources.SharedResource> L
+@inject IHtmlLocalizer<SharedResource> L
 @{
     ViewData["Title"] = "تم إنشاء حسابك بنجاح";
     var isRtl = ViewContext.HttpContext.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>()?.RequestCulture?.UICulture?.Name == "ar";

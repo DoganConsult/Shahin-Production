@@ -4527,6 +4527,285 @@ namespace GrcMvc.Migrations
                     b.ToTable("TitleCatalogs");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.Certification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AuditorName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("CertificateUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CertificationNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<decimal?>("Cost")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("CostCurrency")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Department")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsMandatory")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("IssuedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IssuingBody")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("IssuingBodyAr")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastRenewalDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Level")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LinkedFrameworkCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MandatorySource")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("NameAr")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("NextRecertificationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("NextSurveillanceDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OwnerId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("OwnerName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("RenewalLeadDays")
+                        .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Scope")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("StandardVersion")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code");
+
+                    b.HasIndex("ExpiryDate");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Category");
+
+                    b.HasIndex("TenantId", "Status");
+
+                    b.ToTable("Certifications");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.CertificationAudit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AuditDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AuditType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("AuditorName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("CertificationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CorrectiveActionDeadline")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("CorrectiveActionsCompleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal?>("Cost")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LeadAuditorName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("MajorFindings")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MinorFindings")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("NextAuditDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<int>("Observations")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReportReference")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Result")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuditDate");
+
+                    b.HasIndex("CertificationId");
+
+                    b.HasIndex("Result");
+
+                    b.ToTable("CertificationAudits");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.ComplianceEvent", b =>
                 {
                     b.Property<Guid>("Id")
@@ -5305,6 +5584,248 @@ namespace GrcMvc.Migrations
                     b.HasIndex("DomainId");
 
                     b.ToTable("ControlObjectives");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.ControlOwnerAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AssignedById")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AssignedByName")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("AssignedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("AssignmentType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ControlId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Department")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OwnerEmail")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("OwnerName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ControlId");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("ControlId", "IsActive");
+
+                    b.ToTable("ControlOwnerAssignments");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.ControlTest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ControlId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EvidenceIds")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ExceptionsFound")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Findings")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("NewEffectiveness")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("NextTestDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("PeriodEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("PeriodStart")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("PopulationSize")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PreviousEffectiveness")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Recommendations")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("Result")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ReviewStatus")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("ReviewedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReviewerId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReviewerName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<int?>("SampleSize")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TestMethodology")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("TestNotes")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("TestType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("TestedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TesterId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TesterName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ControlId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TestedDate");
+
+                    b.HasIndex("TenantId", "ControlId", "TestedDate");
+
+                    b.ToTable("ControlTests");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.ControlTestProcedure", b =>
@@ -9188,6 +9709,319 @@ namespace GrcMvc.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("ImportantBusinessServices");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Incident", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal?>("ActualImpact")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("AffectedBusinessUnits")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("AffectedRecordsCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("AffectedSystems")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("AffectedUsersCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("AssignedTeam")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("ClosedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ContainedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ContainmentActions")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DetectedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DetectionSource")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("EradicatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EradicationActions")
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("EstimatedImpact")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("HandlerId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("HandlerName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ImpactCurrency")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("IncidentNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LessonsLearned")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("NotificationDeadline")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("NotificationSent")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("NotificationSentDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("OccurredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("PersonalDataAffected")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Phase")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Recommendations")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("RecoveredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RecoveryActions")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RegulatorsToNotify")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RelatedControlIds")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RelatedRiskIds")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReportedById")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReportedByName")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("RequiresNotification")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("RootCause")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("TitleAr")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DetectedAt");
+
+                    b.HasIndex("IncidentNumber")
+                        .IsUnique();
+
+                    b.HasIndex("Severity");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Status");
+
+                    b.HasIndex("TenantId", "Severity", "Status");
+
+                    b.ToTable("Incidents");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.IncidentTimelineEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Attachments")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BusinessCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataClassification")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("EntryType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("IncidentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsInternal")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LabelsJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Owner")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PerformedById")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PerformedByName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Phase")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("StatusAfter")
+                        .HasColumnType("text");
+
+                    b.Property<string>("StatusBefore")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IncidentId");
+
+                    b.HasIndex("Timestamp");
+
+                    b.ToTable("IncidentTimelineEntries");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.IntegrationConnector", b =>
@@ -16096,6 +16930,185 @@ namespace GrcMvc.Migrations
                     b.ToTable("SectorFrameworkIndex");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.SerialCodeRegistry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(35)
+                        .HasColumnType("character varying(35)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("EntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Prefix")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("PreviousVersionCode")
+                        .HasMaxLength(35)
+                        .HasColumnType("character varying(35)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Stage")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("StatusReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("TenantCode")
+                        .IsRequired()
+                        .HasMaxLength(6)
+                        .HasColumnType("character varying(6)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("IX_SerialCodeRegistry_Code");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("IX_SerialCodeRegistry_Created");
+
+                    b.HasIndex("Prefix")
+                        .HasDatabaseName("IX_SerialCodeRegistry_Prefix");
+
+                    b.HasIndex("Stage")
+                        .HasDatabaseName("IX_SerialCodeRegistry_Stage");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_SerialCodeRegistry_Status");
+
+                    b.HasIndex("TenantCode")
+                        .HasDatabaseName("IX_SerialCodeRegistry_Tenant");
+
+                    b.HasIndex("Year")
+                        .HasDatabaseName("IX_SerialCodeRegistry_Year");
+
+                    b.HasIndex("EntityType", "EntityId")
+                        .HasDatabaseName("IX_SerialCodeRegistry_Entity");
+
+                    b.HasIndex("Prefix", "TenantCode", "Stage", "Year", "Sequence")
+                        .IsUnique()
+                        .HasDatabaseName("IX_SerialCodeRegistry_Sequence");
+
+                    b.ToTable("SerialCodeRegistry");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.SerialCodeReservation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Prefix")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("ReservedCode")
+                        .IsRequired()
+                        .HasMaxLength(35)
+                        .HasColumnType("character varying(35)");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Stage")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("TenantCode")
+                        .IsRequired()
+                        .HasMaxLength(6)
+                        .HasColumnType("character varying(6)");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt")
+                        .HasDatabaseName("IX_SerialCodeReservation_Expires")
+                        .HasFilter("\"Status\" = 'reserved'");
+
+                    b.HasIndex("ReservedCode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_SerialCodeReservation_Code");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_SerialCodeReservation_Status");
+
+                    b.ToTable("SerialCodeReservations");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.SerialCounter", b =>
                 {
                     b.Property<Guid>("Id")
@@ -16127,6 +17140,48 @@ namespace GrcMvc.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SerialCounters");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.SerialSequenceCounter", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("CurrentSequence")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Prefix")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
+                    b.Property<int>("Stage")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TenantCode")
+                        .IsRequired()
+                        .HasMaxLength(6)
+                        .HasColumnType("character varying(6)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Prefix", "TenantCode", "Stage", "Year")
+                        .IsUnique()
+                        .HasDatabaseName("IX_SerialSequenceCounter_Unique");
+
+                    b.ToTable("SerialSequenceCounters");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.ShahinAIBrandConfig", b =>
@@ -23146,6 +24201,17 @@ namespace GrcMvc.Migrations
                     b.Navigation("RoleCatalog");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.CertificationAudit", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Certification", "Certification")
+                        .WithMany("Audits")
+                        .HasForeignKey("CertificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Certification");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.ComplianceGuardrail", b =>
                 {
                     b.HasOne("GrcMvc.Models.Entities.CanonicalControl", "Control")
@@ -23226,6 +24292,28 @@ namespace GrcMvc.Migrations
                         .IsRequired();
 
                     b.Navigation("Domain");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.ControlOwnerAssignment", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Control", "Control")
+                        .WithMany()
+                        .HasForeignKey("ControlId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Control");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.ControlTest", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Control", "Control")
+                        .WithMany()
+                        .HasForeignKey("ControlId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Control");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.ControlTestProcedure", b =>
@@ -23508,6 +24596,17 @@ namespace GrcMvc.Migrations
                         .IsRequired();
 
                     b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.IncidentTimelineEntry", b =>
+                {
+                    b.HasOne("GrcMvc.Models.Entities.Incident", "Incident")
+                        .WithMany("TimelineEntries")
+                        .HasForeignKey("IncidentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Incident");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.IntegrationHealthMetric", b =>
@@ -24855,6 +25954,11 @@ namespace GrcMvc.Migrations
                     b.Navigation("AllowedTitles");
                 });
 
+            modelBuilder.Entity("GrcMvc.Models.Entities.Certification", b =>
+                {
+                    b.Navigation("Audits");
+                });
+
             modelBuilder.Entity("GrcMvc.Models.Entities.Control", b =>
                 {
                     b.Navigation("Assessments");
@@ -24930,6 +26034,11 @@ namespace GrcMvc.Migrations
             modelBuilder.Entity("GrcMvc.Models.Entities.GovernanceCadence", b =>
                 {
                     b.Navigation("Executions");
+                });
+
+            modelBuilder.Entity("GrcMvc.Models.Entities.Incident", b =>
+                {
+                    b.Navigation("TimelineEntries");
                 });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.Invoice", b =>

@@ -1,5 +1,5 @@
 @using Microsoft.AspNetCore.Mvc.Localization
-@inject IHtmlLocalizer<GrcMvc.Resources.SharedResource> L
+@inject IHtmlLocalizer<SharedResource> L
 
 <!-- Global Loading Overlay -->
 <div id="loading-overlay" class="loading-overlay d-none">
@@ -155,7 +155,12 @@ window.GrcLoading = {
             button.disabled = true;
             if (text) {
                 button.dataset.originalText = button.innerHTML;
-                button.innerHTML = `<span class="btn-text">${text}</span>`;
+                // XSS Prevention: Use DOM methods instead of innerHTML with interpolation
+                const span = document.createElement('span');
+                span.className = 'btn-text';
+                span.textContent = text; // Safe: textContent escapes HTML
+                button.innerHTML = '';
+                button.appendChild(span);
             }
         } else {
             button.classList.remove('btn-loading');

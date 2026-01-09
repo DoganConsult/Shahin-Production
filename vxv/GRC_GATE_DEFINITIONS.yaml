@@ -1,0 +1,1076 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# GRC GATE DEFINITIONS - Complete Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+# This file defines all gates for the 6-stage GRC lifecycle
+# Gates are evaluated by the Gate Engine before any status transition
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: "1.0"
+last_updated: "2026-01-09"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STAGE 1: ASSESSMENT & EXPLORATION GATES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+assessment_gates:
+
+  # Gate: DRAFT → SCHEDULED
+  - id: "GATE-ASM-01"
+    name: "Assessment Scheduling Gate"
+    from_status: "DRAFT"
+    to_status: "SCHEDULED"
+    conditions:
+      - id: "scope_defined"
+        type: "RequiredField"
+        field: "scope_description"
+        operator: "not_empty"
+        message_en: "Assessment scope must be defined"
+        message_ar: "يجب تحديد نطاق التقييم"
+      - id: "framework_selected"
+        type: "RequiredField"
+        field: "framework_code"
+        operator: "not_empty"
+        message_en: "Framework must be selected"
+        message_ar: "يجب اختيار الإطار التنظيمي"
+      - id: "owner_assigned"
+        type: "RequiredField"
+        field: "owner_id"
+        operator: "not_empty"
+        message_en: "Assessment owner must be assigned"
+        message_ar: "يجب تعيين مالك التقييم"
+    auto_transition: true
+    requires_approval: false
+
+  # Gate: SCHEDULED → IN_PROGRESS
+  - id: "GATE-ASM-02"
+    name: "Assessment Start Gate"
+    from_status: "SCHEDULED"
+    to_status: "IN_PROGRESS"
+    conditions:
+      - id: "start_date_set"
+        type: "RequiredField"
+        field: "start_date"
+        operator: "not_empty"
+        message_en: "Start date must be set"
+        message_ar: "يجب تحديد تاريخ البدء"
+      - id: "end_date_set"
+        type: "RequiredField"
+        field: "end_date"
+        operator: "not_empty"
+        message_en: "End date must be set"
+        message_ar: "يجب تحديد تاريخ الانتهاء"
+      - id: "assessors_assigned"
+        type: "CollectionMinCount"
+        field: "assessor_ids"
+        operator: "gte"
+        threshold: 1
+        message_en: "At least one assessor must be assigned"
+        message_ar: "يجب تعيين مقيّم واحد على الأقل"
+    auto_transition: false
+    requires_approval: false
+
+  # Gate: IN_PROGRESS → EVIDENCE_COLLECTION
+  - id: "GATE-ASM-03"
+    name: "Evidence Collection Gate"
+    from_status: "IN_PROGRESS"
+    to_status: "EVIDENCE_COLLECTION"
+    conditions:
+      - id: "progress_minimum"
+        type: "Percentage"
+        field: "requirements_progress_percent"
+        operator: "gte"
+        threshold: 40
+        message_en: "Assessment progress must be at least 40%"
+        message_ar: "يجب أن يكون تقدم التقييم 40% على الأقل"
+    auto_transition: true
+    requires_approval: false
+
+  # Gate: EVIDENCE_COLLECTION → SCORING
+  - id: "GATE-ASM-04"
+    name: "Scoring Readiness Gate"
+    from_status: "EVIDENCE_COLLECTION"
+    to_status: "SCORING"
+    conditions:
+      - id: "evidence_coverage"
+        type: "Percentage"
+        field: "evidence_coverage_percent"
+        operator: "gte"
+        threshold: 60
+        message_en: "Evidence coverage must be at least 60%"
+        message_ar: "يجب أن تكون تغطية الأدلة 60% على الأقل"
+    auto_transition: true
+    requires_approval: false
+    override_policy:
+      allowed_roles: ["ComplianceOfficer"]
+      requires_justification: true
+
+  # Gate: SCORING → SUBMITTED
+  - id: "GATE-ASM-05"
+    name: "Submission Gate"
+    from_status: "SCORING"
+    to_status: "SUBMITTED"
+    conditions:
+      - id: "all_scored"
+        type: "Percentage"
+        field: "scoring_completion_percent"
+        operator: "eq"
+        threshold: 100
+        message_en: "All requirements must be scored or marked N/A"
+        message_ar: "يجب تقييم جميع المتطلبات أو تحديدها كغير قابلة للتطبيق"
+      - id: "summary_provided"
+        type: "RequiredField"
+        field: "executive_summary"
+        operator: "not_empty"
+        message_en: "Executive summary is required"
+        message_ar: "الملخص التنفيذي مطلوب"
+    auto_transition: false
+    requires_approval: false
+    override_policy:
+      allowed_roles: ["ComplianceOfficer", "Executive"]
+      requires_justification: true
+      creates_exception: true
+
+  # Gate: SUBMITTED → UNDER_REVIEW
+  - id: "GATE-ASM-06"
+    name: "Review Assignment Gate"
+    from_status: "SUBMITTED"
+    to_status: "UNDER_REVIEW"
+    conditions:
+      - id: "reviewer_assigned"
+        type: "RequiredField"
+        field: "reviewer_id"
+        operator: "not_empty"
+        message_en: "Reviewer must be assigned"
+        message_ar: "يجب تعيين المراجع"
+    auto_transition: true
+    requires_approval: false
+
+  # Gate: UNDER_REVIEW → APPROVED
+  - id: "GATE-ASM-07"
+    name: "Approval Gate"
+    from_status: "UNDER_REVIEW"
+    to_status: "APPROVED"
+    conditions:
+      - id: "review_complete"
+        type: "Boolean"
+        field: "review_completed"
+        operator: "eq"
+        threshold: true
+        message_en: "Review must be completed"
+        message_ar: "يجب إكمال المراجعة"
+      - id: "comments_resolved"
+        type: "Count"
+        field: "open_review_comments"
+        operator: "eq"
+        threshold: 0
+        message_en: "All review comments must be resolved"
+        message_ar: "يجب حل جميع تعليقات المراجعة"
+    auto_transition: false
+    requires_approval: true
+    approval_chain:
+      - level: 1
+        role: "Manager"
+        required: true
+      - level: 2
+        role: "ComplianceOfficer"
+        required: true
+      - level: 3
+        role: "Executive"
+        required_if: "score < 70"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STAGE 2: RISK ANALYSIS GATES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+risk_gates:
+
+  # Gate: IDENTIFIED → CONTEXTUALIZED
+  - id: "GATE-RSK-01"
+    name: "Risk Documentation Gate"
+    from_status: "IDENTIFIED"
+    to_status: "CONTEXTUALIZED"
+    conditions:
+      - id: "title_set"
+        type: "RequiredField"
+        field: "title"
+        operator: "not_empty"
+        message_en: "Risk title is required"
+        message_ar: "عنوان المخاطر مطلوب"
+      - id: "description_set"
+        type: "RequiredField"
+        field: "description"
+        operator: "not_empty"
+        message_en: "Risk description is required"
+        message_ar: "وصف المخاطر مطلوب"
+      - id: "category_set"
+        type: "RequiredField"
+        field: "category_id"
+        operator: "not_empty"
+        message_en: "Risk category must be selected"
+        message_ar: "يجب اختيار فئة المخاطر"
+      - id: "owner_assigned"
+        type: "RequiredField"
+        field: "owner_id"
+        operator: "not_empty"
+        message_en: "Risk owner must be assigned"
+        message_ar: "يجب تعيين مالك المخاطر"
+    auto_transition: true
+
+  # Gate: CONTEXTUALIZED → SCORED_INHERENT
+  - id: "GATE-RSK-02"
+    name: "Risk Context Gate"
+    from_status: "CONTEXTUALIZED"
+    to_status: "SCORED_INHERENT"
+    conditions:
+      - id: "asset_linked"
+        type: "CollectionMinCount"
+        field: "linked_asset_ids"
+        operator: "gte"
+        threshold: 1
+        message_en: "Risk must be linked to at least one asset or process"
+        message_ar: "يجب ربط المخاطر بأصل أو عملية واحدة على الأقل"
+    auto_transition: true
+
+  # Gate: SCORED_INHERENT → PENDING_DECISION
+  - id: "GATE-RSK-03"
+    name: "Inherent Scoring Gate"
+    from_status: "SCORED_INHERENT"
+    to_status: "PENDING_DECISION"
+    conditions:
+      - id: "likelihood_set"
+        type: "Range"
+        field: "likelihood"
+        operator: "between"
+        min: 1
+        max: 5
+        message_en: "Likelihood must be scored (1-5)"
+        message_ar: "يجب تقييم الاحتمالية (1-5)"
+      - id: "impact_set"
+        type: "Range"
+        field: "impact"
+        operator: "between"
+        min: 1
+        max: 5
+        message_en: "Impact must be scored (1-5)"
+        message_ar: "يجب تقييم التأثير (1-5)"
+      - id: "score_calculated"
+        type: "Computed"
+        field: "inherent_score"
+        formula: "likelihood * impact"
+        operator: "not_null"
+        message_en: "Inherent risk score must be calculated"
+        message_ar: "يجب حساب درجة المخاطر الكامنة"
+    auto_transition: true
+
+  # Gate: PENDING_DECISION → TREATMENT_PLANNED
+  - id: "GATE-RSK-04"
+    name: "Treatment Decision Gate"
+    from_status: "PENDING_DECISION"
+    to_status: "TREATMENT_PLANNED"
+    conditions:
+      - id: "decision_made"
+        type: "RequiredField"
+        field: "treatment_decision"
+        operator: "in"
+        values: ["ACCEPT", "MITIGATE", "TRANSFER", "AVOID"]
+        message_en: "Treatment decision must be made"
+        message_ar: "يجب اتخاذ قرار المعالجة"
+      - id: "decision_approved"
+        type: "Boolean"
+        field: "decision_approved"
+        operator: "eq"
+        threshold: true
+        message_en: "Treatment decision must be approved"
+        message_ar: "يجب الموافقة على قرار المعالجة"
+    auto_transition: false
+    requires_approval: true
+    approval_chain:
+      - level: 1
+        role: "RiskOwner"
+        required: true
+      - level: 2
+        role: "Executive"
+        required_if: "inherent_score >= 20"
+
+  # Gate: TREATMENT_PLANNED → MITIGATING
+  - id: "GATE-RSK-05"
+    name: "Treatment Plan Gate"
+    from_status: "TREATMENT_PLANNED"
+    to_status: "MITIGATING"
+    conditions:
+      - id: "strategy_defined"
+        type: "RequiredField"
+        field: "treatment_strategy"
+        operator: "not_empty"
+        message_en: "Treatment strategy must be defined"
+        message_ar: "يجب تحديد استراتيجية المعالجة"
+      - id: "controls_mapped"
+        type: "CollectionMinCount"
+        field: "mitigating_control_ids"
+        operator: "gte"
+        threshold: 1
+        message_en: "At least one mitigating control must be mapped"
+        message_ar: "يجب ربط ضابط تخفيف واحد على الأقل"
+      - id: "timeline_set"
+        type: "RequiredField"
+        field: "target_completion_date"
+        operator: "not_empty"
+        message_en: "Target completion date must be set"
+        message_ar: "يجب تحديد تاريخ الإنجاز المستهدف"
+    auto_transition: false
+    skip_if: "treatment_decision == 'ACCEPT'"
+
+  # Gate: MITIGATING → SCORED_RESIDUAL
+  - id: "GATE-RSK-06"
+    name: "Mitigation Completion Gate"
+    from_status: "MITIGATING"
+    to_status: "SCORED_RESIDUAL"
+    conditions:
+      - id: "actions_complete"
+        type: "Percentage"
+        field: "action_completion_percent"
+        operator: "gte"
+        threshold: 100
+        message_en: "All mitigation actions must be completed"
+        message_ar: "يجب إكمال جميع إجراءات التخفيف"
+      - id: "evidence_attached"
+        type: "CollectionMinCount"
+        field: "mitigation_evidence_ids"
+        operator: "gte"
+        threshold: 1
+        message_en: "Evidence of mitigation must be attached"
+        message_ar: "يجب إرفاق دليل التخفيف"
+    auto_transition: true
+
+  # Gate: SCORED_RESIDUAL → MONITORED_CLOSED
+  - id: "GATE-RSK-07"
+    name: "Residual Risk Gate"
+    from_status: "SCORED_RESIDUAL"
+    to_status: "MONITORED_CLOSED"
+    conditions:
+      - id: "residual_calculated"
+        type: "Computed"
+        field: "residual_score"
+        operator: "not_null"
+        message_en: "Residual risk score must be calculated"
+        message_ar: "يجب حساب درجة المخاطر المتبقية"
+      - id: "within_appetite"
+        type: "Comparison"
+        field: "residual_score"
+        operator: "lte"
+        compare_to: "risk_appetite_threshold"
+        message_en: "Residual risk must be within appetite or exception approved"
+        message_ar: "يجب أن تكون المخاطر المتبقية ضمن المقبول أو معتمدة كاستثناء"
+    auto_transition: false
+    requires_approval: true
+    override_policy:
+      allowed_roles: ["Executive", "RiskCommittee"]
+      requires_justification: true
+      creates_exception: true
+      exception_expiry_days: 90
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STAGE 3: COMPLIANCE MONITORING GATES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+compliance_gates:
+
+  # Gate: OBLIGATIONS_MAPPED → CONTROLS_MAPPED
+  - id: "GATE-CMP-01"
+    name: "Obligation Mapping Gate"
+    from_status: "OBLIGATIONS_MAPPED"
+    to_status: "CONTROLS_MAPPED"
+    conditions:
+      - id: "frameworks_identified"
+        type: "CollectionMinCount"
+        field: "applicable_framework_ids"
+        operator: "gte"
+        threshold: 1
+        message_en: "At least one applicable framework must be identified"
+        message_ar: "يجب تحديد إطار تنظيمي واحد على الأقل"
+      - id: "obligations_imported"
+        type: "Count"
+        field: "obligation_count"
+        operator: "gt"
+        threshold: 0
+        message_en: "Framework obligations must be imported"
+        message_ar: "يجب استيراد الالتزامات التنظيمية"
+    auto_transition: true
+
+  # Gate: CONTROLS_MAPPED → EVIDENCE_REQUESTED
+  - id: "GATE-CMP-02"
+    name: "Control Coverage Gate"
+    from_status: "CONTROLS_MAPPED"
+    to_status: "EVIDENCE_REQUESTED"
+    conditions:
+      - id: "control_coverage"
+        type: "Percentage"
+        field: "control_coverage_percent"
+        operator: "gte"
+        threshold: 80
+        message_en: "Control coverage must be at least 80%"
+        message_ar: "يجب أن تكون تغطية الضوابط 80% على الأقل"
+    auto_transition: true
+    override_policy:
+      allowed_roles: ["ComplianceOfficer"]
+      requires_justification: true
+
+  # Gate: EVIDENCE_REQUESTED → EVIDENCE_VERIFIED
+  - id: "GATE-CMP-03"
+    name: "Evidence Collection Gate"
+    from_status: "EVIDENCE_REQUESTED"
+    to_status: "EVIDENCE_VERIFIED"
+    conditions:
+      - id: "requests_issued"
+        type: "Boolean"
+        field: "evidence_requests_sent"
+        operator: "eq"
+        threshold: true
+        message_en: "Evidence requests must be issued"
+        message_ar: "يجب إصدار طلبات الأدلة"
+      - id: "submission_rate"
+        type: "Percentage"
+        field: "evidence_submission_percent"
+        operator: "gte"
+        threshold: 70
+        message_en: "Evidence submission rate must be at least 70%"
+        message_ar: "يجب أن يكون معدل تقديم الأدلة 70% على الأقل"
+    auto_transition: true
+
+  # Gate: EVIDENCE_VERIFIED → TESTED
+  - id: "GATE-CMP-04"
+    name: "Evidence Verification Gate"
+    from_status: "EVIDENCE_VERIFIED"
+    to_status: "TESTED"
+    conditions:
+      - id: "verification_rate"
+        type: "Percentage"
+        field: "evidence_verification_percent"
+        operator: "gte"
+        threshold: 70
+        message_en: "Evidence verification rate must be at least 70%"
+        message_ar: "يجب أن يكون معدل التحقق من الأدلة 70% على الأقل"
+    auto_transition: true
+
+  # Gate: TESTED → SCORED
+  - id: "GATE-CMP-05"
+    name: "Testing Completion Gate"
+    from_status: "TESTED"
+    to_status: "SCORED"
+    conditions:
+      - id: "tests_executed"
+        type: "Boolean"
+        field: "control_tests_completed"
+        operator: "eq"
+        threshold: true
+        message_en: "Control tests must be executed"
+        message_ar: "يجب تنفيذ اختبارات الضوابط"
+      - id: "results_documented"
+        type: "Boolean"
+        field: "test_results_documented"
+        operator: "eq"
+        threshold: true
+        message_en: "Test results must be documented"
+        message_ar: "يجب توثيق نتائج الاختبارات"
+    auto_transition: true
+
+  # Gate: SCORED → REMEDIATION
+  - id: "GATE-CMP-06"
+    name: "Compliance Scoring Gate"
+    from_status: "SCORED"
+    to_status: "REMEDIATION"
+    conditions:
+      - id: "score_calculated"
+        type: "Computed"
+        field: "compliance_score"
+        operator: "not_null"
+        message_en: "Compliance score must be calculated"
+        message_ar: "يجب حساب درجة الامتثال"
+      - id: "gaps_identified"
+        type: "Boolean"
+        field: "gaps_documented"
+        operator: "eq"
+        threshold: true
+        message_en: "Compliance gaps must be identified"
+        message_ar: "يجب تحديد فجوات الامتثال"
+    auto_transition: true
+    skip_if: "compliance_score >= 80"
+
+  # Gate: REMEDIATION → ATTESTED
+  - id: "GATE-CMP-07"
+    name: "Remediation Completion Gate"
+    from_status: "REMEDIATION"
+    to_status: "ATTESTED"
+    conditions:
+      - id: "critical_gaps_closed"
+        type: "Count"
+        field: "open_critical_gaps"
+        operator: "eq"
+        threshold: 0
+        message_en: "All critical gaps must be closed"
+        message_ar: "يجب إغلاق جميع الفجوات الحرجة"
+      - id: "action_plans_exist"
+        type: "Boolean"
+        field: "remediation_plans_documented"
+        operator: "eq"
+        threshold: true
+        message_en: "Remediation plans must exist for remaining gaps"
+        message_ar: "يجب وجود خطط معالجة للفجوات المتبقية"
+    auto_transition: false
+    requires_approval: true
+    approval_chain:
+      - level: 1
+        role: "ComplianceOfficer"
+        required: true
+      - level: 2
+        role: "Executive"
+        required: true
+    override_policy:
+      allowed_roles: ["Executive"]
+      requires_justification: true
+      creates_exception: true
+      blocks_certification: true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STAGE 4: RESILIENCE BUILDING GATES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+resilience_gates:
+
+  # Gate: SCOPE_DEFINED → BIA_COMPLETE
+  - id: "GATE-RES-01"
+    name: "Resilience Scope Gate"
+    from_status: "SCOPE_DEFINED"
+    to_status: "BIA_COMPLETE"
+    conditions:
+      - id: "critical_services_identified"
+        type: "CollectionMinCount"
+        field: "critical_service_ids"
+        operator: "gte"
+        threshold: 1
+        message_en: "Critical services must be identified"
+        message_ar: "يجب تحديد الخدمات الحرجة"
+      - id: "scope_approved"
+        type: "Boolean"
+        field: "scope_approved"
+        operator: "eq"
+        threshold: true
+        message_en: "Resilience scope must be approved"
+        message_ar: "يجب الموافقة على نطاق المرونة"
+    auto_transition: false
+    requires_approval: true
+
+  # Gate: BIA_COMPLETE → STRATEGIES_DESIGNED
+  - id: "GATE-RES-02"
+    name: "BIA Completion Gate"
+    from_status: "BIA_COMPLETE"
+    to_status: "STRATEGIES_DESIGNED"
+    conditions:
+      - id: "rto_defined"
+        type: "Boolean"
+        field: "rto_defined_for_critical"
+        operator: "eq"
+        threshold: true
+        message_en: "RTO must be defined for all critical services"
+        message_ar: "يجب تحديد RTO لجميع الخدمات الحرجة"
+      - id: "rpo_defined"
+        type: "Boolean"
+        field: "rpo_defined_for_critical"
+        operator: "eq"
+        threshold: true
+        message_en: "RPO must be defined for all critical services"
+        message_ar: "يجب تحديد RPO لجميع الخدمات الحرجة"
+      - id: "dependencies_mapped"
+        type: "Boolean"
+        field: "dependencies_documented"
+        operator: "eq"
+        threshold: true
+        message_en: "Service dependencies must be documented"
+        message_ar: "يجب توثيق تبعيات الخدمات"
+    auto_transition: true
+
+  # Gate: STRATEGIES_DESIGNED → PLANS_IMPLEMENTED
+  - id: "GATE-RES-03"
+    name: "Strategy Approval Gate"
+    from_status: "STRATEGIES_DESIGNED"
+    to_status: "PLANS_IMPLEMENTED"
+    conditions:
+      - id: "dr_strategy"
+        type: "RequiredField"
+        field: "dr_strategy"
+        operator: "not_empty"
+        message_en: "DR strategy must be documented"
+        message_ar: "يجب توثيق استراتيجية التعافي من الكوارث"
+      - id: "bc_strategy"
+        type: "RequiredField"
+        field: "bc_strategy"
+        operator: "not_empty"
+        message_en: "BC strategy must be documented"
+        message_ar: "يجب توثيق استراتيجية استمرارية الأعمال"
+      - id: "strategies_approved"
+        type: "Boolean"
+        field: "strategies_approved"
+        operator: "eq"
+        threshold: true
+        message_en: "Strategies must be approved"
+        message_ar: "يجب الموافقة على الاستراتيجيات"
+    auto_transition: false
+    requires_approval: true
+
+  # Gate: PLANS_IMPLEMENTED → DRILLS_EXECUTED
+  - id: "GATE-RES-04"
+    name: "Plan Implementation Gate"
+    from_status: "PLANS_IMPLEMENTED"
+    to_status: "DRILLS_EXECUTED"
+    conditions:
+      - id: "playbooks_ready"
+        type: "Boolean"
+        field: "playbooks_documented"
+        operator: "eq"
+        threshold: true
+        message_en: "Playbooks must be documented"
+        message_ar: "يجب توثيق دليل الإجراءات"
+      - id: "tooling_ready"
+        type: "Boolean"
+        field: "tooling_configured"
+        operator: "eq"
+        threshold: true
+        message_en: "Recovery tooling must be configured"
+        message_ar: "يجب تكوين أدوات الاسترداد"
+    auto_transition: true
+
+  # Gate: DRILLS_EXECUTED → VERIFIED
+  - id: "GATE-RES-05"
+    name: "Drill Completion Gate"
+    from_status: "DRILLS_EXECUTED"
+    to_status: "VERIFIED"
+    conditions:
+      - id: "drill_completed"
+        type: "CollectionMinCount"
+        field: "completed_drill_ids"
+        operator: "gte"
+        threshold: 1
+        message_en: "At least one drill must be completed"
+        message_ar: "يجب إكمال تمرين واحد على الأقل"
+      - id: "drill_documented"
+        type: "Boolean"
+        field: "drill_report_generated"
+        operator: "eq"
+        threshold: true
+        message_en: "Drill results must be documented"
+        message_ar: "يجب توثيق نتائج التمرين"
+    auto_transition: true
+
+  # Gate: VERIFIED → IMPROVEMENTS_APPLIED
+  - id: "GATE-RES-06"
+    name: "Verification Gate"
+    from_status: "VERIFIED"
+    to_status: "IMPROVEMENTS_APPLIED"
+    conditions:
+      - id: "rto_achieved"
+        type: "Boolean"
+        field: "rto_objectives_met"
+        operator: "eq"
+        threshold: true
+        message_en: "RTO objectives must be met"
+        message_ar: "يجب تحقيق أهداف RTO"
+      - id: "rpo_achieved"
+        type: "Boolean"
+        field: "rpo_objectives_met"
+        operator: "eq"
+        threshold: true
+        message_en: "RPO objectives must be met"
+        message_ar: "يجب تحقيق أهداف RPO"
+    auto_transition: true
+    override_policy:
+      allowed_roles: ["Executive"]
+      requires_justification: true
+
+  # Gate: IMPROVEMENTS_APPLIED → MONITORING
+  - id: "GATE-RES-07"
+    name: "Improvement Closure Gate"
+    from_status: "IMPROVEMENTS_APPLIED"
+    to_status: "MONITORING"
+    conditions:
+      - id: "high_severity_closed"
+        type: "Count"
+        field: "open_high_severity_findings"
+        operator: "eq"
+        threshold: 0
+        message_en: "All high-severity drill findings must be closed"
+        message_ar: "يجب إغلاق جميع نتائج التمارين عالية الخطورة"
+    auto_transition: true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STAGE 5: EXCELLENCE & BENCHMARKING GATES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+excellence_gates:
+
+  # Gate: BASELINE_SET → BENCHMARKED
+  - id: "GATE-EXC-01"
+    name: "Maturity Baseline Gate"
+    from_status: "BASELINE_SET"
+    to_status: "BENCHMARKED"
+    conditions:
+      - id: "dimensions_scored"
+        type: "Count"
+        field: "scored_dimension_count"
+        operator: "eq"
+        threshold: 5
+        message_en: "All 5 maturity dimensions must be scored"
+        message_ar: "يجب تقييم جميع أبعاد النضج الخمسة"
+      - id: "baseline_approved"
+        type: "Boolean"
+        field: "baseline_approved"
+        operator: "eq"
+        threshold: true
+        message_en: "Maturity baseline must be approved"
+        message_ar: "يجب الموافقة على خط الأساس للنضج"
+    auto_transition: false
+    requires_approval: true
+
+  # Gate: BENCHMARKED → TARGETS_SET
+  - id: "GATE-EXC-02"
+    name: "Benchmarking Gate"
+    from_status: "BENCHMARKED"
+    to_status: "TARGETS_SET"
+    conditions:
+      - id: "benchmark_generated"
+        type: "Boolean"
+        field: "benchmark_report_generated"
+        operator: "eq"
+        threshold: true
+        message_en: "Benchmark report must be generated"
+        message_ar: "يجب إنشاء تقرير المقارنة المعيارية"
+    auto_transition: true
+
+  # Gate: TARGETS_SET → PROGRAMS_DEFINED
+  - id: "GATE-EXC-03"
+    name: "Target Setting Gate"
+    from_status: "TARGETS_SET"
+    to_status: "PROGRAMS_DEFINED"
+    conditions:
+      - id: "targets_defined"
+        type: "Boolean"
+        field: "target_maturity_levels_set"
+        operator: "eq"
+        threshold: true
+        message_en: "Target maturity levels must be defined"
+        message_ar: "يجب تحديد مستويات النضج المستهدفة"
+      - id: "targets_approved"
+        type: "Boolean"
+        field: "targets_approved"
+        operator: "eq"
+        threshold: true
+        message_en: "Targets must be approved"
+        message_ar: "يجب الموافقة على الأهداف"
+    auto_transition: false
+    requires_approval: true
+
+  # Gate: PROGRAMS_DEFINED → EXECUTING
+  - id: "GATE-EXC-04"
+    name: "Program Funding Gate"
+    from_status: "PROGRAMS_DEFINED"
+    to_status: "EXECUTING"
+    conditions:
+      - id: "initiatives_defined"
+        type: "CollectionMinCount"
+        field: "initiative_ids"
+        operator: "gte"
+        threshold: 1
+        message_en: "At least one improvement initiative must be defined"
+        message_ar: "يجب تحديد مبادرة تحسين واحدة على الأقل"
+      - id: "budget_approved"
+        type: "Boolean"
+        field: "budget_approved"
+        operator: "eq"
+        threshold: true
+        message_en: "Budget must be approved"
+        message_ar: "يجب الموافقة على الميزانية"
+    auto_transition: false
+    requires_approval: true
+
+  # Gate: EXECUTING → CERT_READY
+  - id: "GATE-EXC-05"
+    name: "Execution Completion Gate"
+    from_status: "EXECUTING"
+    to_status: "CERT_READY"
+    conditions:
+      - id: "initiatives_complete"
+        type: "Percentage"
+        field: "initiative_completion_percent"
+        operator: "gte"
+        threshold: 80
+        message_en: "At least 80% of initiatives must be complete"
+        message_ar: "يجب إكمال 80% من المبادرات على الأقل"
+      - id: "outcomes_verified"
+        type: "Boolean"
+        field: "outcomes_documented"
+        operator: "eq"
+        threshold: true
+        message_en: "Initiative outcomes must be documented"
+        message_ar: "يجب توثيق نتائج المبادرات"
+    auto_transition: true
+
+  # Gate: CERT_READY → RECOGNIZED
+  - id: "GATE-EXC-06"
+    name: "Certification Gate"
+    from_status: "CERT_READY"
+    to_status: "RECOGNIZED"
+    conditions:
+      - id: "audit_passed"
+        type: "Boolean"
+        field: "certification_audit_passed"
+        operator: "eq"
+        threshold: true
+        message_en: "Certification audit must be passed"
+        message_ar: "يجب اجتياز تدقيق الشهادة"
+      - id: "certificate_received"
+        type: "Boolean"
+        field: "certificate_received"
+        operator: "eq"
+        threshold: true
+        message_en: "Certificate must be received"
+        message_ar: "يجب استلام الشهادة"
+    auto_transition: true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STAGE 6: CONTINUOUS SUSTAINABILITY GATES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+sustainability_gates:
+
+  # Gate: KPIS_ACTIVE → HEALTH_REVIEWED
+  - id: "GATE-SUS-01"
+    name: "KPI Activation Gate"
+    from_status: "KPIS_ACTIVE"
+    to_status: "HEALTH_REVIEWED"
+    conditions:
+      - id: "dashboards_active"
+        type: "Boolean"
+        field: "dashboards_configured"
+        operator: "eq"
+        threshold: true
+        message_en: "Dashboards must be active"
+        message_ar: "يجب تفعيل لوحات المعلومات"
+      - id: "monitoring_active"
+        type: "Boolean"
+        field: "monitoring_enabled"
+        operator: "eq"
+        threshold: true
+        message_en: "Continuous monitoring must be enabled"
+        message_ar: "يجب تفعيل المراقبة المستمرة"
+    auto_transition: true
+
+  # Gate: HEALTH_REVIEWED → TRENDS_ANALYZED
+  - id: "GATE-SUS-02"
+    name: "Health Review Gate"
+    from_status: "HEALTH_REVIEWED"
+    to_status: "TRENDS_ANALYZED"
+    conditions:
+      - id: "review_complete"
+        type: "Boolean"
+        field: "quarterly_review_completed"
+        operator: "eq"
+        threshold: true
+        message_en: "Quarterly health review must be completed"
+        message_ar: "يجب إكمال المراجعة الصحية الربعية"
+    auto_transition: true
+
+  # Gate: TRENDS_ANALYZED → INITIATIVES_IDENTIFIED
+  - id: "GATE-SUS-03"
+    name: "Trend Analysis Gate"
+    from_status: "TRENDS_ANALYZED"
+    to_status: "INITIATIVES_IDENTIFIED"
+    conditions:
+      - id: "trend_report"
+        type: "Boolean"
+        field: "trend_report_generated"
+        operator: "eq"
+        threshold: true
+        message_en: "12-month trend report must be generated"
+        message_ar: "يجب إنشاء تقرير الاتجاهات لـ 12 شهر"
+    auto_transition: true
+
+  # Gate: INITIATIVES_IDENTIFIED → ROADMAP_APPROVED
+  - id: "GATE-SUS-04"
+    name: "Initiative Intake Gate"
+    from_status: "INITIATIVES_IDENTIFIED"
+    to_status: "ROADMAP_APPROVED"
+    conditions:
+      - id: "backlog_exists"
+        type: "CollectionMinCount"
+        field: "improvement_backlog_ids"
+        operator: "gte"
+        threshold: 1
+        message_en: "Improvement backlog must have items"
+        message_ar: "يجب أن تحتوي قائمة التحسينات على عناصر"
+    auto_transition: true
+
+  # Gate: ROADMAP_APPROVED → STAKEHOLDERS_ENGAGED
+  - id: "GATE-SUS-05"
+    name: "Roadmap Approval Gate"
+    from_status: "ROADMAP_APPROVED"
+    to_status: "STAKEHOLDERS_ENGAGED"
+    conditions:
+      - id: "roadmap_documented"
+        type: "Boolean"
+        field: "multi_year_roadmap_exists"
+        operator: "eq"
+        threshold: true
+        message_en: "Multi-year roadmap must be documented"
+        message_ar: "يجب توثيق خارطة الطريق متعددة السنوات"
+      - id: "roadmap_approved"
+        type: "Boolean"
+        field: "roadmap_approved"
+        operator: "eq"
+        threshold: true
+        message_en: "Roadmap must be approved"
+        message_ar: "يجب الموافقة على خارطة الطريق"
+    auto_transition: false
+    requires_approval: true
+
+  # Gate: STAKEHOLDERS_ENGAGED → REFRESH_COMPLETE
+  - id: "GATE-SUS-06"
+    name: "Stakeholder Engagement Gate"
+    from_status: "STAKEHOLDERS_ENGAGED"
+    to_status: "REFRESH_COMPLETE"
+    conditions:
+      - id: "board_reported"
+        type: "Boolean"
+        field: "board_report_delivered"
+        operator: "eq"
+        threshold: true
+        message_en: "Board/management report must be delivered"
+        message_ar: "يجب تقديم تقرير مجلس الإدارة/الإدارة"
+    auto_transition: true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# INTER-STAGE GATES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+inter_stage_gates:
+
+  # Gate: STAGE 1 (Assessment) → STAGE 2 (Risk)
+  - id: "GATE-INTER-01"
+    name: "Assessment to Risk Gate"
+    from_stage: "ASSESSMENT"
+    to_stage: "RISK"
+    conditions:
+      - id: "assessment_complete"
+        type: "Percentage"
+        field: "assessment_completion_percent"
+        operator: "gte"
+        threshold: 80
+        message_en: "Assessment completion must be at least 80%"
+        message_ar: "يجب أن يكون إكمال التقييم 80% على الأقل"
+      - id: "findings_extracted"
+        type: "Boolean"
+        field: "critical_findings_classified"
+        operator: "eq"
+        threshold: true
+        message_en: "Critical findings must be classified"
+        message_ar: "يجب تصنيف النتائج الحرجة"
+      - id: "evidence_minimum"
+        type: "Percentage"
+        field: "evidence_coverage_percent"
+        operator: "gte"
+        threshold: 60
+        message_en: "Evidence coverage must be at least 60%"
+        message_ar: "يجب أن تكون تغطية الأدلة 60% على الأقل"
+
+  # Gate: STAGE 2 (Risk) → STAGE 3 (Compliance)
+  - id: "GATE-INTER-02"
+    name: "Risk to Compliance Gate"
+    from_stage: "RISK"
+    to_stage: "COMPLIANCE"
+    conditions:
+      - id: "critical_high_treated"
+        type: "Boolean"
+        field: "all_critical_high_risks_have_decisions"
+        operator: "eq"
+        threshold: true
+        message_en: "All Critical/High risks must have treatment decisions"
+        message_ar: "يجب أن تكون لجميع المخاطر الحرجة/العالية قرارات معالجة"
+      - id: "risk_control_mapping"
+        type: "Percentage"
+        field: "risk_control_mapping_percent"
+        operator: "gte"
+        threshold: 80
+        message_en: "Risk-to-control mapping must be at least 80%"
+        message_ar: "يجب أن تكون خريطة المخاطر-الضوابط 80% على الأقل"
+
+  # Gate: STAGE 3 (Compliance) → STAGE 4 (Resilience)
+  - id: "GATE-INTER-03"
+    name: "Compliance to Resilience Gate"
+    from_stage: "COMPLIANCE"
+    to_stage: "RESILIENCE"
+    conditions:
+      - id: "compliance_minimum"
+        type: "Percentage"
+        field: "overall_compliance_score"
+        operator: "gte"
+        threshold: 70
+        message_en: "Overall compliance score must be at least 70%"
+        message_ar: "يجب أن تكون درجة الامتثال الإجمالية 70% على الأقل"
+      - id: "no_critical_gaps"
+        type: "Count"
+        field: "open_critical_gaps_without_exception"
+        operator: "eq"
+        threshold: 0
+        message_en: "No critical gaps without approved exceptions"
+        message_ar: "لا توجد فجوات حرجة بدون استثناءات معتمدة"
+
+  # Gate: STAGE 4 (Resilience) → STAGE 5 (Excellence)
+  - id: "GATE-INTER-04"
+    name: "Resilience to Excellence Gate"
+    from_stage: "RESILIENCE"
+    to_stage: "EXCELLENCE"
+    conditions:
+      - id: "resilience_minimum"
+        type: "Score"
+        field: "overall_resilience_score"
+        operator: "gte"
+        threshold: 70
+        message_en: "Overall resilience score must be at least 70"
+        message_ar: "يجب أن تكون درجة المرونة الإجمالية 70 على الأقل"
+      - id: "drill_completed"
+        type: "Boolean"
+        field: "dr_bc_drill_completed"
+        operator: "eq"
+        threshold: true
+        message_en: "At least one DR/BC drill must be completed"
+        message_ar: "يجب إكمال تمرين DR/BC واحد على الأقل"
+      - id: "rto_rpo_defined"
+        type: "Boolean"
+        field: "rto_rpo_defined_for_critical"
+        operator: "eq"
+        threshold: true
+        message_en: "RTO/RPO must be defined for critical services"
+        message_ar: "يجب تحديد RTO/RPO للخدمات الحرجة"
+
+  # Gate: STAGE 5 (Excellence) → STAGE 6 (Sustainability)
+  - id: "GATE-INTER-05"
+    name: "Excellence to Sustainability Gate"
+    from_stage: "EXCELLENCE"
+    to_stage: "SUSTAINABILITY"
+    conditions:
+      - id: "maturity_minimum"
+        type: "Score"
+        field: "maturity_level"
+        operator: "gte"
+        threshold: 3
+        message_en: "Maturity level must be at least 3 (Defined)"
+        message_ar: "يجب أن يكون مستوى النضج 3 (محدد) على الأقل"
+      - id: "no_critical_audit_findings"
+        type: "Count"
+        field: "open_critical_audit_findings"
+        operator: "eq"
+        threshold: 0
+        message_en: "No critical audit findings open"
+        message_ar: "لا توجد نتائج تدقيق حرجة مفتوحة"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# END OF GATE DEFINITIONS
+# ═══════════════════════════════════════════════════════════════════════════════

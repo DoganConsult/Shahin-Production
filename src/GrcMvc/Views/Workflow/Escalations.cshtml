@@ -330,7 +330,6 @@
             fetch('/api/escalations?status=' + $('#filterStatus').val() + '&level=' + $('#filterLevel').val())
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Loaded escalations:', data);
                     // Update escalation count in header
                     updateEscalationDisplay(data);
                 })
@@ -345,7 +344,6 @@
             fetch('/api/escalations/stats')
                 .then(response => response.json())
                 .then(data => {
-                    console.log('SLA Stats:', data);
                 })
                 .catch(error => {
                     console.error('Error loading SLA stats:', error);

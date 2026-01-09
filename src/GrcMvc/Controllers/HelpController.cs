@@ -72,6 +72,17 @@ namespace GrcMvc.Controllers
         }
 
         /// <summary>
+        /// Coming Soon placeholder page
+        /// GET /Help/coming-soon
+        /// </summary>
+        [Route("Help/coming-soon")]
+        public IActionResult ComingSoon()
+        {
+            ViewData["Title"] = "قريباً - Coming Soon";
+            return View();
+        }
+
+        /// <summary>
         /// Get glossary term definition (AJAX endpoint)
         /// GET /Help/GetGlossaryTerm?term=NCA ECC
         /// </summary>

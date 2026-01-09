@@ -98,7 +98,6 @@ const HelpSystem = {
      */
     showEmptyStateHelp: function(message, actionText, actionUrl) {
         // This can be called from pages with no data
-        console.log('Empty state:', message, actionText, actionUrl);
     }
 };
 

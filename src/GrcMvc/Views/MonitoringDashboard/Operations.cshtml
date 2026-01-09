@@ -1,0 +1,363 @@
+@model GrcMvc.Services.Interfaces.OperationsDashboardDto
+@{
+    ViewData["Title"] = "لوحة تحكم العمليات";
+    ViewData["TitleEn"] = "Operations Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="fas fa-cogs text-primary me-2"></i>
+                لوحة تحكم العمليات
+            </h1>
+            <p class="text-muted mb-0">مراقبة سير العمل والأداء التشغيلي</p>
+        </div>
+        <div class="d-flex gap-2">
+            <span class="badge bg-light text-dark">
+                <i class="fas fa-clock me-1"></i>
+                @(Model?.GeneratedAt.ToString("HH:mm") ?? "--:--")
+            </span>
+            <button class="btn btn-outline-primary btn-sm" onclick="location.reload()">
+                <i class="fas fa-sync-alt me-1"></i>
+                تحديث
+            </button>
+        </div>
+    </div>
+
+    @if (Model == null)
+    {
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            لا تتوفر بيانات
+        </div>
+    }
+    else
+    {
+        <!-- Work Queue KPIs -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-2">
+                <div class="card border-0 shadow-sm text-center h-100">
+                    <div class="card-body">
+                        <h4 class="text-primary mb-0">@Model.WorkQueue.TotalItems</h4>
+                        <small class="text-muted">إجمالي المهام</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-0 shadow-sm text-center h-100">
+                    <div class="card-body">
+                        <h4 class="text-warning mb-0">@Model.WorkQueue.PendingApproval</h4>
+                        <small class="text-muted">بانتظار الموافقة</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-0 shadow-sm text-center h-100">
+                    <div class="card-body">
+                        <h4 class="text-info mb-0">@Model.WorkQueue.InProgress</h4>
+                        <small class="text-muted">قيد التنفيذ</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-0 shadow-sm text-center h-100">
+                    <div class="card-body">
+                        <h4 class="text-danger mb-0">@Model.WorkQueue.Overdue</h4>
+                        <small class="text-muted">متأخرة</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-0 shadow-sm text-center h-100">
+                    <div class="card-body">
+                        <h4 class="text-secondary mb-0">@Model.WorkQueue.DueToday</h4>
+                        <small class="text-muted">مستحقة اليوم</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-0 shadow-sm text-center h-100">
+                    <div class="card-body">
+                        <h4 class="text-success mb-0">@Model.Kpis.SlaComplianceRate%</h4>
+                        <small class="text-muted">الالتزام بـ SLA</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- SLA Breaches -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                            انتهاكات SLA
+                        </h5>
+                        <span class="badge bg-danger">@Model.SlaBreaches.Count</span>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (Model.SlaBreaches.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>المهمة</th>
+                                            <th>المسؤول</th>
+                                            <th>التأخير</th>
+                                            <th>الأهمية</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var breach in Model.SlaBreaches.Take(5))
+                                        {
+                                            var severityClass = breach.Severity == "Critical" ? "danger" : "warning";
+                                            <tr>
+                                                <td>
+                                                    <strong>@breach.Title</strong>
+                                                    <br><small class="text-muted">@breach.WorkflowName</small>
+                                                </td>
+                                                <td>@breach.Owner</td>
+                                                <td>
+                                                    <span class="badge bg-@severityClass">
+                                                        @breach.DaysOverdue يوم
+                                                    </span>
+                                                </td>
+                                                <td>@breach.Severity</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
+                                <p>لا توجد انتهاكات SLA</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Owner Workload -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-users text-primary me-2"></i>
+                            توزيع عبء العمل
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (Model.OwnerWorkload.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>المسؤول</th>
+                                            <th>المهام</th>
+                                            <th>متأخرة</th>
+                                            <th>هذا الأسبوع</th>
+                                            <th>الحمل</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var owner in Model.OwnerWorkload)
+                                        {
+                                            var loadClass = owner.WorkloadLevel switch
+                                            {
+                                                "High" => "danger",
+                                                "Medium" => "warning",
+                                                _ => "success"
+                                            };
+                                            <tr>
+                                                <td><strong>@owner.Owner</strong></td>
+                                                <td>@owner.TotalItems</td>
+                                                <td>
+                                                    @if (owner.OverdueItems > 0)
+                                                    {
+                                                        <span class="badge bg-danger">@owner.OverdueItems</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-success">0</span>
+                                                    }
+                                                </td>
+                                                <td>@owner.DueThisWeek</td>
+                                                <td>
+                                                    <span class="badge bg-@loadClass">@owner.WorkloadLevel</span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-inbox fa-3x mb-2"></i>
+                                <p>لا توجد بيانات عبء العمل</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-2">
+            <!-- Evidence Gaps -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-file-alt text-warning me-2"></i>
+                            فجوات الأدلة
+                        </h5>
+                        <span class="badge bg-warning text-dark">@Model.EvidenceGaps.Count</span>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (Model.EvidenceGaps.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>الضابط</th>
+                                            <th>الإطار</th>
+                                            <th>الفجوة</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var gap in Model.EvidenceGaps.Take(5))
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <strong>@gap.ControlNumber</strong>
+                                                    <br><small class="text-muted">@gap.ControlTitle</small>
+                                                </td>
+                                                <td>@gap.FrameworkCode</td>
+                                                <td>
+                                                    <span class="badge bg-warning text-dark">
+                                                        @gap.EvidenceProvided/@gap.EvidenceRequired
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
+                                <p>لا توجد فجوات في الأدلة</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Changes -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-history text-info me-2"></i>
+                            آخر التغييرات
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (Model.RecentChanges.Any())
+                        {
+                            <div class="list-group list-group-flush">
+                                @foreach (var change in Model.RecentChanges.Take(5))
+                                {
+                                    var iconClass = change.ChangeType switch
+                                    {
+                                        "Created" => "fa-plus-circle text-success",
+                                        "Updated" => "fa-edit text-info",
+                                        "Deleted" => "fa-trash text-danger",
+                                        _ => "fa-circle text-secondary"
+                                    };
+                                    <div class="list-group-item border-0">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas @iconClass me-3"></i>
+                                            <div class="flex-grow-1">
+                                                <strong>@change.EntityType</strong>
+                                                <span class="text-muted">- @change.ChangeType</span>
+                                                <br><small class="text-muted">@change.ChangedBy • @change.ChangedAt.ToString("dd/MM HH:mm")</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-inbox fa-3x mb-2"></i>
+                                <p>لا توجد تغييرات حديثة</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Work Queue by Type -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-tasks text-primary me-2"></i>
+                            قائمة الانتظار حسب النوع
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.WorkQueue.ByType.Any())
+                        {
+                            <div class="row g-3">
+                                @foreach (var type in Model.WorkQueue.ByType)
+                                {
+                                    <div class="col-md-3">
+                                        <div class="p-3 bg-light rounded">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="mb-0">@type.TypeAr</h6>
+                                                    <small class="text-muted">@type.Type</small>
+                                                </div>
+                                                <div class="text-end">
+                                                    <h4 class="mb-0">@type.Count</h4>
+                                                    @if (type.Overdue > 0)
+                                                    {
+                                                        <small class="text-danger">@type.Overdue متأخر</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted py-4">
+                                <p>لا توجد عناصر في قائمة الانتظار</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

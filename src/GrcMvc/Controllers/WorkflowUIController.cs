@@ -7,6 +7,7 @@ using System.Security.Claims;
 namespace GrcMvc.Controllers
 {
     [Authorize]
+    [Route("WorkflowUI")]
     public class WorkflowUIController : Controller
     {
         private readonly IControlImplementationWorkflowService _controlWorkflow;
@@ -60,6 +61,8 @@ namespace GrcMvc.Controllers
         // ===== DASHBOARD =====
 
         [HttpGet]
+        [Route("")]
+        [Route("Index")]
         public async Task<IActionResult> Index()
         {
             try

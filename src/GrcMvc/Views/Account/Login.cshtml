@@ -1,13 +1,15 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model GrcMvc.Models.ViewModels.LoginViewModel
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = L["Auth_LoginTitle"].Value;
     Layout = "_Layout";
 }
 
 <div class="auth-form">
     <div class="card">
         <div class="card-header text-center">
-            <h4><i class="bi bi-box-arrow-in-right"></i> Login to GRC System</h4>
+            <h4><i class="bi bi-box-arrow-in-right"></i> @L["Auth_LoginToGrc"]</h4>
         </div>
         <div class="card-body">
             <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
@@ -18,7 +20,7 @@
                     <label asp-for="Email" class="form-label"></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                        <input asp-for="Email" class="form-control" placeholder="email@example.com" autofocus />
+                        <input asp-for="Email" class="form-control" placeholder="@L["Auth_EmailPlaceholder"]" autofocus />
                     </div>
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
@@ -27,7 +29,7 @@
                     <label asp-for="Password" class="form-label"></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                        <input asp-for="Password" class="form-control" placeholder="Enter your password" />
+                        <input asp-for="Password" class="form-control" placeholder="@L["Auth_PasswordPlaceholder"]" />
                     </div>
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
@@ -39,7 +41,7 @@
 
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-box-arrow-in-right"></i> Login
+                        <i class="bi bi-box-arrow-in-right"></i> @L["Auth_LoginTitle"]
                     </button>
                 </div>
 
@@ -47,11 +49,14 @@
 
                 <div class="text-center">
                     <p>
-                        <a asp-action="ForgotPassword">Forgot your password?</a>
+                        <a asp-action="ForgotPassword">@L["Auth_ForgotPassword"]</a>
                     </p>
                     <p>
-                        Don't have an account? <a asp-action="Register"
-                            asp-route-returnUrl="@ViewData["ReturnUrl"]">Register here</a>
+                        <a asp-action="ForgotTenantId">@L["Auth_ForgotTenantId"]</a>
+                    </p>
+                    <p>
+                        @L["Auth_DontHaveAccount"] <a asp-action="Register"
+                            asp-route-returnUrl="@ViewData["ReturnUrl"]">@L["Auth_RegisterHere"]</a>
                     </p>
                 </div>
             </form>

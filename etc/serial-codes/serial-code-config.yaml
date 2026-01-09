@@ -1,0 +1,229 @@
+# Serial Code Service Configuration
+# GRC 6-Stage Lifecycle Serial Code System
+# Format: {PREFIX}-{TENANT}-{STAGE}-{YEAR}-{SEQUENCE}-{VERSION}
+# Example: ASM-ACME-01-2026-000142-01
+
+apiVersion: serial-code.grc.io/v1
+kind: SerialCodeConfig
+
+metadata:
+  name: grc-serial-code-config
+  version: "1.0.0"
+  createdAt: "2026-01-08T00:00:00Z"
+  labels:
+    owner: "grc-platform"
+    domain: "serial-codes"
+
+spec:
+  # Reservation settings for batch operations
+  reservation:
+    default_ttl_seconds: 300      # 5 minutes default
+    max_ttl_seconds: 3600         # 1 hour maximum
+    cleanup_interval_seconds: 60  # Check for expired reservations
+
+  # Sequence number settings
+  sequence:
+    start: 1
+    max: 999999
+    overflow_behavior: error      # error | wrap | notify
+
+  # Version settings
+  version:
+    initial: 1
+    max: 99
+
+  # Tenant code validation
+  tenant:
+    min_length: 3
+    max_length: 6
+    pattern: "^[A-Z0-9]+$"
+    reserved:
+      - SYS
+      - ADM
+      - ROOT
+      - NULL
+      - TEST
+
+  # Cache settings
+  cache:
+    enabled: true
+    ttl_seconds: 300
+    prefix: "serial:"
+
+  # Validation settings
+  validation:
+    strict_mode: true
+    warn_on_future_year: true
+    warn_on_old_year_threshold: 5
+
+# Stage Definitions (6-Stage GRC Lifecycle)
+stages:
+  - number: 1
+    name: Assessment
+    name_ar: التقييم
+    description: Assessment & Exploration phase
+    prefixes:
+      - ASM      # Assessment
+      - ASM-Q    # Assessment Question
+      - ASM-F    # Assessment Finding
+
+  - number: 2
+    name: Risk
+    name_ar: المخاطر
+    description: Risk Analysis phase
+    prefixes:
+      - RSK      # Risk
+      - RSK-T    # Risk Treatment
+      - RSK-A    # Risk Asset
+
+  - number: 3
+    name: Compliance
+    name_ar: الامتثال
+    description: Compliance Monitoring phase
+    prefixes:
+      - CMP      # Compliance
+      - CMP-R    # Compliance Requirement
+      - CMP-G    # Compliance Gap
+
+  - number: 4
+    name: Resilience
+    name_ar: المرونة
+    description: Resilience Building phase
+    prefixes:
+      - RES      # Resilience
+      - RES-P    # Recovery Plan
+      - RES-T    # Resilience Test
+
+  - number: 5
+    name: Excellence
+    name_ar: التميز
+    description: Excellence & Benchmarking phase
+    prefixes:
+      - EXC      # Excellence
+      - EXC-B    # Benchmark
+      - EXC-I    # Improvement
+
+  - number: 6
+    name: Sustainability
+    name_ar: الاستدامة
+    description: Continuous Sustainability phase
+    prefixes:
+      - SUS      # Sustainability
+      - SUS-K    # KPI
+      - SUS-C    # Certification
+
+# Cross-Stage Entity Prefixes (Stage 0)
+cross_stage_prefixes:
+  - prefix: CTL
+    entity: Control
+    entity_ar: الضابط
+    description: Control definitions
+
+  - prefix: CTL-T
+    entity: ControlTest
+    entity_ar: اختبار الضابط
+    description: Control testing records
+
+  - prefix: EVD
+    entity: Evidence
+    entity_ar: الدليل
+    description: Evidence artifacts
+
+  - prefix: EVD-R
+    entity: EvidenceRequest
+    entity_ar: طلب الدليل
+    description: Evidence collection requests
+
+  - prefix: FWK
+    entity: Framework
+    entity_ar: الإطار
+    description: Framework definitions
+
+  - prefix: FWK-R
+    entity: FrameworkRequirement
+    entity_ar: متطلب الإطار
+    description: Requirement mappings
+
+  - prefix: WFL
+    entity: Workflow
+    entity_ar: سير العمل
+    description: Workflow instances
+
+  - prefix: WFL-T
+    entity: WorkflowTask
+    entity_ar: مهمة سير العمل
+    description: Individual workflow tasks
+
+  - prefix: APR
+    entity: Approval
+    entity_ar: الموافقة
+    description: Approval records
+
+  - prefix: AUD
+    entity: Audit
+    entity_ar: التدقيق
+    description: Audit trail entries
+
+  - prefix: RPT
+    entity: Report
+    entity_ar: التقرير
+    description: Generated reports
+
+  - prefix: ATT
+    entity: Attestation
+    entity_ar: الإقرار
+    description: Attestation records
+
+  - prefix: POL
+    entity: Policy
+    entity_ar: السياسة
+    description: Policy documents
+
+  - prefix: VND
+    entity: Vendor
+    entity_ar: المورد
+    description: Vendor records
+
+  - prefix: ACT
+    entity: ActionPlan
+    entity_ar: خطة العمل
+    description: Action plan records
+
+# Error Codes and Messages
+error_codes:
+  SC001:
+    message: "Invalid serial code format"
+    message_ar: "صيغة الرمز التسلسلي غير صحيحة"
+  SC002:
+    message: "Unknown entity type"
+    message_ar: "نوع الكيان غير معروف"
+  SC003:
+    message: "Unknown prefix"
+    message_ar: "البادئة غير معروفة"
+  SC004:
+    message: "Invalid stage number"
+    message_ar: "رقم المرحلة غير صحيح"
+  SC005:
+    message: "Sequence overflow"
+    message_ar: "تجاوز التسلسل"
+  SC006:
+    message: "Maximum version reached"
+    message_ar: "تم الوصول للإصدار الأقصى"
+  SC007:
+    message: "Serial code not found"
+    message_ar: "الرمز التسلسلي غير موجود"
+  SC008:
+    message: "Reservation expired"
+    message_ar: "انتهت صلاحية الحجز"
+  SC009:
+    message: "Reservation not found"
+    message_ar: "الحجز غير موجود"
+  SC010:
+    message: "Duplicate serial code"
+    message_ar: "رمز تسلسلي مكرر"
+  SC011:
+    message: "Invalid tenant code"
+    message_ar: "رمز المستأجر غير صحيح"
+  SC012:
+    message: "Serial code already voided"
+    message_ar: "الرمز التسلسلي ملغى بالفعل"

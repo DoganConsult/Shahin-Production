@@ -162,6 +162,27 @@ namespace GrcMvc.Models.ViewModels
     }
 
     /// <summary>
+    /// ViewModel for Tenant ID lookup when forgotten
+    /// </summary>
+    public class ForgotTenantIdViewModel
+    {
+        [Required(ErrorMessage = "Email address is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
+        [Display(Name = "Email Address")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Password is required")]
+        [DataType(DataType.Password)]
+        [Display(Name = "Password")]
+        public string Password { get; set; } = string.Empty;
+
+        public bool? TenantIdFound { get; set; }
+        public Guid? TenantId { get; set; }
+        public string? OrganizationName { get; set; }
+        public string? TenantSlug { get; set; }
+    }
+
+    /// <summary>
     /// ViewModel for forced password change on first login
     /// </summary>
     public class ChangePasswordRequiredViewModel

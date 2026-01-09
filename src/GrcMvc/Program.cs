@@ -220,7 +220,7 @@ builder.Services.AddControllersWithViews(options =>
 .AddDataAnnotationsLocalization(options =>
 {
     options.DataAnnotationLocalizerProvider = (type, factory) =>
-        factory.Create(typeof(GrcMvc.Resources.SharedResource));
+        factory.Create(typeof(SharedResource));
 });
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
@@ -236,8 +236,11 @@ builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection(JwtSettings.SectionName));
 builder.Services.Configure<ApplicationSettings>(
     builder.Configuration.GetSection(ApplicationSettings.SectionName));
+// EmailSettings with proper binding (uses nullable port to handle empty env var override)
+// Defaults are set in EmailSettings record, GetSmtpPort() provides safe fallback
 builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection(EmailSettings.SectionName));
+
 builder.Services.Configure<SiteSettings>(
     builder.Configuration.GetSection(SiteSettings.SectionName));
 
@@ -301,8 +304,8 @@ builder.Services.AddRateLimiter(options =>
             factory: partition => new FixedWindowRateLimiterOptions
             {
                 AutoReplenishment = true,
-                PermitLimit = 100,
-                QueueLimit = 0,
+                PermitLimit = 500, // Increased from 100 to handle legitimate traffic
+                QueueLimit = 10,
                 Window = TimeSpan.FromMinutes(1)
             }));
 
@@ -479,6 +482,11 @@ builder.Services.AddScoped<IAuditTrailService, AuditTrailService>();
 // Use Phase1RulesEngineService (with asset-based recognition) instead of stub
 builder.Services.AddScoped<IRulesEngineService, Phase1RulesEngineService>();
 
+// Serial Code Service - 6-Stage GRC Serial Code System
+// Provides unified, tenant-aware, auditable serial code generation
+// Format: {PREFIX}-{TENANT}-{STAGE}-{YEAR}-{SEQUENCE}-{VERSION}
+builder.Services.AddScoped<ISerialCodeService, SerialCodeService>();
+
 // Register new STAGE 1 services
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<IOnboardingService, OnboardingService>();
@@ -628,6 +636,15 @@ builder.Services.AddScoped<ICatalogDataService, CatalogDataService>();
 
 // Register Resilience Services
 builder.Services.AddScoped<IResilienceService, ResilienceService>();
+
+// GAP CLOSURE: Control Testing Service (Control effectiveness, testing, owner management)
+builder.Services.AddScoped<IControlTestService, ControlTestService>();
+
+// GAP CLOSURE: Incident Response Service (Resilience stage - Detection, Response, Recovery)
+builder.Services.AddScoped<IIncidentResponseService, IncidentResponseService>();
+
+// GAP CLOSURE: Certification Tracking Service (ISO 27001, SOC 2, NCA, PCI-DSS lifecycle)
+builder.Services.AddScoped<ICertificationService, CertificationService>();
 
 // Register Subscription & Billing service
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
@@ -1356,6 +1373,12 @@ app.MapControllerRoute(
     name: "landing",
     pattern: "",
     defaults: new { controller = "Landing", action = "Index" });
+
+// Plural route redirects (common convention aliases)
+app.MapGet("/Risks", () => Results.Redirect("/Risk"));
+app.MapGet("/Policies", () => Results.Redirect("/Policy"));
+app.MapGet("/Audits", () => Results.Redirect("/Audit"));
+app.MapGet("/Assessments", () => Results.Redirect("/Assessment"));
 
 // Default route
 app.MapControllerRoute(

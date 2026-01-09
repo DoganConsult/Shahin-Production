@@ -1,5 +1,5 @@
 @using Microsoft.AspNetCore.Mvc.Localization
-@inject IHtmlLocalizer<GrcMvc.Resources.SharedResource> L
+@inject IHtmlLocalizer<SharedResource> L
 @{
     var userRole = User.IsInRole("Admin") ? "Admin" : 
                    User.IsInRole("TenantAdmin") ? "TenantAdmin" :
@@ -947,7 +947,6 @@ window.AIAssistant = {
                 }
             }
         } catch (error) {
-            console.log('Could not load suggestions');
         }
     }
 };

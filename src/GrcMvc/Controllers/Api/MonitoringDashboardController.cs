@@ -6,6 +6,23 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+// Resolve ambiguous references - prefer Models.DTOs
+using DashboardKpiDto = GrcMvc.Models.DTOs.DashboardKpiDto;
+using SuspiciousSessionDto = GrcMvc.Models.DTOs.SuspiciousSessionDto;
+using IntegrationHealthDto = GrcMvc.Models.DTOs.IntegrationHealthDto;
+using JobFailureDto = GrcMvc.Models.DTOs.JobFailureDto;
+using SecurityDashboardDto = GrcMvc.Models.DTOs.SecurityDashboardDto;
+using DataFreshnessDto = GrcMvc.Models.DTOs.DataFreshnessDto;
+using MissingMappingDto = GrcMvc.Models.DTOs.MissingMappingDto;
+using OrphanRecordDto = GrcMvc.Models.DTOs.OrphanRecordDto;
+using DataQualityDashboardDto = GrcMvc.Models.DTOs.DataQualityDashboardDto;
+using GappedAreaDto = GrcMvc.Models.DTOs.GappedAreaDto;
+using OperationsDashboardDto = GrcMvc.Models.DTOs.OperationsDashboardDto;
+using TrendPointDto = GrcMvc.Models.DTOs.TrendPointDto;
+using SlaBreachDto = GrcMvc.Models.DTOs.SlaBreachDto;
+using OwnerWorkloadDto = GrcMvc.Models.DTOs.OwnerWorkloadDto;
+using EvidenceGapDto = GrcMvc.Models.DTOs.EvidenceGapDto;
+
 namespace GrcMvc.Controllers.Api;
 
 /// <summary>

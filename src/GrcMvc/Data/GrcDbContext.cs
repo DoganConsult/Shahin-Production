@@ -109,6 +109,11 @@ namespace GrcMvc.Data
         // Business Reference Code Counters (New Format: TENANTCODE-OBJTYPE-YYYY-SEQUENCE)
         public DbSet<SerialCounter> SerialCounters { get; set; } = null!;
 
+        // Serial Code Registry (New 6-Stage Format: PREFIX-TENANT-STAGE-YEAR-SEQUENCE-VERSION)
+        public DbSet<SerialCodeRegistry> SerialCodeRegistry { get; set; } = null!;
+        public DbSet<SerialCodeReservation> SerialCodeReservations { get; set; } = null!;
+        public DbSet<SerialSequenceCounter> SerialSequenceCounters { get; set; } = null!;
+
         // Policy Decision Audit Trail
         public DbSet<PolicyDecision> PolicyDecisions { get; set; } = null!;
 
@@ -1523,6 +1528,67 @@ namespace GrcMvc.Data
                     .HasDatabaseName("IX_FrameworkControl_Type");
                 entity.HasIndex(e => e.Domain)
                     .HasDatabaseName("IX_FrameworkControl_Domain");
+            });
+
+            // Serial Code Registry - 6-Stage GRC Serial Code System
+            modelBuilder.Entity<SerialCodeRegistry>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Code).IsRequired().HasMaxLength(35);
+                entity.Property(e => e.Prefix).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.TenantCode).IsRequired().HasMaxLength(6);
+                entity.Property(e => e.EntityType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.CreatedBy).IsRequired().HasMaxLength(256);
+                entity.Property(e => e.RowVersion).IsRowVersion().IsConcurrencyToken();
+
+                // Unique constraint on Code
+                entity.HasIndex(e => e.Code).IsUnique().HasDatabaseName("IX_SerialCodeRegistry_Code");
+
+                // Indexes for search and lookup
+                entity.HasIndex(e => e.Prefix).HasDatabaseName("IX_SerialCodeRegistry_Prefix");
+                entity.HasIndex(e => e.TenantCode).HasDatabaseName("IX_SerialCodeRegistry_Tenant");
+                entity.HasIndex(e => e.Stage).HasDatabaseName("IX_SerialCodeRegistry_Stage");
+                entity.HasIndex(e => e.Year).HasDatabaseName("IX_SerialCodeRegistry_Year");
+                entity.HasIndex(e => new { e.EntityType, e.EntityId }).HasDatabaseName("IX_SerialCodeRegistry_Entity");
+                entity.HasIndex(e => e.Status).HasDatabaseName("IX_SerialCodeRegistry_Status");
+                entity.HasIndex(e => e.CreatedAt).HasDatabaseName("IX_SerialCodeRegistry_Created");
+
+                // Unique constraint for sequence generation scope
+                entity.HasIndex(e => new { e.Prefix, e.TenantCode, e.Stage, e.Year, e.Sequence })
+                    .IsUnique()
+                    .HasDatabaseName("IX_SerialCodeRegistry_Sequence");
+            });
+
+            // Serial Code Reservations
+            modelBuilder.Entity<SerialCodeReservation>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.ReservedCode).IsRequired().HasMaxLength(35);
+                entity.Property(e => e.Prefix).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.TenantCode).IsRequired().HasMaxLength(6);
+                entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.CreatedBy).IsRequired().HasMaxLength(256);
+
+                entity.HasIndex(e => e.ReservedCode).IsUnique().HasDatabaseName("IX_SerialCodeReservation_Code");
+                entity.HasIndex(e => e.Status).HasDatabaseName("IX_SerialCodeReservation_Status");
+                entity.HasIndex(e => e.ExpiresAt)
+                    .HasFilter("\"Status\" = 'reserved'")
+                    .HasDatabaseName("IX_SerialCodeReservation_Expires");
+            });
+
+            // Serial Sequence Counters
+            modelBuilder.Entity<SerialSequenceCounter>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Prefix).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.TenantCode).IsRequired().HasMaxLength(6);
+                entity.Property(e => e.RowVersion).IsRowVersion().IsConcurrencyToken();
+
+                // Unique constraint for counter scope
+                entity.HasIndex(e => new { e.Prefix, e.TenantCode, e.Stage, e.Year })
+                    .IsUnique()
+                    .HasDatabaseName("IX_SerialSequenceCounter_Unique");
             });
         }
 

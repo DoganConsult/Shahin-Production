@@ -1134,4 +1134,600 @@
   <data name="PleaseWait" xml:space="preserve">
     <value>يرجى الانتظار...</value>
   </data>
+
+  <!-- Dashboard Specific -->
+  <data name="Dashboard_CommandCenter" xml:space="preserve">
+    <value>مركز القيادة</value>
+  </data>
+  <data name="Dashboard_IntegratedGrcSystem" xml:space="preserve">
+    <value>نظام الحوكمة والمخاطر والامتثال المتكامل</value>
+  </data>
+  <data name="Dashboard_AllSystemsOperational" xml:space="preserve">
+    <value>جميع الأنظمة تعمل</value>
+  </data>
+  <data name="Dashboard_ComplianceRate" xml:space="preserve">
+    <value>نسبة الامتثال</value>
+  </data>
+  <data name="Dashboard_ActiveRisks" xml:space="preserve">
+    <value>المخاطر النشطة</value>
+  </data>
+  <data name="Dashboard_EffectiveControls" xml:space="preserve">
+    <value>الضوابط الفعّالة</value>
+  </data>
+  <data name="Dashboard_PendingTasks" xml:space="preserve">
+    <value>مهام معلقة</value>
+  </data>
+  <data name="Dashboard_UploadedEvidence" xml:space="preserve">
+    <value>الأدلة المرفوعة</value>
+  </data>
+  <data name="Dashboard_ComplianceTrend" xml:space="preserve">
+    <value>اتجاه الامتثال - آخر 12 شهر</value>
+  </data>
+  <data name="Dashboard_RiskHeatMap" xml:space="preserve">
+    <value>خريطة المخاطر الحرارية</value>
+  </data>
+  <data name="RiskLevel_Rare" xml:space="preserve">
+    <value>نادر</value>
+  </data>
+  <data name="RiskLevel_Unlikely" xml:space="preserve">
+    <value>ضعيف</value>
+  </data>
+  <data name="RiskLevel_Possible" xml:space="preserve">
+    <value>متوسط</value>
+  </data>
+  <data name="RiskLevel_Likely" xml:space="preserve">
+    <value>عالي</value>
+  </data>
+  <data name="RiskLevel_AlmostCertain" xml:space="preserve">
+    <value>مؤكد</value>
+  </data>
+  <data name="RiskLevel_Catastrophic" xml:space="preserve">
+    <value>كارثي</value>
+  </data>
+  <data name="ImpactLevel_Major" xml:space="preserve">
+    <value>رئيسي</value>
+  </data>
+  <data name="ImpactLevel_Moderate" xml:space="preserve">
+    <value>متوسط</value>
+  </data>
+  <data name="ImpactLevel_Minor" xml:space="preserve">
+    <value>طفيف</value>
+  </data>
+  <data name="ImpactLevel_Insignificant" xml:space="preserve">
+    <value>ضئيل</value>
+  </data>
+  <data name="RiskLevel_Low" xml:space="preserve">
+    <value>منخفض</value>
+  </data>
+  <data name="RiskLevel_Medium" xml:space="preserve">
+    <value>متوسط</value>
+  </data>
+  <data name="RiskLevel_High" xml:space="preserve">
+    <value>عالي</value>
+  </data>
+  <data name="RiskLevel_Critical" xml:space="preserve">
+    <value>حرج</value>
+  </data>
+  <data name="Dashboard_OverallComplianceIndicator" xml:space="preserve">
+    <value>مؤشر الامتثال الكلي</value>
+  </data>
+  <data name="Dashboard_ComplianceRateLabel" xml:space="preserve">
+    <value>نسبة الامتثال</value>
+  </data>
+  <data name="ComplianceStatus_Compliant" xml:space="preserve">
+    <value>ممتثل</value>
+  </data>
+  <data name="ComplianceStatus_Partial" xml:space="preserve">
+    <value>جزئي</value>
+  </data>
+  <data name="ComplianceStatus_NonCompliant" xml:space="preserve">
+    <value>غير ممتثل</value>
+  </data>
+  <data name="Dashboard_ShahinAIInsights" xml:space="preserve">
+    <value>رؤى شاهين الذكية</value>
+  </data>
+  <data name="AI_SmartAnalysis" xml:space="preserve">
+    <value>تحليل ذكي</value>
+  </data>
+  <data name="AI_EarlyWarning" xml:space="preserve">
+    <value>تنبيه مبكر</value>
+  </data>
+  <data name="AI_AnalysisConfidence" xml:space="preserve">
+    <value>ثقة التحليل</value>
+  </data>
+  <data name="Dashboard_RegulatoryFrameworkProgress" xml:space="preserve">
+    <value>تقدم الأطر التنظيمية</value>
+  </data>
+  <data name="Dashboard_RecentActivity" xml:space="preserve">
+    <value>النشاط الأخير</value>
+  </data>
+  <data name="ViewAll" xml:space="preserve">
+    <value>عرض الكل</value>
+  </data>
+  <data name="Dashboard_CriticalAlerts" xml:space="preserve">
+    <value>التنبيهات الحرجة</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>جديدة</value>
+  </data>
+  <data name="Dashboard_PendingTasksTitle" xml:space="preserve">
+    <value>المهام المعلقة</value>
+  </data>
+  <data name="Task" xml:space="preserve">
+    <value>المهمة</value>
+  </data>
+  <data name="Priority" xml:space="preserve">
+    <value>الأولوية</value>
+  </data>
+  <data name="DueDate" xml:space="preserve">
+    <value>الموعد</value>
+  </data>
+  <data name="Priority_Urgent" xml:space="preserve">
+    <value>عاجل</value>
+  </data>
+  <data name="Priority_Medium" xml:space="preserve">
+    <value>متوسط</value>
+  </data>
+  <data name="Priority_Normal" xml:space="preserve">
+    <value>عادي</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>اليوم</value>
+  </data>
+  <data name="Tomorrow" xml:space="preserve">
+    <value>غداً</value>
+  </data>
+  <data name="Days" xml:space="preserve">
+    <value>أيام</value>
+  </data>
+  <data name="Week" xml:space="preserve">
+    <value>أسبوع</value>
+  </data>
+  <data name="Ago" xml:space="preserve">
+    <value>منذ</value>
+  </data>
+  <data name="Minutes" xml:space="preserve">
+    <value>دقائق</value>
+  </data>
+  <data name="Hour" xml:space="preserve">
+    <value>ساعة</value>
+  </data>
+  <data name="By" xml:space="preserve">
+    <value>بواسطة</value>
+  </data>
+  <data name="Department" xml:space="preserve">
+    <value>القسم</value>
+  </data>
+  <data name="ViewDetails" xml:space="preserve">
+    <value>عرض التفاصيل</value>
+  </data>
+  <data name="TotalRisks" xml:space="preserve">
+    <value>إجمالي المخاطر</value>
+  </data>
+  <data name="ActiveControls" xml:space="preserve">
+    <value>الضوابط النشطة</value>
+  </data>
+  <data name="PendingAudits" xml:space="preserve">
+    <value>التدقيقات المعلقة</value>
+  </data>
+  <data name="ComplianceScore" xml:space="preserve">
+    <value>درجة الامتثال</value>
+  </data>
+  <data name="RecentRisks" xml:space="preserve">
+    <value>المخاطر الأخيرة</value>
+  </data>
+  <data name="RecentActivity" xml:space="preserve">
+    <value>النشاط الأخير</value>
+  </data>
+  <data name="NoDataAvailable" xml:space="preserve">
+    <value>لا توجد بيانات متاحة</value>
+  </data>
+  <data name="LoadingData" xml:space="preserve">
+    <value>جاري تحميل البيانات...</value>
+  </data>
+  <data name="UpcomingAudits" xml:space="preserve">
+    <value>التدقيقات القادمة</value>
+  </data>
+  <data name="QuickActions" xml:space="preserve">
+    <value>إجراءات سريعة</value>
+  </data>
+  <data name="NewRisk" xml:space="preserve">
+    <value>مخاطرة جديدة</value>
+  </data>
+  <data name="NewControl" xml:space="preserve">
+    <value>ضابط جديد</value>
+  </data>
+  <data name="NewAssessment" xml:space="preserve">
+    <value>تقييم جديد</value>
+  </data>
+  <data name="GenerateReport" xml:space="preserve">
+    <value>إنشاء تقرير</value>
+  </data>
+  <data name="WelcomeToGrc" xml:space="preserve">
+    <value>مرحباً بك في نظام إدارة الحوكمة والمخاطر والامتثال</value>
+  </data>
+  <data name="GrcPlatformDescription" xml:space="preserve">
+    <value>منصة شاملة لإدارة الحوكمة والمخاطر والامتثال</value>
+  </data>
+  <data name="PleaseLoginMessage" xml:space="preserve">
+    <value>يرجى تسجيل الدخول للوصول إلى لوحة التحكم وإدارة أنشطة الحوكمة والمخاطر والامتثال في مؤسستك.</value>
+  </data>
+  <data name="RiskManagement" xml:space="preserve">
+    <value>إدارة المخاطر</value>
+  </data>
+  <data name="RiskManagementDescription" xml:space="preserve">
+    <value>تحديد وتقييم وتخفيف المخاطر في مؤسستك باستخدام أدوات إدارة المخاطر الشاملة.</value>
+  </data>
+  <data name="ComplianceTracking" xml:space="preserve">
+    <value>تتبع الامتثال</value>
+  </data>
+  <data name="ComplianceTrackingDescription" xml:space="preserve">
+    <value>ضمان الامتثال للمتطلبات التنظيمية والسياسات الداخلية من خلال التتبع الآلي وإعداد التقارير.</value>
+  </data>
+  <data name="PerformanceAnalytics" xml:space="preserve">
+    <value>تحليلات الأداء</value>
+  </data>
+  <data name="PerformanceAnalyticsDescription" xml:space="preserve">
+    <value>راقب أداء الحوكمة والمخاطر والامتثال باستخدام لوحات المعلومات في الوقت الفعلي والتحليلات الشاملة.</value>
+  </data>
+  <data name="WantToExplore" xml:space="preserve">
+    <value>هل تريد استكشاف المنصة أولاً؟</value>
+  </data>
+  <data name="TryDemo" xml:space="preserve">
+    <value>جرب العرض التوضيحي (مستأجر POC)</value>
+  </data>
+  <data name="DemoDescription" xml:space="preserve">
+    <value>منظمة شاهين AI التجريبية المكونة مسبقاً</value>
+  </data>
+  <data name="RiskName" xml:space="preserve">
+    <value>اسم المخاطرة</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>المستوى</value>
+  </data>
+  <data name="AuditTitle" xml:space="preserve">
+    <value>عنوان التدقيق</value>
+  </data>
+  <data name="AuditType" xml:space="preserve">
+    <value>النوع</value>
+  </data>
+  <data name="Internal" xml:space="preserve">
+    <value>داخلي</value>
+  </data>
+  <data name="External" xml:space="preserve">
+    <value>خارجي</value>
+  </data>
+  <data name="Mitigated" xml:space="preserve">
+    <value>تم التخفيف</value>
+  </data>
+  <data name="RiskMatrix" xml:space="preserve">
+    <value>مصفوفة المخاطر</value>
+  </data>
+  <data name="Report" xml:space="preserve">
+    <value>تقرير</value>
+  </data>
+  <data name="EvidenceManagement" xml:space="preserve">
+    <value>إدارة الأدلة</value>
+  </data>
+  <data name="NewEvidence" xml:space="preserve">
+    <value>دليل جديد</value>
+  </data>
+  <data name="ExpiringSoon" xml:space="preserve">
+    <value>تنتهي قريباً</value>
+  </data>
+  <data name="Statistics" xml:space="preserve">
+    <value>الإحصائيات</value>
+  </data>
+  <data name="Probability" xml:space="preserve">
+    <value>الاحتمالية</value>
+  </data>
+  <data name="Impact" xml:space="preserve">
+    <value>التأثير</value>
+  </data>
+  <data name="RiskScore" xml:space="preserve">
+    <value>نقاط المخاطرة</value>
+  </data>
+  <data name="Collected" xml:space="preserve">
+    <value>تم الجمع</value>
+  </data>
+  <data name="Expires" xml:space="preserve">
+    <value>تنتهي</value>
+  </data>
+  <data name="Classification" xml:space="preserve">
+    <value>التصنيف</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>تحميل</value>
+  </data>
+  <data name="NoRecordsFound" xml:space="preserve">
+    <value>لا توجد سجلات</value>
+  </data>
+  <data name="Month_January" xml:space="preserve">
+    <value>يناير</value>
+  </data>
+  <data name="Month_February" xml:space="preserve">
+    <value>فبراير</value>
+  </data>
+  <data name="Month_March" xml:space="preserve">
+    <value>مارس</value>
+  </data>
+  <data name="Month_April" xml:space="preserve">
+    <value>أبريل</value>
+  </data>
+  <data name="Month_May" xml:space="preserve">
+    <value>مايو</value>
+  </data>
+  <data name="Month_June" xml:space="preserve">
+    <value>يونيو</value>
+  </data>
+  <data name="Month_July" xml:space="preserve">
+    <value>يوليو</value>
+  </data>
+  <data name="Month_August" xml:space="preserve">
+    <value>أغسطس</value>
+  </data>
+  <data name="Month_September" xml:space="preserve">
+    <value>سبتمبر</value>
+  </data>
+  <data name="Month_October" xml:space="preserve">
+    <value>أكتوبر</value>
+  </data>
+  <data name="Month_November" xml:space="preserve">
+    <value>نوفمبر</value>
+  </data>
+  <data name="Month_December" xml:space="preserve">
+    <value>ديسمبر</value>
+  </data>
+  <data name="Chart_ComplianceRate" xml:space="preserve">
+    <value>نسبة الامتثال</value>
+  </data>
+  <data name="Chart_Target" xml:space="preserve">
+    <value>الهدف</value>
+  </data>
+  <data name="AI_OpportunityToImprove" xml:space="preserve">
+    <value>فرصة لتحسين الامتثال</value>
+  </data>
+  <data name="AI_OpportunityToImproveText" xml:space="preserve">
+    <value>تم اكتشاف 3 ضوابط متشابهة في أطر NCA-ECC و SAMA-CSF. يمكن دمج الأدلة لتقليل الجهد بنسبة 40%.</value>
+  </data>
+  <data name="AI_RenewalDateComing" xml:space="preserve">
+    <value>موعد تجديد قادم</value>
+  </data>
+  <data name="AI_RenewalDateComingText" xml:space="preserve">
+    <value>شهادة ISO 27001 تنتهي خلال 45 يوماً. يُنصح ببدء عملية التجديد الآن.</value>
+  </data>
+  <data name="AI_Confidence" xml:space="preserve">
+    <value>ثقة التحليل</value>
+  </data>
+  <data name="Priority" xml:space="preserve">
+    <value>أولوية</value>
+  </data>
+  <data name="High" xml:space="preserve">
+    <value>عالية</value>
+  </data>
+  <data name="Activity_EvidenceApproved" xml:space="preserve">
+    <value>تم اعتماد دليل الامتثال #1247</value>
+  </data>
+  <data name="Activity_NewRiskRegistered" xml:space="preserve">
+    <value>تم تسجيل خطر جديد - تسرب البيانات</value>
+  </data>
+  <data name="Activity_PolicyUploaded" xml:space="preserve">
+    <value>تم رفع سياسة أمن المعلومات v2.1</value>
+  </data>
+  <data name="Activity_AssessmentCompleted" xml:space="preserve">
+    <value>اكتمال تقييم ضوابط NCA-ECC</value>
+  </data>
+  <data name="Alert_CriticalControlNotApplied" xml:space="preserve">
+    <value>ضابط حرج غير مطبق</value>
+  </data>
+  <data name="Alert_ComplianceDeadlineMissed" xml:space="preserve">
+    <value>تأخر في موعد الامتثال</value>
+  </data>
+  <data name="Alert_TaskExpiringSoon" xml:space="preserve">
+    <value>مهمة تنتهي قريباً</value>
+  </data>
+  <data name="Alert_EvidenceExpired" xml:space="preserve">
+    <value>دليل منتهي الصلاحية</value>
+  </data>
+  <data name="Alert_CriticalControlNotAppliedDesc" xml:space="preserve">
+    <value>إدارة الوصول المميز - يجب المعالجة خلال 48 ساعة</value>
+  </data>
+  <data name="Alert_ComplianceDeadlineMissedDesc" xml:space="preserve">
+    <value>تقييم SAMA الدوري متأخر 5 أيام عن الموعد المحدد</value>
+  </data>
+  <data name="Alert_TaskExpiringSoonDesc" xml:space="preserve">
+    <value>مراجعة سياسة الخصوصية - متبقي يومان</value>
+  </data>
+  <data name="Alert_EvidenceExpiredDesc" xml:space="preserve">
+    <value>3 أدلة تحتاج تحديث - آخر مراجعة قبل 6 أشهر</value>
+  </data>
+  <data name="Task_ReviewAccessControls" xml:space="preserve">
+    <value>مراجعة ضوابط الوصول</value>
+  </data>
+  <data name="Task_UpdateInformationSecurityPolicy" xml:space="preserve">
+    <value>تحديث سياسة أمن المعلومات</value>
+  </data>
+  <data name="Task_ApproveTrainingGuide" xml:space="preserve">
+    <value>اعتماد دليل التدريب</value>
+  </data>
+  <data name="Task_ReviewMonthlyRiskReport" xml:space="preserve">
+    <value>مراجعة تقرير المخاطر الشهري</value>
+  </data>
+  <data name="Task_AssessNewExternalVendor" xml:space="preserve">
+    <value>تقييم مورد خارجي جديد</value>
+  </data>
+  <data name="Auth_LoginToGrc" xml:space="preserve">
+    <value>تسجيل الدخول إلى نظام GRC</value>
+  </data>
+  <data name="Auth_CreateNewAccount" xml:space="preserve">
+    <value>إنشاء حساب جديد</value>
+  </data>
+  <data name="Auth_ForgotPasswordTitle" xml:space="preserve">
+    <value>نسيت كلمة المرور؟</value>
+  </data>
+  <data name="Auth_FirstName" xml:space="preserve">
+    <value>الاسم الأول</value>
+  </data>
+  <data name="Auth_LastName" xml:space="preserve">
+    <value>اسم العائلة</value>
+  </data>
+  <data name="Auth_Department" xml:space="preserve">
+    <value>القسم</value>
+  </data>
+  <data name="Auth_EmailPlaceholder" xml:space="preserve">
+    <value>email@example.com</value>
+  </data>
+  <data name="Auth_PasswordPlaceholder" xml:space="preserve">
+    <value>أدخل كلمة المرور</value>
+  </data>
+  <data name="Auth_PasswordCreatePlaceholder" xml:space="preserve">
+    <value>أنشئ كلمة مرور قوية</value>
+  </data>
+  <data name="Auth_ConfirmPasswordPlaceholder" xml:space="preserve">
+    <value>أكد كلمة المرور</value>
+  </data>
+  <data name="Auth_StrongPasswordHint" xml:space="preserve">
+    <value>يجب أن تكون كلمة المرور 6 أحرف على الأقل وتحتوي على أحرف كبيرة وصغيرة وأرقام ورموز خاصة.</value>
+  </data>
+  <data name="Auth_DontHaveAccount" xml:space="preserve">
+    <value>ليس لديك حساب؟</value>
+  </data>
+  <data name="Auth_RegisterHere" xml:space="preserve">
+    <value>سجل هنا</value>
+  </data>
+  <data name="Auth_AlreadyHaveAccount" xml:space="preserve">
+    <value>لديك حساب بالفعل؟</value>
+  </data>
+  <data name="Auth_LoginHere" xml:space="preserve">
+    <value>سجل الدخول هنا</value>
+  </data>
+  <data name="Auth_ForgotTenantId" xml:space="preserve">
+    <value>نسيت معرف المستأجر؟</value>
+  </data>
+  <data name="Auth_EnterEmailReset" xml:space="preserve">
+    <value>أدخل عنوان بريدك الإلكتروني وسنرسل لك رابط لإعادة تعيين كلمة المرور.</value>
+  </data>
+  <data name="Auth_FirstNamePlaceholder" xml:space="preserve">
+    <value>أحمد</value>
+  </data>
+  <data name="Auth_LastNamePlaceholder" xml:space="preserve">
+    <value>محمد</value>
+  </data>
+  <data name="Auth_DepartmentPlaceholder" xml:space="preserve">
+    <value>قسم تقنية المعلومات</value>
+  </data>
+  <data name="Auth_ResetPasswordSent" xml:space="preserve">
+    <value>تم إرسال رابط إعادة التعيين</value>
+  </data>
+  <data name="Auth_ResetPasswordSentTitle" xml:space="preserve">
+    <value>تم إرسال رابط إعادة التعيين</value>
+  </data>
+  <data name="Auth_ResetPasswordSentSuccess" xml:space="preserve">
+    <value>✅ تم الإرسال بنجاح!</value>
+  </data>
+  <data name="Auth_ResetPasswordSentMessage" xml:space="preserve">
+    <value>تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.</value>
+  </data>
+  <data name="Auth_CheckInbox" xml:space="preserve">
+    <value>تحقق من صندوق الوارد (Inbox)</value>
+  </data>
+  <data name="Auth_CheckSpam" xml:space="preserve">
+    <value>تحقق من مجلد البريد غير المرغوب (Spam/Junk)</value>
+  </data>
+  <data name="Auth_LinkValid24Hours" xml:space="preserve">
+    <value>الرابط صالح لمدة 24 ساعة فقط</value>
+  </data>
+  <data name="Auth_BackToLogin" xml:space="preserve">
+    <value>العودة لتسجيل الدخول</value>
+  </data>
+  <data name="Auth_EmailNotReceived" xml:space="preserve">
+    <value>لم يصل الإيميل؟</value>
+  </data>
+  <data name="Auth_WaitFewMinutes" xml:space="preserve">
+    <value>انتظر بضع دقائق ثم</value>
+  </data>
+  <data name="Auth_TryAgain" xml:space="preserve">
+    <value>حاول مرة أخرى</value>
+  </data>
+  <data name="Auth_PasswordResetSuccessful" xml:space="preserve">
+    <value>تم إعادة تعيين كلمة المرور بنجاح</value>
+  </data>
+  <data name="Auth_PasswordResetSuccessfulMessage" xml:space="preserve">
+    <value>تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.</value>
+  </data>
+  <data name="Auth_UseStrongPassword" xml:space="preserve">
+    <value>لأسباب أمنية، يرجى استخدام كلمة مرور قوية تتضمن أحرف كبيرة وأرقام ورموز خاصة.</value>
+  </data>
+  <data name="Auth_LogInToYourAccount" xml:space="preserve">
+    <value>تسجيل الدخول إلى حسابك</value>
+  </data>
+  <data name="Auth_RememberPassword" xml:space="preserve">
+    <value>تذكرت كلمة المرور؟</value>
+  </data>
+  <data name="Auth_GoToLogin" xml:space="preserve">
+    <value>انتقل إلى تسجيل الدخول</value>
+  </data>
+  <data name="Auth_ContactSupport" xml:space="preserve">
+    <value>إذا لم تطلب إعادة تعيين كلمة المرور أو لديك أي مخاوف، يرجى الاتصال بفريق الدعم.</value>
+  </data>
+  <data name="Auth_CurrentPassword" xml:space="preserve">
+    <value>كلمة المرور الحالية</value>
+  </data>
+  <data name="Auth_NewPassword" xml:space="preserve">
+    <value>كلمة المرور الجديدة</value>
+  </data>
+  <data name="Auth_PasswordMinLengthHint" xml:space="preserve">
+    <value>يجب أن تكون كلمة المرور 6 أحرف على الأقل.</value>
+  </data>
+  <data name="Auth_BackToProfile" xml:space="preserve">
+    <value>العودة إلى الملف الشخصي</value>
+  </data>
+  <data name="Auth_ForgotTenantIdTitle" xml:space="preserve">
+    <value>نسيت معرف المستأجر</value>
+  </data>
+  <data name="Auth_EnterEmailRetrieveTenantId" xml:space="preserve">
+    <value>أدخل عنوان بريدك الإلكتروني لاسترداد معرف المستأجر</value>
+  </data>
+  <data name="Auth_TenantIdFound" xml:space="preserve">
+    <value>تم العثور على معرف المستأجر!</value>
+  </data>
+  <data name="Auth_OrganizationName" xml:space="preserve">
+    <value>اسم المؤسسة:</value>
+  </data>
+  <data name="Auth_TenantIdLabel" xml:space="preserve">
+    <value>معرف المستأجر:</value>
+  </data>
+  <data name="Auth_Copy" xml:space="preserve">
+    <value>نسخ</value>
+  </data>
+  <data name="Auth_CopyTenantIdHint" xml:space="preserve">
+    <value>انسخ معرف المستأجر هذا واستخدمه لتسجيل الدخول</value>
+  </data>
+  <data name="Auth_TenantSlug" xml:space="preserve">
+    <value>معرف المستأجر المختصر:</value>
+  </data>
+  <data name="Auth_TenantIdNotFound" xml:space="preserve">
+    <value>لم يتم العثور على معرف المستأجر.</value>
+  </data>
+  <data name="Auth_TenantIdNotFoundMessage" xml:space="preserve">
+    <value>لم نتمكن من العثور على معرف مستأجر مرتبط بعنوان البريد الإلكتروني هذا، أو ليس لديك حق الوصول كمسؤول. يرجى التحقق من بريدك الإلكتروني وكلمة المرور، أو الاتصال بمسؤول النظام للحصول على المساعدة.</value>
+  </data>
+  <data name="Auth_EnterEmailTenantAdmin" xml:space="preserve">
+    <value>أدخل عنوان البريد الإلكتروني المرتبط بحساب مسؤول المستأجر</value>
+  </data>
+  <data name="Auth_EnterPasswordVerify" xml:space="preserve">
+    <value>أدخل كلمة المرور للتحقق من هويتك</value>
+  </data>
+  <data name="Auth_CredentialsTemporaryNote" xml:space="preserve">
+    <value>ملاحظة: هذه البيانات مؤقتة وقد تنتهي صلاحيتها. إذا انتهت صلاحية بيانات الاعتماد الخاصة بك، يرجى الاتصال بمالك النظام.</value>
+  </data>
+  <data name="Auth_FindTenantId" xml:space="preserve">
+    <value>البحث عن معرف المستأجر</value>
+  </data>
+  <data name="Auth_BackToTenantAdminLogin" xml:space="preserve">
+    <value>العودة إلى تسجيل دخول مسؤول المستأجر</value>
+  </data>
+  <data name="Auth_ImportantNotes" xml:space="preserve">
+    <value>ملاحظات هامة:</value>
+  </data>
 </root>

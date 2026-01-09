@@ -41,7 +41,7 @@ namespace GrcMvc.Services.Implementations
                 // For demo/dev purposes, accept all certificates if needed (remove in strict production)
                 // client.ServerCertificateValidationCallback = (s, c, h, e) => true;
 
-                await client.ConnectAsync(_emailSettings.SmtpServer, _emailSettings.SmtpPort,
+                await client.ConnectAsync(_emailSettings.SmtpServer, _emailSettings.GetSmtpPort(),
                     _emailSettings.EnableSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.None);
 
                 if (!string.IsNullOrEmpty(_emailSettings.Username))

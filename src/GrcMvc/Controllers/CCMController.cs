@@ -82,6 +82,7 @@ public class CCMController : Controller
 /// KRI/KPI Dashboard Controller
 /// Real-time risk indicator monitoring
 /// </summary>
+[Authorize]
 [Route("[controller]")]
 public class KRIDashboardController : Controller
 {
@@ -355,6 +356,7 @@ public class InviteDto
 /// Reports & Analytics Controller
 /// Compliance scores, trends, drill-downs
 /// </summary>
+[Authorize]
 [Route("[controller]")]
 public class ReportsController : Controller
 {

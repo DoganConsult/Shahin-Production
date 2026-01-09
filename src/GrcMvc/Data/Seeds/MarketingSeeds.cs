@@ -24,73 +24,24 @@ public static class MarketingSeeds
 
     private static async Task SeedTestimonialsAsync(GrcDbContext context)
     {
-        if (await context.Testimonials.AnyAsync())
-            return;
-
-        var testimonials = new List<Testimonial>
-        {
-            new()
-            {
-                Quote = "Shahin reduced our compliance assessment time by 70%. The smart scope derivation is truly game-changing for Saudi organizations.",
-                QuoteAr = "شاهين اختصر علينا 70% من وقت تقييم الامتثال. الاشتقاق الذكي للنطاق حقاً يغير قواعد اللعبة للمؤسسات السعودية.",
-                AuthorName = "Eng. Khalid Al-Saeed",
-                AuthorNameAr = "م. خالد السعيد",
-                AuthorTitle = "Chief Compliance Officer",
-                AuthorTitleAr = "مدير الامتثال",
-                CompanyName = "Major Saudi Financial Institution",
-                CompanyNameAr = "مؤسسة مالية سعودية كبرى",
-                Industry = "Financial Services",
-                IndustryAr = "الخدمات المالية",
-                DisplayOrder = 1,
-                IsFeatured = true
-            },
-            new()
-            {
-                Quote = "Finally, a GRC platform that understands KSA regulations out of the box. We no longer need to translate international frameworks.",
-                QuoteAr = "أخيراً منصة GRC تفهم المتطلبات السعودية. لم نعد نحتاج لترجمة الأُطر الدولية.",
-                AuthorName = "Dr. Sarah Al-Omari",
-                AuthorNameAr = "د. سارة العمري",
-                AuthorTitle = "Chief Information Security Officer",
-                AuthorTitleAr = "مديرة أمن المعلومات",
-                CompanyName = "Leading Tech Company",
-                CompanyNameAr = "شركة تقنية رائدة",
-                Industry = "Technology",
-                IndustryAr = "التقنية",
-                DisplayOrder = 2,
-                IsFeatured = true
-            },
-            new()
-            {
-                Quote = "The 96-question onboarding process mapped exactly to our organization profile. Within days, we knew precisely which frameworks applied to us.",
-                QuoteAr = "استبيان التسجيل المكون من 96 سؤالاً حدد بدقة ملف مؤسستنا. خلال أيام عرفنا بالضبط أي الأُطر تنطبق علينا.",
-                AuthorName = "Mohammed Al-Rashid",
-                AuthorNameAr = "محمد الراشد",
-                AuthorTitle = "Risk Manager",
-                AuthorTitleAr = "مدير المخاطر",
-                CompanyName = "Regional Healthcare Provider",
-                CompanyNameAr = "مقدم رعاية صحية إقليمي",
-                Industry = "Healthcare",
-                IndustryAr = "الرعاية الصحية",
-                DisplayOrder = 3
-            },
-            new()
-            {
-                Quote = "Consolidated 5 separate GRC tools into one platform. The cost savings and efficiency gains have been remarkable.",
-                QuoteAr = "دمجنا 5 أنظمة GRC منفصلة في منصة واحدة. التوفير في التكاليف وتحسين الكفاءة كان ملحوظاً.",
-                AuthorName = "Ahmed Al-Zahrani",
-                AuthorNameAr = "أحمد الزهراني",
-                AuthorTitle = "VP of IT Operations",
-                AuthorTitleAr = "نائب رئيس عمليات تقنية المعلومات",
-                CompanyName = "Major Telecom Provider",
-                CompanyNameAr = "مزود اتصالات كبير",
-                Industry = "Telecommunications",
-                IndustryAr = "الاتصالات",
-                DisplayOrder = 4
-            }
-        };
-
-        context.Testimonials.AddRange(testimonials);
-        await context.SaveChangesAsync();
+        // ==========================================================================
+        // TESTIMONIALS SEEDING - DISABLED
+        // 
+        // REASON: We are NEW TO MARKET and have NO REAL CUSTOMERS yet.
+        // 
+        // Adding fake testimonials with names like "Eng. Khalid Al-Saeed" or 
+        // "Dr. Sarah Al-Omari" is MISLEADING and potentially ILLEGAL (false advertising).
+        // 
+        // DO NOT seed any testimonials until we have:
+        // 1. Real paying customers
+        // 2. Written consent from those customers to use their testimonials
+        // 3. Verified quotes approved by the customer
+        // 
+        // The view is configured to hide the testimonials section when empty.
+        // ==========================================================================
+        
+        // No testimonials to seed - we have no real customers yet
+        await Task.CompletedTask;
     }
 
     private static async Task SeedCaseStudiesAsync(GrcDbContext context)
@@ -272,79 +223,21 @@ public static class MarketingSeeds
 
     private static async Task SeedClientLogosAsync(GrcDbContext context)
     {
-        if (await context.ClientLogos.AnyAsync())
-            return;
-
-        var logos = new List<ClientLogo>
-        {
-            new()
-            {
-                ClientName = "Saudi Aramco",
-                ClientNameAr = "أرامكو السعودية",
-                LogoUrl = "/images/clients/aramco.svg",
-                Industry = "Energy",
-                IndustryAr = "الطاقة",
-                Category = "Enterprise",
-                DisplayOrder = 1,
-                IsFeatured = true
-            },
-            new()
-            {
-                ClientName = "STC Group",
-                ClientNameAr = "مجموعة stc",
-                LogoUrl = "/images/clients/stc.svg",
-                Industry = "Telecommunications",
-                IndustryAr = "الاتصالات",
-                Category = "Enterprise",
-                DisplayOrder = 2,
-                IsFeatured = true
-            },
-            new()
-            {
-                ClientName = "Saudi National Bank",
-                ClientNameAr = "البنك الأهلي السعودي",
-                LogoUrl = "/images/clients/snb.svg",
-                Industry = "Financial Services",
-                IndustryAr = "الخدمات المالية",
-                Category = "Enterprise",
-                DisplayOrder = 3,
-                IsFeatured = true
-            },
-            new()
-            {
-                ClientName = "NEOM",
-                ClientNameAr = "نيوم",
-                LogoUrl = "/images/clients/neom.svg",
-                Industry = "Development",
-                IndustryAr = "التطوير",
-                Category = "Government",
-                DisplayOrder = 4,
-                IsFeatured = true
-            },
-            new()
-            {
-                ClientName = "Ministry of Health",
-                ClientNameAr = "وزارة الصحة",
-                LogoUrl = "/images/clients/moh.svg",
-                Industry = "Government",
-                IndustryAr = "الحكومة",
-                Category = "Government",
-                DisplayOrder = 5
-            },
-            new()
-            {
-                ClientName = "SDAIA",
-                ClientNameAr = "سدايا",
-                LogoUrl = "/images/clients/sdaia.svg",
-                Industry = "Technology",
-                IndustryAr = "التقنية",
-                Category = "Government",
-                DisplayOrder = 6
-            }
-        };
-
-        context.ClientLogos.AddRange(logos);
-        await context.SaveChangesAsync();
+        // CLIENT LOGOS DISABLED - New to market, no customers yet
+        // This section will be populated with real customer logos once we have them
+        // DO NOT seed fake client logos (Aramco, STC, etc.) - that's misleading marketing
+        
+        // Placeholder: When ready, add real clients here
+        // Example structure:
+        // new ClientLogo {
+        //     ClientName = "Real Client Name",
+        //     ClientNameAr = "اسم العميل الحقيقي",
+        //     LogoUrl = "/images/clients/real-client.svg",
+        //     Industry = "Industry",
+        //     IsFeatured = true
+        // }
+        
+        await Task.CompletedTask;
     }
 
     private static async Task SeedTrustBadgesAsync(GrcDbContext context)
@@ -352,72 +245,74 @@ public static class MarketingSeeds
         if (await context.TrustBadges.AnyAsync())
             return;
 
+        // HONEST BADGES - Frameworks we SUPPORT, not certifications we HAVE
+        // These show what standards users can achieve compliance with using our platform
         var badges = new List<TrustBadge>
         {
             new()
             {
-                Name = "ISO 27001 Certified",
-                NameAr = "شهادة ISO 27001",
-                Description = "Information Security Management System",
-                DescriptionAr = "نظام إدارة أمن المعلومات",
-                ImageUrl = "/images/badges/iso27001.svg",
-                Category = "Certification",
-                BadgeCode = "ISO27001",
+                Name = "NCA ECC Support",
+                NameAr = "يدعم NCA ECC",
+                Description = "Built for National Cybersecurity Authority compliance",
+                DescriptionAr = "مبني للامتثال للهيئة الوطنية للأمن السيبراني",
+                ImageUrl = "/images/badges/nca.svg",
+                Category = "Framework",
+                BadgeCode = "NCA-ECC",
                 DisplayOrder = 1
             },
             new()
             {
-                Name = "SOC 2 Type II",
-                NameAr = "SOC 2 Type II",
-                Description = "Service Organization Control",
-                DescriptionAr = "تحكم منظمة الخدمات",
-                ImageUrl = "/images/badges/soc2.svg",
-                Category = "Certification",
-                BadgeCode = "SOC2",
+                Name = "SAMA CSF Support",
+                NameAr = "يدعم SAMA CSF",
+                Description = "Saudi Central Bank Cybersecurity Framework ready",
+                DescriptionAr = "جاهز لإطار الأمن السيبراني للبنك المركزي",
+                ImageUrl = "/images/badges/sama.svg",
+                Category = "Framework",
+                BadgeCode = "SAMA-CSF",
                 DisplayOrder = 2
             },
             new()
             {
-                Name = "NCA Compliant",
-                NameAr = "متوافق مع NCA",
-                Description = "National Cybersecurity Authority",
-                DescriptionAr = "الهيئة الوطنية للأمن السيبراني",
-                ImageUrl = "/images/badges/nca.svg",
-                Category = "Compliance",
-                BadgeCode = "NCA-ECC",
+                Name = "PDPL Support",
+                NameAr = "يدعم PDPL",
+                Description = "Personal Data Protection Law compliance tools",
+                DescriptionAr = "أدوات الامتثال لنظام حماية البيانات الشخصية",
+                ImageUrl = "/images/badges/pdpl.svg",
+                Category = "Framework",
+                BadgeCode = "PDPL",
                 DisplayOrder = 3
             },
             new()
             {
-                Name = "SAMA CSF Ready",
-                NameAr = "جاهز لـ SAMA CSF",
-                Description = "Saudi Central Bank Cybersecurity Framework",
-                DescriptionAr = "إطار الأمن السيبراني للبنك المركزي",
-                ImageUrl = "/images/badges/sama.svg",
-                Category = "Compliance",
-                BadgeCode = "SAMA-CSF",
+                Name = "ISO 27001 Support",
+                NameAr = "يدعم ISO 27001",
+                Description = "Information Security Management System framework",
+                DescriptionAr = "إطار نظام إدارة أمن المعلومات",
+                ImageUrl = "/images/badges/iso27001.svg",
+                Category = "Framework",
+                BadgeCode = "ISO27001",
                 DisplayOrder = 4
             },
             new()
             {
-                Name = "PDPL Compliant",
-                NameAr = "متوافق مع PDPL",
-                Description = "Personal Data Protection Law",
-                DescriptionAr = "نظام حماية البيانات الشخصية",
-                ImageUrl = "/images/badges/pdpl.svg",
-                Category = "Privacy",
-                BadgeCode = "PDPL",
+                Name = "CBAHI Support",
+                NameAr = "يدعم CBAHI",
+                Description = "Healthcare accreditation framework",
+                DescriptionAr = "إطار اعتماد الرعاية الصحية",
+                ImageUrl = "/images/badges/cbahi.svg",
+                Category = "Framework",
+                BadgeCode = "CBAHI",
                 DisplayOrder = 5
             },
             new()
             {
-                Name = "GDPR Ready",
-                NameAr = "جاهز لـ GDPR",
-                Description = "General Data Protection Regulation",
-                DescriptionAr = "اللائحة العامة لحماية البيانات",
-                ImageUrl = "/images/badges/gdpr.svg",
-                Category = "Privacy",
-                BadgeCode = "GDPR",
+                Name = "CITC Support",
+                NameAr = "يدعم CITC",
+                Description = "Communications & IT Commission regulations",
+                DescriptionAr = "لوائح هيئة الاتصالات وتقنية المعلومات",
+                ImageUrl = "/images/badges/citc.svg",
+                Category = "Framework",
+                BadgeCode = "CITC",
                 DisplayOrder = 6
             }
         };
@@ -473,8 +368,8 @@ public static class MarketingSeeds
             {
                 Question = "Is my data secure in Shahin?",
                 QuestionAr = "هل بياناتي آمنة في شاهين؟",
-                Answer = "Absolutely. Shahin is ISO 27001 certified, SOC 2 compliant, and hosted on enterprise-grade infrastructure. Data is encrypted at rest and in transit.",
-                AnswerAr = "بالتأكيد. شاهين حاصل على شهادة ISO 27001 ومتوافق مع SOC 2 ومستضاف على بنية تحتية مؤسسية. البيانات مشفرة أثناء التخزين والنقل.",
+                Answer = "Absolutely. Shahin is built on enterprise-grade infrastructure with security best practices. Data is encrypted at rest and in transit, with role-based access controls and full audit trails.",
+                AnswerAr = "بالتأكيد. شاهين مبني على بنية تحتية مؤسسية مع أفضل ممارسات الأمان. البيانات مشفرة أثناء التخزين والنقل، مع صلاحيات مبنية على الأدوار وسجلات تدقيق كاملة.",
                 Category = "Security",
                 DisplayOrder = 5
             },
@@ -507,13 +402,14 @@ public static class MarketingSeeds
         if (await context.LandingStatistics.AnyAsync())
             return;
 
+        // HONEST STATS - Product capabilities, not fake customer numbers
         var stats = new List<LandingStatistic>
         {
             new()
             {
-                Label = "Organizations Protected",
-                LabelAr = "مؤسسة محمية",
-                Value = "500",
+                Label = "Regulatory Agencies",
+                LabelAr = "جهة تنظيمية",
+                Value = "120",
                 Suffix = "+",
                 IconClass = "bi-building",
                 Category = "Platform",
@@ -531,8 +427,8 @@ public static class MarketingSeeds
             },
             new()
             {
-                Label = "Controls Managed",
-                LabelAr = "ضابط مُدار",
+                Label = "Controls Library",
+                LabelAr = "مكتبة الضوابط",
                 Value = "400",
                 Suffix = "+",
                 IconClass = "bi-gear",
@@ -541,31 +437,30 @@ public static class MarketingSeeds
             },
             new()
             {
-                Label = "Platform Uptime",
-                LabelAr = "وقت التشغيل",
-                Value = "99.9",
-                Suffix = "%",
-                IconClass = "bi-clock",
-                Category = "Security",
+                Label = "Onboarding Questions",
+                LabelAr = "سؤال تسجيل",
+                Value = "96",
+                IconClass = "bi-question-circle",
+                Category = "Platform",
                 DisplayOrder = 4
             },
             new()
             {
-                Label = "Support Available",
-                LabelAr = "الدعم متاح",
-                Value = "24/7",
-                IconClass = "bi-headset",
-                Category = "Support",
+                Label = "AI Agents",
+                LabelAr = "وكيل ذكي",
+                Value = "9",
+                IconClass = "bi-robot",
+                Category = "AI",
                 DisplayOrder = 5
             },
             new()
             {
-                Label = "Average Time Saved",
-                LabelAr = "متوسط توفير الوقت",
-                Value = "70",
-                Suffix = "%",
-                IconClass = "bi-speedometer2",
-                Category = "Platform",
+                Label = "KSA Frameworks",
+                LabelAr = "إطار سعودي",
+                Value = "15",
+                Suffix = "+",
+                IconClass = "bi-flag",
+                Category = "Compliance",
                 DisplayOrder = 6
             }
         };

@@ -2,25 +2,58 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GrcMvc.Configuration
 {
-    public class EmailSettings
+    /// <summary>
+    /// Email settings configuration with proper validation.
+    /// Uses nullable port to handle empty env var overrides gracefully.
+    /// </summary>
+    public sealed record EmailSettings
     {
         public const string SectionName = "EmailSettings";
 
-        [Required]
-        public string SmtpServer { get; set; } = string.Empty;
+        /// <summary>
+        /// SMTP server hostname (e.g., smtp.office365.com)
+        /// </summary>
+        public string SmtpServer { get; init; } = "smtp.office365.com";
 
-        [Range(1, 65535)]
-        public int SmtpPort { get; set; } = 587;
+        /// <summary>
+        /// SMTP port. Nullable to handle empty env var override gracefully.
+        /// Use GetSmtpPort() to get the actual value with fallback.
+        /// </summary>
+        public int? SmtpPort { get; init; } = 587;
 
-        [Required]
-        public string SenderName { get; set; } = "GRC System";
+        /// <summary>
+        /// Gets the SMTP port with proper fallback for empty/null values.
+        /// </summary>
+        public int GetSmtpPort() => SmtpPort ?? 587;
 
-        [Required]
-        [EmailAddress]
-        public string SenderEmail { get; set; } = string.Empty;
+        /// <summary>
+        /// Sender display name
+        /// </summary>
+        public string SenderName { get; init; } = "Shahin GRC";
 
-        public string Username { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public bool EnableSsl { get; set; } = true;
+        /// <summary>
+        /// Sender email address
+        /// </summary>
+        public string SenderEmail { get; init; } = "noreply@shahin-ai.com";
+
+        /// <summary>
+        /// SMTP authentication username (optional)
+        /// </summary>
+        public string Username { get; init; } = string.Empty;
+
+        /// <summary>
+        /// SMTP authentication password (optional)
+        /// </summary>
+        public string Password { get; init; } = string.Empty;
+
+        /// <summary>
+        /// Enable SSL/TLS for SMTP connection
+        /// </summary>
+        public bool EnableSsl { get; init; } = true;
+
+        /// <summary>
+        /// Validates the configuration is usable
+        /// </summary>
+        public bool IsValid() => !string.IsNullOrWhiteSpace(SmtpServer) && GetSmtpPort() > 0;
     }
 }

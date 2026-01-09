@@ -197,7 +197,6 @@
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    console.log('Metrics updated:', data.timestamp);
                     // In production, update the UI dynamically instead of full page reload
                     location.reload();
                 }

@@ -749,24 +749,10 @@ public class LandingController : Controller
             _logger.LogWarning(ex, "Error fetching testimonials from database, using fallback");
         }
 
-        // Fallback if database is empty or error
-        return new List<TestimonialItem>
-        {
-            new()
-            {
-                Quote = "Reduced our compliance assessment time by 70%. The smart derivation is game-changing.",
-                Author = "Chief Compliance Officer",
-                Company = "Leading Saudi Financial Institution",
-                CompanyAr = "مؤسسة مالية سعودية رائدة"
-            },
-            new()
-            {
-                Quote = "Finally, a GRC platform that understands KSA regulations out of the box.",
-                Author = "CISO",
-                Company = "Major Telecom Provider",
-                CompanyAr = "مزود اتصالات كبير"
-            }
-        };
+        // NO FALLBACK TESTIMONIALS - We are new to market with no real customers yet.
+        // DO NOT add fake testimonials with specific names - this is misleading.
+        // Return empty list - the view will not render the testimonials section.
+        return new List<TestimonialItem>();
     }
 
     private StatsViewModel GetStats()

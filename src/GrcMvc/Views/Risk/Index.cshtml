@@ -1,23 +1,25 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model IEnumerable<GrcMvc.Models.DTOs.RiskDto>
 @{
-    ViewData["Title"] = "Risk Management";
+    ViewData["Title"] = L["RiskManagement"].Value;
     Layout = "_Layout";
 }
 
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col">
-            <h2><i class="bi bi-exclamation-triangle"></i> Risk Management</h2>
+            <h2><i class="bi bi-exclamation-triangle"></i> @L["RiskManagement"]</h2>
         </div>
         <div class="col text-end">
             <a asp-action="Create" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> New Risk
+                <i class="bi bi-plus-circle"></i> @L["NewRisk"]
             </a>
             <a asp-action="Matrix" class="btn btn-info">
-                <i class="bi bi-grid-3x3"></i> Risk Matrix
+                <i class="bi bi-grid-3x3"></i> @L["RiskMatrix"]
             </a>
             <a asp-action="Report" class="btn btn-secondary">
-                <i class="bi bi-file-earmark-bar-graph"></i> Report
+                <i class="bi bi-file-earmark-bar-graph"></i> @L["Report"]
             </a>
         </div>
     </div>
@@ -44,15 +46,15 @@
                 <table class="table table-hover" id="risksTable">
                     <thead>
                         <tr>
-                            <th>Risk Name</th>
-                            <th>Category</th>
-                            <th>Probability</th>
-                            <th>Impact</th>
-                            <th>Risk Score</th>
-                            <th>Status</th>
-                            <th>Owner</th>
-                            <th>Due Date</th>
-                            <th>Actions</th>
+                            <th>@L["RiskName"]</th>
+                            <th>@L["Category"]</th>
+                            <th>@L["Probability"]</th>
+                            <th>@L["Impact"]</th>
+                            <th>@L["RiskScore"]</th>
+                            <th>@L["Status"]</th>
+                            <th>@L["Owner"]</th>
+                            <th>@L["DueDate"]</th>
+                            <th>@L["Actions"]</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -88,15 +90,15 @@
                                 <td>
                                     <div class="btn-group btn-group-sm" role="group">
                                         <a asp-action="Edit" asp-route-id="@item.Id"
-                                           class="btn btn-outline-primary" title="Edit">
+                                           class="btn btn-outline-primary" title="@L["Edit"]">
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                         <a asp-action="Details" asp-route-id="@item.Id"
-                                           class="btn btn-outline-info" title="Details">
+                                           class="btn btn-outline-info" title="@L["Details"]">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         <a asp-action="Delete" asp-route-id="@item.Id"
-                                           class="btn btn-outline-danger" title="Delete">
+                                           class="btn btn-outline-danger" title="@L["Delete"]">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </div>

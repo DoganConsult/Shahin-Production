@@ -1230,4 +1230,600 @@
   <data name="PleaseWait" xml:space="preserve">
     <value>Please wait...</value>
   </data>
+
+  <!-- Dashboard Specific -->
+  <data name="Dashboard_CommandCenter" xml:space="preserve">
+    <value>Command Center</value>
+  </data>
+  <data name="Dashboard_IntegratedGrcSystem" xml:space="preserve">
+    <value>Integrated Governance, Risk, and Compliance System</value>
+  </data>
+  <data name="Dashboard_AllSystemsOperational" xml:space="preserve">
+    <value>All systems operational</value>
+  </data>
+  <data name="Dashboard_ComplianceRate" xml:space="preserve">
+    <value>Compliance Rate</value>
+  </data>
+  <data name="Dashboard_ActiveRisks" xml:space="preserve">
+    <value>Active Risks</value>
+  </data>
+  <data name="Dashboard_EffectiveControls" xml:space="preserve">
+    <value>Effective Controls</value>
+  </data>
+  <data name="Dashboard_PendingTasks" xml:space="preserve">
+    <value>Pending Tasks</value>
+  </data>
+  <data name="Dashboard_UploadedEvidence" xml:space="preserve">
+    <value>Uploaded Evidence</value>
+  </data>
+  <data name="Dashboard_ComplianceTrend" xml:space="preserve">
+    <value>Compliance Trend - Last 12 Months</value>
+  </data>
+  <data name="Dashboard_RiskHeatMap" xml:space="preserve">
+    <value>Risk Heat Map</value>
+  </data>
+  <data name="RiskLevel_Rare" xml:space="preserve">
+    <value>Rare</value>
+  </data>
+  <data name="RiskLevel_Unlikely" xml:space="preserve">
+    <value>Unlikely</value>
+  </data>
+  <data name="RiskLevel_Possible" xml:space="preserve">
+    <value>Possible</value>
+  </data>
+  <data name="RiskLevel_Likely" xml:space="preserve">
+    <value>Likely</value>
+  </data>
+  <data name="RiskLevel_AlmostCertain" xml:space="preserve">
+    <value>Almost Certain</value>
+  </data>
+  <data name="RiskLevel_Catastrophic" xml:space="preserve">
+    <value>Catastrophic</value>
+  </data>
+  <data name="ImpactLevel_Major" xml:space="preserve">
+    <value>Major</value>
+  </data>
+  <data name="ImpactLevel_Moderate" xml:space="preserve">
+    <value>Moderate</value>
+  </data>
+  <data name="ImpactLevel_Minor" xml:space="preserve">
+    <value>Minor</value>
+  </data>
+  <data name="ImpactLevel_Insignificant" xml:space="preserve">
+    <value>Insignificant</value>
+  </data>
+  <data name="RiskLevel_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="RiskLevel_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="RiskLevel_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="RiskLevel_Critical" xml:space="preserve">
+    <value>Critical</value>
+  </data>
+  <data name="Dashboard_OverallComplianceIndicator" xml:space="preserve">
+    <value>Overall Compliance Indicator</value>
+  </data>
+  <data name="Dashboard_ComplianceRateLabel" xml:space="preserve">
+    <value>Compliance Rate</value>
+  </data>
+  <data name="ComplianceStatus_Compliant" xml:space="preserve">
+    <value>Compliant</value>
+  </data>
+  <data name="ComplianceStatus_Partial" xml:space="preserve">
+    <value>Partial</value>
+  </data>
+  <data name="ComplianceStatus_NonCompliant" xml:space="preserve">
+    <value>Non-Compliant</value>
+  </data>
+  <data name="Dashboard_ShahinAIInsights" xml:space="preserve">
+    <value>Shahin AI Insights</value>
+  </data>
+  <data name="AI_SmartAnalysis" xml:space="preserve">
+    <value>Smart Analysis</value>
+  </data>
+  <data name="AI_EarlyWarning" xml:space="preserve">
+    <value>Early Warning</value>
+  </data>
+  <data name="AI_AnalysisConfidence" xml:space="preserve">
+    <value>Analysis Confidence</value>
+  </data>
+  <data name="Dashboard_RegulatoryFrameworkProgress" xml:space="preserve">
+    <value>Regulatory Framework Progress</value>
+  </data>
+  <data name="Dashboard_RecentActivity" xml:space="preserve">
+    <value>Recent Activity</value>
+  </data>
+  <data name="ViewAll" xml:space="preserve">
+    <value>View All</value>
+  </data>
+  <data name="Dashboard_CriticalAlerts" xml:space="preserve">
+    <value>Critical Alerts</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="Dashboard_PendingTasksTitle" xml:space="preserve">
+    <value>Pending Tasks</value>
+  </data>
+  <data name="Task" xml:space="preserve">
+    <value>Task</value>
+  </data>
+  <data name="Priority" xml:space="preserve">
+    <value>Priority</value>
+  </data>
+  <data name="DueDate" xml:space="preserve">
+    <value>Due Date</value>
+  </data>
+  <data name="Priority_Urgent" xml:space="preserve">
+    <value>Urgent</value>
+  </data>
+  <data name="Priority_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="Priority_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="Tomorrow" xml:space="preserve">
+    <value>Tomorrow</value>
+  </data>
+  <data name="Days" xml:space="preserve">
+    <value>days</value>
+  </data>
+  <data name="Week" xml:space="preserve">
+    <value>week</value>
+  </data>
+  <data name="Ago" xml:space="preserve">
+    <value>ago</value>
+  </data>
+  <data name="Minutes" xml:space="preserve">
+    <value>minutes</value>
+  </data>
+  <data name="Hour" xml:space="preserve">
+    <value>hour</value>
+  </data>
+  <data name="By" xml:space="preserve">
+    <value>By</value>
+  </data>
+  <data name="Department" xml:space="preserve">
+    <value>Department</value>
+  </data>
+  <data name="ViewDetails" xml:space="preserve">
+    <value>View Details</value>
+  </data>
+  <data name="TotalRisks" xml:space="preserve">
+    <value>Total Risks</value>
+  </data>
+  <data name="ActiveControls" xml:space="preserve">
+    <value>Active Controls</value>
+  </data>
+  <data name="PendingAudits" xml:space="preserve">
+    <value>Pending Audits</value>
+  </data>
+  <data name="ComplianceScore" xml:space="preserve">
+    <value>Compliance Score</value>
+  </data>
+  <data name="RecentRisks" xml:space="preserve">
+    <value>Recent Risks</value>
+  </data>
+  <data name="RecentActivity" xml:space="preserve">
+    <value>Recent Activity</value>
+  </data>
+  <data name="NoDataAvailable" xml:space="preserve">
+    <value>No data available</value>
+  </data>
+  <data name="LoadingData" xml:space="preserve">
+    <value>Loading data...</value>
+  </data>
+  <data name="UpcomingAudits" xml:space="preserve">
+    <value>Upcoming Audits</value>
+  </data>
+  <data name="QuickActions" xml:space="preserve">
+    <value>Quick Actions</value>
+  </data>
+  <data name="NewRisk" xml:space="preserve">
+    <value>New Risk</value>
+  </data>
+  <data name="NewControl" xml:space="preserve">
+    <value>New Control</value>
+  </data>
+  <data name="NewAssessment" xml:space="preserve">
+    <value>New Assessment</value>
+  </data>
+  <data name="GenerateReport" xml:space="preserve">
+    <value>Generate Report</value>
+  </data>
+  <data name="WelcomeToGrc" xml:space="preserve">
+    <value>Welcome to the Governance, Risk, and Compliance Management System</value>
+  </data>
+  <data name="GrcPlatformDescription" xml:space="preserve">
+    <value>Comprehensive platform for managing governance, risk, and compliance</value>
+  </data>
+  <data name="PleaseLoginMessage" xml:space="preserve">
+    <value>Please log in to access the dashboard and manage your organization's governance, risk, and compliance activities.</value>
+  </data>
+  <data name="RiskManagement" xml:space="preserve">
+    <value>Risk Management</value>
+  </data>
+  <data name="RiskManagementDescription" xml:space="preserve">
+    <value>Identify, assess, and mitigate risks across your organization with our comprehensive risk management tools.</value>
+  </data>
+  <data name="ComplianceTracking" xml:space="preserve">
+    <value>Compliance Tracking</value>
+  </data>
+  <data name="ComplianceTrackingDescription" xml:space="preserve">
+    <value>Ensure compliance with regulatory requirements and internal policies through automated tracking and reporting.</value>
+  </data>
+  <data name="PerformanceAnalytics" xml:space="preserve">
+    <value>Performance Analytics</value>
+  </data>
+  <data name="PerformanceAnalyticsDescription" xml:space="preserve">
+    <value>Monitor your GRC performance with real-time dashboards and comprehensive analytics.</value>
+  </data>
+  <data name="WantToExplore" xml:space="preserve">
+    <value>Want to explore the platform first?</value>
+  </data>
+  <data name="TryDemo" xml:space="preserve">
+    <value>Try Demo (POC Tenant)</value>
+  </data>
+  <data name="DemoDescription" xml:space="preserve">
+    <value>Pre-configured Shahin-AI demo organization</value>
+  </data>
+  <data name="RiskName" xml:space="preserve">
+    <value>Risk Name</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>Level</value>
+  </data>
+  <data name="AuditTitle" xml:space="preserve">
+    <value>Audit Title</value>
+  </data>
+  <data name="AuditType" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Internal" xml:space="preserve">
+    <value>Internal</value>
+  </data>
+  <data name="External" xml:space="preserve">
+    <value>External</value>
+  </data>
+  <data name="Mitigated" xml:space="preserve">
+    <value>Mitigated</value>
+  </data>
+  <data name="RiskMatrix" xml:space="preserve">
+    <value>Risk Matrix</value>
+  </data>
+  <data name="Report" xml:space="preserve">
+    <value>Report</value>
+  </data>
+  <data name="EvidenceManagement" xml:space="preserve">
+    <value>Evidence Management</value>
+  </data>
+  <data name="NewEvidence" xml:space="preserve">
+    <value>New Evidence</value>
+  </data>
+  <data name="ExpiringSoon" xml:space="preserve">
+    <value>Expiring Soon</value>
+  </data>
+  <data name="Statistics" xml:space="preserve">
+    <value>Statistics</value>
+  </data>
+  <data name="Probability" xml:space="preserve">
+    <value>Probability</value>
+  </data>
+  <data name="Impact" xml:space="preserve">
+    <value>Impact</value>
+  </data>
+  <data name="RiskScore" xml:space="preserve">
+    <value>Risk Score</value>
+  </data>
+  <data name="Collected" xml:space="preserve">
+    <value>Collected</value>
+  </data>
+  <data name="Expires" xml:space="preserve">
+    <value>Expires</value>
+  </data>
+  <data name="Classification" xml:space="preserve">
+    <value>Classification</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="NoRecordsFound" xml:space="preserve">
+    <value>No records found</value>
+  </data>
+  <data name="Month_January" xml:space="preserve">
+    <value>January</value>
+  </data>
+  <data name="Month_February" xml:space="preserve">
+    <value>February</value>
+  </data>
+  <data name="Month_March" xml:space="preserve">
+    <value>March</value>
+  </data>
+  <data name="Month_April" xml:space="preserve">
+    <value>April</value>
+  </data>
+  <data name="Month_May" xml:space="preserve">
+    <value>May</value>
+  </data>
+  <data name="Month_June" xml:space="preserve">
+    <value>June</value>
+  </data>
+  <data name="Month_July" xml:space="preserve">
+    <value>July</value>
+  </data>
+  <data name="Month_August" xml:space="preserve">
+    <value>August</value>
+  </data>
+  <data name="Month_September" xml:space="preserve">
+    <value>September</value>
+  </data>
+  <data name="Month_October" xml:space="preserve">
+    <value>October</value>
+  </data>
+  <data name="Month_November" xml:space="preserve">
+    <value>November</value>
+  </data>
+  <data name="Month_December" xml:space="preserve">
+    <value>December</value>
+  </data>
+  <data name="Chart_ComplianceRate" xml:space="preserve">
+    <value>Compliance Rate</value>
+  </data>
+  <data name="Chart_Target" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="AI_OpportunityToImprove" xml:space="preserve">
+    <value>Opportunity to Improve Compliance</value>
+  </data>
+  <data name="AI_OpportunityToImproveText" xml:space="preserve">
+    <value>3 similar controls detected in NCA-ECC and SAMA-CSF frameworks. Evidence can be merged to reduce effort by 40%.</value>
+  </data>
+  <data name="AI_RenewalDateComing" xml:space="preserve">
+    <value>Renewal Date Coming</value>
+  </data>
+  <data name="AI_RenewalDateComingText" xml:space="preserve">
+    <value>ISO 27001 certificate expires in 45 days. It is recommended to start the renewal process now.</value>
+  </data>
+  <data name="AI_Confidence" xml:space="preserve">
+    <value>Analysis Confidence</value>
+  </data>
+  <data name="Priority" xml:space="preserve">
+    <value>Priority</value>
+  </data>
+  <data name="High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="Activity_EvidenceApproved" xml:space="preserve">
+    <value>Evidence #1247 approved</value>
+  </data>
+  <data name="Activity_NewRiskRegistered" xml:space="preserve">
+    <value>New risk registered - Data Breach</value>
+  </data>
+  <data name="Activity_PolicyUploaded" xml:space="preserve">
+    <value>Information Security Policy v2.1 uploaded</value>
+  </data>
+  <data name="Activity_AssessmentCompleted" xml:space="preserve">
+    <value>NCA-ECC control assessment completed</value>
+  </data>
+  <data name="Alert_CriticalControlNotApplied" xml:space="preserve">
+    <value>Critical control not applied</value>
+  </data>
+  <data name="Alert_ComplianceDeadlineMissed" xml:space="preserve">
+    <value>Compliance deadline missed</value>
+  </data>
+  <data name="Alert_TaskExpiringSoon" xml:space="preserve">
+    <value>Task expiring soon</value>
+  </data>
+  <data name="Alert_EvidenceExpired" xml:space="preserve">
+    <value>Evidence expired</value>
+  </data>
+  <data name="Alert_CriticalControlNotAppliedDesc" xml:space="preserve">
+    <value>Privileged Access Management - Must be addressed within 48 hours</value>
+  </data>
+  <data name="Alert_ComplianceDeadlineMissedDesc" xml:space="preserve">
+    <value>Periodic SAMA assessment is 5 days overdue</value>
+  </data>
+  <data name="Alert_TaskExpiringSoonDesc" xml:space="preserve">
+    <value>Privacy Policy Review - 2 days remaining</value>
+  </data>
+  <data name="Alert_EvidenceExpiredDesc" xml:space="preserve">
+    <value>3 evidence items need update - last review 6 months ago</value>
+  </data>
+  <data name="Task_ReviewAccessControls" xml:space="preserve">
+    <value>Review Access Controls</value>
+  </data>
+  <data name="Task_UpdateInformationSecurityPolicy" xml:space="preserve">
+    <value>Update Information Security Policy</value>
+  </data>
+  <data name="Task_ApproveTrainingGuide" xml:space="preserve">
+    <value>Approve Training Guide</value>
+  </data>
+  <data name="Task_ReviewMonthlyRiskReport" xml:space="preserve">
+    <value>Review Monthly Risk Report</value>
+  </data>
+  <data name="Task_AssessNewExternalVendor" xml:space="preserve">
+    <value>Assess New External Vendor</value>
+  </data>
+  <data name="Auth_LoginToGrc" xml:space="preserve">
+    <value>Login to GRC System</value>
+  </data>
+  <data name="Auth_CreateNewAccount" xml:space="preserve">
+    <value>Create New Account</value>
+  </data>
+  <data name="Auth_ForgotPasswordTitle" xml:space="preserve">
+    <value>Forgot your password?</value>
+  </data>
+  <data name="Auth_FirstName" xml:space="preserve">
+    <value>First Name</value>
+  </data>
+  <data name="Auth_LastName" xml:space="preserve">
+    <value>Last Name</value>
+  </data>
+  <data name="Auth_Department" xml:space="preserve">
+    <value>Department</value>
+  </data>
+  <data name="Auth_EmailPlaceholder" xml:space="preserve">
+    <value>email@example.com</value>
+  </data>
+  <data name="Auth_PasswordPlaceholder" xml:space="preserve">
+    <value>Enter your password</value>
+  </data>
+  <data name="Auth_PasswordCreatePlaceholder" xml:space="preserve">
+    <value>Create a strong password</value>
+  </data>
+  <data name="Auth_ConfirmPasswordPlaceholder" xml:space="preserve">
+    <value>Confirm your password</value>
+  </data>
+  <data name="Auth_StrongPasswordHint" xml:space="preserve">
+    <value>Password must be at least 6 characters long and contain uppercase, lowercase, numbers, and special characters.</value>
+  </data>
+  <data name="Auth_DontHaveAccount" xml:space="preserve">
+    <value>Don't have an account?</value>
+  </data>
+  <data name="Auth_RegisterHere" xml:space="preserve">
+    <value>Register here</value>
+  </data>
+  <data name="Auth_AlreadyHaveAccount" xml:space="preserve">
+    <value>Already have an account?</value>
+  </data>
+  <data name="Auth_LoginHere" xml:space="preserve">
+    <value>Login here</value>
+  </data>
+  <data name="Auth_ForgotTenantId" xml:space="preserve">
+    <value>Forgot your Tenant ID?</value>
+  </data>
+  <data name="Auth_EnterEmailReset" xml:space="preserve">
+    <value>Enter your email address and we will send you a link to reset your password.</value>
+  </data>
+  <data name="Auth_FirstNamePlaceholder" xml:space="preserve">
+    <value>John</value>
+  </data>
+  <data name="Auth_LastNamePlaceholder" xml:space="preserve">
+    <value>Doe</value>
+  </data>
+  <data name="Auth_DepartmentPlaceholder" xml:space="preserve">
+    <value>IT Department</value>
+  </data>
+  <data name="Auth_ResetPasswordSent" xml:space="preserve">
+    <value>Reset link sent</value>
+  </data>
+  <data name="Auth_ResetPasswordSentTitle" xml:space="preserve">
+    <value>Reset link sent</value>
+  </data>
+  <data name="Auth_ResetPasswordSentSuccess" xml:space="preserve">
+    <value>Sent successfully!</value>
+  </data>
+  <data name="Auth_ResetPasswordSentMessage" xml:space="preserve">
+    <value>Password reset link has been sent to your email address.</value>
+  </data>
+  <data name="Auth_CheckInbox" xml:space="preserve">
+    <value>Check your inbox</value>
+  </data>
+  <data name="Auth_CheckSpam" xml:space="preserve">
+    <value>Check spam/junk folder</value>
+  </data>
+  <data name="Auth_LinkValid24Hours" xml:space="preserve">
+    <value>Link is valid for 24 hours only</value>
+  </data>
+  <data name="Auth_BackToLogin" xml:space="preserve">
+    <value>Back to Login</value>
+  </data>
+  <data name="Auth_EmailNotReceived" xml:space="preserve">
+    <value>Email not received?</value>
+  </data>
+  <data name="Auth_WaitFewMinutes" xml:space="preserve">
+    <value>Wait a few minutes then</value>
+  </data>
+  <data name="Auth_TryAgain" xml:space="preserve">
+    <value>Try again</value>
+  </data>
+  <data name="Auth_PasswordResetSuccessful" xml:space="preserve">
+    <value>Password Reset Successful</value>
+  </data>
+  <data name="Auth_PasswordResetSuccessfulMessage" xml:space="preserve">
+    <value>Your password has been successfully reset. You can now log in with your new password.</value>
+  </data>
+  <data name="Auth_UseStrongPassword" xml:space="preserve">
+    <value>For security reasons, please use a strong password that includes uppercase letters, numbers, and special characters.</value>
+  </data>
+  <data name="Auth_LogInToYourAccount" xml:space="preserve">
+    <value>Log In to Your Account</value>
+  </data>
+  <data name="Auth_RememberPassword" xml:space="preserve">
+    <value>Remember your password?</value>
+  </data>
+  <data name="Auth_GoToLogin" xml:space="preserve">
+    <value>Go to login</value>
+  </data>
+  <data name="Auth_ContactSupport" xml:space="preserve">
+    <value>If you didn't request a password reset or have any concerns, please contact our support team.</value>
+  </data>
+  <data name="Auth_CurrentPassword" xml:space="preserve">
+    <value>Current Password</value>
+  </data>
+  <data name="Auth_NewPassword" xml:space="preserve">
+    <value>New Password</value>
+  </data>
+  <data name="Auth_PasswordMinLengthHint" xml:space="preserve">
+    <value>Password must be at least 6 characters long.</value>
+  </data>
+  <data name="Auth_BackToProfile" xml:space="preserve">
+    <value>Back to Profile</value>
+  </data>
+  <data name="Auth_ForgotTenantIdTitle" xml:space="preserve">
+    <value>Forgot Tenant ID</value>
+  </data>
+  <data name="Auth_EnterEmailRetrieveTenantId" xml:space="preserve">
+    <value>Enter your email address to retrieve your Tenant ID</value>
+  </data>
+  <data name="Auth_TenantIdFound" xml:space="preserve">
+    <value>Tenant ID Found!</value>
+  </data>
+  <data name="Auth_OrganizationName" xml:space="preserve">
+    <value>Organization Name:</value>
+  </data>
+  <data name="Auth_TenantIdLabel" xml:space="preserve">
+    <value>Tenant ID:</value>
+  </data>
+  <data name="Auth_Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="Auth_CopyTenantIdHint" xml:space="preserve">
+    <value>Copy this Tenant ID and use it to log in</value>
+  </data>
+  <data name="Auth_TenantSlug" xml:space="preserve">
+    <value>Tenant Slug:</value>
+  </data>
+  <data name="Auth_TenantIdNotFound" xml:space="preserve">
+    <value>Tenant ID not found.</value>
+  </data>
+  <data name="Auth_TenantIdNotFoundMessage" xml:space="preserve">
+    <value>We couldn't find a Tenant ID associated with this email address, or you don't have admin access. Please verify your email and password, or contact your system administrator for assistance.</value>
+  </data>
+  <data name="Auth_EnterEmailTenantAdmin" xml:space="preserve">
+    <value>Enter the email address associated with your tenant admin account</value>
+  </data>
+  <data name="Auth_EnterPasswordVerify" xml:space="preserve">
+    <value>Enter your password to verify your identity</value>
+  </data>
+  <data name="Auth_CredentialsTemporaryNote" xml:space="preserve">
+    <value>Note: These credentials are temporary and may expire. If your credentials have expired, please contact the system owner.</value>
+  </data>
+  <data name="Auth_FindTenantId" xml:space="preserve">
+    <value>Find Tenant ID</value>
+  </data>
+  <data name="Auth_BackToTenantAdminLogin" xml:space="preserve">
+    <value>Back to Tenant Admin Login</value>
+  </data>
+  <data name="Auth_ImportantNotes" xml:space="preserve">
+    <value>Important Notes:</value>
+  </data>
 </root>

@@ -14,18 +14,22 @@
     try { tenantId = CurrentUserService.GetTenantId(); } catch { }
     if (tenantId == Guid.Empty) tenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
-    // Get wizard progress from database
-    var wizard = await DbContext.OnboardingWizards.FirstOrDefaultAsync(w => w.TenantId == tenantId);
+    // Get wizard progress from database (with error handling for unauthenticated access)
     var completedSections = new List<string>();
     var progressPercent = 0;
-    if (wizard != null)
+    try
     {
-        progressPercent = wizard.ProgressPercent;
-        if (!string.IsNullOrEmpty(wizard.CompletedSectionsJson))
+        var wizard = await DbContext.OnboardingWizards.FirstOrDefaultAsync(w => w.TenantId == tenantId);
+        if (wizard != null)
         {
-            try { completedSections = System.Text.Json.JsonSerializer.Deserialize<List<string>>(wizard.CompletedSectionsJson) ?? new(); } catch { }
+            progressPercent = wizard.ProgressPercent;
+            if (!string.IsNullOrEmpty(wizard.CompletedSectionsJson))
+            {
+                try { completedSections = System.Text.Json.JsonSerializer.Deserialize<List<string>>(wizard.CompletedSectionsJson) ?? new(); } catch { }
+            }
         }
     }
+    catch { /* Database access may fail for unauthenticated users - use defaults */ }
 }
 
 <div class="container-fluid py-5 bg-light">

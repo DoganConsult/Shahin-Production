@@ -18,11 +18,9 @@ services:
       - JwtSettings__Issuer=${JWT_ISSUER:-https://portal.shahin-ai.com}
       - JwtSettings__Audience=${JWT_AUDIENCE:-https://portal.shahin-ai.com}
       - AllowedHosts=${ALLOWED_HOSTS:-localhost;portal.shahin-ai.com;157.180.105.48}
-      - EmailSettings__SmtpServer=${SMTP_SERVER}
-      - EmailSettings__SmtpPort=${SMTP_PORT}
-      - EmailSettings__Username=${SMTP_USERNAME}
-      - EmailSettings__Password=${SMTP_PASSWORD}
-      - EmailSettings__From=${SMTP_FROM}
+      # Email settings - only override if SMTP_SERVER is explicitly set
+      # Empty values for numeric fields can crash config binding, so we use defaults
+      # To configure email: set SMTP_SERVER, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD in .env
       - ClaudeAgents__ApiKey=${CLAUDE_API_KEY}
     depends_on:
       db:

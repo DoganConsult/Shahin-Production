@@ -22,7 +22,10 @@
                         <input asp-for="TenantId" class="form-control" placeholder="00000000-0000-0000-0000-000000000000" autofocus />
                     </div>
                     <span asp-validation-for="TenantId" class="text-danger"></span>
-                    <small class="form-text text-muted">Your Tenant ID was provided when your account was created</small>
+                    <small class="form-text text-muted">
+                        Your Tenant ID was provided when your account was created.
+                        <a asp-action="ForgotTenantId" class="text-decoration-none">Forgot your Tenant ID?</a>
+                    </small>
                 </div>
 
                 <div class="mb-3">

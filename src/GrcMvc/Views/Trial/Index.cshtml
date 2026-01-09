@@ -795,12 +795,14 @@
             const message = input.value.trim();
             if (!message) return;
 
-            // Add user message
-            messages.innerHTML += `
-                <div style="background: var(--dark); padding: 12px; border-radius: 12px; margin-bottom: 8px; margin-right: 20px;">
-                    <p style="margin: 0; font-size: 0.9rem;">${message}</p>
-                </div>
-            `;
+            // Add user message - XSS Prevention: Use DOM methods instead of innerHTML
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.style.cssText = 'background: var(--dark); padding: 12px; border-radius: 12px; margin-bottom: 8px; margin-right: 20px;';
+            const userMsgP = document.createElement('p');
+            userMsgP.style.cssText = 'margin: 0; font-size: 0.9rem;';
+            userMsgP.textContent = message; // Safe: textContent escapes HTML
+            userMsgDiv.appendChild(userMsgP);
+            messages.appendChild(userMsgDiv);
             input.value = '';
             messages.scrollTop = messages.scrollHeight;
 
@@ -837,21 +839,26 @@
                     if (data.response) aiResponse = data.response;
                 }
 
-                // Remove typing and add response
+                // Remove typing and add response - XSS Prevention: Use DOM methods
                 document.getElementById(typingId)?.remove();
-                messages.innerHTML += `
-                    <div style="background: rgba(99, 102, 241, 0.2); padding: 12px; border-radius: 12px; margin-bottom: 8px;">
-                        <p style="margin: 0; font-size: 0.9rem;">${aiResponse}</p>
-                    </div>
-                `;
+                const aiMsgDiv = document.createElement('div');
+                aiMsgDiv.style.cssText = 'background: rgba(99, 102, 241, 0.2); padding: 12px; border-radius: 12px; margin-bottom: 8px;';
+                const aiMsgP = document.createElement('p');
+                aiMsgP.style.cssText = 'margin: 0; font-size: 0.9rem;';
+                aiMsgP.textContent = aiResponse; // Safe: textContent escapes HTML
+                aiMsgDiv.appendChild(aiMsgP);
+                messages.appendChild(aiMsgDiv);
                 messages.scrollTop = messages.scrollHeight;
             } catch (e) {
                 document.getElementById(typingId)?.remove();
-                messages.innerHTML += `
-                    <div style="background: rgba(99, 102, 241, 0.2); padding: 12px; border-radius: 12px; margin-bottom: 8px;">
-                        <p style="margin: 0; font-size: 0.9rem;">شكراً لتواصلك! سجّل الآن واستمتع بـ 7 أيام مجانية.</p>
-                    </div>
-                `;
+                // Fallback message - safe since it's hardcoded
+                const fallbackDiv = document.createElement('div');
+                fallbackDiv.style.cssText = 'background: rgba(99, 102, 241, 0.2); padding: 12px; border-radius: 12px; margin-bottom: 8px;';
+                const fallbackP = document.createElement('p');
+                fallbackP.style.cssText = 'margin: 0; font-size: 0.9rem;';
+                fallbackP.textContent = 'شكراً لتواصلك! سجّل الآن واستمتع بـ 7 أيام مجانية.';
+                fallbackDiv.appendChild(fallbackP);
+                messages.appendChild(fallbackDiv);
                 messages.scrollTop = messages.scrollHeight;
             }
         }

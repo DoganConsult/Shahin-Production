@@ -1,0 +1,142 @@
+@model GrcMvc.Models.ViewModels.ForgotTenantIdViewModel
+@{
+    ViewData["Title"] = "Forgot Tenant ID";
+    Layout = "_Layout";
+}
+
+<div class="auth-form">
+    <div class="card">
+        <div class="card-header text-center">
+            <h4><i class="bi bi-question-circle"></i> Forgot Tenant ID</h4>
+            <p class="text-muted small mb-0">Enter your email address to retrieve your Tenant ID</p>
+        </div>
+        <div class="card-body">
+            @if (Model.TenantIdFound == true)
+            {
+                <div class="alert alert-success" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <strong>Tenant ID Found!</strong>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Organization Name:</label>
+                    <p class="form-control-plaintext">@Model.OrganizationName</p>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Tenant ID:</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control font-monospace" value="@Model.TenantId" id="tenantIdInput" readonly />
+                        <button class="btn btn-outline-secondary" type="button" onclick="copyTenantId()">
+                            <i class="bi bi-clipboard"></i> Copy
+                        </button>
+                    </div>
+                    <small class="form-text text-muted">Copy this Tenant ID and use it to log in</small>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.TenantSlug))
+                {
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tenant Slug:</label>
+                        <p class="form-control-plaintext">@Model.TenantSlug</p>
+                    </div>
+                }
+
+                <div class="d-grid gap-2">
+                    <a asp-action="TenantAdminLogin" asp-route-tenantId="@Model.TenantId" class="btn btn-primary">
+                        <i class="bi bi-box-arrow-in-right"></i> Go to Login
+                    </a>
+                </div>
+            }
+            else if (Model.TenantIdFound == false)
+            {
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Tenant ID not found.</strong> 
+                    We couldn't find a Tenant ID associated with this email address, or you don't have admin access.
+                    Please verify your email and password, or contact your system administrator for assistance.
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a asp-action="ForgotTenantId" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-clockwise"></i> Try Again
+                    </a>
+                </div>
+            }
+            else
+            {
+                <form asp-action="ForgotTenantId" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" class="form-control" placeholder="your.email@example.com" autofocus />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                        <small class="form-text text-muted">Enter the email address associated with your tenant admin account</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input asp-for="Password" class="form-control" placeholder="Enter your password" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                        <small class="form-text text-muted">Enter your password to verify your identity</small>
+                    </div>
+
+                    <div class="alert alert-info" role="alert">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Note:</strong> These credentials are temporary and may expire. If your credentials have expired, please contact the system owner.
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Find Tenant ID
+                        </button>
+                    </div>
+                </form>
+            }
+
+            <hr />
+
+            <div class="text-center">
+                <a asp-action="TenantAdminLogin" class="text-decoration-none">
+                    <i class="bi bi-arrow-left"></i> Back to Tenant Admin Login
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function copyTenantId() {
+            const tenantIdInput = document.getElementById('tenantIdInput');
+            tenantIdInput.select();
+            tenantIdInput.setSelectionRange(0, 99999); // For mobile devices
+            
+            try {
+                document.execCommand('copy');
+                const button = event.target.closest('button');
+                const originalHtml = button.innerHTML;
+                button.innerHTML = '<i class="bi bi-check"></i> Copied!';
+                button.classList.add('btn-success');
+                button.classList.remove('btn-outline-secondary');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalHtml;
+                    button.classList.remove('btn-success');
+                    button.classList.add('btn-outline-secondary');
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+        }
+    </script>
+}
