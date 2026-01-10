@@ -15,6 +15,9 @@ echo "=========================================="
 APP_DOMAIN="${APP_DOMAIN:-your-domain.com}"
 DB_PASSWORD="${DB_PASSWORD:-GrcSecure2026!}"
 GITHUB_REPO="https://github.com/doganlap/Shahin-Jan-2026.git"
+APP_USER="grcadmin"
+APP_DIR="/home/${APP_USER}/grc-app"
+PUBLISH_DIR="/home/${APP_USER}/grc-published"
 
 # Colors for output
 RED='\033[0;31m'
@@ -25,6 +28,34 @@ NC='\033[0m'
 log_info() { echo -e "${GREEN}[INFO]${NC} $1"; }
 log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+
+# ============================================================================
+# STEP 0: Server Hardening & Security Setup
+# ============================================================================
+log_info "Step 0: Server hardening and security setup..."
+
+# Create non-root application user
+if ! id "${APP_USER}" &>/dev/null; then
+    useradd -m -s /bin/bash ${APP_USER}
+    log_info "Created user: ${APP_USER}"
+else
+    log_info "User ${APP_USER} already exists"
+fi
+
+# Set timezone
+timedatectl set-timezone UTC
+
+# Disable root password login (SSH key only)
+sed -i 's/^PermitRootLogin yes/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
+sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+systemctl restart sshd || true
+
+# Install fail2ban for brute force protection
+apt install -y fail2ban
+systemctl enable fail2ban
+systemctl start fail2ban
+
+log_info "Server hardening complete"
 
 # ============================================================================
 # STEP 1: System Update
@@ -82,8 +113,10 @@ apt install -y certbot python3-certbot-nginx
 # STEP 6: Clone and Build Application
 # ============================================================================
 log_info "Step 6: Cloning repository..."
-mkdir -p /var/www
-cd /var/www
+mkdir -p ${APP_DIR}
+chown -R ${APP_USER}:${APP_USER} /home/${APP_USER}
+
+cd /home/${APP_USER}
 
 if [ -d "grc-app" ]; then
     log_warn "Directory exists, pulling latest..."
@@ -97,15 +130,16 @@ fi
 log_info "Building application..."
 cd src/GrcMvc
 dotnet restore
-dotnet publish -c Release -o /var/www/grc-published
+dotnet publish -c Release -o ${PUBLISH_DIR}
 
+chown -R ${APP_USER}:${APP_USER} /home/${APP_USER}
 log_info "Application built successfully"
 
 # ============================================================================
 # STEP 7: Create appsettings.Production.json
 # ============================================================================
 log_info "Step 7: Creating production configuration..."
-cat > /var/www/grc-published/appsettings.Production.json <<EOF
+cat > ${PUBLISH_DIR}/appsettings.Production.json <<EOF
 {
   "ConnectionStrings": {
     "DefaultConnection": "Host=localhost;Database=grcdb;Username=grcuser;Password=${DB_PASSWORD}"
@@ -143,14 +177,14 @@ Description=GRC MVC Application
 After=network.target postgresql.service
 
 [Service]
-WorkingDirectory=/var/www/grc-published
-ExecStart=/usr/bin/dotnet /var/www/grc-published/GrcMvc.dll
+WorkingDirectory=${PUBLISH_DIR}
+ExecStart=/usr/bin/dotnet ${PUBLISH_DIR}/GrcMvc.dll
 Restart=always
 RestartSec=10
 KillSignal=SIGINT
 SyslogIdentifier=grc-app
-User=www-data
-Group=www-data
+User=${APP_USER}
+Group=${APP_USER}
 Environment=ASPNETCORE_ENVIRONMENT=Production
 Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 
@@ -159,8 +193,8 @@ WantedBy=multi-user.target
 EOF
 
 # Set permissions
-chown -R www-data:www-data /var/www/grc-published
-chmod -R 755 /var/www/grc-published
+chown -R ${APP_USER}:${APP_USER} ${PUBLISH_DIR}
+chmod -R 755 ${PUBLISH_DIR}
 
 systemctl daemon-reload
 systemctl enable grc
@@ -211,7 +245,7 @@ systemctl restart nginx
 # STEP 10: Run Database Migrations
 # ============================================================================
 log_info "Step 10: Running database migrations..."
-cd /var/www/grc-app/src/GrcMvc
+cd /home/${APP_USER}/grc-app/src/GrcMvc
 export ConnectionStrings__DefaultConnection="Host=localhost;Database=grcdb;Username=grcuser;Password=${DB_PASSWORD}"
 dotnet ef database update || log_warn "Migrations may need manual review"
 
@@ -257,6 +291,10 @@ echo "  - Nginx status:  systemctl status nginx"
 echo ""
 echo "For SSL (HTTPS), run:"
 echo "  certbot --nginx -d ${APP_DOMAIN}"
+echo ""
+echo "App User:   ${APP_USER}"
+echo "App Dir:    ${PUBLISH_DIR}"
+echo "Source Dir: /home/${APP_USER}/grc-app"
 echo ""
 echo "Database: grcdb"
 echo "DB User:  grcuser"
