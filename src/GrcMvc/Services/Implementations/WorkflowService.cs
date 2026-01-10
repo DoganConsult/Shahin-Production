@@ -14,12 +14,40 @@ using Newtonsoft.Json;
 
 namespace GrcMvc.Services.Implementations
 {
+    /// <summary>
+    /// Strongly-typed workflow step model for safe deserialization
+    /// </summary>
+    internal class WorkflowStep
+    {
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+        public string? Status { get; set; }
+        public int Order { get; set; }
+    }
+
+    /// <summary>
+    /// Strongly-typed execution history entry
+    /// </summary>
+    internal class ExecutionHistoryEntry
+    {
+        public string? Step { get; set; }
+        public string? Result { get; set; }
+        public DateTime? CompletedAt { get; set; }
+    }
+
     public class WorkflowService : IWorkflowService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<WorkflowService> _logger;
         private readonly PolicyEnforcementHelper _policyHelper;
+        
+        // SECURITY: Safe JSON settings - disable TypeNameHandling
+        private static readonly JsonSerializerSettings SafeJsonSettings = new()
+        {
+            TypeNameHandling = TypeNameHandling.None,
+            MaxDepth = 32
+        };
 
         public WorkflowService(
             IUnitOfWork unitOfWork,
@@ -255,19 +283,20 @@ namespace GrcMvc.Services.Implementations
                 var workflow = await _unitOfWork.Workflows.GetByIdAsync(execution.WorkflowId);
                 var nextStep = GetNextStep(workflow.Steps, stepName);
 
-                // Update execution history
+                // Update execution history - SECURITY: Use strongly-typed deserialization
                 var history = string.IsNullOrEmpty(execution.ExecutionHistory)
-                    ? new List<object>()
-                    : JsonConvert.DeserializeObject<List<object>>(execution.ExecutionHistory);
+                    ? new List<ExecutionHistoryEntry>()
+                    : JsonConvert.DeserializeObject<List<ExecutionHistoryEntry>>(execution.ExecutionHistory, SafeJsonSettings) 
+                      ?? new List<ExecutionHistoryEntry>();
 
-                history.Add(new
+                history.Add(new ExecutionHistoryEntry
                 {
                     Step = stepName,
                     Result = result,
                     CompletedAt = DateTime.UtcNow
                 });
 
-                execution.ExecutionHistory = JsonConvert.SerializeObject(history);
+                execution.ExecutionHistory = JsonConvert.SerializeObject(history, SafeJsonSettings);
                 execution.CurrentStep = nextStep;
                 execution.ModifiedDate = DateTime.UtcNow;
 
@@ -357,10 +386,10 @@ namespace GrcMvc.Services.Implementations
                     return false;
                 }
 
-                // Try to parse steps as JSON
+                // Try to parse steps as JSON - SECURITY: Use strongly-typed deserialization
                 try
                 {
-                    var steps = JsonConvert.DeserializeObject<List<object>>(workflow.Steps);
+                    var steps = JsonConvert.DeserializeObject<List<WorkflowStep>>(workflow.Steps, SafeJsonSettings);
                     if (steps == null || !steps.Any())
                     {
                         _logger.LogWarning("Workflow {WorkflowId} has invalid steps", workflowId);
@@ -389,15 +418,15 @@ namespace GrcMvc.Services.Implementations
 
             try
             {
-                // Try to parse as JSON
-                var parsed = JsonConvert.DeserializeObject<List<object>>(steps);
-                return JsonConvert.SerializeObject(parsed);
+                // SECURITY: Use strongly-typed deserialization
+                var parsed = JsonConvert.DeserializeObject<List<WorkflowStep>>(steps, SafeJsonSettings);
+                return JsonConvert.SerializeObject(parsed, SafeJsonSettings);
             }
             catch
             {
                 // If not valid JSON, create a simple step list
-                var stepsList = steps.Split(',').Select(s => new { Name = s.Trim() });
-                return JsonConvert.SerializeObject(stepsList);
+                var stepsList = steps.Split(',').Select(s => new WorkflowStep { Name = s.Trim() });
+                return JsonConvert.SerializeObject(stepsList, SafeJsonSettings);
             }
         }
 
@@ -408,8 +437,9 @@ namespace GrcMvc.Services.Implementations
 
             try
             {
-                var stepsList = JsonConvert.DeserializeObject<List<dynamic>>(steps);
-                return stepsList?.FirstOrDefault()?.Name ?? stepsList?.FirstOrDefault()?.ToString();
+                // SECURITY: Use strongly-typed deserialization
+                var stepsList = JsonConvert.DeserializeObject<List<WorkflowStep>>(steps, SafeJsonSettings);
+                return stepsList?.FirstOrDefault()?.Name;
             }
             catch
             {
@@ -424,13 +454,15 @@ namespace GrcMvc.Services.Implementations
 
             try
             {
-                var stepsList = JsonConvert.DeserializeObject<List<dynamic>>(steps);
+                // SECURITY: Use strongly-typed deserialization
+                var stepsList = JsonConvert.DeserializeObject<List<WorkflowStep>>(steps, SafeJsonSettings);
+                if (stepsList == null) return null;
+                
                 var currentIndex = -1;
 
                 for (int i = 0; i < stepsList.Count; i++)
                 {
-                    var stepName = stepsList[i]?.Name ?? stepsList[i]?.ToString();
-                    if (stepName == currentStep)
+                    if (stepsList[i]?.Name == currentStep)
                     {
                         currentIndex = i;
                         break;
@@ -439,7 +471,7 @@ namespace GrcMvc.Services.Implementations
 
                 if (currentIndex >= 0 && currentIndex < stepsList.Count - 1)
                 {
-                    return stepsList[currentIndex + 1]?.Name ?? stepsList[currentIndex + 1]?.ToString();
+                    return stepsList[currentIndex + 1]?.Name;
                 }
             }
             catch

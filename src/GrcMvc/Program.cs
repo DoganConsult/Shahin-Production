@@ -779,8 +779,9 @@ builder.Services.AddScoped<IComplianceGapService, ComplianceGapService>();
 builder.Services.AddScoped<GrcMvc.Data.Menu.GrcMenuContributor>();
 builder.Services.AddScoped<IMenuService, MenuService>();
 
-// Register Authentication and Authorization services
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+// CRITICAL FIX: Register Identity-based AuthenticationService instead of mock
+// builder.Services.AddScoped<IAuthenticationService, AuthenticationService>(); // OLD: Mock implementation
+builder.Services.AddScoped<IAuthenticationService, IdentityAuthenticationService>(); // NEW: Identity-based
 builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
 
 // Policy Enforcement System

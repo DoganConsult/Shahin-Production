@@ -59,6 +59,25 @@ namespace GrcMvc.Models.Entities
         /// </summary>
         public DateTime? LastPasswordChangedAt { get; set; }
 
+        /// <summary>
+        /// MEDIUM PRIORITY FIX: Check if password has expired (90 days for GRC compliance)
+        /// </summary>
+        public bool IsPasswordExpired(int maxAgeDays = 90)
+        {
+            if (!LastPasswordChangedAt.HasValue) return true; // Never changed, consider expired
+            return (DateTime.UtcNow - LastPasswordChangedAt.Value).TotalDays > maxAgeDays;
+        }
+
+        /// <summary>
+        /// Days until password expires
+        /// </summary>
+        public int? DaysUntilPasswordExpires(int maxAgeDays = 90)
+        {
+            if (!LastPasswordChangedAt.HasValue) return null;
+            var daysSinceChange = (DateTime.UtcNow - LastPasswordChangedAt.Value).TotalDays;
+            return Math.Max(0, (int)(maxAgeDays - daysSinceChange));
+        }
+
         // Alias properties for backward compatibility
         [NotMapped]
         public DateTime CreatedAt

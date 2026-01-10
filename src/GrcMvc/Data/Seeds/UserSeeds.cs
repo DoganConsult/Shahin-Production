@@ -1,5 +1,6 @@
 using GrcMvc.Models.Entities;
 using GrcMvc.Models.Entities.Catalogs;
+using GrcMvc.Constants;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -164,7 +165,8 @@ public static class UserSeeds
         // #region agent log
         try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "UserSeeds.cs:123", message = "Before LinkUserToTenantAsync admin", data = new { userId = adminUser.Id, tenantId = tenantId.ToString(), timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
         // #endregion
-        var adminRoleCode = await GetOrCreateRoleCodeAsync(context, "ADMINISTRATOR", "Administrator", logger);
+        // LOW PRIORITY FIX: Use RoleConstants instead of magic string
+        var adminRoleCode = await GetOrCreateRoleCodeAsync(context, RoleConstants.TenantAdmin, "Administrator", logger);
         // #region agent log
         try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "UserSeeds.cs:125", message = "GetOrCreateRoleCodeAsync admin result", data = new { roleCode = adminRoleCode, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
         // #endregion

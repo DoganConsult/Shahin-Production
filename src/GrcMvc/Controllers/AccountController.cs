@@ -137,6 +137,22 @@ namespace GrcMvc.Controllers
                             return RedirectToAction(nameof(ChangePasswordRequired));
                         }
 
+                        // MEDIUM PRIORITY FIX: Check password expiry (90 days for GRC compliance)
+                        var passwordMaxAgeDays = _configuration.GetValue<int>("Security:PasswordMaxAgeDays", 90);
+                        if (user.IsPasswordExpired(passwordMaxAgeDays))
+                        {
+                            _logger.LogWarning("User {Email} password expired (last changed: {LastChanged})",
+                                model.Email, user.LastPasswordChangedAt);
+                            TempData["ErrorMessage"] = "Your password has expired. Please change it to continue.";
+                            return RedirectToAction(nameof(ChangePassword));
+                        }
+                        else if (user.DaysUntilPasswordExpires(passwordMaxAgeDays) <= 7)
+                        {
+                            // Warn user if password expires in 7 days or less
+                            var daysLeft = user.DaysUntilPasswordExpires(passwordMaxAgeDays);
+                            TempData["WarningMessage"] = $"Your password will expire in {daysLeft} day(s). Please change it soon.";
+                        }
+
                         // Process post-login logic (add tenant claim, check onboarding, determine redirect)
                         return await ProcessPostLoginAsync(user, model.RememberMe);
                     }
@@ -378,6 +394,7 @@ namespace GrcMvc.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting("auth")] // SECURITY: Rate limiting to prevent registration abuse
         public async Task<IActionResult> Register(RegisterViewModel model, string? returnUrl = null)
         {
             // Check if public registration is enabled
@@ -621,6 +638,11 @@ namespace GrcMvc.Controllers
                 return View(model);
             }
 
+            // MEDIUM PRIORITY FIX: Update password change timestamp for expiry tracking
+            user.LastPasswordChangedAt = DateTime.UtcNow;
+            user.MustChangePassword = false;
+            await _userManager.UpdateAsync(user);
+
             await _signInManager.RefreshSignInAsync(user);
             _logger.LogInformation("User changed their password successfully.");
 
@@ -750,6 +772,7 @@ namespace GrcMvc.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting("auth")] // SECURITY: Rate limiting to prevent password reset abuse
         public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
         {
             if (ModelState.IsValid)
@@ -838,7 +861,12 @@ namespace GrcMvc.Controllers
             var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
             if (result.Succeeded)
             {
-                // Send password changed notification
+                // MEDIUM PRIORITY FIX: Update password change timestamp for expiry tracking
+                user.LastPasswordChangedAt = DateTime.UtcNow;
+                user.MustChangePassword = false;
+                await _userManager.UpdateAsync(user);
+
+                // MEDIUM PRIORITY FIX: Send confirmation email after successful password reset
                 try
                 {
                     var userName = user.FullName ?? user.UserName ?? user.Email?.Split('@')[0] ?? "المستخدم";

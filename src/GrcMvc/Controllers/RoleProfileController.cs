@@ -235,11 +235,11 @@ public class DocumentFlowController : Controller
                 await dto.File.CopyToAsync(stream);
             }
 
-            // Calculate hash
-            using (var md5 = System.Security.Cryptography.MD5.Create())
+            // Calculate hash - SECURITY: Use SHA256 instead of MD5
+            using (var sha256 = System.Security.Cryptography.SHA256.Create())
             using (var stream = System.IO.File.OpenRead(filePath))
             {
-                var hash = md5.ComputeHash(stream);
+                var hash = sha256.ComputeHash(stream);
                 fileHash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
             }
         }
