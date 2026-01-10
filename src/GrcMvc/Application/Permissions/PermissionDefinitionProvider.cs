@@ -115,9 +115,94 @@ public class GrcPermissionDefinitionProvider : IPermissionDefinitionProvider
         reports.AddChild(GrcPermissions.Reports.View, "View");
         reports.AddChild(GrcPermissions.Reports.Export, "Export");
 
+        // Resilience
+        var resilience = grc.AddPermission(GrcPermissions.Resilience.Default, "Resilience");
+        resilience.AddChild(GrcPermissions.Resilience.View, "View");
+        resilience.AddChild(GrcPermissions.Resilience.Manage, "Manage");
+        resilience.AddChild(GrcPermissions.Resilience.Create, "Create");
+        resilience.AddChild(GrcPermissions.Resilience.Edit, "Edit");
+        resilience.AddChild(GrcPermissions.Resilience.Delete, "Delete");
+        resilience.AddChild(GrcPermissions.Resilience.AssessRTO, "Assess RTO");
+        resilience.AddChild(GrcPermissions.Resilience.AssessRPO, "Assess RPO");
+        resilience.AddChild(GrcPermissions.Resilience.ManageDrills, "Manage Drills");
+        resilience.AddChild(GrcPermissions.Resilience.ManagePlans, "Manage Plans");
+        resilience.AddChild(GrcPermissions.Resilience.Monitor, "Monitor");
+
+        // Certification
+        var certification = grc.AddPermission(GrcPermissions.Certification.Default, "Certification");
+        certification.AddChild(GrcPermissions.Certification.View, "View");
+        certification.AddChild(GrcPermissions.Certification.Create, "Create");
+        certification.AddChild(GrcPermissions.Certification.Edit, "Edit");
+        certification.AddChild(GrcPermissions.Certification.Delete, "Delete");
+        certification.AddChild(GrcPermissions.Certification.Manage, "Manage");
+        certification.AddChild(GrcPermissions.Certification.Readiness, "Readiness");
+
+        // Maturity
+        var maturity = grc.AddPermission(GrcPermissions.Maturity.Default, "Maturity");
+        maturity.AddChild(GrcPermissions.Maturity.View, "View");
+        maturity.AddChild(GrcPermissions.Maturity.Create, "Create");
+        maturity.AddChild(GrcPermissions.Maturity.Edit, "Edit");
+        maturity.AddChild(GrcPermissions.Maturity.Delete, "Delete");
+        maturity.AddChild(GrcPermissions.Maturity.Assess, "Assess");
+        maturity.AddChild(GrcPermissions.Maturity.Baseline, "Baseline");
+        maturity.AddChild(GrcPermissions.Maturity.Roadmap, "Roadmap");
+
+        // Excellence
+        var excellence = grc.AddPermission(GrcPermissions.Excellence.Default, "Excellence");
+        excellence.AddChild(GrcPermissions.Excellence.View, "View");
+        excellence.AddChild(GrcPermissions.Excellence.Create, "Create");
+        excellence.AddChild(GrcPermissions.Excellence.Edit, "Edit");
+        excellence.AddChild(GrcPermissions.Excellence.Delete, "Delete");
+        excellence.AddChild(GrcPermissions.Excellence.Manage, "Manage");
+        excellence.AddChild(GrcPermissions.Excellence.Benchmark, "Benchmark");
+        excellence.AddChild(GrcPermissions.Excellence.Assess, "Assess");
+
+        // Sustainability
+        var sustainability = grc.AddPermission(GrcPermissions.Sustainability.Default, "Sustainability");
+        sustainability.AddChild(GrcPermissions.Sustainability.View, "View");
+        sustainability.AddChild(GrcPermissions.Sustainability.Create, "Create");
+        sustainability.AddChild(GrcPermissions.Sustainability.Edit, "Edit");
+        sustainability.AddChild(GrcPermissions.Sustainability.Delete, "Delete");
+        sustainability.AddChild(GrcPermissions.Sustainability.Manage, "Manage");
+        sustainability.AddChild(GrcPermissions.Sustainability.Dashboard, "Dashboard");
+        sustainability.AddChild(GrcPermissions.Sustainability.KPIs, "KPIs");
+
+        // Reports
+        reports.AddChild(GrcPermissions.Reports.Generate, "Generate");
+
         // Integrations
         var integrations = grc.AddPermission(GrcPermissions.Integrations.Default, "Integrations");
         integrations.AddChild(GrcPermissions.Integrations.View, "View");
         integrations.AddChild(GrcPermissions.Integrations.Manage, "Manage");
+
+        // Controls
+        var controls = grc.AddPermission(GrcPermissions.Controls.Default, "Controls");
+        controls.AddChild(GrcPermissions.Controls.View, "View");
+        controls.AddChild(GrcPermissions.Controls.Create, "Create");
+        controls.AddChild(GrcPermissions.Controls.Edit, "Edit");
+        controls.AddChild(GrcPermissions.Controls.Delete, "Delete");
+        controls.AddChild(GrcPermissions.Controls.Implement, "Implement");
+        controls.AddChild(GrcPermissions.Controls.Test, "Test");
+
+        // Users
+        var users = grc.AddPermission(GrcPermissions.Users.Default, "Users");
+        users.AddChild(GrcPermissions.Users.View, "View");
+        users.AddChild(GrcPermissions.Users.Create, "Create");
+        users.AddChild(GrcPermissions.Users.Edit, "Edit");
+        users.AddChild(GrcPermissions.Users.Delete, "Delete");
+        users.AddChild(GrcPermissions.Users.AssignRole, "Assign Role");
+
+        // Roles
+        var roles = grc.AddPermission(GrcPermissions.Roles.Default, "Roles");
+        roles.AddChild(GrcPermissions.Roles.View, "View");
+        roles.AddChild(GrcPermissions.Roles.Create, "Create");
+        roles.AddChild(GrcPermissions.Roles.Edit, "Edit");
+        roles.AddChild(GrcPermissions.Roles.Delete, "Delete");
+
+        // Permissions Management
+        grc.AddPermission(GrcPermissions.Permissions.Manage, "Manage Permissions");
+
+        // Features Management
+        grc.AddPermission(GrcPermissions.Features.Manage, "Manage Features");
     }
 }

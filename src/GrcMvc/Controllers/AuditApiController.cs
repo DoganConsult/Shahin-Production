@@ -99,7 +99,7 @@ namespace GrcMvc.Controllers
                     TotalItems = bulkRequest.Items.Count,
                     SuccessfulItems = bulkRequest.Items.Count,
                     FailedItems = 0,
-                    CompletedAt = DateTime.Now
+                    CompletedAt = DateTime.UtcNow
                 };
 
                 return Ok(ApiResponse<BulkOperationResult>.SuccessResponse(result, "Bulk operation completed successfully"));
@@ -278,7 +278,7 @@ namespace GrcMvc.Controllers
                         scope = (string?)patchData.scope,
                         schedule = (string?)patchData.schedule
                     },
-                    patchedDate = DateTime.Now,
+                    patchedDate = DateTime.UtcNow,
                     message = "Audit partially updated successfully"
                 };
 

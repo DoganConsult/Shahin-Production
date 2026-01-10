@@ -124,7 +124,7 @@ namespace GrcMvc.Controllers
                     name = (string?)evidenceData.name ?? "Evidence",
                     type = (string?)evidenceData.type ?? "Document",
                     controlId = (Guid?)evidenceData.controlId ?? Guid.Empty,
-                    createdDate = DateTime.Now,
+                    createdDate = DateTime.UtcNow,
                     status = "Submitted",
                     message = "Evidence created successfully"
                 };
@@ -163,7 +163,7 @@ namespace GrcMvc.Controllers
                     name = (string?)evidenceData.name ?? evidence.Name,
                     type = (string?)evidenceData.type ?? evidence.EvidenceType,
                     status = (string?)evidenceData.status ?? evidence.Status,
-                    updatedDate = DateTime.Now,
+                    updatedDate = DateTime.UtcNow,
                     message = "Evidence updated successfully"
                 };
 
@@ -264,7 +264,7 @@ namespace GrcMvc.Controllers
                 {
                     id = id,
                     status = (string?)patchData.status ?? evidence.Status,
-                    updatedDate = DateTime.Now,
+                    updatedDate = DateTime.UtcNow,
                     message = "Evidence updated successfully"
                 };
 
@@ -292,7 +292,7 @@ namespace GrcMvc.Controllers
                     TotalItems = bulkRequest.Items.Count,
                     SuccessfulItems = bulkRequest.Items.Count,
                     FailedItems = 0,
-                    CompletedAt = DateTime.Now
+                    CompletedAt = DateTime.UtcNow
                 };
 
                 return Ok(ApiResponse<BulkOperationResult>.SuccessResponse(result, "Bulk evidence upload completed successfully"));

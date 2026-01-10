@@ -290,6 +290,32 @@ public static class GrcPermissions
         public const string Roadmap = Default + ".Roadmap";
     }
 
+    // Excellence & Benchmarking
+    public static class Excellence
+    {
+        public const string Default = GroupName + ".Excellence";
+        public const string View = Default + ".View";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string Manage = Default + ".Manage";
+        public const string Benchmark = Default + ".Benchmark";
+        public const string Assess = Default + ".Assess";
+    }
+
+    // Sustainability
+    public static class Sustainability
+    {
+        public const string Default = GroupName + ".Sustainability";
+        public const string View = Default + ".View";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string Manage = Default + ".Manage";
+        public const string Dashboard = Default + ".Dashboard";
+        public const string KPIs = Default + ".KPIs";
+    }
+
     // Integrations
     public static class Integrations
     {
@@ -436,6 +462,41 @@ public static class GrcPermissions
         yield return Reports.View;
         yield return Reports.Export;
         yield return Reports.Generate;
+
+        // Certification
+        yield return Certification.View;
+        yield return Certification.Create;
+        yield return Certification.Edit;
+        yield return Certification.Delete;
+        yield return Certification.Manage;
+        yield return Certification.Readiness;
+
+        // Maturity
+        yield return Maturity.View;
+        yield return Maturity.Create;
+        yield return Maturity.Edit;
+        yield return Maturity.Delete;
+        yield return Maturity.Assess;
+        yield return Maturity.Baseline;
+        yield return Maturity.Roadmap;
+
+        // Excellence
+        yield return Excellence.View;
+        yield return Excellence.Create;
+        yield return Excellence.Edit;
+        yield return Excellence.Delete;
+        yield return Excellence.Manage;
+        yield return Excellence.Benchmark;
+        yield return Excellence.Assess;
+
+        // Sustainability
+        yield return Sustainability.View;
+        yield return Sustainability.Create;
+        yield return Sustainability.Edit;
+        yield return Sustainability.Delete;
+        yield return Sustainability.Manage;
+        yield return Sustainability.Dashboard;
+        yield return Sustainability.KPIs;
 
         // Integrations
         yield return Integrations.View;

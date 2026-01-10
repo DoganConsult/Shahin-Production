@@ -584,6 +584,9 @@ builder.Services.AddScoped<IOnboardingService, OnboardingService>();
 builder.Services.AddScoped<IOnboardingWizardService, OnboardingWizardService>();
 builder.Services.AddScoped<IAuditEventService, AuditEventService>();
 
+// Owner Dashboard Service - replaces direct DbContext access in OwnerController
+builder.Services.AddScoped<IOwnerDashboardService, OwnerDashboardService>();
+
 // Post-Login Routing Service for role-based redirection
 builder.Services.AddScoped<IPostLoginRoutingService, PostLoginRoutingService>();
 // Use real SMTP email service via adapter (replaces StubEmailService)
@@ -1562,6 +1565,9 @@ app.MapControllerRoute(
 
 // Enable attribute routing for API and custom-routed controllers
 app.MapControllers();
+// #region agent log
+app.Logger.LogInformation("✅ Attribute routing enabled via MapControllers()");
+// #endregion
 
 // #region agent log - Route registration tracking
 app.Logger.LogInformation("Registering routes: MapControllers, Landing route, Default route");

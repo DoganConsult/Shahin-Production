@@ -51,8 +51,8 @@ namespace GrcMvc.Controllers
                         planName = "Professional",
                         status = "Active",
                         billingCycle = "Monthly",
-                        startDate = DateTime.Now.AddMonths(-3),
-                        renewalDate = DateTime.Now.AddMonths(1),
+                        startDate = DateTime.UtcNow.AddMonths(-3),
+                        renewalDate = DateTime.UtcNow.AddMonths(1),
                         monthlyUsers = 50,
                         monthlyControls = 250,
                         monthlyAudits = 12
@@ -64,8 +64,8 @@ namespace GrcMvc.Controllers
                         planName = "Enterprise",
                         status = "Active",
                         billingCycle = "Annual",
-                        startDate = DateTime.Now.AddMonths(-6),
-                        renewalDate = DateTime.Now.AddMonths(6),
+                        startDate = DateTime.UtcNow.AddMonths(-6),
+                        renewalDate = DateTime.UtcNow.AddMonths(6),
                         monthlyUsers = 200,
                         monthlyControls = 1000,
                         monthlyAudits = 52
@@ -77,8 +77,8 @@ namespace GrcMvc.Controllers
                         planName = "Starter",
                         status = "Trial",
                         billingCycle = "Monthly",
-                        startDate = DateTime.Now.AddDays(-5),
-                        renewalDate = DateTime.Now.AddDays(9),
+                        startDate = DateTime.UtcNow.AddDays(-5),
+                        renewalDate = DateTime.UtcNow.AddDays(9),
                         monthlyUsers = 10,
                         monthlyControls = 50,
                         monthlyAudits = 2
@@ -138,7 +138,7 @@ namespace GrcMvc.Controllers
                     TotalItems = bulkRequest.Items.Count,
                     SuccessfulItems = bulkRequest.Items.Count,
                     FailedItems = 0,
-                    CompletedAt = DateTime.Now
+                    CompletedAt = DateTime.UtcNow
                 };
 
                 return Ok(ApiResponse<BulkOperationResult>.SuccessResponse(result, "Bulk operation completed successfully"));
@@ -170,8 +170,8 @@ namespace GrcMvc.Controllers
                     planId = Guid.NewGuid(),
                     status = "Active",
                     billingCycle = "Monthly",
-                    startDate = DateTime.Now.AddMonths(-3),
-                    renewalDate = DateTime.Now.AddMonths(1),
+                    startDate = DateTime.UtcNow.AddMonths(-3),
+                    renewalDate = DateTime.UtcNow.AddMonths(1),
                     monthlyPrice = 299.99m,
                     monthlyUsers = 50,
                     monthlyControls = 250,
@@ -180,8 +180,8 @@ namespace GrcMvc.Controllers
                     currentControls = 187,
                     currentAudits = 8,
                     paymentMethod = "Credit Card",
-                    lastPaymentDate = DateTime.Now.AddMonths(-1),
-                    nextBillingDate = DateTime.Now.AddMonths(1),
+                    lastPaymentDate = DateTime.UtcNow.AddMonths(-1),
+                    nextBillingDate = DateTime.UtcNow.AddMonths(1),
                     autoRenewal = true
                 };
 
@@ -217,10 +217,10 @@ namespace GrcMvc.Controllers
                     planId = planId,
                     status = "Active",
                     billingCycle = billingCycle,
-                    startDate = DateTime.Now,
-                    renewalDate = billingCycle == "Monthly" ? DateTime.Now.AddMonths(1) : DateTime.Now.AddYears(1),
+                    startDate = DateTime.UtcNow,
+                    renewalDate = billingCycle == "Monthly" ? DateTime.UtcNow.AddMonths(1) : DateTime.UtcNow.AddYears(1),
                     autoRenewal = true,
-                    createdDate = DateTime.Now,
+                    createdDate = DateTime.UtcNow,
                     message = "Subscription created successfully"
                 };
 
@@ -253,7 +253,7 @@ namespace GrcMvc.Controllers
                 {
                     subscriptionId = subscriptionId,
                     status = "Cancelled",
-                    cancelledDate = DateTime.Now,
+                    cancelledDate = DateTime.UtcNow,
                     reason = reason,
                     refundAmount = 149.99m,
                     refundStatus = "Processed",
@@ -290,12 +290,12 @@ namespace GrcMvc.Controllers
                     subscriptionId = subscriptionId,
                     previousPlan = "Professional",
                     newPlan = newPlanName,
-                    upgradedDate = DateTime.Now,
+                    upgradedDate = DateTime.UtcNow,
                     newMonthlyPrice = 799.99m,
                     previousMonthlyPrice = 299.99m,
                     additionalCost = 500.00m,
                     creditApplied = 100.00m,
-                    effectiveDate = DateTime.Now,
+                    effectiveDate = DateTime.UtcNow,
                     message = "Subscription upgraded successfully"
                 };
 
@@ -412,7 +412,7 @@ namespace GrcMvc.Controllers
                     status = "Active",
                     autoRenewal = (bool?)updateData.autoRenewal ?? true,
                     paymentMethod = (string?)updateData.paymentMethod ?? "Credit Card",
-                    updatedDate = DateTime.Now,
+                    updatedDate = DateTime.UtcNow,
                     message = "Subscription updated successfully"
                 };
 
@@ -449,7 +449,7 @@ namespace GrcMvc.Controllers
                         billingCycle = (string?)patchData.billingCycle,
                         paymentMethod = (string?)patchData.paymentMethod
                     },
-                    updatedDate = DateTime.Now,
+                    updatedDate = DateTime.UtcNow,
                     message = "Subscription partially updated successfully"
                 };
 
@@ -478,7 +478,7 @@ namespace GrcMvc.Controllers
                 {
                     subscriptionId = id,
                     status = "Deleted",
-                    deletedDate = DateTime.Now,
+                    deletedDate = DateTime.UtcNow,
                     message = "Subscription deleted successfully"
                 };
 

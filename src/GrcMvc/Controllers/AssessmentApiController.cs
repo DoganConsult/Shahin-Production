@@ -123,7 +123,7 @@ namespace GrcMvc.Controllers
                     SuccessfulItems = createdAssessments.Count,
                     FailedItems = errors.Count,
                     Errors = errors,
-                    CompletedAt = DateTime.Now
+                    CompletedAt = DateTime.UtcNow
                 };
 
                 return Ok(ApiResponse<BulkOperationResult>.SuccessResponse(result, 
@@ -249,7 +249,7 @@ namespace GrcMvc.Controllers
                 {
                     assessmentId = id,
                     status = submittedAssessment?.Status ?? "Submitted",
-                    submittedDate = DateTime.Now,
+                    submittedDate = DateTime.UtcNow,
                     submittedBy = submissionData?.submittedBy ?? "System",
                     message = "Assessment submitted successfully for review"
                 };

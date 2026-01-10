@@ -2,18 +2,17 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using GrcMvc.Data;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace GrcMvc.Controllers
 {
     /// <summary>
     /// Owner/PlatformAdmin controller for tenant creation and management
+    /// Uses service layer instead of direct DbContext access
     /// </summary>
     [Authorize(Roles = "PlatformAdmin,Owner")]
     [Route("owner")]
@@ -22,20 +21,20 @@ namespace GrcMvc.Controllers
         private readonly IOwnerTenantService _ownerTenantService;
         private readonly ICredentialDeliveryService _credentialDeliveryService;
         private readonly IAuditEventService _auditService;
-        private readonly GrcDbContext _context;
+        private readonly IOwnerDashboardService _dashboardService;
         private readonly ILogger<OwnerController> _logger;
 
         public OwnerController(
             IOwnerTenantService ownerTenantService,
             ICredentialDeliveryService credentialDeliveryService,
             IAuditEventService auditService,
-            GrcDbContext context,
+            IOwnerDashboardService dashboardService,
             ILogger<OwnerController> logger)
         {
             _ownerTenantService = ownerTenantService;
             _credentialDeliveryService = credentialDeliveryService;
             _auditService = auditService;
-            _context = context;
+            _dashboardService = dashboardService;
             _logger = logger;
         }
 
@@ -48,36 +47,35 @@ namespace GrcMvc.Controllers
         [HttpGet("Dashboard")]
         public async Task<IActionResult> Index()
         {
+            // Get all dashboard stats via service
+            var stats = await _dashboardService.GetDashboardStatsAsync();
+            
             // Tenant Statistics
-            ViewBag.TotalTenants = await _context.Tenants.CountAsync();
-            ViewBag.OwnerCreatedTenants = await _context.Tenants.CountAsync(t => t.IsOwnerCreated);
-            ViewBag.ActiveTenants = await _context.Tenants.CountAsync(t => t.IsActive);
-            ViewBag.TenantsWithAdmin = await _context.Tenants.CountAsync(t => t.AdminAccountGenerated);
+            ViewBag.TotalTenants = stats.TotalTenants;
+            ViewBag.OwnerCreatedTenants = stats.OwnerCreatedTenants;
+            ViewBag.ActiveTenants = stats.ActiveTenants;
+            ViewBag.TenantsWithAdmin = stats.TenantsWithAdmin;
 
             // Sector & Framework Statistics
-            ViewBag.TotalMainSectors = await _context.SectorFrameworkIndexes.Select(s => s.SectorCode).Distinct().CountAsync();
-            ViewBag.TotalGosiSubSectors = await _context.GrcSubSectorMappings.CountAsync();
-            ViewBag.TotalSectorMappings = await _context.SectorFrameworkIndexes.CountAsync();
+            ViewBag.TotalMainSectors = stats.TotalMainSectors;
+            ViewBag.TotalGosiSubSectors = stats.TotalGosiSubSectors;
+            ViewBag.TotalSectorMappings = stats.TotalSectorMappings;
             
             // Regulatory Content Statistics
-            ViewBag.TotalRegulators = await _context.Regulators.CountAsync();
-            ViewBag.TotalFrameworks = await _context.FrameworkCatalogs.CountAsync();
-            ViewBag.TotalControls = await _context.FrameworkControls.CountAsync();
-            ViewBag.TotalEvidenceTypes = await _context.EvidenceScoringCriteria.CountAsync();
+            ViewBag.TotalRegulators = stats.TotalRegulators;
+            ViewBag.TotalFrameworks = stats.TotalFrameworks;
+            ViewBag.TotalControls = stats.TotalControls;
+            ViewBag.TotalEvidenceTypes = stats.TotalEvidenceTypes;
             
             // Workflow Statistics
-            ViewBag.TotalWorkflowDefinitions = await _context.WorkflowDefinitions.CountAsync();
-            ViewBag.TotalWorkflowInstances = await _context.WorkflowInstances.CountAsync();
+            ViewBag.TotalWorkflowDefinitions = stats.TotalWorkflowDefinitions;
+            ViewBag.TotalWorkflowInstances = stats.TotalWorkflowInstances;
             
-            // User Statistics - count via TenantUsers (cross-tenant user mapping)
-            ViewBag.TotalUsers = await _context.TenantUsers.Select(tu => tu.UserId).Distinct().CountAsync();
+            // User Statistics
+            ViewBag.TotalUsers = stats.TotalUsers;
             
             // Recent activity
-            ViewBag.RecentTenants = await _context.Tenants
-                .OrderByDescending(t => t.CreatedDate)
-                .Take(5)
-                .Select(t => new { t.Id, Name = t.OrganizationName, Subdomain = t.TenantSlug, t.IsActive, t.CreatedDate })
-                .ToListAsync();
+            ViewBag.RecentTenants = stats.RecentTenants.Select(t => new { t.Id, Name = t.Name, Subdomain = t.Subdomain, t.IsActive, t.CreatedDate }).ToList();
 
             return View();
         }
@@ -88,10 +86,7 @@ namespace GrcMvc.Controllers
         [HttpGet("Tenants")]
         public async Task<IActionResult> Tenants()
         {
-            var tenants = await _context.Tenants
-                .OrderByDescending(t => t.CreatedDate)
-                .ToListAsync();
-
+            var tenants = await _dashboardService.GetAllTenantsAsync();
             return View(tenants);
         }
 
@@ -149,20 +144,19 @@ namespace GrcMvc.Controllers
         [HttpGet("Tenants/{id}/Details")]
         public async Task<IActionResult> Details(Guid id)
         {
-            var tenant = await _context.Tenants
-                .Include(t => t.Users)
-                .FirstOrDefaultAsync(t => t.Id == id);
+            var detail = await _dashboardService.GetTenantDetailAsync(id);
+            if (detail == null)
+            {
+                return NotFound();
+            }
 
+            var tenant = await _dashboardService.GetTenantByIdAsync(id);
             if (tenant == null)
             {
                 return NotFound();
             }
 
-            var ownerGeneratedUsers = await _context.TenantUsers
-                .Where(tu => tu.TenantId == id && tu.IsOwnerGenerated)
-                .ToListAsync();
-
-            ViewBag.OwnerGeneratedUsers = ownerGeneratedUsers;
+            ViewBag.OwnerGeneratedUsers = detail.OwnerGeneratedUsers;
             ViewBag.HasExpiredCredentials = tenant.CredentialExpiresAt.HasValue && 
                                             tenant.CredentialExpiresAt.Value < DateTime.UtcNow;
 
@@ -175,7 +169,7 @@ namespace GrcMvc.Controllers
         [HttpGet("Tenants/{id}/GenerateAdmin")]
         public async Task<IActionResult> GenerateAdmin(Guid id)
         {
-            var tenant = await _context.Tenants.FindAsync(id);
+            var tenant = await _dashboardService.GetTenantByIdAsync(id);
             if (tenant == null)
             {
                 return NotFound();
@@ -200,7 +194,7 @@ namespace GrcMvc.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var tenant = await _context.Tenants.FindAsync(id);
+                var tenant = await _dashboardService.GetTenantByIdAsync(id);
                 ViewBag.Tenant = tenant;
                 return View(dto);
             }
@@ -227,7 +221,7 @@ namespace GrcMvc.Controllers
             {
                 _logger.LogError(ex, "Error generating admin account for tenant {TenantId}", id);
                 ModelState.AddModelError("", "An error occurred processing your request.");
-                var tenant = await _context.Tenants.FindAsync(id);
+                var tenant = await _dashboardService.GetTenantByIdAsync(id);
                 ViewBag.Tenant = tenant;
                 return View(dto);
             }
@@ -263,18 +257,16 @@ namespace GrcMvc.Controllers
         {
             try
             {
-                var tenant = await _context.Tenants.FindAsync(id);
+                var tenant = await _dashboardService.GetTenantByIdAsync(id);
                 if (tenant == null)
                 {
                     return NotFound();
                 }
 
-                // Get the owner-generated tenant user
-                var tenantUser = await _context.TenantUsers
-                    .Include(tu => tu.User)
-                    .FirstOrDefaultAsync(tu => tu.TenantId == id && tu.IsOwnerGenerated && tu.RoleCode == "Admin");
+                var ownerUsers = await _dashboardService.GetOwnerGeneratedUsersAsync(id);
+                var adminUser = ownerUsers.FirstOrDefault(u => u.RoleCode == "Admin");
 
-                if (tenantUser == null)
+                if (adminUser == null)
                 {
                     TempData["Error"] = "No owner-generated admin account found for this tenant.";
                     return RedirectToAction("Details", new { id });
@@ -333,18 +325,14 @@ namespace GrcMvc.Controllers
         [HttpGet("Tenants/{id}/Status")]
         public async Task<IActionResult> Status(Guid id)
         {
-            var tenant = await _context.Tenants.FindAsync(id);
+            var tenant = await _dashboardService.GetTenantByIdAsync(id);
             if (tenant == null)
             {
                 return NotFound();
             }
 
-            var ownerGeneratedUsers = await _context.TenantUsers
-                .Where(tu => tu.TenantId == id && tu.IsOwnerGenerated)
-                .ToListAsync();
-
-            var ownerTenantCreation = await _context.OwnerTenantCreations
-                .FirstOrDefaultAsync(otc => otc.TenantId == id);
+            var ownerGeneratedUsers = await _dashboardService.GetOwnerGeneratedUsersAsync(id);
+            var ownerTenantCreation = await _dashboardService.GetOwnerTenantCreationAsync(id);
 
             ViewBag.OwnerGeneratedUsers = ownerGeneratedUsers;
             ViewBag.OwnerTenantCreation = ownerTenantCreation;
