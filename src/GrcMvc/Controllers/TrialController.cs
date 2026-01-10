@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
 using GrcMvc.Models.ViewModels;
@@ -119,7 +120,8 @@ namespace GrcMvc.Controllers
                 {
                     UserName = model.Email,
                     Email = model.Email,
-                    EmailConfirmed = true,
+                    // HIGH PRIORITY SECURITY FIX: Only auto-confirm email in development environment
+                    EmailConfirmed = !HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsProduction(),
                     FirstName = model.FullName.Split(' ').FirstOrDefault() ?? model.FullName,
                     LastName = model.FullName.Split(' ').Skip(1).FirstOrDefault() ?? "",
                     IsActive = true,

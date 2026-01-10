@@ -19,7 +19,9 @@ public static class CreateAhmetDoganUser
         try
         {
             const string email = "ahmet.dogan@doganconsult.com";
-            const string password = "DogCon@Admin2026";
+            // CRITICAL SECURITY FIX: Use environment variable instead of hardcoded password
+            var password = Environment.GetEnvironmentVariable("GRC_AHMET_DOGAN_PASSWORD") 
+                ?? throw new InvalidOperationException("GRC_AHMET_DOGAN_PASSWORD environment variable is required. Set it before creating this user.");
 
             // Use CreateUserHelper which handles all the tenant linking and role assignment
             var user = await CreateUserHelper.CreateUserAsync(

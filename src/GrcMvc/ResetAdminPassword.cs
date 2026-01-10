@@ -83,10 +83,11 @@ namespace GrcMvc
                     Console.WriteLine("Admin password reset successfully!");
                 }
 
+                // CRITICAL SECURITY FIX: Never log passwords to console - use secure logger or send via secure channel
                 Console.WriteLine("\n==============================");
                 Console.WriteLine("Login Credentials:");
                 Console.WriteLine($"Email: support@shahin-ai.com");
-                Console.WriteLine($"Password: {newPassword}");
+                Console.WriteLine("Password has been reset. Check secure credentials delivery channel.");
                 Console.WriteLine("==============================\n");
 
                 return true;

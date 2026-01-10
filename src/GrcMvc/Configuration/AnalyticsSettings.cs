@@ -12,7 +12,8 @@ namespace GrcMvc.Configuration
         public int NativePort { get; set; } = 9000;
         public string Database { get; set; } = "grc_analytics";
         public string Username { get; set; } = "grc_analytics";
-        public string Password { get; set; } = "grc_analytics_2026";
+        // SECURITY: Password must be configured, no default
+        public string Password { get; set; } = string.Empty;
         public int MaxPoolSize { get; set; } = 10;
         public int CommandTimeoutSeconds { get; set; } = 30;
         public bool Enabled { get; set; } = false;

@@ -4,6 +4,7 @@ using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 using System.Text.Json;
 
 namespace GrcMvc.Services.Implementations;
@@ -525,12 +526,20 @@ public class PlatformAdminService : IPlatformAdminService
         return (false, null);
     }
 
+    /// <summary>
+    /// Generates a cryptographically secure password
+    /// SECURITY: Uses RandomNumberGenerator instead of Random for security
+    /// </summary>
     private static string GenerateSecurePassword()
     {
         const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
-        var random = new Random();
-        return new string(Enumerable.Repeat(chars, 12)
-            .Select(s => s[random.Next(s.Length)]).ToArray());
+        const int length = 16; // Increased from 12 for better security
+        var bytes = new byte[length];
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            rng.GetBytes(bytes);
+        }
+        return new string(bytes.Select(b => chars[b % chars.Length]).ToArray());
     }
 
     #endregion

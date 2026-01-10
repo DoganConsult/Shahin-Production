@@ -12,7 +12,12 @@ public static class PlatformAdminSeeds
 {
     private const string OwnerEmail = "Dooganlap@gmail.com";
     private const string OwnerDisplayName = "Platform Owner";
-    private const string DefaultPassword = "Platform@2026!";
+    // CRITICAL SECURITY FIX: Use environment variable instead of hardcoded password
+    private static string GetDefaultPassword()
+    {
+        return Environment.GetEnvironmentVariable("GRC_PLATFORM_ADMIN_PASSWORD") 
+            ?? throw new InvalidOperationException("GRC_PLATFORM_ADMIN_PASSWORD environment variable is required for seeding platform admin. Set it before running seeds.");
+    }
 
     public static async Task SeedPlatformAdminAsync(
         GrcDbContext context,
@@ -51,7 +56,7 @@ public static class PlatformAdminSeeds
                 MustChangePassword = true  // Force password change on first login
             };
 
-            var createResult = await userManager.CreateAsync(user, DefaultPassword);
+            var createResult = await userManager.CreateAsync(user, GetDefaultPassword());
             if (!createResult.Succeeded)
             {
                 logger.LogError("❌ Failed to create Platform Owner user: {Errors}",
@@ -114,7 +119,7 @@ public static class PlatformAdminSeeds
         await context.SaveChangesAsync();
 
         logger.LogInformation("✅ Platform Admin created successfully: {Email} with Owner level access", OwnerEmail);
-        logger.LogInformation("🔑 Default password: {Password} (change immediately!)", DefaultPassword);
+        logger.LogInformation("🔑 Password set from GRC_PLATFORM_ADMIN_PASSWORD environment variable (change immediately!)");
     }
 
     /// <summary>

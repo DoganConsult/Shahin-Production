@@ -78,7 +78,9 @@ public static class UserSeeds
         ILogger logger)
     {
         const string adminEmail = "support@shahin-ai.com";
-        const string adminPassword = "ShahinAdmin@2026";
+        // CRITICAL SECURITY FIX: Use environment variable instead of hardcoded password
+        var adminPassword = Environment.GetEnvironmentVariable("GRC_ADMIN_PASSWORD") 
+            ?? throw new InvalidOperationException("GRC_ADMIN_PASSWORD environment variable is required for seeding admin user. Set it before running seeds.");
 
         var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
@@ -183,7 +185,9 @@ public static class UserSeeds
         ILogger logger)
     {
         const string managerEmail = "manager@grcsystem.com";
-        const string managerPassword = "Manager@123456";
+        // CRITICAL SECURITY FIX: Use environment variable instead of hardcoded password
+        var managerPassword = Environment.GetEnvironmentVariable("GRC_MANAGER_PASSWORD") 
+            ?? throw new InvalidOperationException("GRC_MANAGER_PASSWORD environment variable is required for seeding manager user. Set it before running seeds.");
 
         var managerUser = await userManager.FindByEmailAsync(managerEmail);
 

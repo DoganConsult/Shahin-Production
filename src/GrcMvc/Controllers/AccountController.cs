@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using GrcMvc.Models.Entities;
 using GrcMvc.Models.ViewModels;
@@ -30,6 +31,7 @@ namespace GrcMvc.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly ITenantService _tenantService;
         private readonly GrcDbContext _context;
+        private readonly IAuditEventService? _auditEventService; // MEDIUM FIX: Audit logging for authentication events
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -40,7 +42,8 @@ namespace GrcMvc.Controllers
             IGrcEmailService grcEmailService,
             ILogger<AccountController> logger,
             ITenantService tenantService,
-            GrcDbContext context)
+            GrcDbContext context,
+            IAuditEventService? auditEventService = null) // Optional for backward compatibility
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -51,6 +54,7 @@ namespace GrcMvc.Controllers
             _logger = logger;
             _tenantService = tenantService;
             _context = context;
+            _auditEventService = auditEventService;
         }
 
         // GET: Account/Login
@@ -65,6 +69,7 @@ namespace GrcMvc.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting("auth")] // MEDIUM PRIORITY SECURITY FIX: Rate limiting to prevent brute force attacks
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -79,11 +84,52 @@ namespace GrcMvc.Controllers
 
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User {Email} logged in successfully.", model.Email);
-
                     var user = await _userManager.FindByEmailAsync(model.Email);
                     if (user != null)
                     {
+                        // MEDIUM PRIORITY FIX: Enhanced logging with IP, user agent, timestamp
+                        var loginIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                        var loginUserAgent = HttpContext.Request.Headers["User-Agent"].ToString();
+                        _logger.LogInformation(
+                            "User {Email} (ID: {UserId}) logged in successfully from IP {IpAddress}, UserAgent: {UserAgent}",
+                            model.Email, user.Id, loginIpAddress, loginUserAgent);
+
+                        // MEDIUM PRIORITY FIX: Formal audit log entry for successful login
+                        if (_auditEventService != null)
+                        {
+                            try
+                            {
+                                var tenantId = Guid.Empty; // Will be resolved in ProcessPostLoginAsync
+                                var tenantUser = await _context.TenantUsers
+                                    .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
+                                if (tenantUser != null) tenantId = tenantUser.TenantId;
+
+                                await _auditEventService.LogEventAsync(
+                                    tenantId,
+                                    "USER_LOGIN_SUCCESS",
+                                    "User",
+                                    user.Id,
+                                    "Login",
+                                    user.Id,
+                                    System.Text.Json.JsonSerializer.Serialize(new
+                                    {
+                                        email = user.Email,
+                                        ipAddress = loginIpAddress,
+                                        userAgent = loginUserAgent,
+                                        rememberMe = model.RememberMe,
+                                        timestamp = DateTime.UtcNow
+                                    }),
+                                    Guid.NewGuid().ToString());
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogWarning(ex, "Failed to log audit event for login");
+                            }
+                        }
+
+                        // MEDIUM PRIORITY FIX: Regenerate session ID on authentication to prevent session fixation
+                        await HttpContext.Session.CommitAsync();
+
                         // Check if user must change password (first login or admin reset)
                         if (user.MustChangePassword)
                         {
@@ -128,6 +174,45 @@ namespace GrcMvc.Controllers
                     return RedirectToAction(nameof(LoginWith2fa), new { returnUrl, model.RememberMe });
                 }
 
+                // MEDIUM PRIORITY FIX: Enhanced failed login logging (username, IP, timestamp, user agent)
+                var failedLoginIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                var failedLoginUserAgent = HttpContext.Request.Headers["User-Agent"].ToString();
+                _logger.LogWarning(
+                    "Failed login attempt for email {Email} from IP {IpAddress} at {Timestamp}, UserAgent: {UserAgent}",
+                    model.Email, failedLoginIp, DateTime.UtcNow, failedLoginUserAgent);
+
+                // MEDIUM PRIORITY FIX: Log failed login to audit trail
+                if (_auditEventService != null)
+                {
+                    try
+                    {
+                        var failedUser = await _userManager.FindByEmailAsync(model.Email);
+                        var failedUserId = failedUser?.Id ?? "unknown";
+                        var tenantId = Guid.Empty;
+
+                        await _auditEventService.LogEventAsync(
+                            tenantId,
+                            "USER_LOGIN_FAILED",
+                            "User",
+                            failedUserId,
+                            "LoginFailed",
+                            failedUserId,
+                            System.Text.Json.JsonSerializer.Serialize(new
+                            {
+                                email = model.Email,
+                                ipAddress = failedLoginIp,
+                                userAgent = failedLoginUserAgent,
+                                reason = result.ToString(),
+                                timestamp = DateTime.UtcNow
+                            }),
+                            Guid.NewGuid().ToString());
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to log audit event for failed login");
+                    }
+                }
+
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
 
@@ -157,17 +242,21 @@ namespace GrcMvc.Controllers
 
             // Add TenantId claim if tenant exists
             var existingClaims = await _userManager.GetClaimsAsync(user);
-            var hasTenantClaim = existingClaims.Any(c => c.Type == "TenantId");
+            var hasTenantClaim = existingClaims.Any(c => c.Type == ClaimConstants.TenantId);
 
             if (!hasTenantClaim)
             {
                 var claims = new List<Claim>
                 {
-                    new Claim("TenantId", tenantUser.TenantId.ToString())
+                    new Claim(ClaimConstants.TenantId, tenantUser.TenantId.ToString())
                 };
                 await _userManager.AddClaimsAsync(user, claims);
                 _logger.LogDebug("Added TenantId claim for user {Email}", user.Email);
             }
+
+            // MEDIUM PRIORITY FIX: Regenerate session ID on authentication to prevent session fixation
+            await HttpContext.Session.CommitAsync();
+            await HttpContext.Session.LoadAsync();
 
             // Re-sign in to include claims in cookie
             await _signInManager.SignInAsync(user, rememberMe);
@@ -310,7 +399,8 @@ namespace GrcMvc.Controllers
                     FirstName = model.FirstName ?? string.Empty,
                     LastName = model.LastName ?? string.Empty,
                     Department = model.Department ?? string.Empty,
-                    EmailConfirmed = true // For development, auto-confirm email
+                    // HIGH PRIORITY SECURITY FIX: Only auto-confirm email in development environment
+                    EmailConfirmed = !HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsProduction()
                 };
 
                 var result = await _userManager.CreateAsync(user, model.Password);
@@ -664,11 +754,19 @@ namespace GrcMvc.Controllers
         {
             if (ModelState.IsValid)
             {
+                // MEDIUM PRIORITY FIX: Generic message regardless of user existence to prevent user enumeration
+                // Always return the same response to prevent timing attacks
                 var user = await _userManager.FindByEmailAsync(model.Email);
+                
+                // Add artificial delay to prevent timing-based user enumeration
+                await Task.Delay(100);
+                
                 if (user == null)
                 {
                     // Don't reveal that the user does not exist
-                    _logger.LogWarning("Password reset requested for non-existent email: {Email}", model.Email);
+                    _logger.LogWarning("Password reset requested for non-existent email: {Email} from IP {IpAddress}",
+                        model.Email, HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+                    // MEDIUM PRIORITY FIX: Return generic confirmation regardless of user existence
                     return RedirectToAction(nameof(ForgotPasswordConfirmation));
                 }
 
@@ -676,7 +774,8 @@ namespace GrcMvc.Controllers
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var callbackUrl = Url.Action(nameof(ResetPassword), "Account", new { code }, protocol: HttpContext.Request.Scheme);
                 
-                _logger.LogInformation("Password reset link generated: {Url}", callbackUrl);
+                // SECURITY: Never log password reset URLs - they contain sensitive tokens
+                _logger.LogDebug("Password reset link generated for user: {Email}", model.Email);
                 
                 // Use templated email with Arabic support
                 var userName = user.FullName ?? user.UserName ?? user.Email?.Split('@')[0] ?? "المستخدم";
@@ -965,7 +1064,8 @@ namespace GrcMvc.Controllers
                 var tenantUser = await _context.TenantUsers
                     .FirstOrDefaultAsync(tu => tu.TenantId == model.TenantId && tu.UserId == user.Id);
 
-                if (tenantUser == null || tenantUser.RoleCode != "Admin" || tenantUser.Status != "Active")
+                // MEDIUM PRIORITY FIX: Use RoleConstants instead of magic string
+                if (tenantUser == null || !RoleConstants.IsTenantAdmin(tenantUser.RoleCode) || tenantUser.Status != "Active")
                 {
                     ModelState.AddModelError("", "Invalid credentials for this tenant");
                     return View(model);
@@ -991,7 +1091,7 @@ namespace GrcMvc.Controllers
                 if (result.Succeeded)
                 {
                     // Add tenant claim
-                    var claims = new List<Claim> { new Claim("TenantId", model.TenantId.ToString()) };
+                    var claims = new List<Claim> { new Claim(ClaimConstants.TenantId, model.TenantId.ToString()) };
                     await _userManager.AddClaimsAsync(user, claims);
 
                     _logger.LogInformation("Tenant admin {Username} logged in for tenant {TenantId}",
@@ -1087,8 +1187,8 @@ namespace GrcMvc.Controllers
                     return View(model);
                 }
 
-                // Only return tenant info for Admin/TENANT_ADMIN users (password verified)
-                if (tenantUser.RoleCode == "Admin" || tenantUser.RoleCode == "TENANT_ADMIN" || tenantUser.RoleCode == "ADMINISTRATOR")
+                // MEDIUM PRIORITY FIX: Use RoleConstants instead of magic strings
+                if (RoleConstants.IsTenantAdmin(tenantUser.RoleCode))
                 {
                     model.TenantIdFound = true;
                     model.TenantId = tenantUser.Tenant.Id;

@@ -14,9 +14,11 @@ namespace GrcMvc.Controllers.Api
 {
     /// <summary>
     /// API Controller for seeding catalog, workflow, and framework control data
+    /// SECURITY: Requires PlatformAdmin role - never expose without authorization
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "PlatformAdmin")]
     [IgnoreAntiforgeryToken]
     public class SeedController : ControllerBase
     {
@@ -27,6 +29,7 @@ namespace GrcMvc.Controllers.Api
         private readonly GrcDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<SeedController> _logger;
+        private readonly IWebHostEnvironment _environment;
 
         public SeedController(
             CatalogSeederService catalogSeeder,
@@ -35,7 +38,8 @@ namespace GrcMvc.Controllers.Api
             IPocSeederService pocSeeder,
             GrcDbContext context,
             UserManager<ApplicationUser> userManager,
-            ILogger<SeedController> logger)
+            ILogger<SeedController> logger,
+            IWebHostEnvironment environment)
         {
             _catalogSeeder = catalogSeeder;
             _workflowSeeder = workflowSeeder;
@@ -44,15 +48,31 @@ namespace GrcMvc.Controllers.Api
             _context = context;
             _userManager = userManager;
             _logger = logger;
+            _environment = environment;
+        }
+
+        /// <summary>
+        /// Check if seeding is allowed - only in Development or when ALLOW_SEED=true
+        /// </summary>
+        private bool IsSeedingAllowed()
+        {
+            if (_environment.IsDevelopment()) return true;
+            var allowSeed = Environment.GetEnvironmentVariable("ALLOW_SEED");
+            return allowSeed?.Equals("true", StringComparison.OrdinalIgnoreCase) == true;
         }
 
         /// <summary>
         /// Seed all catalog data (Roles, Titles, Baselines, Packages, Templates, Evidence Types)
         /// </summary>
         [HttpPost("catalogs")]
-        [AllowAnonymous] // For initial setup - should be secured in production
         public async Task<IActionResult> SeedCatalogs()
         {
+            if (!IsSeedingAllowed())
+            {
+                _logger.LogWarning("Seed attempt blocked in production environment");
+                return BadRequest(new { error = "Seeding is not allowed in production. Set ALLOW_SEED=true to override." });
+            }
+
             try
             {
                 await _catalogSeeder.SeedAllCatalogsAsync();
@@ -69,7 +89,6 @@ namespace GrcMvc.Controllers.Api
         /// Seed all workflow definitions (7 pre-defined workflows)
         /// </summary>
         [HttpPost("workflows")]
-        [AllowAnonymous] // For initial setup - should be secured in production
         public async Task<IActionResult> SeedWorkflows()
         {
             try
@@ -88,7 +107,6 @@ namespace GrcMvc.Controllers.Api
         /// Seed all data (catalogs + workflows + regulators + KSA frameworks)
         /// </summary>
         [HttpPost("all")]
-        [AllowAnonymous] // For initial setup - should be secured in production
         public async Task<IActionResult> SeedAll()
         {
             try

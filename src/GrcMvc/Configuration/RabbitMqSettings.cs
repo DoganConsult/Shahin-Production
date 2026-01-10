@@ -21,9 +21,9 @@ namespace GrcMvc.Configuration
         public string Username { get; set; } = "guest";
 
         /// <summary>
-        /// RabbitMQ password
+        /// RabbitMQ password - SECURITY: Must be configured, no default
         /// </summary>
-        public string Password { get; set; } = "guest";
+        public string Password { get; set; } = string.Empty;
 
         /// <summary>
         /// RabbitMQ port (5672 for AMQP, 5671 for AMQPS)

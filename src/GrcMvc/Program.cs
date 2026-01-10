@@ -104,10 +104,11 @@ if (string.IsNullOrWhiteSpace(connectionString))
     var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
     var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "GrcMvcDb";
     var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "postgres";
-    var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "postgres";
+    // SECURITY: No fallback for password - must be explicitly set
+    var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
     
-    // Only build if DB_HOST is explicitly set (avoid localhost fallback)
-    if (!string.IsNullOrWhiteSpace(dbHost))
+    // Only build if DB_HOST and DB_PASSWORD are explicitly set
+    if (!string.IsNullOrWhiteSpace(dbHost) && !string.IsNullOrWhiteSpace(dbPassword))
     {
         connectionString = $"Host={dbHost};Database={dbName};Username={dbUser};Password={dbPassword};Port={dbPort}";
         builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
@@ -120,7 +121,13 @@ if (string.IsNullOrWhiteSpace(authConnectionString) && !string.IsNullOrWhiteSpac
 {
     builder.Configuration["ConnectionStrings:GrcAuthDb"] = connectionString;
 }
-builder.Configuration["JwtSettings:Secret"] = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "ShahinAI-Dev-SecretKey-2026-MustBeAtLeast32Chars!";
+// CRITICAL SECURITY FIX: JWT secret must be provided via environment variable - no fallback in any environment
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+if (string.IsNullOrWhiteSpace(jwtSecret))
+{
+    throw new InvalidOperationException("JWT_SECRET environment variable is required. Set it before starting the application.");
+}
+builder.Configuration["JwtSettings:Secret"] = jwtSecret;
 builder.Configuration["ClaudeAgents:ApiKey"] = Environment.GetEnvironmentVariable("CLAUDE_API_KEY") ?? "";
 builder.Configuration["ClaudeAgents:Model"] = Environment.GetEnvironmentVariable("CLAUDE_MODEL") ?? "claude-sonnet-4-20250514";
 builder.Configuration["ClaudeAgents:MaxTokens"] = Environment.GetEnvironmentVariable("CLAUDE_MAX_TOKENS") ?? "4096";
@@ -147,10 +154,10 @@ builder.Configuration["CopilotAgent:ClientSecret"] = Environment.GetEnvironmentV
 builder.Configuration["CopilotAgent:ApplicationIdUri"] = Environment.GetEnvironmentVariable("COPILOT_APP_ID_URI") ?? "";
 builder.Configuration["CopilotAgent:Enabled"] = Environment.GetEnvironmentVariable("COPILOT_ENABLED") ?? "false";
 
-// Camunda BPM (Optional)
+// Camunda BPM (Optional) - SECURITY: No default password
 builder.Configuration["Camunda:BaseUrl"] = Environment.GetEnvironmentVariable("CAMUNDA_BASE_URL") ?? "http://localhost:8085/camunda";
 builder.Configuration["Camunda:Username"] = Environment.GetEnvironmentVariable("CAMUNDA_USERNAME") ?? "admin";
-builder.Configuration["Camunda:Password"] = Environment.GetEnvironmentVariable("CAMUNDA_PASSWORD") ?? "demo";
+builder.Configuration["Camunda:Password"] = Environment.GetEnvironmentVariable("CAMUNDA_PASSWORD") ?? "";
 builder.Configuration["Camunda:Enabled"] = Environment.GetEnvironmentVariable("CAMUNDA_ENABLED") ?? "false";
 
 // Kafka (Optional)
@@ -493,7 +500,10 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(20); // Reduced from 30
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    // SECURITY: Use Always in production, SameAsRequest in development
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() 
+        ? CookieSecurePolicy.SameAsRequest 
+        : CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
@@ -503,7 +513,10 @@ builder.Services.AddAntiforgery(options =>
     options.HeaderName = "X-CSRF-TOKEN";
     options.Cookie.Name = "X-CSRF-TOKEN";
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    // SECURITY: Use Always in production, SameAsRequest in development
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() 
+        ? CookieSecurePolicy.SameAsRequest 
+        : CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
@@ -944,7 +957,10 @@ builder.Services.AddScoped<IValidator<UpdateRiskDto>, UpdateRiskDtoValidator>();
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    // SECURITY: Use Always in production, SameAsRequest in development
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() 
+        ? CookieSecurePolicy.SameAsRequest 
+        : CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Lax; // Lax for authentication cookies
     options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     options.LoginPath = "/Account/Login";
@@ -1297,6 +1313,9 @@ app.UseMiddleware<GrcMvc.Middleware.TenantResolutionMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// MEDIUM PRIORITY FIX: Add security headers (CSP, X-Frame-Options, etc.) - must be early in pipeline
+app.UseSecurityHeaders();
 
 // Host-based routing (login.shahin-ai.com → Admin, shahin-ai.com → Landing)
 app.UseHostRouting();

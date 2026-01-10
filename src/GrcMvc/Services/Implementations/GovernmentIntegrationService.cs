@@ -43,7 +43,13 @@ public class GovernmentIntegrationService : IGovernmentIntegrationService
         // POST https://api.nafath.sa/v1/auth/initiate
 
         var transactionId = Guid.NewGuid().ToString();
-        var randomNumber = new Random().Next(10, 99).ToString();
+        // SECURITY: Use cryptographically secure random for authentication numbers
+        var randomBytes = new byte[1];
+        using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
+        {
+            rng.GetBytes(randomBytes);
+        }
+        var randomNumber = (10 + (randomBytes[0] % 90)).ToString(); // Range 10-99
 
         return await Task.FromResult(new NafathAuthRequest
         {

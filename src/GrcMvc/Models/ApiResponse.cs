@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Hosting;
+
 namespace GrcMvc.Models
 {
     /// <summary>
@@ -53,6 +55,23 @@ namespace GrcMvc.Models
                 StatusCode = statusCode
             };
         }
+
+        /// <summary>
+        /// Creates a safe error response for exceptions (no internal details exposed)
+        /// SECURITY: Use this instead of ErrorResponse(ex.Message) to avoid leaking internal details
+        /// </summary>
+        public static ApiResponse<T> SafeErrorResponse(Exception ex, IWebHostEnvironment? environment = null)
+        {
+            var isDevelopment = environment?.EnvironmentName == "Development";
+            var message = isDevelopment ? ex.Message : "An error occurred processing your request.";
+            return new ApiResponse<T>
+            {
+                Success = false,
+                Data = default,
+                Message = message,
+                StatusCode = 500
+            };
+        }
     }
 
     /// <summary>
@@ -98,6 +117,22 @@ namespace GrcMvc.Models
                 Success = false,
                 Message = message,
                 StatusCode = statusCode
+            };
+        }
+
+        /// <summary>
+        /// Creates a safe error response for exceptions (no internal details exposed)
+        /// SECURITY: Use this instead of ErrorResponse(ex.Message) to avoid leaking internal details
+        /// </summary>
+        public static ApiResponse SafeErrorResponse(Exception ex, IWebHostEnvironment? environment = null)
+        {
+            var isDevelopment = environment?.EnvironmentName == "Development";
+            var message = isDevelopment ? ex.Message : "An error occurred processing your request.";
+            return new ApiResponse
+            {
+                Success = false,
+                Message = message,
+                StatusCode = 500
             };
         }
     }
