@@ -23,16 +23,18 @@ namespace GrcMvc.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<DashboardMvcController> _logger;
-
+        private readonly GrcMvc.Data.GrcDbContext _context;
         private readonly IWorkspaceContextService? _workspaceContext;
 
         public DashboardMvcController(
             IUnitOfWork unitOfWork, 
             ILogger<DashboardMvcController> logger,
+            GrcMvc.Data.GrcDbContext context,
             IWorkspaceContextService? workspaceContext = null)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _context = context;
             _workspaceContext = workspaceContext;
         }
 
@@ -85,13 +87,30 @@ namespace GrcMvc.Controllers
                     if (tenant != null)
                     {
                         orgName = tenant.OrganizationName;
-                        
+
                         // Check if onboarding is incomplete - show resume banner
                         if (tenant.OnboardingStatus != "COMPLETED")
                         {
                             ViewBag.OnboardingIncomplete = true;
                             ViewBag.OnboardingStatus = tenant.OnboardingStatus;
                             ViewBag.OnboardingUrl = Url.Action("Index", "OnboardingWizard", new { tenantId = tenant.Id });
+
+                            // Get onboarding wizard progress details
+                            var onboardingWizard = await _context.OnboardingWizards
+                                .FirstOrDefaultAsync(w => w.TenantId == tenantId.Value);
+
+                            if (onboardingWizard != null)
+                            {
+                                ViewBag.OnboardingCurrentStep = onboardingWizard.CurrentStep;
+                                ViewBag.OnboardingProgressPercent = onboardingWizard.ProgressPercent;
+                            }
+                            else
+                            {
+                                // Default values for not started
+                                ViewBag.OnboardingCurrentStep = 1;
+                                ViewBag.OnboardingCompletedSteps = 0;
+                                ViewBag.OnboardingProgressPercent = 0;
+                            }
                         }
                     }
                 }

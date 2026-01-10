@@ -1,6 +1,8 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model IEnumerable<GrcMvc.Models.DTOs.PolicyDto>
 @{
-    ViewData["Title"] = "Policies by Status";
+    ViewData["Title"] = L["Policy_ByStatus_Title"].Value;
     Layout = "_Layout";
     var status = ViewBag.Status as string;
 }
@@ -8,11 +10,11 @@
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col">
-            <h2><i class="bi bi-filter"></i> Policies: @status</h2>
+            <h2><i class="bi bi-filter"></i> @L["Policy_ByStatus_Heading", status]</h2>
         </div>
         <div class="col text-end">
             <a asp-action="Index" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> All Policies
+                <i class="bi bi-arrow-left"></i> @L["AllPolicies"]
             </a>
         </div>
     </div>
@@ -23,7 +25,7 @@
             {
                 <div class="text-center py-5">
                     <i class="bi bi-search display-1 text-muted"></i>
-                    <h4 class="mt-3 text-muted">No policies found with this status.</h4>
+                    <h4 class="mt-3 text-muted">@L["Policy_NoPoliciesWithStatus"]</h4>
                 </div>
             }
             else
@@ -32,12 +34,12 @@
                     <table class="table table-hover" id="statusTable">
                         <thead>
                             <tr>
-                                <th>Number</th>
-                                <th>Title</th>
-                                <th>Category</th>
-                                <th>Type</th>
-                                <th>Owner</th>
-                                <th>Actions</th>
+                                <th>@L["Policy_Number"]</th>
+                                <th>@L["Policy_Title"]</th>
+                                <th>@L["Category"]</th>
+                                <th>@L["Type"]</th>
+                                <th>@L["Policy_Owner"]</th>
+                                <th>@L["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -54,11 +56,11 @@
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
                                             <a asp-action="Edit" asp-route-id="@item.Id"
-                                               class="btn btn-outline-primary" title="Edit">
+                                               class="btn btn-outline-primary" title="@L["Edit"]">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
                                             <a asp-action="Details" asp-route-id="@item.Id"
-                                               class="btn btn-outline-info" title="Details">
+                                               class="btn btn-outline-info" title="@L["Details"]">
                                                 <i class="bi bi-eye"></i>
                                             </a>
                                         </div>

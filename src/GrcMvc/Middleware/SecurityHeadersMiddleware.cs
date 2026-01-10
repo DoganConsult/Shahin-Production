@@ -38,17 +38,21 @@ public class SecurityHeadersMiddleware
             "accelerometer=(), camera=(), geolocation=(), gyroscope=(), " +
             "magnetometer=(), microphone=(), payment=(), usb=()");
 
-        // Content Security Policy - Allow CDN for Bootstrap and icons
+        // Content Security Policy - Allow CDN for Bootstrap, icons, and Claude API
         context.Response.Headers.Append("Content-Security-Policy",
             "default-src 'self'; " +
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; " +
-            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
-            "font-src 'self' https://cdn.jsdelivr.net; " +
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
+            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; " +
             "img-src 'self' data: https:; " +
-            "connect-src 'self'; " +
+            "connect-src 'self' https://api.anthropic.com; " +
             "frame-ancestors 'none'; " +
             "base-uri 'self'; " +
             "form-action 'self'");
+
+        // Remove additional ASP.NET headers
+        context.Response.Headers.Remove("X-AspNet-Version");
+        context.Response.Headers.Remove("X-AspNetMvc-Version");
 
         // Strict Transport Security (HSTS) - Only over HTTPS
         if (context.Request.IsHttps)

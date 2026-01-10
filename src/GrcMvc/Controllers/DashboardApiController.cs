@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using GrcMvc.Data;
 using GrcMvc.Models;
 using GrcMvc.Services.Interfaces;
 using System;
@@ -23,17 +25,20 @@ namespace GrcMvc.Controllers
         private readonly IAssessmentService _assessmentService;
         private readonly IRiskService _riskService;
         private readonly IControlService _controlService;
+        private readonly GrcDbContext _context;
 
         public DashboardApiController(
             IReportService reportService,
             IAssessmentService assessmentService,
             IRiskService riskService,
-            IControlService controlService)
+            IControlService controlService,
+            GrcDbContext context)
         {
             _reportService = reportService;
             _assessmentService = assessmentService;
             _riskService = riskService;
             _controlService = controlService;
+            _context = context;
         }
 
         /// <summary>
@@ -284,11 +289,11 @@ namespace GrcMvc.Controllers
                     complianceScore = assessments.Any() ? (int)assessments.Average(a => a.Score) : 72,
                     activeRisks = risks.Count(r => r.Status == "Open" || r.Status == "Active"),
                     controls = controls.Count(),
-                    pendingTasks = 12, // TODO: Get from task service
-                    evidence = 89, // TODO: Get from evidence service
+                    pendingTasks = await _context.WorkflowTasks.CountAsync(t => t.Status == "Pending" || t.Status == "InProgress"),
+                    evidence = await _context.Evidences.CountAsync(e => !e.IsDeleted),
                     activePlans = assessments.Count(a => a.Status == "Active"),
                     completedPlans = assessments.Count(a => a.Status == "Completed"),
-                    activeBaselines = 4,
+                    activeBaselines = await _context.TenantBaselines.CountAsync(b => !b.IsDeleted),
                     estimatedControlCount = controls.Count()
                 };
 

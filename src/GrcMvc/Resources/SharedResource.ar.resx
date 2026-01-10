@@ -2396,4 +2396,142 @@
   <data name="Risk_CriticalRisk" xml:space="preserve">
     <value>مخاطرة حرجة</value>
   </data>
+  <data name="Landing_Index_Timeline_Step1_Title" xml:space="preserve">
+    <value>التقييم</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step1_Desc" xml:space="preserve">
+    <value>حدد الأطر التنظيمية المطبقة على مؤسستك واحصل على تقييم فوري لوضع الامتثال الحالي</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step1_Item1" xml:space="preserve">
+    <value>تحديد نطاق الامتثال</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step1_Item2" xml:space="preserve">
+    <value>تقييم الفجوات</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step1_Item3" xml:space="preserve">
+    <value>تحديد الأولويات</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step2_Title" xml:space="preserve">
+    <value>التصميم</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step2_Desc" xml:space="preserve">
+    <value>صمم خارطة طريق الامتثال وحدد الضوابط والسياسات المطلوبة لكل إطار تنظيمي</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step2_Item1" xml:space="preserve">
+    <value>تصميم الضوابط</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step2_Item2" xml:space="preserve">
+    <value>إعداد السياسات</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step2_Item3" xml:space="preserve">
+    <value>تعيين المسؤوليات</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step3_Title" xml:space="preserve">
+    <value>التنفيذ</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step3_Desc" xml:space="preserve">
+    <value>نفذ خطة الامتثال مع جمع الأدلة وتوثيق العمليات ومتابعة التقدم بشكل مستمر</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step3_Item1" xml:space="preserve">
+    <value>جمع الأدلة</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step3_Item2" xml:space="preserve">
+    <value>تنفيذ الإجراءات</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step3_Item3" xml:space="preserve">
+    <value>توثيق العمليات</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step4_Title" xml:space="preserve">
+    <value>المراقبة</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step4_Desc" xml:space="preserve">
+    <value>راقب حالة الامتثال باستمرار مع تنبيهات ذكية وتقارير دورية وجاهزية دائمة للتدقيق</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step4_Item1" xml:space="preserve">
+    <value>مراقبة مستمرة</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step4_Item2" xml:space="preserve">
+    <value>تنبيهات استباقية</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step4_Item3" xml:space="preserve">
+    <value>جاهزية التدقيق</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat1_Value" xml:space="preserve">
+    <value>2-4</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat1_Label" xml:space="preserve">
+    <value>أسابيع للتطبيق</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat2_Value" xml:space="preserve">
+    <value>80%</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat2_Label" xml:space="preserve">
+    <value>توفير في الوقت</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat3_Value" xml:space="preserve">
+    <value>99%</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat3_Label" xml:space="preserve">
+    <value>دقة التقييم</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat4_Value" xml:space="preserve">
+    <value>24/7</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat4_Label" xml:space="preserve">
+    <value>دعم فني</value>
+  </data>
+  <data name="Landing_Index_Regulators_Eyebrow" xml:space="preserve">
+    <value>الأطر التنظيمية</value>
+  </data>
+  <data name="Landing_Index_Regulators_Title" xml:space="preserve">
+    <value>دعم كامل للمتطلبات التنظيمية السعودية</value>
+  </data>
+  <data name="Landing_Index_Regulators_Subtitle" xml:space="preserve">
+    <value>متوافق مع جميع الأطر والمعايير التنظيمية الصادرة من الجهات الحكومية السعودية</value>
+  </data>
+  <data name="Landing_Index_Regulator_NCA" xml:space="preserve">
+    <value>الهيئة الوطنية للأمن السيبراني</value>
+  </data>
+  <data name="Landing_Index_Regulator_SAMA" xml:space="preserve">
+    <value>البنك المركزي السعودي</value>
+  </data>
+  <data name="Landing_Index_Regulator_CMA" xml:space="preserve">
+    <value>هيئة السوق المالية</value>
+  </data>
+  <data name="Landing_Index_Regulator_CITC" xml:space="preserve">
+    <value>هيئة الاتصالات وتقنية المعلومات</value>
+  </data>
+  <data name="Landing_Index_Regulator_SDAIA" xml:space="preserve">
+    <value>هيئة البيانات والذكاء الاصطناعي</value>
+  </data>
+  <data name="Landing_Index_Regulator_PDPL" xml:space="preserve">
+    <value>نظام حماية البيانات الشخصية</value>
+  </data>
+  <data name="Landing_Index_CTA_Title" xml:space="preserve">
+    <value>ابدأ رحلة الامتثال اليوم</value>
+  </data>
+  <data name="Landing_Index_CTA_Subtitle" xml:space="preserve">
+    <value>تجربة مجانية كاملة الميزات لمدة 7 أيام. بدون بطاقة ائتمان.</value>
+  </data>
+  <data name="Landing_Index_CTA_Button" xml:space="preserve">
+    <value>ابدأ الآن مجاناً</value>
+  </data>
+  <data name="Landing_Index_CTA_Contact" xml:space="preserve">
+    <value>تحدث مع فريقنا</value>
+  </data>
+  <data name="Landing_Index_CTA_FeaturesLabel" xml:space="preserve">
+    <value>مميزات التجربة</value>
+  </data>
+  <data name="Landing_Index_CTA_Feature1" xml:space="preserve">
+    <value>جميع الميزات متاحة</value>
+  </data>
+  <data name="Landing_Index_CTA_Feature2" xml:space="preserve">
+    <value>بدون بطاقة ائتمان</value>
+  </data>
+  <data name="Landing_Index_CTA_Feature3" xml:space="preserve">
+    <value>دعم فني خلال التجربة</value>
+  </data>
+  <data name="Landing_Index_CTA_Feature4" xml:space="preserve">
+    <value>إلغاء في أي وقت</value>
+  </data>
 </root>

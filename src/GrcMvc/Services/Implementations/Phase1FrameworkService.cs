@@ -55,7 +55,7 @@ namespace GrcMvc.Services.Implementations
             {
                 return await _context.Set<Models.Entities.Control>()
                     .AsNoTracking()
-                    .Where(c => c.TenantId != Guid.Empty) // Placeholder - filter by framework ID when framework entity exists
+                    .Where(c => c.TenantId != Guid.Empty && !c.IsDeleted)
                     .OrderBy(c => c.Name)
                     .ToListAsync();
             }

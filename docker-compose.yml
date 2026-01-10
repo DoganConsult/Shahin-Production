@@ -45,7 +45,7 @@ services:
       - POSTGRES_DB=${DB_NAME:-GrcMvcDb}
       - POSTGRES_INITDB_ARGS=${DB_INIT_ARGS:-}
     ports:
-      - "${DB_PORT:-5433}:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - grc_db_data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro

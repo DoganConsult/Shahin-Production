@@ -15,6 +15,7 @@ using System.Security.Claims;
 using System;
 using System.Linq;
 using GrcMvc.Data;
+using GrcMvc.Constants;
 
 namespace GrcMvc.Controllers
 {
@@ -183,13 +184,11 @@ namespace GrcMvc.Controllers
             _logger.LogInformation("User {Email} - TenantId: {TenantId}, OnboardingStatus: {Status}, Role: {Role}", 
                 user.Email, tenant.Id, tenant.OnboardingStatus, tenantUser.RoleCode);
 
-            // Check if user is admin (credentials already verified)
-            bool isAdmin = tenantUser.RoleCode == "Admin" || 
-                           tenantUser.RoleCode == "TENANT_ADMIN" || 
-                           tenantUser.RoleCode == "ADMINISTRATOR";
+            // Check if user is admin (using standardized helper)
+            bool isAdmin = RoleConstants.IsTenantAdmin(tenantUser.RoleCode);
 
             // For admin users: prioritize onboarding redirect if incomplete
-            if (isAdmin && tenant.OnboardingStatus != "COMPLETED")
+            if (isAdmin && !OnboardingStatus.IsCompleted(tenant.OnboardingStatus))
             {
                 _logger.LogInformation("Admin user {Email} - Direct redirect to onboarding (TenantId: {TenantId})", 
                     user.Email, tenant.Id);
@@ -197,7 +196,7 @@ namespace GrcMvc.Controllers
             }
 
             // For all users: check onboarding status
-            if (tenant.OnboardingStatus != "COMPLETED")
+            if (!OnboardingStatus.IsCompleted(tenant.OnboardingStatus))
             {
                 _logger.LogInformation("Redirecting user {Email} to onboarding wizard (status: {Status})", 
                     user.Email, tenant.OnboardingStatus);

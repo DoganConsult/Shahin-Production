@@ -1,9 +1,12 @@
 @* Support Chat Widget - AI-Powered User Assistance *@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using GrcMvc.Resources
+@inject IHtmlLocalizer<SharedResource> L
 
 <!-- Floating Chat Button -->
 <div id="supportChatButton" class="position-fixed" style="bottom: 20px; right: 20px; z-index: 9999;">
     <button class="btn btn-primary btn-lg rounded-circle shadow-lg" onclick="toggleSupportChat()"
-            style="width: 60px; height: 60px;" title="مساعدة / Help">
+            style="width: 60px; height: 60px;" title="@L["Shared_Chat_Help"]">
         <i class="fas fa-headset fa-lg" id="chatIcon"></i>
     </button>
     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="chatBadge" style="display: none;">
@@ -22,12 +25,12 @@
                 <i class="fas fa-robot text-primary"></i>
             </div>
             <div>
-                <strong>مساعد GRC</strong>
-                <small class="d-block opacity-75">متصل الآن</small>
+                <strong>@L["Shared_Chat_Assistant"]</strong>
+                <small class="d-block opacity-75">@L["Shared_Chat_Online"]</small>
             </div>
         </div>
         <div>
-            <button class="btn btn-sm btn-outline-light me-1" onclick="escalateToHuman()" title="تحويل لموظف">
+            <button class="btn btn-sm btn-outline-light me-1" onclick="escalateToHuman()" title="@L["Shared_Chat_TransferHuman"]">
                 <i class="fas fa-user"></i>
             </button>
             <button class="btn btn-sm btn-outline-light" onclick="toggleSupportChat()">
@@ -44,14 +47,14 @@
     <!-- Quick Actions -->
     <div class="border-top p-2 bg-light">
         <div class="d-flex flex-wrap gap-1">
-            <button class="btn btn-outline-secondary btn-sm" onclick="sendQuickMessage('شروط الخدمة')">
-                <i class="fas fa-file-contract me-1"></i>شروط الخدمة
+            <button class="btn btn-outline-secondary btn-sm" onclick="sendQuickMessage('@L["Shared_Chat_QuickToS"]')">
+                <i class="fas fa-file-contract me-1"></i>@L["Shared_Chat_QuickToS"]
             </button>
-            <button class="btn btn-outline-secondary btn-sm" onclick="sendQuickMessage('سياسة الخصوصية')">
-                <i class="fas fa-shield-alt me-1"></i>الخصوصية
+            <button class="btn btn-outline-secondary btn-sm" onclick="sendQuickMessage('@L["Shared_Chat_QuickPrivacy"]')">
+                <i class="fas fa-shield-alt me-1"></i>@L["Shared_Chat_QuickPrivacy"]
             </button>
-            <button class="btn btn-outline-secondary btn-sm" onclick="sendQuickMessage('كيف أبدأ')">
-                <i class="fas fa-play me-1"></i>البداية
+            <button class="btn btn-outline-secondary btn-sm" onclick="sendQuickMessage('@L["Shared_Chat_QuickStart"]')">
+                <i class="fas fa-play me-1"></i>@L["Shared_Chat_QuickStart"]
             </button>
         </div>
     </div>
@@ -59,7 +62,7 @@
     <!-- Chat Input -->
     <div class="border-top p-2">
         <div class="input-group">
-            <input type="text" id="chatInput" class="form-control" placeholder="اكتب سؤالك..."
+            <input type="text" id="chatInput" class="form-control" placeholder="@L["Shared_Chat_InputPlaceholder"]"
                    onkeypress="if(event.key === 'Enter') sendMessage()">
             <button class="btn btn-primary" onclick="sendMessage()">
                 <i class="fas fa-paper-plane"></i>
@@ -73,7 +76,7 @@
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title"><i class="fas fa-file-contract me-2"></i>شروط الخدمة | Terms of Service</h5>
+                <h5 class="modal-title"><i class="fas fa-file-contract me-2"></i>@L["Shared_Chat_ToS"]</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" style="max-height: 60vh;">
@@ -130,7 +133,7 @@
                 <p class="text-end" dir="rtl">أنت توافق على الامتثال لجميع قوانين حماية البيانات المعمول بها، بما في ذلك نظام حماية البيانات الشخصية السعودي (PDPL).</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@L["Close"]</button>
             </div>
         </div>
     </div>
@@ -141,7 +144,7 @@
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title"><i class="fas fa-shield-alt me-2"></i>سياسة الخصوصية | Privacy Policy</h5>
+                <h5 class="modal-title"><i class="fas fa-shield-alt me-2"></i>@L["Shared_Chat_PrivacyPolicy"]</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" style="max-height: 60vh;">
@@ -207,7 +210,7 @@
                 <p class="text-end" dir="rtl">بموجب نظام حماية البيانات الشخصية، لديك الحق في الوصول والتصحيح والحذف ونقل البيانات.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@L["Close"]</button>
             </div>
         </div>
     </div>

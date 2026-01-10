@@ -1115,11 +1115,27 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ISmtpEmailService, SmtpEmailService>();
 builder.Services.AddScoped<IWebhookService, WebhookService>();
 
+// Configuration Validation - Validates required settings at startup
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
+builder.Services.AddHostedService<ConfigurationValidator>();
+
 // AI Agent services - Multi-provider support (Claude, OpenAI, Azure, Gemini, Local LLMs)
 builder.Services.AddScoped<IDiagnosticAgentService, DiagnosticAgentService>();
 builder.Services.AddScoped<IClaudeAgentService, ClaudeAgentService>();
+builder.Services.AddScoped<ISecurityAgentService, SecurityAgentService>();
+builder.Services.AddScoped<IIntegrationAgentService, IntegrationAgentService>();
 builder.Services.AddScoped<IUnifiedAiService, UnifiedAiService>();
 builder.Services.Configure<ClaudeApiSettings>(builder.Configuration.GetSection(ClaudeApiSettings.SectionName));
+
+// Integration Layer Services - External system sync, events, webhooks
+builder.Services.AddScoped<ISyncExecutionService, SyncExecutionService>();
+builder.Services.AddScoped<IEventPublisherService, EventPublisherService>();
+builder.Services.AddScoped<IEventDispatcherService, EventDispatcherService>();
+builder.Services.AddScoped<IWebhookDeliveryService, WebhookDeliveryService>();
+builder.Services.AddSingleton<ICredentialEncryptionService, CredentialEncryptionService>();
+builder.Services.AddHttpClient("WebhookClient")
+    .AddPolicyHandler(retryPolicy)
+    .AddPolicyHandler(circuitBreakerPolicy);
 
 // Email Operations Services (Shahin + Dogan Consult)
 builder.Services.AddHttpClient<GrcMvc.Services.EmailOperations.IMicrosoftGraphEmailService,
@@ -1145,11 +1161,14 @@ builder.Services.Configure<TwilioSettings>(builder.Configuration.GetSection("Twi
 // KAFKA & CAMUNDA WORKFLOW ORCHESTRATION
 // =============================================================================
 
-// Kafka Event-Driven Architecture
+// Kafka Event-Driven Architecture (disabled in Development - requires Kafka server)
 builder.Services.Configure<GrcMvc.Services.Kafka.KafkaSettings>(
     builder.Configuration.GetSection(GrcMvc.Services.Kafka.KafkaSettings.SectionName));
 builder.Services.AddSingleton<GrcMvc.Services.Kafka.IKafkaProducer, GrcMvc.Services.Kafka.KafkaProducer>();
-builder.Services.AddHostedService<GrcMvc.Services.Kafka.KafkaConsumerService>();
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.AddHostedService<GrcMvc.Services.Kafka.KafkaConsumerService>();
+}
 
 // Camunda Workflow Orchestration
 builder.Services.Configure<GrcMvc.Services.Camunda.CamundaSettings>(
@@ -1314,6 +1333,43 @@ if (enableHangfire)
         new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
 
     appLogger.LogInformation("✅ Email Operations SLA check job scheduled");
+
+    // Integration Layer - Sync scheduler every 5 minutes
+    RecurringJob.AddOrUpdate<SyncSchedulerJob>(
+        "sync-scheduler",
+        job => job.ProcessScheduledSyncsAsync(),
+        "*/5 * * * *",
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+    // Integration Layer - Event dispatcher every 1 minute
+    RecurringJob.AddOrUpdate<EventDispatcherJob>(
+        "event-dispatcher-pending",
+        job => job.ProcessPendingEventsAsync(),
+        "*/1 * * * *",
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+    // Integration Layer - Event delivery retry every 5 minutes
+    RecurringJob.AddOrUpdate<EventDispatcherJob>(
+        "event-dispatcher-retry",
+        job => job.RetryFailedEventsAsync(),
+        "*/5 * * * *",
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+    // Integration Layer - Dead letter queue cleanup every 30 minutes
+    RecurringJob.AddOrUpdate<EventDispatcherJob>(
+        "event-dead-letter-queue",
+        job => job.MoveToDeadLetterQueueAsync(),
+        "*/30 * * * *",
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+    // Integration Layer - Health monitoring every 15 minutes
+    RecurringJob.AddOrUpdate<IntegrationHealthMonitorJob>(
+        "integration-health-monitor",
+        job => job.MonitorAllIntegrationsAsync(),
+        "*/15 * * * *",
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+    appLogger.LogInformation("✅ Integration layer background jobs scheduled: sync, events, health monitoring");
 
     // Analytics projection jobs (only if ClickHouse is enabled)
     var analyticsEnabled = builder.Configuration.GetValue<bool>("Analytics:Enabled", false);

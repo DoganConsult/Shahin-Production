@@ -1,6 +1,8 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model IEnumerable<GrcMvc.Models.DTOs.RiskDto>
 @{
-    ViewData["Title"] = "Risk Report";
+    ViewData["Title"] = L["Risk_Report_Title"].Value;
     Layout = "_Layout";
 
     var highRisks = ViewBag.HighRiskCount ?? 0;
@@ -12,14 +14,14 @@
 <div class="container-fluid">
     <div class="row mb-3 d-print-none">
         <div class="col">
-            <h2><i class="bi bi-file-earmark-bar-graph"></i> Risk Report</h2>
+            <h2><i class="bi bi-file-earmark-bar-graph"></i> @L["Risk_Report_Title"]</h2>
         </div>
         <div class="col text-end">
             <button onclick="window.print()" class="btn btn-outline-primary">
-                <i class="bi bi-printer"></i> Print Report
+                <i class="bi bi-printer"></i> @L["Risk_PrintReport"]
             </button>
             <a asp-action="Index" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Back to List
+                <i class="bi bi-arrow-left"></i> @L["BackToList"]
             </a>
         </div>
     </div>
@@ -27,24 +29,24 @@
     <!-- Executive Summary -->
     <div class="card mb-4">
         <div class="card-header bg-dark text-white">
-            <h4 class="mb-0">Executive Summary</h4>
+            <h4 class="mb-0">@L["Risk_ExecutiveSummary"]</h4>
         </div>
         <div class="card-body">
             <div class="row text-center">
                 <div class="col-md-3 border-end">
-                    <h5>Total Risks</h5>
+                    <h5>@L["Risk_TotalRisks"]</h5>
                     <div class="display-4">@totalRisks</div>
                 </div>
                 <div class="col-md-3 border-end">
-                    <h5>High Priority</h5>
+                    <h5>@L["Risk_HighPriority"]</h5>
                     <div class="display-4 text-danger">@highRisks</div>
                 </div>
                 <div class="col-md-3 border-end">
-                    <h5>Medium Priority</h5>
+                    <h5>@L["Risk_MediumPriority"]</h5>
                     <div class="display-4 text-warning">@mediumRisks</div>
                 </div>
                 <div class="col-md-3">
-                    <h5>Low Priority</h5>
+                    <h5>@L["Risk_LowPriority"]</h5>
                     <div class="display-4 text-success">@lowRisks</div>
                 </div>
             </div>
@@ -56,7 +58,7 @@
         <div class="col-md-6">
             <div class="card h-100">
                 <div class="card-header">
-                    Risk Distribution by Category
+                    @L["Risk_DistributionByCategory"]
                 </div>
                 <div class="card-body">
                     <canvas id="categoryChart" style="max-height: 300px;"></canvas>
@@ -66,7 +68,7 @@
         <div class="col-md-6">
             <div class="card h-100">
                 <div class="card-header">
-                    Risk Status
+                    @L["Risk_RiskStatus"]
                 </div>
                 <div class="card-body">
                     <canvas id="statusChart" style="max-height: 300px;"></canvas>
@@ -78,20 +80,20 @@
     <!-- Detailed Risk Table -->
     <div class="card">
         <div class="card-header">
-            <h5 class="mb-0">Detailed Risk Register</h5>
+            <h5 class="mb-0">@L["Risk_DetailedRiskRegister"]</h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-striped table-sm">
                     <thead>
                         <tr>
-                            <th>Risk</th>
-                            <th>Category</th>
-                            <th>Inherent Score</th>
-                            <th>Residual Score</th>
-                            <th>Status</th>
-                            <th>Owner</th>
-                            <th>Due Date</th>
+                            <th>@L["Risk"]</th>
+                            <th>@L["Category"]</th>
+                            <th>@L["Risk_InherentScore"]</th>
+                            <th>@L["Risk_ResidualScore"]</th>
+                            <th>@L["Status"]</th>
+                            <th>@L["Owner"]</th>
+                            <th>@L["DueDate"]</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -122,7 +124,7 @@
 
     <div class="row mt-4 text-muted small d-print-block d-none">
         <div class="col-12 text-center">
-            <p>Generated on @DateTime.Now.ToString("f") by GRC System</p>
+            <p>@L["Risk_GeneratedOn"] @DateTime.Now.ToString("f") @L["Risk_ByGRCSystem"]</p>
         </div>
     </div>
 </div>
@@ -163,7 +165,7 @@
                 data: {
                     labels: Object.keys(categories),
                     datasets: [{
-                        label: 'Risks',
+                        label: '@L["Risk_Risks"]',
                         data: Object.values(categories),
                         backgroundColor: '#4e73df'
                     }]

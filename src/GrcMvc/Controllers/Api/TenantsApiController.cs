@@ -45,24 +45,25 @@ namespace GrcMvc.Controllers.Api
             try
             {
                 if (string.IsNullOrEmpty(request.OrganizationName) ||
-                    string.IsNullOrEmpty(request.AdminEmail) ||
-                    string.IsNullOrEmpty(request.TenantSlug))
+                    string.IsNullOrEmpty(request.AdminEmail))
                 {
-                    return BadRequest(new { error = "OrganizationName, AdminEmail, and TenantSlug are required" });
+                    return BadRequest(new { error = "OrganizationName and AdminEmail are required" });
                 }
 
-                // Check slug uniqueness
-                var existingSlug = await _context.Tenants
-                    .AnyAsync(t => t.TenantSlug == request.TenantSlug.ToLower());
+                // Auto-generate slug from organization name
+                var tenantSlug = GenerateSlug(request.OrganizationName);
+                
+                // Ensure unique slug
+                var existingSlug = await _context.Tenants.AnyAsync(t => t.TenantSlug == tenantSlug);
                 if (existingSlug)
                 {
-                    return Conflict(new { error = "TenantSlug already exists" });
+                    tenantSlug = $"{tenantSlug}-{DateTime.UtcNow:HHmmss}";
                 }
 
                 var tenant = await _tenantService.CreateTenantAsync(
                     request.OrganizationName,
                     request.AdminEmail,
-                    request.TenantSlug);
+                    tenantSlug);
 
                 _logger.LogInformation("Tenant created: {TenantId} ({Slug})", tenant.Id, tenant.TenantSlug);
 
@@ -304,6 +305,24 @@ namespace GrcMvc.Controllers.Api
                 return StatusCode(500, new { error = "Internal error" });
             }
         }
+        
+        /// <summary>
+        /// Generate URL-safe slug from organization name
+        /// </summary>
+        private static string GenerateSlug(string organizationName)
+        {
+            return organizationName
+                .ToLowerInvariant()
+                .Replace(" ", "-")
+                .Replace(".", "")
+                .Replace(",", "")
+                .Replace("'", "")
+                .Replace("\"", "")
+                .Replace("&", "and")
+                .Replace("/", "-")
+                .Replace("\\", "-")
+                .Substring(0, Math.Min(organizationName.Length, 50));
+        }
     }
 
     #region Request DTOs
@@ -312,7 +331,7 @@ namespace GrcMvc.Controllers.Api
     {
         public string OrganizationName { get; set; } = string.Empty;
         public string AdminEmail { get; set; } = string.Empty;
-        public string TenantSlug { get; set; } = string.Empty;
+        // TenantSlug is auto-generated from OrganizationName - not required from user
     }
 
     public class UpdateTenantRequest

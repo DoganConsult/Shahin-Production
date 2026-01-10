@@ -1,23 +1,25 @@
 @model IEnumerable<GrcMvc.Models.DTOs.AuditDto>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @{
-    ViewData["Title"] = "Audits";
+    ViewData["Title"] = L["Audit_List_Title"].Value;
     Layout = "_Layout";
 }
 
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col">
-            <h2><i class="bi bi-search"></i> Audits</h2>
+            <h2><i class="bi bi-search"></i> @L["Audit_List_Title"]</h2>
         </div>
         <div class="col text-end">
             <a asp-action="Create" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> New Audit
+                <i class="bi bi-plus-circle"></i> @L["Audit_Create_New"]
             </a>
             <a asp-action="Upcoming" class="btn btn-info">
-                <i class="bi bi-calendar-event"></i> Upcoming
+                <i class="bi bi-calendar-event"></i> @L["Audit_Upcoming"]
             </a>
             <a asp-action="Statistics" class="btn btn-secondary">
-                <i class="bi bi-bar-chart"></i> Statistics
+                <i class="bi bi-bar-chart"></i> @L["Statistics"]
             </a>
         </div>
     </div>
@@ -44,14 +46,14 @@
                 <table class="table table-hover" id="auditsTable">
                     <thead>
                         <tr>
-                            <th>Number</th>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                            <th>Lead Auditor</th>
-                            <th>Period</th>
-                            <th>Findings</th>
-                            <th>Actions</th>
+                            <th>@L["Audit_Number"]</th>
+                            <th>@L["Audit_Name"]</th>
+                            <th>@L["Audit_Type"]</th>
+                            <th>@L["Audit_Status"]</th>
+                            <th>@L["Audit_LeadAuditor"]</th>
+                            <th>@L["Audit_Period"]</th>
+                            <th>@L["Audit_Findings"]</th>
+                            <th>@L["Actions"]</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -78,26 +80,26 @@
                                     @if (item.FindingsCount > 0)
                                     {
                                         <a asp-action="Findings" asp-route-id="@item.Id" class="badge bg-danger text-decoration-none">
-                                            @item.FindingsCount Issues
+                                            @item.FindingsCount @L["Audit_Issues"]
                                         </a>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-success">0 Issues</span>
+                                        <span class="badge bg-success">0 @L["Audit_Issues"]</span>
                                     }
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm" role="group">
                                         <a asp-action="Edit" asp-route-id="@item.Id"
-                                           class="btn btn-outline-primary" title="Edit">
+                                           class="btn btn-outline-primary" title="@L["Edit"]">
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                         <a asp-action="Details" asp-route-id="@item.Id"
-                                           class="btn btn-outline-info" title="Details">
+                                           class="btn btn-outline-info" title="@L["Details"]">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         <a asp-action="Delete" asp-route-id="@item.Id"
-                                           class="btn btn-outline-danger" title="Delete">
+                                           class="btn btn-outline-danger" title="@L["Delete"]">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </div>

@@ -60,7 +60,7 @@ namespace GrcMvc.Controllers
         /// Create a new tenant (organization signup).
         /// Sends activation email to admin.
         /// </summary>
-        /// <param name="request">Organization name, admin email, and slug</param>
+        /// <param name="request">Organization name and admin email (slug auto-generated)</param>
         /// <returns>Tenant ID and activation URL</returns>
         [HttpPost("signup")]
         public async Task<IActionResult> SignupAsync([FromBody] CreateTenantDto request)
@@ -68,16 +68,18 @@ namespace GrcMvc.Controllers
             try
             {
                 if (string.IsNullOrWhiteSpace(request.OrganizationName) ||
-                    string.IsNullOrWhiteSpace(request.AdminEmail) ||
-                    string.IsNullOrWhiteSpace(request.TenantSlug))
+                    string.IsNullOrWhiteSpace(request.AdminEmail))
                 {
-                    return BadRequest("Organization name, admin email, and slug are required.");
+                    return BadRequest("Organization name and admin email are required.");
                 }
+
+                // Auto-generate slug from organization name
+                var tenantSlug = GenerateSlug(request.OrganizationName);
 
                 var tenant = await _tenantService.CreateTenantAsync(
                     request.OrganizationName,
                     request.AdminEmail,
-                    request.TenantSlug);
+                    tenantSlug);
 
                 return Ok(new
                 {
@@ -457,6 +459,24 @@ namespace GrcMvc.Controllers
                 _logger.LogError(ex, "Error getting progress for tenant {TenantId}", tenantId);
                 return StatusCode(500, new { error = "GRC:INTERNAL_ERROR", message = "An error occurred while fetching progress." });
             }
+        }
+        
+        /// <summary>
+        /// Generate URL-safe slug from organization name
+        /// </summary>
+        private static string GenerateSlug(string organizationName)
+        {
+            return organizationName
+                .ToLowerInvariant()
+                .Replace(" ", "-")
+                .Replace(".", "")
+                .Replace(",", "")
+                .Replace("'", "")
+                .Replace("\"", "")
+                .Replace("&", "and")
+                .Replace("/", "-")
+                .Replace("\\", "-")
+                .Substring(0, Math.Min(organizationName.Length, 50));
         }
     }
 

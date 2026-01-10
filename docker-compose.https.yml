@@ -70,7 +70,7 @@ services:
       - grc-db-data:/var/lib/postgresql/data
       - ./sql-scripts:/docker-entrypoint-initdb.d
     ports:
-      - "5433:5432"
+      - "5432:5432"
     networks:
       - grc-network
     restart: unless-stopped

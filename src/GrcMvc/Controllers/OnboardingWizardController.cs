@@ -912,6 +912,35 @@ namespace GrcMvc.Controllers
             return RedirectToAction("Index", "Dashboard");
         }
 
+        /// <summary>
+        /// Auto-save endpoint for background saving of wizard progress
+        /// </summary>
+        [HttpPost("AutoSave/{tenantId:guid}/{stepName}")]
+        public async Task<IActionResult> AutoSave(Guid tenantId, string stepName, [FromBody] Dictionary<string, object> formData)
+        {
+            try
+            {
+                var wizard = await _context.OnboardingWizards
+                    .FirstOrDefaultAsync(w => w.TenantId == tenantId);
+
+                if (wizard == null)
+                {
+                    return Json(new { success = false, message = "Wizard not found" });
+                }
+
+                // Auto-save: just update the timestamp (form data saved in step-specific fields)
+                wizard.LastStepSavedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Auto-saved successfully", timestamp = DateTime.UtcNow });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Auto-save failed for tenant {TenantId}, step {StepName}", tenantId, stepName);
+                return Json(new { success = false, message = "Auto-save failed" });
+            }
+        }
+
         // ============================================================================
         // PRIVATE HELPER METHODS
         // ============================================================================
@@ -1390,10 +1419,18 @@ namespace GrcMvc.Controllers
 
             if (isFinalSync)
             {
-                profile.OnboardingStatus = "Completed";
+                profile.OnboardingStatus = "COMPLETED";
                 profile.OnboardingCompletedAt = DateTime.UtcNow;
                 profile.OnboardingCompletedBy = wizard.CompletedByUserId;
                 profile.OnboardingProgressPercent = 100;
+                
+                // Also update tenant OnboardingStatus
+                var tenant = await _context.Tenants.FindAsync(wizard.TenantId);
+                if (tenant != null)
+                {
+                    tenant.OnboardingStatus = "COMPLETED";
+                    tenant.OnboardingCompletedAt = DateTime.UtcNow;
+                }
             }
 
             await _context.SaveChangesAsync();

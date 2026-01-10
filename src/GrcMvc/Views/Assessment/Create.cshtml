@@ -1,17 +1,19 @@
 @model GrcMvc.Models.DTOs.CreateAssessmentDto
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @{
-    ViewData["Title"] = "Create Assessment";
+    ViewData["Title"] = L["Assessment_Create_Title"].Value;
     Layout = "_Layout";
 }
 
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col">
-            <h2><i class="bi bi-plus-circle"></i> Create New Assessment</h2>
+            <h2><i class="bi bi-plus-circle"></i> @L["Assessment_Create_New"]</h2>
         </div>
         <div class="col text-end">
             <a asp-action="Index" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Back to List
+                <i class="bi bi-arrow-left"></i> @L["BackToList"]
             </a>
         </div>
     </div>
@@ -24,21 +26,21 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label asp-for="Name" class="control-label fw-bold">Assessment Name</label>
-                            <input asp-for="Name" class="form-control" placeholder="e.g. Q1 Security Assessment" />
+                            <label asp-for="Name" class="control-label fw-bold">@L["Assessment_Name"]</label>
+                            <input asp-for="Name" class="form-control" placeholder="@L["Assessment_Name_Placeholder"]" />
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group mb-3">
-                            <label asp-for="AssessmentNumber" class="control-label fw-bold">Assessment Number</label>
-                            <input asp-for="AssessmentNumber" class="form-control" placeholder="e.g. ASM-2024-001" />
+                            <label asp-for="AssessmentNumber" class="control-label fw-bold">@L["Assessment_Number"]</label>
+                            <input asp-for="AssessmentNumber" class="form-control" placeholder="@L["Assessment_Number_Placeholder"]" />
                             <span asp-validation-for="AssessmentNumber" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group mb-3">
-                            <label asp-for="AssessmentCode" class="control-label fw-bold">Code</label>
+                            <label asp-for="AssessmentCode" class="control-label fw-bold">@L["Assessment_Code"]</label>
                             <input asp-for="AssessmentCode" class="form-control" />
                             <span asp-validation-for="AssessmentCode" class="text-danger"></span>
                         </div>
@@ -48,27 +50,27 @@
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label asp-for="Type" class="control-label fw-bold">Type</label>
+                            <label asp-for="Type" class="control-label fw-bold">@L["Assessment_Type"]</label>
                             <select asp-for="Type" class="form-select">
-                                <option value="">Select Type...</option>
-                                <option value="Risk">Risk Assessment</option>
-                                <option value="Control">Control Testing</option>
-                                <option value="Compliance">Compliance Audit</option>
-                                <option value="Security">Security Review</option>
+                                <option value="">@L["Form_SelectType"]</option>
+                                <option value="Risk">@L["Assessment_Type_Risk"]</option>
+                                <option value="Control">@L["Assessment_Type_Control"]</option>
+                                <option value="Compliance">@L["Assessment_Type_Compliance"]</option>
+                                <option value="Security">@L["Assessment_Type_Security"]</option>
                             </select>
                             <span asp-validation-for="Type" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label asp-for="StartDate" class="control-label fw-bold">Start Date</label>
+                            <label asp-for="StartDate" class="control-label fw-bold">@L["Assessment_StartDate"]</label>
                             <input asp-for="StartDate" class="form-control" type="date" />
                             <span asp-validation-for="StartDate" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label asp-for="ScheduledDate" class="control-label fw-bold">Scheduled Date</label>
+                            <label asp-for="ScheduledDate" class="control-label fw-bold">@L["Assessment_ScheduledDate"]</label>
                             <input asp-for="ScheduledDate" class="form-control" type="date" />
                             <span asp-validation-for="ScheduledDate" class="text-danger"></span>
                         </div>
@@ -76,7 +78,7 @@
                 </div>
 
                 <div class="form-group mb-3">
-                    <label asp-for="Description" class="control-label fw-bold">Description</label>
+                    <label asp-for="Description" class="control-label fw-bold">@L["Assessment_Description"]</label>
                     <textarea asp-for="Description" class="form-control" rows="3"></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
@@ -84,24 +86,24 @@
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label asp-for="AssignedTo" class="control-label fw-bold">Assigned To</label>
-                            <input asp-for="AssignedTo" class="form-control" placeholder="User or Group" />
+                            <label asp-for="AssignedTo" class="control-label fw-bold">@L["Assessment_AssignedTo"]</label>
+                            <input asp-for="AssignedTo" class="form-control" placeholder="@L["Assessment_AssignedTo_Placeholder"]" />
                             <span asp-validation-for="AssignedTo" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label asp-for="RiskId" class="control-label fw-bold">Related Risk (Optional)</label>
+                            <label asp-for="RiskId" class="control-label fw-bold">@L["Assessment_RelatedRisk"]</label>
                             <select asp-for="RiskId" class="form-select" asp-items="ViewBag.RiskId">
-                                <option value="">-- None --</option>
+                                <option value="">@L["Form_None"]</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label asp-for="ControlId" class="control-label fw-bold">Related Control (Optional)</label>
+                            <label asp-for="ControlId" class="control-label fw-bold">@L["Assessment_RelatedControl"]</label>
                             <select asp-for="ControlId" class="form-select" asp-items="ViewBag.ControlId">
-                                <option value="">-- None --</option>
+                                <option value="">@L["Form_None"]</option>
                             </select>
                         </div>
                     </div>
@@ -109,9 +111,9 @@
 
                 <div class="form-group mt-4">
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-circle"></i> Create Assessment
+                        <i class="bi bi-check-circle"></i> @L["CreateAssessment"]
                     </button>
-                    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">@L["Cancel"]</a>
                 </div>
             </form>
         </div>

@@ -1,6 +1,8 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model IEnumerable<GrcMvc.Models.DTOs.PolicyViolationDto>
 @{
-    ViewData["Title"] = "Policy Violations";
+    ViewData["Title"] = L["Policy_Violations_Title"].Value;
     Layout = "_Layout";
     Guid? policyId = ViewBag.PolicyId;
 }
@@ -8,21 +10,21 @@
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col">
-            <h2><i class="bi bi-exclamation-octagon"></i> Policy Violations</h2>
+            <h2><i class="bi bi-exclamation-octagon"></i> @L["Policy_Violations_Title"]</h2>
             @if (policyId.HasValue)
             {
-                <h5 class="text-muted">For Policy ID: @policyId</h5>
+                <h5 class="text-muted">@L["Policy_ForPolicyId", policyId]</h5>
             }
         </div>
         <div class="col text-end">
             @if (policyId.HasValue)
             {
                 <a asp-action="Details" asp-route-id="@policyId" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Back to Policy
+                    <i class="bi bi-arrow-left"></i> @L["BackToPolicy"]
                 </a>
             }
             <a asp-action="Index" class="btn btn-outline-secondary">
-                <i class="bi bi-list"></i> All Policies
+                <i class="bi bi-list"></i> @L["AllPolicies"]
             </a>
         </div>
     </div>
@@ -41,8 +43,8 @@
             {
                 <div class="text-center py-5">
                     <i class="bi bi-shield-check display-1 text-success"></i>
-                    <h4 class="mt-3 text-success">No violations found.</h4>
-                    <p>This policy is being followed perfectly!</p>
+                    <h4 class="mt-3 text-success">@L["Policy_NoViolationsFound"]</h4>
+                    <p>@L["Policy_PerfectCompliance"]</p>
                 </div>
             }
             else
@@ -51,13 +53,13 @@
                     <table class="table table-hover" id="violationsTable">
                         <thead>
                             <tr>
-                                <th>Detected Date</th>
-                                <th>Title</th>
-                                <th>Severity</th>
-                                <th>Status</th>
-                                <th>Owner</th>
-                                <th>Resolution Plan</th>
-                                <th>Actions</th>
+                                <th>@L["Policy_DetectedDate"]</th>
+                                <th>@L["Policy_Title"]</th>
+                                <th>@L["Policy_Severity"]</th>
+                                <th>@L["Status"]</th>
+                                <th>@L["Policy_Owner"]</th>
+                                <th>@L["Policy_ResolutionPlan"]</th>
+                                <th>@L["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -81,7 +83,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-info" disabled title="Details coming soon">
+                                        <button class="btn btn-sm btn-outline-info" disabled title="@L["Policy_DetailsComingSoon"]">
                                             <i class="bi bi-eye"></i>
                                         </button>
                                     </td>

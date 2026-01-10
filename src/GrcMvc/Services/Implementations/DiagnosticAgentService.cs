@@ -784,12 +784,22 @@ Generate alerts for any concerning conditions. Return JSON array:
 
     private async Task<Dictionary<string, object>> GetRecentPerformanceMetricsAsync(CancellationToken cancellationToken)
     {
-        // Placeholder - implement actual performance metrics collection
+        // Get real metrics from audit events in last 24 hours
+        var since = DateTime.UtcNow.AddHours(-24);
+        var recentEvents = await _dbContext.AuditEvents
+            .Where(e => e.CreatedDate >= since)
+            .Select(e => new { e.Status, e.CreatedDate })
+            .ToListAsync(cancellationToken);
+
+        var totalRequests = recentEvents.Count;
+        var failedRequests = recentEvents.Count(e => e.Status == "Failed");
+        var errorRate = totalRequests > 0 ? (double)failedRequests / totalRequests * 100 : 0;
+
         return new Dictionary<string, object>
         {
-            { "avgResponseTime", "150ms" },
-            { "requestCount", 1000 },
-            { "errorRate", "0.5%" }
+            { "avgResponseTime", "N/A" },
+            { "requestCount", totalRequests },
+            { "errorRate", $"{errorRate:F1}%" }
         };
     }
 

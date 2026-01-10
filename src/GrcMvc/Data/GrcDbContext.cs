@@ -75,6 +75,7 @@ namespace GrcMvc.Data
         public DbSet<PlatformAdmin> PlatformAdmins { get; set; } = null!;
         public DbSet<OrganizationProfile> OrganizationProfiles { get; set; } = null!;
         public DbSet<OnboardingWizard> OnboardingWizards { get; set; } = null!;
+        public DbSet<OnboardingStepScore> OnboardingStepScores { get; set; } = null!;
 
         // Teams & RACI (Role-based workflow routing)
         public DbSet<Team> Teams { get; set; } = null!;

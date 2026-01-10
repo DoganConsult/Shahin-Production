@@ -1,20 +1,22 @@
 @model GrcMvc.Models.DTOs.AuditDto
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @{
-    ViewData["Title"] = "Audit Details";
+    ViewData["Title"] = L["Audit_Details_Title"].Value;
     Layout = "_Layout";
 }
 
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col">
-            <h2><i class="bi bi-file-text"></i> Audit Details</h2>
+            <h2><i class="bi bi-file-text"></i> @L["Audit_Details_Title"]</h2>
         </div>
         <div class="col text-end">
             <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
-                <i class="bi bi-pencil"></i> Edit
+                <i class="bi bi-pencil"></i> @L["Edit"]
             </a>
             <a asp-action="Index" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Back to List
+                <i class="bi bi-arrow-left"></i> @L["BackToList"]
             </a>
         </div>
     </div>
@@ -31,26 +33,26 @@
         <div class="col-md-8">
             <div class="card mb-4">
                 <div class="card-header bg-light">
-                    <h5 class="mb-0">General Information</h5>
+                    <h5 class="mb-0">@L["Audit_GeneralInformation"]</h5>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="fw-bold">Audit Name</label>
+                            <label class="fw-bold">@L["Audit_Name"]</label>
                             <p>@Model.Name</p>
                         </div>
                         <div class="col-md-6">
-                            <label class="fw-bold">Audit Number</label>
+                            <label class="fw-bold">@L["Audit_Number"]</label>
                             <p>@Model.AuditNumber</p>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="fw-bold">Type</label>
+                            <label class="fw-bold">@L["Audit_Type"]</label>
                             <p>@Model.Type</p>
                         </div>
                         <div class="col-md-6">
-                            <label class="fw-bold">Status</label>
+                            <label class="fw-bold">@L["Audit_Status"]</label>
                             <p>
                                 <span class="badge @GetStatusBadgeClass(Model.Status)">
                                     @Model.Status
@@ -59,11 +61,11 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="fw-bold">Description</label>
+                        <label class="fw-bold">@L["Description"]</label>
                         <p>@Model.Description</p>
                     </div>
                     <div class="mb-3">
-                        <label class="fw-bold">Scope</label>
+                        <label class="fw-bold">@L["Audit_Scope"]</label>
                         <p>@Model.Scope</p>
                     </div>
                 </div>
@@ -71,25 +73,25 @@
 
             <div class="card mb-4">
                 <div class="card-header bg-light">
-                    <h5 class="mb-0">Execution Details</h5>
+                    <h5 class="mb-0">@L["Audit_ExecutionDetails"]</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="fw-bold">Objectives</label>
+                        <label class="fw-bold">@L["Audit_Objectives"]</label>
                         <p>@Model.Objectives</p>
                     </div>
                     <div class="mb-3">
-                        <label class="fw-bold">Criteria / Standards</label>
+                        <label class="fw-bold">@L["Audit_Criteria"]</label>
                         <p>@Model.Criteria</p>
                     </div>
                     <div class="mb-3">
-                        <label class="fw-bold">Methodology</label>
+                        <label class="fw-bold">@L["Audit_Methodology"]</label>
                         <p>@Model.Methodology</p>
                     </div>
                     @if (!string.IsNullOrEmpty(Model.ReportSummary))
                     {
                         <div class="mb-3">
-                            <label class="fw-bold">Report Summary</label>
+                            <label class="fw-bold">@L["Audit_ReportSummary"]</label>
                             <div class="bg-light p-3 rounded">@Model.ReportSummary</div>
                         </div>
                     }
@@ -100,33 +102,33 @@
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-header bg-light">
-                    <h5 class="mb-0">Timeline & Team</h5>
+                    <h5 class="mb-0">@L["Audit_TimelineTeam"]</h5>
                 </div>
                 <div class="card-body">
-                    <h6 class="fw-bold text-muted">Schedule</h6>
+                    <h6 class="fw-bold text-muted">@L["Audit_Schedule"]</h6>
                     <dl class="row mb-3">
-                        <dt class="col-sm-5">Planned Start</dt>
+                        <dt class="col-sm-5">@L["Audit_PlannedStart"]</dt>
                         <dd class="col-sm-7">@Model.PlannedStartDate.ToShortDateString()</dd>
 
-                        <dt class="col-sm-5">Planned End</dt>
+                        <dt class="col-sm-5">@L["Audit_PlannedEnd"]</dt>
                         <dd class="col-sm-7">@Model.PlannedEndDate.ToShortDateString()</dd>
 
-                        <dt class="col-sm-5">Actual Start</dt>
+                        <dt class="col-sm-5">@L["Audit_ActualStart"]</dt>
                         <dd class="col-sm-7">@Model.StartDate.ToShortDateString()</dd>
 
-                        <dt class="col-sm-5">Actual End</dt>
+                        <dt class="col-sm-5">@L["Audit_ActualEnd"]</dt>
                         <dd class="col-sm-7">@Model.EndDate.ToShortDateString()</dd>
                     </dl>
 
                     <hr />
 
-                    <h6 class="fw-bold text-muted">Team</h6>
+                    <h6 class="fw-bold text-muted">@L["Audit_Team"]</h6>
                     <div class="mb-3">
-                        <label class="fw-bold">Lead Auditor</label>
+                        <label class="fw-bold">@L["Audit_LeadAuditor"]</label>
                         <p>@Model.LeadAuditor</p>
                     </div>
                     <div class="mb-3">
-                        <label class="fw-bold">Assigned To</label>
+                        <label class="fw-bold">@L["Audit_AssignedTo"]</label>
                         <p>@Model.AssignedTo</p>
                     </div>
                 </div>
@@ -135,14 +137,14 @@
             <div class="card mb-4">
                 <div class="card-header bg-light">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Audit Findings</h5>
+                        <h5 class="mb-0">@L["Audit_Findings"]</h5>
                         <span class="badge bg-secondary">@Model.FindingsCount</span>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a asp-action="Findings" asp-route-id="@Model.Id" class="btn btn-outline-primary">
-                            <i class="bi bi-list-check"></i> View All Findings
+                            <i class="bi bi-list-check"></i> @L["ViewFindings"]
                         </a>
                         <!-- Add finding button typically would go here or in the findings view -->
                     </div>

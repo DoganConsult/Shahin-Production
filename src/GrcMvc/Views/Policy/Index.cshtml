@@ -1,23 +1,25 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model IEnumerable<GrcMvc.Models.DTOs.PolicyDto>
 @{
-    ViewData["Title"] = "Policies";
+    ViewData["Title"] = L["Policy_List_Title"].Value;
     Layout = "_Layout";
 }
 
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col">
-            <h2><i class="bi bi-file-text"></i> Policy Management</h2>
+            <h2><i class="bi bi-file-text"></i> @L["Policy_Management"]</h2>
         </div>
         <div class="col text-end">
             <a asp-action="Create" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> New Policy
+                <i class="bi bi-plus-circle"></i> @L["NewPolicy"]
             </a>
             <a asp-action="Expiring" class="btn btn-warning">
-                <i class="bi bi-clock-history"></i> Expiring Soon
+                <i class="bi bi-clock-history"></i> @L["ExpiringSoon"]
             </a>
             <a asp-action="Statistics" class="btn btn-secondary">
-                <i class="bi bi-bar-chart"></i> Statistics
+                <i class="bi bi-bar-chart"></i> @L["Statistics"]
             </a>
         </div>
     </div>
@@ -44,14 +46,14 @@
                 <table class="table table-hover" id="policiesTable">
                     <thead>
                         <tr>
-                            <th>Number</th>
-                            <th>Title</th>
-                            <th>Category</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                            <th>Review Date</th>
-                            <th>Violations</th>
-                            <th>Actions</th>
+                            <th>@L["Policy_Number"]</th>
+                            <th>@L["Policy_Title"]</th>
+                            <th>@L["Category"]</th>
+                            <th>@L["Type"]</th>
+                            <th>@L["Status"]</th>
+                            <th>@L["Policy_ReviewDate"]</th>
+                            <th>@L["Policy_Violations"]</th>
+                            <th>@L["Actions"]</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -85,15 +87,15 @@
                                 <td>
                                     <div class="btn-group btn-group-sm" role="group">
                                         <a asp-action="Edit" asp-route-id="@item.Id"
-                                           class="btn btn-outline-primary" title="Edit">
+                                           class="btn btn-outline-primary" title="@L["Edit"]">
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                         <a asp-action="Details" asp-route-id="@item.Id"
-                                           class="btn btn-outline-info" title="Details">
+                                           class="btn btn-outline-info" title="@L["Details"]">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         <a asp-action="Delete" asp-route-id="@item.Id"
-                                           class="btn btn-outline-danger" title="Delete">
+                                           class="btn btn-outline-danger" title="@L["Delete"]">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </div>

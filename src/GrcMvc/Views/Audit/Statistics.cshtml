@@ -1,17 +1,19 @@
 @model GrcMvc.Models.DTOs.AuditStatisticsDto
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @{
-    ViewData["Title"] = "Audit Statistics";
+    ViewData["Title"] = L["Audit_Statistics_Title"].Value;
     Layout = "_Layout";
 }
 
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col">
-            <h2><i class="bi bi-bar-chart"></i> Audit Statistics</h2>
+            <h2><i class="bi bi-bar-chart"></i> @L["Audit_Statistics_Title"]</h2>
         </div>
         <div class="col text-end">
             <a asp-action="Index" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Back to List
+                <i class="bi bi-arrow-left"></i> @L["BackToList"]
             </a>
         </div>
     </div>
@@ -29,7 +31,7 @@
         <div class="col-md-3">
             <div class="card text-white bg-primary mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">Total Audits</h5>
+                    <h5 class="card-title">@L["Audit_TotalAudits"]</h5>
                     <p class="card-text display-4">@Model.TotalAudits</p>
                 </div>
             </div>
@@ -37,7 +39,7 @@
         <div class="col-md-3">
             <div class="card text-white bg-success mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">Completed</h5>
+                    <h5 class="card-title">@L["Audit_Completed"]</h5>
                     <p class="card-text display-4">@Model.CompletedAudits</p>
                 </div>
             </div>
@@ -45,7 +47,7 @@
         <div class="col-md-3">
             <div class="card text-white bg-warning mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">In Progress</h5>
+                    <h5 class="card-title">@L["Audit_InProgress"]</h5>
                     <p class="card-text display-4">@Model.InProgressAudits</p>
                 </div>
             </div>
@@ -53,7 +55,7 @@
         <div class="col-md-3">
             <div class="card text-white bg-danger mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">Overdue</h5>
+                    <h5 class="card-title">@L["Audit_Overdue"]</h5>
                     <p class="card-text display-4">@Model.OverdueAudits</p>
                 </div>
             </div>
@@ -61,11 +63,11 @@
     </div>
 
     <!-- Findings Metrics -->
-    <h4 class="mb-3">Findings Overview</h4>
+    <h4 class="mb-3">@L["Audit_FindingsOverview"]</h4>
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="card border-danger mb-3">
-                <div class="card-header bg-danger text-white">Critical Findings</div>
+                <div class="card-header bg-danger text-white">@L["Audit_CriticalFindings"]</div>
                 <div class="card-body text-danger">
                     <p class="card-text display-4 text-center">@Model.CriticalFindings</p>
                 </div>
@@ -73,7 +75,7 @@
         </div>
         <div class="col-md-3">
             <div class="card border-warning mb-3">
-                <div class="card-header bg-warning text-dark">High Findings</div>
+                <div class="card-header bg-warning text-dark">@L["Audit_HighFindings"]</div>
                 <div class="card-body text-warning">
                     <p class="card-text display-4 text-center">@Model.HighFindings</p>
                 </div>
@@ -81,7 +83,7 @@
         </div>
         <div class="col-md-3">
             <div class="card border-info mb-3">
-                <div class="card-header bg-info text-white">Medium Findings</div>
+                <div class="card-header bg-info text-white">@L["Audit_MediumFindings"]</div>
                 <div class="card-body text-info">
                     <p class="card-text display-4 text-center">@Model.MediumFindings</p>
                 </div>
@@ -89,7 +91,7 @@
         </div>
         <div class="col-md-3">
             <div class="card border-success mb-3">
-                <div class="card-header bg-success text-white">Low Findings</div>
+                <div class="card-header bg-success text-white">@L["Audit_LowFindings"]</div>
                 <div class="card-body text-success">
                     <p class="card-text display-4 text-center">@Model.LowFindings</p>
                 </div>
@@ -102,7 +104,7 @@
         <div class="col-md-4">
             <div class="card mb-4 h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">Audits by Type</h5>
+                    <h5 class="mb-0">@L["Audit_AuditsByType"]</h5>
                 </div>
                 <div class="card-body">
                     <canvas id="typeChart"></canvas>
@@ -112,7 +114,7 @@
         <div class="col-md-4">
             <div class="card mb-4 h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">Status Distribution</h5>
+                    <h5 class="mb-0">@L["Audit_StatusDistribution"]</h5>
                 </div>
                 <div class="card-body">
                     <canvas id="statusChart"></canvas>
@@ -122,7 +124,7 @@
         <div class="col-md-4">
             <div class="card mb-4 h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">Finding Severity</h5>
+                    <h5 class="mb-0">@L["Audit_FindingSeverity"]</h5>
                 </div>
                 <div class="card-body">
                     <canvas id="findingsChart"></canvas>
@@ -175,9 +177,9 @@
             new Chart(findingsCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['Critical', 'High', 'Medium', 'Low'],
+                    labels: ['@L["Audit_Severity_Critical"]', '@L["Audit_Severity_High"]', '@L["Audit_Severity_Medium"]', '@L["Audit_Severity_Low"]'],
                     datasets: [{
-                        label: 'Number of Findings',
+                        label: '@L["Audit_NumberOfFindings"]',
                         data: [@Model.CriticalFindings, @Model.HighFindings, @Model.MediumFindings, @Model.LowFindings],
                         backgroundColor: [
                             '#e74a3b', '#f6c23e', '#36b9cc', '#1cc88a'

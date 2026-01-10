@@ -136,7 +136,8 @@ public class AdvancedDashboardService : IAdvancedDashboardService
         var evidenceScore = requirements.Any() ? Math.Round((decimal)reqsWithEvidence / requirements.Count * 100, 1) : 0;
         var testingScore = controls.Any() ? Math.Round((decimal)controlsTested / controls.Count * 100, 1) : 0;
         var overdueScore = Math.Max(0, 100 - overdueItems * 5); // Each overdue item reduces score by 5
-        var exceptionScore = 100m; // Placeholder - would track open exceptions
+        var openExceptions = await _context.ControlExceptions.CountAsync(e => e.Status == "Open" && !e.IsDeleted);
+        var exceptionScore = Math.Max(0, 100 - openExceptions * 10); // Each open exception reduces score by 10
 
         var overallScore = Math.Round((evidenceScore + testingScore + overdueScore + exceptionScore) / 4, 1);
 

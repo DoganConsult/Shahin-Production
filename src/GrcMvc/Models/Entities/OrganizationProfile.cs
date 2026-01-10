@@ -238,7 +238,7 @@ namespace GrcMvc.Models.Entities
 
         // ===== ONBOARDING METADATA =====
         public string OnboardingQuestionsJson { get; set; } = string.Empty; // Complete answers for audit
-        public string OnboardingStatus { get; set; } = "NotStarted"; // NotStarted, InProgress, Completed
+        public string OnboardingStatus { get; set; } = "NOT_STARTED"; // NOT_STARTED, IN_PROGRESS, COMPLETED
         public DateTime? OnboardingStartedAt { get; set; }
         public DateTime? OnboardingCompletedAt { get; set; }
         public string OnboardingCompletedBy { get; set; } = string.Empty;

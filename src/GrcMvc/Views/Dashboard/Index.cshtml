@@ -72,6 +72,12 @@
         </div>
     </div>
 
+    <!-- Onboarding Progress Widget (if not completed) -->
+    @if (ViewBag.OnboardingIncomplete == true)
+    {
+        @await Html.PartialAsync("_OnboardingProgressWidget_Professional")
+    }
+
     <!-- Main Dashboard Grid -->
     <div class="dashboard-grid">
         <!-- Left: Charts -->

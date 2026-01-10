@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ClosedXML.Excel;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Resources;
 using GrcMvc.Services.Interfaces;
@@ -390,9 +392,44 @@ namespace GrcMvc.Controllers.Api
         {
             try
             {
-                // This would require implementing Excel generation in the service
-                // For now, return not implemented
-                return StatusCode(501, new { error = "Excel export coming soon" });
+                if (!Guid.TryParse(id, out var reportId))
+                {
+                    return BadRequest(new { error = "Invalid report ID" });
+                }
+
+                var report = await _reportService.GetReportAsync(id);
+                if (report == null)
+                {
+                    return NotFound(new { error = "Report not found" });
+                }
+
+                var reportObj = report as dynamic;
+                var reportName = reportObj?.title?.ToString() ?? $"Report_{id}";
+                var reportType = reportObj?.type?.ToString() ?? "General";
+                var reportStatus = reportObj?.status?.ToString() ?? "Draft";
+
+                using var workbook = new XLWorkbook();
+                var worksheet = workbook.Worksheets.Add("Report");
+
+                worksheet.Cell(1, 1).Value = "Report Name";
+                worksheet.Cell(1, 2).Value = reportName;
+                worksheet.Cell(2, 1).Value = "Generated";
+                worksheet.Cell(2, 2).Value = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm");
+                worksheet.Cell(3, 1).Value = "Type";
+                worksheet.Cell(3, 2).Value = reportType;
+                worksheet.Cell(4, 1).Value = "Status";
+                worksheet.Cell(4, 2).Value = reportStatus;
+
+                var headerRange = worksheet.Range("A1:A4");
+                headerRange.Style.Font.Bold = true;
+                worksheet.Columns().AdjustToContents();
+
+                using var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+
+                var fileName = $"Report_{reportName}_{DateTime.UtcNow:yyyyMMdd}.xlsx";
+                return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
             }
             catch (Exception ex)
             {

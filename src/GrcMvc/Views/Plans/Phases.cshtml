@@ -195,8 +195,30 @@
 
 <script>
     async function editPhase(phaseId) {
-        // TODO: Load phase details and populate modal
-        alert('Edit phase: ' + phaseId);
+        try {
+            // Load phase details from API
+            const response = await fetch(`/api/plans/phases/${phaseId}`);
+            if (!response.ok) {
+                throw new Error('Failed to load phase details');
+            }
+
+            const phase = await response.json();
+
+            // Populate modal form fields
+            document.getElementById('phaseId').value = phase.id;
+            document.getElementById('phaseName').value = phase.name;
+            document.getElementById('phaseDescription').value = phase.description || '';
+            document.getElementById('phaseStartDate').value = phase.startDate ? phase.startDate.split('T')[0] : '';
+            document.getElementById('phaseEndDate').value = phase.endDate ? phase.endDate.split('T')[0] : '';
+            document.getElementById('phaseStatus').value = phase.status || 'Pending';
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('editPhaseModal'));
+            modal.show();
+        } catch (error) {
+            console.error('Error loading phase:', error);
+            alert('Failed to load phase details. Please try again.');
+        }
     }
 
     async function deletePhase(phaseId) {

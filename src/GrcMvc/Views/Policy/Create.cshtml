@@ -1,17 +1,19 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model GrcMvc.Models.DTOs.CreatePolicyDto
 @{
-    ViewData["Title"] = "Create Policy";
+    ViewData["Title"] = L["Policy_Create_Title"].Value;
     Layout = "_Layout";
 }
 
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col">
-            <h2><i class="bi bi-plus-circle"></i> Create New Policy</h2>
+            <h2><i class="bi bi-plus-circle"></i> @L["Policy_Create_Title"]</h2>
         </div>
         <div class="col text-end">
             <a asp-action="Index" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Back to List
+                <i class="bi bi-arrow-left"></i> @L["BackToList"]
             </a>
         </div>
     </div>
@@ -24,25 +26,25 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label asp-for="Title" class="control-label fw-bold">Policy Title</label>
-                            <input asp-for="Title" class="form-control" placeholder="e.g. Data Protection Policy" />
+                            <label asp-for="Title" class="control-label fw-bold">@L["Policy_Title"]</label>
+                            <input asp-for="Title" class="form-control" placeholder="@L["Policy_Title_Placeholder"]" />
                             <span asp-validation-for="Title" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group mb-3">
-                            <label asp-for="PolicyNumber" class="control-label fw-bold">Policy Number</label>
-                            <input asp-for="PolicyNumber" class="form-control" placeholder="e.g. POL-IT-001" />
+                            <label asp-for="PolicyNumber" class="control-label fw-bold">@L["Policy_Number"]</label>
+                            <input asp-for="PolicyNumber" class="form-control" placeholder="@L["Policy_Number_Placeholder"]" />
                             <span asp-validation-for="PolicyNumber" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group mb-3">
-                            <label asp-for="Status" class="control-label fw-bold">Status</label>
+                            <label asp-for="Status" class="control-label fw-bold">@L["Status"]</label>
                             <select asp-for="Status" class="form-select">
-                                <option value="Draft">Draft</option>
-                                <option value="In Review">In Review</option>
-                                <option value="Published">Published</option>
+                                <option value="Draft">@L["Policy_Status_Draft"]</option>
+                                <option value="In Review">@L["Policy_Status_InReview"]</option>
+                                <option value="Published">@L["Policy_Status_Published"]</option>
                             </select>
                             <span asp-validation-for="Status" class="text-danger"></span>
                         </div>
@@ -52,34 +54,34 @@
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label asp-for="Category" class="control-label fw-bold">Category</label>
+                            <label asp-for="Category" class="control-label fw-bold">@L["Category"]</label>
                             <select asp-for="Category" class="form-select">
-                                <option value="">Select Category...</option>
-                                <option value="Information Security">Information Security</option>
-                                <option value="HR">Human Resources</option>
-                                <option value="Finance">Finance</option>
-                                <option value="Operations">Operations</option>
-                                <option value="Legal">Legal & Compliance</option>
+                                <option value="">@L["SelectCategory"]</option>
+                                <option value="Information Security">@L["Policy_Category_Security"]</option>
+                                <option value="HR">@L["Policy_Category_HR"]</option>
+                                <option value="Finance">@L["Policy_Category_Finance"]</option>
+                                <option value="Operations">@L["Policy_Category_Operations"]</option>
+                                <option value="Legal">@L["Policy_Category_Legal"]</option>
                             </select>
                             <span asp-validation-for="Category" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label asp-for="Type" class="control-label fw-bold">Type</label>
+                            <label asp-for="Type" class="control-label fw-bold">@L["Type"]</label>
                             <select asp-for="Type" class="form-select">
-                                <option value="">Select Type...</option>
-                                <option value="Policy">Policy</option>
-                                <option value="Procedure">Procedure</option>
-                                <option value="Standard">Standard</option>
-                                <option value="Guideline">Guideline</option>
+                                <option value="">@L["SelectType"]</option>
+                                <option value="Policy">@L["Policy_Type_Policy"]</option>
+                                <option value="Procedure">@L["Policy_Type_Procedure"]</option>
+                                <option value="Standard">@L["Policy_Type_Standard"]</option>
+                                <option value="Guideline">@L["Policy_Type_Guideline"]</option>
                             </select>
                             <span asp-validation-for="Type" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label asp-for="EffectiveDate" class="control-label fw-bold">Effective Date</label>
+                            <label asp-for="EffectiveDate" class="control-label fw-bold">@L["Policy_EffectiveDate"]</label>
                             <input asp-for="EffectiveDate" class="form-control" type="date" />
                             <span asp-validation-for="EffectiveDate" class="text-danger"></span>
                         </div>
@@ -87,28 +89,28 @@
                 </div>
 
                 <div class="form-group mb-3">
-                    <label asp-for="Description" class="control-label fw-bold">Description / Purpose</label>
+                    <label asp-for="Description" class="control-label fw-bold">@L["Policy_Description"]</label>
                     <textarea asp-for="Description" class="form-control" rows="3"></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
-                    <label asp-for="Content" class="control-label fw-bold">Policy Content</label>
-                    <textarea asp-for="Content" class="form-control" rows="10" placeholder="Full policy text goes here..."></textarea>
+                    <label asp-for="Content" class="control-label fw-bold">@L["Policy_Content"]</label>
+                    <textarea asp-for="Content" class="form-control" rows="10" placeholder="@L["Policy_Content_Placeholder"]"></textarea>
                     <span asp-validation-for="Content" class="text-danger"></span>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label asp-for="Scope" class="control-label fw-bold">Scope</label>
+                            <label asp-for="Scope" class="control-label fw-bold">@L["Policy_Scope"]</label>
                             <textarea asp-for="Scope" class="form-control" rows="3"></textarea>
                             <span asp-validation-for="Scope" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label asp-for="Requirements" class="control-label fw-bold">Key Requirements</label>
+                            <label asp-for="Requirements" class="control-label fw-bold">@L["Policy_Requirements"]</label>
                             <textarea asp-for="Requirements" class="form-control" rows="3"></textarea>
                             <span asp-validation-for="Requirements" class="text-danger"></span>
                         </div>
@@ -118,21 +120,21 @@
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label asp-for="Owner" class="control-label fw-bold">Owner</label>
+                            <label asp-for="Owner" class="control-label fw-bold">@L["Policy_Owner"]</label>
                             <input asp-for="Owner" class="form-control" />
                             <span asp-validation-for="Owner" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label asp-for="Approver" class="control-label fw-bold">Approver</label>
+                            <label asp-for="Approver" class="control-label fw-bold">@L["Policy_Approver"]</label>
                             <input asp-for="Approver" class="form-control" />
                             <span asp-validation-for="Approver" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group mb-3">
-                            <label asp-for="ReviewDate" class="control-label fw-bold">Next Review Date</label>
+                            <label asp-for="ReviewDate" class="control-label fw-bold">@L["Policy_NextReviewDate"]</label>
                             <input asp-for="ReviewDate" class="form-control" type="date" />
                             <span asp-validation-for="ReviewDate" class="text-danger"></span>
                         </div>
@@ -141,9 +143,9 @@
 
                 <div class="form-group mt-4">
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-circle"></i> Create Policy
+                        <i class="bi bi-check-circle"></i> @L["CreatePolicy"]
                     </button>
-                    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">@L["Cancel"]</a>
                 </div>
             </form>
         </div>

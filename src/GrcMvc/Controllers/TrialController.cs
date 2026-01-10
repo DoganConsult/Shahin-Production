@@ -8,6 +8,7 @@ using GrcMvc.Models.ViewModels;
 using GrcMvc.Services.Interfaces;
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
+using GrcMvc.Constants;
 
 namespace GrcMvc.Controllers
 {
@@ -154,7 +155,7 @@ namespace GrcMvc.Controllers
                     Id = Guid.NewGuid(),
                     TenantId = tenantId,
                     UserId = user.Id,
-                    RoleCode = "TENANT_ADMIN",
+                    RoleCode = RoleConstants.TenantAdmin,
                     TitleCode = "ADMIN",
                     Status = "Active",
                     ActivatedAt = DateTime.UtcNow,

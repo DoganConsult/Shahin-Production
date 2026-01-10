@@ -1,20 +1,22 @@
 @model IEnumerable<GrcMvc.Models.DTOs.AuditDto>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @{
-    ViewData["Title"] = "Upcoming Audits";
+    ViewData["Title"] = L["Audit_Upcoming_Title"].Value;
     Layout = "_Layout";
 }
 
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col">
-            <h2><i class="bi bi-calendar-event"></i> Upcoming Audits (Next 30 Days)</h2>
+            <h2><i class="bi bi-calendar-event"></i> @L["Audit_Upcoming_Title"]</h2>
         </div>
         <div class="col text-end">
             <a asp-action="Index" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Back to List
+                <i class="bi bi-arrow-left"></i> @L["BackToList"]
             </a>
             <a asp-action="Create" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> New Audit
+                <i class="bi bi-plus-circle"></i> @L["Audit_Create_New"]
             </a>
         </div>
     </div>
@@ -33,8 +35,8 @@
             {
                 <div class="text-center py-5">
                     <i class="bi bi-calendar-check display-1 text-muted"></i>
-                    <h4 class="mt-3 text-muted">No upcoming audits scheduled for the next 30 days.</h4>
-                    <p>You're all caught up!</p>
+                    <h4 class="mt-3 text-muted">@L["Audit_NoUpcoming"]</h4>
+                    <p>@L["Audit_AllCaughtUp"]</p>
                 </div>
             }
             else
@@ -43,13 +45,13 @@
                     <table class="table table-hover" id="upcomingTable">
                         <thead>
                             <tr>
-                                <th>Start Date</th>
-                                <th>Audit</th>
-                                <th>Type</th>
-                                <th>Status</th>
-                                <th>Lead Auditor</th>
-                                <th>Days Until Start</th>
-                                <th>Actions</th>
+                                <th>@L["Audit_StartDate"]</th>
+                                <th>@L["Audit_Name"]</th>
+                                <th>@L["Audit_Type"]</th>
+                                <th>@L["Audit_Status"]</th>
+                                <th>@L["Audit_LeadAuditor"]</th>
+                                <th>@L["Audit_DaysUntilStart"]</th>
+                                <th>@L["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -75,16 +77,16 @@
                                     <td class="@urgencyClass">
                                         @if (daysLeft < 0)
                                         {
-                                            <span>Started</span>
+                                            <span>@L["Audit_Started"]</span>
                                         }
                                         else
                                         {
-                                            <span>In @daysLeft days</span>
+                                            <span>@L["Audit_InDays", daysLeft]</span>
                                         }
                                     </td>
                                     <td>
                                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-pencil"></i> Update
+                                            <i class="bi bi-pencil"></i> @L["Update"]
                                         </a>
                                     </td>
                                 </tr>

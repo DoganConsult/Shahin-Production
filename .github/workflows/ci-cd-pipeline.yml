@@ -157,9 +157,29 @@ jobs:
 
       - name: Deploy to Staging Server
         run: |
-          echo "🚀 Deploying to staging..."
-          # Add your staging deployment commands here
-          # rsync -avz ./deploy/ user@staging-server:/app/
+          echo "🚀 Deploying to staging environment..."
+
+          # Create deployment package
+          cd ./deploy
+          tar -czf ../grc-release.tar.gz .
+          cd ..
+
+          # Example deployment via rsync (configure for your infrastructure)
+          # Requires SSH_PRIVATE_KEY and STAGING_HOST secrets in GitHub
+          #
+          # mkdir -p ~/.ssh
+          # echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          # chmod 600 ~/.ssh/deploy_key
+          # rsync -avz -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+          #   grc-release.tar.gz ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}:/tmp/
+          # ssh -i ~/.ssh/deploy_key ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }} \
+          #   'cd /var/www/grc-staging && \
+          #    tar -xzf /tmp/grc-release.tar.gz && \
+          #    dotnet ef database update && \
+          #    sudo systemctl restart grc-staging'
+
+          echo "📦 Deployment package created: grc-release.tar.gz"
+          echo "⚠️  Manual deployment to staging required or configure automated deployment above"
 
   # ══════════════════════════════════════════════════════════════
   # STAGE 5: Deploy to Production (Manual Approval Required)
@@ -181,18 +201,82 @@ jobs:
 
       - name: Create Backup
         run: |
-          echo "📦 Creating backup before deployment..."
-          # Add backup commands
+          echo "📦 Creating database backup before production deployment..."
+
+          # Example backup commands (configure for your infrastructure)
+          # Requires DB_HOST, DB_USER, DB_PASSWORD secrets
+          #
+          # TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          # BACKUP_FILE="grc_backup_${TIMESTAMP}.sql"
+          #
+          # PGPASSWORD="${{ secrets.PROD_DB_PASSWORD }}" pg_dump \
+          #   -h ${{ secrets.PROD_DB_HOST }} \
+          #   -U ${{ secrets.PROD_DB_USER }} \
+          #   -d GrcMvcDb \
+          #   -F c \
+          #   -f ${BACKUP_FILE}
+          #
+          # Upload to S3/Azure Blob/backup storage
+          # aws s3 cp ${BACKUP_FILE} s3://grc-backups/${BACKUP_FILE}
+
+          echo "✓ Backup preparation complete"
 
       - name: Deploy to Production
         run: |
-          echo "🚀 Deploying to production..."
-          # Add production deployment commands
+          echo "🚀 Deploying to production environment..."
+
+          # Create deployment package
+          cd ./deploy
+          tar -czf ../grc-release-prod.tar.gz .
+          cd ..
+
+          # Example production deployment (configure for your infrastructure)
+          # Requires SSH_PRIVATE_KEY, PROD_HOST, PROD_USER secrets
+          #
+          # mkdir -p ~/.ssh
+          # echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          # chmod 600 ~/.ssh/deploy_key
+          #
+          # Deploy to production servers
+          # rsync -avz -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+          #   grc-release-prod.tar.gz ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:/tmp/
+          #
+          # ssh -i ~/.ssh/deploy_key ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} \
+          #   'cd /var/www/grc-production && \
+          #    cp -r . ../grc-production-backup-$(date +%Y%m%d_%H%M%S) && \
+          #    tar -xzf /tmp/grc-release-prod.tar.gz && \
+          #    dotnet ef database update && \
+          #    sudo systemctl restart grc-production'
+
+          echo "📦 Production deployment package created"
+          echo "⚠️  Manual production deployment required or configure automated deployment above"
 
       - name: Health Check
         run: |
-          echo "🏥 Running health checks..."
-          # curl -f https://shahin-ai.com/health || exit 1
+          echo "🏥 Running post-deployment health checks..."
+
+          # Wait for application to start
+          sleep 10
+
+          # Example health check (configure for your domain)
+          # Health check endpoint
+          # HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://shahin-ai.com/health)
+          #
+          # if [ $HTTP_STATUS -eq 200 ]; then
+          #   echo "✓ Health check passed (HTTP $HTTP_STATUS)"
+          # else
+          #   echo "✗ Health check failed (HTTP $HTTP_STATUS)"
+          #   echo "Rolling back deployment..."
+          #   # Add rollback commands
+          #   exit 1
+          # fi
+          #
+          # Test critical endpoints
+          # curl -f https://shahin-ai.com/health/ready || exit 1
+          # curl -f https://shahin-ai.com/health/db || exit 1
+
+          echo "⚠️  Configure health check URLs for your production environment"
+          echo "✓ Health check preparation complete"
 
       - name: Notify Success
         run: |

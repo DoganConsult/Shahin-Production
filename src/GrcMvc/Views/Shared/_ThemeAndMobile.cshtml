@@ -1,11 +1,14 @@
 @* Theme Toggle and Mobile Optimizations *@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using GrcMvc.Resources
+@inject IHtmlLocalizer<SharedResource> L
 @{
     var isRtl = ViewContext.HttpContext.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>()?.RequestCulture?.UICulture?.Name == "ar";
 }
 
 <!-- Theme Toggle Button (Fixed Position) -->
 <div id="theme-toggle-container" class="theme-toggle-container">
-    <button id="theme-toggle" class="theme-toggle-btn" onclick="ThemeManager.toggle()" title="تبديل الوضع المظلم">
+    <button id="theme-toggle" class="theme-toggle-btn" onclick="ThemeManager.toggle()" title="@L["Shared_Theme_ToggleDarkMode"]">
         <i class="bi bi-moon-fill theme-icon-dark"></i>
         <i class="bi bi-sun-fill theme-icon-light"></i>
     </button>
@@ -15,23 +18,23 @@
 <nav class="mobile-bottom-nav d-md-none" id="mobile-nav">
     <a href="/Dashboard" class="mobile-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
         <i class="bi bi-house-fill"></i>
-        <span>الرئيسية</span>
+        <span>@L["Shared_Mobile_Home"]</span>
     </a>
     <a href="/Inbox" class="mobile-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Inbox" ? "active" : "")">
         <i class="bi bi-inbox-fill"></i>
-        <span>الوارد</span>
+        <span>@L["Shared_Mobile_Inbox"]</span>
     </a>
     <a href="/Assessment" class="mobile-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Assessment" ? "active" : "")">
         <i class="bi bi-clipboard-check"></i>
-        <span>التقييمات</span>
+        <span>@L["Shared_Mobile_Assessments"]</span>
     </a>
     <a href="/Risk" class="mobile-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Risk" ? "active" : "")">
         <i class="bi bi-exclamation-triangle"></i>
-        <span>المخاطر</span>
+        <span>@L["Shared_Mobile_Risks"]</span>
     </a>
     <button class="mobile-nav-item" onclick="document.querySelector('.navbar-toggler').click()">
         <i class="bi bi-list"></i>
-        <span>المزيد</span>
+        <span>@L["Shared_Mobile_More"]</span>
     </button>
 </nav>
 

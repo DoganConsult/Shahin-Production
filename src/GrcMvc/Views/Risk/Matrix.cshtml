@@ -1,20 +1,22 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
 @model IEnumerable<GrcMvc.Models.DTOs.RiskDto>
 @{
-    ViewData["Title"] = "Risk Matrix";
+    ViewData["Title"] = L["Risk_Matrix_Title"].Value;
     Layout = "_Layout";
 }
 
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col">
-            <h2><i class="bi bi-grid-3x3"></i> Risk Matrix</h2>
+            <h2><i class="bi bi-grid-3x3"></i> @L["Risk_Matrix_Title"]</h2>
         </div>
         <div class="col text-end">
             <a asp-action="Index" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Back to List
+                <i class="bi bi-arrow-left"></i> @L["BackToList"]
             </a>
             <a asp-action="Create" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> New Risk
+                <i class="bi bi-plus-circle"></i> @L["Risk_NewRisk"]
             </a>
         </div>
     </div>
@@ -24,24 +26,24 @@
         <div class="col-md-10">
             <div class="card shadow-sm">
                 <div class="card-header bg-light">
-                    <h5 class="mb-0 text-center">Risk Heatmap (Probability vs Impact)</h5>
+                    <h5 class="mb-0 text-center">@L["Risk_HeatMap"]</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered text-center risk-matrix" style="height: 400px;">
                             <thead>
                                 <tr>
-                                    <th rowspan="6" class="align-middle" style="width: 50px; writing-mode: vertical-rl; transform: rotate(180deg);">Probability</th>
+                                    <th rowspan="6" class="align-middle" style="width: 50px; writing-mode: vertical-rl; transform: rotate(180deg);">@L["Risk_Probability"]</th>
                                     <th class="border-0"></th>
-                                    <th colspan="5">Impact</th>
+                                    <th colspan="5">@L["Risk_Impact"]</th>
                                 </tr>
                                 <tr>
                                     <th class="border-0"></th>
-                                    <th class="bg-light">1 - Negligible</th>
-                                    <th class="bg-light">2 - Minor</th>
-                                    <th class="bg-light">3 - Moderate</th>
-                                    <th class="bg-light">4 - Major</th>
-                                    <th class="bg-light">5 - Critical</th>
+                                    <th class="bg-light">@L["Risk_Impact_1_Negligible"]</th>
+                                    <th class="bg-light">@L["Risk_Impact_2_Minor"]</th>
+                                    <th class="bg-light">@L["Risk_Impact_3_Moderate"]</th>
+                                    <th class="bg-light">@L["Risk_Impact_4_Major"]</th>
+                                    <th class="bg-light">@L["Risk_Impact_5_Critical"]</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -66,7 +68,7 @@
                                                         <div class="modal-dialog modal-lg">
                                                             <div class="modal-content text-start">
                                                                 <div class="modal-header">
-                                                                    <h5 class="modal-title">Risks: Probability @p, Impact @i</h5>
+                                                                    <h5 class="modal-title">@L["Risk_Risks"]: @L["Risk_Probability"] @p, @L["Risk_Impact"] @i</h5>
                                                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                                 </div>
                                                                 <div class="modal-body">
@@ -74,11 +76,11 @@
                                                                         <table class="table table-sm table-hover">
                                                                             <thead>
                                                                                 <tr>
-                                                                                    <th>Name</th>
-                                                                                    <th>Category</th>
-                                                                                    <th>Score</th>
-                                                                                    <th>Owner</th>
-                                                                                    <th>Action</th>
+                                                                                    <th>@L["Name"]</th>
+                                                                                    <th>@L["Category"]</th>
+                                                                                    <th>@L["RiskScore"]</th>
+                                                                                    <th>@L["Owner"]</th>
+                                                                                    <th>@L["Actions"]</th>
                                                                                 </tr>
                                                                             </thead>
                                                                             <tbody>
@@ -92,7 +94,7 @@
                                                                                         </td>
                                                                                         <td>@risk.Owner</td>
                                                                                         <td>
-                                                                                            <a asp-action="Details" asp-route-id="@risk.Id" class="btn btn-sm btn-outline-primary">View</a>
+                                                                                            <a asp-action="Details" asp-route-id="@risk.Id" class="btn btn-sm btn-outline-primary">@L["View"]</a>
                                                                                         </td>
                                                                                     </tr>
                                                                                 }
@@ -125,19 +127,19 @@
         <div class="col-md-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">Risk Levels</h5>
+                    <h5 class="mb-0">@L["Risk_RiskLevels"]</h5>
                 </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>High (15-25)</span>
+                        <span>@L["Risk_Level_High"]</span>
                         <span class="badge bg-danger rounded-pill">@Model.Count(r => r.InherentRisk >= 15)</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>Medium (8-14)</span>
+                        <span>@L["Risk_Level_Medium"]</span>
                         <span class="badge bg-warning rounded-pill">@Model.Count(r => r.InherentRisk >= 8 && r.InherentRisk < 15)</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
-                        <span>Low (1-7)</span>
+                        <span>@L["Risk_Level_Low"]</span>
                         <span class="badge bg-success rounded-pill">@Model.Count(r => r.InherentRisk < 8)</span>
                     </div>
                 </div>
@@ -146,7 +148,7 @@
         <div class="col-md-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">Top Categories</h5>
+                    <h5 class="mb-0">@L["Risk_TopCategories"]</h5>
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
@@ -164,7 +166,7 @@
         <div class="col-md-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">Top Risks by Score</h5>
+                    <h5 class="mb-0">@L["Risk_TopRisksByScore"]</h5>
                 </div>
                 <div class="card-body">
                     <div class="list-group list-group-flush">
@@ -190,11 +192,11 @@
     {
         return p switch
         {
-            5 => "5 - Frequent",
-            4 => "4 - Likely",
-            3 => "3 - Possible",
-            2 => "2 - Unlikely",
-            1 => "1 - Rare",
+            5 => L["Risk_Probability_5_Frequent"].Value,
+            4 => L["Risk_Probability_4_Likely"].Value,
+            3 => L["Risk_Probability_3_Possible"].Value,
+            2 => L["Risk_Probability_2_Unlikely"].Value,
+            1 => L["Risk_Probability_1_Rare"].Value,
             _ => p.ToString()
         };
     }

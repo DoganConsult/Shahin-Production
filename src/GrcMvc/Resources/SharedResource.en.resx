@@ -2492,4 +2492,142 @@
   <data name="Risk_CriticalRisk" xml:space="preserve">
     <value>Critical Risk</value>
   </data>
+  <data name="Landing_Index_Timeline_Step1_Title" xml:space="preserve">
+    <value>Assessment</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step1_Desc" xml:space="preserve">
+    <value>Identify applicable regulatory frameworks and get instant assessment of current compliance status</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step1_Item1" xml:space="preserve">
+    <value>Define compliance scope</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step1_Item2" xml:space="preserve">
+    <value>Gap assessment</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step1_Item3" xml:space="preserve">
+    <value>Prioritization</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step2_Title" xml:space="preserve">
+    <value>Design</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step2_Desc" xml:space="preserve">
+    <value>Design compliance roadmap and define required controls and policies for each framework</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step2_Item1" xml:space="preserve">
+    <value>Design controls</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step2_Item2" xml:space="preserve">
+    <value>Prepare policies</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step2_Item3" xml:space="preserve">
+    <value>Assign responsibilities</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step3_Title" xml:space="preserve">
+    <value>Implementation</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step3_Desc" xml:space="preserve">
+    <value>Execute compliance plan with evidence collection, process documentation, and continuous progress tracking</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step3_Item1" xml:space="preserve">
+    <value>Collect evidence</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step3_Item2" xml:space="preserve">
+    <value>Execute procedures</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step3_Item3" xml:space="preserve">
+    <value>Document processes</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step4_Title" xml:space="preserve">
+    <value>Monitoring</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step4_Desc" xml:space="preserve">
+    <value>Continuously monitor compliance status with smart alerts, periodic reports, and audit readiness</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step4_Item1" xml:space="preserve">
+    <value>Continuous monitoring</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step4_Item2" xml:space="preserve">
+    <value>Proactive alerts</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step4_Item3" xml:space="preserve">
+    <value>Audit readiness</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat1_Value" xml:space="preserve">
+    <value>2-4</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat1_Label" xml:space="preserve">
+    <value>Weeks to Deploy</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat2_Value" xml:space="preserve">
+    <value>80%</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat2_Label" xml:space="preserve">
+    <value>Time Savings</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat3_Value" xml:space="preserve">
+    <value>99%</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat3_Label" xml:space="preserve">
+    <value>Assessment Accuracy</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat4_Value" xml:space="preserve">
+    <value>24/7</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat4_Label" xml:space="preserve">
+    <value>Technical Support</value>
+  </data>
+  <data name="Landing_Index_Regulators_Eyebrow" xml:space="preserve">
+    <value>Regulatory Frameworks</value>
+  </data>
+  <data name="Landing_Index_Regulators_Title" xml:space="preserve">
+    <value>Full Support for Saudi Regulatory Requirements</value>
+  </data>
+  <data name="Landing_Index_Regulators_Subtitle" xml:space="preserve">
+    <value>Compliant with all regulatory frameworks and standards issued by Saudi government entities</value>
+  </data>
+  <data name="Landing_Index_Regulator_NCA" xml:space="preserve">
+    <value>National Cybersecurity Authority</value>
+  </data>
+  <data name="Landing_Index_Regulator_SAMA" xml:space="preserve">
+    <value>Saudi Central Bank</value>
+  </data>
+  <data name="Landing_Index_Regulator_CMA" xml:space="preserve">
+    <value>Capital Market Authority</value>
+  </data>
+  <data name="Landing_Index_Regulator_CITC" xml:space="preserve">
+    <value>Communications &amp; Information Technology Commission</value>
+  </data>
+  <data name="Landing_Index_Regulator_SDAIA" xml:space="preserve">
+    <value>Saudi Data &amp; AI Authority</value>
+  </data>
+  <data name="Landing_Index_Regulator_PDPL" xml:space="preserve">
+    <value>Personal Data Protection Law</value>
+  </data>
+  <data name="Landing_Index_CTA_Title" xml:space="preserve">
+    <value>Start Your Compliance Journey Today</value>
+  </data>
+  <data name="Landing_Index_CTA_Subtitle" xml:space="preserve">
+    <value>7-day free trial with full features. No credit card required.</value>
+  </data>
+  <data name="Landing_Index_CTA_Button" xml:space="preserve">
+    <value>Start Free Trial</value>
+  </data>
+  <data name="Landing_Index_CTA_Contact" xml:space="preserve">
+    <value>Talk to Our Team</value>
+  </data>
+  <data name="Landing_Index_CTA_FeaturesLabel" xml:space="preserve">
+    <value>Trial Features</value>
+  </data>
+  <data name="Landing_Index_CTA_Feature1" xml:space="preserve">
+    <value>All features available</value>
+  </data>
+  <data name="Landing_Index_CTA_Feature2" xml:space="preserve">
+    <value>No credit card required</value>
+  </data>
+  <data name="Landing_Index_CTA_Feature3" xml:space="preserve">
+    <value>Technical support during trial</value>
+  </data>
+  <data name="Landing_Index_CTA_Feature4" xml:space="preserve">
+    <value>Cancel anytime</value>
+  </data>
 </root>

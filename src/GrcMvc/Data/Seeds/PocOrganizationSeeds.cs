@@ -170,7 +170,7 @@ namespace GrcMvc.Data.Seeds
                 OnboardingStartedAt = DateTime.UtcNow.AddDays(-30),
                 OnboardingCompletedAt = DateTime.UtcNow.AddDays(-25),
                 OnboardingCompletedBy = AdminUserId.ToString(),
-                OnboardingStatus = "Completed",
+                OnboardingStatus = "COMPLETED",
                 OnboardingProgressPercent = 100,
                 LastScopeDerivedAt = DateTime.UtcNow.AddDays(-25),
                 CreatedDate = DateTime.UtcNow.AddDays(-30),

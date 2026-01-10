@@ -187,11 +187,54 @@
         
         this.classList.add('was-validated');
         
-        // If valid, proceed (or implement actual submission)
+        // If valid, submit to server
         if (this.checkValidity()) {
             e.preventDefault();
-            // TODO: Implement actual form submission to server
-            alert('@(isRtl ? "شكراً لتواصلك! سنرد عليك قريباً." : "Thank you for contacting us! We will respond soon.")');
+
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>@(isRtl ? "جارٍ الإرسال..." : "Sending...")';
+
+            fetch('/api/support/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify({
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    subject: formData.get('subject'),
+                    message: formData.get('message')
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Submission failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Show success message
+                alert('@(isRtl ? "شكراً لتواصلك! سنرد عليك قريباً." : "Thank you for contacting us! We will respond soon.")');
+
+                // Reset form
+                this.reset();
+                this.classList.remove('was-validated');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('@(isRtl ? "حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى." : "An error occurred while sending. Please try again.")');
+            })
+            .finally(() => {
+                // Restore button state
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
+            });
         }
     });
     

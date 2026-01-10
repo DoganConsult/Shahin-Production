@@ -1,4 +1,7 @@
 @* Welcome Tour Modal - Shown on first login *@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using GrcMvc.Resources
+@inject IHtmlLocalizer<SharedResource> L
 
 @{
     var currentCulture = Context.Request.Cookies["GrcMvc.Culture"] ?? "ar";
@@ -13,30 +16,30 @@
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="welcomeTourModalLabel">
                         <i class="bi bi-rocket me-2"></i>
-                        @(isRtl ? "مرحباً بك في نظام GRC!" : "Welcome to GRC System!")
+                        @L["Shared_WelcomeTour_Title"]
                     </h5>
                 </div>
                 <div class="modal-body text-center py-4">
                     <div class="mb-4">
                         <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
                     </div>
-                    <h4 class="mb-3">@(isRtl ? "حسابك جاهز!" : "Your account is ready!")</h4>
+                    <h4 class="mb-3">@L["Shared_WelcomeTour_AccountReady"]</h4>
                     <p class="lead mb-4">
-                        @(isRtl ? "نحن هنا لمساعدتك في البدء. هل تريد جولة سريعة في النظام؟" : "We're here to help you get started. Would you like a quick tour of the system?")
+                        @L["Shared_WelcomeTour_QuickTourQuestion"]
                     </p>
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle me-2"></i>
-                        @(isRtl ? "الجولة تستغرق دقيقتين فقط وستتعرف على الميزات الرئيسية." : "The tour takes just 2 minutes and will introduce you to key features.")
+                        @L["Shared_WelcomeTour_TourDuration"]
                     </div>
                 </div>
                 <div class="modal-footer justify-content-center">
                     <button type="button" class="btn btn-outline-secondary" onclick="Tour.endTour(); $('#welcomeTourModal').modal('hide');">
                         <i class="bi bi-x-circle me-2"></i>
-                        @(isRtl ? "تخطي" : "Skip Tour")
+                        @L["Shared_WelcomeTour_Skip"]
                     </button>
                     <button type="button" class="btn btn-primary" onclick="Tour.startWelcomeTour(); $('#welcomeTourModal').modal('hide');">
                         <i class="bi bi-play-circle me-2"></i>
-                        @(isRtl ? "ابدأ الجولة" : "Start Tour")
+                        @L["Shared_WelcomeTour_Start"]
                     </button>
                 </div>
             </div>

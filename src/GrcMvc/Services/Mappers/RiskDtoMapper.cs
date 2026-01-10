@@ -1,5 +1,4 @@
 using GrcMvc.Models.DTOs;
-using GrcMvc.Models.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,22 +12,22 @@ namespace GrcMvc.Services.Mappers
     public static class RiskDtoMapper
     {
         // Service DTO → UI DTO (for display)
-        public static RiskListItemDto ToListItemDto(RiskDto serviceDto)
+        public static RiskListItemDto ToListItemDto(RiskDto serviceDto, int mitigationCount = 0)
         {
             return new RiskListItemDto
             {
                 Id = serviceDto.Id,
-                RiskNumber = GenerateRiskNumber(serviceDto.Id), // Generate from ID
-                Title = serviceDto.Name, // Map Name → Title
+                RiskNumber = GenerateRiskNumber(serviceDto.Id),
+                Title = serviceDto.Name,
                 Category = serviceDto.Category,
                 Status = serviceDto.Status,
-                InherentScore = serviceDto.InherentRisk, // Map InherentRisk → InherentScore
-                ResidualScore = serviceDto.ResidualRisk, // Map ResidualRisk → ResidualScore
-                ResidualRating = CalculateRating(serviceDto.ResidualRisk), // Calculate from score
-                ResponsibleParty = serviceDto.Owner, // Map Owner → ResponsibleParty
-                IdentifiedDate = serviceDto.CreatedDate, // Use CreatedDate as IdentifiedDate
+                InherentScore = serviceDto.InherentRisk,
+                ResidualScore = serviceDto.ResidualRisk,
+                ResidualRating = CalculateRating(serviceDto.ResidualRisk),
+                ResponsibleParty = serviceDto.Owner,
+                IdentifiedDate = serviceDto.CreatedDate,
                 TargetClosureDate = serviceDto.DueDate,
-                MitigationCount = 0 // TODO: Get from mitigations when available
+                MitigationCount = mitigationCount
             };
         }
 

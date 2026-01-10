@@ -12,7 +12,7 @@ using GrcMvc.Data;
 
 // Get connection string from environment or config
 var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") 
-    ?? "Host=localhost;Database=GrcAuthDb;Username=postgres;Password=postgres;Port=5433";
+    ?? "Host=localhost;Database=GrcAuthDb;Username=postgres;Password=postgres;Port=5432";
 
 var args = Environment.GetCommandLineArgs();
 if (args.Length < 5)

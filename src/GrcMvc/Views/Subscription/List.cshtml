@@ -1,4 +1,5 @@
 @model List<GrcMvc.Models.DTOs.SubscriptionDto>
+@inject Microsoft.Extensions.Localization.IStringLocalizer<GrcMvc.Resources.SharedResource> L
 
 @{
     ViewData["Title"] = "My Subscriptions";
@@ -143,17 +144,115 @@
 </div>
 
 <script>
-    function changePlan(subscriptionId) {
-        // TODO: Load available plans and show change plan modal
-        alert('Change plan for subscription: ' + subscriptionId);
+    async function changePlan(subscriptionId) {
+        try {
+            // Load available subscription plans
+            const response = await fetch('/api/subscription/available-plans');
+            if (!response.ok) {
+                throw new Error('Failed to load plans');
+            }
+
+            const plans = await response.json();
+
+            // Build modal content
+            let modalContent = `
+                <div class="modal fade" id="changePlanModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">@L["Change Subscription Plan"]</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row g-3">`;
+
+            plans.forEach(plan => {
+                modalContent += `
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <h5 class="card-title">${plan.name}</h5>
+                                                <p class="card-text">${plan.description || ''}</p>
+                                                <h3 class="text-primary">$${plan.monthlyPriceUSD}/mo</h3>
+                                                <ul class="list-unstyled mt-3">
+                                                    <li><i class="fas fa-check text-success"></i> ${plan.maxUsers || 'Unlimited'} users</li>
+                                                    <li><i class="fas fa-check text-success"></i> ${plan.maxAssessments || 'Unlimited'} assessments</li>
+                                                </ul>
+                                                <button class="btn btn-primary w-100" onclick="confirmPlanChange('${subscriptionId}', '${plan.id}')">
+                                                    @L["Select Plan"]
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>`;
+            });
+
+            modalContent += `
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+            // Insert modal into DOM and show
+            const existingModal = document.getElementById('changePlanModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            document.body.insertAdjacentHTML('beforeend', modalContent);
+
+            const modal = new bootstrap.Modal(document.getElementById('changePlanModal'));
+            modal.show();
+        } catch (error) {
+            console.error('Error loading plans:', error);
+            alert('@L["Failed to load available plans. Please try again."]');
+        }
     }
 
-    function cancelSubscription(subscriptionId) {
-        if (!confirm('Are you sure you want to cancel this subscription?')) {
+    async function confirmPlanChange(subscriptionId, newPlanId) {
+        try {
+            const response = await fetch(`/api/subscription/${subscriptionId}/change-plan`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ newPlanId })
+            });
+
+            if (!response.ok) {
+                throw new Error('Plan change failed');
+            }
+
+            alert('@L["Plan changed successfully!"]');
+            window.location.reload();
+        } catch (error) {
+            console.error('Error changing plan:', error);
+            alert('@L["Failed to change plan. Please try again."]');
+        }
+    }
+
+    async function cancelSubscription(subscriptionId) {
+        if (!confirm('@L["Are you sure you want to cancel this subscription? This action cannot be undone."]')) {
             return;
         }
 
-        // TODO: Call API to cancel subscription
-        alert('Cancelling subscription: ' + subscriptionId);
+        try {
+            const response = await fetch(`/api/subscription/${subscriptionId}/cancel`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Cancellation failed');
+            }
+
+            const result = await response.json();
+            alert('@L["Subscription cancelled successfully. Access will continue until the end of the billing period."]');
+            window.location.reload();
+        } catch (error) {
+            console.error('Error cancelling subscription:', error);
+            alert('@L["Failed to cancel subscription. Please contact support."]');
+        }
     }
 </script>
