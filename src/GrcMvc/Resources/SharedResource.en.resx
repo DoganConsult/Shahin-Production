@@ -2492,6 +2492,91 @@
   <data name="Risk_CriticalRisk" xml:space="preserve">
     <value>Critical Risk</value>
   </data>
+  <!-- Risk Appetite Settings -->
+  <data name="RiskAppetite_Title" xml:space="preserve">
+    <value>Risk Appetite Settings</value>
+  </data>
+  <data name="RiskAppetite_Create" xml:space="preserve">
+    <value>Create Risk Appetite</value>
+  </data>
+  <data name="RiskAppetite_Edit" xml:space="preserve">
+    <value>Edit Risk Appetite</value>
+  </data>
+  <data name="RiskAppetite_Category" xml:space="preserve">
+    <value>Risk Category</value>
+  </data>
+  <data name="RiskAppetite_Name" xml:space="preserve">
+    <value>Setting Name</value>
+  </data>
+  <data name="RiskAppetite_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="RiskAppetite_MinimumScore" xml:space="preserve">
+    <value>Minimum Risk Score</value>
+  </data>
+  <data name="RiskAppetite_MaximumScore" xml:space="preserve">
+    <value>Maximum Risk Score</value>
+  </data>
+  <data name="RiskAppetite_TargetScore" xml:space="preserve">
+    <value>Target Risk Score</value>
+  </data>
+  <data name="RiskAppetite_TolerancePercentage" xml:space="preserve">
+    <value>Tolerance (%)</value>
+  </data>
+  <data name="RiskAppetite_ImpactThreshold" xml:space="preserve">
+    <value>Impact Threshold</value>
+  </data>
+  <data name="RiskAppetite_LikelihoodThreshold" xml:space="preserve">
+    <value>Likelihood Threshold</value>
+  </data>
+  <data name="RiskAppetite_IsActive" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="RiskAppetite_ApprovedDate" xml:space="preserve">
+    <value>Approved Date</value>
+  </data>
+  <data name="RiskAppetite_ApprovedBy" xml:space="preserve">
+    <value>Approved By</value>
+  </data>
+  <data name="RiskAppetite_ExpiryDate" xml:space="preserve">
+    <value>Expiry Date</value>
+  </data>
+  <data name="RiskAppetite_ReviewReminder" xml:space="preserve">
+    <value>Review Reminder (Days)</value>
+  </data>
+  <data name="RiskAppetite_Approve" xml:space="preserve">
+    <value>Approve</value>
+  </data>
+  <data name="RiskAppetite_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="RiskAppetite_Comparison" xml:space="preserve">
+    <value>Risk Appetite Comparison</value>
+  </data>
+  <data name="RiskAppetite_Summary" xml:space="preserve">
+    <value>Appetite Summary</value>
+  </data>
+  <data name="RiskAppetite_Status_UnderControlled" xml:space="preserve">
+    <value>Under-controlled</value>
+  </data>
+  <data name="RiskAppetite_Status_OnTarget" xml:space="preserve">
+    <value>On Target</value>
+  </data>
+  <data name="RiskAppetite_Status_WithinAppetite" xml:space="preserve">
+    <value>Within Appetite</value>
+  </data>
+  <data name="RiskAppetite_Status_AtTolerance" xml:space="preserve">
+    <value>At Tolerance</value>
+  </data>
+  <data name="RiskAppetite_Status_Exceeded" xml:space="preserve">
+    <value>Exceeded</value>
+  </data>
+  <data name="RiskAppetite_CompliancePercentage" xml:space="preserve">
+    <value>Compliance %</value>
+  </data>
+  <data name="RiskAppetite_ExpiringSoon" xml:space="preserve">
+    <value>Expiring Soon</value>
+  </data>
   <data name="Landing_Index_Timeline_Step1_Title" xml:space="preserve">
     <value>Assessment</value>
   </data>
@@ -2629,5 +2714,1020 @@
   </data>
   <data name="Landing_Index_CTA_Feature4" xml:space="preserve">
     <value>Cancel anytime</value>
+  </data>
+  <!-- ========================================= -->
+  <!-- API LOCALIZATION RESOURCES - ENGLISH -->
+  <!-- Added: 2026-01-10 -->
+  <!-- Total: 336 new API resource keys -->
+  <!-- ========================================= -->
+
+  <!-- CATEGORY 1: NOT FOUND ERRORS (38 keys) -->
+  <data name="Api_Error_AgentNotFound" xml:space="preserve">
+    <value>Agent not found</value>
+  </data>
+  <data name="Api_Error_AssetNotFound" xml:space="preserve">
+    <value>Asset not found</value>
+  </data>
+  <data name="Api_Error_AuditNotFound" xml:space="preserve">
+    <value>Audit not found</value>
+  </data>
+  <data name="Api_Error_BaselineNotFound" xml:space="preserve">
+    <value>Baseline not found</value>
+  </data>
+  <data name="Api_Error_CertificationNotFound" xml:space="preserve">
+    <value>Certification not found</value>
+  </data>
+  <data name="Api_Error_ControlNotFound" xml:space="preserve">
+    <value>Control not found</value>
+  </data>
+  <data name="Api_Error_EvidenceNotFound" xml:space="preserve">
+    <value>Evidence not found</value>
+  </data>
+  <data name="Api_Error_EvidenceTypeNotFound" xml:space="preserve">
+    <value>Evidence type not found</value>
+  </data>
+  <data name="Api_Error_EvidenceWorkflowNotFound" xml:space="preserve">
+    <value>Evidence workflow not found</value>
+  </data>
+  <data name="Api_Error_ExceptionNotFound" xml:space="preserve">
+    <value>Exception not found</value>
+  </data>
+  <data name="Api_Error_FrameworkNotFound" xml:space="preserve">
+    <value>Framework not found</value>
+  </data>
+  <data name="Api_Error_GapNotFound" xml:space="preserve">
+    <value>Gap not found</value>
+  </data>
+  <data name="Api_Error_IncidentNotFound" xml:space="preserve">
+    <value>Incident not found</value>
+  </data>
+  <data name="Api_Error_MailboxNotFound" xml:space="preserve">
+    <value>Mailbox not found</value>
+  </data>
+  <data name="Api_Error_NoRemediationPlanFound" xml:space="preserve">
+    <value>No remediation plan found</value>
+  </data>
+  <data name="Api_Error_PackageNotFound" xml:space="preserve">
+    <value>Package not found</value>
+  </data>
+  <data name="Api_Error_PlatformAdminNotFound" xml:space="preserve">
+    <value>Platform admin not found</value>
+  </data>
+  <data name="Api_Error_PolicyNotFound" xml:space="preserve">
+    <value>Policy not found</value>
+  </data>
+  <data name="Api_Error_ReportNotFound" xml:space="preserve">
+    <value>Report not found</value>
+  </data>
+  <data name="Api_Error_ResilienceAssessmentNotFound" xml:space="preserve">
+    <value>Resilience assessment not found</value>
+  </data>
+  <data name="Api_Error_RoleNotFound" xml:space="preserve">
+    <value>Role not found</value>
+  </data>
+  <data name="Api_Error_RuleNotFound" xml:space="preserve">
+    <value>Rule not found</value>
+  </data>
+  <data name="Api_Error_RulesetNotFound" xml:space="preserve">
+    <value>Ruleset not found</value>
+  </data>
+  <data name="Api_Error_SmtpSettingsNotFound" xml:space="preserve">
+    <value>SMTP settings not found</value>
+  </data>
+  <data name="Api_Error_TemplateNotFound" xml:space="preserve">
+    <value>Template not found</value>
+  </data>
+  <data name="Api_Error_TestNotFound" xml:space="preserve">
+    <value>Test not found</value>
+  </data>
+  <data name="Api_Error_ThreadNotFound" xml:space="preserve">
+    <value>Thread not found</value>
+  </data>
+  <data name="Api_Error_TitleNotFound" xml:space="preserve">
+    <value>Title not found</value>
+  </data>
+  <data name="Api_Error_UserNotFound" xml:space="preserve">
+    <value>User not found</value>
+  </data>
+  <data name="Api_Error_TenantNotFound" xml:space="preserve">
+    <value>Tenant not found</value>
+  </data>
+  <data name="Api_Error_WorkflowDefinitionNotFound" xml:space="preserve">
+    <value>Workflow definition not found</value>
+  </data>
+  <data name="Api_Error_WorkflowNotFound" xml:space="preserve">
+    <value>Workflow not found</value>
+  </data>
+  <data name="Api_Error_WorkspaceNotFound" xml:space="preserve">
+    <value>Workspace not found</value>
+  </data>
+  <data name="Api_Error_OrganizationProfileNotFound" xml:space="preserve">
+    <value>Organization profile not found</value>
+  </data>
+  <data name="Api_Error_OrganizationProfileNotFoundSectorRequired" xml:space="preserve">
+    <value>Organization profile not found. Please provide sector parameter.</value>
+  </data>
+  <data name="Api_Error_RegulatorNotFound" xml:space="preserve">
+    <value>Regulator not found</value>
+  </data>
+  <data name="Api_Error_NoSubscriptionExists" xml:space="preserve">
+    <value>No subscription exists</value>
+  </data>
+  <data name="Api_Error_NoOwnerAssigned" xml:space="preserve">
+    <value>No owner assigned</value>
+  </data>
+
+  <!-- CATEGORY 2: VALIDATION ERRORS (27 keys) -->
+  <data name="Api_Error_ActionRequired" xml:space="preserve">
+    <value>Action is required</value>
+  </data>
+  <data name="Api_Error_CodeRequired" xml:space="preserve">
+    <value>Code is required</value>
+  </data>
+  <data name="Api_Error_EmailNewPasswordRequired" xml:space="preserve">
+    <value>Email and new password are required</value>
+  </data>
+  <data name="Api_Error_EmailPasswordRequired" xml:space="preserve">
+    <value>Email and password are required</value>
+  </data>
+  <data name="Api_Error_EmailRequired" xml:space="preserve">
+    <value>Email is required</value>
+  </data>
+  <data name="Api_Error_ErrorIdRequired" xml:space="preserve">
+    <value>Error ID is required</value>
+  </data>
+  <data name="Api_Error_FileMustBeCsv" xml:space="preserve">
+    <value>File must be a CSV file</value>
+  </data>
+  <data name="Api_Error_FilePathRequired" xml:space="preserve">
+    <value>File path is required</value>
+  </data>
+  <data name="Api_Error_UserFieldsRequired" xml:space="preserve">
+    <value>First name, last name, email, and password are required</value>
+  </data>
+  <data name="Api_Error_FrameworkCodeRequired" xml:space="preserve">
+    <value>Framework code is required</value>
+  </data>
+  <data name="Api_Error_MessageRequired" xml:space="preserve">
+    <value>Message is required</value>
+  </data>
+  <data name="Api_Error_NoFileProvided" xml:space="preserve">
+    <value>No file provided</value>
+  </data>
+  <data name="Api_Error_NoFileUploaded" xml:space="preserve">
+    <value>No file uploaded</value>
+  </data>
+  <data name="Api_Error_OrgNameEmailRequired" xml:space="preserve">
+    <value>Organization name and admin email are required</value>
+  </data>
+  <data name="Api_Error_PlanNameRequired" xml:space="preserve">
+    <value>Plan name is required</value>
+  </data>
+  <data name="Api_Error_ProblemDescriptionRequired" xml:space="preserve">
+    <value>Problem description is required</value>
+  </data>
+  <data name="Api_Error_QuestionRequired" xml:space="preserve">
+    <value>Question is required</value>
+  </data>
+  <data name="Api_Error_ReopenReasonRequired" xml:space="preserve">
+    <value>Reason is required for reopening</value>
+  </data>
+  <data name="Api_Error_RejectionReasonRequired" xml:space="preserve">
+    <value>Rejection reason is required</value>
+  </data>
+  <data name="Api_Error_RequestBodyRequired" xml:space="preserve">
+    <value>Request body is required</value>
+  </data>
+  <data name="Api_Error_RoleCodeRequired" xml:space="preserve">
+    <value>Role code is required</value>
+  </data>
+  <data name="Api_Error_SearchQueryRequired" xml:space="preserve">
+    <value>Search query is required</value>
+  </data>
+  <data name="Api_Error_TitleRequired" xml:space="preserve">
+    <value>Title is required</value>
+  </data>
+  <data name="Api_Error_UserIdRequired" xml:space="preserve">
+    <value>User ID is required</value>
+  </data>
+  <data name="Api_Error_WorkspaceIdRequired" xml:space="preserve">
+    <value>Workspace ID is required</value>
+  </data>
+  <data name="Api_Error_AuditSelectionRequired" xml:space="preserve">
+    <value>Audit reports require specific audit selection</value>
+  </data>
+  <data name="Api_Error_ControlSelectionRequired" xml:space="preserve">
+    <value>Control reports require specific control selection</value>
+  </data>
+
+  <!-- CATEGORY 3: SERVER ERRORS / OPERATION FAILURES (83 keys) -->
+  <data name="Api_Error_FailedToAddMember" xml:space="preserve">
+    <value>Failed to add member</value>
+  </data>
+  <data name="Api_Error_FailedToAnalyzeErrors" xml:space="preserve">
+    <value>Failed to analyze errors</value>
+  </data>
+  <data name="Api_Error_FailedToAnalyzeHealth" xml:space="preserve">
+    <value>Failed to analyze health</value>
+  </data>
+  <data name="Api_Error_FailedToAnalyzeRootCause" xml:space="preserve">
+    <value>Failed to analyze root cause</value>
+  </data>
+  <data name="Api_Error_FailedToAssignOwner" xml:space="preserve">
+    <value>Failed to assign owner</value>
+  </data>
+  <data name="Api_Error_FailedToCheckPermission" xml:space="preserve">
+    <value>Failed to check permission</value>
+  </data>
+  <data name="Api_Error_FailedToCreateAsset" xml:space="preserve">
+    <value>Failed to create asset</value>
+  </data>
+  <data name="Api_Error_FailedToCreatePlatformAdmin" xml:space="preserve">
+    <value>Failed to create platform admin</value>
+  </data>
+  <data name="Api_Error_FailedToCreateReport" xml:space="preserve">
+    <value>Failed to create report</value>
+  </data>
+  <data name="Api_Error_FailedToCreateTenant" xml:space="preserve">
+    <value>Failed to create tenant</value>
+  </data>
+  <data name="Api_Error_FailedToCreateUser" xml:space="preserve">
+    <value>Failed to create user. Check logs for details.</value>
+  </data>
+  <data name="Api_Error_FailedToCreateWorkspace" xml:space="preserve">
+    <value>Failed to create workspace</value>
+  </data>
+  <data name="Api_Error_FailedToDeleteAsset" xml:space="preserve">
+    <value>Failed to delete asset</value>
+  </data>
+  <data name="Api_Error_FailedToDeletePlatformAdmin" xml:space="preserve">
+    <value>Failed to delete platform admin</value>
+  </data>
+  <data name="Api_Error_FailedToDeleteReport" xml:space="preserve">
+    <value>Failed to delete report</value>
+  </data>
+  <data name="Api_Error_FailedToDetectPatterns" xml:space="preserve">
+    <value>Failed to detect patterns</value>
+  </data>
+  <data name="Api_Error_FailedToDiagnoseError" xml:space="preserve">
+    <value>Failed to diagnose error</value>
+  </data>
+  <data name="Api_Error_FailedToDownloadReport" xml:space="preserve">
+    <value>Failed to download report</value>
+  </data>
+  <data name="Api_Error_FailedToExportReport" xml:space="preserve">
+    <value>Failed to export report</value>
+  </data>
+  <data name="Api_Error_FailedToForcePasswordChange" xml:space="preserve">
+    <value>Failed to force password change</value>
+  </data>
+  <data name="Api_Error_FailedToGenerateExecutiveSummary" xml:space="preserve">
+    <value>Failed to generate executive summary</value>
+  </data>
+  <data name="Api_Error_FailedToGenerateReport" xml:space="preserve">
+    <value>Failed to generate report</value>
+  </data>
+  <data name="Api_Error_FailedToGetAlerts" xml:space="preserve">
+    <value>Failed to get alerts</value>
+  </data>
+  <data name="Api_Error_FailedToGetAllowedTenants" xml:space="preserve">
+    <value>Failed to get allowed tenants</value>
+  </data>
+  <data name="Api_Error_FailedToGetCurrentWorkspace" xml:space="preserve">
+    <value>Failed to get current workspace</value>
+  </data>
+  <data name="Api_Error_FailedToGetMembers" xml:space="preserve">
+    <value>Failed to get members</value>
+  </data>
+  <data name="Api_Error_FailedToGetMetrics" xml:space="preserve">
+    <value>Failed to get metrics</value>
+  </data>
+  <data name="Api_Error_FailedToGetRecommendations" xml:space="preserve">
+    <value>Failed to get recommendations</value>
+  </data>
+  <data name="Api_Error_FailedToGetWorkspace" xml:space="preserve">
+    <value>Failed to get workspace</value>
+  </data>
+  <data name="Api_Error_FailedToImportAssets" xml:space="preserve">
+    <value>Failed to import assets</value>
+  </data>
+  <data name="Api_Error_FailedToListWorkspaces" xml:space="preserve">
+    <value>Failed to list workspaces</value>
+  </data>
+  <data name="Api_Error_FailedToLoadAlerts" xml:space="preserve">
+    <value>Failed to load alerts</value>
+  </data>
+  <data name="Api_Error_FailedToLoadApiMetrics" xml:space="preserve">
+    <value>Failed to load API metrics</value>
+  </data>
+  <data name="Api_Error_FailedToLoadAuditReadiness" xml:space="preserve">
+    <value>Failed to load audit readiness</value>
+  </data>
+  <data name="Api_Error_FailedToLoadAuthAnomalies" xml:space="preserve">
+    <value>Failed to load authentication anomalies</value>
+  </data>
+  <data name="Api_Error_FailedToLoadDataFreshness" xml:space="preserve">
+    <value>Failed to load data freshness</value>
+  </data>
+  <data name="Api_Error_FailedToLoadDataQualityDashboard" xml:space="preserve">
+    <value>Failed to load data quality dashboard</value>
+  </data>
+  <data name="Api_Error_FailedToLoadEvidenceGaps" xml:space="preserve">
+    <value>Failed to load evidence gaps</value>
+  </data>
+  <data name="Api_Error_FailedToLoadExecutiveDashboard" xml:space="preserve">
+    <value>Failed to load executive dashboard</value>
+  </data>
+  <data name="Api_Error_FailedToLoadIntegrationHealth" xml:space="preserve">
+    <value>Failed to load integration health</value>
+  </data>
+  <data name="Api_Error_FailedToLoadMissingMappings" xml:space="preserve">
+    <value>Failed to load missing mappings</value>
+  </data>
+  <data name="Api_Error_FailedToLoadOperationsDashboard" xml:space="preserve">
+    <value>Failed to load operations dashboard</value>
+  </data>
+  <data name="Api_Error_FailedToLoadOrphanRecords" xml:space="preserve">
+    <value>Failed to load orphan records</value>
+  </data>
+  <data name="Api_Error_FailedToLoadOwnerWorkload" xml:space="preserve">
+    <value>Failed to load owner workload</value>
+  </data>
+  <data name="Api_Error_FailedToLoadSecurityDashboard" xml:space="preserve">
+    <value>Failed to load security dashboard</value>
+  </data>
+  <data name="Api_Error_FailedToLoadSlaBreaches" xml:space="preserve">
+    <value>Failed to load SLA breaches</value>
+  </data>
+  <data name="Api_Error_FailedToLoadTenantOverview" xml:space="preserve">
+    <value>Failed to load tenant overview</value>
+  </data>
+  <data name="Api_Error_FailedToLoadTenantsSummary" xml:space="preserve">
+    <value>Failed to load tenants summary</value>
+  </data>
+  <data name="Api_Error_FailedToLoadWorkQueue" xml:space="preserve">
+    <value>Failed to load work queue</value>
+  </data>
+  <data name="Api_Error_FailedToMonitorConditions" xml:space="preserve">
+    <value>Failed to monitor conditions</value>
+  </data>
+  <data name="Api_Error_FailedToProcessRequest" xml:space="preserve">
+    <value>Failed to process request</value>
+  </data>
+  <data name="Api_Error_FailedToReactivatePlatformAdmin" xml:space="preserve">
+    <value>Failed to reactivate platform admin</value>
+  </data>
+  <data name="Api_Error_FailedToRemoveMember" xml:space="preserve">
+    <value>Failed to remove member</value>
+  </data>
+  <data name="Api_Error_FailedToReorderRules" xml:space="preserve">
+    <value>Failed to reorder rules</value>
+  </data>
+  <data name="Api_Error_FailedToResetPassword" xml:space="preserve">
+    <value>Failed to reset password</value>
+  </data>
+  <data name="Api_Error_FailedToRestartTenantAdmin" xml:space="preserve">
+    <value>Failed to restart tenant admin</value>
+  </data>
+  <data name="Api_Error_FailedToRestartTenantAdminPermissions" xml:space="preserve">
+    <value>Failed to restart tenant admin - check permissions</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveActiveAdmins" xml:space="preserve">
+    <value>Failed to retrieve active admins</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveAsset" xml:space="preserve">
+    <value>Failed to retrieve asset</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveAssetSummary" xml:space="preserve">
+    <value>Failed to retrieve asset summary</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveAssets" xml:space="preserve">
+    <value>Failed to retrieve assets</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveCounts" xml:space="preserve">
+    <value>Failed to retrieve counts</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveInScopeAssets" xml:space="preserve">
+    <value>Failed to retrieve in-scope assets</value>
+  </data>
+  <data name="Api_Error_FailedToRetrievePciAssets" xml:space="preserve">
+    <value>Failed to retrieve PCI assets</value>
+  </data>
+  <data name="Api_Error_FailedToRetrievePiiAssets" xml:space="preserve">
+    <value>Failed to retrieve PII assets</value>
+  </data>
+  <data name="Api_Error_FailedToRetrievePlatformAdmin" xml:space="preserve">
+    <value>Failed to retrieve platform admin</value>
+  </data>
+  <data name="Api_Error_FailedToRetrievePlatformAdmins" xml:space="preserve">
+    <value>Failed to retrieve platform admins</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveProfile" xml:space="preserve">
+    <value>Failed to retrieve profile</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveReport" xml:space="preserve">
+    <value>Failed to retrieve report</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveUnassignedAssets" xml:space="preserve">
+    <value>Failed to retrieve unassigned assets</value>
+  </data>
+  <data name="Api_Error_FailedToSendTestAlert" xml:space="preserve">
+    <value>Failed to send test alert</value>
+  </data>
+  <data name="Api_Error_FailedToSetDefaultWorkspace" xml:space="preserve">
+    <value>Failed to set default workspace</value>
+  </data>
+  <data name="Api_Error_FailedToSetNewPassword" xml:space="preserve">
+    <value>Failed to set new password</value>
+  </data>
+  <data name="Api_Error_FailedToSuspendPlatformAdmin" xml:space="preserve">
+    <value>Failed to suspend platform admin</value>
+  </data>
+  <data name="Api_Error_FailedToSwitchWorkspace" xml:space="preserve">
+    <value>Failed to switch workspace</value>
+  </data>
+  <data name="Api_Error_FailedToTriggerAudit" xml:space="preserve">
+    <value>Failed to trigger audit</value>
+  </data>
+  <data name="Api_Error_FailedToTriggerScan" xml:space="preserve">
+    <value>Failed to trigger scan</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateAsset" xml:space="preserve">
+    <value>Failed to update asset</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateClassification" xml:space="preserve">
+    <value>Failed to update classification</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateConfiguration" xml:space="preserve">
+    <value>Failed to update configuration</value>
+  </data>
+  <data name="Api_Error_FailedToUpdatePlatformAdmin" xml:space="preserve">
+    <value>Failed to update platform admin</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateReport" xml:space="preserve">
+    <value>Failed to update report</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateScope" xml:space="preserve">
+    <value>Failed to update scope</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateWorkspace" xml:space="preserve">
+    <value>Failed to update workspace</value>
+  </data>
+  <data name="Api_Error_FailedToDeliverReport" xml:space="preserve">
+    <value>Failed to deliver report</value>
+  </data>
+
+  <!-- CATEGORY 4: OPERATION ERRORS (42 keys) -->
+  <data name="Api_Error_AnalysisFailed" xml:space="preserve">
+    <value>Analysis failed</value>
+  </data>
+  <data name="Api_Error_ApprovingEvidence" xml:space="preserve">
+    <value>Error approving evidence</value>
+  </data>
+  <data name="Api_Error_ApprovingException" xml:space="preserve">
+    <value>Error approving exception</value>
+  </data>
+  <data name="Api_Error_ApprovingPolicy" xml:space="preserve">
+    <value>Error approving policy</value>
+  </data>
+  <data name="Api_Error_CalculatingBenchmark" xml:space="preserve">
+    <value>Error calculating benchmark</value>
+  </data>
+  <data name="Api_Error_CalculatingCompliance" xml:space="preserve">
+    <value>Error calculating compliance</value>
+  </data>
+  <data name="Api_Error_CalculatingEffectiveness" xml:space="preserve">
+    <value>Error calculating effectiveness</value>
+  </data>
+  <data name="Api_Error_CalculatingExcellence" xml:space="preserve">
+    <value>Error calculating excellence</value>
+  </data>
+  <data name="Api_Error_CalculatingMaturity" xml:space="preserve">
+    <value>Error calculating maturity</value>
+  </data>
+  <data name="Api_Error_CalculatingReadiness" xml:space="preserve">
+    <value>Error calculating readiness</value>
+  </data>
+  <data name="Api_Error_CalculatingResilience" xml:space="preserve">
+    <value>Error calculating resilience</value>
+  </data>
+  <data name="Api_Error_CalculatingRiskPosture" xml:space="preserve">
+    <value>Error calculating risk posture</value>
+  </data>
+  <data name="Api_Error_ClosingGap" xml:space="preserve">
+    <value>Error closing gap</value>
+  </data>
+  <data name="Api_Error_CreatingException" xml:space="preserve">
+    <value>Error creating exception</value>
+  </data>
+  <data name="Api_Error_CreatingGap" xml:space="preserve">
+    <value>Error creating gap</value>
+  </data>
+  <data name="Api_Error_CreatingRemediationPlan" xml:space="preserve">
+    <value>Error creating remediation plan</value>
+  </data>
+  <data name="Api_Error_ExecutingAssessment" xml:space="preserve">
+    <value>Error executing assessment</value>
+  </data>
+  <data name="Api_Error_GeneratingReport" xml:space="preserve">
+    <value>Error generating report</value>
+  </data>
+  <data name="Api_Error_IdentifyingGaps" xml:space="preserve">
+    <value>Error identifying gaps</value>
+  </data>
+  <data name="Api_Error_InitializingCycle" xml:space="preserve">
+    <value>Error initializing cycle</value>
+  </data>
+  <data name="Api_Error_InitiatingWorkflow" xml:space="preserve">
+    <value>Error initiating workflow</value>
+  </data>
+  <data name="Api_Error_LoadingAgingReport" xml:space="preserve">
+    <value>Error loading aging report</value>
+  </data>
+  <data name="Api_Error_LoadingApprovals" xml:space="preserve">
+    <value>Error loading approvals</value>
+  </data>
+  <data name="Api_Error_LoadingDashboard" xml:space="preserve">
+    <value>Error loading dashboard</value>
+  </data>
+  <data name="Api_Error_LoadingDeadlines" xml:space="preserve">
+    <value>Error loading deadlines</value>
+  </data>
+  <data name="Api_Error_LoadingEvidenceData" xml:space="preserve">
+    <value>Error loading evidence data</value>
+  </data>
+  <data name="Api_Error_LoadingExceptionData" xml:space="preserve">
+    <value>Error loading exception data</value>
+  </data>
+  <data name="Api_Error_LoadingGap" xml:space="preserve">
+    <value>Error loading gap</value>
+  </data>
+  <data name="Api_Error_LoadingGaps" xml:space="preserve">
+    <value>Error loading gaps</value>
+  </data>
+  <data name="Api_Error_LoadingImprovementData" xml:space="preserve">
+    <value>Error loading improvement data</value>
+  </data>
+  <data name="Api_Error_LoadingLifecycle" xml:space="preserve">
+    <value>Error loading lifecycle</value>
+  </data>
+  <data name="Api_Error_LoadingMapping" xml:space="preserve">
+    <value>Error loading mapping</value>
+  </data>
+  <data name="Api_Error_LoadingPolicyData" xml:space="preserve">
+    <value>Error loading policy data</value>
+  </data>
+  <data name="Api_Error_LoadingRemediationData" xml:space="preserve">
+    <value>Error loading remediation data</value>
+  </data>
+  <data name="Api_Error_LoadingRemediationPlan" xml:space="preserve">
+    <value>Error loading remediation plan</value>
+  </data>
+  <data name="Api_Error_LoadingRiskData" xml:space="preserve">
+    <value>Error loading risk data</value>
+  </data>
+  <data name="Api_Error_LoadingSummary" xml:space="preserve">
+    <value>Error loading summary</value>
+  </data>
+  <data name="Api_Error_LoadingTestingData" xml:space="preserve">
+    <value>Error loading testing data</value>
+  </data>
+  <data name="Api_Error_LoadingTrendData" xml:space="preserve">
+    <value>Error loading trend data</value>
+  </data>
+  <data name="Api_Error_RejectingException" xml:space="preserve">
+    <value>Error rejecting exception</value>
+  </data>
+  <data name="Api_Error_RejectingPolicy" xml:space="preserve">
+    <value>Error rejecting policy</value>
+  </data>
+  <data name="Api_Error_ReopeningGap" xml:space="preserve">
+    <value>Error reopening gap</value>
+  </data>
+  <data name="Api_Error_SubmittingEvidence" xml:space="preserve">
+    <value>Error submitting evidence</value>
+  </data>
+  <data name="Api_Error_SubmittingForValidation" xml:space="preserve">
+    <value>Error submitting for validation</value>
+  </data>
+  <data name="Api_Error_UpdatingProgress" xml:space="preserve">
+    <value>Error updating progress</value>
+  </data>
+  <data name="Api_Error_ValidatingGap" xml:space="preserve">
+    <value>Error validating gap</value>
+  </data>
+
+  <!-- CATEGORY 5: GENERIC LOAD/DISPLAY ERRORS (16 keys) -->
+  <data name="Api_Error_Generic" xml:space="preserve">
+    <value>An error occurred</value>
+  </data>
+  <data name="Api_Error_AddingNote" xml:space="preserve">
+    <value>An error occurred while adding note</value>
+  </data>
+  <data name="Api_Error_CalculatingDomainProgress" xml:space="preserve">
+    <value>An error occurred while calculating domain progress</value>
+  </data>
+  <data name="Api_Error_CalculatingProgress" xml:space="preserve">
+    <value>An error occurred while calculating progress</value>
+  </data>
+  <data name="Api_Error_DeletingNote" xml:space="preserve">
+    <value>An error occurred while deleting note</value>
+  </data>
+  <data name="Api_Error_ExportingAssessment" xml:space="preserve">
+    <value>An error occurred while exporting assessment</value>
+  </data>
+  <data name="Api_Error_FetchingStatistics" xml:space="preserve">
+    <value>An error occurred while fetching statistics</value>
+  </data>
+  <data name="Api_Error_LoadingAssessmentData" xml:space="preserve">
+    <value>An error occurred while loading assessment data</value>
+  </data>
+  <data name="Api_Error_LoadingEvidence" xml:space="preserve">
+    <value>An error occurred while loading evidence</value>
+  </data>
+  <data name="Api_Error_LoadingNotes" xml:space="preserve">
+    <value>An error occurred while loading notes</value>
+  </data>
+  <data name="Api_Error_LoadingRequirement" xml:space="preserve">
+    <value>An error occurred while loading requirement</value>
+  </data>
+  <data name="Api_Error_LoadingRequirements" xml:space="preserve">
+    <value>An error occurred while loading requirements</value>
+  </data>
+  <data name="Api_Error_SendingInvitation" xml:space="preserve">
+    <value>An error occurred while sending the invitation</value>
+  </data>
+  <data name="Api_Error_UpdatingScore" xml:space="preserve">
+    <value>An error occurred while updating score</value>
+  </data>
+  <data name="Api_Error_UpdatingStatus" xml:space="preserve">
+    <value>An error occurred while updating status</value>
+  </data>
+  <data name="Api_Error_UploadingEvidence" xml:space="preserve">
+    <value>An error occurred while uploading evidence</value>
+  </data>
+
+  <!-- CATEGORY 6: PERMISSION / AUTHORIZATION ERRORS (6 keys) -->
+  <data name="Api_Error_CannotDeleteOwnerAdmin" xml:space="preserve">
+    <value>Cannot delete this admin (may be Owner level)</value>
+  </data>
+  <data name="Api_Error_CannotSuspendOwnerAdmin" xml:space="preserve">
+    <value>Cannot suspend this admin (may be Owner level)</value>
+  </data>
+  <data name="Api_Error_PasswordChangePermissions" xml:space="preserve">
+    <value>Force password change failed - check permissions</value>
+  </data>
+  <data name="Api_Error_InvalidPermission" xml:space="preserve">
+    <value>Invalid permission</value>
+  </data>
+  <data name="Api_Error_NotPlatformAdmin" xml:space="preserve">
+    <value>You are not a platform admin</value>
+  </data>
+  <data name="Api_Error_MailboxNoGraphUserId" xml:space="preserve">
+    <value>Mailbox has no Graph user ID</value>
+  </data>
+
+  <!-- CATEGORY 7: CONFIGURATION / SYSTEM ERRORS (10 keys) -->
+  <data name="Api_Error_CachingServiceNotConfigured" xml:space="preserve">
+    <value>Caching service not configured</value>
+  </data>
+  <data name="Api_Error_DatabaseConnectionFailed" xml:space="preserve">
+    <value>Database connection failed</value>
+  </data>
+  <data name="Api_Error_InternalError" xml:space="preserve">
+    <value>Internal error</value>
+  </data>
+  <data name="Api_Error_TenantContextRequired" xml:space="preserve">
+    <value>Tenant context required</value>
+  </data>
+  <data name="Api_Error_NoTenantContext" xml:space="preserve">
+    <value>No tenant context</value>
+  </data>
+  <data name="Api_Error_NoWorkspaceContext" xml:space="preserve">
+    <value>No workspace context</value>
+  </data>
+  <data name="Api_Error_WorkflowRoutingServiceUnavailable" xml:space="preserve">
+    <value>Workflow routing service not available</value>
+  </data>
+  <data name="Api_Error_UnsupportedReportType" xml:space="preserve">
+    <value>Unsupported report type</value>
+  </data>
+  <data name="Api_Error_InvalidReportId" xml:space="preserve">
+    <value>Invalid report ID</value>
+  </data>
+  <data name="Api_Error_ReportFileNotFound" xml:space="preserve">
+    <value>Report file not found</value>
+  </data>
+
+  <!-- CATEGORY 8: SUCCESS MESSAGES (76 keys) -->
+  <data name="Api_Success_CacheOperational" xml:space="preserve">
+    <value>Cache is operational</value>
+  </data>
+  <data name="Api_Success_CertificationDeleted" xml:space="preserve">
+    <value>Certification deleted</value>
+  </data>
+  <data name="Api_Success_ComplianceApprovalRecorded" xml:space="preserve">
+    <value>Compliance approval recorded</value>
+  </data>
+  <data name="Api_Success_ConfigurationUpdated" xml:space="preserve">
+    <value>Configuration updated successfully</value>
+  </data>
+  <data name="Api_Success_ControlDeleted" xml:space="preserve">
+    <value>Control deleted successfully</value>
+  </data>
+  <data name="Api_Success_ControlDeployed" xml:space="preserve">
+    <value>Control deployed</value>
+  </data>
+  <data name="Api_Success_EventPublished" xml:space="preserve">
+    <value>Event published</value>
+  </data>
+  <data name="Api_Success_EvidenceApproved" xml:space="preserve">
+    <value>Evidence approved</value>
+  </data>
+  <data name="Api_Success_EvidenceSubmitted" xml:space="preserve">
+    <value>Evidence submitted</value>
+  </data>
+  <data name="Api_Success_ExceptionApproved" xml:space="preserve">
+    <value>Exception approved</value>
+  </data>
+  <data name="Api_Success_ExceptionRejected" xml:space="preserve">
+    <value>Exception rejected</value>
+  </data>
+  <data name="Api_Success_ExecutiveApprovalRecorded" xml:space="preserve">
+    <value>Executive approval recorded</value>
+  </data>
+  <data name="Api_Success_FrameworkDeleted" xml:space="preserve">
+    <value>Framework deleted successfully</value>
+  </data>
+  <data name="Api_Success_GapClosed" xml:space="preserve">
+    <value>Gap closed successfully</value>
+  </data>
+  <data name="Api_Success_GapCreated" xml:space="preserve">
+    <value>Gap created successfully</value>
+  </data>
+  <data name="Api_Success_GapReopened" xml:space="preserve">
+    <value>Gap reopened</value>
+  </data>
+  <data name="Api_Success_GapSubmittedForValidation" xml:space="preserve">
+    <value>Gap submitted for validation</value>
+  </data>
+  <data name="Api_Success_ImplementationApproved" xml:space="preserve">
+    <value>Implementation approved</value>
+  </data>
+  <data name="Api_Success_InvitationAccepted" xml:space="preserve">
+    <value>Invitation accepted. You can now log in.</value>
+  </data>
+  <data name="Api_Success_InvitationCancelled" xml:space="preserve">
+    <value>Invitation cancelled</value>
+  </data>
+  <data name="Api_Success_InvitationResent" xml:space="preserve">
+    <value>Invitation resent</value>
+  </data>
+  <data name="Api_Success_LinkedToControl" xml:space="preserve">
+    <value>Linked to control</value>
+  </data>
+  <data name="Api_Success_LinkedToRisk" xml:space="preserve">
+    <value>Linked to risk</value>
+  </data>
+  <data name="Api_Success_ManagerApprovalRecorded" xml:space="preserve">
+    <value>Manager approval recorded</value>
+  </data>
+  <data name="Api_Success_MemberAdded" xml:space="preserve">
+    <value>Member added successfully</value>
+  </data>
+  <data name="Api_Success_MemberRemoved" xml:space="preserve">
+    <value>Member removed successfully</value>
+  </data>
+  <data name="Api_Success_MonitoringStarted" xml:space="preserve">
+    <value>Monitoring started</value>
+  </data>
+  <data name="Api_Success_MovedToImplementationPhase" xml:space="preserve">
+    <value>Moved to implementation phase</value>
+  </data>
+  <data name="Api_Success_MovedToPlanningPhase" xml:space="preserve">
+    <value>Moved to planning phase</value>
+  </data>
+  <data name="Api_Success_OrganizationProfileUpdated" xml:space="preserve">
+    <value>Organization profile updated</value>
+  </data>
+  <data name="Api_Success_PasswordReset" xml:space="preserve">
+    <value>Password reset successful</value>
+  </data>
+  <data name="Api_Success_PasswordResetSuccessfully" xml:space="preserve">
+    <value>Password reset successfully</value>
+  </data>
+  <data name="Api_Success_PolicyApproved" xml:space="preserve">
+    <value>Policy approved successfully</value>
+  </data>
+  <data name="Api_Success_PolicyReturnedForRevision" xml:space="preserve">
+    <value>Policy returned for revision</value>
+  </data>
+  <data name="Api_Success_ProgressUpdated" xml:space="preserve">
+    <value>Progress updated</value>
+  </data>
+  <data name="Api_Success_RegulatorDeleted" xml:space="preserve">
+    <value>Regulator deleted successfully</value>
+  </data>
+  <data name="Api_Success_RemediationPlanCreated" xml:space="preserve">
+    <value>Remediation plan created</value>
+  </data>
+  <data name="Api_Success_ReportDelivered" xml:space="preserve">
+    <value>Report marked as delivered</value>
+  </data>
+  <data name="Api_Success_ResilienceAssessmentCreated" xml:space="preserve">
+    <value>Resilience assessment created successfully</value>
+  </data>
+  <data name="Api_Success_ResilienceAssessmentDeleted" xml:space="preserve">
+    <value>Resilience assessment deleted successfully</value>
+  </data>
+  <data name="Api_Success_ResilienceAssessmentStarted" xml:space="preserve">
+    <value>Resilience assessment started successfully</value>
+  </data>
+  <data name="Api_Success_ResilienceAssessmentUpdated" xml:space="preserve">
+    <value>Resilience assessment updated successfully</value>
+  </data>
+  <data name="Api_Success_RevisionRequested" xml:space="preserve">
+    <value>Revision requested</value>
+  </data>
+  <data name="Api_Success_RiskResilienceAssessmentCreated" xml:space="preserve">
+    <value>Risk resilience assessment created successfully</value>
+  </data>
+  <data name="Api_Success_RiskResilienceAssessmentStarted" xml:space="preserve">
+    <value>Risk resilience assessment started successfully</value>
+  </data>
+  <data name="Api_Success_ScanTriggered" xml:space="preserve">
+    <value>Scan triggered successfully</value>
+  </data>
+  <data name="Api_Success_SecurityAuditTriggered" xml:space="preserve">
+    <value>Security audit triggered successfully</value>
+  </data>
+  <data name="Api_Success_SubmittedForReview" xml:space="preserve">
+    <value>Submitted for review</value>
+  </data>
+  <data name="Api_Success_SubscriptionCreated" xml:space="preserve">
+    <value>Subscription created</value>
+  </data>
+  <data name="Api_Success_SubscriptionDeleted" xml:space="preserve">
+    <value>Subscription deleted</value>
+  </data>
+  <data name="Api_Success_TaskClaimed" xml:space="preserve">
+    <value>Task claimed successfully</value>
+  </data>
+  <data name="Api_Success_TaskCompleted" xml:space="preserve">
+    <value>Task completed successfully</value>
+  </data>
+  <data name="Api_Success_TenantAdminRestarted" xml:space="preserve">
+    <value>Tenant admin account restarted</value>
+  </data>
+  <data name="Api_Success_TenantCreated" xml:space="preserve">
+    <value>Tenant created. Check email for activation link.</value>
+  </data>
+  <data name="Api_Success_TenantUpdated" xml:space="preserve">
+    <value>Tenant updated</value>
+  </data>
+  <data name="Api_Success_TestAlertSent" xml:space="preserve">
+    <value>Test alert sent successfully</value>
+  </data>
+  <data name="Api_Success_TestWebhookWorking" xml:space="preserve">
+    <value>Test webhook is working</value>
+  </data>
+  <data name="Api_Success_WebhookProcessed" xml:space="preserve">
+    <value>Webhook processed</value>
+  </data>
+  <data name="Api_Success_WorkflowApproved" xml:space="preserve">
+    <value>Workflow approved successfully</value>
+  </data>
+  <data name="Api_Success_WorkflowCompleted" xml:space="preserve">
+    <value>Workflow completed</value>
+  </data>
+  <data name="Api_Success_WorkflowCreated" xml:space="preserve">
+    <value>Workflow created successfully</value>
+  </data>
+  <data name="Api_Success_WorkflowRejected" xml:space="preserve">
+    <value>Workflow rejected successfully</value>
+  </data>
+  <data name="Api_Success_WorkflowStarted" xml:space="preserve">
+    <value>Workflow started successfully</value>
+  </data>
+  <data name="Api_Success_WorkspaceSetAsDefault" xml:space="preserve">
+    <value>Workspace set as default</value>
+  </data>
+  <data name="Api_Success_WorkspaceSwitched" xml:space="preserve">
+    <value>Workspace switched successfully</value>
+  </data>
+  <data name="Api_Success_WorkspaceUpdated" xml:space="preserve">
+    <value>Workspace updated successfully</value>
+  </data>
+  <data name="Api_Success_ApprovalFinalized" xml:space="preserve">
+    <value>Approval finalized</value>
+  </data>
+  <data name="Api_Success_ImportedAssets" xml:space="preserve">
+    <value>Successfully imported {0} assets</value>
+  </data>
+
+  <!-- CATEGORY 9: SEEDING/INITIALIZATION MESSAGES (16 keys) -->
+  <data name="Api_Success_RegulatorsSeeded" xml:space="preserve">
+    <value>92 regulators seeded successfully (62 Saudi, 20 International, 10 Regional)</value>
+  </data>
+  <data name="Api_Success_AdminPasswordsFixed" xml:space="preserve">
+    <value>Admin passwords fixed</value>
+  </data>
+  <data name="Api_Success_AllSeedDataCreated" xml:space="preserve">
+    <value>All seed data created successfully</value>
+  </data>
+  <data name="Api_Success_CatalogsSeeded" xml:space="preserve">
+    <value>Catalogs seeded successfully</value>
+  </data>
+  <data name="Api_Success_CatalogSeedingCompleted" xml:space="preserve">
+    <value>Catalog seeding completed</value>
+  </data>
+  <data name="Api_Success_DefaultProfilesSeeded" xml:space="preserve">
+    <value>Default profiles seeded successfully</value>
+  </data>
+  <data name="Api_Success_DerivationRulesSeeded" xml:space="preserve">
+    <value>Derivation rules seeded successfully</value>
+  </data>
+  <data name="Api_Success_EvidenceScoringSeeded" xml:space="preserve">
+    <value>Evidence scoring, sector index, and GOSI mappings seeded successfully</value>
+  </data>
+  <data name="Api_Success_KsaFrameworkControlsSeeded" xml:space="preserve">
+    <value>KSA framework controls seeded successfully</value>
+  </data>
+  <data name="Api_Success_MailboxesAlreadySeeded" xml:space="preserve">
+    <value>Mailboxes already seeded</value>
+  </data>
+  <data name="Api_Success_NoDuplicatesFound" xml:space="preserve">
+    <value>No duplicates found</value>
+  </data>
+  <data name="Api_Success_PlatformAdminCreated" xml:space="preserve">
+    <value>Platform admin created successfully</value>
+  </data>
+  <data name="Api_Success_UserAlreadyExists" xml:space="preserve">
+    <value>User already exists, role and record verified</value>
+  </data>
+  <data name="Api_Success_UserCreated" xml:space="preserve">
+    <value>User created successfully</value>
+  </data>
+  <data name="Api_Success_UserNoTenantAssociation" xml:space="preserve">
+    <value>User has no tenant association</value>
+  </data>
+  <data name="Api_Success_WorkflowDefinitionsSeeded" xml:space="preserve">
+    <value>Workflow definitions seeded successfully</value>
+  </data>
+
+  <!-- CATEGORY 10: ANALYTICS/OPERATIONS MESSAGES (18 keys) -->
+  <data name="Api_Success_AnalyticsRefreshCompleted" xml:space="preserve">
+    <value>Analytics refresh completed</value>
+  </data>
+  <data name="Api_Success_EmailSyncTriggered" xml:space="preserve">
+    <value>Email sync triggered</value>
+  </data>
+  <data name="Api_Success_NotificationReceived" xml:space="preserve">
+    <value>Notification received</value>
+  </data>
+  <data name="Api_Success_OnboardingCompleted" xml:space="preserve">
+    <value>Onboarding completed</value>
+  </data>
+  <data name="Api_Error_WebhookProcessingFailed" xml:space="preserve">
+    <value>Webhook processing failed</value>
+  </data>
+  <data name="Api_Success_PasswordChangeSet" xml:space="preserve">
+    <value>Force password change set</value>
+  </data>
+  <data name="Api_Success_PlatformAdminDeleted" xml:space="preserve">
+    <value>Platform admin deleted</value>
+  </data>
+  <data name="Api_Success_PlatformAdminReactivated" xml:space="preserve">
+    <value>Platform admin reactivated</value>
+  </data>
+  <data name="Api_Success_PlatformAdminSuspended" xml:space="preserve">
+    <value>Platform admin suspended</value>
+  </data>
+  <data name="Api_Success_UserReactivated" xml:space="preserve">
+    <value>User reactivated</value>
+  </data>
+  <data name="Api_Success_UserSuspended" xml:space="preserve">
+    <value>User suspended</value>
+  </data>
+  <data name="Api_Error_UnableToCancelInvitation" xml:space="preserve">
+    <value>Unable to cancel invitation</value>
+  </data>
+  <data name="Api_Error_UnableToReactivateUser" xml:space="preserve">
+    <value>Unable to reactivate user</value>
+  </data>
+  <data name="Api_Error_UnableToResendInvitation" xml:space="preserve">
+    <value>Unable to resend invitation. User may not be in pending status.</value>
+  </data>
+  <data name="Api_Error_UnableToSuspendUser" xml:space="preserve">
+    <value>Unable to suspend user</value>
+  </data>
+  <data name="Api_Error_NoMessagesInThread" xml:space="preserve">
+    <value>No messages in thread</value>
+  </data>
+  <data name="Api_Error_TenantIdNotFound" xml:space="preserve">
+    <value>Tenant ID not found</value>
+  </data>
+  <data name="Api_Error_TaskNotFoundOrNotCompleted" xml:space="preserve">
+    <value>Task not found or could not be completed</value>
   </data>
 </root>

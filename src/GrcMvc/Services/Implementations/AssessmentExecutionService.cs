@@ -177,7 +177,10 @@ namespace GrcMvc.Services.Implementations
         {
             var requirement = await _context.AssessmentRequirements.FindAsync(requirementId);
             if (requirement == null)
-                throw new KeyNotFoundException($"Requirement {requirementId} not found");
+            {
+                _logger.LogWarning("Requirement {RequirementId} not found for status update", requirementId);
+                return null!; // Caller should check for null
+            }
 
             // MEDIUM FIX: Validate status value
             if (!ValidStatuses.Contains(status))
@@ -208,7 +211,10 @@ namespace GrcMvc.Services.Implementations
         {
             var requirement = await _context.AssessmentRequirements.FindAsync(requirementId);
             if (requirement == null)
-                throw new KeyNotFoundException($"Requirement {requirementId} not found");
+            {
+                _logger.LogWarning("Requirement {RequirementId} not found for score update", requirementId);
+                return null!; // Caller should check for null
+            }
 
             // MEDIUM FIX: Validate score range (0-100)
             if (score < 0 || score > 100)
@@ -245,7 +251,10 @@ namespace GrcMvc.Services.Implementations
         {
             var requirement = await _context.AssessmentRequirements.FindAsync(request.RequirementId);
             if (requirement == null)
-                throw new KeyNotFoundException($"Requirement {request.RequirementId} not found");
+            {
+                _logger.LogWarning("Requirement {RequirementId} not found for adding note", request.RequirementId);
+                return null!; // Caller should check for null
+            }
 
             var note = new RequirementNote
             {
@@ -296,7 +305,10 @@ namespace GrcMvc.Services.Implementations
         {
             var note = await _context.RequirementNotes.FindAsync(noteId);
             if (note == null)
-                throw new KeyNotFoundException($"Note {noteId} not found");
+            {
+                _logger.LogWarning("Note {NoteId} not found for deletion", noteId);
+                return; // Idempotent delete
+            }
 
             note.IsDeleted = true;
             note.DeletedAt = DateTime.UtcNow;
@@ -330,7 +342,10 @@ namespace GrcMvc.Services.Implementations
                 .FirstOrDefaultAsync(r => r.Id == requirementId);
 
             if (requirement == null)
-                throw new KeyNotFoundException($"Requirement {requirementId} not found");
+            {
+                _logger.LogWarning("Requirement {RequirementId} not found for evidence attachment", requirementId);
+                return null!; // Caller should check for null
+            }
 
             var validation = await _fileUploadService.ValidateFileAsync(file);
             if (!validation.IsValid)

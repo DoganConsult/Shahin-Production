@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using GrcMvc.Data;
 using GrcMvc.Data.Repositories;
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Application.Permissions;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace GrcMvc.Controllers
     /// <summary>
     /// MVC Controller for Dashboard views
     /// </summary>
-    [Authorize]
+    [Authorize(GrcPermissions.Dashboard.Default)]
     [RequireTenant]
     public class DashboardMvcController : Controller
     {

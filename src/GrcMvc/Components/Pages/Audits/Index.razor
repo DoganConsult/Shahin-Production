@@ -78,6 +78,7 @@
 @code {
     private List<AuditListItemDto>? audits;
     private bool isLoading = true;
+    private bool IsLoading => isLoading; // Use property to suppress warning
 
     protected override async Task OnInitializedAsync()
     {

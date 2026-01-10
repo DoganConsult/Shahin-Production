@@ -120,7 +120,8 @@ namespace GrcMvc.Services.Implementations
                 var framework = await _unitOfWork.Frameworks.GetByIdAsync(id);
                 if (framework == null)
                 {
-                    throw new KeyNotFoundException($"Framework with ID {id} not found");
+                    _logger.LogWarning("Framework with ID {Id} not found for update", id);
+                    return null!; // Caller should check for null
                 }
 
                 _mapper.Map(dto, framework);
@@ -159,7 +160,8 @@ namespace GrcMvc.Services.Implementations
                 var framework = await _unitOfWork.Frameworks.GetByIdAsync(id);
                 if (framework == null)
                 {
-                    throw new KeyNotFoundException($"Framework with ID {id} not found");
+                    _logger.LogWarning("Framework with ID {Id} not found for deletion", id);
+                    return; // Idempotent delete - already gone
                 }
 
                 framework.IsDeleted = true;

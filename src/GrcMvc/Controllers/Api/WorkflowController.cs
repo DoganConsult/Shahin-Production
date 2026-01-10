@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using GrcMvc.Services.Camunda;
 using GrcMvc.Services.Kafka;
 
+using Microsoft.Extensions.Localization;
+using GrcMvc.Resources;
 namespace GrcMvc.Controllers.Api;
 
 /// <summary>

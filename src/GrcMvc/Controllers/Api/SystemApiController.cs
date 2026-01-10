@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 
+using Microsoft.Extensions.Localization;
+using GrcMvc.Resources;
 namespace GrcMvc.Controllers.Api
 {
     /// <summary>

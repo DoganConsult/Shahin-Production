@@ -1,0 +1,465 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@model List<GrcMvc.Models.DTOs.ResilienceDto>
+@{
+    ViewData["Title"] = "Business Impact Analysis";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-diagram-3"></i> @L["BusinessImpactAnalysis"]</h2>
+            <p class="text-muted">@L["BIA_Description"]</p>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add Critical Service
+            </a>
+            <a asp-action="Dashboard" class="btn btn-outline-secondary">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- BIA Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 opacity-75">Total Services</h6>
+                    <h2 class="card-title mb-0">@Model.Count</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 opacity-75">Critical Priority</h6>
+                    <h2 class="card-title mb-0">@Model.Count(r => r.Priority == "Critical" || r.Priority == "High")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2">Assessed</h6>
+                    <h2 class="card-title mb-0">@Model.Count(r => r.Status == "Assessed" || r.Status == "Completed")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 opacity-75">Avg RTO</h6>
+                    <h2 class="card-title mb-0">
+                        @if (Model.Any())
+                        {
+                            <span>@Model.Average(r => r.RecoveryTimeObjective ?? 0).ToString("F0")h</span>
+                        }
+                        else
+                        {
+                            <span>N/A</span>
+                        }
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Priority</label>
+                            <select name="priority" class="form-select">
+                                <option value="">All Priorities</option>
+                                <option value="Critical">Critical</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="">All Statuses</option>
+                                <option value="Identified">Identified</option>
+                                <option value="Analyzing">Analyzing</option>
+                                <option value="Assessed">Assessed</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Category</label>
+                            <select name="category" class="form-select">
+                                <option value="">All Categories</option>
+                                <option value="IT Systems">IT Systems</option>
+                                <option value="Business Process">Business Process</option>
+                                <option value="Third Party">Third Party</option>
+                                <option value="Infrastructure">Infrastructure</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-funnel"></i> Filter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Critical Services Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-list-ul"></i> Critical Services & Processes</h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Service/Process</th>
+                                        <th>Category</th>
+                                        <th>Priority</th>
+                                        <th>RTO</th>
+                                        <th>RPO</th>
+                                        <th>Impact Score</th>
+                                        <th>Dependencies</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var service in Model)
+                                    {
+                                        var priorityBadge = service.Priority switch
+                                        {
+                                            "Critical" => "bg-danger",
+                                            "High" => "bg-warning text-dark",
+                                            "Medium" => "bg-info",
+                                            _ => "bg-secondary"
+                                        };
+
+                                        var statusBadge = service.Status switch
+                                        {
+                                            "Completed" => "bg-success",
+                                            "Assessed" => "bg-info",
+                                            "Analyzing" => "bg-warning text-dark",
+                                            _ => "bg-secondary"
+                                        };
+
+                                        var impactScore = service.ImpactScore ?? 0;
+                                        var impactClass = impactScore >= 80 ? "text-danger fw-bold" :
+                                                         impactScore >= 60 ? "text-warning fw-bold" :
+                                                         impactScore >= 40 ? "text-info" : "text-secondary";
+
+                                        <tr>
+                                            <td>
+                                                <strong>@service.Name</strong>
+                                                @if (!string.IsNullOrEmpty(service.Description))
+                                                {
+                                                    <br />
+                                                    <small class="text-muted">@service.Description.Substring(0, Math.Min(50, service.Description.Length))...</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark">@service.Category</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge @priorityBadge">@service.Priority</span>
+                                            </td>
+                                            <td>
+                                                @if (service.RecoveryTimeObjective.HasValue)
+                                                {
+                                                    <strong>@service.RecoveryTimeObjective.Value hours</strong>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Not set</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (service.RecoveryPointObjective.HasValue)
+                                                {
+                                                    <strong>@service.RecoveryPointObjective.Value hours</strong>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Not set</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="@impactClass">@impactScore/100</span>
+                                            </td>
+                                            <td>
+                                                @if (service.Dependencies?.Any() == true)
+                                                {
+                                                    <span class="badge bg-primary">@service.Dependencies.Count</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">None</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge @statusBadge">@service.Status</span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a asp-action="Details" asp-route-id="@service.Id"
+                                                       class="btn btn-outline-primary"
+                                                       data-bs-toggle="tooltip" title="View Details">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@service.Id"
+                                                       class="btn btn-outline-secondary"
+                                                       data-bs-toggle="tooltip" title="Edit">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    @if (service.Status != "Assessed" && service.Status != "Completed")
+                                                    {
+                                                        <form asp-action="Assess" asp-route-id="@service.Id" method="post" class="d-inline">
+                                                            @Html.AntiForgeryToken()
+                                                            <button type="submit" class="btn btn-outline-success btn-sm"
+                                                                    data-bs-toggle="tooltip" title="Assess">
+                                                                <i class="bi bi-check-circle"></i>
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="bi bi-diagram-3 display-1 text-muted opacity-25"></i>
+                            <p class="text-muted mt-3">No critical services identified yet</p>
+                            <a asp-action="Create" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Add First Critical Service
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Impact Matrix -->
+    @if (Model.Any())
+    {
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="bi bi-grid-3x3"></i> Business Impact Matrix</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8 offset-md-2">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered text-center">
+                                        <thead>
+                                            <tr>
+                                                <th rowspan="2" class="align-middle bg-light" style="width: 100px;">
+                                                    <div style="writing-mode: vertical-rl; transform: rotate(180deg);">Impact</div>
+                                                </th>
+                                                <th colspan="4" class="bg-light">Recovery Time Objective (RTO)</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="bg-light">&lt; 1h</th>
+                                                <th class="bg-light">1-4h</th>
+                                                <th class="bg-light">4-24h</th>
+                                                <th class="bg-light">&gt; 24h</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (int impact = 4; impact >= 1; impact--)
+                                            {
+                                                var impactLabel = impact switch
+                                                {
+                                                    4 => "Critical",
+                                                    3 => "High",
+                                                    2 => "Medium",
+                                                    _ => "Low"
+                                                };
+
+                                                <tr>
+                                                    <th class="bg-light">@impactLabel</th>
+                                                    @for (int rto = 1; rto <= 4; rto++)
+                                                    {
+                                                        var rtoRange = rto switch
+                                                        {
+                                                            1 => (0, 1),
+                                                            2 => (1, 4),
+                                                            3 => (4, 24),
+                                                            _ => (24, 1000)
+                                                        };
+
+                                                        var servicesInCell = Model.Count(s =>
+                                                            s.ImpactScore >= (impact * 25 - 25) &&
+                                                            s.ImpactScore < (impact * 25) &&
+                                                            s.RecoveryTimeObjective >= rtoRange.Item1 &&
+                                                            s.RecoveryTimeObjective < rtoRange.Item2
+                                                        );
+
+                                                        var cellClass = (impact + rto) switch
+                                                        {
+                                                            >= 7 => "bg-danger text-white",
+                                                            >= 5 => "bg-warning",
+                                                            >= 3 => "bg-info text-white",
+                                                            _ => "bg-success text-white"
+                                                        };
+
+                                                        <td class="@cellClass" style="height: 60px; width: 120px;">
+                                                            @if (servicesInCell > 0)
+                                                            {
+                                                                <strong style="font-size: 1.2rem;">@servicesInCell</strong>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="opacity-25">-</span>
+                                                            }
+                                                        </td>
+                                                    }
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="text-center mt-3">
+                                    <small class="text-muted">
+                                        <i class="bi bi-info-circle"></i>
+                                        This matrix shows the distribution of services by their impact severity and recovery time objectives
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Dependencies Visualization -->
+    @if (Model.Any(s => s.Dependencies?.Any() == true))
+    {
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="bi bi-diagram-2"></i> Service Dependencies</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Dependency Analysis:</strong>
+                            @Model.Count(s => s.Dependencies?.Any() == true) services have identified dependencies.
+                            Understanding these dependencies is critical for effective recovery planning.
+                        </div>
+
+                        <div class="row">
+                            @foreach (var service in Model.Where(s => s.Dependencies?.Any() == true).Take(6))
+                            {
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                <i class="bi bi-box"></i> @service.Name
+                                                <span class="badge bg-primary float-end">@service.Dependencies.Count deps</span>
+                                            </h6>
+                                            <ul class="list-unstyled mb-0 mt-2">
+                                                @foreach (var dep in service.Dependencies.Take(3))
+                                                {
+                                                    <li class="mb-1">
+                                                        <i class="bi bi-arrow-right text-muted"></i> @dep
+                                                    </li>
+                                                }
+                                                @if (service.Dependencies.Count > 3)
+                                                {
+                                                    <li class="text-muted">
+                                                        <small>+ @(service.Dependencies.Count - 3) more...</small>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        @if (Model.Count(s => s.Dependencies?.Any() == true) > 6)
+                        {
+                            <div class="text-center">
+                                <a asp-action="Index" class="btn btn-outline-primary">
+                                    View All Dependencies
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Best Practices -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-light border">
+                <h6><i class="bi bi-lightbulb"></i> BIA Best Practices</h6>
+                <ul class="mb-0">
+                    <li>Conduct BIA assessments at least annually and after significant organizational changes</li>
+                    <li>Involve process owners and key stakeholders in impact assessments</li>
+                    <li>Document all critical dependencies including people, systems, and third parties</li>
+                    <li>Set realistic RTOs and RPOs based on actual business requirements</li>
+                    <li>Regularly test recovery capabilities to validate RTO/RPO targets</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .table td, .table th {
+            vertical-align: middle;
+        }
+
+        .btn-group-sm .btn {
+            padding: 0.25rem 0.5rem;
+        }
+
+        .card {
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+}

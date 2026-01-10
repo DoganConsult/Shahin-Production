@@ -120,7 +120,8 @@ namespace GrcMvc.Services.Implementations
                 var regulator = await _unitOfWork.Regulators.GetByIdAsync(id);
                 if (regulator == null)
                 {
-                    throw new KeyNotFoundException($"Regulator with ID {id} not found");
+                    _logger.LogWarning("Regulator with ID {Id} not found for update", id);
+                    return null!; // Caller should check for null
                 }
 
                 _mapper.Map(dto, regulator);
@@ -159,7 +160,8 @@ namespace GrcMvc.Services.Implementations
                 var regulator = await _unitOfWork.Regulators.GetByIdAsync(id);
                 if (regulator == null)
                 {
-                    throw new KeyNotFoundException($"Regulator with ID {id} not found");
+                    _logger.LogWarning("Regulator with ID {Id} not found for deletion", id);
+                    return; // Idempotent delete - already gone
                 }
 
                 regulator.IsDeleted = true;

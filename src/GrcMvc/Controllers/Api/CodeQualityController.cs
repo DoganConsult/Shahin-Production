@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
+using Microsoft.Extensions.Localization;
+using GrcMvc.Resources;
 namespace GrcMvc.Controllers.Api;
 
 /// <summary>

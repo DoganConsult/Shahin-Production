@@ -187,3 +187,10 @@ old-documentation/
 *.db-shm
 *.db-wal*.tar
 *.tar.gz
+
+# Sensitive files with secrets
+.env.production.final
+.env.production.complete
+PRODUCTION_CREDENTIALS_SUMMARY.md
+AI_SERVICES_ARCHITECTURE.md
+QUICK_REFERENCE_CARD.md

@@ -1,0 +1,37 @@
+# GRC Database Backup Configuration
+# Purpose: Configuration file for automated backups
+
+backup:
+  enabled: true
+  schedule:
+    cron: "0 2 * * *"  # Daily at 2 AM
+    timezone: "UTC"
+
+  retention:
+    days: 30
+    max_backups: 30
+
+  database:
+    name: "GrcMvcDb"
+    host: "postgres"
+    port: 5432
+    user: "postgres"
+
+  storage:
+    type: "azure_blob"  # Options: local, azure_blob, aws_s3
+    container: "grc-backups"
+    encryption: true
+    compression: true  # gzip
+
+  notifications:
+    on_success: false
+    on_failure: true
+    email:
+      - "admin@shahin-ai.com"
+      - "Info@doganconsult.com"
+
+  monitoring:
+    track_backup_size: true
+    track_duration: true
+    alert_on_size_increase: 50  # Alert if backup size increases by >50%
+    alert_on_duration_increase: 100  # Alert if duration doubles

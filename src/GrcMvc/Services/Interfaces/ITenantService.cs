@@ -50,5 +50,10 @@ namespace GrcMvc.Services.Interfaces
         /// Permanently delete a tenant (requires admin confirmation).
         /// </summary>
         Task<bool> DeleteTenantAsync(Guid tenantId, string deletedBy, bool hardDelete = false);
+
+        /// <summary>
+        /// Resend activation email for a pending tenant.
+        /// </summary>
+        Task<bool> ResendActivationEmailAsync(string adminEmail);
     }
 }

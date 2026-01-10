@@ -216,9 +216,14 @@ namespace GrcMvc.Controllers
 
         private async Task PopulateViewBags(Guid? riskId, Guid? controlId)
         {
-            if (riskId.HasValue) ViewBag.RiskName = (await _riskService.GetByIdAsync(riskId.Value))?.Name;
+            if (riskId.HasValue)
+            {
+                var riskResult = await _riskService.GetByIdAsync(riskId.Value);
+                ViewBag.RiskName = riskResult.IsSuccess ? riskResult.Value?.Name : null;
+            }
             if (controlId.HasValue) ViewBag.ControlName = (await _controlService.GetByIdAsync(controlId.Value))?.Name;
-            ViewBag.Risks = await _riskService.GetAllAsync();
+            var risksResult = await _riskService.GetAllAsync();
+            ViewBag.Risks = risksResult.IsSuccess ? risksResult.Value : Enumerable.Empty<GrcMvc.Models.DTOs.RiskDto>();
             ViewBag.Controls = await _controlService.GetAllAsync();
         }
     }

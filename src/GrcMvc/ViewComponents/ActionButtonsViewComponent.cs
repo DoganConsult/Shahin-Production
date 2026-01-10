@@ -23,7 +23,7 @@ namespace GrcMvc.ViewComponents
             bool showDetails = true,
             bool showDelete = true,
             bool showDownload = false,
-            string downloadUrl = null)
+            string? downloadUrl = null)
         {
             ViewBag.Controller = controller;
             ViewBag.Id = id;

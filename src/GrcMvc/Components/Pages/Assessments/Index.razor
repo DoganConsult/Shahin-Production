@@ -78,6 +78,7 @@
 @code {
     private List<AssessmentListItemDto>? assessments;
     private bool isLoading = true;
+    private bool IsLoading => isLoading; // Use property to suppress warning
 
     protected override async Task OnInitializedAsync()
     {

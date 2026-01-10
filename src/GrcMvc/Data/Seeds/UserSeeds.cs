@@ -3,6 +3,8 @@ using GrcMvc.Models.Entities.Catalogs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Linq;
+using System.Text.Json;
 
 namespace GrcMvc.Data.Seeds;
 
@@ -16,6 +18,9 @@ public static class UserSeeds
         UserManager<ApplicationUser> userManager,
         ILogger logger)
     {
+        // #region agent log
+        try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "UserSeeds.cs:14", message = "SeedUsersAsync entry", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         try
         {
             logger.LogInformation("🌱 Starting user seeding...");
@@ -24,9 +29,15 @@ public static class UserSeeds
             var defaultTenant = await context.Tenants
                 .FirstOrDefaultAsync(t => t.TenantSlug == "default" && !t.IsDeleted);
 
+            // #region agent log
+            try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "UserSeeds.cs:25", message = "SeedUsersAsync default tenant lookup", data = new { defaultTenantId = defaultTenant?.Id.ToString(), defaultTenantName = defaultTenant?.OrganizationName, isNull = defaultTenant == null, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             if (defaultTenant == null)
             {
                 logger.LogWarning("⚠️ Default tenant not found. Cannot seed users.");
+                // #region agent log
+                try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "UserSeeds.cs:29", message = "SeedUsersAsync default tenant is null - exiting", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
                 return;
             }
 
@@ -34,15 +45,27 @@ public static class UserSeeds
             logger.LogInformation($"✅ Found default tenant: {defaultTenant.OrganizationName} (ID: {defaultTenantId})");
 
             // Seed Admin User
+            // #region agent log
+            try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "C", location = "UserSeeds.cs:37", message = "Before SeedAdminUserAsync", data = new { tenantId = defaultTenantId.ToString(), timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             await SeedAdminUserAsync(context, userManager, defaultTenantId, logger);
 
             // Seed Manager User
+            // #region agent log
+            try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "C", location = "UserSeeds.cs:40", message = "Before SeedManagerUserAsync", data = new { tenantId = defaultTenantId.ToString(), timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             await SeedManagerUserAsync(context, userManager, defaultTenantId, logger);
 
             logger.LogInformation("✅ User seeding completed successfully.");
+            // #region agent log
+            try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "UserSeeds.cs:43", message = "SeedUsersAsync exit success", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
         }
         catch (Exception ex)
         {
+            // #region agent log
+            try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "E", location = "UserSeeds.cs:46", message = "SeedUsersAsync exception", data = new { exceptionType = ex.GetType().Name, exceptionMessage = ex.Message, stackTrace = ex.StackTrace?.Substring(0, Math.Min(500, (ex.StackTrace?.Length).GetValueOrDefault(0))), timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             logger.LogError(ex, "❌ Error during user seeding");
             throw;
         }
@@ -78,6 +101,9 @@ public static class UserSeeds
             };
 
             var createResult = await userManager.CreateAsync(adminUser, adminPassword);
+            // #region agent log
+            try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "C", location = "UserSeeds.cs:80", message = "Admin user create result", data = new { succeeded = createResult.Succeeded, errors = createResult.Errors.Select(e => e.Description).ToArray(), userId = adminUser?.Id, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
 
             if (!createResult.Succeeded)
             {
@@ -90,22 +116,37 @@ public static class UserSeeds
             {
                 var superAdminRole = await context.Set<Microsoft.AspNetCore.Identity.IdentityRole>()
                     .FirstOrDefaultAsync(r => r.Name == "PlatformAdmin");
+                // #region agent log
+                try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "C", location = "UserSeeds.cs:91", message = "PlatformAdmin role lookup", data = new { roleExists = superAdminRole != null, roleId = superAdminRole?.Id, userId = adminUser.Id, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
                 if (superAdminRole != null)
                 {
-                    await userManager.AddToRoleAsync(adminUser, "PlatformAdmin");
+                    var addRoleResult = await userManager.AddToRoleAsync(adminUser, "PlatformAdmin");
+                    // #region agent log
+                    try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "C", location = "UserSeeds.cs:95", message = "AddToRoleAsync PlatformAdmin result", data = new { succeeded = addRoleResult.Succeeded, errors = addRoleResult.Errors.Select(e => e.Description).ToArray(), userId = adminUser.Id, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                    // #endregion
                 }
                 else
                 {
                     var tenantAdminRole = await context.Set<Microsoft.AspNetCore.Identity.IdentityRole>()
                         .FirstOrDefaultAsync(r => r.Name == "TenantAdmin");
+                    // #region agent log
+                    try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "C", location = "UserSeeds.cs:99", message = "TenantAdmin role lookup", data = new { roleExists = tenantAdminRole != null, roleId = tenantAdminRole?.Id, userId = adminUser.Id, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                    // #endregion
                     if (tenantAdminRole != null)
                     {
-                        await userManager.AddToRoleAsync(adminUser, "TenantAdmin");
+                        var addRoleResult = await userManager.AddToRoleAsync(adminUser, "TenantAdmin");
+                        // #region agent log
+                        try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "C", location = "UserSeeds.cs:103", message = "AddToRoleAsync TenantAdmin result", data = new { succeeded = addRoleResult.Succeeded, errors = addRoleResult.Errors.Select(e => e.Description).ToArray(), userId = adminUser.Id, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                        // #endregion
                     }
                 }
             }
             catch (Exception ex)
             {
+                // #region agent log
+                try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "C", location = "UserSeeds.cs:109", message = "Role assignment exception", data = new { exceptionType = ex.GetType().Name, exceptionMessage = ex.Message, userId = adminUser.Id, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
                 logger.LogWarning($"Could not assign role to admin user: {ex.Message}");
                 // Role might not exist yet, that's okay
             }
@@ -118,9 +159,21 @@ public static class UserSeeds
         }
 
         // Link admin to tenant - use generic role if specific role doesn't exist
+        // #region agent log
+        try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "UserSeeds.cs:123", message = "Before LinkUserToTenantAsync admin", data = new { userId = adminUser.Id, tenantId = tenantId.ToString(), timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         var adminRoleCode = await GetOrCreateRoleCodeAsync(context, "ADMINISTRATOR", "Administrator", logger);
+        // #region agent log
+        try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "UserSeeds.cs:125", message = "GetOrCreateRoleCodeAsync admin result", data = new { roleCode = adminRoleCode, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         var adminTitleCode = await GetOrCreateTitleCodeAsync(context, "SYSTEM_ADMINISTRATOR", "System Administrator", logger);
+        // #region agent log
+        try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "UserSeeds.cs:127", message = "GetOrCreateTitleCodeAsync admin result", data = new { titleCode = adminTitleCode, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         await LinkUserToTenantAsync(context, adminUser.Id, tenantId, adminRoleCode, adminTitleCode, logger);
+        // #region agent log
+        try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "UserSeeds.cs:128", message = "After LinkUserToTenantAsync admin", data = new { userId = adminUser.Id, tenantId = tenantId.ToString(), timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
     }
 
     private static async Task SeedManagerUserAsync(
@@ -287,10 +340,16 @@ public static class UserSeeds
         string titleCode,
         ILogger logger)
     {
+        // #region agent log
+        try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "UserSeeds.cs:282", message = "LinkUserToTenantAsync entry", data = new { userId, tenantId = tenantId.ToString(), roleCode, titleCode, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         // Check if TenantUser already exists
         var existingTenantUser = await context.TenantUsers
             .FirstOrDefaultAsync(tu => tu.TenantId == tenantId && tu.UserId == userId && !tu.IsDeleted);
 
+        // #region agent log
+        try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "UserSeeds.cs:287", message = "Existing TenantUser check", data = new { existingTenantUserId = existingTenantUser?.Id.ToString(), alreadyExists = existingTenantUser != null, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         if (existingTenantUser != null)
         {
             logger.LogInformation($"User {userId} already linked to tenant {tenantId}");
@@ -312,7 +371,13 @@ public static class UserSeeds
         };
 
         context.TenantUsers.Add(tenantUser);
+        // #region agent log
+        try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "UserSeeds.cs:315", message = "Before SaveChangesAsync TenantUser", data = new { tenantUserId = tenantUser.Id.ToString(), userId, tenantId = tenantId.ToString(), roleCode, titleCode, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         await context.SaveChangesAsync();
+        // #region agent log
+        try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "UserSeeds.cs:317", message = "After SaveChangesAsync TenantUser", data = new { tenantUserId = tenantUser.Id.ToString(), success = true, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
 
         logger.LogInformation($"✅ User {userId} linked to tenant {tenantId} with role {roleCode}");
     }

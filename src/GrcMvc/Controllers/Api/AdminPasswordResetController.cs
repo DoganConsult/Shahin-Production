@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using GrcMvc.Models.Entities;
 using System.ComponentModel.DataAnnotations;
 
+using Microsoft.Extensions.Localization;
+using GrcMvc.Resources;
 namespace GrcMvc.Controllers.Api
 {
     [Route("api/admin")]

@@ -9,6 +9,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
+using Microsoft.Extensions.Localization;
+using GrcMvc.Resources;
 namespace GrcMvc.Controllers.Api
 {
     /// <summary>

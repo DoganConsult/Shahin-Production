@@ -23,6 +23,8 @@ using SlaBreachDto = GrcMvc.Models.DTOs.SlaBreachDto;
 using OwnerWorkloadDto = GrcMvc.Models.DTOs.OwnerWorkloadDto;
 using EvidenceGapDto = GrcMvc.Models.DTOs.EvidenceGapDto;
 
+using Microsoft.Extensions.Localization;
+using GrcMvc.Resources;
 namespace GrcMvc.Controllers.Api;
 
 /// <summary>

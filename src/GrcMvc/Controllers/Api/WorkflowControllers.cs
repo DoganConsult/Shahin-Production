@@ -3,6 +3,8 @@ using GrcMvc.Services.Interfaces.Workflows;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using Microsoft.Extensions.Localization;
+using GrcMvc.Resources;
 namespace GrcMvc.Controllers.Api
 {
     /// <summary>

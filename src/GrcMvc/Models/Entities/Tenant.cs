@@ -12,6 +12,16 @@ namespace GrcMvc.Models.Entities
         public string TenantSlug { get; set; } = string.Empty;
         public string OrganizationName { get; set; } = string.Empty;
         public string AdminEmail { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Primary contact email for the tenant (used for trial signups)
+        /// </summary>
+        public string? Email { get; set; }
+        
+        /// <summary>
+        /// Stripe customer ID for payment integration
+        /// </summary>
+        public string? StripeCustomerId { get; set; }
 
         /// <summary>
         /// Immutable tenant code used as prefix for all business reference codes.

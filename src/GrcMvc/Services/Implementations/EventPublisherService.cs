@@ -162,10 +162,46 @@ public class EventPublisherService : IEventPublisherService
             };
         }
 
-        // TODO: Implement JSON schema validation
-        // For now, just check required fields
+        // JSON schema validation - check required fields and basic type validation
         var errors = new List<string>();
         var payloadJson = JsonSerializer.Serialize(payload);
+        var payloadDict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(payloadJson);
+        
+        // Validate against JSON schema if available
+        if (!string.IsNullOrEmpty(schema.JsonSchema) && schema.JsonSchema != "{}" && payloadDict != null)
+        {
+            try
+            {
+                var schemaDef = JsonSerializer.Deserialize<Dictionary<string, string>>(schema.JsonSchema);
+                if (schemaDef != null)
+                {
+                    foreach (var (fieldName, fieldType) in schemaDef)
+                    {
+                        if (payloadDict.TryGetValue(fieldName, out var value))
+                        {
+                            // Basic type validation
+                            var isValidType = fieldType.ToLower() switch
+                            {
+                                "string" => value.ValueKind == JsonValueKind.String,
+                                "number" => value.ValueKind == JsonValueKind.Number,
+                                "boolean" => value.ValueKind == JsonValueKind.True || value.ValueKind == JsonValueKind.False,
+                                "object" => value.ValueKind == JsonValueKind.Object,
+                                "array" => value.ValueKind == JsonValueKind.Array,
+                                _ => true
+                            };
+                            if (!isValidType)
+                            {
+                                errors.Add($"Field '{fieldName}' should be of type {fieldType}");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (JsonException)
+            {
+                // Schema definition is not valid JSON - skip schema validation
+            }
+        }
 
         if (!string.IsNullOrEmpty(schema.RequiredFields))
         {

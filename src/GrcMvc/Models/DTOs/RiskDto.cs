@@ -18,6 +18,7 @@ namespace GrcMvc.Models.DTOs
         public string Status { get; set; } = string.Empty;
         public string Owner { get; set; } = string.Empty;
         public DateTime? DueDate { get; set; }
+        public DateTime? ReviewDate { get; set; }
         public string MitigationStrategy { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
@@ -112,9 +113,14 @@ namespace GrcMvc.Models.DTOs
     {
         public int TotalRisks { get; set; }
         public int ActiveRisks { get; set; }
+        public int CriticalRisks { get; set; }
         public int HighRisks { get; set; }
         public int MediumRisks { get; set; }
         public int LowRisks { get; set; }
+        public int MitigatedRisks { get; set; }
+        public int AcceptedRisks { get; set; }
+        public int ClosedRisks { get; set; }
+        public int OpenRisks { get; set; }
         public Dictionary<string, int> RisksByCategory { get; set; } = new();
         public double AverageRiskScore { get; set; }
     }

@@ -41,19 +41,22 @@ namespace GrcMvc.Controllers
         private readonly ISmartOnboardingService _smartOnboardingService;
         private readonly IRulesEngineService _rulesEngine;
         private readonly ILogger<OnboardingApiController> _logger;
+        private readonly IConfiguration _configuration;
 
         public OnboardingApiController(
             ITenantService tenantService,
             IOnboardingService onboardingService,
             ISmartOnboardingService smartOnboardingService,
             IRulesEngineService rulesEngine,
-            ILogger<OnboardingApiController> logger)
+            ILogger<OnboardingApiController> logger,
+            IConfiguration configuration)
         {
             _tenantService = tenantService;
             _onboardingService = onboardingService;
             _smartOnboardingService = smartOnboardingService;
             _rulesEngine = rulesEngine;
             _logger = logger;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -86,7 +89,7 @@ namespace GrcMvc.Controllers
                     tenant.Id,
                     tenant.TenantSlug,
                     message = "Tenant created successfully. Activation email sent.",
-                    activationUrl = $"{Request.Scheme}://{Request.Host}/auth/activate?slug={tenant.TenantSlug}&token={tenant.ActivationToken}"
+                    activationUrl = $"{_configuration["App:BaseUrl"] ?? Request.Scheme + "://" + Request.Host}/auth/activate?slug={tenant.TenantSlug}&token={tenant.ActivationToken}"
                 });
             }
             catch (InvalidOperationException ex)

@@ -6,8 +6,6 @@ apiVersion: 1
 providers:
   - name: 'GRC Dashboards'
     orgId: 1
-    folder: 'GRC System'
-    folderUid: 'grc-dashboards'
     type: file
     disableDeletion: false
     updateIntervalSeconds: 30

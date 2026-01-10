@@ -3,6 +3,8 @@ using GrcMvc.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using Microsoft.Extensions.Localization;
+using GrcMvc.Resources;
 namespace GrcMvc.Controllers.Api
 {
     /// <summary>
@@ -102,11 +104,9 @@ namespace GrcMvc.Controllers.Api
             {
                 var userName = User.Identity?.Name ?? "System";
                 var result = await _executionService.UpdateStatusAsync(id, request.Status, userName);
+                if (result == null)
+                    return NotFound(new { error = $"Requirement {id} not found" });
                 return Ok(result);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { error = ex.Message });
             }
             catch (Exception ex)
             {
@@ -129,11 +129,9 @@ namespace GrcMvc.Controllers.Api
             {
                 var userName = User.Identity?.Name ?? "System";
                 var result = await _executionService.UpdateScoreAsync(id, request.Score, request.ScoreRationale, userName);
+                if (result == null)
+                    return NotFound(new { error = $"Requirement {id} not found" });
                 return Ok(result);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { error = ex.Message });
             }
             catch (Exception ex)
             {
@@ -179,11 +177,9 @@ namespace GrcMvc.Controllers.Api
                 request.RequirementId = id;
                 var userName = User.Identity?.Name ?? "System";
                 var note = await _executionService.AddNoteAsync(request, userName);
+                if (note == null)
+                    return NotFound(new { error = $"Requirement {id} not found" });
                 return Ok(note);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { error = ex.Message });
             }
             catch (Exception ex)
             {
@@ -224,10 +220,6 @@ namespace GrcMvc.Controllers.Api
                 await _executionService.DeleteNoteAsync(id, userName);
                 return Ok(new { success = true });
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { error = ex.Message });
-            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting note {NoteId}", id);
@@ -252,6 +244,8 @@ namespace GrcMvc.Controllers.Api
             {
                 var userName = User.Identity?.Name ?? "System";
                 var evidence = await _executionService.AttachEvidenceAsync(id, file, title, description ?? string.Empty, userName);
+                if (evidence == null)
+                    return NotFound(new { error = $"Requirement {id} not found" });
 
                 return Ok(new
                 {
@@ -261,10 +255,6 @@ namespace GrcMvc.Controllers.Api
                     fileName = evidence.FileName,
                     status = evidence.VerificationStatus
                 });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { error = ex.Message });
             }
             catch (InvalidOperationException ex)
             {

@@ -210,33 +210,80 @@ namespace GrcMvc.Services.Implementations
 
         /// <summary>
         /// Send activation email with activation link.
+        /// ASP.NET Core Best Practice: Use configuration for external URLs
+        /// ABP Best Practice: Use email templates for consistent branding
         /// </summary>
         private async Task SendActivationEmailAsync(Tenant tenant)
         {
             try
             {
-                var activationUrl = $"https://yourdomain.com/auth/activate?slug={tenant.TenantSlug}&token={tenant.ActivationToken}";
+                // ABP Best Practice: Use IConfiguration for environment-specific URLs
+                var baseUrl = _configuration["App:BaseUrl"] ?? "https://app.shahin-ai.com";
+                var activationUrl = $"{baseUrl}/auth/activate?slug={tenant.TenantSlug}&token={tenant.ActivationToken}";
+                var expiryHours = _configuration.GetValue<int>("App:ActivationTokenExpiryHours", 48);
 
+                // Professional HTML email template
                 var emailBody = $@"
-                    <h2>Welcome to GRC Platform!</h2>
-                    <p>Your organization <strong>{tenant.OrganizationName}</strong> has been registered.</p>
-                    <p>Please click the link below to activate your account:</p>
-                    <p><a href='{activationUrl}'>Activate Your Account</a></p>
-                    <p>This link expires in 24 hours.</p>
-                    <p>If you did not request this, please ignore this email.</p>
-                ";
+<!DOCTYPE html>
+<html lang=""en"">
+<head>
+    <meta charset=""UTF-8"">
+    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+</head>
+<body style=""font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;"">
+    <div style=""background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"">
+        <div style=""text-align: center; padding-bottom: 20px; border-bottom: 2px solid #10b981;"">
+            <h1 style=""color: #10b981; margin: 0; font-size: 24px;"">Welcome to Shahin AI GRC Platform!</h1>
+        </div>
+        
+        <div style=""padding: 30px 0;"">
+            <p>Dear <strong>Administrator</strong>,</p>
+            
+            <p>Thank you for registering with Shahin AI GRC Platform. Your organization has been successfully created.</p>
+            
+            <div style=""background-color: #f0fdf4; padding: 15px; border-radius: 6px; border-left: 4px solid #10b981; margin: 20px 0;"">
+                <strong>Organization:</strong> {tenant.OrganizationName}<br>
+                <strong>Tenant ID:</strong> {tenant.TenantSlug}
+            </div>
+            
+            <p>To complete your registration and access the platform, please activate your account:</p>
+            
+            <div style=""text-align: center; padding: 20px 0;"">
+                <a href=""{activationUrl}"" style=""display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-weight: 600; font-size: 16px;"">
+                    ✅ Activate Your Account
+                </a>
+            </div>
+            
+            <p style=""font-size: 14px; color: #6b7280;"">If the button doesn't work, copy and paste this link into your browser:</p>
+            <p style=""word-break: break-all; color: #6b7280; font-size: 12px; background-color: #f3f4f6; padding: 10px; border-radius: 4px;"">
+                {activationUrl}
+            </p>
+            
+            <div style=""background-color: #fef3c7; padding: 12px; border-radius: 6px; font-size: 14px; margin-top: 20px;"">
+                ⚠️ <strong>Important:</strong> This activation link will expire in {expiryHours} hours.
+            </div>
+        </div>
+        
+        <div style=""text-align: center; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 12px;"">
+            <p>If you did not create this account, please ignore this email.</p>
+            <p>&copy; 2026 Shahin AI. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>";
 
                 await _emailService.SendEmailAsync(
                     to: tenant.AdminEmail,
-                    subject: $"Activate Your GRC Platform Account - {tenant.OrganizationName}",
+                    subject: $"✅ Activate Your Shahin AI Account - {tenant.OrganizationName}",
                     htmlBody: emailBody
                 );
 
-                _logger.LogInformation($"Activation email sent to {tenant.AdminEmail}");
+                _logger.LogInformation("Activation email sent to {AdminEmail} for tenant {TenantSlug}", 
+                    tenant.AdminEmail, tenant.TenantSlug);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Failed to send activation email to {tenant.AdminEmail}");
+                _logger.LogError(ex, "Failed to send activation email to {AdminEmail}", tenant.AdminEmail);
                 // Don't throw; allow tenant creation even if email fails
             }
         }
@@ -358,7 +405,15 @@ namespace GrcMvc.Services.Implementations
         }
 
         /// <summary>
-        /// Permanently delete a tenant.
+        /// Permanently delete a tenant (soft delete by default).
+        /// </summary>
+        public async Task DeleteTenantAsync(Guid tenantId, string deletedBy)
+        {
+            await DeleteTenantAsync(tenantId, deletedBy, hardDelete: false);
+        }
+
+        /// <summary>
+        /// Permanently delete a tenant with option for hard delete.
         /// </summary>
         public async Task<bool> DeleteTenantAsync(Guid tenantId, string deletedBy, bool hardDelete = false)
         {
@@ -402,6 +457,55 @@ namespace GrcMvc.Services.Implementations
             await _unitOfWork.SaveChangesAsync();
             _logger.LogInformation("Tenant {TenantId} {DeleteType} by {DeletedBy}", tenantId, hardDelete ? "hard deleted" : "soft deleted", deletedBy);
             return true;
+        }
+
+        /// <summary>
+        /// Resend activation email for a pending tenant.
+        /// ASP.NET Core Best Practice: Rate limiting should be applied at controller level
+        /// </summary>
+        public async Task<bool> ResendActivationEmailAsync(string adminEmail)
+        {
+            if (string.IsNullOrWhiteSpace(adminEmail))
+            {
+                _logger.LogWarning("ResendActivationEmail called with empty email");
+                return false;
+            }
+
+            try
+            {
+                var tenant = await _unitOfWork.Tenants
+                    .Query()
+                    .FirstOrDefaultAsync(t => t.AdminEmail.ToLower() == adminEmail.ToLower() && t.Status == "Pending");
+
+                if (tenant == null)
+                {
+                    _logger.LogWarning("Resend activation requested for non-existent or non-pending tenant: {Email}", adminEmail);
+                    // Return true to prevent email enumeration attacks
+                    return true;
+                }
+
+                // Generate new activation token if expired or near expiry
+                var expiryHours = _configuration.GetValue<int>("App:ActivationTokenExpiryHours", 48);
+                if (string.IsNullOrEmpty(tenant.ActivationToken) || 
+                    (tenant.CreatedDate != default && tenant.CreatedDate.AddHours(expiryHours) < DateTime.UtcNow))
+                {
+                    tenant.ActivationToken = GenerateActivationToken();
+                    tenant.ModifiedDate = DateTime.UtcNow;
+                    await _unitOfWork.Tenants.UpdateAsync(tenant);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+
+                // Send activation email
+                await SendActivationEmailAsync(tenant);
+
+                _logger.LogInformation("Activation email resent to {Email} for tenant {TenantSlug}", adminEmail, tenant.TenantSlug);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error resending activation email to {Email}", adminEmail);
+                return false;
+            }
         }
     }
 }

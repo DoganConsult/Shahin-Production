@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GrcMvc.Data;
 using GrcMvc.Models;
+using GrcMvc.Models.DTOs;
 using GrcMvc.Services.Interfaces;
 using System;
 using System.Threading.Tasks;
@@ -51,8 +52,13 @@ namespace GrcMvc.Controllers
             try
             {
                 var assessments = await _assessmentService.GetAllAsync();
-                var risks = await _riskService.GetAllAsync();
+                var risksResult = await _riskService.GetAllAsync();
                 var controls = await _controlService.GetAllAsync();
+
+                if (risksResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(risksResult.Error));
+
+                var risks = risksResult.Value;
 
                 var dashboard = new
                 {
@@ -94,7 +100,12 @@ namespace GrcMvc.Controllers
         {
             try
             {
-                var risks = await _riskService.GetAllAsync();
+                var risksResult = await _riskService.GetAllAsync();
+
+                if (risksResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(risksResult.Error));
+
+                var risks = risksResult.Value;
 
                 var dashboard = new
                 {
@@ -281,8 +292,10 @@ namespace GrcMvc.Controllers
             try
             {
                 var assessments = await _assessmentService.GetAllAsync();
-                var risks = await _riskService.GetAllAsync();
+                var risksResult = await _riskService.GetAllAsync();
                 var controls = await _controlService.GetAllAsync();
+
+                var risks = risksResult.IsSuccess ? risksResult.Value : Enumerable.Empty<RiskDto>();
 
                 var stats = new
                 {
@@ -323,7 +336,7 @@ namespace GrcMvc.Controllers
 
                 return Ok(new { success = true, data = new { stats, recentPlans, organization } });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Ok(new { success = true, data = new { 
                     stats = new { complianceScore = 72, activeRisks = 24, controls = 156, pendingTasks = 12, evidence = 89 },
@@ -346,8 +359,11 @@ namespace GrcMvc.Controllers
                 var controlCount = 0;
                 
                 try { 
-                    var risks = await _riskService.GetAllAsync();
-                    riskCount = risks?.Count(r => r.Status == "Open" || r.Status == "Active") ?? 0;
+                    var risksResult = await _riskService.GetAllAsync();
+                    if (risksResult.IsSuccess)
+                    {
+                        riskCount = risksResult.Value?.Count(r => r.Status == "Open" || r.Status == "Active") ?? 0;
+                    }
                 } catch { }
                 
                 try {
@@ -403,13 +419,13 @@ namespace GrcMvc.Controllers
         }
 
         // Helper methods
-        private decimal CalculateComplianceScore(IEnumerable<dynamic> assessments, IEnumerable<dynamic> controls)
+        private decimal CalculateComplianceScore(IEnumerable<AssessmentDto> assessments, IEnumerable<ControlDto> controls)
         {
             if (!assessments.Any()) return 0;
             return (decimal)assessments.Average(a => a.Score);
         }
 
-        private string CalculateOverallRiskLevel(IEnumerable<dynamic> risks)
+        private string CalculateOverallRiskLevel(IEnumerable<RiskDto> risks)
         {
             if (!risks.Any()) return "None";
             var criticalCount = risks.Count(r => (r.Probability * r.Impact) >= 25);

@@ -5,10 +5,12 @@ using GrcMvc.Models.DTOs;
 using GrcMvc.Models;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Exceptions;
+using GrcMvc.Common;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using static GrcMvc.Services.Interfaces.IRiskService;
 
 namespace GrcMvc.Controllers
 {
@@ -46,7 +48,12 @@ namespace GrcMvc.Controllers
         {
             try
             {
-                var risks = await _riskService.GetAllAsync();
+                var risksResult = await _riskService.GetAllAsync();
+
+                if (risksResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(risksResult.Error));
+
+                var risks = risksResult.Value;
 
                 // Apply filtering
                 var filtered = risks.ToList();
@@ -96,11 +103,11 @@ namespace GrcMvc.Controllers
                 if (id == Guid.Empty)
                     return BadRequest(ApiResponse<object>.ErrorResponse("Invalid risk ID"));
 
-                var risk = await _riskService.GetByIdAsync(id);
-                if (risk == null)
+                var riskResult = await _riskService.GetByIdAsync(id);
+                if (riskResult.IsFailure || riskResult.Value == null)
                     return NotFound(ApiResponse<object>.ErrorResponse("Risk not found"));
 
-                return Ok(ApiResponse<object>.SuccessResponse(risk, "Risk retrieved successfully"));
+                return Ok(ApiResponse<object>.SuccessResponse(riskResult.Value, "Risk retrieved successfully"));
             }
             catch (Exception ex)
             {
@@ -122,10 +129,13 @@ namespace GrcMvc.Controllers
                 if (string.IsNullOrWhiteSpace(riskData.Name))
                     return BadRequest(ApiResponse<object>.ErrorResponse("Risk name is required"));
 
-                var newRisk = await _riskService.CreateAsync(riskData);
+                var newRiskResult = await _riskService.CreateAsync(riskData);
 
-                return CreatedAtAction(nameof(GetRisk), new { id = newRisk.Id },
-                    ApiResponse<RiskDto>.SuccessResponse(newRisk, "Risk created successfully"));
+                if (newRiskResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(newRiskResult.Error));
+
+                return CreatedAtAction(nameof(GetRisk), new { id = newRiskResult.Value.Id },
+                    ApiResponse<RiskDto>.SuccessResponse(newRiskResult.Value, "Risk created successfully"));
             }
             catch (ValidationException ex)
             {
@@ -151,9 +161,12 @@ namespace GrcMvc.Controllers
                 if (riskData == null)
                     return BadRequest(ApiResponse<object>.ErrorResponse("Risk data is required"));
 
-                var updatedRisk = await _riskService.UpdateAsync(id, riskData);
+                var updatedRiskResult = await _riskService.UpdateAsync(id, riskData);
 
-                return Ok(ApiResponse<RiskDto>.SuccessResponse(updatedRisk, "Risk updated successfully"));
+                if (updatedRiskResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(updatedRiskResult.Error));
+
+                return Ok(ApiResponse<RiskDto>.SuccessResponse(updatedRiskResult.Value, "Risk updated successfully"));
             }
             catch (EntityNotFoundException)
             {
@@ -180,7 +193,10 @@ namespace GrcMvc.Controllers
                 if (id == Guid.Empty)
                     return BadRequest(ApiResponse<object>.ErrorResponse("Invalid risk ID"));
 
-                await _riskService.DeleteAsync(id);
+                var deleteResult = await _riskService.DeleteAsync(id);
+                if (deleteResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(deleteResult.Error));
+
                 return Ok(ApiResponse<object>.SuccessResponse(null, "Risk deleted successfully"));
             }
             catch (Exception ex)
@@ -198,7 +214,12 @@ namespace GrcMvc.Controllers
         {
             try
             {
-                var risks = await _riskService.GetAllAsync();
+                var risksResult = await _riskService.GetAllAsync();
+
+                if (risksResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(risksResult.Error));
+
+                var risks = risksResult.Value;
                 // Use centralized thresholds for high risks (Critical + High)
                 var highRisks = risks.Where(r => 
                     (r.Probability * r.Impact) >= RiskScoringConfiguration.Thresholds.HighMin).ToList();
@@ -220,7 +241,12 @@ namespace GrcMvc.Controllers
         {
             try
             {
-                var risks = await _riskService.GetAllAsync();
+                var risksResult = await _riskService.GetAllAsync();
+
+                if (risksResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(risksResult.Error));
+
+                var risks = risksResult.Value;
                 // Use centralized thresholds for risk statistics
                 var stats = new
                 {
@@ -262,10 +288,11 @@ namespace GrcMvc.Controllers
                 if (patchData == null)
                     return BadRequest(ApiResponse<object>.ErrorResponse("Patch data is required"));
 
-                var risk = await _riskService.GetByIdAsync(id);
-                if (risk == null)
+                var riskResult = await _riskService.GetByIdAsync(id);
+                if (riskResult.IsFailure || riskResult.Value == null)
                     return NotFound(ApiResponse<object>.ErrorResponse("Risk not found"));
 
+                var risk = riskResult.Value;
                 // Apply patch - only update provided fields
                 var updateDto = new UpdateRiskDto
                 {
@@ -284,8 +311,10 @@ namespace GrcMvc.Controllers
                     DataClassification = patchData.DataClassification ?? risk.DataClassification
                 };
 
-                var patchedRisk = await _riskService.UpdateAsync(id, updateDto);
-                return Ok(ApiResponse<RiskDto>.SuccessResponse(patchedRisk, "Risk updated successfully"));
+                var patchedRiskResult = await _riskService.UpdateAsync(id, updateDto);
+                if (patchedRiskResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(patchedRiskResult.Error ?? "Update failed"));
+                return Ok(ApiResponse<RiskDto>.SuccessResponse(patchedRiskResult.Value!, "Risk updated successfully"));
             }
             catch (EntityNotFoundException)
             {
@@ -320,8 +349,11 @@ namespace GrcMvc.Controllers
                             errors.Add($"Risk at index {risks.IndexOf(risk)} has no name");
                             continue;
                         }
-                        var created = await _riskService.CreateAsync(risk);
-                        createdRisks.Add(created);
+                        var createdResult = await _riskService.CreateAsync(risk);
+                        if (createdResult.IsSuccess)
+                            createdRisks.Add(createdResult.Value);
+                        else
+                            errors.Add($"Risk '{risk.Name}': {createdResult.Error}");
                     }
                     catch (Exception ex)
                     {
@@ -506,6 +538,389 @@ namespace GrcMvc.Controllers
                 return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
             }
         }
+
+        // ========================================
+        // HEAT MAP & ANALYTICS ENDPOINTS
+        // ========================================
+
+        /// <summary>
+        /// Get risk heat map data for visualization
+        /// </summary>
+        [HttpGet("heatmap/{tenantId}")]
+        public async Task<IActionResult> GetHeatMap(Guid tenantId)
+        {
+            try
+            {
+                if (tenantId == Guid.Empty)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Invalid tenant ID"));
+
+                var heatMapResult = await _riskService.GetHeatMapAsync(tenantId);
+                if (heatMapResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(heatMapResult.Error));
+
+                return Ok(ApiResponse<RiskHeatMapDto>.SuccessResponse(heatMapResult.Value, "Heat map data retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Get risk posture summary for a tenant
+        /// </summary>
+        [HttpGet("posture/{tenantId}")]
+        public async Task<IActionResult> GetRiskPosture(Guid tenantId)
+        {
+            try
+            {
+                if (tenantId == Guid.Empty)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Invalid tenant ID"));
+
+                var postureResult = await _riskService.GetRiskPostureAsync(tenantId);
+                if (postureResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(postureResult.Error));
+
+                return Ok(ApiResponse<RiskPostureSummaryDto>.SuccessResponse(postureResult.Value, "Risk posture retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Get risk score history for trend analysis
+        /// </summary>
+        [HttpGet("{id}/history")]
+        public async Task<IActionResult> GetScoreHistory(Guid id, [FromQuery] int months = 12)
+        {
+            try
+            {
+                if (id == Guid.Empty)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Invalid risk ID"));
+
+                var historyResult = await _riskService.GetScoreHistoryAsync(id, months);
+                if (historyResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(historyResult.Error));
+
+                return Ok(ApiResponse<List<RiskScoreHistoryDto>>.SuccessResponse(historyResult.Value, "Score history retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Calculate risk score (inherent and residual)
+        /// </summary>
+        [HttpPost("{id}/calculate-score")]
+        public async Task<IActionResult> CalculateRiskScore(Guid id)
+        {
+            try
+            {
+                if (id == Guid.Empty)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Invalid risk ID"));
+
+                var scoreResult = await _riskService.CalculateRiskScoreAsync(id);
+                if (scoreResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(scoreResult.Error));
+
+                return Ok(ApiResponse<RiskScoreResultDto>.SuccessResponse(scoreResult.Value, "Risk score calculated successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        // ========================================
+        // CONTROL LINKAGE ENDPOINTS
+        // ========================================
+
+        /// <summary>
+        /// Link a control to mitigate a risk
+        /// </summary>
+        [HttpPost("{riskId}/controls/{controlId}")]
+        public async Task<IActionResult> LinkControl(Guid riskId, Guid controlId, [FromBody] LinkControlRequest request)
+        {
+            try
+            {
+                if (riskId == Guid.Empty || controlId == Guid.Empty)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Invalid risk or control ID"));
+
+                var mappingResult = await _riskService.LinkControlAsync(riskId, controlId, request?.ExpectedEffectiveness ?? 50);
+                if (mappingResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(mappingResult.Error));
+
+                return Ok(ApiResponse<RiskControlMappingDto>.SuccessResponse(mappingResult.Value, "Control linked successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Get all controls linked to a risk
+        /// </summary>
+        [HttpGet("{id}/controls")]
+        public async Task<IActionResult> GetLinkedControls(Guid id)
+        {
+            try
+            {
+                if (id == Guid.Empty)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Invalid risk ID"));
+
+                var controlsResult = await _riskService.GetLinkedControlsAsync(id);
+                if (controlsResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(controlsResult.Error));
+
+                return Ok(ApiResponse<List<RiskControlMappingDto>>.SuccessResponse(controlsResult.Value, "Linked controls retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Calculate control effectiveness for a risk
+        /// </summary>
+        [HttpGet("{id}/control-effectiveness")]
+        public async Task<IActionResult> GetControlEffectiveness(Guid id)
+        {
+            try
+            {
+                if (id == Guid.Empty)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Invalid risk ID"));
+
+                var effectivenessResult = await _riskService.CalculateControlEffectivenessAsync(id);
+                if (effectivenessResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(effectivenessResult.Error));
+
+                return Ok(ApiResponse<object>.SuccessResponse(new { effectiveness = effectivenessResult.Value }, "Control effectiveness calculated"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        // ========================================
+        // ASSESSMENT LINKAGE ENDPOINTS
+        // ========================================
+
+        /// <summary>
+        /// Link risk to an assessment
+        /// </summary>
+        [HttpPost("{riskId}/assessments/{assessmentId}")]
+        public async Task<IActionResult> LinkToAssessment(Guid riskId, Guid assessmentId, [FromBody] LinkAssessmentRequest? request)
+        {
+            try
+            {
+                if (riskId == Guid.Empty || assessmentId == Guid.Empty)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Invalid risk or assessment ID"));
+
+                var riskResult = await _riskService.LinkToAssessmentAsync(riskId, assessmentId, request?.FindingReference);
+                if (riskResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(riskResult.Error));
+
+                return Ok(ApiResponse<RiskDto>.SuccessResponse(riskResult.Value, "Risk linked to assessment successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Get risks from a specific assessment
+        /// </summary>
+        [HttpGet("by-assessment/{assessmentId}")]
+        public async Task<IActionResult> GetRisksByAssessment(Guid assessmentId)
+        {
+            try
+            {
+                if (assessmentId == Guid.Empty)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Invalid assessment ID"));
+
+                var risksResult = await _riskService.GetRisksByAssessmentAsync(assessmentId);
+                if (risksResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(risksResult.Error));
+
+                return Ok(ApiResponse<List<RiskDto>>.SuccessResponse(risksResult.Value, "Risks retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Auto-generate risks from assessment findings
+        /// </summary>
+        [HttpPost("generate-from-assessment/{assessmentId}")]
+        public async Task<IActionResult> GenerateFromAssessment(Guid assessmentId, [FromQuery] Guid tenantId)
+        {
+            try
+            {
+                if (assessmentId == Guid.Empty || tenantId == Guid.Empty)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Invalid assessment or tenant ID"));
+
+                var risksResult = await _riskService.GenerateRisksFromAssessmentAsync(assessmentId, tenantId);
+                if (risksResult.IsFailure)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(risksResult.Error));
+
+                return Ok(ApiResponse<List<RiskDto>>.SuccessResponse(risksResult.Value, $"{risksResult.Value.Count} risks generated from assessment"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// GET /api/risks/by-status/{status} - Filter risks by status
+        /// </summary>
+        [HttpGet("by-status/{status}")]
+        public async Task<IActionResult> GetRisksByStatus(string status)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(status))
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Status parameter is required"));
+
+                var result = await _riskService.GetByStatusAsync(status);
+                if (!result.IsSuccess)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(result.Error ?? "Failed to retrieve risks"));
+
+                return Ok(ApiResponse<IEnumerable<RiskDto>>.SuccessResponse(result.Value, $"Risks with status '{status}' retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// GET /api/risks/by-level/{level} - Filter risks by risk level (Critical, High, Medium, Low)
+        /// </summary>
+        [HttpGet("by-level/{level}")]
+        public async Task<IActionResult> GetRisksByLevel(string level)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(level))
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Level parameter is required"));
+
+                var result = await _riskService.GetAllAsync();
+                if (!result.IsSuccess)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(result.Error ?? "Failed to retrieve risks"));
+
+                // Filter by risk level based on score
+                var filteredRisks = result.Value.Where(r =>
+                {
+                    var riskLevel = RiskScoringConfiguration.GetRiskLevel(r.InherentRisk);
+                    return riskLevel.Equals(level, StringComparison.OrdinalIgnoreCase);
+                }).ToList();
+
+                return Ok(ApiResponse<IEnumerable<RiskDto>>.SuccessResponse(filteredRisks, $"Risks with level '{level}' retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// GET /api/risks/by-category/{categoryId} - Filter risks by category
+        /// </summary>
+        [HttpGet("by-category/{categoryId}")]
+        public async Task<IActionResult> GetRisksByCategory(Guid categoryId)
+        {
+            try
+            {
+                if (categoryId == Guid.Empty)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Invalid category ID"));
+
+                var result = await _riskService.GetAllAsync();
+                if (!result.IsSuccess)
+                    return BadRequest(ApiResponse<object>.ErrorResponse(result.Error ?? "Failed to retrieve risks"));
+
+                // Filter by category ID (assuming Category field stores category ID or name)
+                var filteredRisks = result.Value.Where(r =>
+                    r.Category != null && r.Category.Contains(categoryId.ToString(), StringComparison.OrdinalIgnoreCase)
+                ).ToList();
+
+                return Ok(ApiResponse<IEnumerable<RiskDto>>.SuccessResponse(filteredRisks, $"Risks in category '{categoryId}' retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// GET /api/risks/{id}/mitigation-plan - Get risk mitigation plan
+        /// </summary>
+        [HttpGet("{id}/mitigation-plan")]
+        public async Task<IActionResult> GetMitigationPlan(Guid id)
+        {
+            try
+            {
+                if (id == Guid.Empty)
+                    return BadRequest(ApiResponse<object>.ErrorResponse("Invalid risk ID"));
+
+                var result = await _riskService.GetByIdAsync(id);
+                if (!result.IsSuccess || result.Value == null)
+                    return NotFound(ApiResponse<object>.ErrorResponse("Risk not found"));
+
+                var risk = result.Value;
+
+                // Build mitigation plan response
+                var mitigationPlan = new
+                {
+                    RiskId = risk.Id,
+                    RiskName = risk.Name,
+                    MitigationStrategy = risk.MitigationStrategy,
+                    TreatmentPlan = risk.TreatmentPlan,
+                    Owner = risk.Owner,
+                    TargetDate = risk.DueDate,
+                    Status = risk.Status,
+                    InherentRisk = risk.InherentRisk,
+                    ResidualRisk = risk.ResidualRisk,
+                    LinkedControls = new List<object>(), // Would be populated from control mapping
+                    MitigationActions = new List<object>
+                    {
+                        new { Action = risk.MitigationStrategy, Responsible = risk.Owner, Status = risk.Status, DueDate = risk.DueDate }
+                    }
+                };
+
+                return Ok(ApiResponse<object>.SuccessResponse(mitigationPlan, "Mitigation plan retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Request DTO for linking controls
+    /// </summary>
+    public class LinkControlRequest
+    {
+        public int ExpectedEffectiveness { get; set; } = 50;
+    }
+
+    /// <summary>
+    /// Request DTO for linking assessments
+    /// </summary>
+    public class LinkAssessmentRequest
+    {
+        public string? FindingReference { get; set; }
     }
 
     /// <summary>

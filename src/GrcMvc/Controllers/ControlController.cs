@@ -52,9 +52,11 @@ namespace GrcMvc.Controllers
             if (riskId.HasValue)
             {
                 model.RiskId = riskId.Value;
-                ViewBag.RiskName = (await _riskService.GetByIdAsync(riskId.Value))?.Name;
+                var riskResult = await _riskService.GetByIdAsync(riskId.Value);
+                ViewBag.RiskName = riskResult.IsSuccess ? riskResult.Value?.Name : null;
             }
-            ViewBag.Risks = await _riskService.GetAllAsync();
+            var risksResult = await _riskService.GetAllAsync();
+            ViewBag.Risks = risksResult.IsSuccess ? risksResult.Value : Enumerable.Empty<GrcMvc.Models.DTOs.RiskDto>();
             return View(model);
         }
 

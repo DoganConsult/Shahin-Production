@@ -121,7 +121,8 @@ namespace GrcMvc.Services.Implementations
                 var actionPlan = await _unitOfWork.ActionPlans.GetByIdAsync(id);
                 if (actionPlan == null)
                 {
-                    throw new KeyNotFoundException($"Action plan with ID {id} not found");
+                    _logger.LogWarning("Action plan with ID {Id} not found for update", id);
+                    return null!; // Caller should check for null
                 }
 
                 _mapper.Map(dto, actionPlan);
@@ -161,7 +162,8 @@ namespace GrcMvc.Services.Implementations
                 var actionPlan = await _unitOfWork.ActionPlans.GetByIdAsync(id);
                 if (actionPlan == null)
                 {
-                    throw new KeyNotFoundException($"Action plan with ID {id} not found");
+                    _logger.LogWarning("Action plan with ID {Id} not found for deletion", id);
+                    return; // Idempotent delete - already gone
                 }
 
                 actionPlan.IsDeleted = true;
@@ -203,7 +205,8 @@ namespace GrcMvc.Services.Implementations
                 var actionPlan = await _unitOfWork.ActionPlans.GetByIdAsync(id);
                 if (actionPlan == null)
                 {
-                    throw new KeyNotFoundException($"Action plan with ID {id} not found");
+                    _logger.LogWarning("Action plan with ID {Id} not found for closing", id);
+                    return; // Cannot close non-existent plan
                 }
 
                 actionPlan.Status = "Completed";

@@ -1,4 +1,5 @@
 using AutoMapper;
+using GrcMvc.Common.Results;
 using GrcMvc.Data;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Models.Entities;
@@ -120,7 +121,8 @@ namespace GrcMvc.Services.Implementations
                 var vendor = await _unitOfWork.Vendors.GetByIdAsync(id);
                 if (vendor == null)
                 {
-                    throw new KeyNotFoundException($"Vendor with ID {id} not found");
+                    _logger.LogWarning("Vendor with ID {Id} not found for update", id);
+                    return null!; // Caller should check for null
                 }
 
                 _mapper.Map(dto, vendor);
@@ -159,7 +161,8 @@ namespace GrcMvc.Services.Implementations
                 var vendor = await _unitOfWork.Vendors.GetByIdAsync(id);
                 if (vendor == null)
                 {
-                    throw new KeyNotFoundException($"Vendor with ID {id} not found");
+                    _logger.LogWarning("Vendor with ID {Id} not found for deletion", id);
+                    return; // Idempotent delete - already gone
                 }
 
                 vendor.IsDeleted = true;
@@ -201,7 +204,8 @@ namespace GrcMvc.Services.Implementations
                 var vendor = await _unitOfWork.Vendors.GetByIdAsync(id);
                 if (vendor == null)
                 {
-                    throw new KeyNotFoundException($"Vendor with ID {id} not found");
+                    _logger.LogWarning("Vendor with ID {Id} not found for assessment", id);
+                    return; // Cannot assess non-existent vendor
                 }
 
                 vendor.LastAssessmentDate = DateTime.UtcNow;

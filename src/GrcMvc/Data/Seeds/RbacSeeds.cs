@@ -1228,10 +1228,10 @@ public static class RbacSeeds
             }
         }
 
-        // RiskManager - Risks, ActionPlans, Reports
+        // RiskManager - Risks, ActionPlans, Reports, Assessments (view)
         if (roles.ContainsKey("RiskManager"))
         {
-            var riskFeatures = new[] { "Home", "Dashboard", "Risks", "ActionPlans", "Reports" };
+            var riskFeatures = new[] { "Home", "Dashboard", "Risks", "ActionPlans", "Reports", "Assessments" };
             foreach (var featureCode in riskFeatures)
             {
                 if (features.ContainsKey(featureCode))
@@ -1268,10 +1268,10 @@ public static class RbacSeeds
             }
         }
 
-        // EvidenceOfficer - Evidence, Dashboard
+        // EvidenceOfficer - Evidence, Assessments (view), Dashboard
         if (roles.ContainsKey("EvidenceOfficer"))
         {
-            var evidenceFeatures = new[] { "Home", "Dashboard", "Evidence" };
+            var evidenceFeatures = new[] { "Home", "Dashboard", "Evidence", "Assessments" };
             foreach (var featureCode in evidenceFeatures)
             {
                 if (features.ContainsKey(featureCode))

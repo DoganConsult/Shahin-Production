@@ -187,6 +187,46 @@ public class CaseStudy
     [StringLength(20)]
     public string? ComplianceScore { get; set; }
 
+    /// <summary>
+    /// The challenge faced by the customer
+    /// </summary>
+    public string? Challenge { get; set; }
+    public string? ChallengeAr { get; set; }
+
+    /// <summary>
+    /// The solution provided
+    /// </summary>
+    public string? Solution { get; set; }
+    public string? SolutionAr { get; set; }
+
+    /// <summary>
+    /// The results achieved
+    /// </summary>
+    public string? Results { get; set; }
+    public string? ResultsAr { get; set; }
+
+    /// <summary>
+    /// Customer testimonial quote
+    /// </summary>
+    [StringLength(1000)]
+    public string? CustomerQuote { get; set; }
+    [StringLength(1000)]
+    public string? CustomerQuoteAr { get; set; }
+
+    /// <summary>
+    /// Customer name for testimonial
+    /// </summary>
+    [StringLength(200)]
+    public string? CustomerName { get; set; }
+
+    /// <summary>
+    /// Customer title/position
+    /// </summary>
+    [StringLength(200)]
+    public string? CustomerTitle { get; set; }
+    [StringLength(200)]
+    public string? CustomerTitleAr { get; set; }
+
     [StringLength(500)]
     public string? ImageUrl { get; set; }
 

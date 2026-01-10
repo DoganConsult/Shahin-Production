@@ -120,7 +120,8 @@ namespace GrcMvc.Services.Implementations
                 var complianceEvent = await _unitOfWork.ComplianceEvents.GetByIdAsync(id);
                 if (complianceEvent == null)
                 {
-                    throw new KeyNotFoundException($"Compliance event with ID {id} not found");
+                    _logger.LogWarning("Compliance event with ID {Id} not found for update", id);
+                    return null!; // Caller should check for null
                 }
 
                 _mapper.Map(dto, complianceEvent);
@@ -159,7 +160,8 @@ namespace GrcMvc.Services.Implementations
                 var complianceEvent = await _unitOfWork.ComplianceEvents.GetByIdAsync(id);
                 if (complianceEvent == null)
                 {
-                    throw new KeyNotFoundException($"Compliance event with ID {id} not found");
+                    _logger.LogWarning("Compliance event with ID {Id} not found for deletion", id);
+                    return; // Idempotent delete - already gone
                 }
 
                 complianceEvent.IsDeleted = true;

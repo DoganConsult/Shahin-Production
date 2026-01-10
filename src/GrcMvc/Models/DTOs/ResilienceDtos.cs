@@ -64,6 +64,48 @@ namespace GrcMvc.Models.DTOs
         public Guid? RelatedAssessmentId { get; set; }
         public Guid? RelatedRiskId { get; set; }
         public Guid? RelatedWorkflowInstanceId { get; set; }
+        
+        /// <summary>
+        /// Recovery Time Objective in hours
+        /// </summary>
+        public int? RecoveryTimeObjective { get; set; }
+        
+        /// <summary>
+        /// Recovery Point Objective in hours
+        /// </summary>
+        public int? RecoveryPointObjective { get; set; }
+        
+        /// <summary>
+        /// Priority level (Critical, High, Medium, Low)
+        /// </summary>
+        public string? Priority { get; set; }
+        
+        /// <summary>
+        /// Impact score (0-100)
+        /// </summary>
+        public decimal? ImpactScore { get; set; }
+        
+        /// <summary>
+        /// Category of the resilience assessment
+        /// </summary>
+        public string? Category { get; set; }
+        
+        /// <summary>
+        /// List of dependencies for BIA
+        /// </summary>
+        public List<ResilienceDependencyDto>? Dependencies { get; set; }
+    }
+
+    /// <summary>
+    /// DTO for resilience dependency
+    /// </summary>
+    public class ResilienceDependencyDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public string Criticality { get; set; } = string.Empty;
+        public int? RecoveryPriority { get; set; }
     }
 
     /// <summary>

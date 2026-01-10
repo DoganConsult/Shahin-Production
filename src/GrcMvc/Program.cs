@@ -123,17 +123,39 @@ if (string.IsNullOrWhiteSpace(authConnectionString) && !string.IsNullOrWhiteSpac
 builder.Configuration["JwtSettings:Secret"] = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "ShahinAI-Dev-SecretKey-2026-MustBeAtLeast32Chars!";
 builder.Configuration["ClaudeAgents:ApiKey"] = Environment.GetEnvironmentVariable("CLAUDE_API_KEY") ?? "";
 builder.Configuration["ClaudeAgents:Model"] = Environment.GetEnvironmentVariable("CLAUDE_MODEL") ?? "claude-sonnet-4-20250514";
-builder.Configuration["SmtpSettings:TenantId"] = Environment.GetEnvironmentVariable("SMTP_TENANT_ID") ?? "";
+builder.Configuration["ClaudeAgents:MaxTokens"] = Environment.GetEnvironmentVariable("CLAUDE_MAX_TOKENS") ?? "4096";
+builder.Configuration["ClaudeAgents:Enabled"] = Environment.GetEnvironmentVariable("CLAUDE_ENABLED") ?? "true";
+
+// SMTP Settings - Uses AZURE_TENANT_ID for OAuth2
+builder.Configuration["SmtpSettings:TenantId"] = Environment.GetEnvironmentVariable("AZURE_TENANT_ID") ?? "";
 builder.Configuration["SmtpSettings:ClientId"] = Environment.GetEnvironmentVariable("SMTP_CLIENT_ID") ?? "";
 builder.Configuration["SmtpSettings:ClientSecret"] = Environment.GetEnvironmentVariable("SMTP_CLIENT_SECRET") ?? "";
 builder.Configuration["SmtpSettings:FromEmail"] = Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL") ?? "";
-builder.Configuration["EmailOperations:MicrosoftGraph:TenantId"] = Environment.GetEnvironmentVariable("GRAPH_TENANT_ID") ?? "";
-builder.Configuration["EmailOperations:MicrosoftGraph:ClientId"] = Environment.GetEnvironmentVariable("GRAPH_CLIENT_ID") ?? "";
-builder.Configuration["EmailOperations:MicrosoftGraph:ClientSecret"] = Environment.GetEnvironmentVariable("GRAPH_CLIENT_SECRET") ?? "";
-builder.Configuration["CopilotAgent:TenantId"] = Environment.GetEnvironmentVariable("COPILOT_TENANT_ID") ?? "";
+builder.Configuration["SmtpSettings:Username"] = Environment.GetEnvironmentVariable("SMTP_USERNAME") ?? "";
+builder.Configuration["SmtpSettings:Password"] = Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? "";
+
+// Microsoft Graph API - Uses MSGRAPH_* variables
+builder.Configuration["EmailOperations:MicrosoftGraph:TenantId"] = Environment.GetEnvironmentVariable("AZURE_TENANT_ID") ?? "";
+builder.Configuration["EmailOperations:MicrosoftGraph:ClientId"] = Environment.GetEnvironmentVariable("MSGRAPH_CLIENT_ID") ?? "";
+builder.Configuration["EmailOperations:MicrosoftGraph:ClientSecret"] = Environment.GetEnvironmentVariable("MSGRAPH_CLIENT_SECRET") ?? "";
+builder.Configuration["EmailOperations:MicrosoftGraph:ApplicationIdUri"] = Environment.GetEnvironmentVariable("MSGRAPH_APP_ID_URI") ?? "";
+
+// Copilot Agent - Uses AZURE_TENANT_ID
+builder.Configuration["CopilotAgent:TenantId"] = Environment.GetEnvironmentVariable("AZURE_TENANT_ID") ?? "";
 builder.Configuration["CopilotAgent:ClientId"] = Environment.GetEnvironmentVariable("COPILOT_CLIENT_ID") ?? "";
 builder.Configuration["CopilotAgent:ClientSecret"] = Environment.GetEnvironmentVariable("COPILOT_CLIENT_SECRET") ?? "";
+builder.Configuration["CopilotAgent:ApplicationIdUri"] = Environment.GetEnvironmentVariable("COPILOT_APP_ID_URI") ?? "";
+builder.Configuration["CopilotAgent:Enabled"] = Environment.GetEnvironmentVariable("COPILOT_ENABLED") ?? "false";
+
+// Camunda BPM (Optional)
+builder.Configuration["Camunda:BaseUrl"] = Environment.GetEnvironmentVariable("CAMUNDA_BASE_URL") ?? "http://localhost:8085/camunda";
+builder.Configuration["Camunda:Username"] = Environment.GetEnvironmentVariable("CAMUNDA_USERNAME") ?? "admin";
 builder.Configuration["Camunda:Password"] = Environment.GetEnvironmentVariable("CAMUNDA_PASSWORD") ?? "demo";
+builder.Configuration["Camunda:Enabled"] = Environment.GetEnvironmentVariable("CAMUNDA_ENABLED") ?? "false";
+
+// Kafka (Optional)
+builder.Configuration["Kafka:BootstrapServers"] = Environment.GetEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS") ?? "localhost:9092";
+builder.Configuration["Kafka:Enabled"] = Environment.GetEnvironmentVariable("KAFKA_ENABLED") ?? "false";
 
 // Configure Serilog for structured logging
 builder.Host.UseSerilog((context, services, configuration) => configuration
@@ -490,7 +512,9 @@ builder.Services.AddHttpContextAccessor();
 
 // Register repositories and Unit of Work
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+// Use TenantAwareUnitOfWork for proper multi-tenant database isolation
+// This uses IDbContextFactory to create tenant-specific database connections
+builder.Services.AddScoped<IUnitOfWork, TenantAwareUnitOfWork>();
 
 // Register services
 
@@ -846,19 +870,21 @@ else
 }
 
 // Redis Cache (optional - falls back to IMemoryCache)
-// NOTE: Redis caching requires Microsoft.Extensions.Caching.StackExchangeRedis NuGet package.
-// Currently disabled - application uses IMemoryCache as fallback.
-// To enable: 1) Add package reference, 2) Set Redis:Enabled=true in configuration, 3) Uncomment Redis configuration below.
+// Enable with Redis:Enabled=true in configuration
 var redisEnabled = builder.Configuration.GetValue<bool>("Redis:Enabled", false);
 if (redisEnabled)
 {
-    // var redisConnectionString = builder.Configuration.GetValue<string>("Redis:ConnectionString") ?? "localhost:6379";
-    // builder.Services.AddStackExchangeRedisCache(options =>
-    // {
-    //     options.Configuration = redisConnectionString;
-    //     options.InstanceName = builder.Configuration.GetValue<string>("Redis:InstanceName") ?? "GrcCache_";
-    // });
-    // Redis caching disabled - missing Microsoft.Extensions.Caching.StackExchangeRedis package
+    var redisConnectionString = builder.Configuration.GetValue<string>("Redis:ConnectionString") ?? "grc-redis:6379";
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = redisConnectionString;
+        options.InstanceName = builder.Configuration.GetValue<string>("Redis:InstanceName") ?? "GrcCache_";
+    });
+    Console.WriteLine($"✅ Redis caching enabled: {redisConnectionString}");
+}
+else
+{
+    Console.WriteLine("ℹ️ Redis disabled - using IMemoryCache fallback");
 }
 
 // SignalR Hub
@@ -1211,6 +1237,30 @@ builder.Services.AddEndpointsApiExplorer();
 var app = builder.Build();
 
 // =============================================================================
+// AUTO-MIGRATE DATABASE ON STARTUP
+// =============================================================================
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        Console.WriteLine("🔄 Applying database migrations...");
+        var dbContext = services.GetRequiredService<GrcDbContext>();
+        dbContext.Database.Migrate();
+        Console.WriteLine("✅ Database migrations applied successfully");
+        
+        // Also migrate Auth database
+        var authContext = services.GetRequiredService<GrcAuthDbContext>();
+        authContext.Database.Migrate();
+        Console.WriteLine("✅ Auth database migrations applied successfully");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"❌ Migration error: {ex.Message}");
+    }
+}
+
+// =============================================================================
 // 11. MIDDLEWARE PIPELINE
 // =============================================================================
 
@@ -1485,13 +1535,41 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
-// Health check endpoint
-app.MapGet("/health", () => Results.Ok(new
+// Health check endpoints - ASP.NET Core Best Practice
+// /health - Full health check with database connectivity
+// /health/ready - Readiness probe for Kubernetes
+// /health/live - Liveness probe for Kubernetes
+app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
 {
-    status = "Healthy",
-    timestamp = DateTime.UtcNow,
-    version = "2.0.0"
-}));
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var result = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            status = report.Status.ToString(),
+            timestamp = DateTime.UtcNow,
+            version = "2.0.0",
+            checks = report.Entries.Select(e => new
+            {
+                name = e.Key,
+                status = e.Value.Status.ToString(),
+                description = e.Value.Description,
+                duration = e.Value.Duration.TotalMilliseconds
+            })
+        });
+        await context.Response.WriteAsync(result);
+    }
+});
+
+app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("db")
+});
+
+app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("api")
+});
 
 // =============================================================================
 // 15. INITIALIZE SEED DATA (Run on startup)

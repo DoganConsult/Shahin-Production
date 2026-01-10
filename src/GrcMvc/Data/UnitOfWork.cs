@@ -19,6 +19,7 @@ namespace GrcMvc.Data
         // Lazy-loaded repositories
         private IGenericRepository<Risk>? _risks;
         private IGenericRepository<RiskControlMapping>? _riskControlMappings;
+        private IGenericRepository<RiskAppetiteSetting>? _riskAppetiteSettings;
         private IGenericRepository<Control>? _controls;
         private IGenericRepository<Assessment>? _assessments;
         private IGenericRepository<Audit>? _audits;
@@ -96,6 +97,9 @@ namespace GrcMvc.Data
 
         public IGenericRepository<RiskControlMapping> RiskControlMappings =>
             _riskControlMappings ??= new GenericRepository<RiskControlMapping>(_context);
+
+        public IGenericRepository<RiskAppetiteSetting> RiskAppetiteSettings =>
+            _riskAppetiteSettings ??= new GenericRepository<RiskAppetiteSetting>(_context);
 
         public IGenericRepository<Control> Controls =>
             _controls ??= new GenericRepository<Control>(_context);

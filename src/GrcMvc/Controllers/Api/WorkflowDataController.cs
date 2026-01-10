@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using GrcMvc.Configuration;
 using GrcMvc.Data;
 
+using Microsoft.Extensions.Localization;
+using GrcMvc.Resources;
 namespace GrcMvc.Controllers.Api;
 
 /// <summary>

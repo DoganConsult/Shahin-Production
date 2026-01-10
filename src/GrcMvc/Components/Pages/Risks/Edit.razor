@@ -217,18 +217,19 @@
         try
         {
             // Load from service
-            var serviceRisk = await RiskService.GetByIdAsync(Id);
+            var serviceRiskResult = await RiskService.GetByIdAsync(Id);
             
-            if (serviceRisk == null)
+            if (serviceRiskResult.IsFailure || serviceRiskResult.Value == null)
             {
                 // Risk not found - could redirect or show error
                 // For now, set risk to null and UI will handle
                 risk = null;
+                errorMessage = serviceRiskResult.Error ?? "Risk not found";
                 return;
             }
 
             // Convert Service DTO to UI DTO
-            risk = RiskDtoMapper.ToEditDto(serviceRisk);
+            risk = RiskDtoMapper.ToEditDto(serviceRiskResult.Value);
         }
         catch (Exception ex)
         {

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using GrcMvc.Services.Interfaces;
 using System.ComponentModel.DataAnnotations;
 
+using Microsoft.Extensions.Localization;
+using GrcMvc.Resources;
 namespace GrcMvc.Controllers.Api;
 
 /// <summary>

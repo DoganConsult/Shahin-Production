@@ -226,8 +226,8 @@ namespace GrcMvc.Mappings
                 .ForMember(dest => dest.ModifiedBy, opt => opt.Ignore())
                 .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
 
-            // UI DTO mappings removed - DTOs don't exist yet
-            // TODO: Add UI DTO mappings when UI DTOs are created
+            // UI DTO mappings - basic mappings for common UI patterns
+            // Additional UI-specific DTOs can be added as the UI layer develops
         }
     }
 }

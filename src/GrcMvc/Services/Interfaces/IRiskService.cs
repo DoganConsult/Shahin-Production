@@ -1,3 +1,4 @@
+using GrcMvc.Common;
 using GrcMvc.Models.DTOs;
 using System;
 using System.Collections.Generic;
@@ -8,74 +9,74 @@ namespace GrcMvc.Services.Interfaces
     public interface IRiskService
     {
         // ===== CRUD Operations =====
-        Task<RiskDto?> GetByIdAsync(Guid id);
-        Task<IEnumerable<RiskDto>> GetAllAsync();
-        Task<RiskDto> CreateAsync(CreateRiskDto dto);
-        Task<RiskDto> UpdateAsync(Guid id, UpdateRiskDto dto);
-        Task DeleteAsync(Guid id);
-        Task<IEnumerable<RiskDto>> GetByStatusAsync(string status);
-        Task<IEnumerable<RiskDto>> GetByCategoryAsync(string category);
-        Task<RiskStatisticsDto> GetStatisticsAsync();
-        Task AcceptAsync(Guid id);
+        Task<Result<RiskDto>> GetByIdAsync(Guid id);
+        Task<Result<IEnumerable<RiskDto>>> GetAllAsync();
+        Task<Result<RiskDto>> CreateAsync(CreateRiskDto dto);
+        Task<Result<RiskDto>> UpdateAsync(Guid id, UpdateRiskDto dto);
+        Task<Result> DeleteAsync(Guid id);
+        Task<Result<IEnumerable<RiskDto>>> GetByStatusAsync(string status);
+        Task<Result<IEnumerable<RiskDto>>> GetByCategoryAsync(string category);
+        Task<Result<RiskStatisticsDto>> GetStatisticsAsync();
+        Task<Result> AcceptAsync(Guid id);
 
         // ===== Risk Scoring (NEW) =====
         /// <summary>
         /// Calculate risk score based on likelihood and impact
         /// </summary>
-        Task<RiskScoreResultDto> CalculateRiskScoreAsync(Guid riskId);
+        Task<Result<RiskScoreResultDto>> CalculateRiskScoreAsync(Guid riskId);
 
         /// <summary>
         /// Calculate residual risk after controls
         /// </summary>
-        Task<RiskScoreResultDto> CalculateResidualRiskAsync(Guid riskId);
+        Task<Result<RiskScoreResultDto>> CalculateResidualRiskAsync(Guid riskId);
 
         /// <summary>
         /// Get risk score history for trending
         /// </summary>
-        Task<List<RiskScoreHistoryDto>> GetScoreHistoryAsync(Guid riskId, int months = 12);
+        Task<Result<List<RiskScoreHistoryDto>>> GetScoreHistoryAsync(Guid riskId, int months = 12);
 
         // ===== Risk-Assessment Linkage (NEW) =====
         /// <summary>
         /// Link risk to an assessment finding
         /// </summary>
-        Task<RiskDto> LinkToAssessmentAsync(Guid riskId, Guid assessmentId, string? findingReference = null);
+        Task<Result<RiskDto>> LinkToAssessmentAsync(Guid riskId, Guid assessmentId, string? findingReference = null);
 
         /// <summary>
         /// Get risks identified from a specific assessment
         /// </summary>
-        Task<List<RiskDto>> GetRisksByAssessmentAsync(Guid assessmentId);
+        Task<Result<List<RiskDto>>> GetRisksByAssessmentAsync(Guid assessmentId);
 
         /// <summary>
         /// Auto-generate risks from assessment findings
         /// </summary>
-        Task<List<RiskDto>> GenerateRisksFromAssessmentAsync(Guid assessmentId, Guid tenantId);
+        Task<Result<List<RiskDto>>> GenerateRisksFromAssessmentAsync(Guid assessmentId, Guid tenantId);
 
         // ===== Risk-Control Mapping (NEW) =====
         /// <summary>
         /// Link a control to mitigate a risk
         /// </summary>
-        Task<RiskControlMappingDto> LinkControlAsync(Guid riskId, Guid controlId, int expectedEffectiveness);
+        Task<Result<RiskControlMappingDto>> LinkControlAsync(Guid riskId, Guid controlId, int expectedEffectiveness);
 
         /// <summary>
         /// Get all controls linked to a risk
         /// </summary>
-        Task<List<RiskControlMappingDto>> GetLinkedControlsAsync(Guid riskId);
+        Task<Result<List<RiskControlMappingDto>>> GetLinkedControlsAsync(Guid riskId);
 
         /// <summary>
         /// Calculate control effectiveness for a risk
         /// </summary>
-        Task<decimal> CalculateControlEffectivenessAsync(Guid riskId);
+        Task<Result<decimal>> CalculateControlEffectivenessAsync(Guid riskId);
 
         // ===== Risk Posture (NEW) =====
         /// <summary>
         /// Get overall risk posture for a tenant
         /// </summary>
-        Task<RiskPostureSummaryDto> GetRiskPostureAsync(Guid tenantId);
+        Task<Result<RiskPostureSummaryDto>> GetRiskPostureAsync(Guid tenantId);
 
         /// <summary>
         /// Get risk heat map data
         /// </summary>
-        Task<RiskHeatMapDto> GetHeatMapAsync(Guid tenantId);
+        Task<Result<RiskHeatMapDto>> GetHeatMapAsync(Guid tenantId);
     }
 
     // ===== Risk DTOs =====

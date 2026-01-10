@@ -7,9 +7,9 @@ datasources:
   # PostgreSQL - Main GRC Database
   - name: GRC-PostgreSQL
     type: postgres
-    url: db:5432
+    url: ${DB_HOST:-db}:5432
     database: GrcMvcDb
-    user: postgres
+    user: ${DB_USER:-postgres}
     secureJsonData:
       password: ${DB_PASSWORD:-postgres}
     jsonData:
@@ -19,7 +19,6 @@ datasources:
       connMaxLifetime: 14400
       postgresVersion: 1500
       timescaledb: false
-    isDefault: true
     editable: true
 
   # ClickHouse - Analytics OLAP Database  

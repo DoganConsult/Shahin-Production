@@ -204,15 +204,27 @@
             isLoading = true;
             
             // Load from service
-            var serviceRisks = await RiskService.GetAllAsync();
+            var serviceRisksResult = await RiskService.GetAllAsync();
             
             // Convert Service DTOs to UI DTOs
-            risks = serviceRisks
-                .Select(RiskDtoMapper.ToListItemDto)
-                .ToList();
+            if (serviceRisksResult.IsSuccess)
+            {
+                risks = serviceRisksResult.Value
+                    .Select(RiskDtoMapper.ToListItemDto)
+                    .ToList();
+            }
+            else
+            {
+                risks = new List<RiskListItemDto>();
+                errorMessage = serviceRisksResult.Error ?? "Failed to load risks";
+            }
             
             // Load statistics
-            statistics = await RiskService.GetStatisticsAsync();
+            var statisticsResult = await RiskService.GetStatisticsAsync();
+            if (statisticsResult.IsSuccess)
+            {
+                statistics = statisticsResult.Value;
+            }
         }
         catch (Exception ex)
         {
@@ -251,16 +263,20 @@
         {
             isLoading = true;
             
-            IEnumerable<RiskDto> serviceRisks;
+            IEnumerable<RiskDto> serviceRisks = Enumerable.Empty<RiskDto>();
             
             // Apply status filter if selected
             if (!string.IsNullOrEmpty(selectedStatus))
             {
-                serviceRisks = await RiskService.GetByStatusAsync(selectedStatus);
+                var statusResult = await RiskService.GetByStatusAsync(selectedStatus);
+                if (statusResult.IsSuccess)
+                    serviceRisks = statusResult.Value;
             }
             else
             {
-                serviceRisks = await RiskService.GetAllAsync();
+                var allResult = await RiskService.GetAllAsync();
+                if (allResult.IsSuccess)
+                    serviceRisks = allResult.Value;
             }
             
             // Convert to UI DTOs

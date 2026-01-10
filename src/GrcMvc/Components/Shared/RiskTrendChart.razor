@@ -1,0 +1,426 @@
+@using GrcMvc.Services.Interfaces
+@using GrcMvc.Models.DTOs
+@using System.Text.Json
+
+@* Risk Trend Analysis Chart Component - Shows risk score trends over time *@
+
+<div class="risk-trend-container">
+    @if (IsLoading)
+    {
+        <div class="trend-loading">
+            <LoadingSpinner />
+            <p class="text-muted mt-2">@LoadingMessage</p>
+        </div>
+    }
+    else if (HasError)
+    {
+        <ErrorAlert Message="@ErrorMessage" />
+    }
+    else if (TrendData != null && TrendData.Any())
+    {
+        <div class="trend-wrapper">
+            <!-- Chart Controls -->
+            <div class="trend-controls">
+                <div class="control-group">
+                    <label for="dateRange">@DateRangeLabel</label>
+                    <select id="dateRange" class="form-select form-select-sm" @onchange="OnDateRangeChanged">
+                        <option value="3" selected="@(SelectedMonths == 3)">@ThreeMonthsLabel</option>
+                        <option value="6" selected="@(SelectedMonths == 6)">@SixMonthsLabel</option>
+                        <option value="12" selected="@(SelectedMonths == 12)">@TwelveMonthsLabel</option>
+                        <option value="24" selected="@(SelectedMonths == 24)">@TwoYearsLabel</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <button class="btn btn-sm btn-outline-primary" @onclick="OnExportData">
+                        <i class="bi bi-download"></i> @ExportLabel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chart Canvas -->
+            <div class="chart-container">
+                <canvas id="@ChartId" width="800" height="400"></canvas>
+            </div>
+
+            <!-- Chart Legend -->
+            <div class="trend-legend">
+                <div class="legend-item">
+                    <span class="legend-line inherent-risk"></span>
+                    <span class="legend-label">@InherentRiskLabel</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-line residual-risk"></span>
+                    <span class="legend-label">@ResidualRiskLabel</span>
+                </div>
+            </div>
+
+            <!-- Statistics Summary -->
+            <div class="trend-stats">
+                <div class="stat-card">
+                    <div class="stat-label">@AverageInherentLabel</div>
+                    <div class="stat-value">@GetAverageInherentRisk().ToString("F1")</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">@AverageResidualLabel</div>
+                    <div class="stat-value">@GetAverageResidualRisk().ToString("F1")</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">@ControlEffectivenessLabel</div>
+                    <div class="stat-value">@GetControlEffectiveness().ToString("P0")</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">@TrendDirectionLabel</div>
+                    <div class="stat-value">
+                        @GetTrendDirection()
+                        @if (GetTrendDirection() == "↓")
+                        {
+                            <span class="text-success">@ImprovingLabel</span>
+                        }
+                        else if (GetTrendDirection() == "↑")
+                        {
+                            <span class="text-danger">@DeterioratingLabel</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">@StableLabel</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="no-data-message">
+            <i class="bi bi-graph-up"></i>
+            <p>@NoDataMessage</p>
+        </div>
+    }
+</div>
+
+<style>
+    .risk-trend-container {
+        padding: 1.5rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .trend-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .trend-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .control-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .control-group label {
+        font-weight: 500;
+        color: #333;
+        margin: 0;
+    }
+
+    .chart-container {
+        position: relative;
+        width: 100%;
+        height: 400px;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+    }
+
+    .trend-legend {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .legend-line {
+        width: 40px;
+        height: 3px;
+        border-radius: 2px;
+    }
+
+    .legend-line.inherent-risk {
+        background: linear-gradient(90deg, #dc3545, #ff6b6b);
+    }
+
+    .legend-line.residual-risk {
+        background: linear-gradient(90deg, #0d6efd, #4dabf7);
+    }
+
+    .legend-label {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .trend-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .stat-card {
+        padding: 1rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 8px;
+        border-left: 4px solid #0d6efd;
+        text-align: center;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .no-data-message {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+
+    .no-data-message i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .trend-loading {
+        text-align: center;
+        padding: 3rem;
+    }
+
+    @@media (max-width: 768px) {
+        .trend-controls {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .chart-container {
+            height: 300px;
+        }
+
+        .trend-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .trend-legend {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+</style>
+
+@code {
+    [Parameter] public List<RiskScoreHistoryDto>? TrendData { get; set; }
+    [Parameter] public EventCallback<int> OnDateRangeChange { get; set; }
+    [Parameter] public EventCallback OnExport { get; set; }
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public bool HasError { get; set; }
+    [Parameter] public string ErrorMessage { get; set; } = "Error loading trend data";
+    [Parameter] public string ChartId { get; set; } = $"riskTrendChart_{Guid.NewGuid():N}";
+
+    // Localization parameters
+    [Parameter] public string DateRangeLabel { get; set; } = "Date Range / النطاق الزمني";
+    [Parameter] public string ThreeMonthsLabel { get; set; } = "Last 3 Months / آخر 3 أشهر";
+    [Parameter] public string SixMonthsLabel { get; set; } = "Last 6 Months / آخر 6 أشهر";
+    [Parameter] public string TwelveMonthsLabel { get; set; } = "Last 12 Months / آخر 12 شهر";
+    [Parameter] public string TwoYearsLabel { get; set; } = "Last 2 Years / آخر سنتين";
+    [Parameter] public string ExportLabel { get; set; } = "Export / تصدير";
+    [Parameter] public string InherentRiskLabel { get; set; } = "Inherent Risk / المخاطر الكامنة";
+    [Parameter] public string ResidualRiskLabel { get; set; } = "Residual Risk / المخاطر المتبقية";
+    [Parameter] public string AverageInherentLabel { get; set; } = "Avg. Inherent";
+    [Parameter] public string AverageResidualLabel { get; set; } = "Avg. Residual";
+    [Parameter] public string ControlEffectivenessLabel { get; set; } = "Control Effectiveness";
+    [Parameter] public string TrendDirectionLabel { get; set; } = "Trend";
+    [Parameter] public string ImprovingLabel { get; set; } = "Improving";
+    [Parameter] public string DeterioratingLabel { get; set; } = "Deteriorating";
+    [Parameter] public string StableLabel { get; set; } = "Stable";
+    [Parameter] public string NoDataMessage { get; set; } = "No trend data available / لا توجد بيانات اتجاهات";
+    [Parameter] public string LoadingMessage { get; set; } = "Loading trend data... / جاري تحميل بيانات الاتجاهات...";
+
+    private int SelectedMonths { get; set; } = 12;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && TrendData != null && TrendData.Any())
+        {
+            await RenderChart();
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (TrendData != null && TrendData.Any())
+        {
+            await RenderChart();
+        }
+    }
+
+    private async Task RenderChart()
+    {
+        // Chart.js data preparation
+        var labels = TrendData.Select(d => d.Date.ToString("MMM yyyy")).ToList();
+        var inherentRiskData = TrendData.Select(d => d.InherentRisk).ToList();
+        var residualRiskData = TrendData.Select(d => d.ResidualRisk).ToList();
+
+        var chartData = new
+        {
+            labels,
+            datasets = new[]
+            {
+                new
+                {
+                    label = InherentRiskLabel,
+                    data = inherentRiskData,
+                    borderColor = "#dc3545",
+                    backgroundColor = "rgba(220, 53, 69, 0.1)",
+                    borderWidth = 3,
+                    tension = 0.4,
+                    fill = true
+                },
+                new
+                {
+                    label = ResidualRiskLabel,
+                    data = residualRiskData,
+                    borderColor = "#0d6efd",
+                    backgroundColor = "rgba(13, 110, 253, 0.1)",
+                    borderWidth = 3,
+                    tension = 0.4,
+                    fill = true
+                }
+            }
+        };
+
+        var chartOptions = new
+        {
+            responsive = true,
+            maintainAspectRatio = false,
+            plugins = new
+            {
+                legend = new
+                {
+                    display = false
+                },
+                tooltip = new
+                {
+                    mode = "index",
+                    intersect = false
+                }
+            },
+            scales = new
+            {
+                y = new
+                {
+                    beginAtZero = true,
+                    max = 25,
+                    title = new
+                    {
+                        display = true,
+                        text = "Risk Score"
+                    }
+                },
+                x = new
+                {
+                    title = new
+                    {
+                        display = true,
+                        text = "Time Period"
+                    }
+                }
+            }
+        };
+
+        // Note: In a real implementation, you would use JSInterop to call Chart.js
+        // For now, this is a placeholder showing the data structure
+        // await JSRuntime.InvokeVoidAsync("renderRiskTrendChart", ChartId, chartData, chartOptions);
+    }
+
+    private async Task OnDateRangeChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int months))
+        {
+            SelectedMonths = months;
+            if (OnDateRangeChange.HasDelegate)
+            {
+                await OnDateRangeChange.InvokeAsync(months);
+            }
+        }
+    }
+
+    private async Task OnExportData()
+    {
+        if (OnExport.HasDelegate)
+        {
+            await OnExport.InvokeAsync();
+        }
+    }
+
+    private double GetAverageInherentRisk()
+    {
+        if (TrendData == null || !TrendData.Any()) return 0;
+        return TrendData.Average(d => d.InherentRisk);
+    }
+
+    private double GetAverageResidualRisk()
+    {
+        if (TrendData == null || !TrendData.Any()) return 0;
+        return TrendData.Average(d => d.ResidualRisk);
+    }
+
+    private double GetControlEffectiveness()
+    {
+        var avgInherent = GetAverageInherentRisk();
+        if (avgInherent == 0) return 0;
+
+        var avgResidual = GetAverageResidualRisk();
+        return (avgInherent - avgResidual) / avgInherent;
+    }
+
+    private string GetTrendDirection()
+    {
+        if (TrendData == null || TrendData.Count < 2) return "→";
+
+        // Compare first half average with second half average
+        int midPoint = TrendData.Count / 2;
+        var firstHalfAvg = TrendData.Take(midPoint).Average(d => d.ResidualRisk);
+        var secondHalfAvg = TrendData.Skip(midPoint).Average(d => d.ResidualRisk);
+
+        double change = ((secondHalfAvg - firstHalfAvg) / firstHalfAvg) * 100;
+
+        if (change < -5) return "↓"; // Improving (risk decreasing)
+        if (change > 5) return "↑"; // Deteriorating (risk increasing)
+        return "→"; // Stable
+    }
+}

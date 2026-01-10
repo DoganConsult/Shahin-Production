@@ -323,8 +323,8 @@ namespace GrcMvc.Services.Implementations
             if (!items.Any())
                 return;
 
-            // Get columns from first item
-            var firstItem = items.First() as IDictionary<string, object>;
+            // Get columns from first item (safe: already checked items.Any() above)
+            var firstItem = items.FirstOrDefault() as IDictionary<string, object>;
             if (firstItem == null)
                 return;
 

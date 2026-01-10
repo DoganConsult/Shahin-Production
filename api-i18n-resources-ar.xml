@@ -1,0 +1,1015 @@
+  <!-- ========================================= -->
+  <!-- API LOCALIZATION RESOURCES - ARABIC -->
+  <!-- تمت الإضافة: 2026-01-10 -->
+  <!-- الإجمالي: 336 مفتاح موارد API جديد -->
+  <!-- ========================================= -->
+
+  <!-- الفئة 1: أخطاء عدم العثور (38 مفتاحًا) -->
+  <data name="Api_Error_AgentNotFound" xml:space="preserve">
+    <value>الوكيل غير موجود</value>
+  </data>
+  <data name="Api_Error_AssetNotFound" xml:space="preserve">
+    <value>الأصل غير موجود</value>
+  </data>
+  <data name="Api_Error_AuditNotFound" xml:space="preserve">
+    <value>المراجعة غير موجودة</value>
+  </data>
+  <data name="Api_Error_BaselineNotFound" xml:space="preserve">
+    <value>خط الأساس غير موجود</value>
+  </data>
+  <data name="Api_Error_CertificationNotFound" xml:space="preserve">
+    <value>الشهادة غير موجودة</value>
+  </data>
+  <data name="Api_Error_ControlNotFound" xml:space="preserve">
+    <value>الضابط غير موجود</value>
+  </data>
+  <data name="Api_Error_EvidenceNotFound" xml:space="preserve">
+    <value>الدليل غير موجود</value>
+  </data>
+  <data name="Api_Error_EvidenceTypeNotFound" xml:space="preserve">
+    <value>نوع الدليل غير موجود</value>
+  </data>
+  <data name="Api_Error_EvidenceWorkflowNotFound" xml:space="preserve">
+    <value>سير عمل الدليل غير موجود</value>
+  </data>
+  <data name="Api_Error_ExceptionNotFound" xml:space="preserve">
+    <value>الاستثناء غير موجود</value>
+  </data>
+  <data name="Api_Error_FrameworkNotFound" xml:space="preserve">
+    <value>الإطار التنظيمي غير موجود</value>
+  </data>
+  <data name="Api_Error_GapNotFound" xml:space="preserve">
+    <value>الفجوة غير موجودة</value>
+  </data>
+  <data name="Api_Error_IncidentNotFound" xml:space="preserve">
+    <value>الحادثة غير موجودة</value>
+  </data>
+  <data name="Api_Error_MailboxNotFound" xml:space="preserve">
+    <value>صندوق البريد غير موجود</value>
+  </data>
+  <data name="Api_Error_NoRemediationPlanFound" xml:space="preserve">
+    <value>لم يتم العثور على خطة معالجة</value>
+  </data>
+  <data name="Api_Error_PackageNotFound" xml:space="preserve">
+    <value>الحزمة غير موجودة</value>
+  </data>
+  <data name="Api_Error_PlatformAdminNotFound" xml:space="preserve">
+    <value>مسؤول المنصة غير موجود</value>
+  </data>
+  <data name="Api_Error_PolicyNotFound" xml:space="preserve">
+    <value>السياسة غير موجودة</value>
+  </data>
+  <data name="Api_Error_ReportNotFound" xml:space="preserve">
+    <value>التقرير غير موجود</value>
+  </data>
+  <data name="Api_Error_ResilienceAssessmentNotFound" xml:space="preserve">
+    <value>تقييم المرونة غير موجود</value>
+  </data>
+  <data name="Api_Error_RoleNotFound" xml:space="preserve">
+    <value>الدور الوظيفي غير موجود</value>
+  </data>
+  <data name="Api_Error_RuleNotFound" xml:space="preserve">
+    <value>القاعدة غير موجودة</value>
+  </data>
+  <data name="Api_Error_RulesetNotFound" xml:space="preserve">
+    <value>مجموعة القواعد غير موجودة</value>
+  </data>
+  <data name="Api_Error_SmtpSettingsNotFound" xml:space="preserve">
+    <value>إعدادات SMTP غير موجودة</value>
+  </data>
+  <data name="Api_Error_TemplateNotFound" xml:space="preserve">
+    <value>القالب غير موجود</value>
+  </data>
+  <data name="Api_Error_TestNotFound" xml:space="preserve">
+    <value>الاختبار غير موجود</value>
+  </data>
+  <data name="Api_Error_ThreadNotFound" xml:space="preserve">
+    <value>المحادثة غير موجودة</value>
+  </data>
+  <data name="Api_Error_TitleNotFound" xml:space="preserve">
+    <value>المسمى الوظيفي غير موجود</value>
+  </data>
+  <data name="Api_Error_UserNotFound" xml:space="preserve">
+    <value>المستخدم غير موجود</value>
+  </data>
+  <data name="Api_Error_TenantNotFound" xml:space="preserve">
+    <value>المنظمة غير موجودة</value>
+  </data>
+  <data name="Api_Error_WorkflowDefinitionNotFound" xml:space="preserve">
+    <value>تعريف سير العمل غير موجود</value>
+  </data>
+  <data name="Api_Error_WorkflowNotFound" xml:space="preserve">
+    <value>سير العمل غير موجود</value>
+  </data>
+  <data name="Api_Error_WorkspaceNotFound" xml:space="preserve">
+    <value>مساحة العمل غير موجودة</value>
+  </data>
+  <data name="Api_Error_OrganizationProfileNotFound" xml:space="preserve">
+    <value>ملف المنظمة غير موجود</value>
+  </data>
+  <data name="Api_Error_OrganizationProfileNotFoundSectorRequired" xml:space="preserve">
+    <value>ملف المنظمة غير موجود. يرجى تقديم معامل القطاع.</value>
+  </data>
+  <data name="Api_Error_RegulatorNotFound" xml:space="preserve">
+    <value>الجهة التنظيمية غير موجودة</value>
+  </data>
+  <data name="Api_Error_NoSubscriptionExists" xml:space="preserve">
+    <value>لا يوجد اشتراك</value>
+  </data>
+  <data name="Api_Error_NoOwnerAssigned" xml:space="preserve">
+    <value>لم يتم تعيين مالك</value>
+  </data>
+
+  <!-- الفئة 2: أخطاء التحقق من الصحة (27 مفتاحًا) -->
+  <data name="Api_Error_ActionRequired" xml:space="preserve">
+    <value>الإجراء مطلوب</value>
+  </data>
+  <data name="Api_Error_CodeRequired" xml:space="preserve">
+    <value>الرمز مطلوب</value>
+  </data>
+  <data name="Api_Error_EmailNewPasswordRequired" xml:space="preserve">
+    <value>البريد الإلكتروني وكلمة المرور الجديدة مطلوبان</value>
+  </data>
+  <data name="Api_Error_EmailPasswordRequired" xml:space="preserve">
+    <value>البريد الإلكتروني وكلمة المرور مطلوبان</value>
+  </data>
+  <data name="Api_Error_EmailRequired" xml:space="preserve">
+    <value>البريد الإلكتروني مطلوب</value>
+  </data>
+  <data name="Api_Error_ErrorIdRequired" xml:space="preserve">
+    <value>معرف الخطأ مطلوب</value>
+  </data>
+  <data name="Api_Error_FileMustBeCsv" xml:space="preserve">
+    <value>يجب أن يكون الملف بصيغة CSV</value>
+  </data>
+  <data name="Api_Error_FilePathRequired" xml:space="preserve">
+    <value>مسار الملف مطلوب</value>
+  </data>
+  <data name="Api_Error_UserFieldsRequired" xml:space="preserve">
+    <value>الاسم الأول والأخير والبريد الإلكتروني وكلمة المرور مطلوبة</value>
+  </data>
+  <data name="Api_Error_FrameworkCodeRequired" xml:space="preserve">
+    <value>رمز الإطار التنظيمي مطلوب</value>
+  </data>
+  <data name="Api_Error_MessageRequired" xml:space="preserve">
+    <value>الرسالة مطلوبة</value>
+  </data>
+  <data name="Api_Error_NoFileProvided" xml:space="preserve">
+    <value>لم يتم تقديم ملف</value>
+  </data>
+  <data name="Api_Error_NoFileUploaded" xml:space="preserve">
+    <value>لم يتم رفع أي ملف</value>
+  </data>
+  <data name="Api_Error_OrgNameEmailRequired" xml:space="preserve">
+    <value>اسم المنظمة والبريد الإلكتروني للمسؤول مطلوبان</value>
+  </data>
+  <data name="Api_Error_PlanNameRequired" xml:space="preserve">
+    <value>اسم الخطة مطلوب</value>
+  </data>
+  <data name="Api_Error_ProblemDescriptionRequired" xml:space="preserve">
+    <value>وصف المشكلة مطلوب</value>
+  </data>
+  <data name="Api_Error_QuestionRequired" xml:space="preserve">
+    <value>السؤال مطلوب</value>
+  </data>
+  <data name="Api_Error_ReopenReasonRequired" xml:space="preserve">
+    <value>السبب مطلوب لإعادة الفتح</value>
+  </data>
+  <data name="Api_Error_RejectionReasonRequired" xml:space="preserve">
+    <value>سبب الرفض مطلوب</value>
+  </data>
+  <data name="Api_Error_RequestBodyRequired" xml:space="preserve">
+    <value>محتوى الطلب مطلوب</value>
+  </data>
+  <data name="Api_Error_RoleCodeRequired" xml:space="preserve">
+    <value>رمز الدور الوظيفي مطلوب</value>
+  </data>
+  <data name="Api_Error_SearchQueryRequired" xml:space="preserve">
+    <value>استعلام البحث مطلوب</value>
+  </data>
+  <data name="Api_Error_TitleRequired" xml:space="preserve">
+    <value>العنوان مطلوب</value>
+  </data>
+  <data name="Api_Error_UserIdRequired" xml:space="preserve">
+    <value>معرف المستخدم مطلوب</value>
+  </data>
+  <data name="Api_Error_WorkspaceIdRequired" xml:space="preserve">
+    <value>معرف مساحة العمل مطلوب</value>
+  </data>
+  <data name="Api_Error_AuditSelectionRequired" xml:space="preserve">
+    <value>تقارير المراجعة تتطلب تحديد مراجعة محددة</value>
+  </data>
+  <data name="Api_Error_ControlSelectionRequired" xml:space="preserve">
+    <value>تقارير الضوابط تتطلب تحديد ضابط محدد</value>
+  </data>
+
+  <!-- الفئة 3: أخطاء الخادم / فشل العمليات (83 مفتاحًا) -->
+  <data name="Api_Error_FailedToAddMember" xml:space="preserve">
+    <value>فشل في إضافة العضو</value>
+  </data>
+  <data name="Api_Error_FailedToAnalyzeErrors" xml:space="preserve">
+    <value>فشل في تحليل الأخطاء</value>
+  </data>
+  <data name="Api_Error_FailedToAnalyzeHealth" xml:space="preserve">
+    <value>فشل في تحليل الصحة</value>
+  </data>
+  <data name="Api_Error_FailedToAnalyzeRootCause" xml:space="preserve">
+    <value>فشل في تحليل السبب الجذري</value>
+  </data>
+  <data name="Api_Error_FailedToAssignOwner" xml:space="preserve">
+    <value>فشل في تعيين المالك</value>
+  </data>
+  <data name="Api_Error_FailedToCheckPermission" xml:space="preserve">
+    <value>فشل في التحقق من الصلاحية</value>
+  </data>
+  <data name="Api_Error_FailedToCreateAsset" xml:space="preserve">
+    <value>فشل في إنشاء الأصل</value>
+  </data>
+  <data name="Api_Error_FailedToCreatePlatformAdmin" xml:space="preserve">
+    <value>فشل في إنشاء مسؤول المنصة</value>
+  </data>
+  <data name="Api_Error_FailedToCreateReport" xml:space="preserve">
+    <value>فشل في إنشاء التقرير</value>
+  </data>
+  <data name="Api_Error_FailedToCreateTenant" xml:space="preserve">
+    <value>فشل في إنشاء المنظمة</value>
+  </data>
+  <data name="Api_Error_FailedToCreateUser" xml:space="preserve">
+    <value>فشل في إنشاء المستخدم. راجع السجلات للحصول على التفاصيل.</value>
+  </data>
+  <data name="Api_Error_FailedToCreateWorkspace" xml:space="preserve">
+    <value>فشل في إنشاء مساحة العمل</value>
+  </data>
+  <data name="Api_Error_FailedToDeleteAsset" xml:space="preserve">
+    <value>فشل في حذف الأصل</value>
+  </data>
+  <data name="Api_Error_FailedToDeletePlatformAdmin" xml:space="preserve">
+    <value>فشل في حذف مسؤول المنصة</value>
+  </data>
+  <data name="Api_Error_FailedToDeleteReport" xml:space="preserve">
+    <value>فشل في حذف التقرير</value>
+  </data>
+  <data name="Api_Error_FailedToDetectPatterns" xml:space="preserve">
+    <value>فشل في اكتشاف الأنماط</value>
+  </data>
+  <data name="Api_Error_FailedToDiagnoseError" xml:space="preserve">
+    <value>فشل في تشخيص الخطأ</value>
+  </data>
+  <data name="Api_Error_FailedToDownloadReport" xml:space="preserve">
+    <value>فشل في تنزيل التقرير</value>
+  </data>
+  <data name="Api_Error_FailedToExportReport" xml:space="preserve">
+    <value>فشل في تصدير التقرير</value>
+  </data>
+  <data name="Api_Error_FailedToForcePasswordChange" xml:space="preserve">
+    <value>فشل في فرض تغيير كلمة المرور</value>
+  </data>
+  <data name="Api_Error_FailedToGenerateExecutiveSummary" xml:space="preserve">
+    <value>فشل في إنشاء الملخص التنفيذي</value>
+  </data>
+  <data name="Api_Error_FailedToGenerateReport" xml:space="preserve">
+    <value>فشل في إنشاء التقرير</value>
+  </data>
+  <data name="Api_Error_FailedToGetAlerts" xml:space="preserve">
+    <value>فشل في الحصول على التنبيهات</value>
+  </data>
+  <data name="Api_Error_FailedToGetAllowedTenants" xml:space="preserve">
+    <value>فشل في الحصول على المنظمات المسموح بها</value>
+  </data>
+  <data name="Api_Error_FailedToGetCurrentWorkspace" xml:space="preserve">
+    <value>فشل في الحصول على مساحة العمل الحالية</value>
+  </data>
+  <data name="Api_Error_FailedToGetMembers" xml:space="preserve">
+    <value>فشل في الحصول على الأعضاء</value>
+  </data>
+  <data name="Api_Error_FailedToGetMetrics" xml:space="preserve">
+    <value>فشل في الحصول على المقاييس</value>
+  </data>
+  <data name="Api_Error_FailedToGetRecommendations" xml:space="preserve">
+    <value>فشل في الحصول على التوصيات</value>
+  </data>
+  <data name="Api_Error_FailedToGetWorkspace" xml:space="preserve">
+    <value>فشل في الحصول على مساحة العمل</value>
+  </data>
+  <data name="Api_Error_FailedToImportAssets" xml:space="preserve">
+    <value>فشل في استيراد الأصول</value>
+  </data>
+  <data name="Api_Error_FailedToListWorkspaces" xml:space="preserve">
+    <value>فشل في سرد مساحات العمل</value>
+  </data>
+  <data name="Api_Error_FailedToLoadAlerts" xml:space="preserve">
+    <value>فشل في تحميل التنبيهات</value>
+  </data>
+  <data name="Api_Error_FailedToLoadApiMetrics" xml:space="preserve">
+    <value>فشل في تحميل مقاييس API</value>
+  </data>
+  <data name="Api_Error_FailedToLoadAuditReadiness" xml:space="preserve">
+    <value>فشل في تحميل جاهزية المراجعة</value>
+  </data>
+  <data name="Api_Error_FailedToLoadAuthAnomalies" xml:space="preserve">
+    <value>فشل في تحميل حالات شاذة في المصادقة</value>
+  </data>
+  <data name="Api_Error_FailedToLoadDataFreshness" xml:space="preserve">
+    <value>فشل في تحميل حداثة البيانات</value>
+  </data>
+  <data name="Api_Error_FailedToLoadDataQualityDashboard" xml:space="preserve">
+    <value>فشل في تحميل لوحة معلومات جودة البيانات</value>
+  </data>
+  <data name="Api_Error_FailedToLoadEvidenceGaps" xml:space="preserve">
+    <value>فشل في تحميل فجوات الأدلة</value>
+  </data>
+  <data name="Api_Error_FailedToLoadExecutiveDashboard" xml:space="preserve">
+    <value>فشل في تحميل اللوحة التنفيذية</value>
+  </data>
+  <data name="Api_Error_FailedToLoadIntegrationHealth" xml:space="preserve">
+    <value>فشل في تحميل صحة التكامل</value>
+  </data>
+  <data name="Api_Error_FailedToLoadMissingMappings" xml:space="preserve">
+    <value>فشل في تحميل التعيينات المفقودة</value>
+  </data>
+  <data name="Api_Error_FailedToLoadOperationsDashboard" xml:space="preserve">
+    <value>فشل في تحميل لوحة العمليات</value>
+  </data>
+  <data name="Api_Error_FailedToLoadOrphanRecords" xml:space="preserve">
+    <value>فشل في تحميل السجلات اليتيمة</value>
+  </data>
+  <data name="Api_Error_FailedToLoadOwnerWorkload" xml:space="preserve">
+    <value>فشل في تحميل عبء عمل المالك</value>
+  </data>
+  <data name="Api_Error_FailedToLoadSecurityDashboard" xml:space="preserve">
+    <value>فشل في تحميل لوحة الأمان</value>
+  </data>
+  <data name="Api_Error_FailedToLoadSlaBreaches" xml:space="preserve">
+    <value>فشل في تحميل انتهاكات اتفاقية مستوى الخدمة</value>
+  </data>
+  <data name="Api_Error_FailedToLoadTenantOverview" xml:space="preserve">
+    <value>فشل في تحميل نظرة عامة على المنظمة</value>
+  </data>
+  <data name="Api_Error_FailedToLoadTenantsSummary" xml:space="preserve">
+    <value>فشل في تحميل ملخص المنظمات</value>
+  </data>
+  <data name="Api_Error_FailedToLoadWorkQueue" xml:space="preserve">
+    <value>فشل في تحميل قائمة انتظار العمل</value>
+  </data>
+  <data name="Api_Error_FailedToMonitorConditions" xml:space="preserve">
+    <value>فشل في مراقبة الظروف</value>
+  </data>
+  <data name="Api_Error_FailedToProcessRequest" xml:space="preserve">
+    <value>فشل في معالجة الطلب</value>
+  </data>
+  <data name="Api_Error_FailedToReactivatePlatformAdmin" xml:space="preserve">
+    <value>فشل في إعادة تفعيل مسؤول المنصة</value>
+  </data>
+  <data name="Api_Error_FailedToRemoveMember" xml:space="preserve">
+    <value>فشل في إزالة العضو</value>
+  </data>
+  <data name="Api_Error_FailedToReorderRules" xml:space="preserve">
+    <value>فشل في إعادة ترتيب القواعد</value>
+  </data>
+  <data name="Api_Error_FailedToResetPassword" xml:space="preserve">
+    <value>فشل في إعادة تعيين كلمة المرور</value>
+  </data>
+  <data name="Api_Error_FailedToRestartTenantAdmin" xml:space="preserve">
+    <value>فشل في إعادة تشغيل مسؤول المنظمة</value>
+  </data>
+  <data name="Api_Error_FailedToRestartTenantAdminPermissions" xml:space="preserve">
+    <value>فشل في إعادة تشغيل مسؤول المنظمة - تحقق من الصلاحيات</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveActiveAdmins" xml:space="preserve">
+    <value>فشل في استرجاع المسؤولين النشطين</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveAsset" xml:space="preserve">
+    <value>فشل في استرجاع الأصل</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveAssetSummary" xml:space="preserve">
+    <value>فشل في استرجاع ملخص الأصول</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveAssets" xml:space="preserve">
+    <value>فشل في استرجاع الأصول</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveCounts" xml:space="preserve">
+    <value>فشل في استرجاع الأعداد</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveInScopeAssets" xml:space="preserve">
+    <value>فشل في استرجاع الأصول ضمن النطاق</value>
+  </data>
+  <data name="Api_Error_FailedToRetrievePciAssets" xml:space="preserve">
+    <value>فشل في استرجاع أصول PCI</value>
+  </data>
+  <data name="Api_Error_FailedToRetrievePiiAssets" xml:space="preserve">
+    <value>فشل في استرجاع أصول PII</value>
+  </data>
+  <data name="Api_Error_FailedToRetrievePlatformAdmin" xml:space="preserve">
+    <value>فشل في استرجاع مسؤول المنصة</value>
+  </data>
+  <data name="Api_Error_FailedToRetrievePlatformAdmins" xml:space="preserve">
+    <value>فشل في استرجاع مسؤولي المنصة</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveProfile" xml:space="preserve">
+    <value>فشل في استرجاع الملف الشخصي</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveReport" xml:space="preserve">
+    <value>فشل في استرجاع التقرير</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveUnassignedAssets" xml:space="preserve">
+    <value>فشل في استرجاع الأصول غير المعينة</value>
+  </data>
+  <data name="Api_Error_FailedToSendTestAlert" xml:space="preserve">
+    <value>فشل في إرسال تنبيه تجريبي</value>
+  </data>
+  <data name="Api_Error_FailedToSetDefaultWorkspace" xml:space="preserve">
+    <value>فشل في تعيين مساحة العمل الافتراضية</value>
+  </data>
+  <data name="Api_Error_FailedToSetNewPassword" xml:space="preserve">
+    <value>فشل في تعيين كلمة مرور جديدة</value>
+  </data>
+  <data name="Api_Error_FailedToSuspendPlatformAdmin" xml:space="preserve">
+    <value>فشل في تعليق مسؤول المنصة</value>
+  </data>
+  <data name="Api_Error_FailedToSwitchWorkspace" xml:space="preserve">
+    <value>فشل في تبديل مساحة العمل</value>
+  </data>
+  <data name="Api_Error_FailedToTriggerAudit" xml:space="preserve">
+    <value>فشل في تشغيل المراجعة</value>
+  </data>
+  <data name="Api_Error_FailedToTriggerScan" xml:space="preserve">
+    <value>فشل في تشغيل الفحص</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateAsset" xml:space="preserve">
+    <value>فشل في تحديث الأصل</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateClassification" xml:space="preserve">
+    <value>فشل في تحديث التصنيف</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateConfiguration" xml:space="preserve">
+    <value>فشل في تحديث التكوين</value>
+  </data>
+  <data name="Api_Error_FailedToUpdatePlatformAdmin" xml:space="preserve">
+    <value>فشل في تحديث مسؤول المنصة</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateReport" xml:space="preserve">
+    <value>فشل في تحديث التقرير</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateScope" xml:space="preserve">
+    <value>فشل في تحديث النطاق</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateWorkspace" xml:space="preserve">
+    <value>فشل في تحديث مساحة العمل</value>
+  </data>
+  <data name="Api_Error_FailedToDeliverReport" xml:space="preserve">
+    <value>فشل في تسليم التقرير</value>
+  </data>
+
+  <!-- الفئة 4: أخطاء العمليات (42 مفتاحًا) -->
+  <data name="Api_Error_AnalysisFailed" xml:space="preserve">
+    <value>فشل التحليل</value>
+  </data>
+  <data name="Api_Error_ApprovingEvidence" xml:space="preserve">
+    <value>خطأ في الموافقة على الدليل</value>
+  </data>
+  <data name="Api_Error_ApprovingException" xml:space="preserve">
+    <value>خطأ في الموافقة على الاستثناء</value>
+  </data>
+  <data name="Api_Error_ApprovingPolicy" xml:space="preserve">
+    <value>خطأ في الموافقة على السياسة</value>
+  </data>
+  <data name="Api_Error_CalculatingBenchmark" xml:space="preserve">
+    <value>خطأ في حساب المعيار القياسي</value>
+  </data>
+  <data name="Api_Error_CalculatingCompliance" xml:space="preserve">
+    <value>خطأ في حساب الامتثال</value>
+  </data>
+  <data name="Api_Error_CalculatingEffectiveness" xml:space="preserve">
+    <value>خطأ في حساب الفعالية</value>
+  </data>
+  <data name="Api_Error_CalculatingExcellence" xml:space="preserve">
+    <value>خطأ في حساب التميز</value>
+  </data>
+  <data name="Api_Error_CalculatingMaturity" xml:space="preserve">
+    <value>خطأ في حساب النضج</value>
+  </data>
+  <data name="Api_Error_CalculatingReadiness" xml:space="preserve">
+    <value>خطأ في حساب الجاهزية</value>
+  </data>
+  <data name="Api_Error_CalculatingResilience" xml:space="preserve">
+    <value>خطأ في حساب المرونة</value>
+  </data>
+  <data name="Api_Error_CalculatingRiskPosture" xml:space="preserve">
+    <value>خطأ في حساب وضعية المخاطر</value>
+  </data>
+  <data name="Api_Error_ClosingGap" xml:space="preserve">
+    <value>خطأ في إغلاق الفجوة</value>
+  </data>
+  <data name="Api_Error_CreatingException" xml:space="preserve">
+    <value>خطأ في إنشاء الاستثناء</value>
+  </data>
+  <data name="Api_Error_CreatingGap" xml:space="preserve">
+    <value>خطأ في إنشاء الفجوة</value>
+  </data>
+  <data name="Api_Error_CreatingRemediationPlan" xml:space="preserve">
+    <value>خطأ في إنشاء خطة المعالجة</value>
+  </data>
+  <data name="Api_Error_ExecutingAssessment" xml:space="preserve">
+    <value>خطأ في تنفيذ التقييم</value>
+  </data>
+  <data name="Api_Error_GeneratingReport" xml:space="preserve">
+    <value>خطأ في إنشاء التقرير</value>
+  </data>
+  <data name="Api_Error_IdentifyingGaps" xml:space="preserve">
+    <value>خطأ في تحديد الفجوات</value>
+  </data>
+  <data name="Api_Error_InitializingCycle" xml:space="preserve">
+    <value>خطأ في تهيئة الدورة</value>
+  </data>
+  <data name="Api_Error_InitiatingWorkflow" xml:space="preserve">
+    <value>خطأ في بدء سير العمل</value>
+  </data>
+  <data name="Api_Error_LoadingAgingReport" xml:space="preserve">
+    <value>خطأ في تحميل تقرير التقادم</value>
+  </data>
+  <data name="Api_Error_LoadingApprovals" xml:space="preserve">
+    <value>خطأ في تحميل الموافقات</value>
+  </data>
+  <data name="Api_Error_LoadingDashboard" xml:space="preserve">
+    <value>خطأ في تحميل اللوحة</value>
+  </data>
+  <data name="Api_Error_LoadingDeadlines" xml:space="preserve">
+    <value>خطأ في تحميل المواعيد النهائية</value>
+  </data>
+  <data name="Api_Error_LoadingEvidenceData" xml:space="preserve">
+    <value>خطأ في تحميل بيانات الأدلة</value>
+  </data>
+  <data name="Api_Error_LoadingExceptionData" xml:space="preserve">
+    <value>خطأ في تحميل بيانات الاستثناءات</value>
+  </data>
+  <data name="Api_Error_LoadingGap" xml:space="preserve">
+    <value>خطأ في تحميل الفجوة</value>
+  </data>
+  <data name="Api_Error_LoadingGaps" xml:space="preserve">
+    <value>خطأ في تحميل الفجوات</value>
+  </data>
+  <data name="Api_Error_LoadingImprovementData" xml:space="preserve">
+    <value>خطأ في تحميل بيانات التحسين</value>
+  </data>
+  <data name="Api_Error_LoadingLifecycle" xml:space="preserve">
+    <value>خطأ في تحميل دورة الحياة</value>
+  </data>
+  <data name="Api_Error_LoadingMapping" xml:space="preserve">
+    <value>خطأ في تحميل التعيين</value>
+  </data>
+  <data name="Api_Error_LoadingPolicyData" xml:space="preserve">
+    <value>خطأ في تحميل بيانات السياسة</value>
+  </data>
+  <data name="Api_Error_LoadingRemediationData" xml:space="preserve">
+    <value>خطأ في تحميل بيانات المعالجة</value>
+  </data>
+  <data name="Api_Error_LoadingRemediationPlan" xml:space="preserve">
+    <value>خطأ في تحميل خطة المعالجة</value>
+  </data>
+  <data name="Api_Error_LoadingRiskData" xml:space="preserve">
+    <value>خطأ في تحميل بيانات المخاطر</value>
+  </data>
+  <data name="Api_Error_LoadingSummary" xml:space="preserve">
+    <value>خطأ في تحميل الملخص</value>
+  </data>
+  <data name="Api_Error_LoadingTestingData" xml:space="preserve">
+    <value>خطأ في تحميل بيانات الاختبار</value>
+  </data>
+  <data name="Api_Error_LoadingTrendData" xml:space="preserve">
+    <value>خطأ في تحميل بيانات الاتجاه</value>
+  </data>
+  <data name="Api_Error_RejectingException" xml:space="preserve">
+    <value>خطأ في رفض الاستثناء</value>
+  </data>
+  <data name="Api_Error_RejectingPolicy" xml:space="preserve">
+    <value>خطأ في رفض السياسة</value>
+  </data>
+  <data name="Api_Error_ReopeningGap" xml:space="preserve">
+    <value>خطأ في إعادة فتح الفجوة</value>
+  </data>
+  <data name="Api_Error_SubmittingEvidence" xml:space="preserve">
+    <value>خطأ في تقديم الدليل</value>
+  </data>
+  <data name="Api_Error_SubmittingForValidation" xml:space="preserve">
+    <value>خطأ في تقديم للتحقق</value>
+  </data>
+  <data name="Api_Error_UpdatingProgress" xml:space="preserve">
+    <value>خطأ في تحديث التقدم</value>
+  </data>
+  <data name="Api_Error_ValidatingGap" xml:space="preserve">
+    <value>خطأ في التحقق من الفجوة</value>
+  </data>
+
+  <!-- الفئة 5: أخطاء التحميل العامة (16 مفتاحًا) -->
+  <data name="Api_Error_Generic" xml:space="preserve">
+    <value>حدث خطأ</value>
+  </data>
+  <data name="Api_Error_AddingNote" xml:space="preserve">
+    <value>حدث خطأ أثناء إضافة الملاحظة</value>
+  </data>
+  <data name="Api_Error_CalculatingDomainProgress" xml:space="preserve">
+    <value>حدث خطأ أثناء حساب تقدم المجال</value>
+  </data>
+  <data name="Api_Error_CalculatingProgress" xml:space="preserve">
+    <value>حدث خطأ أثناء حساب التقدم</value>
+  </data>
+  <data name="Api_Error_DeletingNote" xml:space="preserve">
+    <value>حدث خطأ أثناء حذف الملاحظة</value>
+  </data>
+  <data name="Api_Error_ExportingAssessment" xml:space="preserve">
+    <value>حدث خطأ أثناء تصدير التقييم</value>
+  </data>
+  <data name="Api_Error_FetchingStatistics" xml:space="preserve">
+    <value>حدث خطأ أثناء جلب الإحصائيات</value>
+  </data>
+  <data name="Api_Error_LoadingAssessmentData" xml:space="preserve">
+    <value>حدث خطأ أثناء تحميل بيانات التقييم</value>
+  </data>
+  <data name="Api_Error_LoadingEvidence" xml:space="preserve">
+    <value>حدث خطأ أثناء تحميل الأدلة</value>
+  </data>
+  <data name="Api_Error_LoadingNotes" xml:space="preserve">
+    <value>حدث خطأ أثناء تحميل الملاحظات</value>
+  </data>
+  <data name="Api_Error_LoadingRequirement" xml:space="preserve">
+    <value>حدث خطأ أثناء تحميل المتطلب</value>
+  </data>
+  <data name="Api_Error_LoadingRequirements" xml:space="preserve">
+    <value>حدث خطأ أثناء تحميل المتطلبات</value>
+  </data>
+  <data name="Api_Error_SendingInvitation" xml:space="preserve">
+    <value>حدث خطأ أثناء إرسال الدعوة</value>
+  </data>
+  <data name="Api_Error_UpdatingScore" xml:space="preserve">
+    <value>حدث خطأ أثناء تحديث الدرجة</value>
+  </data>
+  <data name="Api_Error_UpdatingStatus" xml:space="preserve">
+    <value>حدث خطأ أثناء تحديث الحالة</value>
+  </data>
+  <data name="Api_Error_UploadingEvidence" xml:space="preserve">
+    <value>حدث خطأ أثناء رفع الدليل</value>
+  </data>
+
+  <!-- الفئة 6: أخطاء الصلاحيات / التفويض (6 مفاتيح) -->
+  <data name="Api_Error_CannotDeleteOwnerAdmin" xml:space="preserve">
+    <value>لا يمكن حذف هذا المسؤول (قد يكون بمستوى المالك)</value>
+  </data>
+  <data name="Api_Error_CannotSuspendOwnerAdmin" xml:space="preserve">
+    <value>لا يمكن تعليق هذا المسؤول (قد يكون بمستوى المالك)</value>
+  </data>
+  <data name="Api_Error_PasswordChangePermissions" xml:space="preserve">
+    <value>فشل فرض تغيير كلمة المرور - تحقق من الصلاحيات</value>
+  </data>
+  <data name="Api_Error_InvalidPermission" xml:space="preserve">
+    <value>صلاحية غير صحيحة</value>
+  </data>
+  <data name="Api_Error_NotPlatformAdmin" xml:space="preserve">
+    <value>أنت لست مسؤول المنصة</value>
+  </data>
+  <data name="Api_Error_MailboxNoGraphUserId" xml:space="preserve">
+    <value>صندوق البريد ليس لديه معرف مستخدم Graph</value>
+  </data>
+
+  <!-- الفئة 7: أخطاء التكوين / النظام (10 مفاتيح) -->
+  <data name="Api_Error_CachingServiceNotConfigured" xml:space="preserve">
+    <value>خدمة التخزين المؤقت غير مكونة</value>
+  </data>
+  <data name="Api_Error_DatabaseConnectionFailed" xml:space="preserve">
+    <value>فشل الاتصال بقاعدة البيانات</value>
+  </data>
+  <data name="Api_Error_InternalError" xml:space="preserve">
+    <value>خطأ داخلي</value>
+  </data>
+  <data name="Api_Error_TenantContextRequired" xml:space="preserve">
+    <value>سياق المنظمة مطلوب</value>
+  </data>
+  <data name="Api_Error_NoTenantContext" xml:space="preserve">
+    <value>لا يوجد سياق منظمة</value>
+  </data>
+  <data name="Api_Error_NoWorkspaceContext" xml:space="preserve">
+    <value>لا يوجد سياق مساحة عمل</value>
+  </data>
+  <data name="Api_Error_WorkflowRoutingServiceUnavailable" xml:space="preserve">
+    <value>خدمة توجيه سير العمل غير متوفرة</value>
+  </data>
+  <data name="Api_Error_UnsupportedReportType" xml:space="preserve">
+    <value>نوع تقرير غير مدعوم</value>
+  </data>
+  <data name="Api_Error_InvalidReportId" xml:space="preserve">
+    <value>معرف تقرير غير صحيح</value>
+  </data>
+  <data name="Api_Error_ReportFileNotFound" xml:space="preserve">
+    <value>ملف التقرير غير موجود</value>
+  </data>
+
+  <!-- الفئة 8: رسائل النجاح (76 مفتاحًا) -->
+  <data name="Api_Success_CacheOperational" xml:space="preserve">
+    <value>التخزين المؤقت يعمل بشكل صحيح</value>
+  </data>
+  <data name="Api_Success_CertificationDeleted" xml:space="preserve">
+    <value>تم حذف الشهادة</value>
+  </data>
+  <data name="Api_Success_ComplianceApprovalRecorded" xml:space="preserve">
+    <value>تم تسجيل موافقة الامتثال</value>
+  </data>
+  <data name="Api_Success_ConfigurationUpdated" xml:space="preserve">
+    <value>تم تحديث التكوين بنجاح</value>
+  </data>
+  <data name="Api_Success_ControlDeleted" xml:space="preserve">
+    <value>تم حذف الضابط بنجاح</value>
+  </data>
+  <data name="Api_Success_ControlDeployed" xml:space="preserve">
+    <value>تم نشر الضابط</value>
+  </data>
+  <data name="Api_Success_EventPublished" xml:space="preserve">
+    <value>تم نشر الحدث</value>
+  </data>
+  <data name="Api_Success_EvidenceApproved" xml:space="preserve">
+    <value>تمت الموافقة على الدليل</value>
+  </data>
+  <data name="Api_Success_EvidenceSubmitted" xml:space="preserve">
+    <value>تم تقديم الدليل</value>
+  </data>
+  <data name="Api_Success_ExceptionApproved" xml:space="preserve">
+    <value>تمت الموافقة على الاستثناء</value>
+  </data>
+  <data name="Api_Success_ExceptionRejected" xml:space="preserve">
+    <value>تم رفض الاستثناء</value>
+  </data>
+  <data name="Api_Success_ExecutiveApprovalRecorded" xml:space="preserve">
+    <value>تم تسجيل الموافقة التنفيذية</value>
+  </data>
+  <data name="Api_Success_FrameworkDeleted" xml:space="preserve">
+    <value>تم حذف الإطار التنظيمي بنجاح</value>
+  </data>
+  <data name="Api_Success_GapClosed" xml:space="preserve">
+    <value>تم إغلاق الفجوة بنجاح</value>
+  </data>
+  <data name="Api_Success_GapCreated" xml:space="preserve">
+    <value>تم إنشاء الفجوة بنجاح</value>
+  </data>
+  <data name="Api_Success_GapReopened" xml:space="preserve">
+    <value>تم إعادة فتح الفجوة</value>
+  </data>
+  <data name="Api_Success_GapSubmittedForValidation" xml:space="preserve">
+    <value>تم تقديم الفجوة للتحقق</value>
+  </data>
+  <data name="Api_Success_ImplementationApproved" xml:space="preserve">
+    <value>تمت الموافقة على التنفيذ</value>
+  </data>
+  <data name="Api_Success_InvitationAccepted" xml:space="preserve">
+    <value>تم قبول الدعوة. يمكنك الآن تسجيل الدخول.</value>
+  </data>
+  <data name="Api_Success_InvitationCancelled" xml:space="preserve">
+    <value>تم إلغاء الدعوة</value>
+  </data>
+  <data name="Api_Success_InvitationResent" xml:space="preserve">
+    <value>تم إعادة إرسال الدعوة</value>
+  </data>
+  <data name="Api_Success_LinkedToControl" xml:space="preserve">
+    <value>تم الربط بالضابط</value>
+  </data>
+  <data name="Api_Success_LinkedToRisk" xml:space="preserve">
+    <value>تم الربط بالمخاطرة</value>
+  </data>
+  <data name="Api_Success_ManagerApprovalRecorded" xml:space="preserve">
+    <value>تم تسجيل موافقة المدير</value>
+  </data>
+  <data name="Api_Success_MemberAdded" xml:space="preserve">
+    <value>تمت إضافة العضو بنجاح</value>
+  </data>
+  <data name="Api_Success_MemberRemoved" xml:space="preserve">
+    <value>تمت إزالة العضو بنجاح</value>
+  </data>
+  <data name="Api_Success_MonitoringStarted" xml:space="preserve">
+    <value>بدأت المراقبة</value>
+  </data>
+  <data name="Api_Success_MovedToImplementationPhase" xml:space="preserve">
+    <value>تم الانتقال إلى مرحلة التنفيذ</value>
+  </data>
+  <data name="Api_Success_MovedToPlanningPhase" xml:space="preserve">
+    <value>تم الانتقال إلى مرحلة التخطيط</value>
+  </data>
+  <data name="Api_Success_OrganizationProfileUpdated" xml:space="preserve">
+    <value>تم تحديث ملف المنظمة</value>
+  </data>
+  <data name="Api_Success_PasswordReset" xml:space="preserve">
+    <value>تمت إعادة تعيين كلمة المرور بنجاح</value>
+  </data>
+  <data name="Api_Success_PasswordResetSuccessfully" xml:space="preserve">
+    <value>تمت إعادة تعيين كلمة المرور بنجاح</value>
+  </data>
+  <data name="Api_Success_PolicyApproved" xml:space="preserve">
+    <value>تمت الموافقة على السياسة بنجاح</value>
+  </data>
+  <data name="Api_Success_PolicyReturnedForRevision" xml:space="preserve">
+    <value>تم إرجاع السياسة للمراجعة</value>
+  </data>
+  <data name="Api_Success_ProgressUpdated" xml:space="preserve">
+    <value>تم تحديث التقدم</value>
+  </data>
+  <data name="Api_Success_RegulatorDeleted" xml:space="preserve">
+    <value>تم حذف الجهة التنظيمية بنجاح</value>
+  </data>
+  <data name="Api_Success_RemediationPlanCreated" xml:space="preserve">
+    <value>تم إنشاء خطة المعالجة</value>
+  </data>
+  <data name="Api_Success_ReportDelivered" xml:space="preserve">
+    <value>تم تسليم التقرير</value>
+  </data>
+  <data name="Api_Success_ResilienceAssessmentCreated" xml:space="preserve">
+    <value>تم إنشاء تقييم المرونة بنجاح</value>
+  </data>
+  <data name="Api_Success_ResilienceAssessmentDeleted" xml:space="preserve">
+    <value>تم حذف تقييم المرونة بنجاح</value>
+  </data>
+  <data name="Api_Success_ResilienceAssessmentStarted" xml:space="preserve">
+    <value>تم بدء تقييم المرونة بنجاح</value>
+  </data>
+  <data name="Api_Success_ResilienceAssessmentUpdated" xml:space="preserve">
+    <value>تم تحديث تقييم المرونة بنجاح</value>
+  </data>
+  <data name="Api_Success_RevisionRequested" xml:space="preserve">
+    <value>تم طلب المراجعة</value>
+  </data>
+  <data name="Api_Success_RiskResilienceAssessmentCreated" xml:space="preserve">
+    <value>تم إنشاء تقييم مرونة المخاطر بنجاح</value>
+  </data>
+  <data name="Api_Success_RiskResilienceAssessmentStarted" xml:space="preserve">
+    <value>تم بدء تقييم مرونة المخاطر بنجاح</value>
+  </data>
+  <data name="Api_Success_ScanTriggered" xml:space="preserve">
+    <value>تم تشغيل الفحص بنجاح</value>
+  </data>
+  <data name="Api_Success_SecurityAuditTriggered" xml:space="preserve">
+    <value>تم تشغيل المراجعة الأمنية بنجاح</value>
+  </data>
+  <data name="Api_Success_SubmittedForReview" xml:space="preserve">
+    <value>تم تقديمه للمراجعة</value>
+  </data>
+  <data name="Api_Success_SubscriptionCreated" xml:space="preserve">
+    <value>تم إنشاء الاشتراك</value>
+  </data>
+  <data name="Api_Success_SubscriptionDeleted" xml:space="preserve">
+    <value>تم حذف الاشتراك</value>
+  </data>
+  <data name="Api_Success_TaskClaimed" xml:space="preserve">
+    <value>تم المطالبة بالمهمة بنجاح</value>
+  </data>
+  <data name="Api_Success_TaskCompleted" xml:space="preserve">
+    <value>تم إكمال المهمة بنجاح</value>
+  </data>
+  <data name="Api_Success_TenantAdminRestarted" xml:space="preserve">
+    <value>تم إعادة تشغيل حساب مسؤول المنظمة</value>
+  </data>
+  <data name="Api_Success_TenantCreated" xml:space="preserve">
+    <value>تم إنشاء المنظمة. تحقق من البريد الإلكتروني للحصول على رابط التفعيل.</value>
+  </data>
+  <data name="Api_Success_TenantUpdated" xml:space="preserve">
+    <value>تم تحديث المنظمة</value>
+  </data>
+  <data name="Api_Success_TestAlertSent" xml:space="preserve">
+    <value>تم إرسال تنبيه تجريبي بنجاح</value>
+  </data>
+  <data name="Api_Success_TestWebhookWorking" xml:space="preserve">
+    <value>webhook التجريبي يعمل</value>
+  </data>
+  <data name="Api_Success_WebhookProcessed" xml:space="preserve">
+    <value>تمت معالجة webhook</value>
+  </data>
+  <data name="Api_Success_WorkflowApproved" xml:space="preserve">
+    <value>تمت الموافقة على سير العمل بنجاح</value>
+  </data>
+  <data name="Api_Success_WorkflowCompleted" xml:space="preserve">
+    <value>تم إكمال سير العمل</value>
+  </data>
+  <data name="Api_Success_WorkflowCreated" xml:space="preserve">
+    <value>تم إنشاء سير العمل بنجاح</value>
+  </data>
+  <data name="Api_Success_WorkflowRejected" xml:space="preserve">
+    <value>تم رفض سير العمل بنجاح</value>
+  </data>
+  <data name="Api_Success_WorkflowStarted" xml:space="preserve">
+    <value>تم بدء سير العمل بنجاح</value>
+  </data>
+  <data name="Api_Success_WorkspaceSetAsDefault" xml:space="preserve">
+    <value>تم تعيين مساحة العمل كافتراضية</value>
+  </data>
+  <data name="Api_Success_WorkspaceSwitched" xml:space="preserve">
+    <value>تم تبديل مساحة العمل بنجاح</value>
+  </data>
+  <data name="Api_Success_WorkspaceUpdated" xml:space="preserve">
+    <value>تم تحديث مساحة العمل بنجاح</value>
+  </data>
+  <data name="Api_Success_ApprovalFinalized" xml:space="preserve">
+    <value>تم الانتهاء من الموافقة</value>
+  </data>
+  <data name="Api_Success_ImportedAssets" xml:space="preserve">
+    <value>تم استيراد {0} من الأصول بنجاح</value>
+  </data>
+
+  <!-- الفئة 9: رسائل التهيئة / البذر (16 مفتاحًا) -->
+  <data name="Api_Success_RegulatorsSeeded" xml:space="preserve">
+    <value>تم إنشاء 92 جهة تنظيمية بنجاح (62 سعودية، 20 دولية، 10 إقليمية)</value>
+  </data>
+  <data name="Api_Success_AdminPasswordsFixed" xml:space="preserve">
+    <value>تم إصلاح كلمات مرور المسؤولين</value>
+  </data>
+  <data name="Api_Success_AllSeedDataCreated" xml:space="preserve">
+    <value>تم إنشاء جميع البيانات الأولية بنجاح</value>
+  </data>
+  <data name="Api_Success_CatalogsSeeded" xml:space="preserve">
+    <value>تم إنشاء الكتالوجات بنجاح</value>
+  </data>
+  <data name="Api_Success_CatalogSeedingCompleted" xml:space="preserve">
+    <value>تم إكمال إنشاء الكتالوج</value>
+  </data>
+  <data name="Api_Success_DefaultProfilesSeeded" xml:space="preserve">
+    <value>تم إنشاء الملفات الشخصية الافتراضية بنجاح</value>
+  </data>
+  <data name="Api_Success_DerivationRulesSeeded" xml:space="preserve">
+    <value>تم إنشاء قواعد الاشتقاق بنجاح</value>
+  </data>
+  <data name="Api_Success_EvidenceScoringSeeded" xml:space="preserve">
+    <value>تم إنشاء تصنيف الأدلة ومؤشر القطاع وتعيينات GOSI بنجاح</value>
+  </data>
+  <data name="Api_Success_KsaFrameworkControlsSeeded" xml:space="preserve">
+    <value>تم إنشاء ضوابط الأطر السعودية بنجاح</value>
+  </data>
+  <data name="Api_Success_MailboxesAlreadySeeded" xml:space="preserve">
+    <value>تم إنشاء صناديق البريد مسبقًا</value>
+  </data>
+  <data name="Api_Success_NoDuplicatesFound" xml:space="preserve">
+    <value>لم يتم العثور على تكرارات</value>
+  </data>
+  <data name="Api_Success_PlatformAdminCreated" xml:space="preserve">
+    <value>تم إنشاء مسؤول المنصة بنجاح</value>
+  </data>
+  <data name="Api_Success_UserAlreadyExists" xml:space="preserve">
+    <value>المستخدم موجود بالفعل، تم التحقق من الدور والسجل</value>
+  </data>
+  <data name="Api_Success_UserCreated" xml:space="preserve">
+    <value>تم إنشاء المستخدم بنجاح</value>
+  </data>
+  <data name="Api_Success_UserNoTenantAssociation" xml:space="preserve">
+    <value>المستخدم ليس لديه ارتباط بمنظمة</value>
+  </data>
+  <data name="Api_Success_WorkflowDefinitionsSeeded" xml:space="preserve">
+    <value>تم إنشاء تعريفات سير العمل بنجاح</value>
+  </data>
+
+  <!-- الفئة 10: رسائل التحليلات / العمليات (18 مفتاحًا) -->
+  <data name="Api_Success_AnalyticsRefreshCompleted" xml:space="preserve">
+    <value>تم إكمال تحديث التحليلات</value>
+  </data>
+  <data name="Api_Success_EmailSyncTriggered" xml:space="preserve">
+    <value>تم تشغيل مزامنة البريد الإلكتروني</value>
+  </data>
+  <data name="Api_Success_NotificationReceived" xml:space="preserve">
+    <value>تم استلام الإشعار</value>
+  </data>
+  <data name="Api_Success_OnboardingCompleted" xml:space="preserve">
+    <value>تم إكمال الإعداد</value>
+  </data>
+  <data name="Api_Error_WebhookProcessingFailed" xml:space="preserve">
+    <value>فشلت معالجة webhook</value>
+  </data>
+  <data name="Api_Success_PasswordChangeSet" xml:space="preserve">
+    <value>تم تعيين فرض تغيير كلمة المرور</value>
+  </data>
+  <data name="Api_Success_PlatformAdminDeleted" xml:space="preserve">
+    <value>تم حذف مسؤول المنصة</value>
+  </data>
+  <data name="Api_Success_PlatformAdminReactivated" xml:space="preserve">
+    <value>تم إعادة تفعيل مسؤول المنصة</value>
+  </data>
+  <data name="Api_Success_PlatformAdminSuspended" xml:space="preserve">
+    <value>تم تعليق مسؤول المنصة</value>
+  </data>
+  <data name="Api_Success_UserReactivated" xml:space="preserve">
+    <value>تم إعادة تفعيل المستخدم</value>
+  </data>
+  <data name="Api_Success_UserSuspended" xml:space="preserve">
+    <value>تم تعليق المستخدم</value>
+  </data>
+  <data name="Api_Error_UnableToCancelInvitation" xml:space="preserve">
+    <value>غير قادر على إلغاء الدعوة</value>
+  </data>
+  <data name="Api_Error_UnableToReactivateUser" xml:space="preserve">
+    <value>غير قادر على إعادة تفعيل المستخدم</value>
+  </data>
+  <data name="Api_Error_UnableToResendInvitation" xml:space="preserve">
+    <value>غير قادر على إعادة إرسال الدعوة. قد لا يكون المستخدم في حالة الانتظار.</value>
+  </data>
+  <data name="Api_Error_UnableToSuspendUser" xml:space="preserve">
+    <value>غير قادر على تعليق المستخدم</value>
+  </data>
+  <data name="Api_Error_NoMessagesInThread" xml:space="preserve">
+    <value>لا توجد رسائل في المحادثة</value>
+  </data>
+  <data name="Api_Error_TenantIdNotFound" xml:space="preserve">
+    <value>معرف المنظمة غير موجود</value>
+  </data>
+  <data name="Api_Error_TaskNotFoundOrNotCompleted" xml:space="preserve">
+    <value>المهمة غير موجودة أو لا يمكن إكمالها</value>
+  </data>

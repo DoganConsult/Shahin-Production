@@ -108,6 +108,7 @@ public static class GrcPermissions
         public const string Delete = Default + ".Delete";
         public const string Approve = Default + ".Approve";
         public const string Monitor = Default + ".Monitor";
+        public const string Escalate = Default + ".Escalate";
     }
 
     // Audits
@@ -239,6 +240,22 @@ public static class GrcPermissions
         public const string Assess = Default + ".Assess";
     }
 
+    // Resilience
+    public static class Resilience
+    {
+        public const string Default = GroupName + ".Resilience";
+        public const string View = Default + ".View";
+        public const string Manage = Default + ".Manage";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string AssessRTO = Default + ".AssessRTO";
+        public const string AssessRPO = Default + ".AssessRPO";
+        public const string ManageDrills = Default + ".ManageDrills";
+        public const string ManagePlans = Default + ".ManagePlans";
+        public const string Monitor = Default + ".Monitor";
+    }
+
     // Reports
     public static class Reports
     {
@@ -322,6 +339,7 @@ public static class GrcPermissions
         yield return Risks.Delete;
         yield return Risks.Approve;
         yield return Risks.Monitor;
+        yield return Risks.Escalate;
 
         // Audits
         yield return Audits.View;
@@ -376,6 +394,18 @@ public static class GrcPermissions
         yield return Vendors.View;
         yield return Vendors.Manage;
         yield return Vendors.Assess;
+
+        // Resilience
+        yield return Resilience.View;
+        yield return Resilience.Manage;
+        yield return Resilience.Create;
+        yield return Resilience.Edit;
+        yield return Resilience.Delete;
+        yield return Resilience.AssessRTO;
+        yield return Resilience.AssessRPO;
+        yield return Resilience.ManageDrills;
+        yield return Resilience.ManagePlans;
+        yield return Resilience.Monitor;
 
         // Reports
         yield return Reports.View;

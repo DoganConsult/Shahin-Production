@@ -7,6 +7,8 @@ using GrcMvc.Services.Implementations;
 using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.Extensions.Localization;
+using GrcMvc.Resources;
 namespace GrcMvc.Controllers.Api;
 
 /// <summary>

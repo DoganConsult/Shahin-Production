@@ -1,0 +1,476 @@
+@using GrcMvc.Services.Interfaces
+@using GrcMvc.Models.DTOs
+
+@* Risk Heat Map Component - 5x5 Probability vs Impact Matrix *@
+
+<div class="risk-heatmap-container">
+    @if (IsLoading)
+    {
+        <div class="heatmap-loading">
+            <LoadingSpinner />
+            <p class="text-muted mt-2">@LoadingMessage</p>
+        </div>
+    }
+    else if (HasError)
+    {
+        <ErrorAlert Message="@ErrorMessage" />
+    }
+    else if (HeatMapData != null && HeatMapData.Cells.Any())
+    {
+        <div class="heatmap-wrapper">
+            <!-- Y-Axis Label (Impact) -->
+            <div class="heatmap-y-axis">
+                <div class="axis-label">@ImpactLabel</div>
+                <div class="axis-values">
+                    @for (int i = 5; i >= 1; i--)
+                    {
+                        <div class="axis-value">@GetImpactLabel(i)</div>
+                    }
+                </div>
+            </div>
+
+            <!-- Heat Map Grid -->
+            <div class="heatmap-grid-wrapper">
+                <div class="heatmap-grid">
+                    @for (int impact = 5; impact >= 1; impact--)
+                    {
+                        <div class="heatmap-row">
+                            @for (int likelihood = 1; likelihood <= 5; likelihood++)
+                            {
+                                var cell = GetCell(likelihood, impact);
+                                var riskLevel = GetRiskLevel(likelihood, impact);
+                                var cellClass = $"heatmap-cell risk-{riskLevel.ToLower()}";
+                                var hasRisks = cell?.RiskCount > 0;
+
+                                <div class="@cellClass @(hasRisks ? "has-risks" : "")"
+                                     @onclick="() => OnCellClick(likelihood, impact)"
+                                     title="@GetCellTooltip(cell, likelihood, impact)">
+                                    <div class="cell-content">
+                                        @if (hasRisks)
+                                        {
+                                            <span class="risk-count">@cell.RiskCount</span>
+                                        }
+                                        <span class="cell-score">@(likelihood * impact)</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <!-- X-Axis Label (Likelihood) -->
+                <div class="heatmap-x-axis">
+                    <div class="axis-values">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <div class="axis-value">@GetLikelihoodLabel(i)</div>
+                        }
+                    </div>
+                    <div class="axis-label">@LikelihoodLabel</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="heatmap-legend">
+            <div class="legend-title">@LegendTitle</div>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <span class="legend-color risk-low"></span>
+                    <span class="legend-label">@LowLabel (1-5)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color risk-medium"></span>
+                    <span class="legend-label">@MediumLabel (6-15)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color risk-high"></span>
+                    <span class="legend-label">@HighLabel (16-20)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color risk-critical"></span>
+                    <span class="legend-label">@CriticalLabel (21-25)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selected Cell Details -->
+        @if (SelectedCell != null)
+        {
+            <div class="selected-cell-details">
+                <div class="details-header">
+                    <h5>@SelectedCellTitle</h5>
+                    <button class="btn btn-sm btn-link" @onclick="ClearSelection">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                </div>
+                <div class="details-content">
+                    @if (SelectedCell.RiskNames.Any())
+                    {
+                        <ul class="risk-list">
+                            @foreach (var riskName in SelectedCell.RiskNames)
+                            {
+                                <li>@riskName</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">@NoRisksMessage</p>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="no-data-message">
+            <i class="bi bi-bar-chart"></i>
+            <p>@NoDataMessage</p>
+        </div>
+    }
+</div>
+
+<style>
+    .risk-heatmap-container {
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .heatmap-wrapper {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .heatmap-y-axis {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .heatmap-y-axis .axis-label {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        text-align: center;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+    }
+
+    .heatmap-y-axis .axis-values {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .axis-value {
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #666;
+    }
+
+    .heatmap-grid-wrapper {
+        flex: 1;
+    }
+
+    .heatmap-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 0.5rem;
+    }
+
+    .heatmap-row {
+        display: flex;
+        gap: 4px;
+    }
+
+    .heatmap-cell {
+        width: 80px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        position: relative;
+    }
+
+    .heatmap-cell:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border-color: #333;
+    }
+
+    .heatmap-cell.has-risks {
+        font-weight: 700;
+    }
+
+    .cell-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .risk-count {
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+
+    .cell-score {
+        font-size: 0.75rem;
+        opacity: 0.8;
+    }
+
+    /* Risk Level Colors */
+    .risk-low {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .risk-medium {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .risk-high {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .risk-critical {
+        background: #dc3545;
+        color: white;
+    }
+
+    .heatmap-x-axis {
+        margin-top: 0.5rem;
+    }
+
+    .heatmap-x-axis .axis-values {
+        display: flex;
+        gap: 4px;
+    }
+
+    .heatmap-x-axis .axis-value {
+        width: 80px;
+        text-align: center;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #666;
+    }
+
+    .heatmap-x-axis .axis-label {
+        text-align: center;
+        font-weight: 600;
+        color: #333;
+        margin-top: 0.5rem;
+    }
+
+    .heatmap-legend {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+    }
+
+    .legend-title {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .legend-items {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .legend-color {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+    }
+
+    .legend-label {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .selected-cell-details {
+        border: 2px solid #dee2e6;
+        border-radius: 6px;
+        padding: 1rem;
+        background: #f8f9fa;
+    }
+
+    .details-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .details-header h5 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #333;
+    }
+
+    .risk-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .risk-list li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .risk-list li:last-child {
+        border-bottom: none;
+    }
+
+    .no-data-message {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+
+    .no-data-message i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .heatmap-loading {
+        text-align: center;
+        padding: 3rem;
+    }
+
+    @@media (max-width: 768px) {
+        .heatmap-cell {
+            width: 60px;
+            height: 48px;
+        }
+
+        .heatmap-x-axis .axis-value {
+            width: 60px;
+        }
+
+        .legend-items {
+            flex-direction: column;
+        }
+    }
+</style>
+
+@code {
+    [Parameter] public RiskHeatMapDto? HeatMapData { get; set; }
+    [Parameter] public EventCallback<(int Likelihood, int Impact)> OnCellClicked { get; set; }
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public bool HasError { get; set; }
+    [Parameter] public string ErrorMessage { get; set; } = "Error loading heat map data";
+
+    // Localization parameters
+    [Parameter] public string LikelihoodLabel { get; set; } = "Likelihood / الاحتمالية";
+    [Parameter] public string ImpactLabel { get; set; } = "Impact / التأثير";
+    [Parameter] public string LegendTitle { get; set; } = "Risk Level / مستوى المخاطرة";
+    [Parameter] public string LowLabel { get; set; } = "Low / منخفض";
+    [Parameter] public string MediumLabel { get; set; } = "Medium / متوسط";
+    [Parameter] public string HighLabel { get; set; } = "High / عالي";
+    [Parameter] public string CriticalLabel { get; set; } = "Critical / حرج";
+    [Parameter] public string NoDataMessage { get; set; } = "No risk data available / لا توجد بيانات مخاطر";
+    [Parameter] public string LoadingMessage { get; set; } = "Loading heat map... / جاري تحميل الخريطة الحرارية...";
+    [Parameter] public string NoRisksMessage { get; set; } = "No risks in this cell / لا توجد مخاطر في هذه الخلية";
+    [Parameter] public string SelectedCellTitle { get; set; } = "Risks in Selected Cell";
+
+    private HeatMapCellDto? SelectedCell { get; set; }
+
+    private HeatMapCellDto? GetCell(int likelihood, int impact)
+    {
+        return HeatMapData?.Cells.FirstOrDefault(c => c.Likelihood == likelihood && c.Impact == impact);
+    }
+
+    private string GetRiskLevel(int likelihood, int impact)
+    {
+        int score = likelihood * impact;
+        if (score >= 21) return "Critical";
+        if (score >= 16) return "High";
+        if (score >= 6) return "Medium";
+        return "Low";
+    }
+
+    private string GetLikelihoodLabel(int level)
+    {
+        return level switch
+        {
+            1 => "Rare",
+            2 => "Unlikely",
+            3 => "Possible",
+            4 => "Likely",
+            5 => "Almost Certain",
+            _ => level.ToString()
+        };
+    }
+
+    private string GetImpactLabel(int level)
+    {
+        return level switch
+        {
+            1 => "Insignificant",
+            2 => "Minor",
+            3 => "Moderate",
+            4 => "Major",
+            5 => "Catastrophic",
+            _ => level.ToString()
+        };
+    }
+
+    private string GetCellTooltip(HeatMapCellDto? cell, int likelihood, int impact)
+    {
+        int score = likelihood * impact;
+        string level = GetRiskLevel(likelihood, impact);
+        int count = cell?.RiskCount ?? 0;
+
+        return $"{GetLikelihoodLabel(likelihood)} × {GetImpactLabel(impact)}\n" +
+               $"Score: {score} - {level}\n" +
+               $"Risks: {count}";
+    }
+
+    private async Task OnCellClick(int likelihood, int impact)
+    {
+        SelectedCell = GetCell(likelihood, impact);
+
+        if (OnCellClicked.HasDelegate)
+        {
+            await OnCellClicked.InvokeAsync((likelihood, impact));
+        }
+    }
+
+    private void ClearSelection()
+    {
+        SelectedCell = null;
+    }
+}

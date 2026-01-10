@@ -136,6 +136,7 @@ namespace GrcMvc.Data
         public DbSet<RiskType> RiskTypes { get; set; } = null!;
         public DbSet<RiskTreatment> RiskTreatments { get; set; } = null!;
         public DbSet<RiskTreatmentControl> RiskTreatmentControls { get; set; } = null!;
+        public DbSet<RiskAppetiteSetting> RiskAppetiteSettings { get; set; } = null!;
         public DbSet<Control> Controls { get; set; } = null!;
         public DbSet<Assessment> Assessments { get; set; } = null!;
         public DbSet<Audit> Audits { get; set; } = null!;
@@ -305,6 +306,8 @@ namespace GrcMvc.Data
 
         // Trial Edition
         public DbSet<TrialRequest> TrialRequests { get; set; } = null!;
+        public DbSet<TrialSignup> TrialSignups { get; set; } = null!;
+        public DbSet<NewsletterSubscription> NewsletterSubscriptions { get; set; } = null!;
 
         // Email Operations (Shahin + Dogan Consult)
         public DbSet<Models.Entities.EmailOperations.EmailMailbox> EmailMailboxes { get; set; } = null!;

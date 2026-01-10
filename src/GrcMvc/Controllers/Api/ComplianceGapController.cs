@@ -4,6 +4,8 @@ using GrcMvc.Services.Interfaces;
 using System;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Localization;
+using GrcMvc.Resources;
 namespace GrcMvc.Controllers.Api;
 
 /// <summary>

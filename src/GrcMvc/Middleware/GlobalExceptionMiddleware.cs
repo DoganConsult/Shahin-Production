@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
@@ -27,18 +28,30 @@ public class GlobalExceptionMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "I", location = "GlobalExceptionMiddleware.cs:28", message = "Request entering middleware", data = new { path = context.Request.Path.Value, method = context.Request.Method, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         try
         {
             await _next(context);
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "I", location = "GlobalExceptionMiddleware.cs:33", message = "Request after next middleware", data = new { statusCode = context.Response.StatusCode, hasStarted = context.Response.HasStarted, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
 
             // Handle status code errors (404, 403, etc.)
             if (!context.Response.HasStarted && context.Response.StatusCode >= 400)
             {
+                // #region agent log
+                try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "I", location = "GlobalExceptionMiddleware.cs:37", message = "Handling status code error", data = new { statusCode = context.Response.StatusCode, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
                 await HandleStatusCodeAsync(context);
             }
         }
         catch (Exception ex)
         {
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "I", location = "GlobalExceptionMiddleware.cs:43", message = "Exception caught in middleware", data = new { exceptionType = ex.GetType().Name, exceptionMessage = ex.Message, stackTrace = ex.StackTrace?.Substring(0, Math.Min(500, ex.StackTrace?.Length ?? 0)), timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             await HandleExceptionAsync(context, ex);
         }
     }

@@ -540,6 +540,11 @@ export default function OnboardingQuestionnaire() {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
+
+  // API Configuration
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://app.shahin-ai.com';
 
   const section = questionnaireSections[currentSection];
   const progress = ((currentSection + 1) / questionnaireSections.length) * 100;
@@ -570,11 +575,66 @@ export default function OnboardingQuestionnaire() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    setSubmitError(null);
+
+    try {
+      // Prepare trial signup data
+      const trialData = {
+        Email: formData.contact_email || '',
+        FullName: formData.contact_name || '',
+        CompanyName: formData.org_name || '',
+        PhoneNumber: formData.contact_phone || '',
+        CompanySize: formData.employee_count || '',
+        Industry: formData.industry || '',
+        TrialPlan: 'PROFESSIONAL',
+        Locale: formData.preferred_language || 'ar',
+        // Additional onboarding data
+        OrganizationNameAr: formData.org_name_ar || '',
+        Headquarters: formData.headquarters || '',
+        OperationsCountries: formData.operations_countries || [],
+        PrimaryRegulators: formData.primary_regulator || [],
+        RequiredFrameworks: formData.required_frameworks || [],
+        ComplianceMaturity: formData.compliance_maturity || '',
+        InfrastructureType: formData.infrastructure_type || [],
+        DataClassification: formData.data_classification || [],
+        ComplianceTeamSize: formData.compliance_team_size || '',
+        KeyRoles: formData.key_roles || [],
+        ApprovalWorkflow: formData.approval_workflow || '',
+        Timeline: formData.timeline || '',
+        AdditionalNotes: formData.additional_notes || ''
+      };
+
+      const response = await fetch(`${API_BASE_URL}/api/Landing/StartTrial`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(trialData)
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setIsComplete(true);
+        setRedirectUrl(result.redirectUrl);
+        console.log('Trial signup successful:', result);
+        
+        // Auto-redirect after 3 seconds
+        if (result.redirectUrl) {
+          setTimeout(() => {
+            window.location.href = `${API_BASE_URL}${result.redirectUrl}`;
+          }, 3000);
+        }
+      } else {
+        setSubmitError(result.messageEn || result.message || 'Signup failed. Please try again.');
+        console.error('Trial signup failed:', result);
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      setSubmitError('Network error. Please check your connection and try again.');
+    }
+
     setIsSubmitting(false);
-    setIsComplete(true);
-    console.log('Onboarding data:', formData);
   };
 
   if (isComplete) {

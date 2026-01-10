@@ -490,8 +490,8 @@ public class AdvancedDashboardService : IAdvancedDashboardService
         // Return default integrations - WebhookEndpoints table not available
         var integrations = new List<IntegrationHealthDto>
         {
-            new("Email Service", "Email", "Healthy", DateTime.UtcNow, DateTime.UtcNow, 0, 50, null),
-            new("Database", "Database", "Healthy", DateTime.UtcNow, DateTime.UtcNow, 0, 10, null)
+            new("Email Service", "Email", "Healthy", DateTime.UtcNow, DateTime.UtcNow, 0, 50, string.Empty),
+            new("Database", "Database", "Healthy", DateTime.UtcNow, DateTime.UtcNow, 0, 10, string.Empty)
         };
 
         return await Task.FromResult(integrations);

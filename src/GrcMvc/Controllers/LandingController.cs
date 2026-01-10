@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using GrcMvc.Data;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text.Json;
 
 namespace GrcMvc.Controllers;
 
@@ -17,6 +20,9 @@ public class LandingController : Controller
 
     public LandingController(GrcDbContext context, ILogger<LandingController> logger)
     {
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "I", location = "LandingController.cs:21", message = "LandingController constructor", data = new { contextExists = context != null, loggerExists = logger != null, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         _context = context;
         _logger = logger;
     }
@@ -29,9 +35,15 @@ public class LandingController : Controller
     [Route("/home")]
     public IActionResult Index()
     {
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "F", location = "LandingController.cs:31", message = "Landing Index entry", data = new { isAuthenticated = User.Identity?.IsAuthenticated ?? false, host = Request.Host.Host, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         // If authenticated, redirect to dashboard
         if (User.Identity?.IsAuthenticated == true)
         {
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "F", location = "LandingController.cs:35", message = "Redirecting authenticated user to Dashboard", data = new { userId = User.Identity?.Name, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             return RedirectToAction("Index", "Dashboard");
         }
 
@@ -39,14 +51,58 @@ public class LandingController : Controller
         var host = Request.Host.Host.ToLower();
 
         // Serve the modern Vercel-style landing page
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:45", message = "Before GetFeatures call", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
+        var features = GetFeatures();
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:47", message = "GetFeatures result", data = new { featuresCount = features?.Count ?? 0, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:48", message = "Before GetTestimonials call", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
+        var testimonials = GetTestimonials();
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:49", message = "GetTestimonials result", data = new { testimonialsCount = testimonials?.Count ?? 0, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:50", message = "Before GetStats call", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
+        var stats = GetStats();
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:51", message = "GetStats result", data = new { statsRegulators = stats?.Regulators ?? 0, statsFrameworks = stats?.Frameworks ?? 0, statsControls = stats?.Controls ?? 0, statsNull = stats == null, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
+        var regulators = GetHighlightedRegulators();
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:52", message = "GetHighlightedRegulators result", data = new { regulatorsCount = regulators?.Count ?? 0, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
+        
         var model = new LandingPageViewModel
         {
-            Features = GetFeatures(),
-            Testimonials = GetTestimonials(),
-            Stats = GetStats(),
-            Regulators = GetHighlightedRegulators()
+            Features = features ?? new List<FeatureItem>(),
+            Testimonials = testimonials ?? new List<TestimonialItem>(),
+            Stats = stats ?? new StatsViewModel(),
+            Regulators = regulators ?? new List<string>()
         };
-        return View("Index", model);
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:60", message = "Before View render", data = new { modelFeaturesCount = model.Features?.Count ?? 0, modelTestimonialsCount = model.Testimonials?.Count ?? 0, modelStatsNull = model.Stats == null, modelRegulatorsCount = model.Regulators?.Count ?? 0, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
+        try
+        {
+            var viewResult = View("Index", model);
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:65", message = "View render success", data = new { viewResultType = viewResult?.GetType().Name, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
+            return viewResult;
+        }
+        catch (Exception ex)
+        {
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H", location = "LandingController.cs:70", message = "View render exception", data = new { exceptionType = ex.GetType().Name, exceptionMessage = ex.Message, stackTrace = ex.StackTrace?.Substring(0, Math.Min(500, ex.StackTrace?.Length ?? 0)), timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
+            _logger.LogError(ex, "Error rendering landing page view");
+            throw;
+        }
     }
 
     /// <summary>
@@ -149,6 +205,99 @@ public class LandingController : Controller
             Testimonials = GetTestimonials().Take(2).ToList()
         };
         return View(model);
+    }
+
+    /// <summary>
+    /// Case Study Detail Page
+    /// </summary>
+    [Route("/case-studies/{slug}")]
+    public async Task<IActionResult> CaseStudyDetails(string slug)
+    {
+        try
+        {
+            // Try to get from database first
+            var caseStudy = await _context.CaseStudies
+                .FirstOrDefaultAsync(c => c.Slug == slug && c.IsActive);
+
+            if (caseStudy != null)
+            {
+                var model = new CaseStudyDetailViewModel
+                {
+                    Id = caseStudy.Id,
+                    Title = caseStudy.Title,
+                    TitleAr = caseStudy.TitleAr,
+                    Slug = caseStudy.Slug,
+                    Summary = caseStudy.Summary,
+                    SummaryAr = caseStudy.SummaryAr,
+                    Industry = caseStudy.Industry,
+                    IndustryAr = caseStudy.IndustryAr,
+                    FrameworkCode = caseStudy.FrameworkCode,
+                    Challenge = caseStudy.Challenge ?? string.Empty,
+                    ChallengeAr = caseStudy.ChallengeAr ?? string.Empty,
+                    Solution = caseStudy.Solution ?? string.Empty,
+                    SolutionAr = caseStudy.SolutionAr ?? string.Empty,
+                    Results = caseStudy.Results ?? string.Empty,
+                    ResultsAr = caseStudy.ResultsAr ?? string.Empty,
+                    TimeToCompliance = caseStudy.TimeToCompliance,
+                    ImprovementMetric = caseStudy.ImprovementMetric,
+                    ImprovementLabel = caseStudy.ImprovementLabel,
+                    ImprovementLabelAr = caseStudy.ImprovementLabelAr,
+                    ComplianceScore = caseStudy.ComplianceScore,
+                    CustomerQuote = caseStudy.CustomerQuote ?? string.Empty,
+                    CustomerQuoteAr = caseStudy.CustomerQuoteAr ?? string.Empty,
+                    CustomerName = caseStudy.CustomerName ?? string.Empty,
+                    CustomerTitle = caseStudy.CustomerTitle ?? string.Empty,
+                    CustomerTitleAr = caseStudy.CustomerTitleAr ?? string.Empty,
+                    RelatedCaseStudies = await GetRelatedCaseStudiesAsync(caseStudy.Industry, caseStudy.Id)
+                };
+
+                return View(model);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Error fetching case study details for slug: {Slug}", slug);
+        }
+
+        // Case study not found
+        return NotFound();
+    }
+
+    private async Task<List<CaseStudyItem>> GetRelatedCaseStudiesAsync(string? industry, Guid excludeId)
+    {
+        try
+        {
+            var relatedCaseStudies = await _context.CaseStudies
+                .Where(c => c.IsActive && c.Id != excludeId)
+                .Where(c => string.IsNullOrEmpty(industry) || c.Industry == industry)
+                .OrderBy(c => c.DisplayOrder)
+                .Take(3)
+                .Select(c => new CaseStudyItem
+                {
+                    Id = c.Id,
+                    Title = c.Title,
+                    TitleAr = c.TitleAr,
+                    Slug = c.Slug,
+                    Summary = c.Summary,
+                    SummaryAr = c.SummaryAr,
+                    Industry = c.Industry,
+                    IndustryAr = c.IndustryAr,
+                    FrameworkCode = c.FrameworkCode,
+                    TimeToCompliance = c.TimeToCompliance,
+                    ImprovementMetric = c.ImprovementMetric,
+                    ImprovementLabel = c.ImprovementLabel,
+                    ImprovementLabelAr = c.ImprovementLabelAr,
+                    ComplianceScore = c.ComplianceScore
+                })
+                .ToListAsync();
+
+            return relatedCaseStudies;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Error fetching related case studies for industry: {Industry}", industry);
+            return new List<CaseStudyItem>();
+        }
     }
 
     private async Task<List<CaseStudyItem>> GetCaseStudiesAsync()
@@ -300,6 +449,248 @@ public class LandingController : Controller
     }
 
     // ========== API ENDPOINTS FOR MARKETING DATA ==========
+
+    /// <summary>
+    /// API: Start Trial - Register for a free trial
+    /// POST /api/Landing/StartTrial
+    /// ASP.NET Core Best Practice: Proper validation and error handling
+    /// </summary>
+    [Route("api/Landing/StartTrial")]
+    [HttpPost]
+    [IgnoreAntiforgeryToken] // Required for cross-origin requests from landing page (shahin-ai.com)
+    [AllowAnonymous]
+    public async Task<IActionResult> StartTrial([FromBody] TrialSignupDto model)
+    {
+        if (model == null)
+        {
+            return BadRequest(new { success = false, messageEn = "Invalid request data", messageAr = "بيانات الطلب غير صالحة" });
+        }
+
+        // Validate email
+        if (string.IsNullOrWhiteSpace(model.Email) || !IsValidEmail(model.Email))
+        {
+            return BadRequest(new { success = false, messageEn = "A valid email address is required", messageAr = "عنوان البريد الإلكتروني مطلوب" });
+        }
+
+        // Validate name
+        if (string.IsNullOrWhiteSpace(model.FullName) || model.FullName.Length < 2)
+        {
+            return BadRequest(new { success = false, messageEn = "Full name is required", messageAr = "الاسم الكامل مطلوب" });
+        }
+
+        // Validate company
+        if (string.IsNullOrWhiteSpace(model.CompanyName))
+        {
+            return BadRequest(new { success = false, messageEn = "Company name is required", messageAr = "اسم الشركة مطلوب" });
+        }
+
+        try
+        {
+            // Check if email already registered
+            var existingTenant = await _context.Tenants
+                .FirstOrDefaultAsync(t => t.Email != null && t.Email.ToLower() == model.Email.ToLower());
+
+            if (existingTenant != null)
+            {
+                _logger.LogInformation("Trial signup attempt with existing email: {Email}", model.Email);
+                return BadRequest(new 
+                { 
+                    success = false, 
+                    messageEn = "This email is already registered. Please log in or use a different email.",
+                    messageAr = "هذا البريد الإلكتروني مسجل مسبقاً. يرجى تسجيل الدخول أو استخدام بريد إلكتروني آخر."
+                });
+            }
+
+            // Store trial signup request
+            var trialSignup = new Models.Entities.TrialSignup
+            {
+                Id = Guid.NewGuid(),
+                Email = model.Email,
+                FullName = model.FullName,
+                CompanyName = model.CompanyName,
+                PhoneNumber = model.PhoneNumber,
+                CompanySize = model.CompanySize,
+                Industry = model.Industry,
+                TrialPlan = model.TrialPlan ?? "STARTER",
+                Status = "Pending",
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+                UserAgent = Request.Headers["User-Agent"].ToString(),
+                Locale = model.Locale ?? "ar",
+                CreatedDate = DateTime.UtcNow
+            };
+
+            _context.Add(trialSignup);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Trial signup created: {Email}, Company: {Company}, Plan: {Plan}",
+                model.Email, model.CompanyName, model.TrialPlan);
+
+            // Redirect to the trial registration page
+            var redirectUrl = $"/grc-free-trial?email={Uri.EscapeDataString(model.Email)}&name={Uri.EscapeDataString(model.FullName)}";
+
+            return Ok(new 
+            { 
+                success = true, 
+                messageEn = "Trial signup received! You will be redirected to complete registration.",
+                messageAr = "تم استلام طلب التجربة! سيتم توجيهك لإكمال التسجيل.",
+                redirectUrl = redirectUrl,
+                signupId = trialSignup.Id
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing trial signup for {Email}", model.Email);
+            return StatusCode(500, new 
+            { 
+                success = false, 
+                messageEn = "An error occurred. Please try again.",
+                messageAr = "حدث خطأ. يرجى المحاولة مرة أخرى."
+            });
+        }
+    }
+
+    /// <summary>
+    /// API: Subscribe to Newsletter
+    /// POST /api/Landing/SubscribeNewsletter
+    /// </summary>
+    [Route("api/Landing/SubscribeNewsletter")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SubscribeNewsletter([FromBody] NewsletterSubscriptionDto model)
+    {
+        if (model == null)
+        {
+            return BadRequest(new { success = false, messageEn = "Invalid request", messageAr = "طلب غير صالح" });
+        }
+
+        if (string.IsNullOrWhiteSpace(model.Email) || !IsValidEmail(model.Email))
+        {
+            return BadRequest(new { success = false, messageEn = "A valid email address is required", messageAr = "عنوان البريد الإلكتروني مطلوب" });
+        }
+
+        try
+        {
+            // Check if already subscribed
+            var existingSubscription = await _context.Set<Models.Entities.NewsletterSubscription>()
+                .FirstOrDefaultAsync(n => n.Email.ToLower() == model.Email.ToLower());
+
+            if (existingSubscription != null)
+            {
+                if (existingSubscription.IsActive)
+                {
+                    return Ok(new 
+                    { 
+                        success = true, 
+                        messageEn = "You're already subscribed to our newsletter!",
+                        messageAr = "أنت مشترك بالفعل في نشرتنا الإخبارية!"
+                    });
+                }
+                else
+                {
+                    // Reactivate subscription
+                    existingSubscription.IsActive = true;
+                    existingSubscription.ResubscribedAt = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+
+                    return Ok(new 
+                    { 
+                        success = true, 
+                        messageEn = "Welcome back! Your subscription has been reactivated.",
+                        messageAr = "مرحباً بعودتك! تم إعادة تفعيل اشتراكك."
+                    });
+                }
+            }
+
+            // Create new subscription
+            var subscription = new Models.Entities.NewsletterSubscription
+            {
+                Id = Guid.NewGuid(),
+                Email = model.Email,
+                Name = model.Name,
+                IsActive = true,
+                Locale = model.Locale ?? "ar",
+                Source = "LandingPage",
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+                SubscribedAt = DateTime.UtcNow,
+                CreatedDate = DateTime.UtcNow
+            };
+
+            _context.Add(subscription);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Newsletter subscription created: {Email}", model.Email);
+
+            return Ok(new 
+            { 
+                success = true, 
+                messageEn = "Thank you for subscribing! You'll receive our latest updates.",
+                messageAr = "شكراً لاشتراكك! ستصلك آخر التحديثات."
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing newsletter subscription for {Email}", model.Email);
+            return StatusCode(500, new 
+            { 
+                success = false, 
+                messageEn = "An error occurred. Please try again.",
+                messageAr = "حدث خطأ. يرجى المحاولة مرة أخرى."
+            });
+        }
+    }
+
+    /// <summary>
+    /// API: Unsubscribe from Newsletter
+    /// POST /api/Landing/UnsubscribeNewsletter
+    /// </summary>
+    [Route("api/Landing/UnsubscribeNewsletter")]
+    [HttpPost]
+    public async Task<IActionResult> UnsubscribeNewsletter([FromQuery] string email, [FromQuery] string? token = null)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return BadRequest(new { success = false, messageEn = "Email is required", messageAr = "البريد الإلكتروني مطلوب" });
+        }
+
+        try
+        {
+            var subscription = await _context.Set<Models.Entities.NewsletterSubscription>()
+                .FirstOrDefaultAsync(n => n.Email.ToLower() == email.ToLower());
+
+            if (subscription == null)
+            {
+                return NotFound(new 
+                { 
+                    success = false, 
+                    messageEn = "Email not found in our subscription list.",
+                    messageAr = "البريد الإلكتروني غير موجود في قائمة الاشتراكات."
+                });
+            }
+
+            subscription.IsActive = false;
+            subscription.UnsubscribedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Newsletter unsubscription: {Email}", email);
+
+            return Ok(new 
+            { 
+                success = true, 
+                messageEn = "You have been unsubscribed successfully.",
+                messageAr = "تم إلغاء اشتراكك بنجاح."
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing unsubscribe for {Email}", email);
+            return StatusCode(500, new 
+            { 
+                success = false, 
+                messageEn = "An error occurred. Please try again.",
+                messageAr = "حدث خطأ. يرجى المحاولة مرة أخرى."
+            });
+        }
+    }
 
     /// <summary>
     /// API: Submit contact form
@@ -722,17 +1113,29 @@ public class LandingController : Controller
 
     private List<TestimonialItem> GetTestimonials()
     {
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1059", message = "GetTestimonials entry", data = new { contextExists = _context != null, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         // Fetch real testimonials from database
         try
         {
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1063", message = "Before testimonials database query", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             var testimonials = _context.Testimonials
                 .Where(t => t.IsActive)
                 .OrderBy(t => t.DisplayOrder)
                 .Take(6)
                 .ToList();
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1069", message = "After testimonials database query", data = new { testimonialsCount = testimonials?.Count ?? 0, hasAny = testimonials?.Any() ?? false, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
 
             if (testimonials.Any())
             {
+                // #region agent log
+                try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1072", message = "Testimonials found - mapping to items", data = new { testimonialsCount = testimonials.Count, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
                 return testimonials.Select(t => new TestimonialItem
                 {
                     Quote = t.Quote,
@@ -746,30 +1149,54 @@ public class LandingController : Controller
         }
         catch (Exception ex)
         {
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1085", message = "GetTestimonials exception", data = new { exceptionType = ex.GetType().Name, exceptionMessage = ex.Message, stackTrace = ex.StackTrace?.Substring(0, Math.Min(500, ex.StackTrace?.Length ?? 0)), timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             _logger.LogWarning(ex, "Error fetching testimonials from database, using fallback");
         }
 
         // NO FALLBACK TESTIMONIALS - We are new to market with no real customers yet.
         // DO NOT add fake testimonials with specific names - this is misleading.
         // Return empty list - the view will not render the testimonials section.
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1092", message = "GetTestimonials returning empty list", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         return new List<TestimonialItem>();
     }
 
     private StatsViewModel GetStats()
     {
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1094", message = "GetStats entry", data = new { contextExists = _context != null, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         // Fetch real stats from database
         try
         {
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1099", message = "Before RegulatorCatalogs.Count", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             var regulatorCount = _context.RegulatorCatalogs.Count();
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1101", message = "RegulatorCatalogs.Count result", data = new { regulatorCount, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             var frameworkCount = _context.FrameworkCatalogs.Count();
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1103", message = "FrameworkCatalogs.Count result", data = new { frameworkCount, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             var controlCount = _context.ControlCatalogs.Count();
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1105", message = "ControlCatalogs.Count result", data = new { controlCount, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             var evidenceCount = _context.EvidenceTypeCatalogs.Count();
             var workflowCount = _context.Workflows.Count();
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1107", message = "All stats counts retrieved", data = new { regulatorCount, frameworkCount, controlCount, evidenceCount, workflowCount, hasData = regulatorCount > 0 || frameworkCount > 0, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
 
             // Only return real data if we have seeded catalogs
             if (regulatorCount > 0 || frameworkCount > 0)
             {
-                return new StatsViewModel
+                var stats = new StatsViewModel
                 {
                     Regulators = regulatorCount > 0 ? regulatorCount : 92,
                     Frameworks = frameworkCount > 0 ? frameworkCount : 163,
@@ -777,14 +1204,24 @@ public class LandingController : Controller
                     EvidenceItems = evidenceCount > 0 ? evidenceCount : 500,
                     Workflows = workflowCount > 0 ? workflowCount : 12
                 };
+                // #region agent log
+                try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1116", message = "GetStats returning real data", data = new { statsRegulators = stats.Regulators, statsFrameworks = stats.Frameworks, statsControls = stats.Controls, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
+                return stats;
             }
         }
         catch (Exception ex)
         {
+            // #region agent log
+            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1120", message = "GetStats exception", data = new { exceptionType = ex.GetType().Name, exceptionMessage = ex.Message, stackTrace = ex.StackTrace?.Substring(0, Math.Min(500, ex.StackTrace?.Length ?? 0)), timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             _logger.LogWarning(ex, "Error fetching stats from database");
         }
 
         // Fallback stats (based on seeded data)
+        // #region agent log
+        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1127", message = "GetStats returning fallback stats", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+        // #endregion
         return new StatsViewModel
         {
             Regulators = 92,
@@ -1238,6 +1675,36 @@ public class CaseStudyItem
     public bool IsFeatured { get; set; }
 }
 
+public class CaseStudyDetailViewModel
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; } = "";
+    public string? TitleAr { get; set; }
+    public string? Slug { get; set; }
+    public string Summary { get; set; } = "";
+    public string? SummaryAr { get; set; }
+    public string Industry { get; set; } = "";
+    public string? IndustryAr { get; set; }
+    public string? FrameworkCode { get; set; }
+    public string Challenge { get; set; } = "";
+    public string? ChallengeAr { get; set; }
+    public string Solution { get; set; } = "";
+    public string? SolutionAr { get; set; }
+    public string Results { get; set; } = "";
+    public string? ResultsAr { get; set; }
+    public string? TimeToCompliance { get; set; }
+    public string? ImprovementMetric { get; set; }
+    public string? ImprovementLabel { get; set; }
+    public string? ImprovementLabelAr { get; set; }
+    public string? ComplianceScore { get; set; }
+    public string CustomerQuote { get; set; } = "";
+    public string? CustomerQuoteAr { get; set; }
+    public string CustomerName { get; set; } = "";
+    public string CustomerTitle { get; set; } = "";
+    public string? CustomerTitleAr { get; set; }
+    public List<CaseStudyItem> RelatedCaseStudies { get; set; } = new();
+}
+
 public class FeaturesViewModel
 {
     public List<FeatureCategory> Categories { get; set; } = new();
@@ -1367,6 +1834,73 @@ public class ServiceStatusItem
     public string StatusAr { get; set; } = "";
     public string Uptime { get; set; } = "";
     public DateTime LastChecked { get; set; }
+}
+
+/// <summary>
+/// DTO for trial signup requests
+/// Follows ABP naming convention: [Entity]Dto
+/// </summary>
+public class TrialSignupDto
+{
+    /// <summary>Email address (required)</summary>
+    [Required(ErrorMessage = "Email is required")]
+    [EmailAddress(ErrorMessage = "Invalid email format")]
+    [StringLength(256)]
+    public string Email { get; set; } = "";
+
+    /// <summary>Full name (required)</summary>
+    [Required(ErrorMessage = "Full name is required")]
+    [StringLength(100, MinimumLength = 2)]
+    public string FullName { get; set; } = "";
+
+    /// <summary>Company name (required)</summary>
+    [Required(ErrorMessage = "Company name is required")]
+    [StringLength(200)]
+    public string CompanyName { get; set; } = "";
+
+    /// <summary>Phone number (optional)</summary>
+    [Phone]
+    [StringLength(20)]
+    public string? PhoneNumber { get; set; }
+
+    /// <summary>Company size: 1-10, 11-50, 51-200, 201-500, 500+</summary>
+    [StringLength(20)]
+    public string? CompanySize { get; set; }
+
+    /// <summary>Industry vertical</summary>
+    [StringLength(100)]
+    public string? Industry { get; set; }
+
+    /// <summary>Selected trial plan: STARTER, PROFESSIONAL, ENTERPRISE</summary>
+    [StringLength(50)]
+    public string? TrialPlan { get; set; }
+
+    /// <summary>Locale preference: en, ar</summary>
+    [StringLength(10)]
+    public string? Locale { get; set; }
+}
+
+/// <summary>
+/// DTO for newsletter subscription requests
+/// </summary>
+public class NewsletterSubscriptionDto
+{
+    /// <summary>Email address (required)</summary>
+    [Required(ErrorMessage = "Email is required")]
+    [EmailAddress(ErrorMessage = "Invalid email format")]
+    [StringLength(256)]
+    public string Email { get; set; } = "";
+
+    /// <summary>Subscriber name (optional)</summary>
+    [StringLength(100)]
+    public string? Name { get; set; }
+
+    /// <summary>Locale preference: en, ar</summary>
+    [StringLength(10)]
+    public string? Locale { get; set; }
+
+    /// <summary>Topics of interest</summary>
+    public List<string>? Interests { get; set; }
 }
 
 #endregion

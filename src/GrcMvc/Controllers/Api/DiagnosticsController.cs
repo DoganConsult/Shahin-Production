@@ -5,6 +5,8 @@ using GrcMvc.Data;
 using GrcMvc.Services.Interfaces;
 using System.Text.Json;
 
+using Microsoft.Extensions.Localization;
+using GrcMvc.Resources;
 namespace GrcMvc.Controllers.Api;
 
 /// <summary>

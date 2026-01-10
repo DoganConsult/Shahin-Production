@@ -10,6 +10,8 @@ using GrcMvc.Data;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Services.Interfaces;
 
+using Microsoft.Extensions.Localization;
+using GrcMvc.Resources;
 namespace GrcMvc.Controllers.Api
 {
     /// <summary>

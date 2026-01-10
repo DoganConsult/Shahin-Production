@@ -295,8 +295,10 @@ namespace GrcMvc.Services.Analytics
                         var trend7d = previousTrends.Where(t => t.MeasureDate >= DateTime.UtcNow.AddDays(-7)).ToList();
                         var trend30d = previousTrends.Where(t => t.MeasureDate >= DateTime.UtcNow.AddDays(-30)).ToList();
 
-                        comparison.Trend7d = trend7d.Any() ? comparison.ComplianceScore - trend7d.First().ComplianceScore : 0;
-                        comparison.Trend30d = trend30d.Any() ? comparison.ComplianceScore - trend30d.First().ComplianceScore : 0;
+                        var first7d = trend7d.FirstOrDefault();
+                        var first30d = trend30d.FirstOrDefault();
+                        comparison.Trend7d = first7d != null ? comparison.ComplianceScore - first7d.ComplianceScore : 0;
+                        comparison.Trend30d = first30d != null ? comparison.ComplianceScore - first30d.ComplianceScore : 0;
                     }
 
                     await _clickHouse.UpsertFrameworkComparisonAsync(comparison);

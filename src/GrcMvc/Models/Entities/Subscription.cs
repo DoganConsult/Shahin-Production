@@ -13,6 +13,11 @@ namespace GrcMvc.Models.Entities
         public Guid PlanId { get; set; }
         
         /// <summary>
+        /// Stripe subscription ID for payment integration
+        /// </summary>
+        public string? StripeSubscriptionId { get; set; }
+        
+        /// <summary>
         /// Subscription Status: Trial, Active, Suspended, Cancelled, Expired
         /// </summary>
         public string Status { get; set; } = "Trial"; // Trial, Active, Suspended, Cancelled, Expired
