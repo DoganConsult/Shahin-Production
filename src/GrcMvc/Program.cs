@@ -159,8 +159,33 @@ if (builder.Environment.IsProduction())
 
     // Log warnings for optional but recommended variables
     var logger = LoggerFactory.Create(logging => logging.AddConsole()).CreateLogger("Startup");
-    if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CLAUDE_API_KEY")))
+
+    // CRITICAL: Validate AI service configuration if enabled
+    var claudeEnabled = builder.Configuration.GetValue<bool>("ClaudeAgents:Enabled", false);
+    if (claudeEnabled && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CLAUDE_API_KEY")))
+    {
+        if (builder.Environment.IsProduction())
+        {
+            throw new InvalidOperationException(
+                "CLAUDE_API_KEY is required when ClaudeAgents:Enabled=true in Production. " +
+                "Either set CLAUDE_API_KEY environment variable or disable Claude agents.");
+        }
         logger.LogWarning("CLAUDE_API_KEY not set - AI features will be disabled");
+    }
+
+    // Validate SMTP configuration if email features are used
+    var smtpHost = Environment.GetEnvironmentVariable("SMTP_HOST");
+    if (builder.Environment.IsProduction() && string.IsNullOrWhiteSpace(smtpHost))
+    {
+        logger.LogWarning("SMTP_HOST not set - Email features may not work in Production");
+    }
+
+    // Validate Microsoft Graph if email operations are enabled
+    var graphClientId = Environment.GetEnvironmentVariable("MSGRAPH_CLIENT_ID");
+    if (builder.Environment.IsProduction() && string.IsNullOrWhiteSpace(graphClientId))
+    {
+        logger.LogWarning("MSGRAPH_CLIENT_ID not set - Microsoft Graph email operations will be disabled");
+    }
 }
 builder.Configuration["ClaudeAgents:ApiKey"] = Environment.GetEnvironmentVariable("CLAUDE_API_KEY") ?? "";
 builder.Configuration["ClaudeAgents:Model"] = Environment.GetEnvironmentVariable("CLAUDE_MODEL") ?? "claude-sonnet-4-20250514";
