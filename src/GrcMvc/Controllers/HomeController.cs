@@ -57,6 +57,14 @@ public class HomeController : Controller
         return View();
     }
 
+    /// <summary>
+    /// Design System Showcase - View all UI components
+    /// </summary>
+    public IActionResult DesignSystem()
+    {
+        return View();
+    }
+
     public IActionResult ManageTenants()
     {
         // Return empty list - will be populated by JavaScript/API

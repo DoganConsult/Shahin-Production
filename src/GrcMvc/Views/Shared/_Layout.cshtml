@@ -41,10 +41,16 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/tailwind.output.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/help-styles.css" asp-append-version="true" />
+
+    <!-- Shahin AI Design System -->
+    <link rel="stylesheet" href="~/css/shahin-design-system.css" asp-append-version="true" />
     @if (isRtl)
     {
+        <link rel="stylesheet" href="~/css/shahin-rtl.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/css/rtl.css" asp-append-version="true" />
     }
+    <link rel="stylesheet" href="~/css/shahin-custom.css" asp-append-version="true" />
+
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>

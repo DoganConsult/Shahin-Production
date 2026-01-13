@@ -1,0 +1,452 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<GrcMvc.Resources.SharedResource> L
+@{
+    ViewData["Title"] = "Design System Showcase";
+}
+
+<div class="container-fluid py-5">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">Shahin AI Design System</h1>
+        <p class="page-subtitle">Complete component library showcase with RTL support</p>
+    </div>
+
+    <!-- Section: Buttons -->
+    <section class="mb-5">
+        <h2 class="shahin-text-2xl shahin-font-bold shahin-mb-4">Buttons</h2>
+        <div class="shahin-card">
+            <div class="shahin-card-header">
+                <h3 class="shahin-card-title">Button Variants</h3>
+            </div>
+            <div class="shahin-card-body">
+                <div class="shahin-flex shahin-gap-4 flex-wrap mb-4">
+                    <partial name="Components/_ShahinButton" model='new { Text = "Primary", Type = "primary", Icon = "check-circle" }' />
+                    <partial name="Components/_ShahinButton" model='new { Text = "Secondary", Type = "secondary", Icon = "gear" }' />
+                    <partial name="Components/_ShahinButton" model='new { Text = "Success", Type = "success", Icon = "check" }' />
+                    <partial name="Components/_ShahinButton" model='new { Text = "Danger", Type = "danger", Icon = "x-circle" }' />
+                    <partial name="Components/_ShahinButton" model='new { Text = "Ghost", Type = "ghost", Icon = "eye" }' />
+                    <partial name="Components/_ShahinButton" model='new { Text = "Outline", Type = "outline", Icon = "download" }' />
+                </div>
+
+                <h4 class="shahin-font-semibold mb-3">Button Sizes</h4>
+                <div class="shahin-flex shahin-gap-4 shahin-items-center flex-wrap mb-4">
+                    <partial name="Components/_ShahinButton" model='new { Text = "Extra Small", Type = "primary", Size = "xs" }' />
+                    <partial name="Components/_ShahinButton" model='new { Text = "Small", Type = "primary", Size = "sm" }' />
+                    <partial name="Components/_ShahinButton" model='new { Text = "Medium (Default)", Type = "primary" }' />
+                    <partial name="Components/_ShahinButton" model='new { Text = "Large", Type = "primary", Size = "lg" }' />
+                    <partial name="Components/_ShahinButton" model='new { Text = "Extra Large", Type = "primary", Size = "xl" }' />
+                </div>
+
+                <h4 class="shahin-font-semibold mb-3">Button States</h4>
+                <div class="shahin-flex shahin-gap-4 flex-wrap">
+                    <partial name="Components/_ShahinButton" model='new { Text = "Normal", Type = "primary" }' />
+                    <partial name="Components/_ShahinButton" model='new { Text = "Disabled", Type = "primary", Disabled = true }' />
+                    <partial name="Components/_ShahinButton" model='new { Text = "Block Button", Type = "success", IsBlock = true }' />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: Alerts -->
+    <section class="mb-5">
+        <h2 class="shahin-text-2xl shahin-font-bold shahin-mb-4">Alerts</h2>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <partial name="Components/_ShahinAlert" model='new {
+                    Type = "success",
+                    Title = "Success!",
+                    Message = "Your risk assessment has been saved successfully.",
+                    ShowIcon = true
+                }' />
+            </div>
+            <div class="col-md-6">
+                <partial name="Components/_ShahinAlert" model='new {
+                    Type = "warning",
+                    Title = "Warning",
+                    Message = "This compliance framework requires immediate attention.",
+                    ShowIcon = true
+                }' />
+            </div>
+            <div class="col-md-6">
+                <partial name="Components/_ShahinAlert" model='new {
+                    Type = "error",
+                    Title = "Error",
+                    Message = "Failed to submit the audit report. Please try again.",
+                    ShowIcon = true
+                }' />
+            </div>
+            <div class="col-md-6">
+                <partial name="Components/_ShahinAlert" model='new {
+                    Type = "info",
+                    Title = "Information",
+                    Message = "New compliance regulations are available for review.",
+                    ShowIcon = true
+                }' />
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: Badges -->
+    <section class="mb-5">
+        <h2 class="shahin-text-2xl shahin-font-bold shahin-mb-4">Badges</h2>
+        <div class="shahin-card">
+            <div class="shahin-card-body">
+                <div class="shahin-flex shahin-gap-4 flex-wrap">
+                    <partial name="Components/_ShahinBadge" model='new { Text = "Active", Type = "success" }' />
+                    <partial name="Components/_ShahinBadge" model='new { Text = "Pending", Type = "warning" }' />
+                    <partial name="Components/_ShahinBadge" model='new { Text = "Critical", Type = "danger" }' />
+                    <partial name="Components/_ShahinBadge" model='new { Text = "New", Type = "primary" }' />
+                    <partial name="Components/_ShahinBadge" model='new { Text = "Info", Type = "info" }' />
+                    <partial name="Components/_ShahinBadge" model='new { Text = "Inactive", Type = "neutral" }' />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: Cards -->
+    <section class="mb-5">
+        <h2 class="shahin-text-2xl shahin-font-bold shahin-mb-4">Cards</h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <partial name="Components/_ShahinCard" model='new {
+                    Title = "Default Card",
+                    Subtitle = "Standard card variant",
+                    Body = Html.Raw("<p>This is the default card variant with standard shadow and border.</p>"),
+                    Footer = Html.Raw("<button class=\"shahin-btn shahin-btn-primary shahin-btn-sm\">View Details</button>")
+                }' />
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <partial name="Components/_ShahinCard" model='new {
+                    Title = "Elevated Card",
+                    Subtitle = "Higher elevation",
+                    Body = Html.Raw("<p>This card has elevated shadow for emphasis.</p>"),
+                    Variant = "elevated"
+                }' />
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <partial name="Components/_ShahinCard" model='new {
+                    Title = "Flat Card",
+                    Subtitle = "Minimal style",
+                    Body = Html.Raw("<p>This card has no shadow, only border.</p>"),
+                    Variant = "flat"
+                }' />
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <partial name="Components/_ShahinCard" model='new {
+                    Title = "Interactive Card",
+                    Subtitle = "Clickable card",
+                    Body = Html.Raw("<p>This card responds to hover with animation.</p>"),
+                    Variant = "interactive"
+                }' />
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: Form Components -->
+    <section class="mb-5">
+        <h2 class="shahin-text-2xl shahin-font-bold shahin-mb-4">Form Components</h2>
+        <div class="shahin-card">
+            <div class="shahin-card-header">
+                <h3 class="shahin-card-title">Form Elements</h3>
+            </div>
+            <div class="shahin-card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <partial name="Components/_ShahinFormGroup" model='new {
+                            Label = "Email Address",
+                            Name = "email",
+                            Type = "email",
+                            Placeholder = "Enter your email",
+                            Required = true,
+                            HelpText = "We'll never share your email."
+                        }' />
+                    </div>
+                    <div class="col-md-6">
+                        <partial name="Components/_ShahinFormGroup" model='new {
+                            Label = "Password",
+                            Name = "password",
+                            Type = "password",
+                            Placeholder = "Enter password",
+                            Required = true
+                        }' />
+                    </div>
+                    <div class="col-12">
+                        <partial name="Components/_ShahinFormGroup" model='new {
+                            Label = "Description",
+                            Name = "description",
+                            Type = "text",
+                            Placeholder = "Enter risk description",
+                            Required = false,
+                            HelpText = "Provide detailed information about the risk."
+                        }' />
+                    </div>
+                    <div class="col-md-6">
+                        <partial name="Components/_ShahinFormGroup" model='new {
+                            Label = "Risk Level",
+                            Name = "riskLevel",
+                            Type = "text",
+                            Value = "",
+                            Required = true
+                        }' />
+                    </div>
+                    <div class="col-md-6">
+                        <partial name="Components/_ShahinFormGroup" model='new {
+                            Label = "Invalid Field",
+                            Name = "invalidField",
+                            Type = "text",
+                            Value = "invalid@value",
+                            Error = "This field contains an invalid value"
+                        }' />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: Progress Bars -->
+    <section class="mb-5">
+        <h2 class="shahin-text-2xl shahin-font-bold shahin-mb-4">Progress Bars</h2>
+        <div class="shahin-card">
+            <div class="shahin-card-body">
+                <div class="mb-4">
+                    <p class="shahin-text-sm shahin-font-medium mb-2">Compliance Progress (25%)</p>
+                    <partial name="Components/_ShahinProgress" model='new { Value = 25, Type = "primary" }' />
+                </div>
+                <div class="mb-4">
+                    <p class="shahin-text-sm shahin-font-medium mb-2">Risk Assessment (65%)</p>
+                    <partial name="Components/_ShahinProgress" model='new { Value = 65, Type = "warning" }' />
+                </div>
+                <div class="mb-4">
+                    <p class="shahin-text-sm shahin-font-medium mb-2">Audit Complete (100%)</p>
+                    <partial name="Components/_ShahinProgress" model='new { Value = 100, Type = "success" }' />
+                </div>
+                <div>
+                    <p class="shahin-text-sm shahin-font-medium mb-2">Critical Issues (90%)</p>
+                    <partial name="Components/_ShahinProgress" model='new { Value = 90, Type = "danger" }' />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: Loading Spinners -->
+    <section class="mb-5">
+        <h2 class="shahin-text-2xl shahin-font-bold shahin-mb-4">Loading Spinners</h2>
+        <div class="shahin-card">
+            <div class="shahin-card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <partial name="Components/_ShahinSpinner" model='new { Size = "sm", Text = "Small Spinner" }' />
+                    </div>
+                    <div class="col-md-4">
+                        <partial name="Components/_ShahinSpinner" model='new { Size = "base", Text = "Default Spinner" }' />
+                    </div>
+                    <div class="col-md-4">
+                        <partial name="Components/_ShahinSpinner" model='new { Size = "lg", Text = "Large Spinner" }' />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: Tables -->
+    <section class="mb-5">
+        <h2 class="shahin-text-2xl shahin-font-bold shahin-mb-4">Tables</h2>
+        <div class="shahin-table-container">
+            <table class="shahin-table">
+                <thead>
+                    <tr>
+                        <th>Risk ID</th>
+                        <th>Title</th>
+                        <th>Severity</th>
+                        <th>Status</th>
+                        <th>Owner</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>RISK-001</td>
+                        <td>Data Breach Risk</td>
+                        <td><partial name="Components/_ShahinBadge" model='new { Text = "Critical", Type = "danger" }' /></td>
+                        <td><partial name="Components/_ShahinBadge" model='new { Text = "Active", Type = "warning" }' /></td>
+                        <td>John Doe</td>
+                        <td>
+                            <button class="shahin-btn shahin-btn-xs shahin-btn-ghost">
+                                <i class="bi bi-eye"></i> View
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>RISK-002</td>
+                        <td>Compliance Violation</td>
+                        <td><partial name="Components/_ShahinBadge" model='new { Text = "High", Type = "warning" }' /></td>
+                        <td><partial name="Components/_ShahinBadge" model='new { Text = "Resolved", Type = "success" }' /></td>
+                        <td>Jane Smith</td>
+                        <td>
+                            <button class="shahin-btn shahin-btn-xs shahin-btn-ghost">
+                                <i class="bi bi-eye"></i> View
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>RISK-003</td>
+                        <td>System Vulnerability</td>
+                        <td><partial name="Components/_ShahinBadge" model='new { Text = "Medium", Type = "warning" }' /></td>
+                        <td><partial name="Components/_ShahinBadge" model='new { Text = "In Progress", Type = "info" }' /></td>
+                        <td>Mike Johnson</td>
+                        <td>
+                            <button class="shahin-btn shahin-btn-xs shahin-btn-ghost">
+                                <i class="bi bi-eye"></i> View
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Section: Stat Cards (Dashboard) -->
+    <section class="mb-5">
+        <h2 class="shahin-text-2xl shahin-font-bold shahin-mb-4">Dashboard Stat Cards</h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-card-label">Total Risks</p>
+                            <h3 class="stat-card-value">124</h3>
+                            <p class="stat-card-change positive">
+                                <i class="bi bi-arrow-up"></i> +12% from last month
+                            </p>
+                        </div>
+                        <div class="stat-card-icon primary">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-card-label">Compliance Score</p>
+                            <h3 class="stat-card-value">87%</h3>
+                            <p class="stat-card-change positive">
+                                <i class="bi bi-arrow-up"></i> +5% from last month
+                            </p>
+                        </div>
+                        <div class="stat-card-icon success">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-card-label">Pending Audits</p>
+                            <h3 class="stat-card-value">23</h3>
+                            <p class="stat-card-change negative">
+                                <i class="bi bi-arrow-down"></i> -3 from last week
+                            </p>
+                        </div>
+                        <div class="stat-card-icon warning">
+                            <i class="bi bi-clipboard-check-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-card-label">Critical Issues</p>
+                            <h3 class="stat-card-value">7</h3>
+                            <p class="stat-card-change positive">
+                                <i class="bi bi-arrow-down"></i> -2 from yesterday
+                            </p>
+                        </div>
+                        <div class="stat-card-icon danger">
+                            <i class="bi bi-shield-fill-exclamation"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: Utility Classes -->
+    <section class="mb-5">
+        <h2 class="shahin-text-2xl shahin-font-bold shahin-mb-4">Utility Classes</h2>
+        <div class="shahin-card">
+            <div class="shahin-card-body">
+                <div class="mb-4">
+                    <h4 class="shahin-font-semibold mb-2">Text Colors</h4>
+                    <p class="shahin-text-primary">Primary text color</p>
+                    <p class="shahin-text-success">Success text color</p>
+                    <p class="shahin-text-warning">Warning text color</p>
+                    <p class="shahin-text-danger">Danger text color</p>
+                    <p class="shahin-text-muted">Muted text color</p>
+                </div>
+                <div class="mb-4">
+                    <h4 class="shahin-font-semibold mb-2">Shadows</h4>
+                    <div class="shahin-flex shahin-gap-4 flex-wrap">
+                        <div class="shahin-shadow-sm p-4 bg-white">Small Shadow</div>
+                        <div class="shahin-shadow p-4 bg-white">Base Shadow</div>
+                        <div class="shahin-shadow-md p-4 bg-white">Medium Shadow</div>
+                        <div class="shahin-shadow-lg p-4 bg-white">Large Shadow</div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="shahin-font-semibold mb-2">Border Radius</h4>
+                    <div class="shahin-flex shahin-gap-4 flex-wrap">
+                        <div class="shahin-rounded p-4 bg-light">Base Rounded</div>
+                        <div class="shahin-rounded-lg p-4 bg-light">Large Rounded</div>
+                        <div class="shahin-rounded-full px-6 py-3 bg-light">Pill Shape</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: RTL Support -->
+    <section class="mb-5">
+        <h2 class="shahin-text-2xl shahin-font-bold shahin-mb-4">RTL Support</h2>
+        <div class="shahin-card">
+            <div class="shahin-card-body">
+                <p class="mb-3">The design system fully supports RTL (Right-to-Left) layout for Arabic language. Switch to Arabic language to see all components automatically adapt to RTL.</p>
+                <div class="shahin-alert shahin-alert-info">
+                    <div class="shahin-alert-content">
+                        <div class="shahin-alert-title">Current Language: @(ViewContext.HttpContext.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>()?.RequestCulture?.UICulture?.Name == "ar" ? "Arabic (RTL)" : "English (LTR)")</div>
+                        <div class="shahin-alert-description">All components, including buttons, forms, tables, and modals, automatically adapt their layout based on the current language direction.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+@@section Scripts {
+    <script>
+        // Demo interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Make interactive cards clickable
+            document.querySelectorAll('.shahin-card-interactive').forEach(card => {
+                card.addEventListener('click', function() {
+                    alert('Interactive card clicked!');
+                });
+            });
+
+            // Log button clicks
+            document.querySelectorAll('.shahin-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    if (!this.disabled) {
+                        console.log('Button clicked:', this.textContent.trim());
+                    }
+                });
+            });
+        });
+    </script>
+}
