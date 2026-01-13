@@ -1,0 +1,255 @@
+@*
+    SHAHIN AI GRC - Timeline Component
+    Usage: <partial name="Components/_ShahinTimeline" model='new {
+        Items = new[] {
+            new { Title = "Risk Created", Description = "Initial risk assessment created", Icon = "plus-circle", Date = "2024-01-15", Type = "success" },
+            new { Title = "Review Completed", Description = "Risk reviewed by compliance team", Icon = "check-circle", Date = "2024-01-16", Type = "info" },
+            new { Title = "Mitigation Plan", Description = "Mitigation strategy developed", Icon = "shield-check", Date = "2024-01-17", Type = "warning" }
+        }
+    }' />
+*@
+@{
+    dynamic model = ViewData.Model ?? new { };
+    var items = model?.Items as IEnumerable<dynamic> ?? new List<dynamic>();
+    var variant = model?.Variant ?? "default"; // default, alternate
+}
+
+<div class="shahin-timeline shahin-timeline-@variant">
+    @{
+        var itemList = items.ToList();
+        for (int i = 0; i < itemList.Count; i++)
+        {
+            var item = itemList[i];
+            var title = item.Title?.ToString() ?? "";
+            var description = item.Description?.ToString() ?? "";
+            var icon = item.Icon?.ToString() ?? "circle-fill";
+            var date = item.Date?.ToString() ?? "";
+            var type = item.Type?.ToString() ?? "primary"; // primary, success, warning, danger, info
+            var content = item.Content ?? null;
+
+            <div class="shahin-timeline-item">
+                <div class="shahin-timeline-marker shahin-timeline-marker-@type">
+                    <i class="bi bi-@icon"></i>
+                </div>
+                <div class="shahin-timeline-content">
+                    <div class="shahin-timeline-header">
+                        <h4 class="shahin-timeline-title">@title</h4>
+                        @if (!string.IsNullOrEmpty(date))
+                        {
+                            <span class="shahin-timeline-date">@date</span>
+                        }
+                    </div>
+                    @if (!string.IsNullOrEmpty(description))
+                    {
+                        <p class="shahin-timeline-description">@description</p>
+                    }
+                    @if (content != null)
+                    {
+                        <div class="shahin-timeline-body">
+                            @content
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<style>
+    .shahin-timeline {
+        position: relative;
+        padding: var(--shahin-space-4) 0;
+    }
+
+    .shahin-timeline::before {
+        content: '';
+        position: absolute;
+        left: 1.25rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: var(--shahin-gray-200);
+    }
+
+    .shahin-timeline-item {
+        position: relative;
+        padding-left: var(--shahin-space-12);
+        padding-bottom: var(--shahin-space-8);
+    }
+
+    .shahin-timeline-item:last-child {
+        padding-bottom: 0;
+    }
+
+    .shahin-timeline-marker {
+        position: absolute;
+        left: 0;
+        top: 0.25rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--shahin-font-size-lg);
+        background-color: var(--shahin-white);
+        border: 3px solid var(--shahin-primary);
+        color: var(--shahin-primary);
+        z-index: 1;
+        box-shadow: 0 0 0 4px var(--shahin-white);
+    }
+
+    .shahin-timeline-marker-primary {
+        border-color: var(--shahin-primary);
+        color: var(--shahin-primary);
+    }
+
+    .shahin-timeline-marker-success {
+        border-color: var(--shahin-success);
+        color: var(--shahin-success);
+        background-color: var(--shahin-success-light);
+    }
+
+    .shahin-timeline-marker-warning {
+        border-color: var(--shahin-warning);
+        color: var(--shahin-warning);
+        background-color: var(--shahin-warning-light);
+    }
+
+    .shahin-timeline-marker-danger {
+        border-color: var(--shahin-error);
+        color: var(--shahin-error);
+        background-color: var(--shahin-error-light);
+    }
+
+    .shahin-timeline-marker-info {
+        border-color: var(--shahin-info);
+        color: var(--shahin-info);
+        background-color: var(--shahin-info-light);
+    }
+
+    .shahin-timeline-content {
+        background-color: var(--shahin-white);
+        border: 1px solid var(--shahin-gray-200);
+        border-radius: var(--shahin-radius-base);
+        padding: var(--shahin-space-4) var(--shahin-space-5);
+        box-shadow: var(--shahin-shadow-sm);
+        transition: all var(--shahin-transition-base);
+    }
+
+    .shahin-timeline-content:hover {
+        box-shadow: var(--shahin-shadow-md);
+        transform: translateX(4px);
+    }
+
+    .shahin-timeline-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: var(--shahin-space-2);
+    }
+
+    .shahin-timeline-title {
+        font-size: var(--shahin-font-size-base);
+        font-weight: var(--shahin-font-weight-semibold);
+        color: var(--shahin-gray-900);
+        margin: 0;
+    }
+
+    .shahin-timeline-date {
+        font-size: var(--shahin-font-size-xs);
+        color: var(--shahin-gray-600);
+        white-space: nowrap;
+    }
+
+    .shahin-timeline-description {
+        font-size: var(--shahin-font-size-sm);
+        color: var(--shahin-gray-700);
+        margin: 0;
+        line-height: var(--shahin-line-height-normal);
+    }
+
+    .shahin-timeline-body {
+        margin-top: var(--shahin-space-3);
+        padding-top: var(--shahin-space-3);
+        border-top: 1px solid var(--shahin-gray-200);
+    }
+
+    /* Alternate Timeline (zigzag) */
+    .shahin-timeline-alternate {
+        padding: 0;
+    }
+
+    .shahin-timeline-alternate::before {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .shahin-timeline-alternate .shahin-timeline-item {
+        width: 50%;
+        padding-left: 0;
+        padding-right: calc(50% + var(--shahin-space-8));
+    }
+
+    .shahin-timeline-alternate .shahin-timeline-item:nth-child(even) {
+        margin-left: 50%;
+        padding-right: 0;
+        padding-left: var(--shahin-space-8);
+    }
+
+    .shahin-timeline-alternate .shahin-timeline-marker {
+        left: auto;
+        right: calc(-1.25rem - var(--shahin-space-8) / 2);
+    }
+
+    .shahin-timeline-alternate .shahin-timeline-item:nth-child(even) .shahin-timeline-marker {
+        left: calc(-1.25rem - var(--shahin-space-8) / 2);
+        right: auto;
+    }
+
+    .shahin-timeline-alternate .shahin-timeline-item:nth-child(even) .shahin-timeline-content:hover {
+        transform: translateX(-4px);
+    }
+
+    /* RTL Support */
+    [dir="rtl"] .shahin-timeline::before {
+        left: auto;
+        right: 1.25rem;
+    }
+
+    [dir="rtl"] .shahin-timeline-item {
+        padding-left: 0;
+        padding-right: var(--shahin-space-12);
+    }
+
+    [dir="rtl"] .shahin-timeline-marker {
+        left: auto;
+        right: 0;
+    }
+
+    [dir="rtl"] .shahin-timeline-content:hover {
+        transform: translateX(-4px);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .shahin-timeline-alternate .shahin-timeline-item,
+        .shahin-timeline-alternate .shahin-timeline-item:nth-child(even) {
+            width: 100%;
+            margin-left: 0;
+            padding-left: var(--shahin-space-12);
+            padding-right: 0;
+        }
+
+        .shahin-timeline-alternate::before {
+            left: 1.25rem;
+            transform: none;
+        }
+
+        .shahin-timeline-alternate .shahin-timeline-marker,
+        .shahin-timeline-alternate .shahin-timeline-item:nth-child(even) .shahin-timeline-marker {
+            left: 0;
+            right: auto;
+        }
+    }
+</style>

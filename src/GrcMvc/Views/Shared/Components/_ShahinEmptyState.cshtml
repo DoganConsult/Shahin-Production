@@ -1,0 +1,146 @@
+@*
+    SHAHIN AI GRC - Empty State Component
+    Usage: <partial name="Components/_ShahinEmptyState" model='new {
+        Title = "No Risks Found",
+        Description = "Get started by creating your first risk assessment.",
+        Icon = "inbox",
+        ActionText = "Create Risk",
+        ActionUrl = "/Risk/Create",
+        ActionType = "primary"
+    }' />
+*@
+@{
+    dynamic model = ViewData.Model ?? new { };
+    var title = model?.Title ?? "No Data";
+    var description = model?.Description ?? "";
+    var icon = model?.Icon ?? "inbox";
+    var actionText = model?.ActionText ?? "";
+    var actionUrl = model?.ActionUrl ?? "#";
+    var actionType = model?.ActionType ?? "primary";
+    var actionIcon = model?.ActionIcon ?? "";
+    var secondaryActionText = model?.SecondaryActionText ?? "";
+    var secondaryActionUrl = model?.SecondaryActionUrl ?? "#";
+    var imageUrl = model?.ImageUrl ?? "";
+}
+
+<div class="empty-state">
+    @if (!string.IsNullOrEmpty(imageUrl))
+    {
+        <div class="empty-state-image">
+            <img src="@imageUrl" alt="@title" style="max-width: 300px; max-height: 200px;" />
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(icon))
+    {
+        <div class="empty-state-icon">
+            <i class="bi bi-@icon"></i>
+        </div>
+    }
+
+    <h3 class="empty-state-title">@title</h3>
+
+    @if (!string.IsNullOrEmpty(description))
+    {
+        <p class="empty-state-description">@description</p>
+    }
+
+    @if (!string.IsNullOrEmpty(actionText))
+    {
+        <div class="empty-state-actions">
+            <a href="@actionUrl" class="shahin-btn shahin-btn-@actionType">
+                @if (!string.IsNullOrEmpty(actionIcon))
+                {
+                    <i class="bi bi-@actionIcon"></i>
+                }
+                @actionText
+            </a>
+
+            @if (!string.IsNullOrEmpty(secondaryActionText))
+            {
+                <a href="@secondaryActionUrl" class="shahin-btn shahin-btn-secondary">
+                    @secondaryActionText
+                </a>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .empty-state {
+        text-align: center;
+        padding: var(--shahin-space-12) var(--shahin-space-6);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 400px;
+    }
+
+    .empty-state-icon {
+        font-size: var(--shahin-font-size-5xl);
+        color: var(--shahin-gray-300);
+        margin-bottom: var(--shahin-space-6);
+        animation: empty-state-float 3s ease-in-out infinite;
+    }
+
+    .empty-state-image {
+        margin-bottom: var(--shahin-space-6);
+        opacity: 0.8;
+    }
+
+    .empty-state-title {
+        font-size: var(--shahin-font-size-2xl);
+        font-weight: var(--shahin-font-weight-bold);
+        color: var(--shahin-gray-800);
+        margin-bottom: var(--shahin-space-3);
+    }
+
+    .empty-state-description {
+        font-size: var(--shahin-font-size-base);
+        color: var(--shahin-gray-600);
+        max-width: 500px;
+        margin-bottom: var(--shahin-space-6);
+        line-height: var(--shahin-line-height-relaxed);
+    }
+
+    .empty-state-actions {
+        display: flex;
+        gap: var(--shahin-space-3);
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    @keyframes empty-state-float {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Small screens */
+    @media (max-width: 640px) {
+        .empty-state {
+            padding: var(--shahin-space-8) var(--shahin-space-4);
+            min-height: 300px;
+        }
+
+        .empty-state-icon {
+            font-size: var(--shahin-font-size-4xl);
+        }
+
+        .empty-state-title {
+            font-size: var(--shahin-font-size-xl);
+        }
+
+        .empty-state-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .empty-state-actions .shahin-btn {
+            width: 100%;
+        }
+    }
+</style>
