@@ -1723,6 +1723,73 @@ namespace GrcMvc.Data
             modelBuilder.Entity<TenantEvidenceRequirement>().HasQueryFilter(e =>
                 !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
 
+            // ===================================================================
+            // PHASE 4 - Issue #12: Additional query filters (21 entities)
+            // ===================================================================
+
+            modelBuilder.Entity<ApprovalRecord>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<EvidenceScoringCriteria>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<OnboardingStepScore>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<OnboardingWizard>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<OrganizationProfile>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<OwnerTenantCreation>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<PlatformAdmin>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<PolicyDecision>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<RiskAppetiteSetting>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<RoleLandingConfig>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<RuleExecutionLog>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<Ruleset>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<SerialCounter>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<TenantBaseline>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<TenantPackage>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<TenantTemplate>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<TenantWorkflowConfig>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<TrialRequest>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<UserNotificationPreference>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<UserProfile>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
+            modelBuilder.Entity<WorkflowEscalation>().HasQueryFilter(e =>
+                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+
             // Tenant lookup tables - no TenantId filter (cross-tenant lookup allowed)
             modelBuilder.Entity<TenantUser>().HasQueryFilter(e => !e.IsDeleted);
             modelBuilder.Entity<Tenant>().HasQueryFilter(e => !e.IsDeleted);
