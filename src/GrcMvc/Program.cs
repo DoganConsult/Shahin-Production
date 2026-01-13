@@ -449,10 +449,11 @@ builder.Services.AddRateLimiter(options =>
     });
 
     // Authentication endpoints - prevent brute force
+    // Stricter rate limiting: 3 attempts per 15 minutes (recommended by security audit)
     options.AddFixedWindowLimiter("auth", limiterOptions =>
     {
-        limiterOptions.PermitLimit = 5;
-        limiterOptions.Window = TimeSpan.FromMinutes(5);
+        limiterOptions.PermitLimit = 3;
+        limiterOptions.Window = TimeSpan.FromMinutes(15);
         limiterOptions.QueueLimit = 0;
     });
 

@@ -1287,45 +1287,9 @@ namespace GrcMvc.Controllers.Api
             }
         }
 
-        /// <summary>
-        /// Fix all platform admin passwords (quick fix endpoint)
-        /// GET /api/seed/fix-all-admins
-        /// </summary>
-        [HttpGet("fix-all-admins")]
-        [AllowAnonymous]
-        public async Task<IActionResult> FixAllAdmins()
-        {
-            var results = new List<object>();
-
-            // Fix ahmet.dogan@doganconsult.com
-            var user1 = await _userManager.FindByEmailAsync("ahmet.dogan@doganconsult.com");
-            if (user1 != null)
-            {
-                await _userManager.RemovePasswordAsync(user1);
-                var result1 = await _userManager.AddPasswordAsync(user1, "Dogan@Admin2026!");
-                await _userManager.SetLockoutEndDateAsync(user1, null);
-                results.Add(new { email = "ahmet.dogan@doganconsult.com", success = result1.Succeeded });
-            }
-
-            // Fix Dooganlap@gmail.com
-            var user2 = await _userManager.FindByEmailAsync("Dooganlap@gmail.com");
-            if (user2 != null)
-            {
-                await _userManager.RemovePasswordAsync(user2);
-                var result2 = await _userManager.AddPasswordAsync(user2, "Platform@Admin2026!");
-                await _userManager.SetLockoutEndDateAsync(user2, null);
-                results.Add(new { email = "Dooganlap@gmail.com", success = result2.Succeeded });
-            }
-
-            return Ok(new {
-                message = "Admin passwords fixed",
-                results,
-                credentials = new[] {
-                    new { email = "ahmet.dogan@doganconsult.com", password = "Dogan@Admin2026!" },
-                    new { email = "Dooganlap@gmail.com", password = "Platform@Admin2026!" }
-                }
-            });
-        }
+        // REMOVED: FixAllAdmins endpoint was a critical security vulnerability
+        // This endpoint exposed admin credentials and allowed unauthorized password resets
+        // If admin password reset is needed, use proper Identity management or database tools
     }
 
     public class CreatePlatformAdminRequest
