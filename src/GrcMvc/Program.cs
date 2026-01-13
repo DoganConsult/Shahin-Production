@@ -121,11 +121,23 @@ if (string.IsNullOrWhiteSpace(authConnectionString) && !string.IsNullOrWhiteSpac
 {
     builder.Configuration["ConnectionStrings:GrcAuthDb"] = connectionString;
 }
-// CRITICAL SECURITY FIX: JWT secret must be provided via environment variable - no fallback in any environment
+// CRITICAL SECURITY FIX: JWT secret must be provided via environment variable in production
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
 if (string.IsNullOrWhiteSpace(jwtSecret))
 {
-    throw new InvalidOperationException("JWT_SECRET environment variable is required. Set it before starting the application.");
+    if (builder.Environment.IsProduction())
+    {
+        throw new InvalidOperationException("JWT_SECRET environment variable is required in Production. Set it before starting the application.");
+    }
+    else
+    {
+        // Development: Use secret from appsettings.json (fallback)
+        jwtSecret = builder.Configuration["JwtSettings:Secret"];
+        if (string.IsNullOrWhiteSpace(jwtSecret))
+        {
+            throw new InvalidOperationException("JWT_SECRET not found in environment or appsettings.json");
+        }
+    }
 }
 builder.Configuration["JwtSettings:Secret"] = jwtSecret;
 
