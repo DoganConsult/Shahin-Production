@@ -1412,6 +1412,17 @@ builder.Services.AddScoped<IIntegrationAgentService, IntegrationAgentService>();
 builder.Services.AddScoped<IUnifiedAiService, UnifiedAiService>();
 builder.Services.Configure<ClaudeApiSettings>(builder.Configuration.GetSection(ClaudeApiSettings.SectionName));
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// ENGAGEMENT & NEXT BEST ACTION (NBA) SERVICES - Fullplan Specification
+// ═══════════════════════════════════════════════════════════════════════════════
+builder.Services.AddScoped<INextBestActionService, NextBestActionService>();
+builder.Services.AddScoped<IProgressCertaintyService, ProgressCertaintyService>();
+builder.Services.AddScoped<IEngagementMetricsService, EngagementMetricsService>();
+builder.Services.AddScoped<IConditionalLogicService, ConditionalLogicService>();
+builder.Services.AddScoped<IEvidenceConfidenceService, EvidenceConfidenceService>();
+builder.Services.AddScoped<IAgentTriggerService, AgentTriggerService>();
+builder.Services.AddScoped<IAgentCommunicationService, AgentCommunicationService>();
+
 // Integration Layer Services - External system sync, events, webhooks
 builder.Services.AddScoped<ISyncExecutionService, SyncExecutionService>();
 builder.Services.AddScoped<IEventPublisherService, EventPublisherService>();
