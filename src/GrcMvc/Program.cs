@@ -305,7 +305,8 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     var supportedCultures = new[]
     {
         new CultureInfo("ar"), // Arabic - Default (RTL)
-        new CultureInfo("en")  // English - Secondary (LTR)
+        new CultureInfo("en"), // English - Secondary (LTR)
+        new CultureInfo("tr")  // Turkish (LTR)
     };
 
     options.DefaultRequestCulture = new RequestCulture("ar"); // Arabic as default
@@ -331,6 +332,9 @@ builder.Services.AddControllersWithViews(options =>
     // API requests: returns 400 BadRequest if duplicates detected
     // MVC requests: logs warning but allows action to proceed (backward compatibility)
     options.Filters.Add<GrcMvc.Filters.DuplicatePropertyBindingFilter>();
+
+    // Add CSP nonce filter - makes nonce available to views via ViewData for XSS protection
+    options.Filters.Add<GrcMvc.Filters.CspNonceFilter>();
 }).AddRazorRuntimeCompilation()
 .AddViewLocalization()
 .AddDataAnnotationsLocalization(options =>

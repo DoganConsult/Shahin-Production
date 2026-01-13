@@ -1,8 +1,10 @@
+using System.Security.Cryptography;
+
 namespace GrcMvc.Middleware;
 
 /// <summary>
 /// Middleware to add security headers to all HTTP responses
-/// Implements OWASP security best practices
+/// Implements OWASP security best practices with nonce-based CSP
 /// </summary>
 public class SecurityHeadersMiddleware
 {
@@ -17,6 +19,10 @@ public class SecurityHeadersMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
+        // Generate cryptographically secure nonce for CSP
+        var nonce = GenerateNonce();
+        context.Items["CSPNonce"] = nonce;
+
         // Remove server header to avoid information disclosure
         context.Response.Headers.Remove("Server");
         context.Response.Headers.Remove("X-Powered-By");
@@ -38,10 +44,11 @@ public class SecurityHeadersMiddleware
             "accelerometer=(), camera=(), geolocation=(), gyroscope=(), " +
             "magnetometer=(), microphone=(), payment=(), usb=()");
 
-        // Content Security Policy - Allow CDN for Bootstrap, icons, and Claude API
+        // Content Security Policy - Nonce-based (XSS protection)
+        // REMOVED: 'unsafe-inline' and 'unsafe-eval' - replaced with nonce-based CSP
         context.Response.Headers.Append("Content-Security-Policy",
             "default-src 'self'; " +
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+            $"script-src 'self' 'nonce-{nonce}' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
             "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; " +
             "img-src 'self' data: https:; " +
@@ -62,6 +69,17 @@ public class SecurityHeadersMiddleware
         }
 
         await _next(context);
+    }
+
+    /// <summary>
+    /// Generates a cryptographically secure nonce for CSP
+    /// </summary>
+    private static string GenerateNonce()
+    {
+        var bytes = new byte[32];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(bytes);
+        return Convert.ToBase64String(bytes);
     }
 }
 
