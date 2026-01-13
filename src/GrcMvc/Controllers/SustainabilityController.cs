@@ -6,6 +6,7 @@ using GrcMvc.Application.Policy;
 using GrcMvc.Authorization;
 using System.Threading.Tasks;
 using System;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 
 namespace GrcMvc.Controllers
@@ -84,13 +85,13 @@ namespace GrcMvc.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            return View(new CreateImprovementDto());
         }
 
         // POST: Sustainability/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(object model)
+        public async Task<IActionResult> Create(CreateImprovementDto model)
         {
             try
             {
@@ -100,9 +101,17 @@ namespace GrcMvc.Controllers
                     return RedirectToAction("Index", "Home");
                 }
 
-                // TODO: Implement improvement initiative creation
+                if (!ModelState.IsValid)
+                {
+                    return View(model);
+                }
+
+                var result = await _sustainabilityService.CreateImprovementInitiativeAsync(tenantId, model);
+                _logger.LogInformation("Created sustainability initiative {InitiativeId} for tenant {TenantId}",
+                    result.Id, tenantId);
+
                 TempData["SuccessMessage"] = "Sustainability initiative created successfully.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Details), new { id = result.Id });
             }
             catch (Exception ex)
             {
@@ -118,13 +127,27 @@ namespace GrcMvc.Controllers
         {
             try
             {
-                // TODO: Load initiative by ID
+                var tenantId = (_workspaceContext?.GetCurrentTenantId() ?? Guid.Empty);
+                if (tenantId == Guid.Empty)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
+                var initiatives = await _sustainabilityService.GetImprovementInitiativesAsync(tenantId);
+                var initiative = initiatives.FirstOrDefault(i => i.Id == id);
+
+                if (initiative == null)
+                {
+                    TempData["ErrorMessage"] = "Initiative not found.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 ViewBag.InitiativeId = id;
-                return View();
+                return View(initiative);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading sustainability initiative for edit");
+                _logger.LogError(ex, "Error loading sustainability initiative {InitiativeId} for edit", id);
                 TempData["ErrorMessage"] = "Failed to load sustainability initiative.";
                 return RedirectToAction(nameof(Index));
             }
@@ -133,19 +156,38 @@ namespace GrcMvc.Controllers
         // POST: Sustainability/Edit/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, object model)
+        public async Task<IActionResult> Edit(Guid id, SustainabilityImprovementDto model)
         {
             try
             {
                 var tenantId = (_workspaceContext?.GetCurrentTenantId() ?? Guid.Empty);
-                // TODO: Update initiative
+                if (tenantId == Guid.Empty)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
+                // Update progress
+                var result = await _sustainabilityService.UpdateImprovementProgressAsync(
+                    tenantId, id, model.PercentComplete, model.Outcomes);
+
+                // If completed, mark as complete
+                if (model.Status == "Completed" && model.PercentComplete >= 100)
+                {
+                    await _sustainabilityService.CompleteImprovementAsync(
+                        tenantId, id, model.Owner, model.Outcomes);
+                }
+
+                _logger.LogInformation("Updated sustainability initiative {InitiativeId} for tenant {TenantId}",
+                    id, tenantId);
+
                 TempData["SuccessMessage"] = "Sustainability initiative updated successfully.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Details), new { id });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating sustainability initiative");
+                _logger.LogError(ex, "Error updating sustainability initiative {InitiativeId}", id);
                 TempData["ErrorMessage"] = "Failed to update sustainability initiative.";
+                ViewBag.InitiativeId = id;
                 return View(model);
             }
         }
@@ -156,13 +198,27 @@ namespace GrcMvc.Controllers
         {
             try
             {
-                // TODO: Load initiative details
+                var tenantId = (_workspaceContext?.GetCurrentTenantId() ?? Guid.Empty);
+                if (tenantId == Guid.Empty)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
+                var initiatives = await _sustainabilityService.GetImprovementInitiativesAsync(tenantId);
+                var initiative = initiatives.FirstOrDefault(i => i.Id == id);
+
+                if (initiative == null)
+                {
+                    TempData["ErrorMessage"] = "Initiative not found.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 ViewBag.InitiativeId = id;
-                return View();
+                return View(initiative);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading sustainability initiative details");
+                _logger.LogError(ex, "Error loading sustainability initiative {InitiativeId} details", id);
                 TempData["ErrorMessage"] = "Failed to load sustainability initiative details.";
                 return RedirectToAction(nameof(Index));
             }

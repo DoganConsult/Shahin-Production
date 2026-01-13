@@ -9,6 +9,10 @@ using GrcMvc.Services.Interfaces;
 using GrcMvc.Services.Interfaces.Workflows;
 using GrcMvc.Services.Interfaces.RBAC;
 using GrcMvc.Services.Implementations.RBAC;
+// ABP Framework Integration
+using GrcMvc.Abp;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 // Hangfire for background jobs
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -49,6 +53,11 @@ using Microsoft.Extensions.Options;
 using GrcMvc.Resources;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ══════════════════════════════════════════════════════════════
+// ABP Framework - Use Autofac as DI Container
+// ══════════════════════════════════════════════════════════════
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 
 // ══════════════════════════════════════════════════════════════
 // Load Environment Variables from .env file (Production Security)
@@ -158,7 +167,7 @@ if (builder.Environment.IsProduction())
     }
 
     // Log warnings for optional but recommended variables
-    var logger = LoggerFactory.Create(logging => logging.AddConsole()).CreateLogger("Startup");
+    var startupLogger = LoggerFactory.Create(logging => logging.AddConsole()).CreateLogger("Startup");
 
     // CRITICAL: Validate AI service configuration if enabled
     var claudeEnabled = builder.Configuration.GetValue<bool>("ClaudeAgents:Enabled", false);
@@ -170,21 +179,21 @@ if (builder.Environment.IsProduction())
                 "CLAUDE_API_KEY is required when ClaudeAgents:Enabled=true in Production. " +
                 "Either set CLAUDE_API_KEY environment variable or disable Claude agents.");
         }
-        logger.LogWarning("CLAUDE_API_KEY not set - AI features will be disabled");
+        startupLogger.LogWarning("CLAUDE_API_KEY not set - AI features will be disabled");
     }
 
     // Validate SMTP configuration if email features are used
     var smtpHost = Environment.GetEnvironmentVariable("SMTP_HOST");
     if (builder.Environment.IsProduction() && string.IsNullOrWhiteSpace(smtpHost))
     {
-        logger.LogWarning("SMTP_HOST not set - Email features may not work in Production");
+        startupLogger.LogWarning("SMTP_HOST not set - Email features may not work in Production");
     }
 
     // Validate Microsoft Graph if email operations are enabled
     var graphClientId = Environment.GetEnvironmentVariable("MSGRAPH_CLIENT_ID");
     if (builder.Environment.IsProduction() && string.IsNullOrWhiteSpace(graphClientId))
     {
-        logger.LogWarning("MSGRAPH_CLIENT_ID not set - Microsoft Graph email operations will be disabled");
+        startupLogger.LogWarning("MSGRAPH_CLIENT_ID not set - Microsoft Graph email operations will be disabled");
     }
 }
 builder.Configuration["ClaudeAgents:ApiKey"] = Environment.GetEnvironmentVariable("CLAUDE_API_KEY") ?? "";
@@ -725,6 +734,9 @@ builder.Services.AddScoped<IUnitOfWork, TenantAwareUnitOfWork>();
 
 // App Info Service (centralized branding & version info)
 builder.Services.AddSingleton<IAppInfoService, AppInfoService>();
+
+// ABP Feature Check Service - Tenant feature management
+builder.Services.AddScoped<IFeatureCheckService, FeatureCheckService>();
 
 // RiskService migrated to IDbContextFactory for tenant database isolation
 builder.Services.AddScoped<IRiskService, RiskService>();
@@ -1395,6 +1407,7 @@ builder.Services.AddHostedService<ConfigurationValidator>();
 builder.Services.AddScoped<IDiagnosticAgentService, DiagnosticAgentService>();
 builder.Services.AddScoped<IClaudeAgentService, ClaudeAgentService>();
 builder.Services.AddScoped<ISecurityAgentService, SecurityAgentService>();
+builder.Services.AddScoped<IEvidenceAgentService, EvidenceAgentService>();
 builder.Services.AddScoped<IIntegrationAgentService, IntegrationAgentService>();
 builder.Services.AddScoped<IUnifiedAiService, UnifiedAiService>();
 builder.Services.Configure<ClaudeApiSettings>(builder.Configuration.GetSection(ClaudeApiSettings.SectionName));

@@ -55,7 +55,7 @@ public class EmailProcessingJob
 
             // Get access token
             var token = await _graphService.GetAccessTokenAsync(
-                mailbox.TenantId!,
+                mailbox.AzureTenantId!,
                 mailbox.ClientId!,
                 DecryptSecret(mailbox.EncryptedClientSecret!));
 
@@ -341,7 +341,7 @@ public class EmailProcessingJob
 
         // Get token
         var token = await _graphService.GetAccessTokenAsync(
-            mailbox.TenantId!,
+            mailbox.AzureTenantId!,
             mailbox.ClientId!,
             DecryptSecret(mailbox.EncryptedClientSecret!));
 
@@ -444,7 +444,7 @@ public class EmailProcessingJob
 
         // Create draft (not send directly for follow-ups)
         var token = await _graphService.GetAccessTokenAsync(
-            mailbox.TenantId!,
+            mailbox.AzureTenantId!,
             mailbox.ClientId!,
             DecryptSecret(mailbox.EncryptedClientSecret!));
 
@@ -495,7 +495,7 @@ public class EmailProcessingJob
         try
         {
             var token = await _graphService.GetAccessTokenAsync(
-                mailbox.TenantId!,
+                mailbox.AzureTenantId!,
                 mailbox.ClientId!,
                 DecryptSecret(mailbox.EncryptedClientSecret!));
 
@@ -601,7 +601,7 @@ public class EmailProcessingJob
 
                 // Get access token
                 var token = await _graphService.GetAccessTokenAsync(
-                    mailbox.TenantId!,
+                    mailbox.AzureTenantId!,
                     mailbox.ClientId!,
                     DecryptSecret(mailbox.EncryptedClientSecret!));
 

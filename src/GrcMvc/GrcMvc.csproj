@@ -22,7 +22,8 @@
 
   <ItemGroup>
     <!-- Core Dependencies -->
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <!-- AutoMapper 13.0+ has built-in DI support, separate Extensions package no longer needed -->
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Azure.Identity" Version="1.17.1" />
     <PackageReference Include="ClosedXML" Version="0.102.2" />
     <PackageReference Include="Confluent.Kafka" Version="2.3.0" />
@@ -94,6 +95,20 @@
 
     <!-- Application Performance Monitoring (APM) -->
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
+
+    <!-- ══════════════════════════════════════════════════════════════════════════════ -->
+    <!-- ABP Framework 8.2 - FREE Open Source Packages (No License Required)            -->
+    <!-- These provide enterprise multi-tenancy, audit logging, and feature management  -->
+    <!-- ══════════════════════════════════════════════════════════════════════════════ -->
+    <PackageReference Include="Volo.Abp.Core" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.AspNetCore.Mvc" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.Autofac" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore.PostgreSql" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.Identity.Domain" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.Domain" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.TenantManagement.Domain" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.AuditLogging.Domain" Version="8.2.2" />
   </ItemGroup>
 
   <!-- Localization Resources -->

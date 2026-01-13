@@ -48,10 +48,10 @@ public class EmailMailbox : BaseEntity
     public string? EncryptedClientSecret { get; set; }
     
     /// <summary>
-    /// Tenant ID for Microsoft 365
+    /// Azure AD Tenant ID for Microsoft 365 (not to be confused with app TenantId)
     /// </summary>
     [MaxLength(100)]
-    public string? TenantId { get; set; }
+    public string? AzureTenantId { get; set; }
     
     public bool IsActive { get; set; } = true;
     

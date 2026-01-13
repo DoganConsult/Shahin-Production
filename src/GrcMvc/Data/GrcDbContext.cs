@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using GrcMvc.Models.Entities;
 using GrcMvc.Models.Entities.Catalogs;
+using GrcMvc.Models.Entities.EmailOperations;
 using GrcMvc.Models;
 using GrcMvc.Services.Interfaces;
 using System;
@@ -137,6 +138,25 @@ namespace GrcMvc.Data
         public DbSet<RiskTreatment> RiskTreatments { get; set; } = null!;
         public DbSet<RiskTreatmentControl> RiskTreatmentControls { get; set; } = null!;
         public DbSet<RiskAppetiteSetting> RiskAppetiteSettings { get; set; } = null!;
+
+        // Baseline & Framework Mapping entities
+        public DbSet<BaselineProfile> BaselineProfiles { get; set; } = null!;
+        public DbSet<ControlOverlay> ControlOverlays { get; set; } = null!;
+        public DbSet<TailoringDecision> TailoringDecisions { get; set; } = null!;
+        public DbSet<MAPProfile> MAPProfiles { get; set; } = null!;
+        public DbSet<MAPControlImplementation> MAPControlImplementations { get; set; } = null!;
+        public DbSet<MAPParameter> MAPParameters { get; set; } = null!;
+        public DbSet<CanonicalControlMapping> CanonicalControlMappings { get; set; } = null!;
+        public DbSet<RiskTaxonomy> RiskTaxonomies { get; set; } = null!;
+        public DbSet<RiskScenario> RiskScenarios { get; set; } = null!;
+        public DbSet<RiskAppetiteStatement> RiskAppetiteStatements { get; set; } = null!;
+        public DbSet<ThreatProfile> ThreatProfiles { get; set; } = null!;
+        public DbSet<VulnerabilityProfile> VulnerabilityProfiles { get; set; } = null!;
+        public DbSet<ResilienceCapability> ResilienceCapabilities { get; set; } = null!;
+        public DbSet<ControlApplicabilityRule> ControlApplicabilityRules { get; set; } = null!;
+        public DbSet<ApplicabilityDecision> ApplicabilityDecisions { get; set; } = null!;
+        public DbSet<ControlInheritance> ControlInheritances { get; set; } = null!;
+
         public DbSet<Control> Controls { get; set; } = null!;
         public DbSet<Assessment> Assessments { get; set; } = null!;
         public DbSet<Audit> Audits { get; set; } = null!;
@@ -1672,9 +1692,6 @@ namespace GrcMvc.Data
             modelBuilder.Entity<BaselineProfile>().HasQueryFilter(e =>
                 !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
 
-            modelBuilder.Entity<BaselineControl>().HasQueryFilter(e =>
-                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
-
             modelBuilder.Entity<ControlOverlay>().HasQueryFilter(e =>
                 !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
 
@@ -1763,8 +1780,9 @@ namespace GrcMvc.Data
             modelBuilder.Entity<Ruleset>().HasQueryFilter(e =>
                 !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
 
+            // SerialCounter uses TenantId only (no soft delete)
             modelBuilder.Entity<SerialCounter>().HasQueryFilter(e =>
-                !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));
+                GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId());
 
             modelBuilder.Entity<TenantBaseline>().HasQueryFilter(e =>
                 !e.IsDeleted && (GetCurrentTenantId() == null || e.TenantId == GetCurrentTenantId()));

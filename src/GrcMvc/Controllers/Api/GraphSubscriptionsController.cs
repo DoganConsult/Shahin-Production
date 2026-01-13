@@ -69,7 +69,7 @@ public class GraphSubscriptionsController : ControllerBase
             try
             {
                 // Use mailbox-specific credentials if available, otherwise use default
-                var mTenantId = mailbox.TenantId ?? tenantId;
+                var mTenantId = mailbox.AzureTenantId ?? tenantId;
                 var mClientId = mailbox.ClientId ?? clientId;
                 var mClientSecret = mailbox.EncryptedClientSecret ?? clientSecret;
 
@@ -82,7 +82,7 @@ public class GraphSubscriptionsController : ControllerBase
 
                 mailbox.WebhookSubscriptionId = subscription.Id;
                 mailbox.WebhookExpiresAt = subscription.ExpirationDateTime;
-                mailbox.TenantId ??= tenantId;
+                mailbox.AzureTenantId ??= tenantId;
                 mailbox.ClientId ??= clientId;
                 mailbox.EncryptedClientSecret ??= clientSecret;
 
@@ -139,7 +139,7 @@ public class GraphSubscriptionsController : ControllerBase
         var webhookBaseUrl = _configuration["App:SelfUrl"] ?? "https://portal.shahin-ai.com";
         var webhookUrl = $"{webhookBaseUrl}/api/webhooks/email";
 
-        var tenantId = mailbox.TenantId ?? _configuration["EmailOperations:MicrosoftGraph:TenantId"]!;
+        var tenantId = mailbox.AzureTenantId ?? _configuration["EmailOperations:MicrosoftGraph:TenantId"]!;
         var clientId = mailbox.ClientId ?? _configuration["EmailOperations:MicrosoftGraph:ClientId"]!;
         var clientSecret = mailbox.EncryptedClientSecret ?? _configuration["EmailOperations:MicrosoftGraph:ClientSecret"]!;
 
@@ -154,7 +154,7 @@ public class GraphSubscriptionsController : ControllerBase
 
             mailbox.WebhookSubscriptionId = subscription.Id;
             mailbox.WebhookExpiresAt = subscription.ExpirationDateTime;
-            mailbox.TenantId = tenantId;
+            mailbox.AzureTenantId = tenantId;
             mailbox.ClientId = clientId;
             mailbox.EncryptedClientSecret = clientSecret;
 
@@ -194,7 +194,7 @@ public class GraphSubscriptionsController : ControllerBase
         if (string.IsNullOrEmpty(mailbox.WebhookSubscriptionId))
             return BadRequest(new { error = "No subscription exists" });
 
-        var tenantId = mailbox.TenantId ?? _configuration["EmailOperations:MicrosoftGraph:TenantId"]!;
+        var tenantId = mailbox.AzureTenantId ?? _configuration["EmailOperations:MicrosoftGraph:TenantId"]!;
         var clientId = mailbox.ClientId ?? _configuration["EmailOperations:MicrosoftGraph:ClientId"]!;
         var clientSecret = mailbox.EncryptedClientSecret ?? _configuration["EmailOperations:MicrosoftGraph:ClientSecret"]!;
 
@@ -262,7 +262,7 @@ public class GraphSubscriptionsController : ControllerBase
         {
             try
             {
-                var tenantId = mailbox.TenantId ?? _configuration["EmailOperations:MicrosoftGraph:TenantId"]!;
+                var tenantId = mailbox.AzureTenantId ?? _configuration["EmailOperations:MicrosoftGraph:TenantId"]!;
                 var clientId = mailbox.ClientId ?? _configuration["EmailOperations:MicrosoftGraph:ClientId"]!;
                 var clientSecret = mailbox.EncryptedClientSecret ?? _configuration["EmailOperations:MicrosoftGraph:ClientSecret"]!;
 
@@ -317,7 +317,7 @@ public class GraphSubscriptionsController : ControllerBase
         {
             try
             {
-                var mTenantId = mailbox.TenantId ?? tenantId;
+                var mTenantId = mailbox.AzureTenantId ?? tenantId;
                 var mClientId = mailbox.ClientId ?? clientId;
                 var mClientSecret = mailbox.EncryptedClientSecret ?? clientSecret;
 

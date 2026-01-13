@@ -1,193 +1,0 @@
-@model GrcMvc.Controllers.TrialSuccessViewModel
-@using Microsoft.AspNetCore.Mvc.Localization
-@inject IHtmlLocalizer<SharedResource> L
-@{
-    ViewData["Title"] = "تم إنشاء حسابك بنجاح";
-    var isRtl = ViewContext.HttpContext.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>()?.RequestCulture?.UICulture?.Name == "ar";
-    var daysRemaining = (int)(Model.TrialEndsAt - DateTime.UtcNow).TotalDays;
-}
-
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-10 col-lg-8">
-            
-            <!-- Success Header -->
-            <div class="text-center mb-4">
-                <div class="success-icon-container mb-3">
-                    <div class="success-icon">
-                        <i class="bi bi-check-lg"></i>
-                    </div>
-                </div>
-                <h1 class="display-5 fw-bold text-success mb-2">مرحباً بك! 🎉</h1>
-                <p class="lead text-muted">تم إنشاء حسابك وتسجيل دخولك بنجاح</p>
-            </div>
-
-            <!-- User Welcome Card -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body p-4">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <div class="user-avatar-large bg-primary text-white rounded-circle d-flex align-items-center justify-content-center">
-                                <i class="bi bi-building" style="font-size: 2rem;"></i>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <h3 class="mb-1">@Model.OrganizationName</h3>
-                            <div class="d-flex flex-wrap gap-2 align-items-center">
-                                <span class="badge bg-success">
-                                    <i class="bi bi-check-circle me-1"></i>الحساب نشط
-                                </span>
-                                <span class="badge bg-info">
-                                    <i class="bi bi-calendar me-1"></i>فترة تجريبية: @daysRemaining يوم متبقي
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- What's Next - Clear Single Action -->
-            <div class="card shadow-sm border-primary border-2 mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="bi bi-arrow-left-circle me-2"></i>الخطوة التالية</h4>
-                </div>
-                <div class="card-body p-4 text-center">
-                    <div class="mb-4">
-                        <i class="bi bi-rocket-takeoff text-primary" style="font-size: 4rem;"></i>
-                    </div>
-                    <h4 class="mb-3">ابدأ بإعداد مؤسستك</h4>
-                    <p class="text-muted mb-4">
-                        سنساعدك في تحديد الأنظمة واللوائح المناسبة لمؤسستك خلال بضع دقائق فقط.
-                        <br/>بعد ذلك سيتم إنشاء خطة امتثال مخصصة لك تلقائياً.
-                    </p>
-                    
-                    <a href="@Model.OnboardingUrl" class="btn btn-primary btn-lg px-5 py-3">
-                        <i class="bi bi-play-fill me-2"></i>ابدأ الآن
-                    </a>
-                    
-                    <div class="mt-3">
-                        <small class="text-muted">
-                            <i class="bi bi-clock me-1"></i>يستغرق حوالي 5-10 دقائق
-                        </small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Alternative Options (Less Prominent) -->
-            <div class="row g-3 mb-4">
-                <div class="col-md-4">
-                    <a href="/Dashboard" class="card h-100 text-decoration-none border-0 shadow-sm hover-lift">
-                        <div class="card-body text-center p-4">
-                            <div class="icon-circle bg-light mb-3">
-                                <i class="bi bi-speedometer2 text-secondary"></i>
-                            </div>
-                            <h6 class="mb-1">لوحة التحكم</h6>
-                            <small class="text-muted">استكشف النظام</small>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-md-4">
-                    <a href="/Help" class="card h-100 text-decoration-none border-0 shadow-sm hover-lift">
-                        <div class="card-body text-center p-4">
-                            <div class="icon-circle bg-light mb-3">
-                                <i class="bi bi-question-circle text-secondary"></i>
-                            </div>
-                            <h6 class="mb-1">مركز المساعدة</h6>
-                            <small class="text-muted">أدلة وإرشادات</small>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-md-4">
-                    <a href="/Account/Profile" class="card h-100 text-decoration-none border-0 shadow-sm hover-lift">
-                        <div class="card-body text-center p-4">
-                            <div class="icon-circle bg-light mb-3">
-                                <i class="bi bi-person text-secondary"></i>
-                            </div>
-                            <h6 class="mb-1">ملفك الشخصي</h6>
-                            <small class="text-muted">إعداداتك</small>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Technical Info (Collapsed) -->
-            <div class="accordion mb-4" id="technicalAccordion">
-                <div class="accordion-item border-0 shadow-sm">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#technicalInfo">
-                            <i class="bi bi-gear me-2"></i>معلومات تقنية (للمطورين)
-                        </button>
-                    </h2>
-                    <div id="technicalInfo" class="accordion-collapse collapse" data-bs-parent="#technicalAccordion">
-                        <div class="accordion-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <small class="text-muted">معرف المؤسسة (Tenant ID):</small>
-                                    <div class="font-monospace small">@Model.TenantId</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <small class="text-muted">رابط المؤسسة (Slug):</small>
-                                    <div class="font-monospace small">@Model.TenantSlug</div>
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <small class="text-muted">انتهاء الفترة التجريبية:</small>
-                                <div>@Model.TrialEndsAt.ToString("yyyy-MM-dd")</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<style>
-.success-icon-container {
-    display: inline-block;
-}
-
-.success-icon {
-    width: 100px;
-    height: 100px;
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 3rem;
-    animation: scaleIn 0.5s ease;
-}
-
-@@keyframes scaleIn {
-    0% { transform: scale(0); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-.user-avatar-large {
-    width: 70px;
-    height: 70px;
-}
-
-.icon-circle {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-}
-
-.hover-lift {
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.hover-lift:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
-}
-</style>
