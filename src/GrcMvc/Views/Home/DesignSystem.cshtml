@@ -410,6 +410,196 @@
         </div>
     </section>
 
+    <!-- Section: Advanced Components -->
+    <section class="mb-5">
+        <h2 class="shahin-text-2xl shahin-font-bold shahin-mb-4">Advanced Components</h2>
+
+        <!-- Breadcrumb -->
+        <h3 class="shahin-text-xl shahin-font-semibold mb-3">Breadcrumb</h3>
+        <partial name="Components/_ShahinBreadcrumb" model='new {
+            Items = new[] {
+                new { Text = "Home", Url = "/" },
+                new { Text = "Dashboard", Url = "/Dashboard" },
+                new { Text = "Risks", Url = "/Risk" },
+                new { Text = "Risk Details", Url = "" }
+            }
+        }' />
+
+        <!-- Tabs -->
+        <h3 class="shahin-text-xl shahin-font-semibold mb-3 mt-5">Tabs</h3>
+        <partial name="Components/_ShahinTabs" model='new {
+            Id = "demoTabs",
+            Variant = "pills",
+            Tabs = new[] {
+                new { Title = "Overview", Content = Html.Raw("<div class=\"p-4\"><h4>Overview Content</h4><p>This is the overview tab content with important information about the system.</p></div>"), Icon = "house", Active = true },
+                new { Title = "Details", Content = Html.Raw("<div class=\"p-4\"><h4>Details Content</h4><p>Detailed information and specifications are displayed here.</p></div>"), Icon = "info-circle", Active = false },
+                new { Title = "History", Content = Html.Raw("<div class=\"p-4\"><h4>History Content</h4><p>View the complete history and audit trail of changes.</p></div>"), Icon = "clock-history", Active = false }
+            }
+        }' />
+
+        <!-- Accordion -->
+        <h3 class="shahin-text-xl shahin-font-semibold mb-3 mt-5">Accordion</h3>
+        <partial name="Components/_ShahinAccordion" model='new {
+            Id = "demoAccordion",
+            Items = new[] {
+                new { Title = "What is GRC?", Content = Html.Raw("<p>GRC stands for Governance, Risk, and Compliance. It is a structured approach to aligning IT with business objectives while managing risks and meeting compliance requirements.</p>"), Icon = "question-circle", Open = true },
+                new { Title = "Risk Assessment Process", Content = Html.Raw("<p>The risk assessment process involves identifying, analyzing, and evaluating risks to determine their potential impact on the organization.</p>"), Icon = "shield-check", Open = false },
+                new { Title = "Compliance Frameworks", Content = Html.Raw("<p>Common compliance frameworks include ISO 27001, NIST, SOC 2, GDPR, and industry-specific regulations.</p>"), Icon = "file-earmark-check", Open = false }
+            },
+            AlwaysOpen = false
+        }' />
+
+        <!-- Dropdown -->
+        <h3 class="shahin-text-xl shahin-font-semibold mb-3 mt-5">Dropdown</h3>
+        <div class="d-flex gap-3 flex-wrap">
+            <partial name="Components/_ShahinDropdown" model='new {
+                Id = "actionsDropdown",
+                ButtonText = "Actions",
+                ButtonType = "primary",
+                ButtonIcon = "gear",
+                Items = new[] {
+                    new { Text = "View Details", Icon = "eye", Url = "#view", Divider = false },
+                    new { Text = "Edit", Icon = "pencil", Url = "#edit", Divider = false },
+                    new { Text = "Share", Icon = "share", Url = "#share", Divider = false },
+                    new { Text = "", Icon = "", Url = "", Divider = true },
+                    new { Text = "Delete", Icon = "trash", Url = "#delete", Divider = false }
+                }
+            }' />
+
+            <partial name="Components/_ShahinDropdown" model='new {
+                Id = "exportDropdown",
+                ButtonText = "Export",
+                ButtonType = "success",
+                ButtonIcon = "download",
+                Direction = "up",
+                Items = new[] {
+                    new { Text = "Export as PDF", Icon = "file-pdf", Url = "#pdf", Divider = false },
+                    new { Text = "Export as Excel", Icon = "file-excel", Url = "#excel", Divider = false },
+                    new { Text = "Export as CSV", Icon = "file-text", Url = "#csv", Divider = false }
+                }
+            }' />
+
+            <partial name="Components/_ShahinDropdown" model='new {
+                Id = "splitDropdown",
+                ButtonText = "Split Button",
+                ButtonType = "secondary",
+                Split = true,
+                Items = new[] {
+                    new { Text = "Option 1", Icon = "1-circle", Url = "#1", Divider = false },
+                    new { Text = "Option 2", Icon = "2-circle", Url = "#2", Divider = false },
+                    new { Text = "Option 3", Icon = "3-circle", Url = "#3", Divider = false }
+                }
+            }' />
+        </div>
+
+        <!-- Pagination -->
+        <h3 class="shahin-text-xl shahin-font-semibold mb-3 mt-5">Pagination</h3>
+        <partial name="Components/_ShahinPagination" model='new {
+            CurrentPage = 5,
+            TotalPages = 12,
+            BaseUrl = "/Risk/Index",
+            ShowFirstLast = true,
+            MaxVisible = 7
+        }' />
+
+        <!-- Tooltip -->
+        <h3 class="shahin-text-xl shahin-font-semibold mb-3 mt-5">Tooltip</h3>
+        <p class="mb-3">Hover over the text below to see tooltips:</p>
+        <div class="d-flex gap-4 flex-wrap">
+            <p>
+                This is a <partial name="Components/_ShahinTooltip" model='new {
+                    Text = "helpful tooltip",
+                    Tooltip = "This tooltip provides additional context and helpful information!",
+                    Position = "top"
+                }' /> example.
+            </p>
+            <p>
+                Risk level: <partial name="Components/_ShahinTooltip" model='new {
+                    Text = "Critical",
+                    Tooltip = "Critical risks require immediate attention and mitigation.",
+                    Position = "right",
+                    CssClass = "text-danger fw-bold"
+                }' />
+            </p>
+            <p>
+                Status: <partial name="Components/_ShahinTooltip" model='new {
+                    Text = "In Progress",
+                    Tooltip = "This assessment is currently being reviewed by the compliance team.",
+                    Position = "bottom",
+                    CssClass = "badge bg-warning"
+                }' />
+            </p>
+        </div>
+
+        <!-- Modal Trigger -->
+        <h3 class="shahin-text-xl shahin-font-semibold mb-3 mt-5">Modal</h3>
+        <button class="shahin-btn shahin-btn-primary" data-bs-toggle="modal" data-bs-target="#demoModal">
+            <i class="bi bi-window"></i>
+            Open Demo Modal
+        </button>
+
+        <!-- Modal Component -->
+        <partial name="Components/_ShahinModal" model='new {
+            Id = "demoModal",
+            Title = "Risk Assessment Details",
+            Body = Html.Raw(@"
+                <div class=\"mb-4\">
+                    <h5>Risk Information</h5>
+                    <p><strong>Risk ID:</strong> RISK-001</p>
+                    <p><strong>Description:</strong> Data breach vulnerability in customer database</p>
+                    <p><strong>Severity:</strong> <span class=\"shahin-badge shahin-badge-danger\">Critical</span></p>
+                    <p><strong>Status:</strong> <span class=\"shahin-badge shahin-badge-warning\">In Progress</span></p>
+                </div>
+                <div>
+                    <h5>Mitigation Actions</h5>
+                    <ul>
+                        <li>Implement encryption for sensitive data</li>
+                        <li>Conduct security audit</li>
+                        <li>Update access control policies</li>
+                    </ul>
+                </div>
+            "),
+            Footer = Html.Raw(@"
+                <button type=\"button\" class=\"shahin-btn shahin-btn-secondary\" data-bs-dismiss=\"modal\">Close</button>
+                <button type=\"button\" class=\"shahin-btn shahin-btn-primary\">Save Changes</button>
+            "),
+            Size = "lg",
+            Centered = true
+        }' />
+
+        <!-- Dynamic Table -->
+        <h3 class="shahin-text-xl shahin-font-semibold mb-3 mt-5">Dynamic Table</h3>
+        <partial name="Components/_ShahinTable" model='new {
+            Id = "dynamicTable",
+            Headers = new[] { "Risk ID", "Title", "Severity", "Status", "Owner" },
+            Rows = new[] {
+                new[] {
+                    "RISK-001",
+                    "Data Breach Risk",
+                    "<span class=\"shahin-badge shahin-badge-danger\">Critical</span>",
+                    "<span class=\"shahin-badge shahin-badge-warning\">Active</span>",
+                    "John Doe"
+                },
+                new[] {
+                    "RISK-002",
+                    "Compliance Violation",
+                    "<span class=\"shahin-badge shahin-badge-warning\">High</span>",
+                    "<span class=\"shahin-badge shahin-badge-success\">Resolved</span>",
+                    "Jane Smith"
+                },
+                new[] {
+                    "RISK-003",
+                    "System Vulnerability",
+                    "<span class=\"shahin-badge shahin-badge-warning\">Medium</span>",
+                    "<span class=\"shahin-badge shahin-badge-info\">In Progress</span>",
+                    "Mike Johnson"
+                }
+            },
+            Striped = true,
+            Hover = true
+        }' />
+    </section>
+
     <!-- Section: RTL Support -->
     <section class="mb-5">
         <h2 class="shahin-text-2xl shahin-font-bold shahin-mb-4">RTL Support</h2>
