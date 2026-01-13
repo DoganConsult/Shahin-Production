@@ -136,6 +136,25 @@
 </div>
 
 @section Scripts {
+    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
+    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
+    <script>
+        // Initialize Motivation System
+        const motivation = new WizardMotivation({
+            stepNumber: 7,
+            totalSteps: 12,
+            tenantId: '@tenantId',
+            stepName: 'StepG'
+        });
+
+        // Initialize Live Preview Panel
+        const livePreview = new LivePreviewPanel({
+            stepName: 'StepG'
+        });
+
+        // Initialize Why We Ask Tooltips
+        const tooltips = new WhyWeAskTooltips();
+    </script>
     <script>
         document.querySelectorAll('input[name="ControlOwnershipApproach"]').forEach(r => {
             r.addEventListener('change', function() {

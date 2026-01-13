@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using GrcMvc.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -17,19 +18,16 @@ namespace GrcMvc.Services.StartupValidators
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<OnboardingServicesStartupValidator> _logger;
-        private readonly IOnboardingCoverageService _coverageService;
-        private readonly IFieldRegistryService _registryService;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
         public OnboardingServicesStartupValidator(
             IConfiguration configuration,
             ILogger<OnboardingServicesStartupValidator> logger,
-            IOnboardingCoverageService coverageService,
-            IFieldRegistryService registryService)
+            IServiceScopeFactory serviceScopeFactory)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _coverageService = coverageService ?? throw new ArgumentNullException(nameof(coverageService));
-            _registryService = registryService ?? throw new ArgumentNullException(nameof(registryService));
+            _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -41,14 +39,18 @@ namespace GrcMvc.Services.StartupValidators
 
             try
             {
+                using var scope = _serviceScopeFactory.CreateScope();
+                var coverageService = scope.ServiceProvider.GetService<IOnboardingCoverageService>();
+                var registryService = scope.ServiceProvider.GetService<IFieldRegistryService>();
+                
                 // 1. Validate coverage manifest path exists
                 await ValidateCoverageManifestAsync(validationErrors, validationWarnings, cancellationToken);
 
                 // 2. Validate coverage service can load manifest
-                await ValidateCoverageServiceAsync(validationErrors, validationWarnings, cancellationToken);
+                await ValidateCoverageServiceAsync(coverageService, validationErrors, validationWarnings, cancellationToken);
 
                 // 3. Validate field registry service can load registry
-                await ValidateFieldRegistryServiceAsync(validationErrors, validationWarnings, cancellationToken);
+                await ValidateFieldRegistryServiceAsync(registryService, validationErrors, validationWarnings, cancellationToken);
 
                 // 4. Validate configuration settings
                 ValidateConfigurationSettings(validationErrors, validationWarnings);
@@ -128,13 +130,20 @@ namespace GrcMvc.Services.StartupValidators
         }
 
         private async Task ValidateCoverageServiceAsync(
+            IOnboardingCoverageService? coverageService,
             System.Collections.Generic.List<string> errors,
             System.Collections.Generic.List<string> warnings,
             CancellationToken ct)
         {
+            if (coverageService == null)
+            {
+                errors.Add("IOnboardingCoverageService is not registered in DI container");
+                return;
+            }
+            
             try
             {
-                var manifest = await _coverageService.LoadManifestAsync(ct);
+                var manifest = await coverageService.LoadManifestAsync(ct);
 
                 if (manifest == null)
                 {
@@ -183,13 +192,20 @@ namespace GrcMvc.Services.StartupValidators
         }
 
         private async Task ValidateFieldRegistryServiceAsync(
+            IFieldRegistryService? registryService,
             System.Collections.Generic.List<string> errors,
             System.Collections.Generic.List<string> warnings,
             CancellationToken ct)
         {
+            if (registryService == null)
+            {
+                errors.Add("IFieldRegistryService is not registered in DI container");
+                return;
+            }
+            
             try
             {
-                var registry = await _registryService.LoadRegistryAsync(ct);
+                var registry = await registryService.LoadRegistryAsync(ct);
 
                 if (registry == null)
                 {
@@ -197,7 +213,7 @@ namespace GrcMvc.Services.StartupValidators
                     return;
                 }
 
-                var allFields = await _registryService.GetAllFieldsAsync(ct);
+                var allFields = await registryService.GetAllFieldsAsync(ct);
                 if (allFields == null || allFields.Count == 0)
                 {
                     warnings.Add("Field registry is empty - no fields registered");
@@ -209,7 +225,7 @@ namespace GrcMvc.Services.StartupValidators
 
                 // Test validation with a known field
                 var testFieldId = "SF.S1.organization_name";
-                var isValid = await _registryService.ValidateFieldIdAsync(testFieldId, ct);
+                var isValid = await registryService.ValidateFieldIdAsync(testFieldId, ct);
                 if (!isValid)
                 {
                     warnings.Add($"Test field '{testFieldId}' not found in registry - registry may be incomplete");

@@ -2280,4 +2280,273 @@
   <data name="Risk_CriticalRisk" xml:space="preserve">
     <value>Critical Risk</value>
   </data>
+
+  <!-- ============================================================================
+       ONBOARDING WIZARD - Professional GRC Setup
+       ============================================================================ -->
+
+  <!-- Common Wizard Elements -->
+  <data name="Onboarding_TotalQuestions" xml:space="preserve">
+    <value>Complete all required fields</value>
+  </data>
+  <data name="Onboarding_StepIndicator" xml:space="preserve">
+    <value>Step {0} of {1}</value>
+  </data>
+  <data name="Onboarding_SelectCountry" xml:space="preserve">
+    <value>Select Country</value>
+  </data>
+  <data name="Onboarding_SelectType" xml:space="preserve">
+    <value>Select Type</value>
+  </data>
+  <data name="Onboarding_SelectSector" xml:space="preserve">
+    <value>Select Industry Sector</value>
+  </data>
+  <data name="Onboarding_SaveAndExit_Confirm" xml:space="preserve">
+    <value>Your progress will be saved. You can continue later from where you left off.</value>
+  </data>
+
+  <!-- Buttons -->
+  <data name="Button_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Button_SaveContinueLater" xml:space="preserve">
+    <value>Save &amp; Continue Later</value>
+  </data>
+  <data name="Button_SaveContinueToStepB" xml:space="preserve">
+    <value>Save &amp; Continue to Compliance</value>
+  </data>
+  <data name="Button_Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Button_CompleteSetup" xml:space="preserve">
+    <value>Complete Setup</value>
+  </data>
+
+  <!-- Step A: Organization Identity -->
+  <data name="Onboarding_StepA_Title" xml:space="preserve">
+    <value>Organization Identity</value>
+  </data>
+  <data name="Onboarding_StepA_Heading" xml:space="preserve">
+    <value>Organization Identity &amp; Profile</value>
+  </data>
+  <data name="Onboarding_StepA_Questions" xml:space="preserve">
+    <value>Tell us about your organization</value>
+  </data>
+  <data name="Onboarding_StepA_LegalName_Header" xml:space="preserve">
+    <value>Legal Entity Information</value>
+  </data>
+  <data name="Onboarding_StepA_LegalNameEn_Label" xml:space="preserve">
+    <value>Legal Name (English)</value>
+  </data>
+  <data name="Onboarding_StepA_LegalNameEn_Placeholder" xml:space="preserve">
+    <value>Enter organization's official legal name</value>
+  </data>
+  <data name="Onboarding_StepA_LegalNameAr_Label" xml:space="preserve">
+    <value>Legal Name (Arabic)</value>
+  </data>
+  <data name="Onboarding_StepA_LegalNameAr_Placeholder" xml:space="preserve">
+    <value>أدخل الاسم القانوني الرسمي</value>
+  </data>
+  <data name="Onboarding_StepA_TradeName_Label" xml:space="preserve">
+    <value>Trade Name / Brand Name</value>
+  </data>
+  <data name="Onboarding_StepA_TradeName_Placeholder" xml:space="preserve">
+    <value>Enter trade or brand name if different</value>
+  </data>
+  <data name="Onboarding_StepA_Geographic_Header" xml:space="preserve">
+    <value>Geographic &amp; Operational Presence</value>
+  </data>
+  <data name="Onboarding_StepA_Country_Label" xml:space="preserve">
+    <value>Country of Incorporation</value>
+  </data>
+  <data name="Onboarding_StepA_HqLocation_Label" xml:space="preserve">
+    <value>Headquarters Location</value>
+  </data>
+  <data name="Onboarding_StepA_HqLocation_Placeholder" xml:space="preserve">
+    <value>City, Region</value>
+  </data>
+  <data name="Onboarding_StepA_Timezone_Label" xml:space="preserve">
+    <value>Default Timezone</value>
+  </data>
+  <data name="Onboarding_StepA_OperatingCountries_Label" xml:space="preserve">
+    <value>Countries of Operation</value>
+  </data>
+  <data name="Onboarding_StepA_OrgType_Header" xml:space="preserve">
+    <value>Organization Type &amp; Industry Classification</value>
+  </data>
+  <data name="Onboarding_StepA_OrgType_Label" xml:space="preserve">
+    <value>Organization Type</value>
+  </data>
+  <data name="Onboarding_StepA_Industry_Label" xml:space="preserve">
+    <value>Primary Industry Sector</value>
+  </data>
+  <data name="Onboarding_StepA_BusinessLines_Label" xml:space="preserve">
+    <value>Business Lines / Services</value>
+  </data>
+  <data name="Onboarding_StepA_Communication_Header" xml:space="preserve">
+    <value>Communication &amp; Domain Verification</value>
+  </data>
+  <data name="Onboarding_StepA_PrimaryLanguage_Label" xml:space="preserve">
+    <value>Primary Communication Language</value>
+  </data>
+  <data name="Onboarding_StepA_DomainVerification_Label" xml:space="preserve">
+    <value>Domain Verification Method</value>
+  </data>
+  <data name="Onboarding_StepA_EmailDomains_Label" xml:space="preserve">
+    <value>Corporate Email Domains</value>
+  </data>
+  <data name="Onboarding_StepA_EmailDomain_Placeholder" xml:space="preserve">
+    <value>company.com</value>
+  </data>
+  <data name="Onboarding_StepA_AddDomain" xml:space="preserve">
+    <value>Add Another Domain</value>
+  </data>
+  <data name="Onboarding_StepA_DataResidency_Header" xml:space="preserve">
+    <value>Data Residency &amp; Sovereignty</value>
+  </data>
+  <data name="Onboarding_StepA_DataResidency_Label" xml:space="preserve">
+    <value>Organization has data residency requirements</value>
+  </data>
+  <data name="Onboarding_StepA_DataResidency_Help" xml:space="preserve">
+    <value>Enable if your organization must store data within specific geographic boundaries</value>
+  </data>
+  <data name="Onboarding_StepA_DataResidencyCountries_Label" xml:space="preserve">
+    <value>Required Data Residency Locations</value>
+  </data>
+
+  <!-- Countries -->
+  <data name="Country_SA" xml:space="preserve">
+    <value>Saudi Arabia</value>
+  </data>
+  <data name="Country_AE" xml:space="preserve">
+    <value>United Arab Emirates</value>
+  </data>
+  <data name="Country_QA" xml:space="preserve">
+    <value>Qatar</value>
+  </data>
+  <data name="Country_KW" xml:space="preserve">
+    <value>Kuwait</value>
+  </data>
+  <data name="Country_BH" xml:space="preserve">
+    <value>Bahrain</value>
+  </data>
+  <data name="Country_OM" xml:space="preserve">
+    <value>Oman</value>
+  </data>
+  <data name="Country_EG" xml:space="preserve">
+    <value>Egypt</value>
+  </data>
+  <data name="Country_JO" xml:space="preserve">
+    <value>Jordan</value>
+  </data>
+
+  <!-- Organization Types -->
+  <data name="OrgType_Enterprise" xml:space="preserve">
+    <value>Enterprise (1000+ employees)</value>
+  </data>
+  <data name="OrgType_SME" xml:space="preserve">
+    <value>SME (50-999 employees)</value>
+  </data>
+  <data name="OrgType_Startup" xml:space="preserve">
+    <value>Startup (Under 50 employees)</value>
+  </data>
+  <data name="OrgType_Government" xml:space="preserve">
+    <value>Government / Public Sector</value>
+  </data>
+  <data name="OrgType_RegulatedFI" xml:space="preserve">
+    <value>Regulated Financial Institution</value>
+  </data>
+  <data name="OrgType_Fintech" xml:space="preserve">
+    <value>Fintech / Digital Finance</value>
+  </data>
+  <data name="OrgType_Telecom" xml:space="preserve">
+    <value>Telecommunications Provider</value>
+  </data>
+  <data name="OrgType_Healthcare" xml:space="preserve">
+    <value>Healthcare Provider</value>
+  </data>
+  <data name="OrgType_Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+
+  <!-- Industry Sectors -->
+  <data name="Industry_Banking" xml:space="preserve">
+    <value>Banking &amp; Financial Services</value>
+  </data>
+  <data name="Industry_Insurance" xml:space="preserve">
+    <value>Insurance</value>
+  </data>
+  <data name="Industry_Healthcare" xml:space="preserve">
+    <value>Healthcare &amp; Life Sciences</value>
+  </data>
+  <data name="Industry_Telecom" xml:space="preserve">
+    <value>Telecommunications</value>
+  </data>
+  <data name="Industry_Energy" xml:space="preserve">
+    <value>Energy &amp; Utilities</value>
+  </data>
+  <data name="Industry_Government" xml:space="preserve">
+    <value>Government &amp; Public Sector</value>
+  </data>
+  <data name="Industry_Retail" xml:space="preserve">
+    <value>Retail &amp; Consumer</value>
+  </data>
+  <data name="Industry_Technology" xml:space="preserve">
+    <value>Technology &amp; Software</value>
+  </data>
+  <data name="Industry_Manufacturing" xml:space="preserve">
+    <value>Manufacturing</value>
+  </data>
+  <data name="Industry_Education" xml:space="preserve">
+    <value>Education</value>
+  </data>
+  <data name="Industry_RealEstate" xml:space="preserve">
+    <value>Real Estate &amp; Construction</value>
+  </data>
+  <data name="Industry_Transportation" xml:space="preserve">
+    <value>Transportation &amp; Logistics</value>
+  </data>
+  <data name="Industry_Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+
+  <!-- Languages -->
+  <data name="Language_Bilingual" xml:space="preserve">
+    <value>Bilingual (English &amp; Arabic)</value>
+  </data>
+  <data name="Language_EnglishOnly" xml:space="preserve">
+    <value>English Only</value>
+  </data>
+  <data name="Language_ArabicOnly" xml:space="preserve">
+    <value>Arabic Only</value>
+  </data>
+
+  <!-- Domain Verification -->
+  <data name="DomainVerification_AdminEmail" xml:space="preserve">
+    <value>Admin Email Verification</value>
+  </data>
+  <data name="DomainVerification_DNS" xml:space="preserve">
+    <value>DNS TXT Record</value>
+  </data>
+
+  <!-- Theme & Mobile -->
+  <data name="Shared_Theme_ToggleDarkMode" xml:space="preserve">
+    <value>Toggle Dark/Light Mode</value>
+  </data>
+  <data name="Shared_Mobile_Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Shared_Mobile_Inbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="Shared_Mobile_Assessments" xml:space="preserve">
+    <value>Assessments</value>
+  </data>
+  <data name="Shared_Mobile_Risks" xml:space="preserve">
+    <value>Risks</value>
+  </data>
+  <data name="Shared_Mobile_More" xml:space="preserve">
+    <value>More</value>
+  </data>
+
 </root>

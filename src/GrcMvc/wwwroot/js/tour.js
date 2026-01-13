@@ -231,12 +231,13 @@ const Tour = {
     markTourCompleted: function() {
         // Save to localStorage or send to server
         localStorage.setItem('grcTourCompleted', 'true');
-        
+
         // Optionally send to server
         fetch('/api/user/preferences', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tourCompleted: true })
+        }).catch(err => console.log('Tour preference save skipped:', err));
     },
 
     /**

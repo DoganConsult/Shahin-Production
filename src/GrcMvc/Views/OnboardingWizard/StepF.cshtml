@@ -195,3 +195,25 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
+    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
+    <script>
+        // Initialize Motivation System
+        const motivation = new WizardMotivation({
+            stepNumber: 6,
+            totalSteps: 12,
+            tenantId: '@tenantId',
+            stepName: 'StepF'
+        });
+
+        // Initialize Live Preview Panel
+        const livePreview = new LivePreviewPanel({
+            stepName: 'StepF'
+        });
+
+        // Initialize Why We Ask Tooltips
+        const tooltips = new WhyWeAskTooltips();
+    </script>
+}

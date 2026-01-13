@@ -346,9 +346,14 @@ public static class UserSeeds
         string titleCode,
         ILogger logger)
     {
-        // #region agent log
-        try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "UserSeeds.cs:282", message = "LinkUserToTenantAsync entry", data = new { userId, tenantId = tenantId.ToString(), roleCode, titleCode, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
+        // Verify user exists in database before linking (handles context synchronization)
+        var userExists = await context.Set<ApplicationUser>().AnyAsync(u => u.Id == userId);
+        if (!userExists)
+        {
+            logger.LogWarning($"User {userId} not found in database. Skipping tenant link.");
+            return;
+        }
+
         // Check if TenantUser already exists
         var existingTenantUser = await context.TenantUsers
             .FirstOrDefaultAsync(tu => tu.TenantId == tenantId && tu.UserId == userId && !tu.IsDeleted);

@@ -191,10 +191,11 @@ namespace GrcMvc.Models.DTOs
 
     /// <summary>
     /// Step H: Teams, Roles, and Access (Questions 61-70)
+    /// All fields optional to allow wizard progression - can be completed later
     /// </summary>
     public class StepHTeamsRolesDto
     {
-        [Required(ErrorMessage = "At least one org admin is required")]
+        // Optional - current logged-in user will be added as default admin if empty
         public List<AdminEntry> OrgAdmins { get; set; } = new();
 
         public bool CreateTeamsNow { get; set; } = false;

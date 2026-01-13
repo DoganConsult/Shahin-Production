@@ -171,6 +171,25 @@
 </div>
 
 @section Scripts {
+    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
+    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
+    <script>
+        // Initialize Motivation System
+        const motivation = new WizardMotivation({
+            stepNumber: 3,
+            totalSteps: 12,
+            tenantId: '@tenantId',
+            stepName: 'StepC'
+        });
+
+        // Initialize Live Preview Panel
+        const livePreview = new LivePreviewPanel({
+            stepName: 'StepC'
+        });
+
+        // Initialize Why We Ask Tooltips
+        const tooltips = new WhyWeAskTooltips();
+    </script>
     <script>
         // Collect regulator selections
         document.querySelectorAll('.regulator-check').forEach(cb => {

@@ -173,7 +173,25 @@
 </div>
 
 @section Scripts {
+    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
+    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
     <script>
+        // Initialize Motivation System
+        const motivation = new WizardMotivation({
+            stepNumber: 12,
+            totalSteps: 12,
+            tenantId: '@tenantId',
+            stepName: 'StepL'
+        });
+
+        // Initialize Live Preview Panel
+        const livePreview = new LivePreviewPanel({
+            stepName: 'StepL'
+        });
+
+        // Initialize Why We Ask Tooltips
+        const tooltips = new WhyWeAskTooltips();
+
         // Limit to 3 success metrics
         document.querySelectorAll('.success-metric').forEach(cb => {
             cb.addEventListener('change', function() {

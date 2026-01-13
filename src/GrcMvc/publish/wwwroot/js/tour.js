@@ -237,7 +237,6 @@ const Tour = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tourCompleted: true })
-        }).catch(err => console.log('Could not save tour preference'));
     },
 
     /**

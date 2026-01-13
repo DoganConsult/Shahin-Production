@@ -16,6 +16,8 @@
     <NoWarn>$(NoWarn);8600;8601;8602;8603;8604;8613;8618;8619;8629;8632;1929;1998;0108;0618;7022;0105;0168</NoWarn>
     <CopyRefAssembliesToPublishDirectory>true</CopyRefAssembliesToPublishDirectory>
     <PreserveCompilationContext>true</PreserveCompilationContext>
+    <!-- Keep physical .cshtml files for runtime compilation (don't precompile into DLL) -->
+    <RazorCompileOnPublish>false</RazorCompileOnPublish>
   </PropertyGroup>
 
   <ItemGroup>

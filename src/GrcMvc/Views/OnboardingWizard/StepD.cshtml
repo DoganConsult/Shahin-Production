@@ -117,6 +117,25 @@
 </div>
 
 @section Scripts {
+    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
+    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
+    <script>
+        // Initialize Motivation System
+        const motivation = new WizardMotivation({
+            stepNumber: 4,
+            totalSteps: 12,
+            tenantId: '@tenantId',
+            stepName: 'StepD'
+        });
+
+        // Initialize Live Preview Panel
+        const livePreview = new LivePreviewPanel({
+            stepName: 'StepD'
+        });
+
+        // Initialize Why We Ask Tooltips
+        const tooltips = new WhyWeAskTooltips();
+    </script>
     <script>
         document.querySelector('.add-bu').addEventListener('click', function() {
             const container = document.getElementById('businessUnitsContainer');

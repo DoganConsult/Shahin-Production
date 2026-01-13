@@ -73,6 +73,14 @@ public static class PlatformAdminSeeds
             logger.LogInformation("✅ Platform Owner user created: {Email}", OwnerEmail);
         }
 
+        // Verify user exists in GrcDbContext before creating PlatformAdmin
+        var userExists = await context.Set<ApplicationUser>().AnyAsync(u => u.Id == user.Id);
+        if (!userExists)
+        {
+            logger.LogWarning("User {UserId} not found in GrcDbContext. Skipping PlatformAdmin creation.", user.Id);
+            return;
+        }
+
         // Create Platform Admin record with full Owner permissions
         var platformAdmin = new PlatformAdmin
         {

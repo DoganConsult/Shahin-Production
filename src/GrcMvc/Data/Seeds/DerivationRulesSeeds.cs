@@ -10,6 +10,11 @@ namespace GrcMvc.Data.Seeds;
 /// </summary>
 public static class DerivationRulesSeeds
 {
+    /// <summary>
+    /// Well-known default tenant ID used for system/global data
+    /// </summary>
+    private static readonly Guid DefaultTenantId = new Guid("00000000-0000-0000-0000-000000000001");
+
     public static async Task SeedAsync(GrcDbContext context, ILogger logger)
     {
         // Check if ruleset already has comprehensive rules
@@ -22,6 +27,33 @@ public static class DerivationRulesSeeds
 
         logger.LogInformation("Seeding comprehensive KSA derivation rules...");
 
+        // Ensure default tenant exists before creating rulesets
+        var defaultTenant = await context.Tenants.FirstOrDefaultAsync(t => t.Id == DefaultTenantId && !t.IsDeleted);
+        if (defaultTenant == null)
+        {
+            logger.LogInformation("Creating default tenant for derivation rules...");
+            defaultTenant = new Tenant
+            {
+                Id = DefaultTenantId,
+                TenantSlug = "default",
+                TenantCode = "SYSTEM",
+                OrganizationName = "System Default",
+                AdminEmail = "admin@default.local",
+                Status = "Active",
+                IsActive = true,
+                ActivatedAt = DateTime.UtcNow,
+                ActivatedBy = "System",
+                SubscriptionStartDate = DateTime.UtcNow,
+                SubscriptionTier = "Enterprise",
+                CorrelationId = Guid.NewGuid().ToString(),
+                CreatedDate = DateTime.UtcNow,
+                CreatedBy = "System"
+            };
+            context.Tenants.Add(defaultTenant);
+            await context.SaveChangesAsync();
+            logger.LogInformation("Default tenant created with ID: {TenantId}", DefaultTenantId);
+        }
+
         // Get or create the main ruleset
         var ruleset = await context.Rulesets.FirstOrDefaultAsync(r => r.Status == "Active");
         if (ruleset == null)
@@ -29,6 +61,7 @@ public static class DerivationRulesSeeds
             ruleset = new Ruleset
             {
                 Id = Guid.NewGuid(),
+                TenantId = DefaultTenantId,
                 RulesetCode = "KSA_GRC_COMPREHENSIVE_V1",
                 Name = "KSA Comprehensive GRC Rules",
                 Version = 1,

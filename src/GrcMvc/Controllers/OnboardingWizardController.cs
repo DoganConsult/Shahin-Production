@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
+using GrcMvc.Constants;
 using GrcMvc.Data;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Models.Entities;
@@ -344,19 +345,20 @@ namespace GrcMvc.Controllers
         {
             var wizard = await GetOrCreateWizardAsync(tenantId);
 
-            wizard.IdentityProvider = dto.IdentityProvider;
+            // Use null-coalescing to ensure non-null values for required DB columns
+            wizard.IdentityProvider = dto.IdentityProvider ?? string.Empty;
             wizard.SsoEnabled = dto.SsoEnabled;
             wizard.ScimProvisioningAvailable = dto.ScimProvisioningAvailable;
-            wizard.ItsmPlatform = dto.ItsmPlatform;
-            wizard.EvidenceRepository = dto.EvidenceRepository;
-            wizard.SiemPlatform = dto.SiemPlatform;
-            wizard.VulnerabilityManagementTool = dto.VulnerabilityManagementTool;
-            wizard.EdrPlatform = dto.EdrPlatform;
-            wizard.CloudProvidersJson = JsonSerializer.Serialize(dto.CloudProviders);
-            wizard.ErpSystem = dto.ErpSystem;
-            wizard.CmdbSource = dto.CmdbSource;
-            wizard.CiCdTooling = dto.CiCdTooling;
-            wizard.BackupDrTooling = dto.BackupDrTooling;
+            wizard.ItsmPlatform = dto.ItsmPlatform ?? string.Empty;
+            wizard.EvidenceRepository = dto.EvidenceRepository ?? string.Empty;
+            wizard.SiemPlatform = dto.SiemPlatform ?? string.Empty;
+            wizard.VulnerabilityManagementTool = dto.VulnerabilityManagementTool ?? string.Empty;
+            wizard.EdrPlatform = dto.EdrPlatform ?? string.Empty;
+            wizard.CloudProvidersJson = JsonSerializer.Serialize(dto.CloudProviders ?? new List<string>());
+            wizard.ErpSystem = dto.ErpSystem ?? string.Empty;
+            wizard.CmdbSource = dto.CmdbSource ?? string.Empty;
+            wizard.CiCdTooling = dto.CiCdTooling ?? string.Empty;
+            wizard.BackupDrTooling = dto.BackupDrTooling ?? string.Empty;
 
             MarkStepCompleted(wizard, "F");
             await _context.SaveChangesAsync();
@@ -392,14 +394,15 @@ namespace GrcMvc.Controllers
                 return View("StepG", dto);
             }
 
-            wizard.ControlOwnershipApproach = dto.ControlOwnershipApproach;
-            wizard.DefaultControlOwnerTeam = dto.DefaultControlOwnerTeam;
-            wizard.ExceptionApproverRole = dto.ExceptionApproverRole;
-            wizard.RegulatoryInterpretationApproverRole = dto.RegulatoryInterpretationApproverRole;
-            wizard.ControlEffectivenessSignoffRole = dto.ControlEffectivenessSignoffRole;
-            wizard.InternalAuditStakeholder = dto.InternalAuditStakeholder;
-            wizard.RiskCommitteeCadence = dto.RiskCommitteeCadence;
-            wizard.RiskCommitteeAttendeesJson = JsonSerializer.Serialize(dto.RiskCommitteeAttendees);
+            // Use null-coalescing to ensure non-null values for required DB columns
+            wizard.ControlOwnershipApproach = dto.ControlOwnershipApproach ?? string.Empty;
+            wizard.DefaultControlOwnerTeam = dto.DefaultControlOwnerTeam ?? string.Empty;
+            wizard.ExceptionApproverRole = dto.ExceptionApproverRole ?? string.Empty;
+            wizard.RegulatoryInterpretationApproverRole = dto.RegulatoryInterpretationApproverRole ?? string.Empty;
+            wizard.ControlEffectivenessSignoffRole = dto.ControlEffectivenessSignoffRole ?? string.Empty;
+            wizard.InternalAuditStakeholder = dto.InternalAuditStakeholder ?? string.Empty;
+            wizard.RiskCommitteeCadence = dto.RiskCommitteeCadence ?? string.Empty;
+            wizard.RiskCommitteeAttendeesJson = JsonSerializer.Serialize(dto.RiskCommitteeAttendees ?? new List<string>());
 
             MarkStepCompleted(wizard, "G");
             await _context.SaveChangesAsync();
@@ -434,18 +437,19 @@ namespace GrcMvc.Controllers
                 return View("StepH", dto);
             }
 
-            wizard.OrgAdminsJson = JsonSerializer.Serialize(dto.OrgAdmins);
+            // Use null-coalescing to ensure non-null values for required DB columns
+            wizard.OrgAdminsJson = JsonSerializer.Serialize(dto.OrgAdmins ?? new List<AdminEntry>());
             wizard.CreateTeamsNow = dto.CreateTeamsNow;
-            wizard.TeamListJson = JsonSerializer.Serialize(dto.TeamList);
-            wizard.SelectedRoleCatalogJson = JsonSerializer.Serialize(dto.SelectedRoleCatalog);
+            wizard.TeamListJson = JsonSerializer.Serialize(dto.TeamList ?? new List<TeamDefinition>());
+            wizard.SelectedRoleCatalogJson = JsonSerializer.Serialize(dto.SelectedRoleCatalog ?? new List<string>());
             wizard.RaciMappingNeeded = dto.RaciMappingNeeded;
-            wizard.RaciMappingJson = JsonSerializer.Serialize(dto.RaciMapping);
+            wizard.RaciMappingJson = JsonSerializer.Serialize(dto.RaciMapping ?? new List<RaciEntry>());
             wizard.ApprovalGatesNeeded = dto.ApprovalGatesNeeded;
-            wizard.ApprovalGatesJson = JsonSerializer.Serialize(dto.ApprovalGates);
-            wizard.DelegationRulesJson = JsonSerializer.Serialize(dto.DelegationRules);
-            wizard.NotificationPreference = dto.NotificationPreference;
+            wizard.ApprovalGatesJson = JsonSerializer.Serialize(dto.ApprovalGates ?? new List<ApprovalGateEntry>());
+            wizard.DelegationRulesJson = JsonSerializer.Serialize(dto.DelegationRules ?? new List<DelegationRuleEntry>());
+            wizard.NotificationPreference = dto.NotificationPreference ?? "email";
             wizard.EscalationDaysOverdue = dto.EscalationDaysOverdue;
-            wizard.EscalationTarget = dto.EscalationTarget;
+            wizard.EscalationTarget = dto.EscalationTarget ?? "manager";
 
             MarkStepCompleted(wizard, "H");
             await _context.SaveChangesAsync();
@@ -1035,8 +1039,10 @@ namespace GrcMvc.Controllers
                     return false;
                 }
 
-                var isAdmin = tenantUser.RoleCode == "Admin" ||
-                              await _userManager.IsInRoleAsync(user, "Admin");
+                // Use RoleConstants.IsTenantAdmin to handle variations (Admin, TENANT_ADMIN, etc.)
+                var isAdmin = RoleConstants.IsTenantAdmin(tenantUser.RoleCode) ||
+                              await _userManager.IsInRoleAsync(user, "Admin") ||
+                              await _userManager.IsInRoleAsync(user, "TenantAdmin");
 
                 return isAdmin;
             }

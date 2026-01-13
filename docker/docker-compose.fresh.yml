@@ -1,0 +1,162 @@
+# ============================================================================
+# SHAHIN GRC PLATFORM - FRESH DOCKER SETUP
+# Created: January 13, 2026
+# Purpose: Clean multi-tenant GRC infrastructure
+# ============================================================================
+
+services:
+  # ==========================================================================
+  # PostgreSQL Database - Primary Data Store
+  # ==========================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: shahin-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: shahin_admin
+      POSTGRES_PASSWORD: Shahin@GRC2026!
+      POSTGRES_DB: shahin_grc
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=en_US.utf8 --lc-ctype=en_US.utf8"
+    volumes:
+      - shahin_postgres_data:/var/lib/postgresql/data
+      - ./init-scripts/postgres-init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - shahin-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shahin_admin -d shahin_grc"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ==========================================================================
+  # Redis Cache - Session & Distributed Cache
+  # ==========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: shahin-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - shahin_redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - shahin-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================================================
+  # ClickHouse - Analytics OLAP Database
+  # ==========================================================================
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.1-alpine
+    container_name: shahin-clickhouse
+    restart: unless-stopped
+    environment:
+      CLICKHOUSE_DB: shahin_analytics
+      CLICKHOUSE_USER: shahin_analytics
+      CLICKHOUSE_PASSWORD: Analytics@2026!
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    volumes:
+      - shahin_clickhouse_data:/var/lib/clickhouse
+      - shahin_clickhouse_logs:/var/log/clickhouse-server
+      - ./init-scripts/clickhouse-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "8123:8123"   # HTTP interface
+      - "9000:9000"   # Native TCP interface
+    networks:
+      - shahin-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+  # ==========================================================================
+  # RabbitMQ - Message Broker for Event-Driven Architecture
+  # ==========================================================================
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: shahin-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: shahin_mq
+      RABBITMQ_DEFAULT_PASS: MQ@Shahin2026!
+      RABBITMQ_DEFAULT_VHOST: shahin
+    volumes:
+      - shahin_rabbitmq_data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+    networks:
+      - shahin-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ==========================================================================
+  # Mailhog - Development Email Testing
+  # ==========================================================================
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: shahin-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+    networks:
+      - shahin-network
+
+  # ==========================================================================
+  # Seq - Centralized Logging
+  # ==========================================================================
+  seq:
+    image: datalust/seq:latest
+    container_name: shahin-seq
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+    volumes:
+      - shahin_seq_data:/data
+    ports:
+      - "5341:5341"   # Ingestion
+      - "8081:80"     # Web UI
+    networks:
+      - shahin-network
+
+# ==========================================================================
+# Networks
+# ==========================================================================
+networks:
+  shahin-network:
+    driver: bridge
+    name: shahin-grc-network
+
+# ==========================================================================
+# Volumes - Persistent Storage
+# ==========================================================================
+volumes:
+  shahin_postgres_data:
+    name: shahin_postgres_data
+  shahin_redis_data:
+    name: shahin_redis_data
+  shahin_clickhouse_data:
+    name: shahin_clickhouse_data
+  shahin_clickhouse_logs:
+    name: shahin_clickhouse_logs
+  shahin_rabbitmq_data:
+    name: shahin_rabbitmq_data
+  shahin_seq_data:
+    name: shahin_seq_data

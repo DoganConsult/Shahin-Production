@@ -345,10 +345,12 @@
 @section Scripts {
     <link rel="stylesheet" href="~/css/wizard-enhancements.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/wizard-enterprise-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
     <script src="~/js/wizard-autosave.js" asp-append-version="true"></script>
     <script src="~/js/wizard-validation.js" asp-append-version="true"></script>
     <script src="~/js/wizard-helpers.js" asp-append-version="true"></script>
     <script src="~/js/wizard-file-upload.js" asp-append-version="true"></script>
+    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
 
     <script>
         // Initialize auto-save
@@ -356,6 +358,22 @@
 
         // Initialize helpers (already auto-initialized but we can access instance)
         const helpers = new WizardHelpers();
+
+        // Initialize Motivation System
+        const motivation = new WizardMotivation({
+            stepNumber: 1,
+            totalSteps: 12,
+            tenantId: '@tenantId',
+            stepName: 'StepA'
+        });
+
+        // Initialize Live Preview Panel
+        const livePreview = new LivePreviewPanel({
+            stepName: 'StepA'
+        });
+
+        // Initialize Why We Ask Tooltips
+        const tooltips = new WhyWeAskTooltips();
 
         // Toggle data residency countries visibility
         document.getElementById('hasDataResidency').addEventListener('change', function() {

@@ -505,12 +505,15 @@ window.ThemeManager = {
     isDark: false,
 
     init: function() {
-        // Check saved preference or system preference
+        // Check saved preference - default to LIGHT mode unless explicitly set to dark
         const savedTheme = localStorage.getItem('grc_theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
-        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+
+        // Only enable dark mode if explicitly saved as 'dark'
+        if (savedTheme === 'dark') {
             this.enable();
+        } else {
+            // Default to light mode
+            this.disable();
         }
 
         // Listen for system theme changes

@@ -268,7 +268,25 @@
 </div>
 
 @section Scripts {
+    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
+    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
     <script>
+        // Initialize Motivation System
+        const motivation = new WizardMotivation({
+            stepNumber: 8,
+            totalSteps: 12,
+            tenantId: '@tenantId',
+            stepName: 'StepH'
+        });
+
+        // Initialize Live Preview Panel
+        const livePreview = new LivePreviewPanel({
+            stepName: 'StepH'
+        });
+
+        // Initialize Why We Ask Tooltips
+        const tooltips = new WhyWeAskTooltips();
+
         var adminIndex = @(Model.OrgAdmins.Count > 0 ? Model.OrgAdmins.Count : 1);
         var teamIndex = @(Model.TeamList.Count > 0 ? Model.TeamList.Count : 0);
 

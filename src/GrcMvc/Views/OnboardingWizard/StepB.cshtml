@@ -236,6 +236,25 @@
 </div>
 
 @section Scripts {
+    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
+    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
+    <script>
+        // Initialize Motivation System
+        const motivation = new WizardMotivation({
+            stepNumber: 2,
+            totalSteps: 12,
+            tenantId: '@tenantId',
+            stepName: 'StepB'
+        });
+
+        // Initialize Live Preview Panel
+        const livePreview = new LivePreviewPanel({
+            stepName: 'StepB'
+        });
+
+        // Initialize Why We Ask Tooltips
+        const tooltips = new WhyWeAskTooltips();
+    </script>
     <script>
         // Handle pain points selection and ranking
         document.querySelectorAll('.pain-checkbox').forEach(function(checkbox) {
