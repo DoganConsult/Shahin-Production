@@ -67,60 +67,60 @@
                 Icon = "house",
                 Active = true,
                 Content = Html.Raw($@"
-                    <div class=\"row g-4\">
+                    <div class='row g-4'>
                         <!-- Performance Stats -->
-                        <div class=\"col-md-3\">
-                            <div class=\"stat-card\">
-                                <div class=\"stat-card-icon primary\">
-                                    <i class=\"bi bi-ticket-detailed-fill\"></i>
+                        <div class='col-md-3'>
+                            <div class='stat-card'>
+                                <div class='stat-card-icon primary'>
+                                    <i class='bi bi-ticket-detailed-fill'></i>
                                 </div>
-                                <div class=\"mt-3\">
-                                    <p class=\"stat-card-label\">Tickets Resolved</p>
-                                    <h3 class=\"stat-card-value\">1,847</h3>
-                                    <p class=\"stat-card-change positive\">
-                                        <i class=\"bi bi-arrow-up\"></i> +142 this week
+                                <div class='mt-3'>
+                                    <p class='stat-card-label'>Tickets Resolved</p>
+                                    <h3 class='stat-card-value'>1,847</h3>
+                                    <p class='stat-card-change positive'>
+                                        <i class='bi bi-arrow-up'></i> +142 this week
                                     </p>
                                 </div>
                             </div>
                         </div>
-                        <div class=\"col-md-3\">
-                            <div class=\"stat-card\">
-                                <div class=\"stat-card-icon success\">
-                                    <i class=\"bi bi-person-plus-fill\"></i>
+                        <div class='col-md-3'>
+                            <div class='stat-card'>
+                                <div class='stat-card-icon success'>
+                                    <i class='bi bi-person-plus-fill'></i>
                                 </div>
-                                <div class=\"mt-3\">
-                                    <p class=\"stat-card-label\">Users Onboarded</p>
-                                    <h3 class=\"stat-card-value\">423</h3>
-                                    <p class=\"stat-card-change positive\">
-                                        <i class=\"bi bi-arrow-up\"></i> +38 new
+                                <div class='mt-3'>
+                                    <p class='stat-card-label'>Users Onboarded</p>
+                                    <h3 class='stat-card-value'>423</h3>
+                                    <p class='stat-card-change positive'>
+                                        <i class='bi bi-arrow-up'></i> +38 new
                                     </p>
                                 </div>
                             </div>
                         </div>
-                        <div class=\"col-md-3\">
-                            <div class=\"stat-card\">
-                                <div class=\"stat-card-icon warning\">
-                                    <i class=\"bi bi-file-text-fill\"></i>
+                        <div class='col-md-3'>
+                            <div class='stat-card'>
+                                <div class='stat-card-icon warning'>
+                                    <i class='bi bi-file-text-fill'></i>
                                 </div>
-                                <div class=\"mt-3\">
-                                    <p class=\"stat-card-label\">Help Articles</p>
-                                    <h3 class=\"stat-card-value\">287</h3>
-                                    <p class=\"stat-card-change positive\">
-                                        <i class=\"bi bi-arrow-up\"></i> +12 added
+                                <div class='mt-3'>
+                                    <p class='stat-card-label'>Help Articles</p>
+                                    <h3 class='stat-card-value'>287</h3>
+                                    <p class='stat-card-change positive'>
+                                        <i class='bi bi-arrow-up'></i> +12 added
                                     </p>
                                 </div>
                             </div>
                         </div>
-                        <div class=\"col-md-3\">
-                            <div class=\"stat-card\">
-                                <div class=\"stat-card-icon danger\">
-                                    <i class=\"bi bi-star-fill\"></i>
+                        <div class='col-md-3'>
+                            <div class='stat-card'>
+                                <div class='stat-card-icon danger'>
+                                    <i class='bi bi-star-fill'></i>
                                 </div>
-                                <div class=\"mt-3\">
-                                    <p class=\"stat-card-label\">Satisfaction Rate</p>
-                                    <h3 class=\"stat-card-value\">96.2%</h3>
-                                    <p class=\"stat-card-change positive\">
-                                        <i class=\"bi bi-arrow-up\"></i> +2.1%
+                                <div class='mt-3'>
+                                    <p class='stat-card-label'>Satisfaction Rate</p>
+                                    <h3 class='stat-card-value'>96.2%</h3>
+                                    <p class='stat-card-change positive'>
+                                        <i class='bi bi-arrow-up'></i> +2.1%
                                     </p>
                                 </div>
                             </div>
@@ -128,8 +128,8 @@
                     </div>
 
                     <!-- Recent Activity Timeline -->
-                    <div class=\"mt-5\">
-                        <h3 class=\"mb-4\">Recent Activity</h3>
+                    <div class='mt-5'>
+                        <h3 class='mb-4'>Recent Activity</h3>
                         " + RenderTimelineComponent() + @"
                     </div>
                 ")
@@ -139,38 +139,38 @@
                 Icon = "chat-dots",
                 Active = false,
                 Content = Html.Raw(@"
-                    <div class=\"agent-chat-container\">
-                        <div class=\"agent-chat-messages\" id=\"chatMessages\">
-                            <div class=\"agent-message assistant\">
-                                <div class=\"agent-message-avatar\">
-                                    <i class=\"bi bi-robot\"></i>
+                    <div class='agent-chat-container'>
+                        <div class='agent-chat-messages' id='chatMessages'>
+                            <div class='agent-message assistant'>
+                                <div class='agent-message-avatar'>
+                                    <i class='bi bi-robot'></i>
                                 </div>
-                                <div class=\"agent-message-content\">
-                                    <div class=\"agent-message-header\">
+                                <div class='agent-message-content'>
+                                    <div class='agent-message-header'>
                                         <strong>" + agentName + @"</strong>
-                                        <span class=\"text-muted\">2 minutes ago</span>
+                                        <span class='text-muted'>2 minutes ago</span>
                                     </div>
-                                    <div class=\"agent-message-text\">
+                                    <div class='agent-message-text'>
                                         Hello! I'm " + agentName + @" (" + agentCode + @"). I help with customer onboarding, help desk, and training assistance. How can I assist you today?
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class=\"agent-chat-input\">
-                            <textarea class=\"shahin-form-input\" rows=\"3\" placeholder=\"Type your message...\" id=\"chatInput\"></textarea>
-                            <div class=\"d-flex justify-content-between mt-3\">
+                        <div class='agent-chat-input'>
+                            <textarea class='shahin-form-input' rows='3' placeholder='Type your message...' id='chatInput'></textarea>
+                            <div class='d-flex justify-content-between mt-3'>
                                 <div>
-                                    <button class=\"shahin-btn shahin-btn-ghost shahin-btn-sm\">
-                                        <i class=\"bi bi-paperclip\"></i>
+                                    <button class='shahin-btn shahin-btn-ghost shahin-btn-sm'>
+                                        <i class='bi bi-paperclip'></i>
                                         Attach
                                     </button>
-                                    <button class=\"shahin-btn shahin-btn-ghost shahin-btn-sm\">
-                                        <i class=\"bi bi-mic-fill\"></i>
+                                    <button class='shahin-btn shahin-btn-ghost shahin-btn-sm'>
+                                        <i class='bi bi-mic-fill'></i>
                                         Voice
                                     </button>
                                 </div>
-                                <button class=\"shahin-btn shahin-btn-primary\" onclick=\"sendMessage()\">
-                                    <i class=\"bi bi-send-fill\"></i>
+                                <button class='shahin-btn shahin-btn-primary' onclick='sendMessage()'>
+                                    <i class='bi bi-send-fill'></i>
                                     Send
                                 </button>
                             </div>
@@ -183,61 +183,61 @@
                 Icon = "gear",
                 Active = false,
                 Content = Html.Raw(@"
-                    <div class=\"row\">
-                        <div class=\"col-md-6\">
-                            <div class=\"shahin-card\">
-                                <div class=\"shahin-card-header\">
-                                    <h4 class=\"shahin-card-title\">Agent Settings</h4>
+                    <div class='row'>
+                        <div class='col-md-6'>
+                            <div class='shahin-card'>
+                                <div class='shahin-card-header'>
+                                    <h4 class='shahin-card-title'>Agent Settings</h4>
                                 </div>
-                                <div class=\"shahin-card-body\">
-                                    <div class=\"mb-4\">
-                                        <label class=\"shahin-form-label\">Temperature</label>
-                                        <input type=\"range\" class=\"form-range\" min=\"0\" max=\"1\" step=\"0.1\" value=\"0.7\">
-                                        <small class=\"text-muted\">Controls randomness (0 = focused, 1 = creative)</small>
+                                <div class='shahin-card-body'>
+                                    <div class='mb-4'>
+                                        <label class='shahin-form-label'>Temperature</label>
+                                        <input type='range' class='form-range' min='0' max='1' step='0.1' value='0.7'>
+                                        <small class='text-muted'>Controls randomness (0 = focused, 1 = creative)</small>
                                     </div>
-                                    <div class=\"mb-4\">
-                                        <label class=\"shahin-form-label\">Max Tokens</label>
-                                        <input type=\"number\" class=\"shahin-form-input\" value=\"4096\">
+                                    <div class='mb-4'>
+                                        <label class='shahin-form-label'>Max Tokens</label>
+                                        <input type='number' class='shahin-form-input' value='4096'>
                                     </div>
-                                    <div class=\"mb-4\">
-                                        <label class=\"shahin-form-label\">Context Window</label>
-                                        <select class=\"shahin-form-select\">
+                                    <div class='mb-4'>
+                                        <label class='shahin-form-label'>Context Window</label>
+                                        <select class='shahin-form-select'>
                                             <option>200K tokens</option>
                                             <option selected>180K tokens (recommended)</option>
                                             <option>100K tokens</option>
                                         </select>
                                     </div>
-                                    <div class=\"shahin-form-check\">
-                                        <input type=\"checkbox\" class=\"shahin-form-check-input\" id=\"enableLogging\" checked>
-                                        <label class=\"shahin-form-check-label\" for=\"enableLogging\">
+                                    <div class='shahin-form-check'>
+                                        <input type='checkbox' class='shahin-form-check-input' id='enableLogging' checked>
+                                        <label class='shahin-form-check-label' for='enableLogging'>
                                             Enable detailed logging
                                         </label>
                                     </div>
                                 </div>
-                                <div class=\"shahin-card-footer\">
-                                    <button class=\"shahin-btn shahin-btn-primary\">Save Configuration</button>
+                                <div class='shahin-card-footer'>
+                                    <button class='shahin-btn shahin-btn-primary'>Save Configuration</button>
                                 </div>
                             </div>
                         </div>
-                        <div class=\"col-md-6\">
-                            <div class=\"shahin-card\">
-                                <div class=\"shahin-card-header\">
-                                    <h4 class=\"shahin-card-title\">Permissions & Access</h4>
+                        <div class='col-md-6'>
+                            <div class='shahin-card'>
+                                <div class='shahin-card-header'>
+                                    <h4 class='shahin-card-title'>Permissions & Access</h4>
                                 </div>
-                                <div class=\"shahin-card-body\">
-                                    <p class=\"text-muted mb-3\">Who can access this agent:</p>
-                                    <div class=\"mb-3\">
-                                        <div class=\"shahin-form-check\">
-                                            <input type=\"checkbox\" class=\"shahin-form-check-input\" id=\"role1\" checked>
-                                            <label class=\"shahin-form-check-label\" for=\"role1\">Platform Admin</label>
+                                <div class='shahin-card-body'>
+                                    <p class='text-muted mb-3'>Who can access this agent:</p>
+                                    <div class='mb-3'>
+                                        <div class='shahin-form-check'>
+                                            <input type='checkbox' class='shahin-form-check-input' id='role1' checked>
+                                            <label class='shahin-form-check-label' for='role1'>Platform Admin</label>
                                         </div>
-                                        <div class=\"shahin-form-check\">
-                                            <input type=\"checkbox\" class=\"shahin-form-check-input\" id=\"role2\" checked>
-                                            <label class=\"shahin-form-check-label\" for=\"role2\">" + oversightBy + @"</label>
+                                        <div class='shahin-form-check'>
+                                            <input type='checkbox' class='shahin-form-check-input' id='role2' checked>
+                                            <label class='shahin-form-check-label' for='role2'>" + oversightBy + @"</label>
                                         </div>
-                                        <div class=\"shahin-form-check\">
-                                            <input type=\"checkbox\" class=\"shahin-form-check-input\" id=\"role3\">
-                                            <label class=\"shahin-form-check-label\" for=\"role3\">GRC Manager</label>
+                                        <div class='shahin-form-check'>
+                                            <input type='checkbox' class='shahin-form-check-input' id='role3'>
+                                            <label class='shahin-form-check-label' for='role3'>GRC Manager</label>
                                         </div>
                                     </div>
                                 </div>
@@ -251,42 +251,42 @@
                 Icon = "graph-up",
                 Active = false,
                 Content = Html.Raw(@"
-                    <div class=\"row g-4\">
-                        <div class=\"col-12\">
-                            <div class=\"shahin-card\">
-                                <div class=\"shahin-card-header\">
-                                    <h4 class=\"shahin-card-title\">Support Trends (Last 30 Days)</h4>
+                    <div class='row g-4'>
+                        <div class='col-12'>
+                            <div class='shahin-card'>
+                                <div class='shahin-card-header'>
+                                    <h4 class='shahin-card-title'>Support Trends (Last 30 Days)</h4>
                                 </div>
-                                <div class=\"shahin-card-body\">
-                                    <p class=\"text-center text-muted py-5\">
-                                        <i class=\"bi bi-graph-up\" style=\"font-size: 3rem;\"></i><br />
+                                <div class='shahin-card-body'>
+                                    <p class='text-center text-muted py-5'>
+                                        <i class='bi bi-graph-up' style='font-size: 3rem;'></i><br />
                                         Chart.js visualization will be rendered here
                                     </p>
                                 </div>
                             </div>
                         </div>
-                        <div class=\"col-md-6\">
-                            <div class=\"shahin-card\">
-                                <div class=\"shahin-card-header\">
-                                    <h4 class=\"shahin-card-title\">Ticket Status</h4>
+                        <div class='col-md-6'>
+                            <div class='shahin-card'>
+                                <div class='shahin-card-header'>
+                                    <h4 class='shahin-card-title'>Ticket Status</h4>
                                 </div>
-                                <div class=\"shahin-card-body\">
-                                    <div class=\"mb-3\">
-                                        <div class=\"d-flex justify-content-between mb-2\">
+                                <div class='shahin-card-body'>
+                                    <div class='mb-3'>
+                                        <div class='d-flex justify-content-between mb-2'>
                                             <span>Resolved</span>
                                             <strong>87%</strong>
                                         </div>
                                         " + RenderProgressBar(87, "success") + @"
                                     </div>
-                                    <div class=\"mb-3\">
-                                        <div class=\"d-flex justify-content-between mb-2\">
+                                    <div class='mb-3'>
+                                        <div class='d-flex justify-content-between mb-2'>
                                             <span>In Progress</span>
                                             <strong>10%</strong>
                                         </div>
                                         " + RenderProgressBar(10, "warning") + @"
                                     </div>
                                     <div>
-                                        <div class=\"d-flex justify-content-between mb-2\">
+                                        <div class='d-flex justify-content-between mb-2'>
                                             <span>Pending</span>
                                             <strong>3%</strong>
                                         </div>
@@ -295,25 +295,25 @@
                                 </div>
                             </div>
                         </div>
-                        <div class=\"col-md-6\">
-                            <div class=\"shahin-card\">
-                                <div class=\"shahin-card-header\">
-                                    <h4 class=\"shahin-card-title\">Top Collaborators</h4>
+                        <div class='col-md-6'>
+                            <div class='shahin-card'>
+                                <div class='shahin-card-header'>
+                                    <h4 class='shahin-card-title'>Top Collaborators</h4>
                                 </div>
-                                <div class=\"shahin-card-body\">
-                                    <p class=\"text-muted\">Other agents this agent frequently works with:</p>
-                                    <div class=\"d-flex flex-column gap-2\">
-                                        <div class=\"d-flex justify-content-between\">
+                                <div class='shahin-card-body'>
+                                    <p class='text-muted'>Other agents this agent frequently works with:</p>
+                                    <div class='d-flex flex-column gap-2'>
+                                        <div class='d-flex justify-content-between'>
                                             <span>DIAGNOSTIC_AGENT</span>
-                                            <span class=\"shahin-badge shahin-badge-warning\">623 tasks</span>
+                                            <span class='shahin-badge shahin-badge-warning'>623 tasks</span>
                                         </div>
-                                        <div class=\"d-flex justify-content-between\">
+                                        <div class='d-flex justify-content-between'>
                                             <span>WORKFLOW_AGENT</span>
-                                            <span class=\"shahin-badge shahin-badge-success\">534 tasks</span>
+                                            <span class='shahin-badge shahin-badge-success'>534 tasks</span>
                                         </div>
-                                        <div class=\"d-flex justify-content-between\">
+                                        <div class='d-flex justify-content-between'>
                                             <span>SHAHIN_AI</span>
-                                            <span class=\"shahin-badge shahin-badge-info\">478 tasks</span>
+                                            <span class='shahin-badge shahin-badge-info'>478 tasks</span>
                                         </div>
                                     </div>
                                 </div>
@@ -327,11 +327,11 @@
                 Icon = "clock-history",
                 Active = false,
                 Content = Html.Raw(@"
-                    <div class=\"shahin-card\">
-                        <div class=\"shahin-card-header\">
-                            <h4 class=\"shahin-card-title\">Task History</h4>
+                    <div class='shahin-card'>
+                        <div class='shahin-card-header'>
+                            <h4 class='shahin-card-title'>Task History</h4>
                         </div>
-                        <div class=\"shahin-card-body\">
+                        <div class='shahin-card-body'>
                             " + RenderTaskHistoryTable() + @"
                         </div>
                     </div>
@@ -479,41 +479,41 @@
 @functions {
     string RenderTimelineComponent()
     {
-        return @"<div class=\"shahin-timeline\">
-            <div class=\"shahin-timeline-item\">
-                <div class=\"shahin-timeline-marker shahin-timeline-marker-success\">
-                    <i class=\"bi bi-check-circle-fill\"></i>
+        return @"<div class='shahin-timeline'>
+            <div class='shahin-timeline-item'>
+                <div class='shahin-timeline-marker shahin-timeline-marker-success'>
+                    <i class='bi bi-check-circle-fill'></i>
                 </div>
-                <div class=\"shahin-timeline-content\">
-                    <div class=\"shahin-timeline-header\">
-                        <h4 class=\"shahin-timeline-title\">Support Ticket Resolved</h4>
-                        <span class=\"shahin-timeline-date\">10 minutes ago</span>
+                <div class='shahin-timeline-content'>
+                    <div class='shahin-timeline-header'>
+                        <h4 class='shahin-timeline-title'>Support Ticket Resolved</h4>
+                        <span class='shahin-timeline-date'>10 minutes ago</span>
                     </div>
-                    <p class=\"shahin-timeline-description\">Successfully resolved user onboarding issue and provided training documentation</p>
+                    <p class='shahin-timeline-description'>Successfully resolved user onboarding issue and provided training documentation</p>
                 </div>
             </div>
-            <div class=\"shahin-timeline-item\">
-                <div class=\"shahin-timeline-marker shahin-timeline-marker-info\">
-                    <i class=\"bi bi-info-circle-fill\"></i>
+            <div class='shahin-timeline-item'>
+                <div class='shahin-timeline-marker shahin-timeline-marker-info'>
+                    <i class='bi bi-info-circle-fill'></i>
                 </div>
-                <div class=\"shahin-timeline-content\">
-                    <div class=\"shahin-timeline-header\">
-                        <h4 class=\"shahin-timeline-title\">New User Onboarded</h4>
-                        <span class=\"shahin-timeline-date\">1 hour ago</span>
+                <div class='shahin-timeline-content'>
+                    <div class='shahin-timeline-header'>
+                        <h4 class='shahin-timeline-title'>New User Onboarded</h4>
+                        <span class='shahin-timeline-date'>1 hour ago</span>
                     </div>
-                    <p class=\"shahin-timeline-description\">Completed onboarding for 8 new users with comprehensive system training</p>
+                    <p class='shahin-timeline-description'>Completed onboarding for 8 new users with comprehensive system training</p>
                 </div>
             </div>
-            <div class=\"shahin-timeline-item\">
-                <div class=\"shahin-timeline-marker shahin-timeline-marker-success\">
-                    <i class=\"bi bi-check-circle-fill\"></i>
+            <div class='shahin-timeline-item'>
+                <div class='shahin-timeline-marker shahin-timeline-marker-success'>
+                    <i class='bi bi-check-circle-fill'></i>
                 </div>
-                <div class=\"shahin-timeline-content\">
-                    <div class=\"shahin-timeline-header\">
-                        <h4 class=\"shahin-timeline-title\">Help Article Published</h4>
-                        <span class=\"shahin-timeline-date\">3 hours ago</span>
+                <div class='shahin-timeline-content'>
+                    <div class='shahin-timeline-header'>
+                        <h4 class='shahin-timeline-title'>Help Article Published</h4>
+                        <span class='shahin-timeline-date'>3 hours ago</span>
                     </div>
-                    <p class=\"shahin-timeline-description\">Published new help article: 'Getting Started with Compliance Monitoring'</p>
+                    <p class='shahin-timeline-description'>Published new help article: 'Getting Started with Compliance Monitoring'</p>
                 </div>
             </div>
         </div>";
@@ -521,13 +521,13 @@
 
     string RenderProgressBar(int value, string type)
     {
-        return $"<div class=\"shahin-progress\"><div class=\"shahin-progress-bar shahin-progress-bar-{type}\" style=\"width: {value}%\"></div></div>";
+        return $"<div class='shahin-progress'><div class='shahin-progress-bar shahin-progress-bar-{type}' style='width: {value}%'></div></div>";
     }
 
     string RenderTaskHistoryTable()
     {
-        return @"<div class=\"shahin-table-container\">
-            <table class=\"shahin-table\">
+        return @"<div class='shahin-table-container'>
+            <table class='shahin-table'>
                 <thead>
                     <tr>
                         <th>Task ID</th>
@@ -541,21 +541,21 @@
                     <tr>
                         <td>SUP-1847</td>
                         <td>Ticket Resolution</td>
-                        <td><span class=\"shahin-badge shahin-badge-success\">Completed</span></td>
+                        <td><span class='shahin-badge shahin-badge-success'>Completed</span></td>
                         <td>8.5m</td>
                         <td>2024-01-15 15:22</td>
                     </tr>
                     <tr>
                         <td>SUP-1846</td>
                         <td>User Onboarding</td>
-                        <td><span class=\"shahin-badge shahin-badge-success\">Completed</span></td>
+                        <td><span class='shahin-badge shahin-badge-success'>Completed</span></td>
                         <td>15.2m</td>
                         <td>2024-01-15 14:30</td>
                     </tr>
                     <tr>
                         <td>SUP-1845</td>
                         <td>Help Article</td>
-                        <td><span class=\"shahin-badge shahin-badge-success\">Published</span></td>
+                        <td><span class='shahin-badge shahin-badge-success'>Published</span></td>
                         <td>22.3m</td>
                         <td>2024-01-15 12:45</td>
                     </tr>

@@ -67,60 +67,60 @@
                 Icon = "house",
                 Active = true,
                 Content = Html.Raw($@"
-                    <div class=\"row g-4\">
+                    <div class='row g-4'>
                         <!-- Performance Stats -->
-                        <div class=\"col-md-3\">
-                            <div class=\"stat-card\">
-                                <div class=\"stat-card-icon primary\">
-                                    <i class=\"bi bi-clipboard-data-fill\"></i>
+                        <div class='col-md-3'>
+                            <div class='stat-card'>
+                                <div class='stat-card-icon primary'>
+                                    <i class='bi bi-clipboard-data-fill'></i>
                                 </div>
-                                <div class=\"mt-3\">
-                                    <p class=\"stat-card-label\">Risks Assessed</p>
-                                    <h3 class=\"stat-card-value\">1,926</h3>
-                                    <p class=\"stat-card-change positive\">
-                                        <i class=\"bi bi-arrow-up\"></i> +32 this week
+                                <div class='mt-3'>
+                                    <p class='stat-card-label'>Risks Assessed</p>
+                                    <h3 class='stat-card-value'>1,926</h3>
+                                    <p class='stat-card-change positive'>
+                                        <i class='bi bi-arrow-up'></i> +32 this week
                                     </p>
                                 </div>
                             </div>
                         </div>
-                        <div class=\"col-md-3\">
-                            <div class=\"stat-card\">
-                                <div class=\"stat-card-icon warning\">
-                                    <i class=\"bi bi-speedometer\"></i>
+                        <div class='col-md-3'>
+                            <div class='stat-card'>
+                                <div class='stat-card-icon warning'>
+                                    <i class='bi bi-speedometer'></i>
                                 </div>
-                                <div class=\"mt-3\">
-                                    <p class=\"stat-card-label\">Avg Risk Score</p>
-                                    <h3 class=\"stat-card-value\">6.8/10</h3>
-                                    <p class=\"stat-card-change negative\">
-                                        <i class=\"bi bi-arrow-down\"></i> -0.3 lower
+                                <div class='mt-3'>
+                                    <p class='stat-card-label'>Avg Risk Score</p>
+                                    <h3 class='stat-card-value'>6.8/10</h3>
+                                    <p class='stat-card-change negative'>
+                                        <i class='bi bi-arrow-down'></i> -0.3 lower
                                     </p>
                                 </div>
                             </div>
                         </div>
-                        <div class=\"col-md-3\">
-                            <div class=\"stat-card\">
-                                <div class=\"stat-card-icon success\">
-                                    <i class=\"bi bi-file-earmark-text-fill\"></i>
+                        <div class='col-md-3'>
+                            <div class='stat-card'>
+                                <div class='stat-card-icon success'>
+                                    <i class='bi bi-file-earmark-text-fill'></i>
                                 </div>
-                                <div class=\"mt-3\">
-                                    <p class=\"stat-card-label\">Mitigation Plans</p>
-                                    <h3 class=\"stat-card-value\">487</h3>
-                                    <p class=\"stat-card-change positive\">
-                                        <i class=\"bi bi-arrow-up\"></i> +18 created
+                                <div class='mt-3'>
+                                    <p class='stat-card-label'>Mitigation Plans</p>
+                                    <h3 class='stat-card-value'>487</h3>
+                                    <p class='stat-card-change positive'>
+                                        <i class='bi bi-arrow-up'></i> +18 created
                                     </p>
                                 </div>
                             </div>
                         </div>
-                        <div class=\"col-md-3\">
-                            <div class=\"stat-card\">
-                                <div class=\"stat-card-icon danger\">
-                                    <i class=\"bi bi-shield-exclamation\"></i>
+                        <div class='col-md-3'>
+                            <div class='stat-card'>
+                                <div class='stat-card-icon danger'>
+                                    <i class='bi bi-shield-exclamation'></i>
                                 </div>
-                                <div class=\"mt-3\">
-                                    <p class=\"stat-card-label\">Threats Detected</p>
-                                    <h3 class=\"stat-card-value\">143</h3>
-                                    <p class=\"stat-card-change neutral\">
-                                        <i class=\"bi bi-dash\"></i> Stable
+                                <div class='mt-3'>
+                                    <p class='stat-card-label'>Threats Detected</p>
+                                    <h3 class='stat-card-value'>143</h3>
+                                    <p class='stat-card-change neutral'>
+                                        <i class='bi bi-dash'></i> Stable
                                     </p>
                                 </div>
                             </div>
@@ -128,8 +128,8 @@
                     </div>
 
                     <!-- Recent Activity Timeline -->
-                    <div class=\"mt-5\">
-                        <h3 class=\"mb-4\">Recent Activity</h3>
+                    <div class='mt-5'>
+                        <h3 class='mb-4'>Recent Activity</h3>
                         " + RenderTimelineComponent() + @"
                     </div>
                 ")
@@ -139,38 +139,38 @@
                 Icon = "chat-dots",
                 Active = false,
                 Content = Html.Raw(@"
-                    <div class=\"agent-chat-container\">
-                        <div class=\"agent-chat-messages\" id=\"chatMessages\">
-                            <div class=\"agent-message assistant\">
-                                <div class=\"agent-message-avatar\">
-                                    <i class=\"bi bi-robot\"></i>
+                    <div class='agent-chat-container'>
+                        <div class='agent-chat-messages' id='chatMessages'>
+                            <div class='agent-message assistant'>
+                                <div class='agent-message-avatar'>
+                                    <i class='bi bi-robot'></i>
                                 </div>
-                                <div class=\"agent-message-content\">
-                                    <div class=\"agent-message-header\">
+                                <div class='agent-message-content'>
+                                    <div class='agent-message-header'>
                                         <strong>" + agentName + @"</strong>
-                                        <span class=\"text-muted\">2 minutes ago</span>
+                                        <span class='text-muted'>2 minutes ago</span>
                                     </div>
-                                    <div class=\"agent-message-text\">
+                                    <div class='agent-message-text'>
                                         Hello! I'm " + agentName + @" (" + agentCode + @"). I specialize in risk scoring, mitigation planning, and threat analysis. How can I assist you today?
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class=\"agent-chat-input\">
-                            <textarea class=\"shahin-form-input\" rows=\"3\" placeholder=\"Type your message...\" id=\"chatInput\"></textarea>
-                            <div class=\"d-flex justify-content-between mt-3\">
+                        <div class='agent-chat-input'>
+                            <textarea class='shahin-form-input' rows='3' placeholder='Type your message...' id='chatInput'></textarea>
+                            <div class='d-flex justify-content-between mt-3'>
                                 <div>
-                                    <button class=\"shahin-btn shahin-btn-ghost shahin-btn-sm\">
-                                        <i class=\"bi bi-paperclip\"></i>
+                                    <button class='shahin-btn shahin-btn-ghost shahin-btn-sm'>
+                                        <i class='bi bi-paperclip'></i>
                                         Attach
                                     </button>
-                                    <button class=\"shahin-btn shahin-btn-ghost shahin-btn-sm\">
-                                        <i class=\"bi bi-mic-fill\"></i>
+                                    <button class='shahin-btn shahin-btn-ghost shahin-btn-sm'>
+                                        <i class='bi bi-mic-fill'></i>
                                         Voice
                                     </button>
                                 </div>
-                                <button class=\"shahin-btn shahin-btn-primary\" onclick=\"sendMessage()\">
-                                    <i class=\"bi bi-send-fill\"></i>
+                                <button class='shahin-btn shahin-btn-primary' onclick='sendMessage()'>
+                                    <i class='bi bi-send-fill'></i>
                                     Send
                                 </button>
                             </div>
@@ -183,61 +183,61 @@
                 Icon = "gear",
                 Active = false,
                 Content = Html.Raw(@"
-                    <div class=\"row\">
-                        <div class=\"col-md-6\">
-                            <div class=\"shahin-card\">
-                                <div class=\"shahin-card-header\">
-                                    <h4 class=\"shahin-card-title\">Agent Settings</h4>
+                    <div class='row'>
+                        <div class='col-md-6'>
+                            <div class='shahin-card'>
+                                <div class='shahin-card-header'>
+                                    <h4 class='shahin-card-title'>Agent Settings</h4>
                                 </div>
-                                <div class=\"shahin-card-body\">
-                                    <div class=\"mb-4\">
-                                        <label class=\"shahin-form-label\">Temperature</label>
-                                        <input type=\"range\" class=\"form-range\" min=\"0\" max=\"1\" step=\"0.1\" value=\"0.7\">
-                                        <small class=\"text-muted\">Controls randomness (0 = focused, 1 = creative)</small>
+                                <div class='shahin-card-body'>
+                                    <div class='mb-4'>
+                                        <label class='shahin-form-label'>Temperature</label>
+                                        <input type='range' class='form-range' min='0' max='1' step='0.1' value='0.7'>
+                                        <small class='text-muted'>Controls randomness (0 = focused, 1 = creative)</small>
                                     </div>
-                                    <div class=\"mb-4\">
-                                        <label class=\"shahin-form-label\">Max Tokens</label>
-                                        <input type=\"number\" class=\"shahin-form-input\" value=\"4096\">
+                                    <div class='mb-4'>
+                                        <label class='shahin-form-label'>Max Tokens</label>
+                                        <input type='number' class='shahin-form-input' value='4096'>
                                     </div>
-                                    <div class=\"mb-4\">
-                                        <label class=\"shahin-form-label\">Context Window</label>
-                                        <select class=\"shahin-form-select\">
+                                    <div class='mb-4'>
+                                        <label class='shahin-form-label'>Context Window</label>
+                                        <select class='shahin-form-select'>
                                             <option>200K tokens</option>
                                             <option selected>180K tokens (recommended)</option>
                                             <option>100K tokens</option>
                                         </select>
                                     </div>
-                                    <div class=\"shahin-form-check\">
-                                        <input type=\"checkbox\" class=\"shahin-form-check-input\" id=\"enableLogging\" checked>
-                                        <label class=\"shahin-form-check-label\" for=\"enableLogging\">
+                                    <div class='shahin-form-check'>
+                                        <input type='checkbox' class='shahin-form-check-input' id='enableLogging' checked>
+                                        <label class='shahin-form-check-label' for='enableLogging'>
                                             Enable detailed logging
                                         </label>
                                     </div>
                                 </div>
-                                <div class=\"shahin-card-footer\">
-                                    <button class=\"shahin-btn shahin-btn-primary\">Save Configuration</button>
+                                <div class='shahin-card-footer'>
+                                    <button class='shahin-btn shahin-btn-primary'>Save Configuration</button>
                                 </div>
                             </div>
                         </div>
-                        <div class=\"col-md-6\">
-                            <div class=\"shahin-card\">
-                                <div class=\"shahin-card-header\">
-                                    <h4 class=\"shahin-card-title\">Permissions & Access</h4>
+                        <div class='col-md-6'>
+                            <div class='shahin-card'>
+                                <div class='shahin-card-header'>
+                                    <h4 class='shahin-card-title'>Permissions & Access</h4>
                                 </div>
-                                <div class=\"shahin-card-body\">
-                                    <p class=\"text-muted mb-3\">Who can access this agent:</p>
-                                    <div class=\"mb-3\">
-                                        <div class=\"shahin-form-check\">
-                                            <input type=\"checkbox\" class=\"shahin-form-check-input\" id=\"role1\" checked>
-                                            <label class=\"shahin-form-check-label\" for=\"role1\">Platform Admin</label>
+                                <div class='shahin-card-body'>
+                                    <p class='text-muted mb-3'>Who can access this agent:</p>
+                                    <div class='mb-3'>
+                                        <div class='shahin-form-check'>
+                                            <input type='checkbox' class='shahin-form-check-input' id='role1' checked>
+                                            <label class='shahin-form-check-label' for='role1'>Platform Admin</label>
                                         </div>
-                                        <div class=\"shahin-form-check\">
-                                            <input type=\"checkbox\" class=\"shahin-form-check-input\" id=\"role2\" checked>
-                                            <label class=\"shahin-form-check-label\" for=\"role2\">" + oversightBy + @"</label>
+                                        <div class='shahin-form-check'>
+                                            <input type='checkbox' class='shahin-form-check-input' id='role2' checked>
+                                            <label class='shahin-form-check-label' for='role2'>" + oversightBy + @"</label>
                                         </div>
-                                        <div class=\"shahin-form-check\">
-                                            <input type=\"checkbox\" class=\"shahin-form-check-input\" id=\"role3\">
-                                            <label class=\"shahin-form-check-label\" for=\"role3\">GRC Manager</label>
+                                        <div class='shahin-form-check'>
+                                            <input type='checkbox' class='shahin-form-check-input' id='role3'>
+                                            <label class='shahin-form-check-label' for='role3'>GRC Manager</label>
                                         </div>
                                     </div>
                                 </div>
@@ -251,49 +251,49 @@
                 Icon = "graph-up",
                 Active = false,
                 Content = Html.Raw(@"
-                    <div class=\"row g-4\">
-                        <div class=\"col-12\">
-                            <div class=\"shahin-card\">
-                                <div class=\"shahin-card-header\">
-                                    <h4 class=\"shahin-card-title\">Risk Trends (Last 30 Days)</h4>
+                    <div class='row g-4'>
+                        <div class='col-12'>
+                            <div class='shahin-card'>
+                                <div class='shahin-card-header'>
+                                    <h4 class='shahin-card-title'>Risk Trends (Last 30 Days)</h4>
                                 </div>
-                                <div class=\"shahin-card-body\">
-                                    <p class=\"text-center text-muted py-5\">
-                                        <i class=\"bi bi-graph-up\" style=\"font-size: 3rem;\"></i><br />
+                                <div class='shahin-card-body'>
+                                    <p class='text-center text-muted py-5'>
+                                        <i class='bi bi-graph-up' style='font-size: 3rem;'></i><br />
                                         Chart.js visualization will be rendered here
                                     </p>
                                 </div>
                             </div>
                         </div>
-                        <div class=\"col-md-6\">
-                            <div class=\"shahin-card\">
-                                <div class=\"shahin-card-header\">
-                                    <h4 class=\"shahin-card-title\">Risk Severity Distribution</h4>
+                        <div class='col-md-6'>
+                            <div class='shahin-card'>
+                                <div class='shahin-card-header'>
+                                    <h4 class='shahin-card-title'>Risk Severity Distribution</h4>
                                 </div>
-                                <div class=\"shahin-card-body\">
-                                    <div class=\"mb-3\">
-                                        <div class=\"d-flex justify-content-between mb-2\">
+                                <div class='shahin-card-body'>
+                                    <div class='mb-3'>
+                                        <div class='d-flex justify-content-between mb-2'>
                                             <span>Critical</span>
                                             <strong>12%</strong>
                                         </div>
                                         " + RenderProgressBar(12, "danger") + @"
                                     </div>
-                                    <div class=\"mb-3\">
-                                        <div class=\"d-flex justify-content-between mb-2\">
+                                    <div class='mb-3'>
+                                        <div class='d-flex justify-content-between mb-2'>
                                             <span>High</span>
                                             <strong>28%</strong>
                                         </div>
                                         " + RenderProgressBar(28, "warning") + @"
                                     </div>
-                                    <div class=\"mb-3\">
-                                        <div class=\"d-flex justify-content-between mb-2\">
+                                    <div class='mb-3'>
+                                        <div class='d-flex justify-content-between mb-2'>
                                             <span>Medium</span>
                                             <strong>45%</strong>
                                         </div>
                                         " + RenderProgressBar(45, "info") + @"
                                     </div>
                                     <div>
-                                        <div class=\"d-flex justify-content-between mb-2\">
+                                        <div class='d-flex justify-content-between mb-2'>
                                             <span>Low</span>
                                             <strong>15%</strong>
                                         </div>
@@ -302,25 +302,25 @@
                                 </div>
                             </div>
                         </div>
-                        <div class=\"col-md-6\">
-                            <div class=\"shahin-card\">
-                                <div class=\"shahin-card-header\">
-                                    <h4 class=\"shahin-card-title\">Top Collaborators</h4>
+                        <div class='col-md-6'>
+                            <div class='shahin-card'>
+                                <div class='shahin-card-header'>
+                                    <h4 class='shahin-card-title'>Top Collaborators</h4>
                                 </div>
-                                <div class=\"shahin-card-body\">
-                                    <p class=\"text-muted\">Other agents this agent frequently works with:</p>
-                                    <div class=\"d-flex flex-column gap-2\">
-                                        <div class=\"d-flex justify-content-between\">
+                                <div class='shahin-card-body'>
+                                    <p class='text-muted'>Other agents this agent frequently works with:</p>
+                                    <div class='d-flex flex-column gap-2'>
+                                        <div class='d-flex justify-content-between'>
                                             <span>COMPLIANCE_AGENT</span>
-                                            <span class=\"shahin-badge shahin-badge-warning\">412 tasks</span>
+                                            <span class='shahin-badge shahin-badge-warning'>412 tasks</span>
                                         </div>
-                                        <div class=\"d-flex justify-content-between\">
+                                        <div class='d-flex justify-content-between'>
                                             <span>AUDIT_AGENT</span>
-                                            <span class=\"shahin-badge shahin-badge-success\">367 tasks</span>
+                                            <span class='shahin-badge shahin-badge-success'>367 tasks</span>
                                         </div>
-                                        <div class=\"d-flex justify-content-between\">
+                                        <div class='d-flex justify-content-between'>
                                             <span>ANALYTICS_AGENT</span>
-                                            <span class=\"shahin-badge shahin-badge-info\">289 tasks</span>
+                                            <span class='shahin-badge shahin-badge-info'>289 tasks</span>
                                         </div>
                                     </div>
                                 </div>
@@ -334,11 +334,11 @@
                 Icon = "clock-history",
                 Active = false,
                 Content = Html.Raw(@"
-                    <div class=\"shahin-card\">
-                        <div class=\"shahin-card-header\">
-                            <h4 class=\"shahin-card-title\">Task History</h4>
+                    <div class='shahin-card'>
+                        <div class='shahin-card-header'>
+                            <h4 class='shahin-card-title'>Task History</h4>
                         </div>
-                        <div class=\"shahin-card-body\">
+                        <div class='shahin-card-body'>
                             " + RenderTaskHistoryTable() + @"
                         </div>
                     </div>
@@ -486,41 +486,41 @@
 @functions {
     string RenderTimelineComponent()
     {
-        return @"<div class=\"shahin-timeline\">
-            <div class=\"shahin-timeline-item\">
-                <div class=\"shahin-timeline-marker shahin-timeline-marker-danger\">
-                    <i class=\"bi bi-exclamation-triangle-fill\"></i>
+        return @"<div class='shahin-timeline'>
+            <div class='shahin-timeline-item'>
+                <div class='shahin-timeline-marker shahin-timeline-marker-danger'>
+                    <i class='bi bi-exclamation-triangle-fill'></i>
                 </div>
-                <div class=\"shahin-timeline-content\">
-                    <div class=\"shahin-timeline-header\">
-                        <h4 class=\"shahin-timeline-title\">Critical Risk Identified</h4>
-                        <span class=\"shahin-timeline-date\">30 minutes ago</span>
+                <div class='shahin-timeline-content'>
+                    <div class='shahin-timeline-header'>
+                        <h4 class='shahin-timeline-title'>Critical Risk Identified</h4>
+                        <span class='shahin-timeline-date'>30 minutes ago</span>
                     </div>
-                    <p class=\"shahin-timeline-description\">Detected elevated cybersecurity risk (Score: 9.2/10) requiring immediate mitigation</p>
+                    <p class='shahin-timeline-description'>Detected elevated cybersecurity risk (Score: 9.2/10) requiring immediate mitigation</p>
                 </div>
             </div>
-            <div class=\"shahin-timeline-item\">
-                <div class=\"shahin-timeline-marker shahin-timeline-marker-success\">
-                    <i class=\"bi bi-check-circle-fill\"></i>
+            <div class='shahin-timeline-item'>
+                <div class='shahin-timeline-marker shahin-timeline-marker-success'>
+                    <i class='bi bi-check-circle-fill'></i>
                 </div>
-                <div class=\"shahin-timeline-content\">
-                    <div class=\"shahin-timeline-header\">
-                        <h4 class=\"shahin-timeline-title\">Mitigation Plan Generated</h4>
-                        <span class=\"shahin-timeline-date\">2 hours ago</span>
+                <div class='shahin-timeline-content'>
+                    <div class='shahin-timeline-header'>
+                        <h4 class='shahin-timeline-title'>Mitigation Plan Generated</h4>
+                        <span class='shahin-timeline-date'>2 hours ago</span>
                     </div>
-                    <p class=\"shahin-timeline-description\">Created comprehensive risk mitigation strategy for 8 high-priority risks</p>
+                    <p class='shahin-timeline-description'>Created comprehensive risk mitigation strategy for 8 high-priority risks</p>
                 </div>
             </div>
-            <div class=\"shahin-timeline-item\">
-                <div class=\"shahin-timeline-marker shahin-timeline-marker-info\">
-                    <i class=\"bi bi-info-circle-fill\"></i>
+            <div class='shahin-timeline-item'>
+                <div class='shahin-timeline-marker shahin-timeline-marker-info'>
+                    <i class='bi bi-info-circle-fill'></i>
                 </div>
-                <div class=\"shahin-timeline-content\">
-                    <div class=\"shahin-timeline-header\">
-                        <h4 class=\"shahin-timeline-title\">Threat Analysis Completed</h4>
-                        <span class=\"shahin-timeline-date\">4 hours ago</span>
+                <div class='shahin-timeline-content'>
+                    <div class='shahin-timeline-header'>
+                        <h4 class='shahin-timeline-title'>Threat Analysis Completed</h4>
+                        <span class='shahin-timeline-date'>4 hours ago</span>
                     </div>
-                    <p class=\"shahin-timeline-description\">Analyzed 23 potential security threats and categorized by severity</p>
+                    <p class='shahin-timeline-description'>Analyzed 23 potential security threats and categorized by severity</p>
                 </div>
             </div>
         </div>";
@@ -528,13 +528,13 @@
 
     string RenderProgressBar(int value, string type)
     {
-        return $"<div class=\"shahin-progress\"><div class=\"shahin-progress-bar shahin-progress-bar-{type}\" style=\"width: {value}%\"></div></div>";
+        return $"<div class='shahin-progress'><div class='shahin-progress-bar shahin-progress-bar-{type}' style='width: {value}%'></div></div>";
     }
 
     string RenderTaskHistoryTable()
     {
-        return @"<div class=\"shahin-table-container\">
-            <table class=\"shahin-table\">
+        return @"<div class='shahin-table-container'>
+            <table class='shahin-table'>
                 <thead>
                     <tr>
                         <th>Task ID</th>
@@ -548,21 +548,21 @@
                     <tr>
                         <td>RSK-1926</td>
                         <td>Critical Risk Assessment</td>
-                        <td><span class=\"shahin-badge shahin-badge-danger\">Critical</span></td>
+                        <td><span class='shahin-badge shahin-badge-danger'>Critical</span></td>
                         <td>3.2s</td>
                         <td>2024-01-15 15:02</td>
                     </tr>
                     <tr>
                         <td>RSK-1925</td>
                         <td>Mitigation Plan</td>
-                        <td><span class=\"shahin-badge shahin-badge-success\">Completed</span></td>
+                        <td><span class='shahin-badge shahin-badge-success'>Completed</span></td>
                         <td>2.8s</td>
                         <td>2024-01-15 13:45</td>
                     </tr>
                     <tr>
                         <td>RSK-1924</td>
                         <td>Threat Analysis</td>
-                        <td><span class=\"shahin-badge shahin-badge-success\">Completed</span></td>
+                        <td><span class='shahin-badge shahin-badge-success'>Completed</span></td>
                         <td>2.1s</td>
                         <td>2024-01-15 11:30</td>
                     </tr>
