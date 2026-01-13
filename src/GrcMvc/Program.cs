@@ -121,13 +121,72 @@ if (string.IsNullOrWhiteSpace(authConnectionString) && !string.IsNullOrWhiteSpac
 {
     builder.Configuration["ConnectionStrings:GrcAuthDb"] = connectionString;
 }
-// CRITICAL SECURITY FIX: JWT secret must be provided via environment variable - no fallback in any environment
+// CRITICAL SECURITY FIX: JWT secret must be provided via environment variable in production
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
 if (string.IsNullOrWhiteSpace(jwtSecret))
 {
-    throw new InvalidOperationException("JWT_SECRET environment variable is required. Set it before starting the application.");
+    if (builder.Environment.IsProduction())
+    {
+        throw new InvalidOperationException("JWT_SECRET environment variable is required in Production. Set it before starting the application.");
+    }
+    else
+    {
+        // Development: Use secret from appsettings.json (fallback)
+        jwtSecret = builder.Configuration["JwtSettings:Secret"];
+        if (string.IsNullOrWhiteSpace(jwtSecret))
+        {
+            throw new InvalidOperationException("JWT_SECRET not found in environment or appsettings.json");
+        }
+    }
 }
 builder.Configuration["JwtSettings:Secret"] = jwtSecret;
+
+// Production Environment Variable Validation
+if (builder.Environment.IsProduction())
+{
+    var missingVars = new List<string>();
+
+    // Critical variables for production
+    if (string.IsNullOrWhiteSpace(connectionString))
+        missingVars.Add("CONNECTION_STRING or DB_PASSWORD");
+
+    if (missingVars.Count > 0)
+    {
+        throw new InvalidOperationException(
+            $"The following critical environment variables are missing in Production: {string.Join(", ", missingVars)}. " +
+            "Set them before starting the application.");
+    }
+
+    // Log warnings for optional but recommended variables
+    var logger = LoggerFactory.Create(logging => logging.AddConsole()).CreateLogger("Startup");
+
+    // CRITICAL: Validate AI service configuration if enabled
+    var claudeEnabled = builder.Configuration.GetValue<bool>("ClaudeAgents:Enabled", false);
+    if (claudeEnabled && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CLAUDE_API_KEY")))
+    {
+        if (builder.Environment.IsProduction())
+        {
+            throw new InvalidOperationException(
+                "CLAUDE_API_KEY is required when ClaudeAgents:Enabled=true in Production. " +
+                "Either set CLAUDE_API_KEY environment variable or disable Claude agents.");
+        }
+        logger.LogWarning("CLAUDE_API_KEY not set - AI features will be disabled");
+    }
+
+    // Validate SMTP configuration if email features are used
+    var smtpHost = Environment.GetEnvironmentVariable("SMTP_HOST");
+    if (builder.Environment.IsProduction() && string.IsNullOrWhiteSpace(smtpHost))
+    {
+        logger.LogWarning("SMTP_HOST not set - Email features may not work in Production");
+    }
+
+    // Validate Microsoft Graph if email operations are enabled
+    var graphClientId = Environment.GetEnvironmentVariable("MSGRAPH_CLIENT_ID");
+    if (builder.Environment.IsProduction() && string.IsNullOrWhiteSpace(graphClientId))
+    {
+        logger.LogWarning("MSGRAPH_CLIENT_ID not set - Microsoft Graph email operations will be disabled");
+    }
+}
 builder.Configuration["ClaudeAgents:ApiKey"] = Environment.GetEnvironmentVariable("CLAUDE_API_KEY") ?? "";
 builder.Configuration["ClaudeAgents:Model"] = Environment.GetEnvironmentVariable("CLAUDE_MODEL") ?? "claude-sonnet-4-20250514";
 builder.Configuration["ClaudeAgents:MaxTokens"] = Environment.GetEnvironmentVariable("CLAUDE_MAX_TOKENS") ?? "4096";
@@ -219,16 +278,16 @@ builder.Services.AddCors(options =>
         if (allowedOrigins != null && allowedOrigins.Length > 0)
         {
             policy.WithOrigins(allowedOrigins)
-                .AllowAnyMethod()
-                .AllowAnyHeader()
+                .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                .WithHeaders("Authorization", "Content-Type", "Accept", "X-Requested-With", "X-CSRF-Token")
                 .AllowCredentials();
         }
         else
         {
             // Default: Allow localhost for development
             policy.WithOrigins("http://localhost:3000", "http://localhost:5137")
-                .AllowAnyMethod()
-                .AllowAnyHeader()
+                .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                .WithHeaders("Authorization", "Content-Type", "Accept", "X-Requested-With", "X-CSRF-Token")
                 .AllowCredentials();
         }
     });
@@ -246,7 +305,8 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     var supportedCultures = new[]
     {
         new CultureInfo("ar"), // Arabic - Default (RTL)
-        new CultureInfo("en")  // English - Secondary (LTR)
+        new CultureInfo("en"), // English - Secondary (LTR)
+        new CultureInfo("tr")  // Turkish (LTR)
     };
 
     options.DefaultRequestCulture = new RequestCulture("ar"); // Arabic as default
@@ -272,6 +332,9 @@ builder.Services.AddControllersWithViews(options =>
     // API requests: returns 400 BadRequest if duplicates detected
     // MVC requests: logs warning but allows action to proceed (backward compatibility)
     options.Filters.Add<GrcMvc.Filters.DuplicatePropertyBindingFilter>();
+
+    // Add CSP nonce filter - makes nonce available to views via ViewData for XSS protection
+    options.Filters.Add<GrcMvc.Filters.CspNonceFilter>();
 }).AddRazorRuntimeCompilation()
 .AddViewLocalization()
 .AddDataAnnotationsLocalization(options =>
@@ -514,19 +577,12 @@ builder.Services.AddRateLimiter(options =>
     });
 
     // Authentication endpoints - prevent brute force
+    // Stricter rate limiting: 3 attempts per 15 minutes (recommended by security audit)
     options.AddFixedWindowLimiter("auth", limiterOptions =>
     {
         limiterOptions.PermitLimit = rateLimitConfig.Login.PermitLimit;
         limiterOptions.Window = rateLimitConfig.Login.Window;
         limiterOptions.QueueLimit = rateLimitConfig.Login.QueueLimit;
-    });
-
-    // Trial registration - very strict limits
-    options.AddFixedWindowLimiter("trial", limiterOptions =>
-    {
-        limiterOptions.PermitLimit = rateLimitConfig.TrialRegistration.PermitLimit;
-        limiterOptions.Window = rateLimitConfig.TrialRegistration.Window;
-        limiterOptions.QueueLimit = rateLimitConfig.TrialRegistration.QueueLimit;
     });
 
     options.OnRejected = async (context, token) =>

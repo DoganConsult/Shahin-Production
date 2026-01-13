@@ -305,7 +305,11 @@ Return JSON:
                     result.SummaryAr = parsed.SummaryAr;
                 }
             }
-            catch { /* Use raw response */ }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to parse AI compliance analysis JSON response. Using raw response. Response length: {Length}", result.RawResponse?.Length ?? 0);
+                // Use raw response as fallback
+            }
         }
 
         return result;

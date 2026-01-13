@@ -8,6 +8,7 @@ using GrcMvc.Data;
 using System;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace GrcMvc.Authorization;
 
@@ -15,11 +16,12 @@ namespace GrcMvc.Authorization;
 /// Authorization attribute that ensures tenant context is properly set before action execution.
 /// Validates that user has access to the tenant and tenant context is available.
 /// CRITICAL: Also verifies user actually belongs to the requested tenant (prevents tenant hopping).
+/// Uses async database operations to prevent thread pool exhaustion under load.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-public class RequireTenantAttribute : Attribute, IAuthorizationFilter
+public class RequireTenantAttribute : Attribute, IAsyncAuthorizationFilter
 {
-    public void OnAuthorization(AuthorizationFilterContext context)
+    public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
         var tenantContextService = context.HttpContext.RequestServices.GetService<ITenantContextService>();
 
@@ -70,9 +72,9 @@ public class RequireTenantAttribute : Attribute, IAuthorizationFilter
             return;
         }
 
-        var userBelongsToTenant = dbContext.TenantUsers
+        var userBelongsToTenant = await dbContext.TenantUsers
             .AsNoTracking()
-            .Any(tu => tu.UserId == userId && tu.TenantId == tenantId && tu.Status == "Active" && !tu.IsDeleted);
+            .AnyAsync(tu => tu.UserId == userId && tu.TenantId == tenantId && tu.Status == "Active" && !tu.IsDeleted);
 
         if (!userBelongsToTenant)
         {

@@ -334,9 +334,13 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-globe"></i>
-                                @if (isRtl)
+                                @if (currentCulture == "ar")
                                 {
                                     <text>العربية</text>
+                                }
+                                else if (currentCulture == "tr")
+                                {
+                                    <text>Türkçe</text>
                                 }
                                 else
                                 {
@@ -346,7 +350,7 @@
                             <ul class="dropdown-menu @(isRtl ? "dropdown-menu-start" : "dropdown-menu-end")">
                                 <li>
                                     <a class="dropdown-item @(currentCulture == "ar" ? "active" : "")" asp-controller="Home" asp-action="SetLanguage" asp-route-culture="ar" asp-route-returnUrl="@Context.Request.Path">
-                                        <i class="bi bi-translate me-2"></i>العربية
+                                        <i class="bi bi-flag me-2"></i>🇸🇦 العربية
                                         @if (currentCulture == "ar")
                                         {
                                             <i class="bi bi-check-lg float-end"></i>
@@ -355,8 +359,17 @@
                                 </li>
                                 <li>
                                     <a class="dropdown-item @(currentCulture == "en" ? "active" : "")" asp-controller="Home" asp-action="SetLanguage" asp-route-culture="en" asp-route-returnUrl="@Context.Request.Path">
-                                        <i class="bi bi-translate me-2"></i>English
+                                        <i class="bi bi-flag me-2"></i>🇺🇸 English
                                         @if (currentCulture == "en")
+                                        {
+                                            <i class="bi bi-check-lg float-end"></i>
+                                        }
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item @(currentCulture == "tr" ? "active" : "")" asp-controller="Home" asp-action="SetLanguage" asp-route-culture="tr" asp-route-returnUrl="@Context.Request.Path">
+                                        <i class="bi bi-flag me-2"></i>🇹🇷 Türkçe
+                                        @if (currentCulture == "tr")
                                         {
                                             <i class="bi bi-check-lg float-end"></i>
                                         }

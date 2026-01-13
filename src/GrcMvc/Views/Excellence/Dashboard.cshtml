@@ -255,7 +255,7 @@
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                 datasets: [{
                     label: 'Excellence Score',
-                    data: @Html.Raw(Json.Serialize(Model.MonthlyScores ?? new List<decimal> { 65, 67, 70, 72, 75, 76, 78, 79, 80, 82, 83, 85 })),
+                    data: @System.Text.Json.JsonSerializer.Serialize(Model.MonthlyScores ?? new List<decimal> { 65, 67, 70, 72, 75, 76, 78, 79, 80, 82, 83, 85 })),
                     borderColor: 'rgb(54, 162, 235)',
                     backgroundColor: 'rgba(54, 162, 235, 0.1)',
                     tension: 0.4,
