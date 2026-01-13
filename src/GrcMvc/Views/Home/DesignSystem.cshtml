@@ -158,7 +158,7 @@
                             Type = "email",
                             Placeholder = "Enter your email",
                             Required = true,
-                            HelpText = "We'll never share your email."
+                            HelpText = "We will never share your email."
                         }' />
                     </div>
                     <div class="col-md-6">
@@ -538,66 +538,77 @@
             Open Demo Modal
         </button>
 
-        <!-- Modal Component -->
-        <partial name="Components/_ShahinModal" model='new {
-            Id = "demoModal",
-            Title = "Risk Assessment Details",
-            Body = Html.Raw(@"
-                <div class=\"mb-4\">
-                    <h5>Risk Information</h5>
-                    <p><strong>Risk ID:</strong> RISK-001</p>
-                    <p><strong>Description:</strong> Data breach vulnerability in customer database</p>
-                    <p><strong>Severity:</strong> <span class=\"shahin-badge shahin-badge-danger\">Critical</span></p>
-                    <p><strong>Status:</strong> <span class=\"shahin-badge shahin-badge-warning\">In Progress</span></p>
+        <!-- Modal Component - Demo Modal -->
+        <div class="modal fade" id="demoModal" tabindex="-1" aria-labelledby="demoModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="demoModalLabel">Risk Assessment Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-4">
+                            <h5>Risk Information</h5>
+                            <p><strong>Risk ID:</strong> RISK-001</p>
+                            <p><strong>Description:</strong> Data breach vulnerability in customer database</p>
+                            <p><strong>Severity:</strong> <span class="shahin-badge shahin-badge-danger">Critical</span></p>
+                            <p><strong>Status:</strong> <span class="shahin-badge shahin-badge-warning">In Progress</span></p>
+                        </div>
+                        <div>
+                            <h5>Mitigation Actions</h5>
+                            <ul>
+                                <li>Implement encryption for sensitive data</li>
+                                <li>Conduct security audit</li>
+                                <li>Update access control policies</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="shahin-btn shahin-btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="shahin-btn shahin-btn-primary">Save Changes</button>
+                    </div>
                 </div>
-                <div>
-                    <h5>Mitigation Actions</h5>
-                    <ul>
-                        <li>Implement encryption for sensitive data</li>
-                        <li>Conduct security audit</li>
-                        <li>Update access control policies</li>
-                    </ul>
-                </div>
-            "),
-            Footer = Html.Raw(@"
-                <button type=\"button\" class=\"shahin-btn shahin-btn-secondary\" data-bs-dismiss=\"modal\">Close</button>
-                <button type=\"button\" class=\"shahin-btn shahin-btn-primary\">Save Changes</button>
-            "),
-            Size = "lg",
-            Centered = true
-        }' />
+            </div>
+        </div>
 
         <!-- Dynamic Table -->
         <h3 class="shahin-text-xl shahin-font-semibold mb-3 mt-5">Dynamic Table</h3>
-        <partial name="Components/_ShahinTable" model='new {
-            Id = "dynamicTable",
-            Headers = new[] { "Risk ID", "Title", "Severity", "Status", "Owner" },
-            Rows = new[] {
-                new[] {
-                    "RISK-001",
-                    "Data Breach Risk",
-                    "<span class=\"shahin-badge shahin-badge-danger\">Critical</span>",
-                    "<span class=\"shahin-badge shahin-badge-warning\">Active</span>",
-                    "John Doe"
-                },
-                new[] {
-                    "RISK-002",
-                    "Compliance Violation",
-                    "<span class=\"shahin-badge shahin-badge-warning\">High</span>",
-                    "<span class=\"shahin-badge shahin-badge-success\">Resolved</span>",
-                    "Jane Smith"
-                },
-                new[] {
-                    "RISK-003",
-                    "System Vulnerability",
-                    "<span class=\"shahin-badge shahin-badge-warning\">Medium</span>",
-                    "<span class=\"shahin-badge shahin-badge-info\">In Progress</span>",
-                    "Mike Johnson"
-                }
-            },
-            Striped = true,
-            Hover = true
-        }' />
+        <div class="table-responsive">
+            <table class="table table-striped table-hover shahin-table">
+                <thead>
+                    <tr>
+                        <th>Risk ID</th>
+                        <th>Title</th>
+                        <th>Severity</th>
+                        <th>Status</th>
+                        <th>Owner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>RISK-001</td>
+                        <td>Data Breach Risk</td>
+                        <td><span class="shahin-badge shahin-badge-danger">Critical</span></td>
+                        <td><span class="shahin-badge shahin-badge-warning">Active</span></td>
+                        <td>John Doe</td>
+                    </tr>
+                    <tr>
+                        <td>RISK-002</td>
+                        <td>Compliance Violation</td>
+                        <td><span class="shahin-badge shahin-badge-warning">High</span></td>
+                        <td><span class="shahin-badge shahin-badge-success">Resolved</span></td>
+                        <td>Jane Smith</td>
+                    </tr>
+                    <tr>
+                        <td>RISK-003</td>
+                        <td>System Vulnerability</td>
+                        <td><span class="shahin-badge shahin-badge-warning">Medium</span></td>
+                        <td><span class="shahin-badge shahin-badge-info">In Progress</span></td>
+                        <td>Mike Johnson</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </section>
 
     <!-- Section: RTL Support -->

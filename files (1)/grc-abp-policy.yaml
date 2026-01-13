@@ -1,0 +1,468 @@
+---
+# Shahin GRC Platform - ABP Policy Specification
+# Enterprise Multi-Tenant GRC with Autonomous Onboarding
+# Author: Ahmet (PhD IoT Healthcare Cybersecurity)
+# Version: 1.0
+
+metadata:
+  platform: "Shahin-AI.com"
+  framework: "ABP Framework 8.x"
+  tenancy: "multi-tenant"
+  target: "Saudi Arabia Vision 2030"
+  compliance: ["NCA-ECC", "SAMA-CSF", "PDPL", "ISO27001", "PCI-DSS"]
+
+# ================================
+# 1. TENANT & SECURITY POLICIES  
+# ================================
+security_policies:
+  rate_limiting:
+    trial_registration:
+      per_ip: 
+        limit: 5
+        window: "10m"
+        burst: 2
+      per_email:
+        limit: 3
+        window: "1d"
+      per_device_fingerprint:
+        limit: 3
+        window: "1d"
+      
+  fraud_detection:
+    quarantine_triggers:
+      - disposable_email: true
+      - ip_reputation_score: < 3
+      - geo_mismatch: true
+      - velocity_abuse: > 3_per_hour
+      - suspicious_user_agent: true
+    
+    quarantine_actions:
+      - disable_features: ["integrations", "export", "api_access"]
+      - require_verification: ["email", "manual_review"]
+      - restrict_trial_duration: "24h"
+  
+  tenant_isolation:
+    enforcement_levels:
+      - database: "ef_global_filters" 
+      - service: "current_tenant_guard"
+      - api: "tenant_scope_attribute"
+      - cache: "tenant_prefixed_keys"
+
+# ================================
+# 2. TENANT RESOLUTION CONTRACT
+# ================================
+tenant_resolution:
+  strategy_order:
+    1: "current_user_tenant_claim"
+    2: "tenant_cookie" 
+    3: "query_parameter(__tenant)"
+    4: "request_header(X-Tenant-Id)"
+    5: "subdomain_mapping"
+  
+  cookies:
+    name: "__tenant_ctx"
+    domain: ".shahin-ai.com"
+    secure: true
+    http_only: true
+    same_site: "strict"
+    
+  validation:
+    require_tenant_context:
+      - "/api/tenant/*"
+      - "/onboarding/*" 
+      - "/dashboard/*"
+      - "/assessments/*"
+    
+    allow_host_context:
+      - "/trial/*"
+      - "/Account/*"
+      - "/api/public/*"
+
+# ================================
+# 3. ONBOARDING STATE MACHINE
+# ================================
+onboarding_state_machine:
+  states:
+    PENDING:
+      description: "Trial created, onboarding not started"
+      allowed_paths: ["/onboarding/start", "/Account/Logout"]
+      redirect_to: "/onboarding/fast-start"
+      
+    IN_PROGRESS:
+      description: "Onboarding started, not completed"
+      substates:
+        FAST_START: 
+          required_fields: ["org_name", "country", "sector", "data_types"]
+          outputs: ["baseline_frameworks", "control_estimate"]
+        MISSION_1_SCOPE:
+          required_fields: ["entities", "systems", "processes", "exclusions"]
+          outputs: ["scope_boundary", "applicability_matrix"]
+        MISSION_2_OWNERSHIP:
+          required_fields: ["teams", "roles", "raci_matrix", "slas"]
+          outputs: ["ownership_model", "workflow_routing"]
+        MISSION_3_EVIDENCE:
+          required_fields: ["evidence_standards", "kpi_baselines", "success_metrics"]
+          outputs: ["evidence_requirements", "dashboard_config"]
+      allowed_paths: ["/onboarding/*", "/Account/Logout"]
+      
+    COMPLETED:
+      description: "Onboarding finished, workspace ready"
+      required_artifacts: ["grc_plan", "assessments", "workflows", "dashboards"]
+      allowed_paths: ["*"]
+
+  transitions:
+    PENDING -> IN_PROGRESS:
+      trigger: "fast_start_submitted"
+      validation: "required_fields_complete"
+      
+    IN_PROGRESS -> COMPLETED:
+      trigger: "mission_3_completed"
+      validation: ["all_missions_complete", "artifacts_generated"]
+      side_effects: ["create_workspace", "start_workflows", "enable_dashboards"]
+
+  middleware_enforcement:
+    redirect_incomplete:
+      enabled: true
+      exceptions: ["/api/health", "/Account/Login", "/Account/Logout"]
+      deterministic: true
+      loop_safe: true
+
+# ================================
+# 4. AUDIT REPLAY MODEL
+# ================================
+audit_replay_model:
+  event_sourcing:
+    events:
+      OnboardingStepCompleted:
+        schema:
+          step_id: string
+          tenant_id: guid
+          user_id: guid
+          inputs_snapshot: json
+          outputs_generated: json
+          rule_ids_evaluated: array
+          rationale: string
+          timestamp: datetime
+          
+      RuleEvaluationExecuted:
+        schema:
+          rule_id: string
+          rule_version: string
+          inputs_hash: string
+          matched_conditions: array
+          outputs: json
+          confidence_score: float
+          explainability_payload: string
+          
+      FrameworkApplied:
+        schema:
+          framework_id: string
+          trigger_reason: string
+          applicable_controls: array
+          overlay_rules: array
+          exclusions: array
+          
+      WorkflowArtifactGenerated:
+        schema:
+          artifact_type: string
+          artifact_id: guid
+          generation_rule: string
+          dependencies: array
+          
+  snapshots:
+    frequency: "per_step"
+    retention: "7_years"
+    compression: "gzip"
+    encryption: "aes_256"
+    
+  replay_capabilities:
+    reconstruct_journey:
+      - "why_framework_applied"
+      - "why_control_selected" 
+      - "why_scope_excluded"
+      - "who_confirmed_baseline"
+    
+    deterministic_outputs:
+      guarantee: "same_inputs_same_outputs"
+      validation: "hash_comparison"
+
+# ================================
+# 5. COMPLIANCE CATALOG SCHEMA
+# ================================
+compliance_catalog:
+  regulators:
+    schema:
+      id: guid
+      code: string # "NCA", "SAMA", "CBB"
+      name: string
+      jurisdiction: string
+      website: string
+      contact_info: json
+      
+  frameworks:
+    schema:
+      id: guid
+      regulator_id: guid
+      code: string # "NCA-ECC", "SAMA-CSF"
+      name: string
+      version: string
+      effective_date: date
+      mandatory_sectors: array
+      
+  controls:
+    schema:
+      id: guid
+      framework_id: guid
+      control_id: string # "AC-1", "SC-7"
+      title: string
+      description: text
+      implementation_guidance: text
+      evidence_requirements: json
+      domains: array # "Access", "Security", "Risk"
+      criticality: enum # "LOW", "MEDIUM", "HIGH", "CRITICAL"
+      
+  crosswalks:
+    schema:
+      source_control_id: guid
+      target_control_id: guid
+      mapping_type: enum # "EQUIVALENT", "SUBSET", "OVERLAP"
+      confidence_score: float
+      mapping_rationale: string
+
+# ================================
+# 6. RULES ENGINE SPECIFICATION  
+# ================================
+rules_engine:
+  applicability_rules:
+    framework_selection:
+      PDPL_Trigger:
+        conditions:
+          - "data_types contains 'PII'"
+          - "processing_activities contains 'collection'"
+        outputs:
+          - framework: "PDPL"
+            overlay: "data_protection"
+            
+      NCA_ECC_Trigger:
+        conditions:
+          - "sector in ['government', 'critical_infrastructure']"
+          - "operating_countries contains 'SA'"
+        outputs:
+          - framework: "NCA-ECC"
+            overlay: "cybersecurity"
+            
+      SAMA_CSF_Trigger:
+        conditions:
+          - "sector == 'banking'"
+          - "regulators contains 'SAMA'"
+        outputs:
+          - framework: "SAMA-CSF"
+            overlay: "financial_services"
+            
+  scope_filtering:
+    entity_criticality:
+      HIGH:
+        conditions: ["revenue > 100M_SAR", "employees > 500"]
+        controls_modifier: "include_all"
+      MEDIUM:
+        conditions: ["revenue > 10M_SAR", "employees > 50"] 
+        controls_modifier: "exclude_optional"
+      LOW:
+        conditions: ["revenue < 10M_SAR", "employees < 50"]
+        controls_modifier: "baseline_only"
+        
+  overlay_rules:
+    healthcare_overlay:
+      trigger: "data_types contains 'health'"
+      additional_frameworks: ["HIPAA", "Health_Data_Protection"]
+      
+    international_overlay:
+      trigger: "data_transfers contains 'international'"
+      additional_frameworks: ["GDPR", "Data_Transfer_Agreements"]
+
+# ================================
+# 7. WORKFLOW AUTOMATION RULES
+# ================================
+workflow_automation:
+  artifact_generation:
+    grc_plan:
+      trigger: "onboarding_completed"
+      template: "comprehensive_grc_plan"
+      inputs: ["baseline_frameworks", "scope_boundary", "ownership_model"]
+      
+    assessment_templates:
+      trigger: "grc_plan_created"
+      generation_rule: "one_per_framework"
+      schedule: "quarterly_default"
+      
+    evidence_workflows:
+      trigger: "assessments_created"
+      task_types: ["collect", "review", "approve", "retain"]
+      sla_mapping:
+        HIGH: "7_days"
+        MEDIUM: "14_days"  
+        LOW: "30_days"
+        
+    team_provisioning:
+      trigger: "ownership_model_defined"
+      actions: ["create_teams", "assign_users", "set_permissions"]
+      
+  sla_rules:
+    remediation_deadlines:
+      CRITICAL: "24h"
+      HIGH: "72h" 
+      MEDIUM: "7d"
+      LOW: "30d"
+      
+    escalation_paths:
+      missed_deadline: ["notify_owner", "notify_manager", "create_exception_request"]
+      
+# ================================
+# 8. INTEGRATION SPECIFICATIONS
+# ================================
+integrations:
+  abp_modules:
+    required:
+      - "Volo.Abp.TenantManagement"
+      - "Volo.Abp.Identity" 
+      - "Volo.Abp.PermissionManagement"
+      - "Volo.Abp.FeatureManagement"
+      - "Volo.Abp.AuditLogging"
+      - "Volo.Abp.BackgroundJobs"
+      
+  external_systems:
+    email_service:
+      provider: "SendGrid"
+      templates: ["trial_welcome", "onboarding_resume", "workflow_notification"]
+      
+    file_storage:
+      provider: "Azure_Blob_Storage"
+      containers: ["evidence", "assessments", "audit_logs"]
+      encryption: "server_side"
+      
+    notification_service:
+      channels: ["email", "teams", "slack"]
+      priority_routing: true
+
+# ================================
+# 9. PERFORMANCE & SCALABILITY
+# ================================
+performance_requirements:
+  response_times:
+    trial_registration: "< 2s"
+    onboarding_step: "< 1s"
+    rules_evaluation: "< 500ms"
+    dashboard_load: "< 3s"
+    
+  concurrency:
+    max_concurrent_trials: 100
+    max_tenant_operations: 1000
+    
+  caching_strategy:
+    framework_data: "24h"
+    user_permissions: "1h"
+    tenant_configuration: "6h"
+    
+  database_optimization:
+    indexing_strategy: "tenant_id_first"
+    partitioning: "by_tenant"
+    archiving: "7_year_retention"
+
+# ================================
+# 10. ACCEPTANCE CRITERIA
+# ================================
+acceptance_tests:
+  trial_bootstrap:
+    given: "Anonymous user submits trial form"
+    when: "ITenantAppService.CreateAsync executes"
+    then:
+      - "Tenant exists in AbpTenants"
+      - "Admin exists in AbpUsers with TenantId"
+      - "Admin has 'admin' role"
+      - "OnboardingStatus = PENDING"
+      - "Trial expiry = +7 days"
+      
+  auto_redirect:
+    given: "Authenticated user with incomplete onboarding"
+    when: "User accesses protected path"
+    then: "Redirected to current onboarding step"
+    
+  onboarding_completion:
+    given: "User completes Mission 3"
+    when: "OnboardingCompletedEvent fires"
+    then:
+      - "GRC Plan created"
+      - "Assessment templates generated"
+      - "Evidence workflows started"
+      - "Dashboards populated"
+      - "OnboardingStatus = COMPLETED"
+      
+  explainability:
+    given: "Framework rule applied"
+    then: "System can answer why, which inputs triggered, which conditions matched"
+    
+  tenant_isolation:
+    given: "Multi-tenant operation"
+    then: "No cross-tenant data access possible"
+
+# ================================
+# 11. DEPLOYMENT CONFIGURATION
+# ================================
+deployment:
+  environments:
+    development:
+      database: "LocalDB"
+      cache: "InMemory"
+      logging: "Debug"
+      
+    staging:
+      database: "Azure_SQL"
+      cache: "Redis"
+      logging: "Information"
+      
+    production:
+      database: "Azure_SQL_Premium"
+      cache: "Redis_Cluster" 
+      logging: "Warning"
+      monitoring: "Application_Insights"
+      
+  feature_flags:
+    by_environment:
+      trial_mode: ["development", "staging"]
+      fraud_detection: ["staging", "production"]
+      audit_replay: ["production"]
+      
+  scaling_rules:
+    auto_scaling:
+      cpu_threshold: 70
+      memory_threshold: 80
+      scale_out_cooldown: "5m"
+      scale_in_cooldown: "10m"
+
+# ================================
+# 12. MONITORING & ALERTING
+# ================================
+monitoring:
+  business_metrics:
+    trial_conversion_rate: "> 15%"
+    onboarding_completion_rate: "> 80%"
+    time_to_first_assessment: "< 24h"
+    
+  technical_metrics:
+    system_availability: "> 99.9%"
+    api_response_time: "< 2s_p95"
+    error_rate: "< 0.1%"
+    
+  alerts:
+    critical:
+      - "System down"
+      - "Database connection lost"
+      - "Tenant creation failure"
+      
+    warning:
+      - "High response times"
+      - "Unusual trial patterns"
+      - "Low conversion rates"
+
+---
+# End of ABP Policy Specification

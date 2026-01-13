@@ -1,0 +1,178 @@
+# ══════════════════════════════════════════════════════════════
+# Shahin AI - Full Stack Production Deployment
+# ══════════════════════════════════════════════════════════════
+# Deploy with: docker-compose -f docker-compose.production.yml up -d
+# ══════════════════════════════════════════════════════════════
+
+version: '3.8'
+
+services:
+  # ════════════════════════════════════════════════════════════
+  # Landing Page - www.shahin-ai.com (Port 3000)
+  # React SPA - From the Kingdom to the World
+  # ════════════════════════════════════════════════════════════
+  landing:
+    image: ghcr.io/doganlap/shahin-landing:latest
+    build:
+      context: ../../shahin-landing-temp/landing-page
+      dockerfile: docker/Dockerfile
+    container_name: shahin-landing
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - shahin-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "com.shahin.service=landing"
+      - "com.shahin.domain=www.shahin-ai.com"
+
+  # ════════════════════════════════════════════════════════════
+  # GRC Portal - portal.shahin-ai.com (Port 5000)
+  # ASP.NET Core MVC Application
+  # ════════════════════════════════════════════════════════════
+  portal:
+    image: ghcr.io/doganlap/shahin-grc:latest
+    build:
+      context: ../src/GrcMvc
+      dockerfile: Dockerfile.production
+    container_name: grc-production
+    restart: unless-stopped
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
+      - ConnectionStrings__GrcAuthDb=${DB_CONNECTION_STRING}
+      - JwtSettings__Secret=${JWT_SECRET}
+      - SmtpSettings__Password=${SMTP_PASSWORD}
+      - ClaudeAgents__ApiKey=${CLAUDE_API_KEY}
+    volumes:
+      - portal-data:/app/data
+      - portal-logs:/app/logs
+    networks:
+      - shahin-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "com.shahin.service=portal"
+      - "com.shahin.domain=portal.shahin-ai.com"
+
+  # ════════════════════════════════════════════════════════════
+  # Staging Environment - staging.shahin-ai.com (Port 5001)
+  # ════════════════════════════════════════════════════════════
+  staging:
+    image: ghcr.io/doganlap/shahin-grc:staging
+    container_name: grc-staging
+    restart: unless-stopped
+    ports:
+      - "5001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Staging
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=${STAGING_DB_CONNECTION_STRING}
+      - JwtSettings__Secret=${JWT_SECRET}
+    networks:
+      - shahin-network
+    depends_on:
+      - postgres
+    profiles:
+      - staging
+    labels:
+      - "com.shahin.service=staging"
+      - "com.shahin.domain=staging.shahin-ai.com"
+
+  # ════════════════════════════════════════════════════════════
+  # PostgreSQL Database
+  # ════════════════════════════════════════════════════════════
+  postgres:
+    image: postgres:16-alpine
+    container_name: shahin-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER:-shahin_admin}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME:-shahin_grc}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    networks:
+      - shahin-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-shahin_admin}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ════════════════════════════════════════════════════════════
+  # Redis Cache
+  # ════════════════════════════════════════════════════════════
+  redis:
+    image: redis:7-alpine
+    container_name: shahin-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - shahin-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ════════════════════════════════════════════════════════════
+  # Nginx Reverse Proxy (Optional - for local testing)
+  # ════════════════════════════════════════════════════════════
+  nginx:
+    image: nginx:alpine
+    container_name: shahin-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/shahin-all-domains.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    networks:
+      - shahin-network
+    depends_on:
+      - landing
+      - portal
+    profiles:
+      - with-nginx
+
+networks:
+  shahin-network:
+    name: shahin-network
+    driver: bridge
+
+volumes:
+  postgres-data:
+    name: shahin-postgres-data
+  redis-data:
+    name: shahin-redis-data
+  portal-data:
+    name: shahin-portal-data
+  portal-logs:
+    name: shahin-portal-logs

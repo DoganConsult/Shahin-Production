@@ -1,0 +1,91 @@
+# ══════════════════════════════════════════════════════════════
+# Cloudflare Tunnel Configuration - Shahin AI
+# ══════════════════════════════════════════════════════════════
+# Place this file at: ~/.cloudflared/config.yml on your server
+#
+# Commands:
+#   Create tunnel: cloudflared tunnel create shahin-grc
+#   Run tunnel: cloudflared tunnel run shahin-grc
+#   Check status: cloudflared tunnel info shahin-grc
+#
+# Domain Structure:
+#   www.shahin-ai.com     → Landing Page (React) → Port 3000
+#   portal.shahin-ai.com  → GRC Portal (ASP.NET) → Port 5000
+#   staging.shahin-ai.com → Staging              → Port 5001
+#   dev/demo/test         → Development          → Port 5002
+# ══════════════════════════════════════════════════════════════
+
+tunnel: shahin-grc  # Replace with your tunnel ID/name
+credentials-file: /home/dogan/.cloudflared/credentials.json
+
+ingress:
+  # ══════════════════════════════════════════════════════════════
+  # LANDING PAGE - www.shahin-ai.com (Marketing/Public Site)
+  # React SPA - From the Kingdom to the World
+  # Port 3000 - Docker container: shahin-landing
+  # ══════════════════════════════════════════════════════════════
+  - hostname: www.shahin-ai.com
+    service: http://localhost:3000
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+
+  - hostname: shahin-ai.com
+    service: http://localhost:3000
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+
+  # ══════════════════════════════════════════════════════════════
+  # PRODUCTION APP - portal.shahin-ai.com (User Access)
+  # Main application access for authenticated users
+  # ══════════════════════════════════════════════════════════════
+  - hostname: portal.shahin-ai.com
+    service: http://localhost:5000
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+
+  # ══════════════════════════════════════════════════════════════
+  # STAGING - staging.shahin-ai.com → Port 5001
+  # ══════════════════════════════════════════════════════════════
+  - hostname: staging.shahin-ai.com
+    service: http://localhost:5001
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+
+  # ══════════════════════════════════════════════════════════════
+  # DEVELOPMENT/TEST/DEMO - Port 5002
+  # ══════════════════════════════════════════════════════════════
+  - hostname: dev.shahin-ai.com
+    service: http://localhost:5002
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+
+  - hostname: test.shahin-ai.com
+    service: http://localhost:5002
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+
+  - hostname: demo.shahin-ai.com
+    service: http://localhost:5002
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+
+  # ══════════════════════════════════════════════════════════════
+  # TENANT SUBDOMAINS - *.shahin-ai.com → Port 5000 (Production)
+  # Wildcard for multi-tenant subdomains (e.g., acme.shahin-ai.com)
+  # Must be LAST before catch-all (specific rules take precedence)
+  # ══════════════════════════════════════════════════════════════
+  - hostname: "*.shahin-ai.com"
+    service: http://localhost:5000
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+
+  # Catch-all (required)
+  - service: http_status:404

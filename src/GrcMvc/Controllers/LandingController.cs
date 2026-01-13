@@ -1010,52 +1010,7 @@ public class LandingController : Controller
         return View();
     }
 
-    // ========== DOGAN CONSULT PAGES ==========
-
-    /// <summary>
-    /// Dogan Consult main company page
-    /// </summary>
-    [Route("/dogan-consult")]
-    public IActionResult DoganConsult()
-    {
-        return View();
-    }
-
-    /// <summary>
-    /// Dogan Consult Arabic profile
-    /// </summary>
-    [Route("/dogan-consult/ar")]
-    public IActionResult DoganConsultArabic()
-    {
-        return View();
-    }
-
-    /// <summary>
-    /// Dogan Consult - Telecommunications Engineering
-    /// </summary>
-    [Route("/dogan-consult/telecommunications")]
-    public IActionResult DoganTelecommunications()
-    {
-        return View();
-    }
-
-    /// <summary>
-    /// Dogan Consult - Data Centers
-    /// </summary>
-    [Route("/dogan-consult/data-centers")]
-    public IActionResult DoganDataCenters()
-    {
-        return View();
-    }
-
-    /// <summary>
-    /// Dogan Consult - Cybersecurity
-    /// </summary>
-    [Route("/dogan-consult/cybersecurity")]
-    public IActionResult DoganCybersecurity()
-    {
-        return View();
-    }
+    // DoganConsult pages moved to C:\DoganConsultOffice
 
     #region Private Helpers
 

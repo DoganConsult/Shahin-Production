@@ -91,6 +91,9 @@
     <!-- API Documentation -->
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="YamlDotNet" Version="15.1.4" />
+
+    <!-- Application Performance Monitoring (APM) -->
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
   </ItemGroup>
 
   <!-- Localization Resources -->

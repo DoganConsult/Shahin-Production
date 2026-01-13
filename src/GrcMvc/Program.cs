@@ -291,6 +291,96 @@ builder.Services.AddScoped<GrcMvc.Filters.ApiExceptionFilterAttribute>();
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
 
+// ══════════════════════════════════════════════════════════════
+// SWAGGER / OPENAPI DOCUMENTATION
+// ══════════════════════════════════════════════════════════════
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Shahin GRC API",
+        Version = "v1",
+        Description = "Governance, Risk, and Compliance Platform API",
+        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        {
+            Name = "Shahin AI Support",
+            Email = "support@shahin-ai.com",
+            Url = new Uri("https://shahin-ai.com")
+        }
+    });
+
+    // JWT Bearer authentication in Swagger
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token.",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// ══════════════════════════════════════════════════════════════
+// RESPONSE COMPRESSION (gzip, brotli)
+// ══════════════════════════════════════════════════════════════
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProvider>();
+    options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.GzipCompressionProvider>();
+    options.MimeTypes = Microsoft.AspNetCore.ResponseCompression.ResponseCompressionDefaults.MimeTypes.Concat(
+        new[] { "application/json", "text/html", "text/css", "application/javascript", "image/svg+xml" });
+});
+
+builder.Services.Configure<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Fastest;
+});
+
+builder.Services.Configure<Microsoft.AspNetCore.ResponseCompression.GzipCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.SmallestSize;
+});
+
+// ══════════════════════════════════════════════════════════════
+// APPLICATION INSIGHTS (APM / Telemetry)
+// ══════════════════════════════════════════════════════════════
+var appInsightsConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+if (!string.IsNullOrEmpty(appInsightsConnectionString))
+{
+    builder.Services.AddApplicationInsightsTelemetry(options =>
+    {
+        options.ConnectionString = appInsightsConnectionString;
+    });
+    Console.WriteLine("[APM] Application Insights telemetry enabled");
+}
+else
+{
+    // Enable basic telemetry without Azure connection (local development)
+    builder.Services.AddApplicationInsightsTelemetry(options =>
+    {
+        options.EnableAdaptiveSampling = false; // Disable in dev
+        options.DeveloperMode = builder.Environment.IsDevelopment();
+    });
+    Console.WriteLine("[APM] Application Insights running in development mode (no Azure connection)");
+}
+
 // Bind strongly-typed configuration
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection(JwtSettings.SectionName));
@@ -303,6 +393,12 @@ builder.Services.Configure<EmailSettings>(
 
 builder.Services.Configure<SiteSettings>(
     builder.Configuration.GetSection(SiteSettings.SectionName));
+
+// Rate Limiting & Fraud Detection Configuration
+builder.Services.Configure<GrcMvc.Services.Security.RateLimitingOptions>(
+    builder.Configuration.GetSection(GrcMvc.Services.Security.RateLimitingOptions.SectionName));
+builder.Services.Configure<GrcMvc.Services.Security.FraudDetectionOptions>(
+    builder.Configuration.GetSection(GrcMvc.Services.Security.FraudDetectionOptions.SectionName));
 
 // Register SiteSettings service
 builder.Services.AddScoped<ISiteSettingsService, SiteSettingsService>();
@@ -390,36 +486,47 @@ builder.Services.AddDataProtection()
     .SetApplicationName("GrcMvc")
     .SetDefaultKeyLifetime(TimeSpan.FromDays(90));
 
-// Add Rate Limiting to prevent abuse
+// Add Rate Limiting to prevent abuse (configurable via appsettings.json)
+var rateLimitConfig = builder.Configuration.GetSection(GrcMvc.Services.Security.RateLimitingOptions.SectionName)
+    .Get<GrcMvc.Services.Security.RateLimitingOptions>() ?? new GrcMvc.Services.Security.RateLimitingOptions();
+
 builder.Services.AddRateLimiter(options =>
 {
-    // Global rate limit per IP/User
+    // Global rate limit per IP/User - uses ApiRequests config
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: context.User?.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             factory: partition => new FixedWindowRateLimiterOptions
             {
                 AutoReplenishment = true,
-                PermitLimit = 500, // Increased from 100 to handle legitimate traffic
-                QueueLimit = 10,
-                Window = TimeSpan.FromMinutes(1)
+                PermitLimit = rateLimitConfig.ApiRequests.PermitLimit,
+                QueueLimit = rateLimitConfig.ApiRequests.QueueLimit,
+                Window = rateLimitConfig.ApiRequests.Window
             }));
 
     // API endpoints - stricter limits
     options.AddFixedWindowLimiter("api", limiterOptions =>
     {
-        limiterOptions.PermitLimit = 30;
-        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.PermitLimit = rateLimitConfig.ApiRequests.PermitLimit;
+        limiterOptions.Window = rateLimitConfig.ApiRequests.Window;
         limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        limiterOptions.QueueLimit = 5;
+        limiterOptions.QueueLimit = rateLimitConfig.ApiRequests.QueueLimit;
     });
 
     // Authentication endpoints - prevent brute force
     options.AddFixedWindowLimiter("auth", limiterOptions =>
     {
-        limiterOptions.PermitLimit = 5;
-        limiterOptions.Window = TimeSpan.FromMinutes(5);
-        limiterOptions.QueueLimit = 0;
+        limiterOptions.PermitLimit = rateLimitConfig.Login.PermitLimit;
+        limiterOptions.Window = rateLimitConfig.Login.Window;
+        limiterOptions.QueueLimit = rateLimitConfig.Login.QueueLimit;
+    });
+
+    // Trial registration - very strict limits
+    options.AddFixedWindowLimiter("trial", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = rateLimitConfig.TrialRegistration.PermitLimit;
+        limiterOptions.Window = rateLimitConfig.TrialRegistration.Window;
+        limiterOptions.QueueLimit = rateLimitConfig.TrialRegistration.QueueLimit;
     });
 
     options.OnRejected = async (context, token) =>
@@ -1350,6 +1457,9 @@ using (var scope = app.Services.CreateScope())
 // 11. MIDDLEWARE PIPELINE
 // =============================================================================
 
+// Response Compression (must be early in pipeline, before other middleware that might write to the response)
+app.UseResponseCompression();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -1359,6 +1469,16 @@ else
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
+// Swagger UI (available in all environments for API documentation)
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Shahin GRC API v1");
+    options.RoutePrefix = "api-docs"; // Access at /api-docs
+    options.DocumentTitle = "Shahin GRC API Documentation";
+    options.DefaultModelsExpandDepth(-1); // Hide schemas by default
+});
 
 // Global Exception Handling (must be early in pipeline)
 app.UseMiddleware<GrcMvc.Middleware.GlobalExceptionMiddleware>();

@@ -65,6 +65,17 @@ public class HomeController : Controller
         return View();
     }
 
+    /// <summary>
+    /// World-Class Public Homepage - Marketing Landing Page
+    /// Route: /Home/Public or /public
+    /// </summary>
+    [Route("public")]
+    [Route("Home/Public")]
+    public IActionResult IndexPublic()
+    {
+        return View();
+    }
+
     public IActionResult ManageTenants()
     {
         // Return empty list - will be populated by JavaScript/API
