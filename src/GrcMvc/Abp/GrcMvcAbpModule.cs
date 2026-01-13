@@ -1,5 +1,6 @@
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
+using Volo.Abp.AspNetCore.MultiTenancy;
 using Volo.Abp.Autofac;
 using Volo.Abp.AuditLogging;
 using Volo.Abp.EntityFrameworkCore;
@@ -7,6 +8,9 @@ using Volo.Abp.EntityFrameworkCore.PostgreSql;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
 using Volo.Abp.Modularity;
+using Volo.Abp.MultiTenancy;
+using Volo.Abp.OpenIddict;
+using Volo.Abp.PermissionManagement;
 using Volo.Abp.TenantManagement;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,10 +20,11 @@ namespace GrcMvc.Abp;
 /// ABP Framework Module for Shahin GRC Platform
 ///
 /// This module integrates ABP's enterprise features:
-/// - Multi-tenancy with tenant isolation
+/// - Multi-tenancy with tenant isolation (subdomain-based)
+/// - OpenIddict SSO Server for enterprise authentication
 /// - Audit logging for compliance
 /// - Feature management per tenant/edition
-/// - Identity management foundation
+/// - Identity and permission management
 ///
 /// All packages used are FREE open-source (no license required)
 /// </summary>
@@ -32,9 +37,17 @@ namespace GrcMvc.Abp;
     typeof(AbpEntityFrameworkCoreModule),
     typeof(AbpEntityFrameworkCorePostgreSqlModule),
 
-    // Multi-tenancy & Features
+    // Multi-tenancy
+    typeof(AbpAspNetCoreMultiTenancyModule),
     typeof(AbpTenantManagementDomainModule),
+
+    // OpenIddict SSO
+    typeof(AbpOpenIddictDomainModule),
+    typeof(AbpOpenIddictAspNetCoreModule),
+
+    // Features & Permissions
     typeof(AbpFeatureManagementDomainModule),
+    typeof(AbpPermissionManagementDomainModule),
 
     // Identity & Audit
     typeof(AbpIdentityDomainModule),
@@ -44,7 +57,16 @@ public class GrcMvcAbpModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
-        // Pre-configuration before services are registered
+        // Configure OpenIddict
+        PreConfigure<OpenIddictBuilder>(builder =>
+        {
+            builder.AddValidation(options =>
+            {
+                options.AddAudiences("GrcMvc");
+                options.UseLocalServer();
+                options.UseAspNetCore();
+            });
+        });
     }
 
     public override void ConfigureServices(ServiceConfigurationContext context)
@@ -57,8 +79,22 @@ public class GrcMvcAbpModule : AbpModule
             options.UseNpgsql();
         });
 
-        // Multi-tenancy is handled by existing TenantResolutionMiddleware
-        // Features are defined in GrcFeatureDefinitionProvider
+        // Configure Multi-Tenancy
+        Configure<AbpTenantResolveOptions>(options =>
+        {
+            // Tenant resolution order (first match wins):
+            // 1. Subdomain (e.g., acme.shahin-ai.com)
+            // 2. Header (X-Tenant-Id)
+            // 3. Query string (?__tenant=acme)
+            // 4. Cookie
+            options.TenantResolvers.Insert(0, new DomainTenantResolveContributor("{0}.shahin-ai.com"));
+        });
+
+        // Configure OpenIddict Server
+        Configure<AbpOpenIddictAspNetCoreOptions>(options =>
+        {
+            options.AddDevelopmentEncryptionAndSigningCertificate = true;
+        });
 
         // Register ABP services with existing DI container
         context.Services.AddSingleton<IFeatureCheckService, FeatureCheckService>();
@@ -69,8 +105,11 @@ public class GrcMvcAbpModule : AbpModule
         var app = context.GetApplicationBuilder();
         var env = context.GetEnvironment();
 
+        // ABP Multi-tenancy middleware (integrated with existing pipeline)
+        app.UseMultiTenancy();
+
         // ABP middleware is integrated with existing pipeline
-        // No additional middleware needed - existing GRC middleware handles routing
+        // Existing TenantResolutionMiddleware continues to work alongside ABP's
     }
 
     public override void OnPostApplicationInitialization(ApplicationInitializationContext context)
