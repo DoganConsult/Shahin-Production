@@ -1,0 +1,554 @@
+@{
+    ViewData["Title"] = ViewData["AgentName"];
+    var agentCode = ViewData["AgentCode"] as string;
+    var agentName = ViewData["AgentName"] as string;
+    var agentRole = ViewData["AgentRole"] as string;
+    var oversightBy = ViewData["OversightBy"] as string;
+}
+
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    <partial name="Components/_ShahinBreadcrumb" model='new {
+        Items = new[] {
+            new { Text = "Agents", Url = "/Agent" },
+            new { Text = agentName, Url = "" }
+        }
+    }' />
+
+    <!-- Agent Header -->
+    <div class="agent-detail-header mb-5">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center gap-4">
+                    <partial name="Components/_ShahinAvatar" model='new {
+                        Name = agentName,
+                        Size = "xxl",
+                        Status = "online",
+                        ShowBadge = true,
+                        Badge = "🤖"
+                    }' />
+                    <div>
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <h1 class="display-5 mb-0">@agentName</h1>
+                            <span class="shahin-badge shahin-badge-success">
+                                <i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i>
+                                Online
+                            </span>
+                        </div>
+                        <p class="text-muted fs-5 mb-2">@agentRole</p>
+                        <p class="text-muted">
+                            <i class="bi bi-shield-check"></i>
+                            Oversight: <strong>@oversightBy</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="shahin-btn shahin-btn-lg shahin-btn-primary mb-2">
+                    <i class="bi bi-chat-dots-fill"></i>
+                    Start Conversation
+                </button>
+                <br />
+                <button class="shahin-btn shahin-btn-secondary">
+                    <i class="bi bi-gear-fill"></i>
+                    Configure Agent
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <partial name="Components/_ShahinTabs" model='new {
+        Id = "agentTabs",
+        Variant = "pills",
+        Tabs = new[] {
+            new {
+                Title = "Overview",
+                Icon = "house",
+                Active = true,
+                Content = Html.Raw($@"
+                    <div class=\"row g-4\">
+                        <!-- Performance Stats -->
+                        <div class=\"col-md-3\">
+                            <div class=\"stat-card\">
+                                <div class=\"stat-card-icon primary\">
+                                    <i class=\"bi bi-check-circle-fill\"></i>
+                                </div>
+                                <div class=\"mt-3\">
+                                    <p class=\"stat-card-label\">Tasks Completed</p>
+                                    <h3 class=\"stat-card-value\">1,543</h3>
+                                    <p class=\"stat-card-change positive\">
+                                        <i class=\"bi bi-arrow-up\"></i> +15% this week
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class=\"col-md-3\">
+                            <div class=\"stat-card\">
+                                <div class=\"stat-card-icon success\">
+                                    <i class=\"bi bi-speedometer2\"></i>
+                                </div>
+                                <div class=\"mt-3\">
+                                    <p class=\"stat-card-label\">Avg Response</p>
+                                    <h3 class=\"stat-card-value\">0.8s</h3>
+                                    <p class=\"stat-card-change positive\">
+                                        <i class=\"bi bi-arrow-down\"></i> -0.2s faster
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class=\"col-md-3\">
+                            <div class=\"stat-card\">
+                                <div class=\"stat-card-icon warning\">
+                                    <i class=\"bi bi-graph-up\"></i>
+                                </div>
+                                <div class=\"mt-3\">
+                                    <p class=\"stat-card-label\">Success Rate</p>
+                                    <h3 class=\"stat-card-value\">99.2%</h3>
+                                    <p class=\"stat-card-change positive\">
+                                        <i class=\"bi bi-arrow-up\"></i> +1.5%
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class=\"col-md-3\">
+                            <div class=\"stat-card\">
+                                <div class=\"stat-card-icon danger\">
+                                    <i class=\"bi bi-lightning-charge-fill\"></i>
+                                </div>
+                                <div class=\"mt-3\">
+                                    <p class=\"stat-card-label\">Token Usage</p>
+                                    <h3 class=\"stat-card-value\">2.3M</h3>
+                                    <p class=\"stat-card-change neutral\">
+                                        <i class=\"bi bi-dash\"></i> Normal
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity Timeline -->
+                    <div class=\"mt-5\">
+                        <h3 class=\"mb-4\">Recent Activity</h3>
+                        " + RenderTimelineComponent() + @"
+                    </div>
+                ")
+            },
+            new {
+                Title = "Chat Interface",
+                Icon = "chat-dots",
+                Active = false,
+                Content = Html.Raw(@"
+                    <div class=\"agent-chat-container\">
+                        <div class=\"agent-chat-messages\" id=\"chatMessages\">
+                            <div class=\"agent-message assistant\">
+                                <div class=\"agent-message-avatar\">
+                                    <i class=\"bi bi-robot\"></i>
+                                </div>
+                                <div class=\"agent-message-content\">
+                                    <div class=\"agent-message-header\">
+                                        <strong>" + agentName + @"</strong>
+                                        <span class=\"text-muted\">2 minutes ago</span>
+                                    </div>
+                                    <div class=\"agent-message-text\">
+                                        Hello! I'm " + agentName + @" (" + agentCode + @"). How can I assist you today?
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class=\"agent-chat-input\">
+                            <textarea class=\"shahin-form-input\" rows=\"3\" placeholder=\"Type your message...\" id=\"chatInput\"></textarea>
+                            <div class=\"d-flex justify-content-between mt-3\">
+                                <div>
+                                    <button class=\"shahin-btn shahin-btn-ghost shahin-btn-sm\">
+                                        <i class=\"bi bi-paperclip\"></i>
+                                        Attach
+                                    </button>
+                                    <button class=\"shahin-btn shahin-btn-ghost shahin-btn-sm\">
+                                        <i class=\"bi bi-mic-fill\"></i>
+                                        Voice
+                                    </button>
+                                </div>
+                                <button class=\"shahin-btn shahin-btn-primary\" onclick=\"sendMessage()\">
+                                    <i class=\"bi bi-send-fill\"></i>
+                                    Send
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ")
+            },
+            new {
+                Title = "Configuration",
+                Icon = "gear",
+                Active = false,
+                Content = Html.Raw(@"
+                    <div class=\"row\">
+                        <div class=\"col-md-6\">
+                            <div class=\"shahin-card\">
+                                <div class=\"shahin-card-header\">
+                                    <h4 class=\"shahin-card-title\">Agent Settings</h4>
+                                </div>
+                                <div class=\"shahin-card-body\">
+                                    <div class=\"mb-4\">
+                                        <label class=\"shahin-form-label\">Temperature</label>
+                                        <input type=\"range\" class=\"form-range\" min=\"0\" max=\"1\" step=\"0.1\" value=\"0.7\">
+                                        <small class=\"text-muted\">Controls randomness (0 = focused, 1 = creative)</small>
+                                    </div>
+                                    <div class=\"mb-4\">
+                                        <label class=\"shahin-form-label\">Max Tokens</label>
+                                        <input type=\"number\" class=\"shahin-form-input\" value=\"4096\">
+                                    </div>
+                                    <div class=\"mb-4\">
+                                        <label class=\"shahin-form-label\">Context Window</label>
+                                        <select class=\"shahin-form-select\">
+                                            <option>200K tokens</option>
+                                            <option selected>180K tokens (recommended)</option>
+                                            <option>100K tokens</option>
+                                        </select>
+                                    </div>
+                                    <div class=\"shahin-form-check\">
+                                        <input type=\"checkbox\" class=\"shahin-form-check-input\" id=\"enableLogging\" checked>
+                                        <label class=\"shahin-form-check-label\" for=\"enableLogging\">
+                                            Enable detailed logging
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class=\"shahin-card-footer\">
+                                    <button class=\"shahin-btn shahin-btn-primary\">Save Configuration</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class=\"col-md-6\">
+                            <div class=\"shahin-card\">
+                                <div class=\"shahin-card-header\">
+                                    <h4 class=\"shahin-card-title\">Permissions & Access</h4>
+                                </div>
+                                <div class=\"shahin-card-body\">
+                                    <p class=\"text-muted mb-3\">Who can access this agent:</p>
+                                    <div class=\"mb-3\">
+                                        <div class=\"shahin-form-check\">
+                                            <input type=\"checkbox\" class=\"shahin-form-check-input\" id=\"role1\" checked>
+                                            <label class=\"shahin-form-check-label\" for=\"role1\">Platform Admin</label>
+                                        </div>
+                                        <div class=\"shahin-form-check\">
+                                            <input type=\"checkbox\" class=\"shahin-form-check-input\" id=\"role2\" checked>
+                                            <label class=\"shahin-form-check-label\" for=\"role2\">" + oversightBy + @"</label>
+                                        </div>
+                                        <div class=\"shahin-form-check\">
+                                            <input type=\"checkbox\" class=\"shahin-form-check-input\" id=\"role3\">
+                                            <label class=\"shahin-form-check-label\" for=\"role3\">GRC Manager</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ")
+            },
+            new {
+                Title = "Analytics",
+                Icon = "graph-up",
+                Active = false,
+                Content = Html.Raw(@"
+                    <div class=\"row g-4\">
+                        <div class=\"col-12\">
+                            <div class=\"shahin-card\">
+                                <div class=\"shahin-card-header\">
+                                    <h4 class=\"shahin-card-title\">Performance Trends (Last 30 Days)</h4>
+                                </div>
+                                <div class=\"shahin-card-body\">
+                                    <p class=\"text-center text-muted py-5\">
+                                        <i class=\"bi bi-graph-up\" style=\"font-size: 3rem;\"></i><br />
+                                        Chart.js visualization will be rendered here
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class=\"col-md-6\">
+                            <div class=\"shahin-card\">
+                                <div class=\"shahin-card-header\">
+                                    <h4 class=\"shahin-card-title\">Task Distribution</h4>
+                                </div>
+                                <div class=\"shahin-card-body\">
+                                    <div class=\"mb-3\">
+                                        <div class=\"d-flex justify-content-between mb-2\">
+                                            <span>Successful</span>
+                                            <strong>92%</strong>
+                                        </div>
+                                        " + RenderProgressBar(92, "success") + @"
+                                    </div>
+                                    <div class=\"mb-3\">
+                                        <div class=\"d-flex justify-content-between mb-2\">
+                                            <span>In Progress</span>
+                                            <strong>5%</strong>
+                                        </div>
+                                        " + RenderProgressBar(5, "warning") + @"
+                                    </div>
+                                    <div>
+                                        <div class=\"d-flex justify-content-between mb-2\">
+                                            <span>Failed</span>
+                                            <strong>3%</strong>
+                                        </div>
+                                        " + RenderProgressBar(3, "danger") + @"
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class=\"col-md-6\">
+                            <div class=\"shahin-card\">
+                                <div class=\"shahin-card-header\">
+                                    <h4 class=\"shahin-card-title\">Top Collaborators</h4>
+                                </div>
+                                <div class=\"shahin-card-body\">
+                                    <p class=\"text-muted\">Other agents this agent frequently works with:</p>
+                                    <div class=\"d-flex flex-column gap-2\">
+                                        <div class=\"d-flex justify-content-between\">
+                                            <span>RISK_AGENT</span>
+                                            <span class=\"shahin-badge shahin-badge-warning\">234 tasks</span>
+                                        </div>
+                                        <div class=\"d-flex justify-content-between\">
+                                            <span>COMPLIANCE_AGENT</span>
+                                            <span class=\"shahin-badge shahin-badge-success\">187 tasks</span>
+                                        </div>
+                                        <div class=\"d-flex justify-content-between\">
+                                            <span>AUDIT_AGENT</span>
+                                            <span class=\"shahin-badge shahin-badge-info\">145 tasks</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ")
+            },
+            new {
+                Title = "History",
+                Icon = "clock-history",
+                Active = false,
+                Content = Html.Raw(@"
+                    <div class=\"shahin-card\">
+                        <div class=\"shahin-card-header\">
+                            <h4 class=\"shahin-card-title\">Task History</h4>
+                        </div>
+                        <div class=\"shahin-card-body\">
+                            " + RenderTaskHistoryTable() + @"
+                        </div>
+                    </div>
+                ")
+            }
+        }
+    }' />
+
+</div>
+
+<style>
+    .agent-detail-header {
+        background: linear-gradient(135deg, var(--shahin-primary-light), var(--shahin-secondary-light));
+        padding: var(--shahin-space-8);
+        border-radius: var(--shahin-radius-lg);
+        margin-top: var(--shahin-space-4);
+    }
+
+    .agent-chat-container {
+        background: var(--shahin-white);
+        border: 1px solid var(--shahin-gray-200);
+        border-radius: var(--shahin-radius-lg);
+        height: 600px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .agent-chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: var(--shahin-space-6);
+        display: flex;
+        flex-direction: column;
+        gap: var(--shahin-space-4);
+    }
+
+    .agent-message {
+        display: flex;
+        gap: var(--shahin-space-3);
+    }
+
+    .agent-message-avatar {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        background: var(--shahin-primary-light);
+        color: var(--shahin-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--shahin-font-size-lg);
+        flex-shrink: 0;
+    }
+
+    .agent-message-content {
+        flex: 1;
+        max-width: 70%;
+    }
+
+    .agent-message-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: var(--shahin-space-1);
+        font-size: var(--shahin-font-size-sm);
+    }
+
+    .agent-message-text {
+        background: var(--shahin-gray-50);
+        padding: var(--shahin-space-3) var(--shahin-space-4);
+        border-radius: var(--shahin-radius-base);
+        font-size: var(--shahin-font-size-sm);
+        line-height: var(--shahin-line-height-normal);
+    }
+
+    .agent-chat-input {
+        border-top: 1px solid var(--shahin-gray-200);
+        padding: var(--shahin-space-4);
+        background: var(--shahin-gray-50);
+    }
+</style>
+
+@@section Scripts {
+    <script>
+        function sendMessage() {
+            var input = document.getElementById('chatInput');
+            var message = input.value.trim();
+            if (!message) return;
+
+            var messagesDiv = document.getElementById('chatMessages');
+
+            // Add user message
+            var userMsg = document.createElement('div');
+            userMsg.className = 'agent-message user';
+            userMsg.innerHTML = `
+                <div class="agent-message-content">
+                    <div class="agent-message-header">
+                        <strong>You</strong>
+                        <span class="text-muted">Just now</span>
+                    </div>
+                    <div class="agent-message-text" style="background: var(--shahin-primary-light);">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            messagesDiv.appendChild(userMsg);
+
+            input.value = '';
+
+            // Scroll to bottom
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            // Simulate agent response
+            setTimeout(function() {
+                var agentMsg = document.createElement('div');
+                agentMsg.className = 'agent-message assistant';
+                agentMsg.innerHTML = `
+                    <div class="agent-message-avatar">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <div class="agent-message-content">
+                        <div class="agent-message-header">
+                            <strong>@agentName</strong>
+                            <span class="text-muted">Just now</span>
+                        </div>
+                        <div class="agent-message-text">
+                            I'm processing your request: "${message}"
+                        </div>
+                    </div>
+                `;
+                messagesDiv.appendChild(agentMsg);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 1000);
+        }
+
+        // Enter to send
+        document.getElementById('chatInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+}
+
+@@functions {
+    string RenderTimelineComponent()
+    {
+        return @"<div class=\"shahin-timeline\">
+            <div class=\"shahin-timeline-item\">
+                <div class=\"shahin-timeline-marker shahin-timeline-marker-success\">
+                    <i class=\"bi bi-check-circle-fill\"></i>
+                </div>
+                <div class=\"shahin-timeline-content\">
+                    <div class=\"shahin-timeline-header\">
+                        <h4 class=\"shahin-timeline-title\">Completed Risk Analysis</h4>
+                        <span class=\"shahin-timeline-date\">2 hours ago</span>
+                    </div>
+                    <p class=\"shahin-timeline-description\">Analyzed 15 high-priority risks and generated mitigation recommendations</p>
+                </div>
+            </div>
+            <div class=\"shahin-timeline-item\">
+                <div class=\"shahin-timeline-marker shahin-timeline-marker-info\">
+                    <i class=\"bi bi-info-circle-fill\"></i>
+                </div>
+                <div class=\"shahin-timeline-content\">
+                    <div class=\"shahin-timeline-header\">
+                        <h4 class=\"shahin-timeline-title\">Generated Compliance Report</h4>
+                        <span class=\"shahin-timeline-date\">5 hours ago</span>
+                    </div>
+                    <p class=\"shahin-timeline-description\">Created NCA ECC compliance gap analysis report in Arabic</p>
+                </div>
+            </div>
+        </div>";
+    }
+
+    string RenderProgressBar(int value, string type)
+    {
+        return $"<div class=\"shahin-progress\"><div class=\"shahin-progress-bar shahin-progress-bar-{type}\" style=\"width: {value}%\"></div></div>";
+    }
+
+    string RenderTaskHistoryTable()
+    {
+        return @"<div class=\"shahin-table-container\">
+            <table class=\"shahin-table\">
+                <thead>
+                    <tr>
+                        <th>Task ID</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Duration</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>TSK-1543</td>
+                        <td>Risk Analysis</td>
+                        <td><span class=\"shahin-badge shahin-badge-success\">Completed</span></td>
+                        <td>1.2s</td>
+                        <td>2024-01-15 14:32</td>
+                    </tr>
+                    <tr>
+                        <td>TSK-1542</td>
+                        <td>Compliance Check</td>
+                        <td><span class=\"shahin-badge shahin-badge-success\">Completed</span></td>
+                        <td>0.9s</td>
+                        <td>2024-01-15 14:15</td>
+                    </tr>
+                    <tr>
+                        <td>TSK-1541</td>
+                        <td>Policy Review</td>
+                        <td><span class=\"shahin-badge shahin-badge-warning\">In Progress</span></td>
+                        <td>-</td>
+                        <td>2024-01-15 14:00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>";
+    }
+}
