@@ -422,6 +422,24 @@ namespace GrcMvc.Data
         // Workflow Transitions (Audit Trail)
         public DbSet<Models.Workflows.WorkflowTransition> WorkflowTransitions { get; set; } = null!;
 
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // Engagement & Next Best Action (NBA) - Fullplan Specification Implementation
+        // ═══════════════════════════════════════════════════════════════════════════════
+        public DbSet<NextBestActionRecommendation> NextBestActionRecommendations { get; set; } = null!;
+        public DbSet<ProgressCertaintyIndex> ProgressCertaintyIndexes { get; set; } = null!;
+        public DbSet<EngagementMetrics> EngagementMetrics { get; set; } = null!;
+        public DbSet<MotivationScore> MotivationScores { get; set; } = null!;
+        public DbSet<ConditionalLogicRule> ConditionalLogicRules { get; set; } = null!;
+        public DbSet<RuleEvaluation> RuleEvaluations { get; set; } = null!;
+        public DbSet<EvidenceConfidenceScore> EvidenceConfidenceScores { get; set; } = null!;
+        public DbSet<AgentEventTrigger> AgentEventTriggers { get; set; } = null!;
+        public DbSet<AgentTriggerExecution> AgentTriggerExecutions { get; set; } = null!;
+        public DbSet<AgentCommunicationContract> AgentCommunicationContracts { get; set; } = null!;
+        public DbSet<Services.Implementations.AgentMessage> AgentMessages { get; set; } = null!;
+        public DbSet<Services.Implementations.UserActivity> UserActivities { get; set; } = null!;
+        public DbSet<Services.Implementations.Badge> Badges { get; set; } = null!;
+        public DbSet<Services.Implementations.UserBadge> UserBadges { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
