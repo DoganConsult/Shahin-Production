@@ -128,17 +128,17 @@
 }
 </style>
 
-<script>
+<script nonce="@ViewData["CSPNonce"]">
 // Form Validation Helper
 window.GrcFormValidation = {
     messages: {
-        required: '@Html.Raw(L["Validation_Required"].Value)',
-        email: '@Html.Raw(L["Validation_InvalidEmail"].Value)',
-        phone: '@Html.Raw(L["Validation_InvalidPhone"].Value)',
-        minLength: '@Html.Raw(L["Validation_MinLength"].Value)',
-        maxLength: '@Html.Raw(L["Validation_MaxLength"].Value)',
-        passwordMismatch: '@Html.Raw(L["Validation_PasswordMismatch"].Value)',
-        invalidFormat: '@Html.Raw(L["Validation_InvalidFormat"].Value)'
+        required: @System.Text.Json.JsonSerializer.Serialize(L["Validation_Required"].Value),
+        email: @System.Text.Json.JsonSerializer.Serialize(L["Validation_InvalidEmail"].Value),
+        phone: @System.Text.Json.JsonSerializer.Serialize(L["Validation_InvalidPhone"].Value),
+        minLength: @System.Text.Json.JsonSerializer.Serialize(L["Validation_MinLength"].Value),
+        maxLength: @System.Text.Json.JsonSerializer.Serialize(L["Validation_MaxLength"].Value),
+        passwordMismatch: @System.Text.Json.JsonSerializer.Serialize(L["Validation_PasswordMismatch"].Value),
+        invalidFormat: @System.Text.Json.JsonSerializer.Serialize(L["Validation_InvalidFormat"].Value)
     },
 
     // Initialize validation on a form

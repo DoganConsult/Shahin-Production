@@ -287,10 +287,10 @@
             new Chart(trendCtx, {
                 type: 'line',
                 data: {
-                    labels: @Html.Raw(Json.Serialize(Model.OrderBy(a => a.AuditDate).Select(a => a.AuditDate.ToString("MMM yyyy")))),
+                    labels: @System.Text.Json.JsonSerializer.Serialize(Model.OrderBy(a => a.AuditDate).Select(a => a.AuditDate.ToString("MMM yyyy")))),
                     datasets: [{
                         label: 'Findings Count',
-                        data: @Html.Raw(Json.Serialize(Model.OrderBy(a => a.AuditDate).Select(a => a.FindingsCount))),
+                        data: @System.Text.Json.JsonSerializer.Serialize(Model.OrderBy(a => a.AuditDate).Select(a => a.FindingsCount))),
                         borderColor: 'rgb(255, 206, 86)',
                         backgroundColor: 'rgba(255, 206, 86, 0.1)',
                         tension: 0.1

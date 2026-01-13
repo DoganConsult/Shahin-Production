@@ -156,7 +156,7 @@
             {
                 <text>
                 var ctx = document.getElementById('typeChart').getContext('2d');
-                var typeData = @Html.Raw(Json.Serialize(stats.ControlsByType));
+                var typeData = @System.Text.Json.JsonSerializer.Serialize(stats.ControlsByType));
 
                 new Chart(ctx, {
                     type: 'doughnut',
