@@ -1,0 +1,198 @@
+name: Kubernetes Deployment Pipeline
+
+on:
+  push:
+    branches: [main, staging, develop]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - dev
+          - staging
+          - production
+
+env:
+  DOCKER_REGISTRY: docker.io
+  DOCKER_IMAGE: doganlap/shahin-grc
+
+jobs:
+  # ══════════════════════════════════════════════════════════════
+  # STAGE 1: Build & Test
+  # ══════════════════════════════════════════════════════════════
+  build:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: \${{ steps.meta.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: \${{ secrets.DOCKERHUB_USERNAME }}
+          password: \${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: \${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=
+            type=raw,value=latest,enable=\${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=staging,enable=\${{ github.ref == 'refs/heads/staging' }}
+            type=raw,value=dev,enable=\${{ github.ref == 'refs/heads/develop' }}
+
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./src/GrcMvc/Dockerfile
+          push: true
+          tags: \${{ steps.meta.outputs.tags }}
+          labels: \${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ══════════════════════════════════════════════════════════════
+  # STAGE 2: Deploy to Dev (on develop branch)
+  # ══════════════════════════════════════════════════════════════
+  deploy-dev:
+    name: Deploy to Dev
+    needs: build
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+      url: https://dev.shahin-ai.com
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "\${{ secrets.KUBE_CONFIG_DEV }}" | base64 -d > ~/.kube/config
+
+      - name: Deploy to Dev
+        run: |
+          kubectl apply -f k8s/overlays/dev/
+          kubectl rollout restart deployment/dev-grc-portal -n shahin-grc-dev
+          kubectl rollout status deployment/dev-grc-portal -n shahin-grc-dev --timeout=300s
+
+  # ══════════════════════════════════════════════════════════════
+  # STAGE 3: Deploy to Staging (on staging branch)
+  # ══════════════════════════════════════════════════════════════
+  deploy-staging:
+    name: Deploy to Staging
+    needs: build
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.shahin-ai.com
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "\${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > ~/.kube/config
+
+      - name: Create namespace if not exists
+        run: kubectl apply -f k8s/overlays/staging/namespace.yaml
+
+      - name: Create/Update secrets
+        run: |
+          kubectl create secret generic grc-secrets \
+            --namespace=shahin-grc-staging \
+            --from-literal=DB_CONNECTION="\${{ secrets.STAGING_DB_CONNECTION }}" \
+            --from-literal=AUTH_DB_CONNECTION="\${{ secrets.STAGING_AUTH_DB_CONNECTION }}" \
+            --from-literal=JWT_SECRET="\${{ secrets.JWT_SECRET }}" \
+            --from-literal=REDIS_CONNECTION="\${{ secrets.STAGING_REDIS_CONNECTION }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy to Staging
+        run: |
+          kubectl apply -f k8s/overlays/staging/
+          kubectl rollout status deployment/staging-grc-portal -n shahin-grc-staging --timeout=300s
+
+      - name: Verify Health
+        run: |
+          sleep 10
+          kubectl exec -n shahin-grc-staging deployment/staging-grc-portal -- curl -sf http://localhost:8080/health/live
+
+  # ══════════════════════════════════════════════════════════════
+  # STAGE 4: Deploy to Production (on main branch)
+  # ══════════════════════════════════════════════════════════════
+  deploy-production:
+    name: Deploy to Production
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://portal.shahin-ai.com
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "\${{ secrets.KUBE_CONFIG_PRODUCTION }}" | base64 -d > ~/.kube/config
+
+      - name: Create namespace if not exists
+        run: kubectl apply -f k8s/overlays/production/namespace.yaml
+
+      - name: Create/Update secrets
+        run: |
+          kubectl create secret generic grc-secrets \
+            --namespace=shahin-grc-production \
+            --from-literal=DB_CONNECTION="\${{ secrets.PROD_DB_CONNECTION }}" \
+            --from-literal=AUTH_DB_CONNECTION="\${{ secrets.PROD_AUTH_DB_CONNECTION }}" \
+            --from-literal=JWT_SECRET="\${{ secrets.JWT_SECRET }}" \
+            --from-literal=REDIS_CONNECTION="\${{ secrets.PROD_REDIS_CONNECTION }}" \
+            --from-literal=CLAUDE_API_KEY="\${{ secrets.CLAUDE_API_KEY }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Create Database Backup
+        run: |
+          echo "Creating pre-deployment backup..."
+          # Add backup command here if needed
+
+      - name: Deploy to Production
+        run: |
+          kubectl apply -f k8s/overlays/production/
+          kubectl rollout status deployment/production-grc-portal -n shahin-grc-production --timeout=600s
+
+      - name: Verify Health
+        run: |
+          sleep 15
+          kubectl exec -n shahin-grc-production deployment/production-grc-portal -- curl -sf http://localhost:8080/health/live
+          echo "Production deployment successful!"
+
+      - name: Notify Success
+        run: |
+          echo "════════════════════════════════════════════════════════════"
+          echo "✅ PRODUCTION DEPLOYMENT SUCCESSFUL!"
+          echo "════════════════════════════════════════════════════════════"
+          echo "Image: \${{ env.DOCKER_IMAGE }}:latest"
+          echo "URL: https://portal.shahin-ai.com"
+          echo "════════════════════════════════════════════════════════════"

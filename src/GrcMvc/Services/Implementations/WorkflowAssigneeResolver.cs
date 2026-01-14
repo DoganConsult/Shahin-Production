@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Services.Interfaces.Workflows;
 using Microsoft.Extensions.Logging;
 
 namespace GrcMvc.Services.Implementations
@@ -13,7 +14,7 @@ namespace GrcMvc.Services.Implementations
     /// <summary>
     /// Resolves workflow task assignees from roles, user IDs, or role codes
     /// </summary>
-    public class WorkflowAssigneeResolver
+    public class WorkflowAssigneeResolver : IWorkflowAssigneeResolver
     {
         private readonly GrcDbContext _context;
         private readonly IUserDirectoryService _userDirectory;

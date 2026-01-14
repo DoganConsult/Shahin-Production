@@ -1,18 +1,20 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GrcMvc.Models.Entities
 {
     /// <summary>
-    /// Trial signup entity - captures initial trial interest from landing pages
+    /// Marketing lead capture entity - captures initial trial interest from landing pages
     /// تسجيل تجربة مجانية من صفحات الهبوط
-    /// 
-    /// This differs from TrialRequest which is the formal trial provisioning entity.
-    /// TrialSignup is for marketing/lead capture, TrialRequest is for actual provisioning.
-    /// 
+    ///
+    /// This differs from TrialSignup (in TrialEntities.cs) which is the formal provisioning entity.
+    /// MarketingTrialLead is for marketing/lead capture, TrialSignup is for actual provisioning.
+    ///
     /// ABP Best Practice: Separate entities for different business concerns
     /// </summary>
-    public class TrialSignup : BaseEntity
+    [Table("MarketingTrialLeads")]
+    public class MarketingTrialLead : BaseEntity
     {
         /// <summary>
         /// Contact email address

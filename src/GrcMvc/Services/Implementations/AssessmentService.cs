@@ -205,21 +205,32 @@ namespace GrcMvc.Services.Implementations
         {
             try
             {
-                var assessments = await _unitOfWork.Assessments.GetAllAsync();
-                var assessmentsList = assessments.ToList();
+                // Use database-level aggregation instead of loading all records into memory
+                var query = _unitOfWork.Assessments.Query();
+                var now = DateTime.UtcNow;
+
+                // Execute all counts in parallel for better performance
+                var totalTask = query.CountAsync();
+                var completedTask = query.CountAsync(a => a.Status == "Completed");
+                var pendingTask = query.CountAsync(a => a.Status == "Scheduled" || a.Status == "InProgress" || a.Status == "In Progress" || a.Status == "Draft");
+                var overdueTask = query.CountAsync(a => a.ScheduledDate < now && a.Status != "Completed");
+                var avgScoreTask = query.Where(a => a.Score > 0).AverageAsync(a => (double?)a.Score);
+                var byTypeTask = query.GroupBy(a => a.Type)
+                    .Select(g => new { Type = g.Key, Count = g.Count() })
+                    .ToDictionaryAsync(g => g.Type, g => g.Count);
+
+                await Task.WhenAll(totalTask, completedTask, pendingTask, overdueTask);
+                var avgScore = await avgScoreTask;
+                var byType = await byTypeTask;
 
                 return new AssessmentStatisticsDto
                 {
-                    TotalAssessments = assessmentsList.Count,
-                    CompletedAssessments = assessmentsList.Count(a => a.Status == "Completed"),
-                    PendingAssessments = assessmentsList.Count(a => a.Status == "Scheduled" || a.Status == "InProgress" || a.Status == "In Progress" || a.Status == "Draft"),
-                    OverdueAssessments = assessmentsList.Count(a =>
-                        a.ScheduledDate < DateTime.UtcNow && a.Status != "Completed"),
-                    AverageScore = assessmentsList.Where(a => a.Score > 0).Any()
-                        ? assessmentsList.Where(a => a.Score > 0).Average(a => a.Score)
-                        : 0,
-                    AssessmentsByType = assessmentsList.GroupBy(a => a.Type)
-                        .ToDictionary(g => g.Key, g => g.Count())
+                    TotalAssessments = await totalTask,
+                    CompletedAssessments = await completedTask,
+                    PendingAssessments = await pendingTask,
+                    OverdueAssessments = await overdueTask,
+                    AverageScore = avgScore ?? 0,
+                    AssessmentsByType = byType
                 };
             }
             catch (Exception ex)

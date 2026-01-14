@@ -71,6 +71,9 @@ namespace GrcMvc.Data
         IGenericRepository<UserConsent> UserConsents { get; }
         IGenericRepository<LegalDocument> LegalDocuments { get; }
 
+        // Trial Lifecycle
+        IGenericRepository<TrialSignup> TrialSignups { get; }
+
         // Support Agent & Chat
         IGenericRepository<SupportConversation> SupportConversations { get; }
         IGenericRepository<SupportMessage> SupportMessages { get; }

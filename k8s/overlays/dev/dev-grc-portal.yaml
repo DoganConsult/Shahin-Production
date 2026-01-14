@@ -1,0 +1,164 @@
+# Simplified GRC Portal for Development
+# Single replica, connects to dev-postgres and dev-redis-master
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grc-portal
+  namespace: shahin-grc-dev
+  labels:
+    app.kubernetes.io/name: grc-portal
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-grc-portal
+  namespace: shahin-grc-dev
+  labels:
+    app.kubernetes.io/name: grc-portal
+    environment: development
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    nodePort: 30082  # Maps to dev.shahin-ai.com:8082
+  selector:
+    app.kubernetes.io/name: grc-portal
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-grc-portal
+  namespace: shahin-grc-dev
+  labels:
+    app.kubernetes.io/name: grc-portal
+    environment: development
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: grc-portal
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: grc-portal
+        environment: development
+    spec:
+      serviceAccountName: grc-portal
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: grc-portal
+        image: shahin-grc:dev
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: 8080
+        env:
+        # ASP.NET Core Configuration
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Staging"
+        - name: ASPNETCORE_URLS
+          value: "http://+:8080"
+        - name: ASPNETCORE_FORWARDEDHEADERS_ENABLED
+          value: "true"
+        # Allow health checks from any host
+        - name: AllowedHosts
+          value: "*"
+        # Database (simplified for dev)
+        - name: ConnectionStrings__DefaultConnection
+          value: "Host=dev-postgres;Database=GrcMvcDb;Username=shahin_admin;Password=DevDb2026!;Port=5432"
+        - name: ConnectionStrings__AuthConnection
+          value: "Host=dev-postgres;Database=GrcAuthDb;Username=shahin_admin;Password=DevDb2026!;Port=5432"
+        # JWT Settings
+        - name: JwtSettings__Secret
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: JWT_SECRET
+        - name: JwtSettings__Issuer
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: JWT_ISSUER
+        - name: JwtSettings__Audience
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: JWT_AUDIENCE
+        - name: JwtSettings__ExpiryMinutes
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: JWT_EXPIRY_MINUTES
+        # Claude AI Settings
+        - name: ClaudeAgents__ApiKey
+          valueFrom:
+            secretKeyRef:
+              name: claude-api-key
+              key: CLAUDE_API_KEY
+        - name: ClaudeAgents__Model
+          valueFrom:
+            secretKeyRef:
+              name: claude-api-key
+              key: CLAUDE_MODEL
+        - name: ClaudeAgents__Enabled
+          valueFrom:
+            secretKeyRef:
+              name: claude-api-key
+              key: CLAUDE_ENABLED
+        # Redis (simplified - direct connection, no Sentinel)
+        - name: Redis__ConnectionString
+          value: "dev-redis-master:6379,password=DevRedis2026!"
+        - name: Redis__Enabled
+          value: "true"
+        # Kafka disabled for dev (simplify initial deployment)
+        - name: Kafka__Enabled
+          value: "false"
+        # Logging
+        - name: Serilog__MinimumLevel__Default
+          value: "Debug"
+        - name: Serilog__MinimumLevel__Override__Microsoft
+          value: "Information"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        startupProbe:
+          httpGet:
+            path: /health/live
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 30
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8080
+          periodSeconds: 15
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/live
+            port: 8080
+          periodSeconds: 10
+          failureThreshold: 3
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: app-data
+          mountPath: /app/data
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: app-data
+        emptyDir: {}
+      terminationGracePeriodSeconds: 30

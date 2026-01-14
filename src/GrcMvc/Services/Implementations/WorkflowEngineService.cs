@@ -7,6 +7,7 @@ using GrcMvc.Models.Enums;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Exceptions;
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Services.Interfaces.Workflows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,8 +26,8 @@ namespace GrcMvc.Services.Implementations
         private readonly GrcDbContext _context;
         private readonly ILogger<WorkflowEngineService> _logger;
         private readonly IMemoryCache _cache;
-        private readonly BpmnParser _bpmnParser;
-        private readonly WorkflowAssigneeResolver _assigneeResolver;
+        private readonly IBpmnParser _bpmnParser;
+        private readonly IWorkflowAssigneeResolver _assigneeResolver;
         private readonly IWorkflowAuditService _auditService;
 
         // Cache keys and expiration settings
@@ -39,8 +40,8 @@ namespace GrcMvc.Services.Implementations
             GrcDbContext context,
             ILogger<WorkflowEngineService> logger,
             IMemoryCache cache,
-            BpmnParser bpmnParser,
-            WorkflowAssigneeResolver assigneeResolver,
+            IBpmnParser bpmnParser,
+            IWorkflowAssigneeResolver assigneeResolver,
             IWorkflowAuditService auditService)
         {
             _context = context;

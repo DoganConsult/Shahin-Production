@@ -40,7 +40,14 @@ namespace GrcMvc.Models.Entities
         public string? GeneratedByOwnerId { get; set; } // Which owner (ApplicationUser.Id) generated this account (string from Identity)
         public DateTime? CredentialExpiresAt { get; set; } // Expiration for this specific account
         public bool MustChangePasswordOnFirstLogin { get; set; } = false; // Security requirement (default: true for owner-generated)
-        
+
+        /// <summary>
+        /// Team Engagement Tracking (World-Class Standards)
+        /// </summary>
+        public DateTime? LastActiveAt { get; set; }
+        public int ActionsCompleted { get; set; } = 0;
+        public double ContributionScore { get; set; } = 0.0;
+
         // Navigation properties
         public virtual Tenant Tenant { get; set; } = null!;
         public virtual ApplicationUser User { get; set; } = null!;

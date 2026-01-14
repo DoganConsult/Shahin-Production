@@ -66,6 +66,10 @@ azure-pipelines.yml
 .env.*
 !.env.example
 
+# Local development configuration (contains localhost connection strings)
+**/appsettings.Local.json
+**/appsettings.local.json
+
 # Coverage reports
 **/coverage/
 **/*.coverage

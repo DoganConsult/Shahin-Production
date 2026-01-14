@@ -271,12 +271,146 @@
     </div>
 </div>
 
+<!-- Findings Modal -->
+<div class="modal fade" id="findingsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Audit Findings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="findingsModalBody">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted mt-3">Loading findings...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" onclick="exportFindings()">
+                    <i class="bi bi-download"></i> Export
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        function viewFindings(auditId) {
-            // TODO: Show findings modal
-            alert('View findings for audit: ' + auditId);
+        let currentAuditId = null;
+
+        async function viewFindings(auditId) {
+            currentAuditId = auditId;
+            const modal = new bootstrap.Modal(document.getElementById('findingsModal'));
+            modal.show();
+
+            const modalBody = document.getElementById('findingsModalBody');
+            modalBody.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted mt-3">Loading findings...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('/api/certification/audits/' + auditId + '/findings');
+                const data = await response.json();
+
+                if (!data.findings || data.findings.length === 0) {
+                    modalBody.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="bi bi-check-circle display-4 text-success"></i>
+                            <p class="text-muted mt-3">No findings recorded for this audit</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Update modal title with audit info
+                document.querySelector('#findingsModal .modal-title').innerHTML =
+                    '<i class="bi bi-exclamation-triangle me-2"></i>Audit Findings - ' + (data.auditName || 'Audit ' + auditId);
+
+                // Build findings content
+                let html = `
+                    <div class="mb-3">
+                        <div class="row text-center">
+                            <div class="col-3">
+                                <div class="badge bg-danger p-2">Critical: ${data.summary?.critical || 0}</div>
+                            </div>
+                            <div class="col-3">
+                                <div class="badge bg-warning text-dark p-2">High: ${data.summary?.high || 0}</div>
+                            </div>
+                            <div class="col-3">
+                                <div class="badge bg-info p-2">Medium: ${data.summary?.medium || 0}</div>
+                            </div>
+                            <div class="col-3">
+                                <div class="badge bg-secondary p-2">Low: ${data.summary?.low || 0}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr/>
+                    <div class="list-group list-group-flush">
+                `;
+
+                data.findings.forEach((finding, index) => {
+                    const severityClass = {
+                        'Critical': 'danger',
+                        'High': 'warning',
+                        'Medium': 'info',
+                        'Low': 'secondary'
+                    }[finding.severity] || 'secondary';
+
+                    html += `
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">
+                                        <span class="badge bg-${severityClass} me-2">${finding.severity}</span>
+                                        ${finding.title || 'Finding ' + (index + 1)}
+                                    </h6>
+                                    <p class="mb-1 text-muted small">${finding.description || ''}</p>
+                                    ${finding.recommendation ? `
+                                        <p class="mb-0 small">
+                                            <strong><i class="bi bi-lightbulb me-1"></i>Recommendation:</strong>
+                                            ${finding.recommendation}
+                                        </p>
+                                    ` : ''}
+                                </div>
+                                <span class="badge ${finding.status === 'Resolved' ? 'bg-success' : 'bg-warning text-dark'}">
+                                    ${finding.status || 'Open'}
+                                </span>
+                            </div>
+                            ${finding.controlRef ? `
+                                <small class="text-muted mt-2 d-block">
+                                    <i class="bi bi-link-45deg"></i> Control: ${finding.controlRef}
+                                </small>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+                modalBody.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading findings:', error);
+                modalBody.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-circle me-2"></i>
+                        Failed to load findings. Please try again.
+                    </div>
+                `;
+            }
+        }
+
+        function exportFindings() {
+            if (!currentAuditId) return;
+            window.location.href = '/api/certification/audits/' + currentAuditId + '/findings/export';
         }
 
         @if (Model.Any())

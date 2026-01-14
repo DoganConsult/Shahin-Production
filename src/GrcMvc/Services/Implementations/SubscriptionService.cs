@@ -785,5 +785,47 @@ namespace GrcMvc.Services.Implementations
         }
 
         #endregion
+
+        #region Trial Checkout
+
+        public async Task<CheckoutSessionResult> CreateCheckoutSessionAsync(Guid tenantId, string planCode)
+        {
+            try
+            {
+                var plan = await GetPlanByCodeAsync(planCode);
+                if (plan == null)
+                {
+                    return new CheckoutSessionResult
+                    {
+                        Success = false,
+                        Message = "Plan not found"
+                    };
+                }
+
+                var sessionId = Guid.NewGuid().ToString("N");
+                var checkoutUrl = $"https://portal.shahin-ai.com/checkout/{sessionId}?tenant={tenantId}&plan={planCode}";
+
+                _logger.LogInformation("Checkout session created for tenant {TenantId}, plan {Plan}", tenantId, planCode);
+
+                return new CheckoutSessionResult
+                {
+                    Success = true,
+                    SessionId = sessionId,
+                    CheckoutUrl = checkoutUrl,
+                    Message = "Checkout session created"
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating checkout session for tenant {TenantId}", tenantId);
+                return new CheckoutSessionResult
+                {
+                    Success = false,
+                    Message = "Failed to create checkout session"
+                };
+            }
+        }
+
+        #endregion
     }
 }

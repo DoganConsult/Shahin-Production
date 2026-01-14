@@ -1,0 +1,35 @@
+# Kustomize Base Configuration
+# Contains all shared resources for Shahin GRC Platform
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: shahin-grc
+
+# Common labels applied to all resources
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: shahin-grc-platform
+      app.kubernetes.io/managed-by: kustomize
+    includeSelectors: false
+
+resources:
+  # Core infrastructure - using absolute paths from k8s root
+  - namespace.yaml
+  - etcd/etcd-statefulset.yaml
+  - database/postgres-statefulset.yaml
+  - database/postgres-pdb.yaml
+  - configmaps/haproxy-config.yaml
+  - configmaps/pgbouncer-config.yaml
+  - database/haproxy-deployment.yaml
+  - database/pgbouncer-deployment.yaml
+  - redis/redis-master.yaml
+  - redis/redis-replica.yaml
+  - redis/redis-sentinel.yaml
+  - kafka/kafka-statefulset.yaml
+  - applications/grc-portal-deployment.yaml
+  - applications/grc-portal-hpa.yaml
+  - applications/grc-portal-pdb.yaml
+  - ingress/grc-ingress.yaml
+  - backup/backup-cronjob.yaml
+  - network-policies/network-policies.yaml
+  - monitoring/prometheus-rules.yaml

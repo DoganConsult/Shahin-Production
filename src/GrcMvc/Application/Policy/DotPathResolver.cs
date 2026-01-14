@@ -37,6 +37,34 @@ public class DotPathResolver : IDotPathResolver
                 if (current == null)
                     return null;
 
+                // Handle array index notation like "Items[0]"
+                var arrayMatch = System.Text.RegularExpressions.Regex.Match(part, @"^(\w+)\[(\d+)\]$");
+                if (arrayMatch.Success)
+                {
+                    var propertyName = arrayMatch.Groups[1].Value;
+                    var index = int.Parse(arrayMatch.Groups[2].Value);
+
+                    // First resolve the property
+                    current = ResolvePropertyOrField(current, propertyName);
+                    if (current == null)
+                        return null;
+
+                    // Then access the array index
+                    if (current is System.Collections.IList list)
+                    {
+                        current = index < list.Count ? list[index] : null;
+                    }
+                    else if (current is Array array)
+                    {
+                        current = index < array.Length ? array.GetValue(index) : null;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                    continue;
+                }
+
                 // Handle dictionary
                 if (current is System.Collections.IDictionary dict)
                 {
@@ -159,5 +187,26 @@ public class DotPathResolver : IDotPathResolver
     public void Remove(object obj, string path)
     {
         Set(obj, path, null);
+    }
+
+    private object? ResolvePropertyOrField(object current, string name)
+    {
+        var type = current.GetType();
+        var propInfo = type.GetProperty(name,
+            System.Reflection.BindingFlags.Public |
+            System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.IgnoreCase);
+
+        if (propInfo != null)
+        {
+            return propInfo.GetValue(current);
+        }
+
+        var fieldInfo = type.GetField(name,
+            System.Reflection.BindingFlags.Public |
+            System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.IgnoreCase);
+
+        return fieldInfo?.GetValue(current);
     }
 }

@@ -181,6 +181,13 @@ public class AiResponse
     public int LatencyMs { get; set; }
     public string? Error { get; set; }
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+
+    // Enhanced tracking fields
+    public bool FromCache { get; set; }
+    public int InputTokens { get; set; }
+    public int OutputTokens { get; set; }
+    public int RetryCount { get; set; }
+    public List<string>? SecurityWarnings { get; set; }
 }
 
 public class ComplianceAiResult : AiResponse

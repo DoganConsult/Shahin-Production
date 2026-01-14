@@ -57,8 +57,8 @@ namespace GrcMvc.Services.Implementations
                 Password = _serverPassword,
                 Database = databaseName,
                 Pooling = true,
-                MinPoolSize = 2,
-                MaxPoolSize = 20,
+                MinPoolSize = 5,
+                MaxPoolSize = 50,  // Increased for multi-tenant scalability
                 CommandTimeout = 30,
                 Timeout = 30
             };

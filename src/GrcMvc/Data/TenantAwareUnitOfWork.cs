@@ -92,6 +92,9 @@ namespace GrcMvc.Data
         private IGenericRepository<UserWorkspaceTask>? _userWorkspaceTasks;
         private IGenericRepository<WorkspaceTemplate>? _workspaceTemplates;
 
+        // Trial Lifecycle
+        private IGenericRepository<TrialSignup>? _trialSignups;
+
         public TenantAwareUnitOfWork(IDbContextFactory<GrcDbContext> contextFactory)
         {
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
@@ -263,6 +266,10 @@ namespace GrcMvc.Data
         public IGenericRepository<WorkspaceTemplate> WorkspaceTemplates =>
             _workspaceTemplates ??= new GenericRepository<WorkspaceTemplate>(Context);
 
+        // Trial Lifecycle
+        public IGenericRepository<TrialSignup> TrialSignups =>
+            _trialSignups ??= new GenericRepository<TrialSignup>(Context);
+
         public async Task<int> SaveChangesAsync()
         {
             return await Context.SaveChangesAsync();
@@ -277,9 +284,22 @@ namespace GrcMvc.Data
         {
             if (_transaction != null)
             {
-                await _transaction.CommitAsync();
-                await _transaction.DisposeAsync();
-                _transaction = null;
+                try
+                {
+                    // CRITICAL: Save pending changes before committing transaction
+                    await SaveChangesAsync();
+                    await _transaction.CommitAsync();
+                }
+                catch
+                {
+                    await RollbackTransactionAsync();
+                    throw;
+                }
+                finally
+                {
+                    await _transaction.DisposeAsync();
+                    _transaction = null;
+                }
             }
         }
 

@@ -725,11 +725,8 @@ public class SerialCodeService : ISerialCodeService
                 _logger.LogWarning("Concurrency conflict getting sequence for {Prefix}-{Tenant}-{Stage}-{Year}, retry {Retry}",
                     prefix, tenantCode, stage, year, retry + 1);
 
-                // Detach any tracked entities and retry
-                foreach (var entry in _context.ChangeTracker.Entries().ToList())
-                {
-                    entry.State = EntityState.Detached;
-                }
+                // Clear all tracked entities efficiently and retry
+                _context.ChangeTracker.Clear();
             }
         }
 

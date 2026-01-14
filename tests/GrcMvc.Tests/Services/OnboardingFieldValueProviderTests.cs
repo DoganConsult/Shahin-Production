@@ -79,7 +79,13 @@ namespace GrcMvc.Tests.Services
 
             // Assert
             Assert.NotNull(value);
-            Assert.IsAssignableFrom<List<object>>(value);
+            // The provider returns List<string> for JSON arrays, verify it's a collection
+            Assert.IsAssignableFrom<System.Collections.IEnumerable>(value);
+            var list = value as IEnumerable<string>;
+            Assert.NotNull(list);
+            Assert.Contains("PII", list);
+            Assert.Contains("Financial", list);
+            Assert.Contains("Health", list);
         }
 
         [Fact]

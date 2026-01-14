@@ -147,12 +147,14 @@ public class PolicyEnforcer : IPolicyEnforcer
 
     private bool IsRuleApplicable(PolicyRule rule, PolicyContext ctx)
     {
-        // Check resource type match
-        if (rule.Match.Resource.Type != "*" && rule.Match.Resource.Type != ctx.ResourceType)
+        // Check resource type match (support both "*" and "Any" as wildcards)
+        var resourceType = rule.Match.Resource.Type;
+        if (resourceType != "*" && resourceType != "Any" && resourceType != ctx.ResourceType)
             return false;
 
-        // Check environment match
-        if (rule.Match.Environment != "*" && rule.Match.Environment != ctx.Environment)
+        // Check environment match (support both "*" and "Any" as wildcards)
+        var environment = rule.Match.Environment;
+        if (environment != "*" && environment != "Any" && !string.IsNullOrEmpty(environment) && environment != ctx.Environment)
             return false;
 
         // Check principal match

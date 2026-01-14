@@ -46,5 +46,20 @@ namespace GrcMvc.Services.Interfaces
         /// Send new login alert
         /// </summary>
         Task SendNewLoginAlertAsync(string toEmail, string userName, string ipAddress, string location, string deviceInfo, bool isArabic = true);
+
+        /// <summary>
+        /// Send trial activation email
+        /// </summary>
+        Task SendTrialActivationEmailAsync(string toEmail, string userName, string activationToken, bool isArabic = true);
+
+        /// <summary>
+        /// Send trial nurture email (welcome, nudge, midpoint, etc.)
+        /// </summary>
+        Task SendTrialNurtureEmailAsync(string toEmail, string templateName, string companyName, int daysRemaining, bool isArabic = true);
+
+        /// <summary>
+        /// Send generic templated email
+        /// </summary>
+        Task SendTemplatedEmailAsync(string toEmail, string templateName, object model, bool isArabic = true);
     }
 }

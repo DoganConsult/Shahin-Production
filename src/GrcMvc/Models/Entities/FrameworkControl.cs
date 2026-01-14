@@ -42,10 +42,16 @@ namespace GrcMvc.Models.Entities
 
         public int MaturityLevel { get; set; } = 1; // 1-5
 
-        public string ImplementationGuidanceEn { get; set; } = string.Empty; // Implementation steps
+        public string ImplementationGuidanceEn { get; set; } = string.Empty; // Implementation steps in English
+
+        [StringLength(4000)]
+        public string ImplementationGuidanceAr { get; set; } = string.Empty; // Implementation steps in Arabic
 
         [StringLength(1000)]
         public string EvidenceRequirements { get; set; } = string.Empty; // Pipe-separated evidence types
+
+        [StringLength(50)]
+        public string EvidencePackCode { get; set; } = string.Empty; // Links to EvidencePack for auto-mapping
 
         [StringLength(50)]
         public string MappingIso27001 { get; set; } = string.Empty; // e.g., "A.5.1"

@@ -20,9 +20,6 @@ public class LandingController : Controller
 
     public LandingController(GrcDbContext context, ILogger<LandingController> logger)
     {
-        // #region agent log
-        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "I", location = "LandingController.cs:21", message = "LandingController constructor", data = new { contextExists = context != null, loggerExists = logger != null, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
         _context = context;
         _logger = logger;
     }
@@ -35,15 +32,9 @@ public class LandingController : Controller
     [Route("/home")]
     public IActionResult Index()
     {
-        // #region agent log
-        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "F", location = "LandingController.cs:31", message = "Landing Index entry", data = new { isAuthenticated = User.Identity?.IsAuthenticated ?? false, host = Request.Host.Host, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
         // If authenticated, redirect to dashboard
         if (User.Identity?.IsAuthenticated == true)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "F", location = "LandingController.cs:35", message = "Redirecting authenticated user to Dashboard", data = new { userId = User.Identity?.Name, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             return RedirectToAction("Index", "Dashboard");
         }
 
@@ -51,31 +42,10 @@ public class LandingController : Controller
         var host = Request.Host.Host.ToLower();
 
         // Serve the modern Vercel-style landing page
-        // #region agent log
-        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:45", message = "Before GetFeatures call", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
         var features = GetFeatures();
-        // #region agent log
-        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:47", message = "GetFeatures result", data = new { featuresCount = features?.Count ?? 0, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
-        // #region agent log
-        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:48", message = "Before GetTestimonials call", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
         var testimonials = GetTestimonials();
-        // #region agent log
-        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:49", message = "GetTestimonials result", data = new { testimonialsCount = testimonials?.Count ?? 0, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
-        // #region agent log
-        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:50", message = "Before GetStats call", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
         var stats = GetStats();
-        // #region agent log
-        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:51", message = "GetStats result", data = new { statsRegulators = stats?.Regulators ?? 0, statsFrameworks = stats?.Frameworks ?? 0, statsControls = stats?.Controls ?? 0, statsNull = stats == null, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
         var regulators = GetHighlightedRegulators();
-        // #region agent log
-        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:52", message = "GetHighlightedRegulators result", data = new { regulatorsCount = regulators?.Count ?? 0, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
         
         var model = new LandingPageViewModel
         {
@@ -84,22 +54,13 @@ public class LandingController : Controller
             Stats = stats ?? new StatsViewModel(),
             Regulators = regulators ?? new List<string>()
         };
-        // #region agent log
-        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:60", message = "Before View render", data = new { modelFeaturesCount = model.Features?.Count ?? 0, modelTestimonialsCount = model.Testimonials?.Count ?? 0, modelStatsNull = model.Stats == null, modelRegulatorsCount = model.Regulators?.Count ?? 0, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
         try
         {
             var viewResult = View("Index", model);
-            // #region agent log
-            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:65", message = "View render success", data = new { viewResultType = viewResult?.GetType().Name, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             return viewResult;
         }
         catch (Exception ex)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H", location = "LandingController.cs:70", message = "View render exception", data = new { exceptionType = ex.GetType().Name, exceptionMessage = ex.Message, stackTrace = ex.StackTrace?.Substring(0, Math.Min(500, ex.StackTrace?.Length ?? 0)), timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             _logger.LogError(ex, "Error rendering landing page view");
             throw;
         }
@@ -501,8 +462,8 @@ public class LandingController : Controller
                 });
             }
 
-            // Store trial signup request
-            var trialSignup = new Models.Entities.TrialSignup
+            // Store trial signup request (marketing lead capture)
+            var trialSignup = new Models.Entities.MarketingTrialLead
             {
                 Id = Guid.NewGuid(),
                 Email = model.Email,
@@ -519,7 +480,7 @@ public class LandingController : Controller
                 CreatedDate = DateTime.UtcNow
             };
 
-            _context.Add(trialSignup);
+            _context.MarketingTrialLeads.Add(trialSignup);
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("Trial signup created: {Email}, Company: {Company}, Plan: {Plan}",
@@ -1068,29 +1029,17 @@ public class LandingController : Controller
 
     private List<TestimonialItem> GetTestimonials()
     {
-        // #region agent log
-        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1059", message = "GetTestimonials entry", data = new { contextExists = _context != null, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
         // Fetch real testimonials from database
         try
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1063", message = "Before testimonials database query", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             var testimonials = _context.Testimonials
                 .Where(t => t.IsActive)
                 .OrderBy(t => t.DisplayOrder)
                 .Take(6)
                 .ToList();
-            // #region agent log
-            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1069", message = "After testimonials database query", data = new { testimonialsCount = testimonials?.Count ?? 0, hasAny = testimonials?.Any() ?? false, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
 
             if (testimonials.Any())
             {
-                // #region agent log
-                try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1072", message = "Testimonials found - mapping to items", data = new { testimonialsCount = testimonials.Count, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
                 return testimonials.Select(t => new TestimonialItem
                 {
                     Quote = t.Quote,
@@ -1104,49 +1053,25 @@ public class LandingController : Controller
         }
         catch (Exception ex)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1085", message = "GetTestimonials exception", data = new { exceptionType = ex.GetType().Name, exceptionMessage = ex.Message, stackTrace = ex.StackTrace?.Substring(0, Math.Min(500, ex.StackTrace?.Length ?? 0)), timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             _logger.LogWarning(ex, "Error fetching testimonials from database, using fallback");
         }
 
         // NO FALLBACK TESTIMONIALS - We are new to market with no real customers yet.
         // DO NOT add fake testimonials with specific names - this is misleading.
         // Return empty list - the view will not render the testimonials section.
-        // #region agent log
-        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1092", message = "GetTestimonials returning empty list", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
         return new List<TestimonialItem>();
     }
 
     private StatsViewModel GetStats()
     {
-        // #region agent log
-        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1094", message = "GetStats entry", data = new { contextExists = _context != null, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
         // Fetch real stats from database
         try
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1099", message = "Before RegulatorCatalogs.Count", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             var regulatorCount = _context.RegulatorCatalogs.Count();
-            // #region agent log
-            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1101", message = "RegulatorCatalogs.Count result", data = new { regulatorCount, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             var frameworkCount = _context.FrameworkCatalogs.Count();
-            // #region agent log
-            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1103", message = "FrameworkCatalogs.Count result", data = new { frameworkCount, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             var controlCount = _context.ControlCatalogs.Count();
-            // #region agent log
-            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1105", message = "ControlCatalogs.Count result", data = new { controlCount, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             var evidenceCount = _context.EvidenceTypeCatalogs.Count();
             var workflowCount = _context.Workflows.Count();
-            // #region agent log
-            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1107", message = "All stats counts retrieved", data = new { regulatorCount, frameworkCount, controlCount, evidenceCount, workflowCount, hasData = regulatorCount > 0 || frameworkCount > 0, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
 
             // Only return real data if we have seeded catalogs
             if (regulatorCount > 0 || frameworkCount > 0)
@@ -1159,24 +1084,15 @@ public class LandingController : Controller
                     EvidenceItems = evidenceCount > 0 ? evidenceCount : 500,
                     Workflows = workflowCount > 0 ? workflowCount : 12
                 };
-                // #region agent log
-                try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1116", message = "GetStats returning real data", data = new { statsRegulators = stats.Regulators, statsFrameworks = stats.Frameworks, statsControls = stats.Controls, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
                 return stats;
             }
         }
         catch (Exception ex)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1120", message = "GetStats exception", data = new { exceptionType = ex.GetType().Name, exceptionMessage = ex.Message, stackTrace = ex.StackTrace?.Substring(0, Math.Min(500, ex.StackTrace?.Length ?? 0)), timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             _logger.LogWarning(ex, "Error fetching stats from database");
         }
 
         // Fallback stats (based on seeded data)
-        // #region agent log
-        try { System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "LandingController.cs:1127", message = "GetStats returning fallback stats", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
         return new StatsViewModel
         {
             Regulators = 92,

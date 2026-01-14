@@ -1,3 +1,6 @@
+// Force dynamic rendering to support client-side providers
+export const dynamic = 'force-dynamic'
+
 import { Navbar } from "@/components/layout/Navbar"
 import { Footer } from "@/components/layout/Footer"
 import { Hero } from "@/components/landing/Hero"

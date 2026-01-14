@@ -1,0 +1,31 @@
+# Grafana Datasources ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: shahin-grc-dev
+  labels:
+    app.kubernetes.io/name: grafana
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: PostgreSQL-GRC
+      type: postgres
+      url: dev-postgres:5432
+      database: GrcMvcDb
+      user: shahin_admin
+      secureJsonData:
+        password: DevDb2026!
+      jsonData:
+        sslmode: disable
+        maxOpenConns: 10
+        maxIdleConns: 5
+      isDefault: true
+    - name: Redis
+      type: redis-datasource
+      url: dev-redis-master:6379
+      jsonData:
+        client: standalone
+      secureJsonData:
+        password: DevRedis2026!

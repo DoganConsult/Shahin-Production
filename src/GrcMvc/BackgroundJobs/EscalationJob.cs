@@ -156,6 +156,7 @@ namespace GrcMvc.BackgroundJobs
 
                 // Mark task as escalated
                 task.Status = "Escalated";
+                task.IsEscalated = true;
 
                 // Create notification for escalation
                 await CreateEscalationNotificationAsync(escalation, task);

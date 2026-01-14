@@ -27,19 +27,22 @@ namespace GrcMvc.Controllers
         private readonly IRiskService _riskService;
         private readonly IControlService _controlService;
         private readonly GrcDbContext _context;
+        private readonly ILogger<DashboardApiController> _logger;
 
         public DashboardApiController(
             IReportService reportService,
             IAssessmentService assessmentService,
             IRiskService riskService,
             IControlService controlService,
-            GrcDbContext context)
+            GrcDbContext context,
+            ILogger<DashboardApiController> logger)
         {
             _reportService = reportService;
             _assessmentService = assessmentService;
             _riskService = riskService;
             _controlService = controlService;
             _context = context;
+            _logger = logger;
         }
 
         /// <summary>
@@ -358,18 +361,26 @@ namespace GrcMvc.Controllers
                 var riskCount = 0;
                 var controlCount = 0;
                 
-                try { 
+                try {
                     var risksResult = await _riskService.GetAllAsync();
                     if (risksResult.IsSuccess)
                     {
                         riskCount = risksResult.Value?.Count(r => r.Status == "Open" || r.Status == "Active") ?? 0;
                     }
-                } catch { }
-                
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to fetch risks for dashboard stats");
+                }
+
                 try {
                     var controls = await _controlService.GetAllAsync();
                     controlCount = controls?.Count() ?? 0;
-                } catch { }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to fetch controls for dashboard stats");
+                }
 
                 return Ok(new { 
                     success = true,

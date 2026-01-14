@@ -1,0 +1,360 @@
+# Network Policies for Shahin GRC Platform
+# Implements least-privilege network access between components
+---
+# Default deny all ingress traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: shahin-grc
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+---
+# Allow ingress to GRC Portal from Ingress Controller
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-grc-portal-ingress
+  namespace: shahin-grc
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: grc-portal
+  policyTypes:
+  - Ingress
+  ingress:
+  # Allow from Traefik/Ingress namespace
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: traefik
+    ports:
+    - protocol: TCP
+      port: 8080
+  # Allow health checks from within namespace
+  - from:
+    - podSelector: {}
+    ports:
+    - protocol: TCP
+      port: 8080
+---
+# Allow GRC Portal to access PgBouncer (connection pooling)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-app-to-pgbouncer
+  namespace: shahin-grc
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: pgbouncer
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: grc-portal
+    ports:
+    - protocol: TCP
+      port: 6432
+---
+# Allow PgBouncer to HAProxy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-pgbouncer-to-haproxy
+  namespace: shahin-grc
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: haproxy
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: pgbouncer
+    ports:
+    - protocol: TCP
+      port: 5432  # Write port
+    - protocol: TCP
+      port: 5433  # Read port
+    - protocol: TCP
+      port: 8404  # Stats
+    - protocol: TCP
+      port: 8405  # Health
+---
+# Allow HAProxy to PostgreSQL
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-haproxy-to-postgres
+  namespace: shahin-grc
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: postgresql
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: haproxy
+    ports:
+    - protocol: TCP
+      port: 5432  # PostgreSQL
+    - protocol: TCP
+      port: 8008  # Patroni API
+---
+# Allow PostgreSQL cluster internal communication (replication)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-postgres-replication
+  namespace: shahin-grc
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: postgresql
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: postgresql
+    ports:
+    - protocol: TCP
+      port: 5432  # Replication
+    - protocol: TCP
+      port: 8008  # Patroni sync
+---
+# Allow PostgreSQL to etcd (Patroni consensus)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-postgres-to-etcd
+  namespace: shahin-grc
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: etcd
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: postgresql
+    ports:
+    - protocol: TCP
+      port: 2379  # Client port
+---
+# Allow etcd cluster internal communication
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-etcd-cluster
+  namespace: shahin-grc
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: etcd
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: etcd
+    ports:
+    - protocol: TCP
+      port: 2379  # Client
+    - protocol: TCP
+      port: 2380  # Peer
+---
+# Allow GRC Portal to Redis master
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-app-to-redis
+  namespace: shahin-grc
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: grc-portal
+    ports:
+    - protocol: TCP
+      port: 6379
+---
+# Allow GRC Portal to Redis Sentinel (for discovery)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-app-to-sentinel
+  namespace: shahin-grc
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: redis-sentinel
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: grc-portal
+    ports:
+    - protocol: TCP
+      port: 26379
+---
+# Allow Redis Sentinel internal communication
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-sentinel-cluster
+  namespace: shahin-grc
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: redis-sentinel
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: redis-sentinel
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: redis
+    ports:
+    - protocol: TCP
+      port: 26379
+---
+# Allow Sentinel to monitor Redis
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-sentinel-to-redis
+  namespace: shahin-grc
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: redis-sentinel
+    ports:
+    - protocol: TCP
+      port: 6379
+---
+# Allow Redis replica to sync from master
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-redis-replication
+  namespace: shahin-grc
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/component: master
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: redis
+          app.kubernetes.io/component: replica
+    ports:
+    - protocol: TCP
+      port: 6379
+---
+# Allow GRC Portal to Kafka
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-app-to-kafka
+  namespace: shahin-grc
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: kafka
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: grc-portal
+    ports:
+    - protocol: TCP
+      port: 9092  # Client
+---
+# Allow Kafka cluster internal communication
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-kafka-cluster
+  namespace: shahin-grc
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: kafka
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: kafka
+    ports:
+    - protocol: TCP
+      port: 9092  # Client/Inter-broker
+    - protocol: TCP
+      port: 9093  # Controller
+---
+# Allow Landing page ingress
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-landing-ingress
+  namespace: shahin-grc
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: landing
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: traefik
+    ports:
+    - protocol: TCP
+      port: 3000

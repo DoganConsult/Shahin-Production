@@ -1,0 +1,119 @@
+# =============================================================================
+# Cloudflare Tunnel Deployment
+# =============================================================================
+# Exposes Kubernetes services to the internet via Cloudflare without
+# requiring a public IP or LoadBalancer.
+#
+# Configure routes in Cloudflare Dashboard (Zero Trust > Access > Tunnels):
+#   - portal.shahin-ai.com -> http://traefik.traefik.svc.cluster.local:80
+#   - staging.shahin-ai.com -> http://traefik.traefik.svc.cluster.local:80
+#   - dev.shahin-ai.com -> http://traefik.traefik.svc.cluster.local:80
+# =============================================================================
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cloudflare
+  labels:
+    app.kubernetes.io/name: cloudflare
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflared-token
+  namespace: cloudflare
+type: Opaque
+stringData:
+  # Your Cloudflare Tunnel token
+  # Get from: Cloudflare Dashboard > Zero Trust > Access > Tunnels > Create
+  token: "eyJhIjoiNjZiNTFhYzk2OTkxMWQ0MzY0ZjQ4M2Q4ODdhNjZjMGYiLCJ0IjoiZTliOTFhYWUtZDNkYS00MjMwLWE1YjctZTk3MDAzMjExNGFmIiwicyI6Ik0yRXhZell5WW1VdFpXTXpaaTAwT1dReExXSm1OamN0TVdabE56UXhZMk00T0dZMyJ9"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflared
+  namespace: cloudflare
+  labels:
+    app.kubernetes.io/name: cloudflared
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cloudflared
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cloudflared
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: cloudflared
+              topologyKey: kubernetes.io/hostname
+
+      containers:
+      - name: cloudflared
+        image: cloudflare/cloudflared:latest
+        imagePullPolicy: Always
+
+        args:
+        - tunnel
+        - --no-autoupdate
+        - run
+        - --token
+        - $(TUNNEL_TOKEN)
+
+        env:
+        - name: TUNNEL_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: cloudflared-token
+              key: token
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+
+        livenessProbe:
+          httpGet:
+            path: /ready
+            port: 2000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 2000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 3
+
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65532
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: cloudflared-pdb
+  namespace: cloudflare
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cloudflared

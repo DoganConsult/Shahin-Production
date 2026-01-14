@@ -119,9 +119,6 @@ namespace GrcMvc.Services.Implementations
 
             // Add coverage validation if enabled
             var enableCoverageValidation = _configuration?.GetValue<bool>("Onboarding:EnableCoverageValidation", true) ?? true;
-            // #region agent log
-            System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "A", location = "OnboardingWizardService.cs:121", message = "Coverage validation enabled check", data = new { enableCoverageValidation, configValue = _configuration?.GetValue<bool>("Onboarding:EnableCoverageValidation", true), hasConfig = _configuration != null }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-            // #endregion
             Dictionary<string, CoverageValidationResult>? sectionCoverage = null;
             int overallCoveragePercent = 0;
             bool coverageComplete = false;
@@ -130,13 +127,7 @@ namespace GrcMvc.Services.Implementations
             {
                 try
                 {
-                    // #region agent log
-                    System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "OnboardingWizardService.cs:130", message = "Calling GetAllSectionsCoverageAsync", data = new { tenantId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-                    // #endregion
                     var allCoverage = await GetAllSectionsCoverageAsync(tenantId);
-                    // #region agent log
-                    System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "C", location = "OnboardingWizardService.cs:133", message = "GetAllSectionsCoverageAsync result", data = new { coverageCount = allCoverage?.Count ?? 0, hasCoverage = allCoverage != null, coverageKeys = allCoverage?.Keys.ToList() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-                    // #endregion
                     sectionCoverage = allCoverage;
 
                     // Update section progress with coverage information
@@ -180,9 +171,6 @@ namespace GrcMvc.Services.Implementations
                 }
                 catch (Exception ex)
                 {
-                    // #region agent log
-                    System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "OnboardingWizardService.cs:174", message = "Exception in coverage validation", data = new { exceptionType = ex.GetType().Name, exceptionMessage = ex.Message, stackTrace = ex.StackTrace }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-                    // #endregion
                     _logger.LogWarning(ex, "Error getting coverage validation for progress in tenant {TenantId}", tenantId);
                     // Don't fail progress if coverage check fails
                 }
@@ -819,20 +807,11 @@ namespace GrcMvc.Services.Implementations
 
             // Add coverage validation if enabled
             var enableCoverageValidation = _configuration?.GetValue<bool>("Onboarding:ValidateOnSectionSave", true) ?? true;
-            // #region agent log
-            System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "E", location = "OnboardingWizardService.cs:809", message = "ValidateOnSectionSave check", data = new { enableCoverageValidation, section, tenantId = wizard.TenantId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-            // #endregion
             if (enableCoverageValidation)
             {
                 try
                 {
-                    // #region agent log
-                    System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "F", location = "OnboardingWizardService.cs:814", message = "Calling ValidateSectionCoverageAsync", data = new { section, tenantId = wizard.TenantId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-                    // #endregion
                     var coverageResult = await ValidateSectionCoverageAsync(wizard.TenantId, section);
-                    // #region agent log
-                    System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "G", location = "OnboardingWizardService.cs:816", message = "ValidateSectionCoverageAsync result", data = new { hasResult = coverageResult != null, isValid = coverageResult?.IsValid, completionPercent = coverageResult?.OverallCompletionPercentage }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-                    // #endregion
                     if (coverageResult != null)
                     {
                         response.CoverageValidation = coverageResult;
@@ -863,9 +842,6 @@ namespace GrcMvc.Services.Implementations
                 }
                 catch (Exception ex)
                 {
-                    // #region agent log
-                    System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H", location = "OnboardingWizardService.cs:845", message = "Exception in ValidateSectionCoverageAsync", data = new { section, exceptionType = ex.GetType().Name, exceptionMessage = ex.Message, stackTrace = ex.StackTrace }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-                    // #endregion
                     _logger.LogWarning(ex, "Error validating coverage for section {Section} in tenant {TenantId}", section, wizard.TenantId);
                     // Don't fail the save operation if coverage validation fails
                 }
@@ -1006,28 +982,16 @@ namespace GrcMvc.Services.Implementations
             
             try
             {
-                // #region agent log
-                System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "I", location = "OnboardingWizardService.cs:981", message = "GetAllSectionsCoverageAsync entry", data = new { tenantId, hasCoverageService = _coverageService != null }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-                // #endregion
                 var wizard = await GetWizardAsync(tenantId);
                 if (wizard == null)
                 {
-                    // #region agent log
-                    System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "J", location = "OnboardingWizardService.cs:987", message = "Wizard not found", data = new { tenantId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-                    // #endregion
                     return results;
                 }
 
                 var fieldProvider = new OnboardingFieldValueProvider(wizard);
                 
                 // Validate complete coverage
-                // #region agent log
-                System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "K", location = "OnboardingWizardService.cs:994", message = "Calling ValidateCompleteCoverageAsync", data = new { tenantId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-                // #endregion
                 var completeResult = await _coverageService.ValidateCompleteCoverageAsync(fieldProvider);
-                // #region agent log
-                System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "L", location = "OnboardingWizardService.cs:996", message = "ValidateCompleteCoverageAsync result", data = new { hasResult = completeResult != null, nodeResultsCount = completeResult?.NodeResults?.Count ?? 0 }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-                // #endregion
                 
                 // Group results by section
                 var sectionMap = new Dictionary<string, string>
@@ -1065,15 +1029,9 @@ namespace GrcMvc.Services.Implementations
             }
             catch (Exception ex)
             {
-                // #region agent log
-                System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "M", location = "OnboardingWizardService.cs:1032", message = "Exception in GetAllSectionsCoverageAsync", data = new { tenantId, exceptionType = ex.GetType().Name, exceptionMessage = ex.Message, stackTrace = ex.StackTrace }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-                // #endregion
                 _logger.LogError(ex, "Error getting all sections coverage for tenant {TenantId}", tenantId);
             }
 
-            // #region agent log
-            System.IO.File.AppendAllText("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "N", location = "OnboardingWizardService.cs:1036", message = "GetAllSectionsCoverageAsync exit", data = new { resultsCount = results.Count, resultKeys = results.Keys.ToList() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-            // #endregion
             return results;
         }
 

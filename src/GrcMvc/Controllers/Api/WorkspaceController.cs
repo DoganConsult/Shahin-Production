@@ -183,7 +183,7 @@ namespace GrcMvc.Controllers.Api
                     return BadRequest(new { error = "No tenant context" });
                 }
 
-                var createRequest = new CreateWorkspaceRequest
+                var createRequest = new GrcMvc.Services.Interfaces.CreateWorkspaceRequest
                 {
                     TenantId = tenantId,
                     WorkspaceCode = request.WorkspaceCode,

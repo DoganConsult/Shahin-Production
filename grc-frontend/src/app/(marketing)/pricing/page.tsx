@@ -1,5 +1,7 @@
 "use client"
 
+export const dynamic = 'force-dynamic'
+
 import { motion } from "framer-motion"
 import { Check, X, Zap, Shield, Building2, ArrowLeft } from "lucide-react"
 import Link from "next/link"

@@ -394,5 +394,67 @@ namespace GrcMvc.Services.Implementations
             </body>
             </html>";
         }
+
+        // Trial email methods
+        public async Task SendTrialActivationEmailAsync(string toEmail, string userName, string activationToken, bool isArabic = true)
+        {
+            try
+            {
+                var activationLink = $"https://portal.shahin-ai.com/auth/activate?token={activationToken}";
+                var subject = isArabic ? "تفعيل حسابك التجريبي - شاهين AI" : "Activate Your Trial Account - Shahin AI";
+                var body = await RenderTemplateAsync("TenantActivation", new { Name = userName, ActivationLink = activationLink });
+                await _emailService.SendEmailAsync(toEmail, subject, body);
+                _logger.LogInformation("Trial activation email sent to {Email}", toEmail);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send trial activation email to {Email}", toEmail);
+                throw;
+            }
+        }
+
+        public async Task SendTrialNurtureEmailAsync(string toEmail, string templateName, string companyName, int daysRemaining, bool isArabic = true)
+        {
+            try
+            {
+                var subject = templateName switch
+                {
+                    "TrialWelcome" => isArabic ? "مرحباً بك في شاهين AI" : "Welcome to Shahin AI",
+                    "TrialNudge24h" => isArabic ? "هل تحتاج مساعدة؟" : "Need help getting started?",
+                    "TrialValuePush" => isArabic ? "اكتشف المزيد من المميزات" : "Discover more features",
+                    "TrialMidpoint" => isArabic ? $"متبقي {daysRemaining} أيام في تجربتك" : $"{daysRemaining} days left in your trial",
+                    "TrialEscalation" => isArabic ? "هل نحتفظ بتجربتك؟" : "Should we keep your trial active?",
+                    "TrialExpired" => isArabic ? "انتهت تجربتك" : "Your trial has ended",
+                    "TrialWinback" => isArabic ? "لقد أجرينا تحسينات - عد وشاهد" : "We've made improvements - come back",
+                    _ => isArabic ? "شاهين AI GRC" : "Shahin AI GRC"
+                };
+
+                var model = new { Name = companyName, DaysRemaining = daysRemaining, AccessLink = "https://portal.shahin-ai.com", UpgradeLink = "https://portal.shahin-ai.com/pricing" };
+                var body = await RenderTemplateAsync(templateName, model);
+                await _emailService.SendEmailAsync(toEmail, subject, body);
+                _logger.LogInformation("Trial nurture email {Template} sent to {Email}", templateName, toEmail);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send trial nurture email to {Email}", toEmail);
+                throw;
+            }
+        }
+
+        public async Task SendTemplatedEmailAsync(string toEmail, string templateName, object model, bool isArabic = true)
+        {
+            try
+            {
+                var body = await RenderTemplateAsync(templateName, model);
+                var subject = isArabic ? "شاهين AI GRC" : "Shahin AI GRC";
+                await _emailService.SendEmailAsync(toEmail, subject, body);
+                _logger.LogInformation("Templated email {Template} sent to {Email}", templateName, toEmail);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send templated email to {Email}", toEmail);
+                throw;
+            }
+        }
     }
 }

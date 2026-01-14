@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shahin-grc
+  labels:
+    app.kubernetes.io/name: shahin-grc
+    app.kubernetes.io/part-of: shahin-ai-platform
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: shahin-grc-quota
+  namespace: shahin-grc
+spec:
+  hard:
+    requests.cpu: "16"
+    requests.memory: 32Gi
+    limits.cpu: "32"
+    limits.memory: 64Gi
+    persistentvolumeclaims: "40"
+    pods: "100"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: shahin-grc-limits
+  namespace: shahin-grc
+spec:
+  limits:
+  - default:
+      cpu: "500m"
+      memory: "512Mi"
+    defaultRequest:
+      cpu: "100m"
+      memory: "128Mi"
+    type: Container

@@ -1,0 +1,39 @@
+# Staging Ingress Configuration
+# Uses staging subdomain
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: staging-grc-portal-ingress
+  namespace: shahin-grc-staging
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  tls:
+  - hosts:
+    - staging.shahin-ai.com
+    - staging-portal.shahin-ai.com
+    secretName: staging-grc-tls
+  rules:
+  - host: staging.shahin-ai.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: staging-grc-portal
+            port:
+              number: 8080
+  - host: staging-portal.shahin-ai.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: staging-grc-portal
+            port:
+              number: 8080

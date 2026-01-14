@@ -1,0 +1,39 @@
+# Development Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shahin-grc-dev
+  labels:
+    app.kubernetes.io/name: shahin-grc
+    app.kubernetes.io/part-of: shahin-ai-platform
+    environment: development
+---
+# Reduced ResourceQuota for dev
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: shahin-grc-dev-quota
+  namespace: shahin-grc-dev
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: 8Gi
+    limits.cpu: "8"
+    limits.memory: 16Gi
+    persistentvolumeclaims: "10"
+    pods: "20"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: shahin-grc-dev-limits
+  namespace: shahin-grc-dev
+spec:
+  limits:
+  - default:
+      cpu: "250m"
+      memory: "256Mi"
+    defaultRequest:
+      cpu: "50m"
+      memory: "64Mi"
+    type: Container

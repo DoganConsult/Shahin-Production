@@ -13,7 +13,9 @@ namespace GrcMvc.Tests.Integration
 {
     /// <summary>
     /// Integration tests for background jobs
+    /// Requires ABP infrastructure for DbContext operations
     /// </summary>
+    [Trait("Category", "RequiresAbpInfrastructure")]
     public class BackgroundJobTests : IDisposable
     {
         private readonly GrcDbContext _context;

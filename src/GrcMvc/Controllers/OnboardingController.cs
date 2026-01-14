@@ -6,6 +6,8 @@ using GrcMvc.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.IO;
+using System.Text.Json;
 
 namespace GrcMvc.Controllers
 {
@@ -862,6 +864,30 @@ namespace GrcMvc.Controllers
             TempData["Activated"] = true;
 
             return RedirectToAction(nameof(OrgProfile));
+        }
+
+        private const string DebugLogPath = @"c:\Shahin-ai\.cursor\debug.log";
+        private void SafeDebugLog(string hypothesisId, string location, string message, object data)
+        {
+            try
+            {
+                var payload = new
+                {
+                    sessionId = "debug-session",
+                    runId = "run1",
+                    hypothesisId,
+                    location,
+                    message,
+                    data,
+                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+                };
+                var line = JsonSerializer.Serialize(payload);
+                System.IO.File.AppendAllText(DebugLogPath, line + Environment.NewLine);
+            }
+            catch
+            {
+                // swallow logging errors to avoid impacting flow
+            }
         }
     }
 

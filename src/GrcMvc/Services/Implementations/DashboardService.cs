@@ -224,20 +224,27 @@ namespace GrcMvc.Services.Implementations
 
             var plans = await query.ToListAsync();
 
-            var planSummaries = new List<PlanSummary>();
-            foreach (var plan in plans)
-            {
-                var assessments = await _context.Assessments
-                    .Where(a => a.PlanId == plan.Id && !a.IsDeleted)
-                    .ToListAsync();
+            // OPTIMIZED: Batch load all assessments for all plans in a single query
+            var planIds = plans.Select(p => p.Id).ToList();
+            var allAssessments = await _context.Assessments
+                .Where(a => planIds.Contains(a.PlanId ?? Guid.Empty) && !a.IsDeleted)
+                .ToListAsync();
 
+            // Group assessments by PlanId for O(1) lookup
+            var assessmentsByPlan = allAssessments
+                .GroupBy(a => a.PlanId ?? Guid.Empty)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var planSummaries = plans.Select(plan =>
+            {
+                var assessments = assessmentsByPlan.GetValueOrDefault(plan.Id, new List<Assessment>());
                 var completedPhases = plan.Phases.Count(p => p.Status == "Completed");
                 var completedAssessments = assessments.Count(a => a.Status == "Completed");
                 var progress = plan.Phases.Any()
                     ? (decimal)completedPhases / plan.Phases.Count * 100
                     : 0;
 
-                planSummaries.Add(new PlanSummary
+                return new PlanSummary
                 {
                     PlanId = plan.Id,
                     PlanCode = plan.PlanCode,
@@ -250,8 +257,8 @@ namespace GrcMvc.Services.Implementations
                     CompletedAssessments = completedAssessments,
                     StartDate = plan.StartDate,
                     TargetEndDate = plan.TargetEndDate
-                });
-            }
+                };
+            }).ToList();
 
             return new PlanProgressDashboard
             {
@@ -270,20 +277,27 @@ namespace GrcMvc.Services.Implementations
                 .Where(a => a.PlanId == planId && !a.IsDeleted)
                 .ToListAsync();
 
-            var result = new List<AssessmentProgress>();
-            foreach (var assessment in assessments)
-            {
-                var requirements = await _context.AssessmentRequirements
-                    .Where(r => r.AssessmentId == assessment.Id && !r.IsDeleted)
-                    .ToListAsync();
+            // OPTIMIZED: Batch load all requirements for all assessments in a single query
+            var assessmentIds = assessments.Select(a => a.Id).ToList();
+            var allRequirements = await _context.AssessmentRequirements
+                .Where(r => assessmentIds.Contains(r.AssessmentId) && !r.IsDeleted)
+                .ToListAsync();
 
+            // Group requirements by AssessmentId for O(1) lookup
+            var requirementsByAssessment = allRequirements
+                .GroupBy(r => r.AssessmentId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            return assessments.Select(assessment =>
+            {
+                var requirements = requirementsByAssessment.GetValueOrDefault(assessment.Id, new List<AssessmentRequirement>());
                 var completed = requirements.Count(r =>
                     r.Status == "Compliant" || r.Status == "NonCompliant");
                 var progress = requirements.Any()
                     ? (decimal)completed / requirements.Count * 100
                     : 0;
 
-                result.Add(new AssessmentProgress
+                return new AssessmentProgress
                 {
                     AssessmentId = assessment.Id,
                     AssessmentNumber = assessment.AssessmentNumber,
@@ -293,10 +307,8 @@ namespace GrcMvc.Services.Implementations
                     Score = assessment.Score,
                     TotalRequirements = requirements.Count,
                     CompletedRequirements = completed
-                });
-            }
-
-            return result;
+                };
+            }).ToList();
         }
 
         #endregion
@@ -594,23 +606,20 @@ namespace GrcMvc.Services.Implementations
                 .Where(r => r.AssessmentId == assessmentId && !r.IsDeleted)
                 .ToListAsync();
 
-            var requirementSummaries = new List<RequirementSummary>();
-            foreach (var req in requirements)
-            {
-                var evidenceCount = await _context.Evidences
-                    .CountAsync(e => e.AssessmentId == assessmentId && !e.IsDeleted);
+            // OPTIMIZED: Single count query instead of N queries in loop
+            var evidenceCount = await _context.Evidences
+                .CountAsync(e => e.AssessmentId == assessmentId && !e.IsDeleted);
 
-                requirementSummaries.Add(new RequirementSummary
-                {
-                    RequirementId = req.Id,
-                    ControlNumber = req.ControlNumber,
-                    ControlTitle = req.ControlTitle,
-                    Domain = req.Domain,
-                    Status = req.Status ?? "NotStarted",
-                    Score = req.Score ?? 0,
-                    EvidenceCount = evidenceCount
-                });
-            }
+            var requirementSummaries = requirements.Select(req => new RequirementSummary
+            {
+                RequirementId = req.Id,
+                ControlNumber = req.ControlNumber,
+                ControlTitle = req.ControlTitle,
+                Domain = req.Domain,
+                Status = req.Status ?? "NotStarted",
+                Score = req.Score ?? 0,
+                EvidenceCount = evidenceCount
+            }).ToList();
 
             return new AssessmentDrillDown
             {
@@ -634,25 +643,22 @@ namespace GrcMvc.Services.Implementations
                 .Where(e => e.AssessmentId == requirement.AssessmentId && !e.IsDeleted)
                 .ToListAsync();
 
-            var evidenceSummaries = new List<EvidenceSummary>();
-            foreach (var evidence in evidences)
-            {
-                var score = await _context.EvidenceScores
-                    .Where(s => s.EvidenceId == evidence.Id && s.IsFinal)
-                    .Select(s => (int?)s.Score)
-                    .FirstOrDefaultAsync();
+            // OPTIMIZED: Batch load all scores in a single query instead of N queries in loop
+            var evidenceIds = evidences.Select(e => e.Id).ToList();
+            var scores = await _context.EvidenceScores
+                .Where(s => evidenceIds.Contains(s.EvidenceId) && s.IsFinal)
+                .ToDictionaryAsync(s => s.EvidenceId, s => (int?)s.Score);
 
-                evidenceSummaries.Add(new EvidenceSummary
-                {
-                    EvidenceId = evidence.Id,
-                    EvidenceNumber = evidence.EvidenceNumber,
-                    Title = evidence.Title,
-                    Type = evidence.Type,
-                    Status = evidence.VerificationStatus,
-                    Score = score,
-                    CollectionDate = evidence.CollectionDate
-                });
-            }
+            var evidenceSummaries = evidences.Select(evidence => new EvidenceSummary
+            {
+                EvidenceId = evidence.Id,
+                EvidenceNumber = evidence.EvidenceNumber,
+                Title = evidence.Title,
+                Type = evidence.Type,
+                Status = evidence.VerificationStatus,
+                Score = scores.GetValueOrDefault(evidence.Id),
+                CollectionDate = evidence.CollectionDate
+            }).ToList();
 
             return new RequirementDrillDown
             {
@@ -684,39 +690,54 @@ namespace GrcMvc.Services.Implementations
                 assessmentsQuery = assessmentsQuery.Where(a => a.Id == assessmentId.Value);
 
             var assessments = await assessmentsQuery.ToListAsync();
+            var assessmentIds = assessments.Select(a => a.Id).ToList();
+
+            // OPTIMIZED: Batch load all requirements for all assessments in a single query
+            var allRequirements = await _context.AssessmentRequirements
+                .Where(r => assessmentIds.Contains(r.AssessmentId) && !r.IsDeleted)
+                .ToListAsync();
+            var requirementsByAssessment = allRequirements
+                .GroupBy(r => r.AssessmentId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            // OPTIMIZED: Batch load all evidences for all assessments in a single query
+            var allEvidencesFromDb = await _context.Evidences
+                .Where(e => assessmentIds.Contains(e.AssessmentId ?? Guid.Empty) && !e.IsDeleted)
+                .ToListAsync();
+            var evidencesByAssessment = allEvidencesFromDb
+                .GroupBy(e => e.AssessmentId ?? Guid.Empty)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            // OPTIMIZED: Batch load all evidence scores in a single query
+            var allEvidenceIds = allEvidencesFromDb.Select(e => e.Id).ToList();
+            var allScores = await _context.EvidenceScores
+                .Where(s => allEvidenceIds.Contains(s.EvidenceId) && s.IsFinal)
+                .ToDictionaryAsync(s => s.EvidenceId, s => (int?)s.Score);
 
             var assessmentAuditData = new List<AssessmentAuditData>();
             var allEvidences = new List<EvidenceAuditData>();
+            var processedEvidenceIds = new HashSet<Guid>();
 
             foreach (var assessment in assessments)
             {
-                var requirements = await _context.AssessmentRequirements
-                    .Where(r => r.AssessmentId == assessment.Id && !r.IsDeleted)
-                    .ToListAsync();
+                var requirements = requirementsByAssessment.GetValueOrDefault(assessment.Id, new List<AssessmentRequirement>());
+                var evidences = evidencesByAssessment.GetValueOrDefault(assessment.Id, new List<Evidence>());
 
-                var requirementAuditData = new List<RequirementAuditData>();
-                foreach (var req in requirements)
+                var requirementAuditData = requirements.Select(req => new RequirementAuditData
                 {
-                    var evidences = await _context.Evidences
-                        .Where(e => e.AssessmentId == assessment.Id && !e.IsDeleted)
-                        .ToListAsync();
+                    ControlNumber = req.ControlNumber,
+                    ControlTitle = req.ControlTitle,
+                    Status = req.Status ?? "NotStarted",
+                    Score = req.Score ?? 0,
+                    EvidenceIds = string.Join(",", evidences.Select(e => e.EvidenceNumber))
+                }).ToList();
 
-                    requirementAuditData.Add(new RequirementAuditData
+                // Add evidences only once (avoid duplicates across requirements)
+                foreach (var evidence in evidences)
+                {
+                    if (!processedEvidenceIds.Contains(evidence.Id))
                     {
-                        ControlNumber = req.ControlNumber,
-                        ControlTitle = req.ControlTitle,
-                        Status = req.Status ?? "NotStarted",
-                        Score = req.Score ?? 0,
-                        EvidenceIds = string.Join(",", evidences.Select(e => e.EvidenceNumber))
-                    });
-
-                    foreach (var evidence in evidences)
-                    {
-                        var score = await _context.EvidenceScores
-                            .Where(s => s.EvidenceId == evidence.Id && s.IsFinal)
-                            .Select(s => (int?)s.Score)
-                            .FirstOrDefaultAsync();
-
+                        processedEvidenceIds.Add(evidence.Id);
                         allEvidences.Add(new EvidenceAuditData
                         {
                             EvidenceId = evidence.Id,
@@ -725,7 +746,7 @@ namespace GrcMvc.Services.Implementations
                             Type = evidence.Type,
                             FileName = evidence.FileName,
                             Status = evidence.VerificationStatus,
-                            Score = score,
+                            Score = allScores.GetValueOrDefault(evidence.Id),
                             CollectionDate = evidence.CollectionDate,
                             CollectedBy = evidence.CollectedBy,
                             VerifiedBy = evidence.VerifiedBy,

@@ -1,0 +1,36 @@
+# Docker ignore file - exclude local development files
+# This prevents local configuration from being included in production builds
+
+# Local development configuration (contains localhost connection strings)
+appsettings.Local.json
+appsettings.local.json
+.env.local
+.env
+
+# Build artifacts
+bin/
+obj/
+publish/
+
+# IDE files
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Logs
+logs/
+*.log
+
+# Test files
+**/*.Tests/
+TestResults/
+
+# Documentation
+README.md
+docs/
+
+# Git
+.git/
+.gitignore
+.gitattributes

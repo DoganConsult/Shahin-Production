@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using GrcMvc.Configuration;
 using GrcMvc.Data;
 using GrcMvc.Services.Interfaces;
@@ -19,6 +20,31 @@ public class ClaudeAgentService : IClaudeAgentService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ClaudeApiSettings _settings;
     private readonly bool _isConfigured;
+
+    /// <summary>
+    /// Patterns that may indicate prompt injection attempts
+    /// </summary>
+    private static readonly string[] PromptInjectionPatterns = new[]
+    {
+        @"ignore\s+(all\s+)?(previous|prior|above)\s+(instructions?|prompts?|context)",
+        @"system:\s*you\s+are",
+        @"assistant:\s*",
+        @"human:\s*",
+        @"<\s*system\s*>",
+        @"<\s*/?\s*prompt\s*>",
+        @"forget\s+(everything|all)",
+        @"new\s+instructions?:",
+        @"override\s+(system|instructions?)",
+        @"act\s+as\s+if",
+        @"pretend\s+(you\s+are|to\s+be)",
+        @"jailbreak",
+        @"dan\s+mode",
+        @"developer\s+mode"
+    };
+
+    private static readonly Regex PromptInjectionRegex = new(
+        string.Join("|", PromptInjectionPatterns),
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private const string SystemPrompt = @"You are an expert GRC (Governance, Risk, and Compliance) AI assistant for a Saudi Arabian enterprise platform.
 You have deep knowledge of:
@@ -48,6 +74,91 @@ Always return responses in valid JSON format as specified in the prompts.";
             _logger.LogWarning("Claude API key is not configured. AI agent features will be limited.");
         }
     }
+
+    #region Input Sanitization
+
+    /// <summary>
+    /// Sanitizes user input to prevent prompt injection attacks.
+    /// Returns sanitized string or throws if injection is detected.
+    /// </summary>
+    /// <param name="input">User-provided input</param>
+    /// <param name="fieldName">Name of the field for logging</param>
+    /// <param name="maxLength">Maximum allowed length (default 10000)</param>
+    /// <returns>Sanitized input string</returns>
+    /// <exception cref="ArgumentException">Thrown when prompt injection is detected</exception>
+    private string SanitizeInput(string? input, string fieldName, int maxLength = 10000)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return string.Empty;
+        }
+
+        // Truncate to max length to prevent token exhaustion
+        var sanitized = input.Length > maxLength ? input[..maxLength] : input;
+
+        // Check for prompt injection patterns
+        if (DetectPromptInjection(sanitized))
+        {
+            _logger.LogWarning(
+                "Potential prompt injection detected in field {FieldName}. Input blocked.",
+                fieldName);
+            throw new ArgumentException($"Invalid input detected in {fieldName}. Please remove special instructions.");
+        }
+
+        // Escape special characters that could affect prompt parsing
+        sanitized = EscapePromptCharacters(sanitized);
+
+        return sanitized;
+    }
+
+    /// <summary>
+    /// Detects potential prompt injection patterns in user input
+    /// </summary>
+    private bool DetectPromptInjection(string input)
+    {
+        return PromptInjectionRegex.IsMatch(input);
+    }
+
+    /// <summary>
+    /// Escapes characters that could affect prompt parsing
+    /// </summary>
+    private static string EscapePromptCharacters(string input)
+    {
+        // Replace characters that could be used to manipulate prompts
+        return input
+            .Replace("```", "'''")  // Prevent code block injection
+            .Replace("<<", "< <")   // Prevent XML-style tags
+            .Replace(">>", "> >")
+            .Replace("{{", "{ {")   // Prevent template injection
+            .Replace("}}", "} }");
+    }
+
+    /// <summary>
+    /// Validates that input doesn't contain sensitive data patterns
+    /// </summary>
+    private bool ContainsSensitiveData(string input)
+    {
+        var sensitivePatterns = new[]
+        {
+            @"\b\d{3}-\d{2}-\d{4}\b",           // SSN pattern
+            @"\b\d{16}\b",                       // Credit card pattern
+            @"password\s*[:=]\s*\S+",           // Password pattern
+            @"api[_-]?key\s*[:=]\s*\S+",        // API key pattern
+            @"secret\s*[:=]\s*\S+"              // Secret pattern
+        };
+
+        foreach (var pattern in sensitivePatterns)
+        {
+            if (Regex.IsMatch(input, pattern, RegexOptions.IgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    #endregion
 
     public Task<bool> IsAvailableAsync(CancellationToken cancellationToken = default)
     {
@@ -129,12 +240,20 @@ Return JSON:
 
         try
         {
+            // Sanitize user input to prevent prompt injection
+            var sanitizedDescription = SanitizeInput(riskDescription, "riskDescription", 5000);
             var contextJson = context != null ? JsonSerializer.Serialize(context) : "No additional context";
+
+            // Check for sensitive data in user input
+            if (ContainsSensitiveData(sanitizedDescription))
+            {
+                _logger.LogWarning("Risk description contains potentially sensitive data patterns");
+            }
 
             var prompt = $@"
 Analyze this risk and provide assessment:
 
-Risk Description: {riskDescription}
+Risk Description: {sanitizedDescription}
 
 Context: {contextJson}
 

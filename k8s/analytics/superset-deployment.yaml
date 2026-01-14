@@ -1,0 +1,183 @@
+# =============================================================================
+# Apache Superset - Business Intelligence Platform
+# =============================================================================
+# Data exploration and visualization platform
+# Port: 8088
+# =============================================================================
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: superset
+  namespace: shahin-grc
+  labels:
+    app.kubernetes.io/name: superset
+    app.kubernetes.io/component: analytics
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8088
+    targetPort: 8088
+  selector:
+    app.kubernetes.io/name: superset
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: superset-credentials
+  namespace: shahin-grc
+type: Opaque
+stringData:
+  SUPERSET_SECRET_KEY: "superset-secret-key-change-in-production-2026-shahin"
+  ADMIN_USERNAME: "admin"
+  ADMIN_PASSWORD: "SupersetAdmin2026!"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: superset-config
+  namespace: shahin-grc
+data:
+  superset_config.py: |
+    import os
+    from flask_caching.backends.rediscache import RedisCache
+
+    SECRET_KEY = os.environ.get('SUPERSET_SECRET_KEY', 'change-me')
+
+    SQLALCHEMY_DATABASE_URI = f"postgresql://{os.environ.get('DB_USER', 'shahin_admin')}:{os.environ.get('DB_PASSWORD', '')}@postgres-headless:5432/superset"
+
+    CACHE_CONFIG = {
+        'CACHE_TYPE': 'RedisCache',
+        'CACHE_DEFAULT_TIMEOUT': 300,
+        'CACHE_KEY_PREFIX': 'superset_',
+        'CACHE_REDIS_HOST': 'redis-master',
+        'CACHE_REDIS_PORT': 6379,
+        'CACHE_REDIS_DB': 1,
+    }
+
+    FEATURE_FLAGS = {
+        'ENABLE_TEMPLATE_PROCESSING': True,
+        'DASHBOARD_NATIVE_FILTERS': True,
+        'DASHBOARD_CROSS_FILTERS': True,
+    }
+
+    WTF_CSRF_ENABLED = True
+    ENABLE_PROXY_FIX = True
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: superset
+  namespace: shahin-grc
+  labels:
+    app.kubernetes.io/name: superset
+    app.kubernetes.io/component: analytics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: superset
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: superset
+        app.kubernetes.io/component: analytics
+    spec:
+      initContainers:
+      - name: superset-init
+        image: apache/superset:3.1.0
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            superset db upgrade &&
+            superset fab create-admin --username $ADMIN_USERNAME --firstname Admin --lastname User --email admin@shahin-ai.com --password $ADMIN_PASSWORD || true &&
+            superset init
+        env:
+        - name: SUPERSET_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: superset-credentials
+              key: SUPERSET_SECRET_KEY
+        - name: ADMIN_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: superset-credentials
+              key: ADMIN_USERNAME
+        - name: ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: superset-credentials
+              key: ADMIN_PASSWORD
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: POSTGRES_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: POSTGRES_PASSWORD
+        volumeMounts:
+        - name: superset-config
+          mountPath: /app/pythonpath/superset_config.py
+          subPath: superset_config.py
+      containers:
+      - name: superset
+        image: apache/superset:3.1.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8088
+        command: ["gunicorn"]
+        args:
+          - "--bind=0.0.0.0:8088"
+          - "--workers=4"
+          - "--timeout=120"
+          - "--limit-request-line=0"
+          - "--limit-request-field_size=0"
+          - "superset.app:create_app()"
+        env:
+        - name: SUPERSET_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: superset-credentials
+              key: SUPERSET_SECRET_KEY
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: POSTGRES_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: POSTGRES_PASSWORD
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            cpu: 2000m
+            memory: 2Gi
+        volumeMounts:
+        - name: superset-config
+          mountPath: /app/pythonpath/superset_config.py
+          subPath: superset_config.py
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8088
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8088
+          initialDelaySeconds: 120
+          periodSeconds: 30
+      volumes:
+      - name: superset-config
+        configMap:
+          name: superset-config

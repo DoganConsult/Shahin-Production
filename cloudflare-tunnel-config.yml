@@ -39,9 +39,10 @@ ingress:
   # ══════════════════════════════════════════════════════════════
   # PRODUCTION APP - portal.shahin-ai.com (User Access)
   # Main application access for authenticated users
+  # Docker container: shahin-grc-production on port 80
   # ══════════════════════════════════════════════════════════════
   - hostname: portal.shahin-ai.com
-    service: http://localhost:5000
+    service: http://localhost:80
     originRequest:
       connectTimeout: 30s
       noTLSVerify: true
@@ -77,12 +78,12 @@ ingress:
       noTLSVerify: true
 
   # ══════════════════════════════════════════════════════════════
-  # TENANT SUBDOMAINS - *.shahin-ai.com → Port 5000 (Production)
+  # TENANT SUBDOMAINS - *.shahin-ai.com → Port 80 (Production)
   # Wildcard for multi-tenant subdomains (e.g., acme.shahin-ai.com)
   # Must be LAST before catch-all (specific rules take precedence)
   # ══════════════════════════════════════════════════════════════
   - hostname: "*.shahin-ai.com"
-    service: http://localhost:5000
+    service: http://localhost:80
     originRequest:
       connectTimeout: 30s
       noTLSVerify: true

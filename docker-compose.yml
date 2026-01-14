@@ -28,11 +28,12 @@ services:
     networks:
       - grc-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      # Use /health/live for liveness - doesn't require DB connection
+      test: ["CMD", "curl", "-f", "http://localhost/health/live"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s  # Increased to allow for DB migrations
 
   db:
     image: postgres:15-alpine

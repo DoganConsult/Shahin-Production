@@ -357,9 +357,90 @@
 
 @section Scripts {
     <script>
-        function toggleTask(taskId) {
-            // TODO: Submit task completion toggle
-            console.log('Toggle task: ' + taskId);
+        async function toggleTask(taskId) {
+            try {
+                const checkbox = event.target;
+                const newStatus = checkbox.checked ? 'Completed' : 'Pending';
+
+                // Show loading state
+                checkbox.disabled = true;
+
+                const response = await fetch('/api/certification/tasks/' + taskId + '/status', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update task status');
+                }
+
+                // Update UI based on new status
+                const listItem = checkbox.closest('.list-group-item');
+                const label = listItem.querySelector('.form-check-label');
+                const statusBadge = listItem.querySelector('.badge:last-child');
+
+                if (checkbox.checked) {
+                    listItem.classList.remove('list-group-item-info', 'list-group-item-danger');
+                    listItem.classList.add('list-group-item-success');
+                    label.classList.add('text-decoration-line-through');
+                    if (statusBadge) {
+                        statusBadge.className = 'badge bg-success';
+                        statusBadge.textContent = 'Completed';
+                    }
+                } else {
+                    listItem.classList.remove('list-group-item-success');
+                    label.classList.remove('text-decoration-line-through');
+                    if (statusBadge) {
+                        statusBadge.className = 'badge bg-warning text-dark';
+                        statusBadge.textContent = 'Pending';
+                    }
+                }
+
+                // Update progress bar
+                updateProgressDisplay();
+
+            } catch (error) {
+                console.error('Error toggling task:', error);
+                // Revert checkbox state on error
+                event.target.checked = !event.target.checked;
+                alert('Failed to update task. Please try again.');
+            } finally {
+                event.target.disabled = false;
+            }
+        }
+
+        function updateProgressDisplay() {
+            // Recalculate progress based on completed checkboxes
+            const checkboxes = document.querySelectorAll('.form-check-input');
+            const total = checkboxes.length;
+            const completed = document.querySelectorAll('.form-check-input:checked').length;
+
+            if (total > 0) {
+                const percentage = Math.round((completed / total) * 100);
+
+                // Update progress bar
+                const progressBar = document.querySelector('.progress-bar.bg-primary');
+                if (progressBar) {
+                    progressBar.style.width = percentage + '%';
+                    progressBar.textContent = completed + ' / ' + total + ' Tasks Complete';
+                }
+
+                // Update completion percentage
+                const completionText = document.querySelector('.text-primary h4');
+                if (completionText) {
+                    completionText.textContent = percentage + '%';
+                }
+
+                // Update completed count
+                const completedCountText = document.querySelector('.text-success h4');
+                if (completedCountText) {
+                    completedCountText.textContent = completed;
+                }
+            }
         }
     </script>
 }

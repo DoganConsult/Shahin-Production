@@ -304,10 +304,18 @@ public class EvidencePack : BaseEntity
     [StringLength(1000)]
     public string? Description { get; set; }
 
+    [StringLength(1000)]
+    public string? DescriptionAr { get; set; }
+
     /// <summary>
     /// Evidence items in this pack (JSON array)
     /// </summary>
     public string? EvidenceItemsJson { get; set; }
+
+    /// <summary>
+    /// Evidence items in Arabic (JSON array)
+    /// </summary>
+    public string? EvidenceItemsArJson { get; set; }
 
     /// <summary>
     /// Required frequency: Continuous, Daily, Weekly, Monthly, Quarterly, Annual

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using GrcMvc.Exceptions;
+using GrcMvc.Services.Interfaces.Workflows;
 using Microsoft.Extensions.Logging;
 
 namespace GrcMvc.Services.Implementations
@@ -11,7 +12,7 @@ namespace GrcMvc.Services.Implementations
     /// BPMN 2.0 XML Parser - Extracts workflow steps from BPMN XML
     /// Supports startEvent, userTask, endEvent elements
     /// </summary>
-    public class BpmnParser
+    public class BpmnParser : IBpmnParser
     {
         private readonly ILogger<BpmnParser> _logger;
 

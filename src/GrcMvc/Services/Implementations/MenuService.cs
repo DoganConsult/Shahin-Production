@@ -386,13 +386,6 @@ public class MenuService : IMenuService
             // Sort by Order (audit story flow)
             var sortedMenuItems = menuItems.OrderBy(m => m.Order).ToList();
 
-            // #region agent log
-            _logger.LogInformation("Menu items ordered for user {UserId}. Total items: {Count}. Order sequence: {OrderSequence}",
-                userId,
-                sortedMenuItems.Count,
-                string.Join(", ", sortedMenuItems.Select(m => $"{m.Name}({m.Order})")));
-            // #endregion
-
             return sortedMenuItems;
         }
         catch (Exception ex)

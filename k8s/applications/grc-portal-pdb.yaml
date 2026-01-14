@@ -1,0 +1,15 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: grc-portal-pdb
+  namespace: shahin-grc
+  labels:
+    app.kubernetes.io/name: grc-portal
+    app.kubernetes.io/component: availability
+spec:
+  # Ensure at least 1 pod is always available during voluntary disruptions
+  # (node drain, rolling updates, etc.)
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: grc-portal

@@ -6,13 +6,17 @@ namespace GrcMvc.Authorization;
 
 /// <summary>
 /// Authorization handler that checks if user has the required permission.
-/// Checks in order: claims, database (RBAC), role-based fallback.
+/// Checks in order: 1) Explicit denials, 2) Claims, 3) Database (RBAC), 4) Role-based fallback.
 /// Supports both "Grc.Module.Action" and "Module.Action" permission formats.
 /// </summary>
 public sealed class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
 {
     private readonly ILogger<PermissionAuthorizationHandler> _logger;
     private readonly IServiceProvider _serviceProvider;
+
+    // Roles that have all permissions as a fallback (only after claims and database checks)
+    private static readonly string[] SuperAdminRoles = ["PlatformAdmin"];
+    private static readonly string[] TenantAdminRoles = ["Admin", "Owner"];
 
     public PermissionAuthorizationHandler(
         ILogger<PermissionAuthorizationHandler> logger,
@@ -34,48 +38,77 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
 
         var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
         var permission = requirement.Permission;
+        var userName = context.User.Identity?.Name ?? "Unknown";
 
-        // 1. Check for permission claim (supports multiple claim types)
-        var hasPermission = CheckPermissionClaims(context.User, permission);
-
-        // 2. Fallback: Admin role has all permissions
-        if (!hasPermission && context.User.IsInRole("Admin"))
+        // 1. Check for explicit denial claims first (security override)
+        if (HasExplicitDenial(context.User, permission))
         {
-            hasPermission = true;
-            _logger.LogDebug("Permission granted via Admin role. Permission={Permission}", permission);
+            _logger.LogWarning("Permission explicitly denied. Permission={Permission}, User={User}", permission, userName);
+            return; // Do not succeed - permission explicitly revoked
         }
 
-        // 3. Fallback: Owner role has all permissions
-        if (!hasPermission && context.User.IsInRole("Owner"))
-        {
-            hasPermission = true;
-            _logger.LogDebug("Permission granted via Owner role. Permission={Permission}", permission);
-        }
-
-        // 4. Fallback: PlatformAdmin role has all permissions
-        if (!hasPermission && context.User.IsInRole("PlatformAdmin"))
-        {
-            hasPermission = true;
-            _logger.LogDebug("Permission granted via PlatformAdmin role. Permission={Permission}", permission);
-        }
-
-        // 5. Check database via RBAC service if not found in claims
-        if (!hasPermission && !string.IsNullOrEmpty(userId))
-        {
-            hasPermission = await CheckDatabasePermissionAsync(userId, permission, context.User);
-        }
-
-        if (hasPermission)
+        // 2. Check for permission claim (supports multiple claim types)
+        if (CheckPermissionClaims(context.User, permission))
         {
             context.Succeed(requirement);
-            _logger.LogDebug("Permission check passed. Permission={Permission}, User={User}",
-                permission, context.User.Identity?.Name);
+            _logger.LogDebug("Permission granted via claims. Permission={Permission}, User={User}", permission, userName);
+            return;
         }
-        else
+
+        // 3. Check database via RBAC service (proper permission management)
+        if (!string.IsNullOrEmpty(userId))
         {
-            _logger.LogDebug("Permission check failed. Permission={Permission}, User={User}",
-                permission, context.User.Identity?.Name);
+            var (hasPermission, isDenied) = await CheckDatabasePermissionAsync(userId, permission, context.User);
+
+            if (isDenied)
+            {
+                _logger.LogWarning("Permission denied via RBAC database. Permission={Permission}, User={User}", permission, userName);
+                return; // Explicit denial in database
+            }
+
+            if (hasPermission)
+            {
+                context.Succeed(requirement);
+                _logger.LogDebug("Permission granted via RBAC database. Permission={Permission}, User={User}", permission, userName);
+                return;
+            }
         }
+
+        // 4. Role-based fallback (ONLY after claims and database checks)
+        // PlatformAdmin: Full platform access
+        if (SuperAdminRoles.Any(role => context.User.IsInRole(role)))
+        {
+            context.Succeed(requirement);
+            _logger.LogDebug("Permission granted via PlatformAdmin role fallback. Permission={Permission}, User={User}", permission, userName);
+            return;
+        }
+
+        // Tenant Admin/Owner: Full tenant access (but check tenant context)
+        if (TenantAdminRoles.Any(role => context.User.IsInRole(role)))
+        {
+            var tenantIdClaim = context.User.FindFirstValue("tenant_id") ?? context.User.FindFirstValue("TenantId");
+            if (!string.IsNullOrEmpty(tenantIdClaim))
+            {
+                context.Succeed(requirement);
+                _logger.LogDebug("Permission granted via {Role} role fallback within tenant. Permission={Permission}, User={User}, TenantId={TenantId}",
+                    context.User.IsInRole("Admin") ? "Admin" : "Owner", permission, userName, tenantIdClaim);
+                return;
+            }
+        }
+
+        _logger.LogDebug("Permission check failed - no matching permission found. Permission={Permission}, User={User}", permission, userName);
+    }
+
+    /// <summary>
+    /// Check for explicit denial claims (permission_denied, deny_permission)
+    /// </summary>
+    private bool HasExplicitDenial(ClaimsPrincipal user, string permission)
+    {
+        var permissionVariants = GetPermissionVariants(permission);
+
+        return user.Claims.Any(c =>
+            (c.Type == "permission_denied" || c.Type == "deny_permission") &&
+            permissionVariants.Any(p => c.Value.Equals(p, StringComparison.OrdinalIgnoreCase)));
     }
 
     /// <summary>
@@ -92,9 +125,11 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
     }
 
     /// <summary>
-    /// Check permission in database via RBAC service
+    /// Check permission in database via RBAC service.
+    /// Returns a tuple of (hasPermission, isExplicitlyDenied).
     /// </summary>
-    private async Task<bool> CheckDatabasePermissionAsync(string userId, string permission, ClaimsPrincipal user)
+    private async Task<(bool hasPermission, bool isDenied)> CheckDatabasePermissionAsync(
+        string userId, string permission, ClaimsPrincipal user)
     {
         try
         {
@@ -104,7 +139,7 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             if (permissionService == null)
             {
                 _logger.LogDebug("RBAC PermissionService not available, skipping database check");
-                return false;
+                return (false, false);
             }
 
             // Get tenant ID from claims
@@ -112,17 +147,28 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             if (!Guid.TryParse(tenantIdClaim, out var tenantId))
             {
                 _logger.LogDebug("No valid tenant ID in claims, skipping database permission check");
-                return false;
+                return (false, false);
             }
 
             // Check all permission variants
             var variants = GetPermissionVariants(permission);
             foreach (var variant in variants)
             {
+                // Check for explicit denial first (if the service supports it)
+                if (permissionService is IPermissionDenialService denialService)
+                {
+                    if (await denialService.IsPermissionDeniedAsync(userId, variant, tenantId))
+                    {
+                        _logger.LogDebug("Permission explicitly denied in database. Permission={Permission}, Variant={Variant}", permission, variant);
+                        return (false, true);
+                    }
+                }
+
+                // Check for granted permission
                 if (await permissionService.HasPermissionAsync(userId, variant, tenantId))
                 {
                     _logger.LogDebug("Permission granted via database. Permission={Permission}, Variant={Variant}", permission, variant);
-                    return true;
+                    return (true, false);
                 }
             }
         }
@@ -131,7 +177,7 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             _logger.LogWarning(ex, "Error checking permission in database. Permission={Permission}", permission);
         }
 
-        return false;
+        return (false, false);
     }
 
     /// <summary>
@@ -155,4 +201,16 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
 
         return variants;
     }
+}
+
+/// <summary>
+/// Interface for services that support explicit permission denial checking.
+/// Implement this alongside IPermissionService for fine-grained access control.
+/// </summary>
+public interface IPermissionDenialService
+{
+    /// <summary>
+    /// Check if a permission is explicitly denied for a user.
+    /// </summary>
+    Task<bool> IsPermissionDeniedAsync(string userId, string permission, Guid tenantId);
 }

@@ -51,5 +51,16 @@ namespace GrcMvc.Services.Interfaces
         // Access Control
         Task<bool> IsUserLimitReachedAsync(Guid tenantId);
         Task<bool> IsFeatureAvailableAsync(Guid tenantId, string featureName);
+
+        // Trial Checkout
+        Task<CheckoutSessionResult> CreateCheckoutSessionAsync(Guid tenantId, string planCode);
+    }
+
+    public class CheckoutSessionResult
+    {
+        public bool Success { get; set; }
+        public string? CheckoutUrl { get; set; }
+        public string? SessionId { get; set; }
+        public string? Message { get; set; }
     }
 }

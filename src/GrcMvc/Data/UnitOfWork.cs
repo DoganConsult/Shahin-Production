@@ -77,6 +77,9 @@ namespace GrcMvc.Data
         private IGenericRepository<UserConsent>? _userConsents;
         private IGenericRepository<LegalDocument>? _legalDocuments;
 
+        // Trial Lifecycle
+        private IGenericRepository<TrialSignup>? _trialSignups;
+
         // Support Agent & Chat
         private IGenericRepository<SupportConversation>? _supportConversations;
         private IGenericRepository<SupportMessage>? _supportMessages;
@@ -240,6 +243,10 @@ namespace GrcMvc.Data
 
         public IGenericRepository<LegalDocument> LegalDocuments =>
             _legalDocuments ??= new GenericRepository<LegalDocument>(_context);
+
+        // Trial Lifecycle property
+        public IGenericRepository<TrialSignup> TrialSignups =>
+            _trialSignups ??= new GenericRepository<TrialSignup>(_context);
 
         // Support Agent & Chat properties
         public IGenericRepository<SupportConversation> SupportConversations =>

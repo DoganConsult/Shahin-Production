@@ -80,47 +80,248 @@
 </div>
 
 <script>
+    let currentStage = 'all';
+    let selectedCell = null;
+
     document.addEventListener('DOMContentLoaded', function() {
         loadHeatmapData();
-        
+
         document.querySelectorAll('.heatmap-cell').forEach(cell => {
             cell.addEventListener('click', function() {
+                // Remove selection from previous cell
+                if (selectedCell) {
+                    selectedCell.classList.remove('ring-2', 'ring-primary');
+                }
+                // Add selection to current cell
+                this.classList.add('ring-2', 'ring-primary');
+                selectedCell = this;
+
                 const prob = this.dataset.prob;
                 const impact = this.dataset.impact;
                 loadRisksByCell(prob, impact);
             });
         });
-        
+
         document.getElementById('stageFilter').addEventListener('change', function() {
+            currentStage = this.value;
             loadHeatmapData(this.value);
         });
     });
-    
-    function loadHeatmapData(stage = 'all') {
-        // TODO: Call API endpoint /api/risks/heatmap/{tenantId}
-        // Update cell counts based on response
-        fetch(`/api/risks/heatmap?stage=${stage}`)
-            .then(response => response.json())
-            .then(data => {
-                // Update heatmap cells with risk counts
-                data.cells?.forEach(cell => {
-                    const cellElement = document.querySelector(`[data-prob="${cell.prob}"][data-impact="${cell.impact}"]`);
+
+    async function loadHeatmapData(stage = 'all') {
+        try {
+            const response = await fetch(`/api/risks/heatmap?stage=${stage}`);
+            const data = await response.json();
+
+            // Reset all cells to 0
+            document.querySelectorAll('.risk-count').forEach(el => {
+                el.textContent = '0';
+            });
+
+            // Update heatmap cells with risk counts
+            if (data.cells && Array.isArray(data.cells)) {
+                data.cells.forEach(cell => {
+                    const cellElement = document.querySelector(`[data-prob="${cell.probability}"][data-impact="${cell.impact}"]`);
                     if (cellElement) {
-                        cellElement.querySelector('.risk-count').textContent = cell.count || 0;
+                        const countEl = cellElement.querySelector('.risk-count');
+                        countEl.textContent = cell.count || 0;
+
+                        // Add visual indicator for cells with risks
+                        if (cell.count > 0) {
+                            countEl.classList.add('fw-bold');
+                        } else {
+                            countEl.classList.remove('fw-bold');
+                        }
                     }
                 });
-            })
-            .catch(error => console.error('Error loading heatmap:', error));
+            }
+
+            // Update summary if provided
+            if (data.summary) {
+                updateSummary(data.summary);
+            }
+        } catch (error) {
+            console.error('Error loading heatmap:', error);
+        }
     }
-    
-    function loadRisksByCell(prob, impact) {
-        // TODO: Load risks for specific cell
-        document.getElementById('riskDetails').innerHTML = 
-            `<p>Loading risks for Probability=${prob}, Impact=${impact}...</p>`;
+
+    async function loadRisksByCell(prob, impact) {
+        const detailsContainer = document.getElementById('riskDetails');
+        const score = prob * impact;
+        const riskLevel = score >= 20 ? 'Critical' : score >= 12 ? 'High' : score >= 6 ? 'Medium' : 'Low';
+        const riskLevelClass = score >= 20 ? 'danger' : score >= 12 ? 'warning' : score >= 6 ? 'info' : 'success';
+
+        detailsContainer.innerHTML = `
+            <div class="d-flex align-items-center mb-3">
+                <div class="spinner-border spinner-border-sm me-2" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                Loading risks for Probability ${prob} × Impact ${impact} (Score: ${score})...
+            </div>
+        `;
+
+        try {
+            const response = await fetch(`/api/risks/by-score?probability=${prob}&impact=${impact}&stage=${currentStage}`);
+            const risks = await response.json();
+
+            if (!risks || risks.length === 0) {
+                detailsContainer.innerHTML = `
+                    <div class="alert alert-secondary mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        No risks found for Probability ${prob} × Impact ${impact}
+                    </div>
+                `;
+                return;
+            }
+
+            detailsContainer.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <span class="badge bg-${riskLevelClass} me-2">${riskLevel}</span>
+                        <strong>Probability ${prob} × Impact ${impact}</strong>
+                        <span class="text-muted">(Score: ${score})</span>
+                    </div>
+                    <span class="badge bg-primary">${risks.length} risk(s)</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Risk ID</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Owner</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${risks.map(risk => `
+                                <tr>
+                                    <td><code>${risk.riskId || risk.id}</code></td>
+                                    <td>${risk.name}</td>
+                                    <td><span class="badge bg-secondary">${risk.category || '-'}</span></td>
+                                    <td>${risk.ownerName || risk.owner || '-'}</td>
+                                    <td>
+                                        <span class="badge bg-${getStatusClass(risk.status)}">${risk.status || 'Open'}</span>
+                                    </td>
+                                    <td>
+                                        <a href="/Risk/Details/${risk.id}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        } catch (error) {
+            console.error('Error loading risks by cell:', error);
+            detailsContainer.innerHTML = `
+                <div class="alert alert-danger mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Error loading risks. Please try again.
+                </div>
+            `;
+        }
     }
-    
-    function exportHeatmap() {
-        // TODO: Export heatmap as image or PDF
-        alert('Export functionality coming soon');
+
+    function getStatusClass(status) {
+        const statusMap = {
+            'Open': 'warning',
+            'In Progress': 'info',
+            'Mitigated': 'success',
+            'Closed': 'secondary',
+            'Accepted': 'primary'
+        };
+        return statusMap[status] || 'secondary';
+    }
+
+    function updateSummary(summary) {
+        // Optional: Add summary statistics display
+        console.log('Heatmap summary:', summary);
+    }
+
+    async function exportHeatmap() {
+        const format = await showExportDialog();
+        if (!format) return;
+
+        try {
+            if (format === 'png' || format === 'jpg') {
+                await exportAsImage(format);
+            } else if (format === 'pdf') {
+                await exportAsPdf();
+            } else if (format === 'csv') {
+                await exportAsCsv();
+            }
+        } catch (error) {
+            console.error('Export error:', error);
+            alert('Export failed. Please try again.');
+        }
+    }
+
+    function showExportDialog() {
+        return new Promise((resolve) => {
+            const format = prompt('Export format (png, jpg, pdf, csv):', 'png');
+            resolve(format?.toLowerCase());
+        });
+    }
+
+    async function exportAsImage(format) {
+        // Use html2canvas if available
+        if (typeof html2canvas !== 'undefined') {
+            const container = document.getElementById('heatmapContainer');
+            const canvas = await html2canvas(container);
+            const link = document.createElement('a');
+            link.download = `risk-heatmap-${new Date().toISOString().split('T')[0]}.${format}`;
+            link.href = canvas.toDataURL(`image/${format}`);
+            link.click();
+        } else {
+            // Fallback: Open print dialog
+            window.print();
+        }
+    }
+
+    async function exportAsPdf() {
+        // Use server-side PDF generation
+        try {
+            const response = await fetch(`/api/risks/heatmap/export?format=pdf&stage=${currentStage}`);
+            const blob = await response.blob();
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `risk-heatmap-${new Date().toISOString().split('T')[0]}.pdf`;
+            link.click();
+        } catch (error) {
+            // Fallback to print
+            window.print();
+        }
+    }
+
+    async function exportAsCsv() {
+        try {
+            const response = await fetch(`/api/risks/heatmap?stage=${currentStage}`);
+            const data = await response.json();
+
+            let csv = 'Probability,Impact,Score,Risk Level,Count\n';
+            for (let prob = 5; prob >= 1; prob--) {
+                for (let impact = 1; impact <= 5; impact++) {
+                    const cell = data.cells?.find(c => c.probability === prob && c.impact === impact);
+                    const count = cell?.count || 0;
+                    const score = prob * impact;
+                    const level = score >= 20 ? 'Critical' : score >= 12 ? 'High' : score >= 6 ? 'Medium' : 'Low';
+                    csv += `${prob},${impact},${score},${level},${count}\n`;
+                }
+            }
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `risk-heatmap-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        } catch (error) {
+            console.error('CSV export error:', error);
+            alert('Failed to export CSV');
+        }
     }
 </script>

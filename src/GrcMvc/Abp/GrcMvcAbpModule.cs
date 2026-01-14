@@ -1,18 +1,12 @@
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
-using Volo.Abp.AspNetCore.MultiTenancy;
 using Volo.Abp.Autofac;
-using Volo.Abp.AuditLogging;
+using Volo.Abp.BackgroundWorkers;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.PostgreSql;
-using Volo.Abp.FeatureManagement;
-using Volo.Abp.Identity;
 using Volo.Abp.Modularity;
-using Volo.Abp.MultiTenancy;
-using Volo.Abp.OpenIddict;
-using Volo.Abp.PermissionManagement;
-using Volo.Abp.TenantManagement;
 using Microsoft.Extensions.DependencyInjection;
+using GrcMvc.Data;
 
 namespace GrcMvc.Abp;
 
@@ -29,49 +23,42 @@ namespace GrcMvc.Abp;
 /// All packages used are FREE open-source (no license required)
 /// </summary>
 [DependsOn(
-    // ABP Core
+    // ABP Core only - minimal dependencies without database requirements
     typeof(AbpAutofacModule),
     typeof(AbpAspNetCoreMvcModule),
 
-    // Database
+    // Database - EF Core integration
     typeof(AbpEntityFrameworkCoreModule),
-    typeof(AbpEntityFrameworkCorePostgreSqlModule),
+    typeof(AbpEntityFrameworkCorePostgreSqlModule)
 
-    // Multi-tenancy
-    typeof(AbpAspNetCoreMultiTenancyModule),
-    typeof(AbpTenantManagementDomainModule),
-
-    // OpenIddict SSO
-    typeof(AbpOpenIddictDomainModule),
-    typeof(AbpOpenIddictAspNetCoreModule),
-
-    // Features & Permissions
-    typeof(AbpFeatureManagementDomainModule),
-    typeof(AbpPermissionManagementDomainModule),
-
-    // Identity & Audit
-    typeof(AbpIdentityDomainModule),
-    typeof(AbpAuditLoggingDomainModule)
+    // NOTE: The following modules are disabled as they require ABP database schema:
+    // - AbpAspNetCoreMultiTenancyModule (requires AbpTenants table)
+    // - AbpTenantManagementDomainModule (requires tenant tables)
+    // - AbpOpenIddictDomainModule (requires OpenIddict tables)
+    // - AbpFeatureManagementDomainModule (requires feature tables)
+    // - AbpPermissionManagementDomainModule (requires permission tables)
+    // - AbpIdentityDomainModule (requires identity tables)
+    // - AbpAuditLoggingDomainModule (requires audit tables)
+    // Use existing custom implementations instead
 )]
 public class GrcMvcAbpModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
-        // Configure OpenIddict
-        PreConfigure<OpenIddictBuilder>(builder =>
-        {
-            builder.AddValidation(options =>
-            {
-                options.AddAudiences("GrcMvc");
-                options.UseLocalServer();
-                options.UseAspNetCore();
-            });
-        });
+        // OpenIddict configuration disabled - requires ABP database schema
+        // Using existing ASP.NET Core Identity authentication instead
     }
 
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         var configuration = context.Services.GetConfiguration();
+
+        // Disable ABP background workers (they require database connection at startup)
+        // Our app uses Hangfire instead for background jobs
+        Configure<AbpBackgroundWorkerOptions>(options =>
+        {
+            options.IsEnabled = false;
+        });
 
         // Configure ABP Entity Framework Core
         Configure<AbpDbContextOptions>(options =>
@@ -79,22 +66,14 @@ public class GrcMvcAbpModule : AbpModule
             options.UseNpgsql();
         });
 
-        // Configure Multi-Tenancy
-        Configure<AbpTenantResolveOptions>(options =>
+        // Register GrcDbContext with ABP (replaces AddDbContext in Program.cs)
+        context.Services.AddAbpDbContext<GrcDbContext>(options =>
         {
-            // Tenant resolution order (first match wins):
-            // 1. Subdomain (e.g., acme.shahin-ai.com)
-            // 2. Header (X-Tenant-Id)
-            // 3. Query string (?__tenant=acme)
-            // 4. Cookie
-            options.TenantResolvers.Insert(0, new DomainTenantResolveContributor("{0}.shahin-ai.com"));
+            options.AddDefaultRepositories(includeAllEntities: true);
         });
 
-        // Configure OpenIddict Server
-        Configure<AbpOpenIddictAspNetCoreOptions>(options =>
-        {
-            options.AddDevelopmentEncryptionAndSigningCertificate = true;
-        });
+        // Multi-tenancy handled by custom TenantResolutionMiddleware
+        // ABP tenant configuration disabled (requires database tables)
 
         // Register ABP services with existing DI container
         context.Services.AddSingleton<IFeatureCheckService, FeatureCheckService>();
@@ -102,23 +81,14 @@ public class GrcMvcAbpModule : AbpModule
 
     public override void OnApplicationInitialization(ApplicationInitializationContext context)
     {
-        var app = context.GetApplicationBuilder();
-        var env = context.GetEnvironment();
-
-        // ABP Multi-tenancy middleware (integrated with existing pipeline)
-        app.UseMultiTenancy();
-
-        // ABP middleware is integrated with existing pipeline
-        // Existing TenantResolutionMiddleware continues to work alongside ABP's
+        // Skip ABP middleware - using existing custom tenant resolution middleware
+        // ABP's UseMultiTenancy() requires ABP tenant tables which may not exist
+        // The existing TenantResolutionMiddleware handles tenant resolution
     }
 
     public override void OnPostApplicationInitialization(ApplicationInitializationContext context)
     {
-        // Seed edition/feature data after application starts
-        var serviceProvider = context.ServiceProvider;
-
-        using var scope = serviceProvider.CreateScope();
-        var seeder = scope.ServiceProvider.GetService<GrcEditionDataSeeder>();
-        seeder?.SeedAsync().GetAwaiter().GetResult();
+        // ABP edition/feature seeding disabled
+        // Using existing custom edition management instead
     }
 }

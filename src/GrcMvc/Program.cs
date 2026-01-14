@@ -11,6 +11,7 @@ using GrcMvc.Services.Interfaces.RBAC;
 using GrcMvc.Services.Implementations.RBAC;
 // ABP Framework Integration
 using GrcMvc.Abp;
+using Volo.Abp;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 // Hangfire for background jobs
@@ -60,8 +61,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 
 // ══════════════════════════════════════════════════════════════
-// Load Environment Variables from .env file (Production Security)
+// ABP Framework - Register ABP Application Module
 // ══════════════════════════════════════════════════════════════
+await builder.Services.AddApplicationAsync<GrcMvcAbpModule>();
+
+// ══════════════════════════════════════════════════════════════
+// Load Environment Variables from .env file (Production Security)
+// Priority: .env.local (local dev) > .env (Docker/production)
+// ══════════════════════════════════════════════════════════════
+var envLocalFile = Path.Combine(Directory.GetCurrentDirectory(), ".env.local");
+if (!File.Exists(envLocalFile))
+{
+    envLocalFile = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env.local");
+}
+
 var envFile = Path.Combine(Directory.GetCurrentDirectory(), ".env");
 if (!File.Exists(envFile))
 {
@@ -72,7 +85,26 @@ if (!File.Exists(envFile))
     envFile = "/home/dogan/grc-system/.env";
 }
 
-if (File.Exists(envFile))
+// Load .env.local first (local development - uses localhost)
+if (File.Exists(envLocalFile))
+{
+    foreach (var line in File.ReadAllLines(envLocalFile))
+    {
+        if (string.IsNullOrWhiteSpace(line) || line.TrimStart().StartsWith("#"))
+            continue;
+
+        var parts = line.Split('=', 2);
+        if (parts.Length == 2)
+        {
+            var envKey = parts[0].Trim();
+            var envValue = parts[1].Trim();
+            Environment.SetEnvironmentVariable(envKey, envValue);
+        }
+    }
+    Console.WriteLine($"[ENV] Loaded LOCAL environment variables from: {envLocalFile}");
+}
+// Fallback to .env (Docker/production - uses 'db' hostname)
+else if (File.Exists(envFile))
 {
     foreach (var line in File.ReadAllLines(envFile))
     {
@@ -88,6 +120,18 @@ if (File.Exists(envFile))
         }
     }
     Console.WriteLine($"[ENV] Loaded environment variables from: {envFile}");
+}
+
+// Load appsettings.Local.json ONLY in Development environment for local development overrides
+// NEVER load in Production - it contains localhost connection strings
+if (builder.Environment.IsDevelopment())
+{
+    var localSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.Local.json");
+    if (File.Exists(localSettingsPath))
+    {
+        builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+        Console.WriteLine($"[CONFIG] Loaded local settings from: {localSettingsPath}");
+    }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -498,9 +542,12 @@ if (string.IsNullOrWhiteSpace(connectionString))
         "3. appsettings.{Environment}.json: ConnectionStrings.DefaultConnection");
 }
 
-// Register master DbContext for tenant metadata (uses default connection)
-builder.Services.AddDbContext<GrcDbContext>(options =>
-    options.UseNpgsql(connectionString!), ServiceLifetime.Scoped);
+// Set connection string in configuration for ABP Framework to use
+// ABP's AddAbpDbContext (in GrcMvcAbpModule) will pick this up automatically
+builder.Configuration["ConnectionStrings:Default"] = connectionString;
+
+// NOTE: GrcDbContext is now registered via ABP's AddAbpDbContext in GrcMvcAbpModule.cs
+// The old AddDbContext<GrcDbContext> registration has been removed
 
 // Register Auth DbContext for Identity (separate database)
 var finalAuthConnectionString = authConnectionString ?? connectionString!;
@@ -935,6 +982,10 @@ builder.Services.AddScoped<ICertificationService, CertificationService>();
 
 // Register Subscription & Billing service
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+
+// Register Trial Lifecycle service
+builder.Services.AddScoped<ITrialLifecycleService, TrialLifecycleService>();
+builder.Services.AddScoped<TrialNurtureJob>();
 
 // Integration Services (Email, File Storage, Payment, SSO)
 builder.Services.AddHttpClient(); // Default HttpClient for services like DiagnosticAgent
@@ -1510,6 +1561,11 @@ builder.Services.AddEndpointsApiExplorer();
 var app = builder.Build();
 
 // =============================================================================
+// ABP FRAMEWORK INITIALIZATION
+// =============================================================================
+await app.InitializeApplicationAsync();
+
+// =============================================================================
 // AUTO-MIGRATE DATABASE ON STARTUP
 // =============================================================================
 using (var scope = app.Services.CreateScope())
@@ -1607,6 +1663,9 @@ app.UseResponseCaching();
 // Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Onboarding Redirect Guard (after auth, ensures users complete onboarding before accessing app)
+app.UseMiddleware<GrcMvc.Middleware.OnboardingRedirectMiddleware>();
 
 // =============================================================================
 // 12. HANGFIRE DASHBOARD
@@ -1748,6 +1807,27 @@ if (enableHangfire)
         appLogger.LogInformation("✅ Analytics projection jobs configured");
     }
 
+    // Trial Lifecycle Jobs
+    RecurringJob.AddOrUpdate<TrialNurtureJob>(
+        "trial-nurture-hourly",
+        job => job.ProcessNurtureEmailsAsync(),
+        "0 * * * *", // Every hour at minute 0
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+    RecurringJob.AddOrUpdate<TrialNurtureJob>(
+        "trial-expiring-daily",
+        job => job.CheckExpiringTrialsAsync(),
+        "0 9 * * *", // 9 AM daily
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+    RecurringJob.AddOrUpdate<TrialNurtureJob>(
+        "trial-winback-weekly",
+        job => job.SendWinbackEmailsAsync(),
+        "0 10 * * 1", // 10 AM every Monday
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+    appLogger.LogInformation("✅ Trial lifecycle jobs configured: trial-nurture-hourly, trial-expiring-daily, trial-winback-weekly");
+
     appLogger.LogInformation("✅ Recurring jobs configured: notification-delivery, escalation-check, sla-monitor, webhook-retry");
 }
 // =============================================================================
@@ -1814,9 +1894,6 @@ app.MapControllerRoute(
 
 // Enable attribute routing for API and custom-routed controllers
 app.MapControllers();
-// #region agent log
-app.Logger.LogInformation("✅ Attribute routing enabled via MapControllers()");
-// #endregion
 
 // #region agent log - Route registration tracking
 app.Logger.LogInformation("Registering routes: MapControllers, Landing route, Default route");

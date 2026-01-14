@@ -38,9 +38,6 @@ public class ApplicationInitializer
     /// <summary>Initialize all seed data</summary>
     public async Task InitializeAsync()
     {
-        // #region agent log
-        try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "A", location = "ApplicationInitializer.cs:39", message = "InitializeAsync entry", data = new { threadId = System.Threading.Thread.CurrentThread.ManagedThreadId, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-        // #endregion
         try
         {
             _logger.LogInformation("🚀 Starting application initialization...");
@@ -63,16 +60,10 @@ public class ApplicationInitializer
 
             // Seed RBAC System (Permissions, Features, Roles, Mappings) - MUST be before user seeding
             var defaultTenant = await _context.Tenants.FirstOrDefaultAsync(t => t.TenantSlug == "default" && !t.IsDeleted);
-            // #region agent log
-            try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "ApplicationInitializer.cs:63", message = "Default tenant lookup result", data = new { defaultTenantId = defaultTenant?.Id.ToString(), defaultTenantName = defaultTenant?.OrganizationName, isNull = defaultTenant == null, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             if (defaultTenant != null)
             {
                 using var scope = _serviceProvider.CreateScope();
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                // #region agent log
-                try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "A", location = "ApplicationInitializer.cs:67", message = "Before RBAC seeding", data = new { tenantId = defaultTenant.Id.ToString(), roleManagerExists = roleManager != null, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
                 await RbacSeeds.SeedRbacSystemAsync(_context, roleManager, defaultTenant.Id, _logger);
 
                 // Seed GRC Policy Enforcement Roles (8 baseline roles)
@@ -84,21 +75,12 @@ public class ApplicationInitializer
             }
             else
             {
-                // #region agent log
-                try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "ApplicationInitializer.cs:75", message = "Default tenant is null - skipping RBAC", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
             }
 
             // Seed Predefined Users (Admin, Manager) - MUST be after RBAC system
-            // #region agent log
-            try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "A", location = "ApplicationInitializer.cs:78", message = "Before UserSeeds.SeedUsersAsync", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             await UserSeeds.SeedUsersAsync(_context, _userManager, _logger);
 
             // Seed Platform Admin (Dooganlap@gmail.com as Owner)
-            // #region agent log
-            try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "A", location = "ApplicationInitializer.cs:81", message = "Before PlatformAdminSeeds", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             await PlatformAdminSeeds.SeedPlatformAdminAsync(_context, _userManager, _logger);
 
             // Create Ahmet Dogan user (Platform Admin)
@@ -109,15 +91,9 @@ public class ApplicationInitializer
             await AiAgentTeamSeeds.SeedAsync(_context);
 
             _logger.LogInformation("✅ Application initialization completed successfully");
-            // #region agent log
-            try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "A", location = "ApplicationInitializer.cs:90", message = "InitializeAsync exit success", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
         }
         catch (Exception ex)
         {
-            // #region agent log
-            try { await System.IO.File.AppendAllTextAsync("/home/Shahin-ai/.cursor/debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "E", location = "ApplicationInitializer.cs:94", message = "InitializeAsync exception", data = new { exceptionType = ex.GetType().Name, exceptionMessage = ex.Message, stackTrace = ex.StackTrace?.Substring(0, Math.Min(500, (ex.StackTrace?.Length).GetValueOrDefault(0))), timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             _logger.LogError(ex, "❌ Error during application initialization");
             throw;
         }

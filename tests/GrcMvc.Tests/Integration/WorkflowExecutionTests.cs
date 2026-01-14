@@ -16,7 +16,9 @@ namespace GrcMvc.Tests.Integration;
 /// <summary>
 /// Integration tests for workflow execution
 /// Tests real service implementations with in-memory database
+/// Requires ABP infrastructure for DbContext operations
 /// </summary>
+[Trait("Category", "RequiresAbpInfrastructure")]
 public class WorkflowExecutionTests : IDisposable
 {
     private readonly GrcDbContext _context;
@@ -36,9 +38,13 @@ public class WorkflowExecutionTests : IDisposable
         // Setup dependencies
         var logger = new Mock<ILogger<WorkflowEngineService>>();
         var cache = new MemoryCache(new MemoryCacheOptions());
-        var bpmnParser = new Mock<BpmnParser>();
-        var assigneeResolver = new Mock<WorkflowAssigneeResolver>();
+        var bpmnParser = new Mock<IBpmnParser>();
+        var assigneeResolver = new Mock<IWorkflowAssigneeResolver>();
         var auditService = new Mock<IWorkflowAuditService>();
+
+        // Setup mock for BPMN parser to return empty workflow
+        bpmnParser.Setup(x => x.Parse(It.IsAny<string>()))
+            .Returns(new BpmnWorkflow { Steps = new List<BpmnStep>() });
 
         _workflowService = new WorkflowEngineService(
             _context,

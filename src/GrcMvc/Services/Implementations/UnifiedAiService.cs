@@ -1,16 +1,21 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace GrcMvc.Services.Implementations;
 
 /// <summary>
 /// Unified AI Service - Multi-provider, Multi-tenant, Dynamic configuration
 /// Supports: Claude, OpenAI, Azure OpenAI, Gemini, Ollama, LMStudio, Custom
+/// Enhanced with: Security, Retry Logic, Caching, Token Tracking, Rate Limiting
 /// </summary>
 public class UnifiedAiService : IUnifiedAiService
 {
@@ -18,6 +23,60 @@ public class UnifiedAiService : IUnifiedAiService
     private readonly ILogger<UnifiedAiService> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
+    private readonly IMemoryCache _cache;
+
+    // Rate limiting: Track requests per tenant
+    private static readonly ConcurrentDictionary<string, RateLimitEntry> _rateLimits = new();
+
+    // Token estimation constants (approximate)
+    private const double CHARS_PER_TOKEN = 4.0;
+    private const int DEFAULT_RATE_LIMIT_PER_MINUTE = 60;
+    private const int DEFAULT_MAX_INPUT_LENGTH = 10000;
+    private const int CACHE_DURATION_MINUTES = 15;
+
+    #region Security - Prompt Injection Prevention
+
+    /// <summary>
+    /// Patterns that may indicate prompt injection attempts
+    /// </summary>
+    private static readonly string[] PromptInjectionPatterns = new[]
+    {
+        @"ignore\s+(all\s+)?(previous|prior|above)\s+(instructions?|prompts?|context)",
+        @"system:\s*you\s+are",
+        @"assistant:\s*",
+        @"human:\s*",
+        @"<\s*system\s*>",
+        @"<\s*/?\s*prompt\s*>",
+        @"forget\s+(everything|all)",
+        @"new\s+instructions?:",
+        @"override\s+(system|instructions?)",
+        @"act\s+as\s+if",
+        @"pretend\s+(you\s+are|to\s+be)",
+        @"jailbreak",
+        @"dan\s+mode",
+        @"developer\s+mode",
+        @"ignore\s+safety",
+        @"bypass\s+(filter|safety|restrictions?)"
+    };
+
+    private static readonly Regex PromptInjectionRegex = new(
+        string.Join("|", PromptInjectionPatterns),
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    /// <summary>
+    /// Patterns for detecting sensitive data
+    /// </summary>
+    private static readonly (string Name, Regex Pattern)[] SensitiveDataPatterns = new[]
+    {
+        ("SSN", new Regex(@"\b\d{3}-\d{2}-\d{4}\b", RegexOptions.Compiled)),
+        ("CreditCard", new Regex(@"\b\d{16}\b|\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b", RegexOptions.Compiled)),
+        ("Password", new Regex(@"password\s*[:=]\s*\S+", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("ApiKey", new Regex(@"api[_-]?key\s*[:=]\s*\S+", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("Secret", new Regex(@"secret\s*[:=]\s*\S+", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("SaudiId", new Regex(@"\b[12]\d{9}\b", RegexOptions.Compiled)) // Saudi National ID pattern
+    };
+
+    #endregion
 
     private const string DefaultSystemPrompt = @"You are an expert GRC (Governance, Risk, and Compliance) AI assistant for a Saudi Arabian enterprise platform.
 You have deep knowledge of:
@@ -34,13 +93,268 @@ Always return responses in valid JSON format when requested.";
         GrcDbContext db,
         ILogger<UnifiedAiService> logger,
         IHttpClientFactory httpClientFactory,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IMemoryCache cache)
     {
         _db = db;
         _logger = logger;
         _httpClientFactory = httpClientFactory;
         _configuration = configuration;
+        _cache = cache;
     }
+
+    #region Input Sanitization & Security
+
+    /// <summary>
+    /// Sanitizes user input to prevent prompt injection attacks.
+    /// Returns sanitized string or throws if injection is detected.
+    /// </summary>
+    private string SanitizeInput(string? input, string fieldName, int maxLength = DEFAULT_MAX_INPUT_LENGTH)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return string.Empty;
+        }
+
+        // Truncate to max length to prevent token exhaustion
+        var sanitized = input.Length > maxLength ? input[..maxLength] : input;
+
+        // Check for prompt injection patterns
+        if (DetectPromptInjection(sanitized))
+        {
+            _logger.LogWarning(
+                "Potential prompt injection detected in field {FieldName}. Input blocked.",
+                fieldName);
+            throw new ArgumentException($"Invalid input detected in {fieldName}. Please remove special instructions.");
+        }
+
+        // Log warning if sensitive data detected (but don't block)
+        var sensitiveTypes = DetectSensitiveData(sanitized);
+        if (sensitiveTypes.Any())
+        {
+            _logger.LogWarning(
+                "Sensitive data patterns detected in {FieldName}: {Types}. Consider removing before submission.",
+                fieldName, string.Join(", ", sensitiveTypes));
+        }
+
+        // Escape special characters that could affect prompt parsing
+        sanitized = EscapePromptCharacters(sanitized);
+
+        return sanitized;
+    }
+
+    /// <summary>
+    /// Detects potential prompt injection patterns in user input
+    /// </summary>
+    private bool DetectPromptInjection(string input)
+    {
+        return PromptInjectionRegex.IsMatch(input);
+    }
+
+    /// <summary>
+    /// Detects sensitive data patterns and returns list of detected types
+    /// </summary>
+    private List<string> DetectSensitiveData(string input)
+    {
+        var detected = new List<string>();
+        foreach (var (name, pattern) in SensitiveDataPatterns)
+        {
+            if (pattern.IsMatch(input))
+            {
+                detected.Add(name);
+            }
+        }
+        return detected;
+    }
+
+    /// <summary>
+    /// Escapes characters that could affect prompt parsing
+    /// </summary>
+    private static string EscapePromptCharacters(string input)
+    {
+        return input
+            .Replace("```", "'''")  // Prevent code block injection
+            .Replace("<<", "< <")   // Prevent XML-style tags
+            .Replace(">>", "> >")
+            .Replace("{{", "{ {")   // Prevent template injection
+            .Replace("}}", "} }");
+    }
+
+    #endregion
+
+    #region Rate Limiting
+
+    /// <summary>
+    /// Checks if the request should be rate limited
+    /// </summary>
+    private bool IsRateLimited(Guid? tenantId, out string message)
+    {
+        var key = tenantId?.ToString() ?? "global";
+        var now = DateTime.UtcNow;
+        var limitPerMinute = _configuration.GetValue("AI:RateLimitPerMinute", DEFAULT_RATE_LIMIT_PER_MINUTE);
+
+        var entry = _rateLimits.GetOrAdd(key, _ => new RateLimitEntry());
+
+        lock (entry)
+        {
+            // Reset if window expired
+            if ((now - entry.WindowStart).TotalMinutes >= 1)
+            {
+                entry.WindowStart = now;
+                entry.RequestCount = 0;
+            }
+
+            if (entry.RequestCount >= limitPerMinute)
+            {
+                var waitSeconds = 60 - (int)(now - entry.WindowStart).TotalSeconds;
+                message = $"Rate limit exceeded. Please wait {waitSeconds} seconds.";
+                _logger.LogWarning("Rate limit exceeded for tenant {TenantId}. Count: {Count}", key, entry.RequestCount);
+                return true;
+            }
+
+            entry.RequestCount++;
+            message = string.Empty;
+            return false;
+        }
+    }
+
+    private class RateLimitEntry
+    {
+        public DateTime WindowStart { get; set; } = DateTime.UtcNow;
+        public int RequestCount { get; set; }
+    }
+
+    #endregion
+
+    #region Token Estimation
+
+    /// <summary>
+    /// Estimates the number of tokens in a string (approximate)
+    /// </summary>
+    private int EstimateTokens(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return 0;
+        return (int)Math.Ceiling(text.Length / CHARS_PER_TOKEN);
+    }
+
+    /// <summary>
+    /// Estimates total tokens for a request (input + estimated output)
+    /// </summary>
+    private TokenEstimate EstimateRequestTokens(string message, string? systemPrompt, int maxOutputTokens)
+    {
+        var inputTokens = EstimateTokens(message) + EstimateTokens(systemPrompt ?? DefaultSystemPrompt);
+        return new TokenEstimate
+        {
+            InputTokens = inputTokens,
+            MaxOutputTokens = maxOutputTokens,
+            TotalEstimate = inputTokens + maxOutputTokens
+        };
+    }
+
+    private class TokenEstimate
+    {
+        public int InputTokens { get; set; }
+        public int MaxOutputTokens { get; set; }
+        public int TotalEstimate { get; set; }
+    }
+
+    #endregion
+
+    #region Response Caching
+
+    /// <summary>
+    /// Generates a cache key for a prompt
+    /// </summary>
+    private string GenerateCacheKey(string message, string? systemPrompt, string provider, string model)
+    {
+        var combined = $"{provider}:{model}:{systemPrompt}:{message}";
+        using var sha = SHA256.Create();
+        var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(combined));
+        return $"ai_response_{Convert.ToHexString(hash)[..32]}";
+    }
+
+    /// <summary>
+    /// Tries to get a cached response
+    /// </summary>
+    private bool TryGetCachedResponse(string cacheKey, out string? cachedResponse)
+    {
+        return _cache.TryGetValue(cacheKey, out cachedResponse);
+    }
+
+    /// <summary>
+    /// Caches a response
+    /// </summary>
+    private void CacheResponse(string cacheKey, string response)
+    {
+        var options = new MemoryCacheEntryOptions()
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(CACHE_DURATION_MINUTES))
+            .SetSlidingExpiration(TimeSpan.FromMinutes(5));
+        _cache.Set(cacheKey, response, options);
+    }
+
+    #endregion
+
+    #region Retry Logic
+
+    /// <summary>
+    /// Executes an async operation with exponential backoff retry
+    /// </summary>
+    private async Task<T> ExecuteWithRetryAsync<T>(
+        Func<Task<T>> operation,
+        int maxRetries = 3,
+        CancellationToken ct = default)
+    {
+        var delays = new[] { 1000, 2000, 4000 }; // Exponential backoff in ms
+
+        for (int attempt = 0; attempt <= maxRetries; attempt++)
+        {
+            try
+            {
+                return await operation();
+            }
+            catch (HttpRequestException ex) when (attempt < maxRetries && IsTransientError(ex))
+            {
+                var delay = delays[Math.Min(attempt, delays.Length - 1)];
+                _logger.LogWarning(
+                    "AI request failed (attempt {Attempt}/{Max}). Retrying in {Delay}ms. Error: {Error}",
+                    attempt + 1, maxRetries + 1, delay, ex.Message);
+                await Task.Delay(delay, ct);
+            }
+            catch (TaskCanceledException) when (ct.IsCancellationRequested)
+            {
+                throw; // Don't retry on cancellation
+            }
+            catch (TaskCanceledException ex) when (attempt < maxRetries)
+            {
+                // Timeout - retry with backoff
+                var delay = delays[Math.Min(attempt, delays.Length - 1)];
+                _logger.LogWarning(
+                    "AI request timed out (attempt {Attempt}/{Max}). Retrying in {Delay}ms.",
+                    attempt + 1, maxRetries + 1, delay);
+                await Task.Delay(delay, ct);
+            }
+        }
+
+        // Final attempt
+        return await operation();
+    }
+
+    /// <summary>
+    /// Determines if an HTTP error is transient and should be retried
+    /// </summary>
+    private static bool IsTransientError(HttpRequestException ex)
+    {
+        // Retry on 429 (rate limit), 500, 502, 503, 504
+        if (ex.StatusCode.HasValue)
+        {
+            var code = (int)ex.StatusCode.Value;
+            return code == 429 || code >= 500;
+        }
+        // Retry on connection errors
+        return ex.InnerException is System.Net.Sockets.SocketException;
+    }
+
+    #endregion
 
     #region Provider Management
 
@@ -149,16 +463,68 @@ Always return responses in valid JSON format when requested.";
         var sw = Stopwatch.StartNew();
         try
         {
+            // Rate limiting check
+            if (IsRateLimited(tenantId, out var rateLimitMessage))
+            {
+                return new AiResponse { Success = false, Error = rateLimitMessage };
+            }
+
+            // Input sanitization
+            string sanitizedMessage;
+            try
+            {
+                sanitizedMessage = SanitizeInput(message, "message");
+            }
+            catch (ArgumentException ex)
+            {
+                return new AiResponse { Success = false, Error = ex.Message };
+            }
+
             var config = await GetBestConfigurationAsync(tenantId, preferredProvider, "chat", ct);
             if (config == null)
             {
                 return new AiResponse { Success = false, Error = "No AI provider configured" };
             }
 
-            var response = await CallProviderAsync(config, message, systemPrompt ?? DefaultSystemPrompt, ct);
+            // Token estimation for logging/monitoring
+            var tokenEstimate = EstimateRequestTokens(sanitizedMessage, systemPrompt, config.MaxTokens);
+            _logger.LogDebug("AI request token estimate: Input={Input}, MaxOutput={MaxOutput}, Total={Total}",
+                tokenEstimate.InputTokens, tokenEstimate.MaxOutputTokens, tokenEstimate.TotalEstimate);
+
+            // Check cache first
+            var cacheKey = GenerateCacheKey(sanitizedMessage, systemPrompt, config.Provider, config.ModelId);
+            if (TryGetCachedResponse(cacheKey, out var cachedResponse) && !string.IsNullOrEmpty(cachedResponse))
+            {
+                sw.Stop();
+                _logger.LogDebug("AI response served from cache");
+                return new AiResponse
+                {
+                    Success = true,
+                    Content = cachedResponse,
+                    Provider = config.Provider,
+                    Model = config.ModelId,
+                    LatencyMs = (int)sw.ElapsedMilliseconds,
+                    FromCache = true,
+                    TokensUsed = tokenEstimate.InputTokens // Approximate
+                };
+            }
+
+            // Execute with retry logic
+            var response = await ExecuteWithRetryAsync(
+                () => CallProviderAsync(config, sanitizedMessage, systemPrompt ?? DefaultSystemPrompt, ct),
+                maxRetries: 3,
+                ct);
+
             sw.Stop();
 
+            // Cache the response
+            CacheResponse(cacheKey, response);
+
+            // Track usage
             await IncrementUsageAsync(config, ct);
+
+            // Estimate output tokens
+            var outputTokens = EstimateTokens(response);
 
             return new AiResponse
             {
@@ -166,8 +532,16 @@ Always return responses in valid JSON format when requested.";
                 Content = response,
                 Provider = config.Provider,
                 Model = config.ModelId,
-                LatencyMs = (int)sw.ElapsedMilliseconds
+                LatencyMs = (int)sw.ElapsedMilliseconds,
+                TokensUsed = tokenEstimate.InputTokens + outputTokens,
+                FromCache = false
             };
+        }
+        catch (ArgumentException ex)
+        {
+            // Prompt injection or other input validation error
+            _logger.LogWarning(ex, "Input validation failed in ChatAsync");
+            return new AiResponse { Success = false, Error = ex.Message, LatencyMs = (int)sw.ElapsedMilliseconds };
         }
         catch (Exception ex)
         {
@@ -218,18 +592,62 @@ Always return responses in valid JSON format when requested.";
         CancellationToken ct = default)
     {
         var sw = Stopwatch.StartNew();
+        var securityWarnings = new List<string>();
+
         try
         {
+            // Rate limiting check
+            if (IsRateLimited(tenantId, out var rateLimitMessage))
+            {
+                return new AiResponse { Success = false, Error = rateLimitMessage };
+            }
+
+            // Sanitize all user messages
+            var sanitizedMessages = new List<AiMessage>();
+            foreach (var msg in messages)
+            {
+                if (msg.Role == "user")
+                {
+                    try
+                    {
+                        var sanitizedContent = SanitizeInput(msg.Content, "message");
+                        var sensitiveData = DetectSensitiveData(msg.Content);
+                        if (sensitiveData.Any())
+                        {
+                            securityWarnings.Add($"Sensitive data detected: {string.Join(", ", sensitiveData)}");
+                        }
+                        sanitizedMessages.Add(new AiMessage { Role = msg.Role, Content = sanitizedContent });
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        return new AiResponse { Success = false, Error = ex.Message, SecurityWarnings = securityWarnings };
+                    }
+                }
+                else
+                {
+                    sanitizedMessages.Add(msg);
+                }
+            }
+
             var config = await GetBestConfigurationAsync(tenantId, preferredProvider, "chat", ct);
             if (config == null)
             {
                 return new AiResponse { Success = false, Error = "No AI provider configured" };
             }
 
-            var response = await CallProviderWithMessagesAsync(config, messages, systemPrompt ?? DefaultSystemPrompt, ct);
+            // Execute with retry logic
+            var response = await ExecuteWithRetryAsync(
+                () => CallProviderWithMessagesAsync(config, sanitizedMessages, systemPrompt ?? DefaultSystemPrompt, ct),
+                maxRetries: 3,
+                ct);
+
             sw.Stop();
 
             await IncrementUsageAsync(config, ct);
+
+            // Token estimation
+            var inputTokens = sanitizedMessages.Sum(m => EstimateTokens(m.Content));
+            var outputTokens = EstimateTokens(response);
 
             return new AiResponse
             {
@@ -237,7 +655,11 @@ Always return responses in valid JSON format when requested.";
                 Content = response,
                 Provider = config.Provider,
                 Model = config.ModelId,
-                LatencyMs = (int)sw.ElapsedMilliseconds
+                LatencyMs = (int)sw.ElapsedMilliseconds,
+                InputTokens = inputTokens,
+                OutputTokens = outputTokens,
+                TokensUsed = inputTokens + outputTokens,
+                SecurityWarnings = securityWarnings.Any() ? securityWarnings : null
             };
         }
         catch (Exception ex)
@@ -321,8 +743,19 @@ Return JSON:
         Guid? tenantId = null,
         CancellationToken ct = default)
     {
+        // Sanitize user input
+        string sanitizedDescription;
+        try
+        {
+            sanitizedDescription = SanitizeInput(riskDescription, "riskDescription", 5000);
+        }
+        catch (ArgumentException ex)
+        {
+            return new RiskAiResult { Success = false, Error = ex.Message };
+        }
+
         var contextJson = context != null ? JsonSerializer.Serialize(context) : "{}";
-        var prompt = $@"Analyze risk: {riskDescription}
+        var prompt = $@"Analyze risk: {sanitizedDescription}
 Context: {contextJson}
 
 Return JSON:
@@ -404,8 +837,19 @@ Return JSON:
 
     public async Task<PolicyAiResult> AnalyzePolicyAsync(string policyContent, string? frameworkCode = null, Guid? tenantId = null, CancellationToken ct = default)
     {
+        // Sanitize user input (allow larger content for policies)
+        string sanitizedContent;
+        try
+        {
+            sanitizedContent = SanitizeInput(policyContent, "policyContent", 15000);
+        }
+        catch (ArgumentException ex)
+        {
+            return new PolicyAiResult { Success = false, Error = ex.Message };
+        }
+
         var prompt = $@"Analyze policy quality{(frameworkCode != null ? $" for {frameworkCode}" : "")}:
-{policyContent.Substring(0, Math.Min(policyContent.Length, 2000))}
+{sanitizedContent.Substring(0, Math.Min(sanitizedContent.Length, 2000))}
 
 Return JSON:
 {{
@@ -484,8 +928,22 @@ Return JSON:
 
     public async Task<ControlAiResult> AssessControlAsync(Guid controlId, string? evidenceDescription = null, Guid? tenantId = null, CancellationToken ct = default)
     {
+        // Sanitize optional user input
+        string? sanitizedEvidence = null;
+        if (!string.IsNullOrEmpty(evidenceDescription))
+        {
+            try
+            {
+                sanitizedEvidence = SanitizeInput(evidenceDescription, "evidenceDescription", 5000);
+            }
+            catch (ArgumentException ex)
+            {
+                return new ControlAiResult { Success = false, ControlId = controlId, Error = ex.Message };
+            }
+        }
+
         var prompt = $@"Assess control {controlId}:
-Evidence: {evidenceDescription ?? "None provided"}
+Evidence: {sanitizedEvidence ?? "None provided"}
 
 Return JSON:
 {{
@@ -512,12 +970,26 @@ Return JSON:
 
     public async Task<EvidenceAiResult> AnalyzeEvidenceAsync(Guid evidenceId, string? content = null, Guid? tenantId = null, CancellationToken ct = default)
     {
+        // Sanitize optional user-provided content
+        string? sanitizedContent = null;
+        if (!string.IsNullOrEmpty(content))
+        {
+            try
+            {
+                sanitizedContent = SanitizeInput(content, "content", 8000);
+            }
+            catch (ArgumentException ex)
+            {
+                return new EvidenceAiResult { Success = false, EvidenceId = evidenceId, Error = ex.Message };
+            }
+        }
+
         var evidence = await _db.Evidences.FirstOrDefaultAsync(e => e.Id == evidenceId, ct);
         var evidenceInfo = evidence != null ? $"Title: {evidence.Title}, Type: {evidence.Type}" : "Not found";
 
         var prompt = $@"Analyze evidence quality:
 {evidenceInfo}
-Content: {content ?? "Not provided"}
+Content: {sanitizedContent ?? "Not provided"}
 
 Return JSON:
 {{
@@ -544,6 +1016,22 @@ Return JSON:
 
     public async Task<AiResponse> ArabicAssistantAsync(string query, string? context = null, Guid? tenantId = null, CancellationToken ct = default)
     {
+        // Sanitize user input
+        string sanitizedQuery;
+        string? sanitizedContext = null;
+        try
+        {
+            sanitizedQuery = SanitizeInput(query, "query");
+            if (context != null)
+            {
+                sanitizedContext = SanitizeInput(context, "context", 5000);
+            }
+        }
+        catch (ArgumentException ex)
+        {
+            return new AiResponse { Success = false, Error = ex.Message };
+        }
+
         var arabicSystemPrompt = @"أنت مساعد ذكي متخصص في الحوكمة والمخاطر والامتثال للمؤسسات السعودية.
 لديك معرفة عميقة بـ:
 - ضوابط الأمن السيبراني الأساسية (NCA ECC)
@@ -553,7 +1041,7 @@ Return JSON:
 
 قدم إجابات دقيقة وعملية باللغة العربية.";
 
-        var fullQuery = context != null ? $"السياق: {context}\n\nالسؤال: {query}" : query;
+        var fullQuery = sanitizedContext != null ? $"السياق: {sanitizedContext}\n\nالسؤال: {sanitizedQuery}" : sanitizedQuery;
         return await ChatAsync(fullQuery, arabicSystemPrompt, tenantId, null, ct);
     }
 

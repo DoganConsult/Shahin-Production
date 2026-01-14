@@ -1,5 +1,8 @@
 "use client"
 
+// Force dynamic rendering for pages using client providers
+export const dynamic = 'force-dynamic'
+
 import { motion } from "framer-motion"
 import { Target, Eye, Heart, Users, Award, Globe, ArrowLeft } from "lucide-react"
 import Link from "next/link"
