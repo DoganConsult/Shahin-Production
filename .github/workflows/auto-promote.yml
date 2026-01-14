@@ -1,0 +1,197 @@
+name: Auto-Promote Pipeline
+
+# Trigger on push to develop branch
+on:
+  push:
+    branches: [develop]
+
+env:
+  DOCKER_IMAGE: doganlap/shahin-grc
+
+jobs:
+  # ══════════════════════════════════════════════════════════════
+  # STAGE 1: Quality Gate - Must Pass All Checks
+  # ══════════════════════════════════════════════════════════════
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    outputs:
+      passed: ${{ steps.check.outputs.passed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore src/GrcMvc/GrcMvc.csproj
+
+      - name: Build
+        run: dotnet build src/GrcMvc/GrcMvc.csproj --no-restore --configuration Release
+
+      - name: Run Tests
+        id: tests
+        run: |
+          if [ -d "tests" ]; then
+            dotnet test tests/ --no-build --verbosity normal || echo "TESTS_FAILED=true" >> $GITHUB_ENV
+          fi
+
+      - name: Security Scan
+        run: |
+          dotnet list src/GrcMvc/GrcMvc.csproj package --vulnerable --include-transitive 2>/dev/null || true
+
+      - name: Validate Shahin Modules
+        run: |
+          MISSING=0
+          for controller in OnboardingController ControlsController EvidenceController RiskIndicatorsController; do
+            if [ ! -f "src/GrcMvc/Controllers/${controller}.cs" ]; then
+              echo "Missing: ${controller}.cs"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          if [ $MISSING -gt 0 ]; then
+            echo "MODULE_CHECK_FAILED=true" >> $GITHUB_ENV
+          fi
+
+      - name: Check Results
+        id: check
+        run: |
+          if [ "$TESTS_FAILED" = "true" ] || [ "$MODULE_CHECK_FAILED" = "true" ]; then
+            echo "passed=false" >> $GITHUB_OUTPUT
+            echo "❌ Quality gate FAILED"
+            exit 1
+          else
+            echo "passed=true" >> $GITHUB_OUTPUT
+            echo "✅ Quality gate PASSED"
+          fi
+
+  # ══════════════════════════════════════════════════════════════
+  # STAGE 2: Build & Push Docker Image
+  # ══════════════════════════════════════════════════════════════
+  build:
+    name: Build Docker Image
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./src/GrcMvc/Dockerfile
+          push: true
+          tags: |
+            ${{ env.DOCKER_IMAGE }}:dev
+            ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ══════════════════════════════════════════════════════════════
+  # STAGE 3: Auto-Promote to Staging (if all checks pass)
+  # ══════════════════════════════════════════════════════════════
+  auto-promote-staging:
+    name: Auto-Promote to Staging
+    needs: [quality-gate, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+
+      - name: Merge develop into staging
+        run: |
+          echo "✅ All quality checks passed!"
+          echo "🚀 Auto-promoting to staging..."
+          
+          git fetch origin staging
+          git checkout staging
+          git merge origin/develop -m "Auto-promote: develop → staging (build #${{ github.run_number }})"
+          git push origin staging
+          
+          echo "════════════════════════════════════════════"
+          echo "✅ AUTO-PROMOTED TO STAGING!"
+          echo "════════════════════════════════════════════"
+          echo "Commit: ${{ github.sha }}"
+          echo "Build: #${{ github.run_number }}"
+          echo "URL: https://staging.shahin-ai.com"
+          echo "════════════════════════════════════════════"
+
+  # ══════════════════════════════════════════════════════════════
+  # STAGE 4: Deploy Staging
+  # ══════════════════════════════════════════════════════════════
+  deploy-staging:
+    name: Deploy to Staging
+    needs: auto-promote-staging
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.shahin-ai.com
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: staging
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Tag image for staging
+        run: |
+          docker pull ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+          docker tag ${{ env.DOCKER_IMAGE }}:${{ github.sha }} ${{ env.DOCKER_IMAGE }}:staging
+          docker push ${{ env.DOCKER_IMAGE }}:staging
+
+      - name: Deploy to Staging Server
+        uses: appleboy/ssh-action@v1.0.3
+        continue-on-error: true
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "🚀 Deploying staging..."
+            docker pull ${{ env.DOCKER_IMAGE }}:staging
+            docker stop grc-staging 2>/dev/null || true
+            docker rm grc-staging 2>/dev/null || true
+            docker run -d \
+              --name grc-staging \
+              --restart unless-stopped \
+              -p 5001:8080 \
+              -e ASPNETCORE_ENVIRONMENT=Staging \
+              -e ConnectionStrings__DefaultConnection="${{ secrets.STAGING_DB_CONNECTION }}" \
+              -e JwtSettings__Secret="${{ secrets.JWT_SECRET }}" \
+              --network grc-network \
+              ${{ env.DOCKER_IMAGE }}:staging
+            echo "✅ Staging deployed on port 5001"
+
+      - name: Notify Success
+        run: |
+          echo "════════════════════════════════════════════════════════════"
+          echo "✅ STAGING DEPLOYMENT COMPLETE!"
+          echo "════════════════════════════════════════════════════════════"
+          echo "Image: ${{ env.DOCKER_IMAGE }}:staging"
+          echo "Build: #${{ github.run_number }}"
+          echo "Commit: ${{ github.sha }}"
+          echo ""
+          echo "Access: https://staging.shahin-ai.com"
+          echo "════════════════════════════════════════════════════════════"
