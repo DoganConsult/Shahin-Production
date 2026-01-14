@@ -347,7 +347,7 @@ public class ProgressCertaintyService : IProgressCertaintyService
         var wizard = await _dbContext.Set<OnboardingWizard>()
             .Where(w => w.TenantId == tenantId)
             .FirstOrDefaultAsync(cancellationToken);
-        metrics.OrgMaturityLevel = wizard?.MaturityLevel ?? 3;
+        metrics.OrgMaturityLevel = int.TryParse(wizard?.MaturityLevel, out var matLevel) ? matLevel : 3;
 
         // Complexity score (based on frameworks and scope)
         var frameworkCount = await _dbContext.TenantBaselines

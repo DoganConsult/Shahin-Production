@@ -312,7 +312,8 @@ public class NextBestActionService : INextBestActionService
 
         if (userId.HasValue)
         {
-            query = query.Where(p => p.AssignedApproverId == userId);
+            var userIdStr = userId.Value.ToString();
+            query = query.Where(p => p.AssignedApproverId == userIdStr);
         }
 
         return await query
@@ -401,10 +402,11 @@ public class NextBestActionService : INextBestActionService
     private NextBestActionRecommendation CreateApprovalRecommendation(
         Guid tenantId, Guid? userId, PendingApproval approval)
     {
+        var targetUserId = userId ?? (Guid.TryParse(approval.AssignedApproverId, out var parsed) ? parsed : Guid.Empty);
         return new NextBestActionRecommendation
         {
             TenantId = tenantId,
-            TargetUserId = userId ?? approval.AssignedApproverId,
+            TargetUserId = targetUserId,
             ActionId = $"APPROVE_{approval.Id}",
             ActionType = NbaActionTypes.Approve,
             Description = $"Pending approval request waiting for your review.",

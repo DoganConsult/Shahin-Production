@@ -408,7 +408,7 @@ namespace GrcMvc.Data
 
         // Validation & Data Quality
         public DbSet<ValidationRule> ValidationRules { get; set; } = null!;
-        public DbSet<ValidationResult> ValidationResults { get; set; } = null!;
+        public DbSet<Models.Entities.ValidationResult> ValidationResults { get; set; } = null!;
         public DbSet<DataQualityScore> DataQualityScores { get; set; } = null!;
 
         // Evidence Scoring (Phase 8)

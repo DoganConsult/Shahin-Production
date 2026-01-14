@@ -380,6 +380,179 @@ public class AgentCommunicationService : IAgentCommunicationService
         return true;
     }
 
+    #region IAgentCommunicationService Interface Methods
+
+    async Task<AgentCommunicationResult> IAgentCommunicationService.SendMessageAsync(
+        string fromAgentCode,
+        string toAgentCode,
+        object requestPayload,
+        Guid? tenantId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var startTime = DateTime.UtcNow;
+
+            // Convert payload to dictionary
+            var payloadDict = requestPayload is Dictionary<string, object> dict
+                ? dict
+                : JsonSerializer.Deserialize<Dictionary<string, object>>(
+                    JsonSerializer.Serialize(requestPayload)) ?? new Dictionary<string, object>();
+
+            // Get contract (without message type - use default)
+            var contract = await GetContractAsync(fromAgentCode, toAgentCode, "Default", cancellationToken);
+
+            // Send message using internal method
+            var message = await SendMessageAsync(
+                fromAgentCode,
+                toAgentCode,
+                contract?.MessageType ?? "Default",
+                payloadDict,
+                tenantId,
+                null,
+                cancellationToken);
+
+            // Log communication
+            var log = new AgentCommunicationLog
+            {
+                Id = Guid.NewGuid(),
+                TenantId = tenantId,
+                FromAgentCode = fromAgentCode,
+                ToAgentCode = toAgentCode,
+                ContractId = contract?.Id,
+                CorrelationId = message.CorrelationId.ToString(),
+                RequestPayloadJson = message.PayloadJson,
+                Status = message.Status,
+                DurationMs = (int)(DateTime.UtcNow - startTime).TotalMilliseconds,
+                Timestamp = DateTime.UtcNow
+            };
+
+            _dbContext.Set<AgentCommunicationLog>().Add(log);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return new AgentCommunicationResult
+            {
+                Success = message.Status != "ValidationFailed" && message.Status != "Failed",
+                CorrelationId = message.CorrelationId.ToString(),
+                ResponsePayload = null,
+                ErrorCode = message.Status == "ValidationFailed" ? "VALIDATION_ERROR" : null,
+                ErrorMessage = message.ErrorMessage,
+                DurationMs = log.DurationMs
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending message from {From} to {To}", fromAgentCode, toAgentCode);
+            return new AgentCommunicationResult
+            {
+                Success = false,
+                ErrorCode = "SEND_ERROR",
+                ErrorMessage = ex.Message
+            };
+        }
+    }
+
+    async Task<AgentCommunicationContract?> IAgentCommunicationService.GetContractAsync(
+        string fromAgentCode,
+        string toAgentCode,
+        CancellationToken cancellationToken)
+    {
+        // Get first active contract between these agents (any message type)
+        return await _dbContext.Set<AgentCommunicationContract>()
+            .FirstOrDefaultAsync(c =>
+                c.SourceAgentCode == fromAgentCode &&
+                c.TargetAgentCode == toAgentCode &&
+                c.IsActive,
+                cancellationToken);
+    }
+
+    public async Task<Interfaces.ValidationResult> ValidatePayloadAsync(
+        Guid contractId,
+        object payload,
+        bool isRequest = true,
+        CancellationToken cancellationToken = default)
+    {
+        var contract = await _dbContext.Set<AgentCommunicationContract>()
+            .FirstOrDefaultAsync(c => c.Id == contractId, cancellationToken);
+
+        if (contract == null)
+        {
+            return new Interfaces.ValidationResult
+            {
+                IsValid = false,
+                Errors = new List<string> { "Contract not found" }
+            };
+        }
+
+        var schemaJson = isRequest ? contract.RequestSchemaJson : contract.ResponseSchemaJson;
+
+        if (string.IsNullOrEmpty(schemaJson))
+        {
+            // No schema defined, validation passes
+            return new Interfaces.ValidationResult { IsValid = true };
+        }
+
+        // Convert payload to dictionary
+        var payloadDict = payload is Dictionary<string, object> dict
+            ? dict
+            : JsonSerializer.Deserialize<Dictionary<string, object>>(
+                JsonSerializer.Serialize(payload)) ?? new Dictionary<string, object>();
+
+        var result = ValidateAgainstSchema(payloadDict, schemaJson);
+
+        return new Interfaces.ValidationResult
+        {
+            IsValid = result.IsValid,
+            Errors = result.Errors
+        };
+    }
+
+    public async Task<List<AgentCommunicationLog>> GetCommunicationLogsAsync(
+        Guid? tenantId = null,
+        string? fromAgentCode = null,
+        string? toAgentCode = null,
+        string? correlationId = null,
+        int limit = 100,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _dbContext.Set<AgentCommunicationLog>().AsQueryable();
+
+        if (tenantId.HasValue)
+        {
+            query = query.Where(l => l.TenantId == tenantId.Value);
+        }
+
+        if (!string.IsNullOrEmpty(fromAgentCode))
+        {
+            query = query.Where(l => l.FromAgentCode == fromAgentCode);
+        }
+
+        if (!string.IsNullOrEmpty(toAgentCode))
+        {
+            query = query.Where(l => l.ToAgentCode == toAgentCode);
+        }
+
+        if (!string.IsNullOrEmpty(correlationId))
+        {
+            query = query.Where(l => l.CorrelationId == correlationId);
+        }
+
+        return await query
+            .OrderByDescending(l => l.CreatedDate)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<AgentCommunicationContract> SaveContractAsync(
+        AgentCommunicationContract contract,
+        CancellationToken cancellationToken = default)
+    {
+        // Delegate to existing RegisterContractAsync
+        return await RegisterContractAsync(contract, cancellationToken);
+    }
+
+    #endregion
+
     #region Private Methods
 
     private SchemaValidationResult ValidateAgainstSchema(
@@ -534,3 +707,4 @@ public class CommunicationMetrics
     public Dictionary<string, int> MessagesByType { get; set; } = new();
     public Dictionary<string, int> MessagesByStatus { get; set; } = new();
 }
+

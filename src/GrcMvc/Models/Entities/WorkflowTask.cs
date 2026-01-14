@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GrcMvc.Models.Entities
 {
@@ -16,6 +17,21 @@ namespace GrcMvc.Models.Entities
         // Task identification
         public string TaskName { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Alias for TaskName (service compatibility)
+        /// </summary>
+        [NotMapped]
+        public string Name
+        {
+            get => TaskName;
+            set => TaskName = value;
+        }
+
+        /// <summary>
+        /// Completion percentage (0-100)
+        /// </summary>
+        public int CompletionPercentage { get; set; }
 
         // Assignment
         public Guid? AssignedToUserId { get; set; }

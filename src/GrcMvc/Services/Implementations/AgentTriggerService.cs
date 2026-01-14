@@ -377,10 +377,12 @@ public class AgentTriggerService : IAgentTriggerService
     {
         if (action == "assess")
         {
+            var riskDescription = parameters.TryGetValue("risk_description", out var desc) ? desc?.ToString() ?? "General risk assessment" : "General risk assessment";
             var result = await _agentService.AnalyzeRiskAsync(
-                tenantId: tenantId,
+                riskDescription: riskDescription,
+                context: parameters,
                 cancellationToken: cancellationToken);
-            return new AgentInvocationResult { Success = result.Success, Message = result.Summary };
+            return new AgentInvocationResult { Success = result.Success, Message = result.Analysis };
         }
 
         return new AgentInvocationResult { Success = true, Message = "Risk agent invoked" };
@@ -394,7 +396,7 @@ public class AgentTriggerService : IAgentTriggerService
             if (Guid.TryParse(evidenceId.ToString(), out var id))
             {
                 var result = await _agentService.AnalyzeEvidenceAsync(id, cancellationToken: cancellationToken);
-                return new AgentInvocationResult { Success = result.Success, Message = result.Summary };
+                return new AgentInvocationResult { Success = result.Success, Message = result.Analysis };
             }
         }
 
@@ -406,8 +408,10 @@ public class AgentTriggerService : IAgentTriggerService
     {
         if (action == "optimize")
         {
+            var workflowType = parameters.TryGetValue("workflow_type", out var wfType) ? wfType?.ToString() ?? "General" : "General";
             var result = await _agentService.OptimizeWorkflowAsync(
-                tenantId: tenantId,
+                workflowType: workflowType,
+                currentMetrics: parameters,
                 cancellationToken: cancellationToken);
             return new AgentInvocationResult { Success = result.Success, Message = result.Summary };
         }
@@ -420,7 +424,10 @@ public class AgentTriggerService : IAgentTriggerService
     {
         if (action == "insights")
         {
+            var dataType = parameters.TryGetValue("data_type", out var dt) ? dt?.ToString() ?? "general" : "general";
             var result = await _agentService.GenerateInsightsAsync(
+                dataType: dataType,
+                filters: parameters,
                 tenantId: tenantId,
                 cancellationToken: cancellationToken);
             return new AgentInvocationResult { Success = result.Success };

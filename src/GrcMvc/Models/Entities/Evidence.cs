@@ -100,5 +100,84 @@ namespace GrcMvc.Models.Entities
         /// </summary>
         public Guid? AssessmentRequirementId { get; set; }
         public virtual AssessmentRequirement? AssessmentRequirement { get; set; }
+
+        // =====================================================================
+        // SERVICE COMPATIBILITY PROPERTIES (EvidenceConfidenceService)
+        // =====================================================================
+
+        /// <summary>
+        /// Evidence type code for scoring criteria
+        /// </summary>
+        public string? EvidenceTypeCode { get; set; }
+
+        /// <summary>
+        /// Due date for evidence submission
+        /// </summary>
+        public DateTime? DueDate { get; set; }
+
+        /// <summary>
+        /// When evidence was submitted
+        /// </summary>
+        public DateTime? SubmittedAt { get; set; }
+
+        /// <summary>
+        /// Whether evidence was auto-collected
+        /// </summary>
+        public bool IsAutoCollected { get; set; }
+
+        /// <summary>
+        /// Whether evidence was hybrid-collected
+        /// </summary>
+        public bool IsHybridCollection { get; set; }
+
+        /// <summary>
+        /// Whether evidence has digital signature
+        /// </summary>
+        public bool HasDigitalSignature { get; set; }
+
+        /// <summary>
+        /// File size in bytes (alias for FileSize)
+        /// </summary>
+        [NotMapped]
+        public long FileSizeBytes
+        {
+            get => FileSize;
+            set => FileSize = value;
+        }
+
+        /// <summary>
+        /// Evidence validity end date
+        /// </summary>
+        public DateTime? ValidUntil { get; set; }
+
+        /// <summary>
+        /// Reviewer comments
+        /// </summary>
+        public string? ReviewerComments { get; set; }
+
+        /// <summary>
+        /// When evidence was verified (alias for VerificationDate)
+        /// </summary>
+        [NotMapped]
+        public DateTime? VerifiedAt
+        {
+            get => VerificationDate;
+            set => VerificationDate = value;
+        }
+
+        /// <summary>
+        /// File type (alias for MimeType)
+        /// </summary>
+        [NotMapped]
+        public string? FileType
+        {
+            get => MimeType;
+            set => MimeType = value ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Framework code for relevance scoring
+        /// </summary>
+        public string? FrameworkCode { get; set; }
     }
 }

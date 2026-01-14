@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GrcMvc.Models.Entities
 {
@@ -16,6 +17,16 @@ namespace GrcMvc.Models.Entities
         // Instance identification
         public string InstanceNumber { get; set; } = string.Empty; // WF-2026-0001
         public Guid? WorkflowDefinitionId { get; set; }
+
+        /// <summary>
+        /// Workflow name (service compatibility)
+        /// </summary>
+        [NotMapped]
+        public string Name
+        {
+            get => WorkflowType;
+            set => WorkflowType = value;
+        }
 
         // Workflow type and state
         public string WorkflowType { get; set; } = string.Empty; // ControlImplementation, RiskAssessment, etc.

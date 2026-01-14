@@ -473,6 +473,12 @@ namespace GrcMvc.Models.Entities
         /// </summary>
         public string AllAnswersJson { get; set; } = "{}";
 
+        /// <summary>
+        /// Organization maturity level (service compatibility)
+        /// </summary>
+        [MaxLength(50)]
+        public string? MaturityLevel { get; set; }
+
         // Navigation
         public virtual Tenant Tenant { get; set; } = null!;
     }

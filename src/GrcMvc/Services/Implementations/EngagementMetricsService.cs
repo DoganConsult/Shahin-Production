@@ -336,7 +336,7 @@ public class EngagementMetricsService : IEngagementMetricsService
         var entries = topUsers.Select((m, index) => new LeaderboardEntry
         {
             Rank = index + 1,
-            UserId = m.UserId,
+            UserId = m.UserId ?? Guid.Empty,
             Points = period.ToLower() switch
             {
                 "weekly" => m.WeeklyPoints,
@@ -345,7 +345,7 @@ public class EngagementMetricsService : IEngagementMetricsService
             },
             Level = m.Level,
             CurrentStreak = m.CurrentStreak,
-            EngagementState = m.CurrentState
+            EngagementState = m.CurrentState ?? string.Empty
         }).ToList();
 
         return new LeaderboardResult
@@ -456,6 +456,251 @@ public class EngagementMetricsService : IEngagementMetricsService
             }
         }
     }
+
+    #region IEngagementMetricsService Interface Methods
+
+    public async Task<EngagementMetrics> RecordMetricsAsync(
+        Guid tenantId,
+        Guid? userId,
+        EngagementMetricsInput input,
+        CancellationToken cancellationToken = default)
+    {
+        if (!userId.HasValue)
+        {
+            throw new ArgumentNullException(nameof(userId), "UserId is required for recording metrics");
+        }
+
+        // Record activities based on input
+        var metrics = await GetOrCreateMetricsAsync(tenantId, userId.Value, cancellationToken);
+
+        // Record tasks completed
+        for (int i = 0; i < input.TasksCompleted; i++)
+        {
+            await RecordActivityAsync(tenantId, userId.Value, "TASK_COMPLETE", null, cancellationToken);
+        }
+
+        // Record evidence submitted
+        for (int i = 0; i < input.EvidenceSubmitted; i++)
+        {
+            await RecordActivityAsync(tenantId, userId.Value, "EVIDENCE_SUBMIT", null, cancellationToken);
+        }
+
+        // Update session-related metrics
+        metrics.ModifiedDate = DateTime.UtcNow;
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return metrics;
+    }
+
+    public async Task<EngagementMetrics?> GetCurrentMetricsAsync(
+        Guid tenantId,
+        Guid? userId = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (!userId.HasValue)
+        {
+            // Return tenant-level metrics (first user or null)
+            return await _dbContext.Set<EngagementMetrics>()
+                .Where(m => m.TenantId == tenantId)
+                .OrderByDescending(m => m.ModifiedDate)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        return await _dbContext.Set<EngagementMetrics>()
+            .FirstOrDefaultAsync(m => m.TenantId == tenantId && m.UserId == userId.Value, cancellationToken);
+    }
+
+    public async Task<List<EngagementMetrics>> GetEngagementHistoryAsync(
+        Guid tenantId,
+        Guid? userId = null,
+        int days = 30,
+        CancellationToken cancellationToken = default)
+    {
+        var cutoffDate = DateTime.UtcNow.AddDays(-days);
+
+        var query = _dbContext.Set<EngagementMetrics>()
+            .Where(m => m.TenantId == tenantId && m.ModifiedDate >= cutoffDate);
+
+        if (userId.HasValue)
+        {
+            query = query.Where(m => m.UserId == userId.Value);
+        }
+
+        return await query
+            .OrderByDescending(m => m.ModifiedDate)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<MotivationScore> CalculateMotivationScoreAsync(
+        Guid tenantId,
+        Guid? userId = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (!userId.HasValue)
+        {
+            // Get first active user for tenant if no userId specified
+            var firstUser = await _dbContext.Set<EngagementMetrics>()
+                .Where(m => m.TenantId == tenantId)
+                .OrderByDescending(m => m.LastActivityAt)
+                .Select(m => m.UserId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (firstUser == Guid.Empty)
+            {
+                // Return a default motivation score
+                return new MotivationScore
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    OverallScore = 50,
+                    EngagementScore = 50,
+                    ConsistencyScore = 50,
+                    ProgressScore = 50,
+                    QualityScore = 50,
+                    CollaborationScore = 50,
+                    Trend = "Stable",
+                    RiskFactors = new List<string>(),
+                    Recommendations = new List<string> { "Start engaging with the platform" },
+                    ScoredAt = DateTime.UtcNow,
+                    CreatedDate = DateTime.UtcNow
+                };
+            }
+
+            userId = firstUser;
+        }
+
+        // Call the existing method with Guid
+        return await CalculateMotivationScoreAsync(tenantId, userId.Value, cancellationToken);
+    }
+
+    public async Task<EngagementAnalysisResult> AnalyzeEngagementAsync(
+        Guid tenantId,
+        Guid? userId = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var metrics = await GetCurrentMetricsAsync(tenantId, userId, cancellationToken);
+
+            if (metrics == null)
+            {
+                return new EngagementAnalysisResult
+                {
+                    Success = true,
+                    EngagementState = EngagementStates.Explorer,
+                    OverallScore = 50,
+                    ConfidenceScore = 0,
+                    FatigueScore = 0,
+                    MomentumScore = 50,
+                    RecommendedActions = new List<string> { "Start by exploring the platform features" },
+                    AnalysisSummary = "New user - no engagement data yet"
+                };
+            }
+
+            // Calculate component scores
+            var engagementScore = CalculateEngagementComponent(metrics);
+            var consistencyScore = CalculateConsistencyComponent(metrics);
+
+            // Calculate fatigue based on recent activity intensity
+            var fatigueScore = await CalculateFatigueScoreAsync(tenantId, userId, cancellationToken);
+
+            // Calculate momentum based on trend
+            var momentumScore = await CalculateMomentumScoreAsync(tenantId, userId, cancellationToken);
+
+            // Calculate confidence in the analysis
+            var confidenceScore = metrics.TotalActivities >= 10 ? 80 :
+                                 metrics.TotalActivities >= 5 ? 60 :
+                                 metrics.TotalActivities >= 1 ? 40 : 20;
+
+            // Overall score
+            var overallScore = (engagementScore + consistencyScore + momentumScore) / 3;
+
+            // Generate recommended actions
+            var recommendedActions = new List<string>();
+            if (engagementScore < 50)
+                recommendedActions.Add("Log in daily to maintain engagement streak");
+            if (consistencyScore < 50)
+                recommendedActions.Add("Complete at least one task per session");
+            if (fatigueScore > 70)
+                recommendedActions.Add("Consider taking a short break to avoid burnout");
+            if (momentumScore < 40)
+                recommendedActions.Add("Focus on quick wins to build momentum");
+
+            if (recommendedActions.Count == 0)
+                recommendedActions.Add("Keep up the great work!");
+
+            return new EngagementAnalysisResult
+            {
+                Success = true,
+                EngagementState = metrics.CurrentState ?? EngagementStates.Explorer,
+                OverallScore = overallScore,
+                ConfidenceScore = confidenceScore,
+                FatigueScore = fatigueScore,
+                MomentumScore = momentumScore,
+                RecommendedActions = recommendedActions,
+                AnalysisSummary = $"User is in {metrics.CurrentState} state with {metrics.CurrentStreak} day streak"
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error analyzing engagement for tenant {TenantId}", tenantId);
+            return new EngagementAnalysisResult
+            {
+                Success = false,
+                AnalysisSummary = "Error analyzing engagement"
+            };
+        }
+    }
+
+    private async Task<int> CalculateFatigueScoreAsync(
+        Guid tenantId,
+        Guid? userId,
+        CancellationToken cancellationToken)
+    {
+        // Calculate fatigue based on recent intense activity
+        var recentActivities = await _dbContext.Set<UserActivity>()
+            .Where(a => a.TenantId == tenantId &&
+                       (!userId.HasValue || a.UserId == userId.Value) &&
+                       a.CreatedDate >= DateTime.UtcNow.AddHours(-24))
+            .CountAsync(cancellationToken);
+
+        // High activity in 24h suggests potential fatigue
+        if (recentActivities > 50) return 80;
+        if (recentActivities > 30) return 60;
+        if (recentActivities > 20) return 40;
+        return 20;
+    }
+
+    private async Task<int> CalculateMomentumScoreAsync(
+        Guid tenantId,
+        Guid? userId,
+        CancellationToken cancellationToken)
+    {
+        // Compare recent activity to previous period
+        var recent = await _dbContext.Set<UserActivity>()
+            .Where(a => a.TenantId == tenantId &&
+                       (!userId.HasValue || a.UserId == userId.Value) &&
+                       a.CreatedDate >= DateTime.UtcNow.AddDays(-7))
+            .CountAsync(cancellationToken);
+
+        var previous = await _dbContext.Set<UserActivity>()
+            .Where(a => a.TenantId == tenantId &&
+                       (!userId.HasValue || a.UserId == userId.Value) &&
+                       a.CreatedDate >= DateTime.UtcNow.AddDays(-14) &&
+                       a.CreatedDate < DateTime.UtcNow.AddDays(-7))
+            .CountAsync(cancellationToken);
+
+        if (previous == 0) return recent > 0 ? 70 : 50;
+
+        var ratio = (double)recent / previous;
+        if (ratio >= 1.5) return 90;
+        if (ratio >= 1.2) return 75;
+        if (ratio >= 0.8) return 60;
+        if (ratio >= 0.5) return 40;
+        return 25;
+    }
+
+    #endregion
 
     #region Private Methods
 

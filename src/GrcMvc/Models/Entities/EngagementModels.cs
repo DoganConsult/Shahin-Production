@@ -498,6 +498,37 @@ public class EngagementMetrics : BaseEntity
     /// </summary>
     [Required]
     public DateTime RecordedAt { get; set; } = DateTime.UtcNow;
+
+    #region Gamification Properties (Service Compatibility)
+
+    public int TotalPoints { get; set; }
+    public int WeeklyPoints { get; set; }
+    public int MonthlyPoints { get; set; }
+    public int Level { get; set; } = 1;
+    public int CurrentStreak { get; set; }
+    public int LongestStreak { get; set; }
+    public int TotalActivities { get; set; }
+    public int BadgeCount { get; set; }
+    public DateTime? LastActivityAt { get; set; }
+    public DateTime? WeeklyPointsResetAt { get; set; }
+    public DateTime? MonthlyPointsResetAt { get; set; }
+    public string? ActivityCountsJson { get; set; }
+
+    /// <summary>
+    /// Optional workspace ID for filtering
+    /// </summary>
+    public Guid? WorkspaceId { get; set; }
+
+    /// <summary>
+    /// Alias for EngagementState for service compatibility
+    /// </summary>
+    public string? CurrentState
+    {
+        get => EngagementState;
+        set => EngagementState = value;
+    }
+
+    #endregion
 }
 
 /// <summary>
@@ -510,6 +541,11 @@ public static class EngagementStates
     public const string Neutral = "Neutral";
     public const string Disengaged = "Disengaged";
     public const string AtRisk = "At_Risk";
+
+    // Aliases for service compatibility
+    public const string Champion = "Highly_Engaged";
+    public const string Contributor = "Engaged";
+    public const string Explorer = "Neutral";
 
     public static string GetState(int engagementScore) => engagementScore switch
     {
@@ -599,6 +635,83 @@ public class MotivationScore : BaseEntity
     /// Previous score for trend tracking
     /// </summary>
     public int? PreviousScore { get; set; }
+
+    #region Service Compatibility Properties
+
+    /// <summary>
+    /// Alias for Score
+    /// </summary>
+    [NotMapped]
+    public int OverallScore
+    {
+        get => Score;
+        set => Score = value;
+    }
+
+    /// <summary>
+    /// Engagement score component
+    /// </summary>
+    [Range(0, 100)]
+    public int EngagementScore { get; set; } = 50;
+
+    /// <summary>
+    /// Consistency score component
+    /// </summary>
+    [Range(0, 100)]
+    public int ConsistencyScore { get; set; } = 50;
+
+    /// <summary>
+    /// Progress score component
+    /// </summary>
+    [Range(0, 100)]
+    public int ProgressScore { get; set; } = 50;
+
+    /// <summary>
+    /// Quality score component
+    /// </summary>
+    [Range(0, 100)]
+    public int QualityScore { get; set; } = 50;
+
+    /// <summary>
+    /// Collaboration score component
+    /// </summary>
+    [Range(0, 100)]
+    public int CollaborationScore { get; set; } = 50;
+
+    /// <summary>
+    /// Score trend (Improving, Stable, Declining)
+    /// </summary>
+    [StringLength(20)]
+    public string? Trend { get; set; } = "Stable";
+
+    /// <summary>
+    /// Risk factors list
+    /// </summary>
+    [NotMapped]
+    public List<string> RiskFactors { get; set; } = new();
+
+    /// <summary>
+    /// Recommendations list
+    /// </summary>
+    [NotMapped]
+    public List<string> Recommendations { get; set; } = new();
+
+    /// <summary>
+    /// Whether intervention is required
+    /// </summary>
+    public bool RequiresIntervention { get; set; }
+
+    /// <summary>
+    /// Alias for CalculatedAt
+    /// </summary>
+    [NotMapped]
+    public DateTime ScoredAt
+    {
+        get => CalculatedAt;
+        set => CalculatedAt = value;
+    }
+
+    #endregion
 }
 
 #endregion
@@ -803,6 +916,41 @@ public class ConditionalLogicRuleExecution : BaseEntity
 
     [StringLength(100)]
     public string? ExecutedBy { get; set; }
+}
+
+/// <summary>
+/// Rule evaluation history for audit and debugging
+/// </summary>
+[Table("RuleEvaluations")]
+public class RuleEvaluation : BaseEntity
+{
+    public Guid? TenantId { get; set; }
+    public Guid RuleId { get; set; }
+
+    [StringLength(100)]
+    public string? RuleCode { get; set; }
+
+    [StringLength(100)]
+    public string? TriggerEvent { get; set; }
+
+    public string? ContextJson { get; set; }
+    public bool ConditionResult { get; set; }
+    public string? TriggeredActionsJson { get; set; }
+
+    [StringLength(50)]
+    public string Status { get; set; } = "Evaluated";
+
+    [StringLength(2000)]
+    public string? ErrorMessage { get; set; }
+
+    public int DurationMs { get; set; }
+    public DateTime EvaluatedAt { get; set; } = DateTime.UtcNow;
+
+    [StringLength(100)]
+    public string? EvaluatedBy { get; set; }
+
+    [ForeignKey("RuleId")]
+    public virtual ConditionalLogicRule? Rule { get; set; }
 }
 
 #endregion
@@ -1233,6 +1381,56 @@ public class AgentCommunicationContract : BaseEntity
     /// Contract version
     /// </summary>
     public int Version { get; set; } = 1;
+
+    #region Service Compatibility Properties
+
+    /// <summary>
+    /// Alias for FromAgentCode
+    /// </summary>
+    [NotMapped]
+    public string SourceAgentCode
+    {
+        get => FromAgentCode;
+        set => FromAgentCode = value;
+    }
+
+    /// <summary>
+    /// Alias for ToAgentCode
+    /// </summary>
+    [NotMapped]
+    public string TargetAgentCode
+    {
+        get => ToAgentCode;
+        set => ToAgentCode = value;
+    }
+
+    /// <summary>
+    /// Message type for contract
+    /// </summary>
+    [StringLength(100)]
+    public string? MessageType { get; set; } = "Default";
+
+    /// <summary>
+    /// Retry policy (JSON)
+    /// </summary>
+    public string? RetryPolicy { get; set; }
+
+    /// <summary>
+    /// Maximum number of retries
+    /// </summary>
+    public int MaxRetries { get; set; } = 3;
+
+    /// <summary>
+    /// Whether acknowledgment is required
+    /// </summary>
+    public bool RequiresAcknowledgment { get; set; }
+
+    /// <summary>
+    /// Priority level (1-10)
+    /// </summary>
+    public int PriorityLevel { get; set; } = 5;
+
+    #endregion
 }
 
 /// <summary>
