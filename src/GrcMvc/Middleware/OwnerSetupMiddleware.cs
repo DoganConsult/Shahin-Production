@@ -61,7 +61,9 @@ namespace GrcMvc.Middleware
                 path == "/home" ||
                 path == "/home/error" ||
                 path.StartsWith("/error") ||
+                path.StartsWith("/account") ||
                 path.StartsWith("/landing/") ||
+                path == "/terms" ||
                 path.StartsWith("/pricing") ||
                 path.StartsWith("/features") ||
                 path.StartsWith("/about") ||
@@ -111,7 +113,7 @@ namespace GrcMvc.Middleware
                 }
 
                 // If no owner exists and user is not already on setup page, redirect
-                if (!ownerExists && !path.StartsWith("/account/login"))
+                if (!ownerExists && !path.StartsWith("/account"))
                 {
                     _logger.LogInformation("Redirecting to owner setup page. Path: {Path}, OwnerExists: {OwnerExists}", path, ownerExists);
                     context.Response.Redirect("/OwnerSetup");

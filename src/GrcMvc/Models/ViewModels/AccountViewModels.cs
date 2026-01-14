@@ -49,6 +49,11 @@ namespace GrcMvc.Models.ViewModels
         [Display(Name = "Department")]
         [StringLength(100)]
         public string? Department { get; set; }
+
+        [Required(ErrorMessage = "You must accept the Terms and Conditions")]
+        [Range(typeof(bool), "true", "true", ErrorMessage = "You must accept the Terms and Conditions")]
+        [Display(Name = "I accept the Terms and Conditions")]
+        public bool AcceptTerms { get; set; }
     }
 
     public class ManageViewModel

@@ -168,11 +168,22 @@ if (string.IsNullOrWhiteSpace(connectionString))
     }
 }
 
-// Get auth connection string (or use default if not set)
-string? authConnectionString = builder.Configuration.GetConnectionString("GrcAuthDb") ?? connectionString;
+// Get auth connection string
+string? authConnectionString = builder.Configuration.GetConnectionString("GrcAuthDb");
 if (string.IsNullOrWhiteSpace(authConnectionString) && !string.IsNullOrWhiteSpace(connectionString))
 {
-    builder.Configuration["ConnectionStrings:GrcAuthDb"] = connectionString;
+    try
+    {
+        var csb = new NpgsqlConnectionStringBuilder(connectionString);
+        csb.Database = $"{csb.Database}_auth";
+        authConnectionString = csb.ConnectionString;
+    }
+    catch
+    {
+        authConnectionString = connectionString;
+    }
+
+    builder.Configuration["ConnectionStrings:GrcAuthDb"] = authConnectionString;
 }
 // CRITICAL SECURITY FIX: JWT secret must be provided via environment variable in production
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
