@@ -11,21 +11,17 @@ namespace GrcMvc.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<Guid>(
+            // First, rename the old string TenantId to AzureTenantId (preserving the Azure tenant data)
+            migrationBuilder.RenameColumn(
+                name: "TenantId",
+                table: "EmailMailboxes",
+                newName: "AzureTenantId");
+
+            // Add the new Guid TenantId column
+            migrationBuilder.AddColumn<Guid>(
                 name: "TenantId",
                 table: "EmailMailboxes",
                 type: "uuid",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "character varying(100)",
-                oldMaxLength: 100,
-                oldNullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "AzureTenantId",
-                table: "EmailMailboxes",
-                type: "character varying(100)",
-                maxLength: 100,
                 nullable: true);
 
             migrationBuilder.CreateTable(
@@ -673,19 +669,16 @@ namespace GrcMvc.Migrations
             migrationBuilder.DropTable(
                 name: "MAPProfiles");
 
+            // Drop the new Guid TenantId column
             migrationBuilder.DropColumn(
-                name: "AzureTenantId",
+                name: "TenantId",
                 table: "EmailMailboxes");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "TenantId",
+            // Rename AzureTenantId back to TenantId
+            migrationBuilder.RenameColumn(
+                name: "AzureTenantId",
                 table: "EmailMailboxes",
-                type: "character varying(100)",
-                maxLength: 100,
-                nullable: true,
-                oldClrType: typeof(Guid),
-                oldType: "uuid",
-                oldNullable: true);
+                newName: "TenantId");
         }
     }
 }
