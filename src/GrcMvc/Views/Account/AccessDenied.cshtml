@@ -15,9 +15,15 @@
                     <p class="text-muted">@L["Auth_AccessDeniedMessage"]</p>
                     <hr />
                     <p>@L["Auth_ContactAdministrator"]</p>
-                    <div class="mt-4">
-                        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
-                            <i class="bi bi-house"></i> @L["Auth_GoToDashboard"]
+                    <div class="mt-4 d-flex flex-column flex-sm-row gap-2 justify-content-center">
+                        <a asp-controller="Landing" asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-globe"></i> @L["Nav_Landing"]
+                        </a>
+                        <a asp-controller="Onboarding" asp-action="Index" class="btn btn-primary">
+                            <i class="bi bi-rocket"></i> @L["Nav_Onboarding"]
+                        </a>
+                        <a asp-controller="Account" asp-action="Logout" class="btn btn-outline-danger">
+                            <i class="bi bi-box-arrow-right"></i> @L["Nav_Logout"]
                         </a>
                     </div>
                 </div>

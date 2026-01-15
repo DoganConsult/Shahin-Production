@@ -57,10 +57,20 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/brand/eagle-logo-32.png" alt="@AppInfo.Name" width="28" height="28" class="me-2" />
-                    <span>@AppInfo.Name</span>
-                </a>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a class="navbar-brand d-flex align-items-center" href="/owner/Home" title="@L["Nav_GoToHome"]">
+                        <img src="~/images/brand/eagle-logo-32.png" alt="@AppInfo.Name" width="28" height="28" class="me-2" />
+                        <span>@AppInfo.Name</span>
+                    </a>
+                }
+                else
+                {
+                    <a class="navbar-brand d-flex align-items-center" href="/" title="@L["Nav_GoToLanding"]">
+                        <img src="~/images/brand/eagle-logo-32.png" alt="@AppInfo.Name" width="28" height="28" class="me-2" />
+                        <span>@AppInfo.Name</span>
+                    </a>
+                }
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>

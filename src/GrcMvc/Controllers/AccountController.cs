@@ -551,6 +551,7 @@ namespace GrcMvc.Controllers
                     FirstName = model.FirstName ?? string.Empty,
                     LastName = model.LastName ?? string.Empty,
                     Department = model.Department ?? string.Empty,
+                    JobTitle = model.JobTitle ?? string.Empty,
                     // HIGH PRIORITY SECURITY FIX: Only auto-confirm email in development environment
                     EmailConfirmed = !HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsProduction()
                 };
@@ -561,13 +562,15 @@ namespace GrcMvc.Controllers
                 {
                     _logger.LogInformation("User {Email} created a new account.", model.Email);
 
-                    // Assign default role
-                    var defaultRole = "User";
-                    if (!await _roleManager.RoleExistsAsync(defaultRole))
+                    // Assign role based on JobTitle selection
+                    var roleToAssign = MapJobTitleToRole(model.JobTitle);
+                    if (!await _roleManager.RoleExistsAsync(roleToAssign))
                     {
-                        await _roleManager.CreateAsync(new IdentityRole(defaultRole));
+                        await _roleManager.CreateAsync(new IdentityRole(roleToAssign));
                     }
-                    await _userManager.AddToRoleAsync(user, defaultRole);
+                    await _userManager.AddToRoleAsync(user, roleToAssign);
+                    _logger.LogInformation("User {Email} assigned role {Role} based on JobTitle {JobTitle}.",
+                        model.Email, roleToAssign, model.JobTitle);
 
                     // Send welcome email
                     try
@@ -591,11 +594,13 @@ namespace GrcMvc.Controllers
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
 
+                    // New users need to complete onboarding (create/join a tenant)
+                    // Redirect to Onboarding instead of Home to avoid Access Denied
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     {
                         return Redirect(returnUrl);
                     }
-                    return RedirectToAction(nameof(HomeController.Index), "Home");
+                    return RedirectToAction("Index", "Onboarding");
                 }
 
                 foreach (var error in result.Errors)
@@ -1571,6 +1576,43 @@ namespace GrcMvc.Controllers
                 ModelState.AddModelError("", "An error occurred. Please try again later.");
                 return View(model);
             }
+        }
+
+        /// <summary>
+        /// Maps JobTitle selection to appropriate Identity Role
+        /// </summary>
+        private static string MapJobTitleToRole(string? jobTitle)
+        {
+            return jobTitle switch
+            {
+                // Executive roles - TenantAdmin
+                "TenantAdmin" or "ChiefRiskOfficer" or "ChiefComplianceOfficer" or "ExecutiveDirector" => "TenantAdmin",
+
+                // Management roles - appropriate manager roles
+                "RiskManager" => "RiskManager",
+                "ComplianceManager" => "ComplianceManager",
+                "AuditManager" => "Auditor",
+                "SecurityManager" => "RiskManager",
+                "LegalManager" => "PolicyManager",
+                "FinanceManager" => "FinanceManager",
+                "HRManager" => "OperationalManager",
+                "OperationalManager" => "OperationalManager",
+
+                // Operational roles
+                "ComplianceOfficer" => "ComplianceOfficer",
+                "RiskAnalyst" => "RiskAnalyst",
+                "PrivacyOfficer" => "ComplianceOfficer",
+                "QualityAssuranceManager" => "Auditor",
+                "ProcessOwner" => "User",
+
+                // Support roles
+                "DocumentationSpecialist" => "Viewer",
+                "ReportingAnalyst" => "BusinessAnalyst",
+                "BoardMember" => "BoardMember",
+
+                // Default
+                _ => "User"
+            };
         }
     }
 }

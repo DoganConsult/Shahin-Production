@@ -1,7 +1,7 @@
 ﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
 <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 
-<script>
+<script nonce="@ViewData["CSPNonce"]">
     $(document).ready(function () {
         // Configure jQuery Validation defaults
         $.validator.setDefaults({
@@ -10,7 +10,7 @@
             errorElement: 'div',
             errorPlacement: function (error, element) {
                 error.addClass('invalid-feedback d-block');
-                element.closest('.mb-3, .form-group').append(error);
+                element.closest('.mb-3, .form-group, .form-check').append(error);
             },
             highlight: function (element, errorClass, validClass) {
                 $(element).addClass(errorClass).removeClass(validClass);
@@ -19,5 +19,11 @@
                 $(element).removeClass(errorClass).addClass(validClass);
             }
         });
+
+        // Custom validator for MustBeTrue attribute (checkbox must be checked)
+        $.validator.addMethod('mustbetrue', function (value, element) {
+            return element.checked;
+        });
+        $.validator.unobtrusive.adapters.addBool('mustbetrue');
     });
 </script>

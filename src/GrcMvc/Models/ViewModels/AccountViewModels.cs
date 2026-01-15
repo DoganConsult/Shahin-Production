@@ -1,7 +1,30 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace GrcMvc.Models.ViewModels
 {
+    /// <summary>
+    /// Custom validation attribute that ensures a boolean is true.
+    /// Works correctly with jQuery validation unlike [Range(typeof(bool), "true", "true")].
+    /// </summary>
+    public class MustBeTrueAttribute : ValidationAttribute, IClientModelValidator
+    {
+        public MustBeTrueAttribute() : base("The field must be checked.")
+        {
+        }
+
+        public override bool IsValid(object? value)
+        {
+            return value is bool boolValue && boolValue;
+        }
+
+        public void AddValidation(ClientModelValidationContext context)
+        {
+            context.Attributes.Add("data-val", "true");
+            context.Attributes.Add("data-val-mustbetrue", ErrorMessage ?? "This field must be checked.");
+        }
+    }
+
     public class LoginViewModel
     {
         [Required]
@@ -50,8 +73,11 @@ namespace GrcMvc.Models.ViewModels
         [StringLength(100)]
         public string? Department { get; set; }
 
-        [Required(ErrorMessage = "You must accept the Terms and Conditions")]
-        [Range(typeof(bool), "true", "true", ErrorMessage = "You must accept the Terms and Conditions")]
+        [Display(Name = "Job Title")]
+        [StringLength(100)]
+        public string? JobTitle { get; set; }
+
+        [MustBeTrue(ErrorMessage = "You must accept the Terms and Conditions")]
         [Display(Name = "I accept the Terms and Conditions")]
         public bool AcceptTerms { get; set; }
     }

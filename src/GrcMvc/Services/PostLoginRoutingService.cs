@@ -67,9 +67,9 @@ namespace GrcMvc.Services
                 ["OperationsSupport"] = async (user) => ("Support", "TicketQueue", null),
                 ["SystemObserver"] = async (user) => ("Reports", "ViewOnly", null),
 
-                // Default roles
-                ["Employee"] = async (user) => ("Dashboard", "Index", null),
-                ["Guest"] = async (user) => ("Home", "Limited", null)
+                // Default roles - using Home controller (guaranteed to exist)
+                ["Employee"] = async (user) => ("Home", "Index", null),
+                ["Guest"] = async (user) => ("Home", "Index", null)
             };
         }
 
@@ -77,6 +77,17 @@ namespace GrcMvc.Services
         {
             var roles = await _userManager.GetRolesAsync(user);
             _logger.LogInformation("User {Email} has roles: {Roles}", user.Email, string.Join(", ", roles));
+
+            // First check if user needs onboarding (before role-based routing)
+            var tenantUser = await _context.TenantUsers
+                .Include(tu => tu.Tenant)
+                .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
+
+            if (tenantUser == null)
+            {
+                _logger.LogInformation("User {Email} has no tenant - routing to onboarding", user.Email);
+                return ("Onboarding", "Index", null);
+            }
 
             // Priority-based role checking (highest privilege first)
             var priorityRoles = new[]
@@ -114,16 +125,10 @@ namespace GrcMvc.Services
                 }
             }
 
-            // Check if user needs onboarding
-            if (await NeedsOnboarding(user))
-            {
-                _logger.LogInformation("User {Email} needs onboarding", user.Email);
-                return ("Onboarding", "Start", null);
-            }
-
             // Default route for authenticated users without specific roles
-            _logger.LogInformation("User {Email} using default route", user.Email);
-            return ("Dashboard", "Index", null);
+            // Redirect to Home/Index which is a known, working endpoint
+            _logger.LogInformation("User {Email} using default route to Home", user.Email);
+            return ("Home", "Index", null);
         }
 
         private async Task<(string, string, object?)> GetTenantAdminRoute(ApplicationUser user)
@@ -157,17 +162,5 @@ namespace GrcMvc.Services
             return ("Onboarding", "CreateTenant", null);
         }
 
-        private async Task<bool> NeedsOnboarding(ApplicationUser user)
-        {
-            // Check if user has completed onboarding
-            var hasWorkspace = await _context.UserWorkspaces
-                .AnyAsync(uw => uw.UserId == user.Id && uw.IsConfigured && !uw.IsDeleted);
-
-            var hasTenant = await _context.TenantUsers
-                .AnyAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
-
-            // User needs onboarding if they don't have workspace or tenant
-            return !hasWorkspace && !hasTenant;
-        }
     }
 }

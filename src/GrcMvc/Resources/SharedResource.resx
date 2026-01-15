@@ -1902,6 +1902,147 @@
   <data name="Auth_SwitchToLegacyTenantLogin" xml:space="preserve">
     <value>Switch to Legacy Tenant Login</value>
   </data>
+  <data name="Auth_AcceptTerms" xml:space="preserve">
+    <value>I agree to the</value>
+  </data>
+  <data name="Auth_TermsAndConditions" xml:space="preserve">
+    <value>Terms and Conditions</value>
+  </data>
+  <data name="Auth_PasswordRequirements" xml:space="preserve">
+    <value>Password must be at least 8 characters and contain uppercase, lowercase letters and numbers</value>
+  </data>
+  <data name="Auth_SelectDepartment" xml:space="preserve">
+    <value>Select Department</value>
+  </data>
+  <data name="Dept_IT" xml:space="preserve">
+    <value>Information Technology</value>
+  </data>
+  <data name="Dept_Compliance" xml:space="preserve">
+    <value>Compliance</value>
+  </data>
+  <data name="Dept_RiskManagement" xml:space="preserve">
+    <value>Risk Management</value>
+  </data>
+  <data name="Dept_InternalAudit" xml:space="preserve">
+    <value>Internal Audit</value>
+  </data>
+  <data name="Dept_Legal" xml:space="preserve">
+    <value>Legal</value>
+  </data>
+  <data name="Dept_Finance" xml:space="preserve">
+    <value>Finance</value>
+  </data>
+  <data name="Dept_HR" xml:space="preserve">
+    <value>Human Resources</value>
+  </data>
+  <data name="Dept_Operations" xml:space="preserve">
+    <value>Operations</value>
+  </data>
+  <data name="Dept_Security" xml:space="preserve">
+    <value>Information Security</value>
+  </data>
+  <data name="Dept_Management" xml:space="preserve">
+    <value>Executive Management</value>
+  </data>
+  <data name="Auth_JobTitle" xml:space="preserve">
+    <value>Job Title</value>
+  </data>
+  <data name="Auth_SelectJobTitle" xml:space="preserve">
+    <value>Select Job Title</value>
+  </data>
+  <data name="Role_CRO" xml:space="preserve">
+    <value>Chief Risk Officer</value>
+  </data>
+  <data name="Role_CCO" xml:space="preserve">
+    <value>Chief Compliance Officer</value>
+  </data>
+  <data name="Role_ExecutiveDirector" xml:space="preserve">
+    <value>Executive Director</value>
+  </data>
+  <data name="Role_RiskManager" xml:space="preserve">
+    <value>Risk Manager</value>
+  </data>
+  <data name="Role_ComplianceManager" xml:space="preserve">
+    <value>Compliance Manager</value>
+  </data>
+  <data name="Role_AuditManager" xml:space="preserve">
+    <value>Audit Manager</value>
+  </data>
+  <data name="Role_SecurityManager" xml:space="preserve">
+    <value>Security Manager</value>
+  </data>
+  <data name="Role_LegalManager" xml:space="preserve">
+    <value>Legal Manager</value>
+  </data>
+  <data name="Role_ComplianceOfficer" xml:space="preserve">
+    <value>Compliance Officer</value>
+  </data>
+  <data name="Role_RiskAnalyst" xml:space="preserve">
+    <value>Risk Analyst</value>
+  </data>
+  <data name="Role_PrivacyOfficer" xml:space="preserve">
+    <value>Privacy Officer</value>
+  </data>
+  <data name="Role_QAManager" xml:space="preserve">
+    <value>Quality Assurance Manager</value>
+  </data>
+  <data name="Role_ProcessOwner" xml:space="preserve">
+    <value>Process Owner</value>
+  </data>
+  <data name="Role_DocumentationSpecialist" xml:space="preserve">
+    <value>Documentation Specialist</value>
+  </data>
+  <data name="Role_ReportingAnalyst" xml:space="preserve">
+    <value>Reporting Analyst</value>
+  </data>
+  <data name="Role_FinanceManager" xml:space="preserve">
+    <value>Finance Manager</value>
+  </data>
+  <data name="Role_HRManager" xml:space="preserve">
+    <value>HR Manager</value>
+  </data>
+  <data name="Role_OperationalManager" xml:space="preserve">
+    <value>Operational Manager</value>
+  </data>
+  <data name="Role_BoardMember" xml:space="preserve">
+    <value>Board Member</value>
+  </data>
+  <data name="Role_TenantAdmin" xml:space="preserve">
+    <value>System Administrator</value>
+  </data>
+  <data name="Role_Other" xml:space="preserve">
+    <value>Other (Enter manually)</value>
+  </data>
+  <data name="Auth_EnterCustomJobTitle" xml:space="preserve">
+    <value>Enter your job title</value>
+  </data>
+  <data name="RoleDesc_TenantAdmin" xml:space="preserve">
+    <value>Full access to manage organization, users, and settings</value>
+  </data>
+  <data name="RoleDesc_ExecutiveDirector" xml:space="preserve">
+    <value>Executive oversight of all GRC operations</value>
+  </data>
+  <data name="RoleDesc_CRO" xml:space="preserve">
+    <value>Enterprise-wide risk strategy management</value>
+  </data>
+  <data name="RoleDesc_CCO" xml:space="preserve">
+    <value>Oversees compliance program and regulatory obligations</value>
+  </data>
+  <data name="RoleDesc_RiskManager" xml:space="preserve">
+    <value>Manages operational risk assessments and remediation</value>
+  </data>
+  <data name="RoleDesc_ComplianceManager" xml:space="preserve">
+    <value>Compliance monitoring and audit coordination</value>
+  </data>
+  <data name="RoleDesc_AuditManager" xml:space="preserve">
+    <value>Manages internal audit operations and findings</value>
+  </data>
+  <data name="RoleDesc_SecurityManager" xml:space="preserve">
+    <value>Oversees information security and data protection</value>
+  </data>
+  <data name="RoleDesc_BoardMember" xml:space="preserve">
+    <value>Executive read-only oversight of reports and metrics</value>
+  </data>
   <data name="Landing_Title" xml:space="preserve">
     <value>Shahin Platform - Governance, Risk, and Compliance System</value>
   </data>

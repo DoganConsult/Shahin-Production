@@ -1902,6 +1902,147 @@
   <data name="Auth_SwitchToLegacyTenantLogin" xml:space="preserve">
     <value>التبديل إلى تسجيل دخول المستأجر القديم</value>
   </data>
+  <data name="Auth_AcceptTerms" xml:space="preserve">
+    <value>أوافق على</value>
+  </data>
+  <data name="Auth_TermsAndConditions" xml:space="preserve">
+    <value>الشروط والأحكام</value>
+  </data>
+  <data name="Auth_PasswordRequirements" xml:space="preserve">
+    <value>يجب أن تكون كلمة المرور 8 أحرف على الأقل وتحتوي على أحرف كبيرة وصغيرة وأرقام</value>
+  </data>
+  <data name="Auth_SelectDepartment" xml:space="preserve">
+    <value>اختر القسم</value>
+  </data>
+  <data name="Dept_IT" xml:space="preserve">
+    <value>تقنية المعلومات</value>
+  </data>
+  <data name="Dept_Compliance" xml:space="preserve">
+    <value>الامتثال</value>
+  </data>
+  <data name="Dept_RiskManagement" xml:space="preserve">
+    <value>إدارة المخاطر</value>
+  </data>
+  <data name="Dept_InternalAudit" xml:space="preserve">
+    <value>التدقيق الداخلي</value>
+  </data>
+  <data name="Dept_Legal" xml:space="preserve">
+    <value>الشؤون القانونية</value>
+  </data>
+  <data name="Dept_Finance" xml:space="preserve">
+    <value>المالية</value>
+  </data>
+  <data name="Dept_HR" xml:space="preserve">
+    <value>الموارد البشرية</value>
+  </data>
+  <data name="Dept_Operations" xml:space="preserve">
+    <value>العمليات</value>
+  </data>
+  <data name="Dept_Security" xml:space="preserve">
+    <value>الأمن</value>
+  </data>
+  <data name="Dept_Management" xml:space="preserve">
+    <value>الإدارة</value>
+  </data>
+  <data name="Auth_JobTitle" xml:space="preserve">
+    <value>المسمى الوظيفي</value>
+  </data>
+  <data name="Auth_SelectJobTitle" xml:space="preserve">
+    <value>اختر المسمى الوظيفي</value>
+  </data>
+  <data name="Role_CRO" xml:space="preserve">
+    <value>الرئيس التنفيذي للمخاطر</value>
+  </data>
+  <data name="Role_CCO" xml:space="preserve">
+    <value>الرئيس التنفيذي للامتثال</value>
+  </data>
+  <data name="Role_ExecutiveDirector" xml:space="preserve">
+    <value>المدير التنفيذي</value>
+  </data>
+  <data name="Role_RiskManager" xml:space="preserve">
+    <value>مدير إدارة المخاطر</value>
+  </data>
+  <data name="Role_ComplianceManager" xml:space="preserve">
+    <value>مدير الامتثال</value>
+  </data>
+  <data name="Role_AuditManager" xml:space="preserve">
+    <value>مدير التدقيق الداخلي</value>
+  </data>
+  <data name="Role_SecurityManager" xml:space="preserve">
+    <value>مدير أمن المعلومات</value>
+  </data>
+  <data name="Role_LegalManager" xml:space="preserve">
+    <value>مدير الشؤون القانونية</value>
+  </data>
+  <data name="Role_ComplianceOfficer" xml:space="preserve">
+    <value>موظف الامتثال</value>
+  </data>
+  <data name="Role_RiskAnalyst" xml:space="preserve">
+    <value>محلل المخاطر</value>
+  </data>
+  <data name="Role_PrivacyOfficer" xml:space="preserve">
+    <value>مسؤول الخصوصية</value>
+  </data>
+  <data name="Role_QAManager" xml:space="preserve">
+    <value>مدير ضمان الجودة</value>
+  </data>
+  <data name="Role_ProcessOwner" xml:space="preserve">
+    <value>مالك العمليات</value>
+  </data>
+  <data name="Role_DocumentationSpecialist" xml:space="preserve">
+    <value>أخصائي التوثيق</value>
+  </data>
+  <data name="Role_ReportingAnalyst" xml:space="preserve">
+    <value>محلل التقارير</value>
+  </data>
+  <data name="Role_FinanceManager" xml:space="preserve">
+    <value>مدير المالية</value>
+  </data>
+  <data name="Role_HRManager" xml:space="preserve">
+    <value>مدير الموارد البشرية</value>
+  </data>
+  <data name="Role_OperationalManager" xml:space="preserve">
+    <value>مدير العمليات</value>
+  </data>
+  <data name="Role_BoardMember" xml:space="preserve">
+    <value>عضو مجلس الإدارة</value>
+  </data>
+  <data name="Role_TenantAdmin" xml:space="preserve">
+    <value>مدير النظام</value>
+  </data>
+  <data name="Role_Other" xml:space="preserve">
+    <value>أخرى (أدخل يدوياً)</value>
+  </data>
+  <data name="Auth_EnterCustomJobTitle" xml:space="preserve">
+    <value>أدخل مسماك الوظيفي</value>
+  </data>
+  <data name="RoleDesc_TenantAdmin" xml:space="preserve">
+    <value>صلاحيات كاملة لإدارة المنظمة والمستخدمين والإعدادات</value>
+  </data>
+  <data name="RoleDesc_ExecutiveDirector" xml:space="preserve">
+    <value>إشراف تنفيذي على جميع عمليات الحوكمة والمخاطر والامتثال</value>
+  </data>
+  <data name="RoleDesc_CRO" xml:space="preserve">
+    <value>إدارة استراتيجية المخاطر على مستوى المنظمة</value>
+  </data>
+  <data name="RoleDesc_CCO" xml:space="preserve">
+    <value>الإشراف على برنامج الامتثال والالتزامات التنظيمية</value>
+  </data>
+  <data name="RoleDesc_RiskManager" xml:space="preserve">
+    <value>إدارة تقييمات المخاطر التشغيلية والمعالجة</value>
+  </data>
+  <data name="RoleDesc_ComplianceManager" xml:space="preserve">
+    <value>مراقبة الامتثال وتنسيق التدقيق</value>
+  </data>
+  <data name="RoleDesc_AuditManager" xml:space="preserve">
+    <value>إدارة عمليات التدقيق الداخلي والنتائج</value>
+  </data>
+  <data name="RoleDesc_SecurityManager" xml:space="preserve">
+    <value>الإشراف على أمن المعلومات وحماية البيانات</value>
+  </data>
+  <data name="RoleDesc_BoardMember" xml:space="preserve">
+    <value>إشراف تنفيذي للقراءة فقط على التقارير والمقاييس</value>
+  </data>
   <data name="Landing_Title" xml:space="preserve">
     <value>منصة شاهين - نظام الحوكمة والمخاطر والامتثال</value>
   </data>

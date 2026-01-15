@@ -52,7 +52,7 @@ public class SecurityHeadersMiddleware
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
             "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; " +
             "img-src 'self' data: https:; " +
-            "connect-src 'self' https://api.anthropic.com; " +
+            "connect-src 'self' https://api.anthropic.com https://cdn.jsdelivr.net; " +
             "frame-ancestors 'none'; " +
             "base-uri 'self'; " +
             "form-action 'self'");
