@@ -583,46 +583,11 @@ public static class WebApplicationExtensions
             catch { }
             // #endregion
 
-            // ===================================================================
-            // FIX H6: Add missing FirstAdminUserId column if migration was incomplete
-            // This repairs the migration history/schema mismatch
-            // ===================================================================
+            // ABP requires all database changes through EF Core migrations
+            // Do not manually alter database schema
             if (!hasFirstAdminUserId)
             {
-                logger.LogWarning("⚠️ Repairing missing FirstAdminUserId column in Tenants table...");
-                try
-                {
-                    await dbContext.Database.OpenConnectionAsync();
-                    using (var command = dbContext.Database.GetDbConnection().CreateCommand())
-                    {
-                        command.CommandText = "ALTER TABLE \"Tenants\" ADD COLUMN IF NOT EXISTS \"FirstAdminUserId\" TEXT NULL";
-                        await command.ExecuteNonQueryAsync();
-                    }
-                    await dbContext.Database.CloseConnectionAsync();
-                    logger.LogInformation("✅ FirstAdminUserId column added successfully");
-                    
-                    // #region agent log - H6: Column repair applied
-                    try
-                    {
-                        var logEntry = System.Text.Json.JsonSerializer.Serialize(new
-                        {
-                            sessionId = "debug-session",
-                            runId = "startup-run-1",
-                            hypothesisId = "H6-FIX",
-                            timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                            location = "WebApplicationExtensions.cs:445",
-                            message = "FirstAdminUserId column repair applied",
-                            data = new { repaired = true, columnAdded = true }
-                        });
-                        System.IO.File.AppendAllText(logPath, logEntry + "\n");
-                    }
-                    catch { }
-                    // #endregion
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "❌ Failed to add FirstAdminUserId column");
-                }
+                logger.LogWarning("⚠️ FirstAdminUserId column is missing. Please run migrations: dotnet ef database update --context GrcDbContext");
             }
 
             // Verify ApplicationUser custom columns
@@ -655,26 +620,23 @@ public static class WebApplicationExtensions
     /// <summary>
     /// Initialize seed data asynchronously
     /// </summary>
-    public static void InitializeSeedDataAsync(this WebApplication app)
+    public static async Task InitializeSeedDataAsync(this WebApplication app)
     {
         var logger = app.Services.GetRequiredService<ILogger<Program>>();
         
-        _ = Task.Run(async () =>
+        try
         {
-            try
-            {
-                await Task.Delay(5000); // Wait for app to be fully ready
-                using var scope = app.Services.CreateScope();
-                var initializer = scope.ServiceProvider.GetRequiredService<ApplicationInitializer>();
-                logger.LogInformation("🚀 Starting application initialization (seed data)...");
-                await initializer.InitializeAsync();
-                logger.LogInformation("✅ Application initialization completed");
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "❌ Failed to initialize seed data");
-            }
-        });
+            using var scope = app.Services.CreateScope();
+            var initializer = scope.ServiceProvider.GetRequiredService<ApplicationInitializer>();
+            logger.LogInformation("🚀 Starting application initialization (seed data)...");
+            await initializer.InitializeAsync();
+            logger.LogInformation("✅ Application initialization completed");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "❌ Failed to initialize seed data");
+            // Don't throw - allow app to continue running even if seed data fails
+        }
     }
 
     #region Private Helper Methods
