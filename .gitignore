@@ -1,0 +1,63 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.production.final
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+
+# Embedded repositories
+Shahin-Jan-2026/
+
+# Database dumps
+*.sql
+
+# Large binary files
+*.msi
+*.exe
+*.dll
+
+# Temporary files
+*.tmp
+*.temp
+
+# Cache and local data
+.codemap/
+.zencoder/
+.zenflow/
+
+# Cookies and credentials
+cookies.txt
+
+# Temp files from claude
+tmpclaude-*
+nul
+
+# Sensitive documentation with secrets
+COMPLETE-PRODUCTION-CONFIG.md
+TESTING-ENVIRONMENT-SETUP.md
+SECURITY_AUDIT_REPORT.md
+AUDIT_REPORT.md
