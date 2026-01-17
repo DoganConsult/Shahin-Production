@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using GrcMvc.Models.Entities;
 using GrcMvc.Models.Entities.Catalogs;
 using GrcMvc.Models.Entities.EmailOperations;
+using GrcMvc.Models.Entities.Onboarding;
+using GrcMvc.Models.Entities.Compliance;
 using GrcMvc.Models;
 using GrcMvc.Services.Interfaces;
 using System;
@@ -81,6 +83,33 @@ namespace GrcMvc.Data
         public DbSet<OrganizationProfile> OrganizationProfiles { get; set; } = null!;
         public DbSet<OnboardingWizard> OnboardingWizards { get; set; } = null!;
         public DbSet<OnboardingStepScore> OnboardingStepScores { get; set; } = null!;
+
+        // 43-Layer Architecture: Onboarding Control Plane (Layers 13-20)
+        public DbSet<OnboardingAnswerSnapshot> OnboardingAnswerSnapshots { get; set; } = null!;
+        public DbSet<OnboardingDerivedOutput> OnboardingDerivedOutputs { get; set; } = null!;
+        public DbSet<Models.Entities.Onboarding.RulesEvaluationLog> OnboardingRulesEvaluationLogs { get; set; } = null!;
+        public DbSet<ExplainabilityPayload> ExplainabilityPayloads { get; set; } = null!;
+
+        // 43-Layer Architecture: Tenant Compliance Resolution (Layers 31-36)
+        public DbSet<TenantFrameworkSelection> TenantFrameworkSelections { get; set; } = null!;
+        public DbSet<TenantOverlay> TenantOverlays { get; set; } = null!;
+        public DbSet<TenantControlSet> TenantControlSets { get; set; } = null!;
+        public DbSet<TenantScopeBoundary> TenantScopeBoundaries { get; set; } = null!;
+        public DbSet<TenantRiskProfile> TenantRiskProfiles { get; set; } = null!;
+
+        // GRC Reference/Lookup Tables (dropdown data, AI recommendations)
+        public DbSet<LookupCountry> LookupCountries { get; set; } = null!;
+        public DbSet<LookupSector> LookupSectors { get; set; } = null!;
+        public DbSet<LookupOrganizationType> LookupOrganizationTypes { get; set; } = null!;
+        public DbSet<LookupRegulator> LookupRegulators { get; set; } = null!;
+        public DbSet<LookupFramework> LookupFrameworks { get; set; } = null!;
+        public DbSet<LookupOrganizationSize> LookupOrganizationSizes { get; set; } = null!;
+        public DbSet<LookupMaturityLevel> LookupMaturityLevels { get; set; } = null!;
+        public DbSet<LookupDataType> LookupDataTypes { get; set; } = null!;
+        public DbSet<LookupHostingModel> LookupHostingModels { get; set; } = null!;
+        public DbSet<LookupRiskCategory> LookupRiskCategories { get; set; } = null!;
+        public DbSet<LookupCloudProvider> LookupCloudProviders { get; set; } = null!;
+        public DbSet<WizardRecommendation> WizardRecommendations { get; set; } = null!;
 
         // Teams & RACI (Role-based workflow routing)
         public DbSet<Team> Teams { get; set; } = null!;
@@ -352,6 +381,11 @@ namespace GrcMvc.Data
         public DbSet<Models.Entities.EmailOperations.EmailAttachment> EmailAttachments { get; set; } = null!;
         public DbSet<Models.Entities.EmailOperations.EmailTemplate> EmailTemplates { get; set; } = null!;
         public DbSet<Models.Entities.EmailOperations.EmailAutoReplyRule> EmailAutoReplyRules { get; set; } = null!;
+
+        // Abuse Detection & IP Tracking (Security Layer)
+        public DbSet<Models.Entities.AbuseIpTracking> AbuseIpTrackings { get; set; } = null!;
+        public DbSet<Models.Entities.AbuseEventLog> AbuseEventLogs { get; set; } = null!;
+        public DbSet<Models.Entities.IpAccessList> IpAccessLists { get; set; } = null!;
 
         // Autonomous Risk & Resilience
         public DbSet<RiskIndicator> RiskIndicators { get; set; } = null!;
@@ -834,6 +868,207 @@ namespace GrcMvc.Data
                 entity.HasIndex(e => e.TenantId).IsUnique();
                 entity.HasIndex(e => e.WizardStatus);
                 entity.HasIndex(e => e.CurrentStep);
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.Tenant)
+                    .WithMany()
+                    .HasForeignKey(e => e.TenantId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ═══════════════════════════════════════════════════════════════════════════════
+            // 43-Layer Architecture: Onboarding Control Plane (Layers 13-20)
+            // ═══════════════════════════════════════════════════════════════════════════════
+
+            // Layer 14: OnboardingAnswerSnapshot - Immutable versioned snapshots
+            modelBuilder.Entity<OnboardingAnswerSnapshot>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.SectionCode).HasMaxLength(10);
+                entity.Property(e => e.AnswersHash).HasMaxLength(128);
+                entity.Property(e => e.CreatedByUserId).HasMaxLength(100);
+                entity.Property(e => e.IpAddress).HasMaxLength(50);
+                entity.Property(e => e.UserAgent).HasMaxLength(500);
+                entity.HasIndex(e => new { e.OnboardingWizardId, e.Version });
+                entity.HasIndex(e => e.SnapshotAt);
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.OnboardingWizard)
+                    .WithMany()
+                    .HasForeignKey(e => e.OnboardingWizardId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Layer 15: OnboardingDerivedOutput - Derived baselines, packages, templates
+            modelBuilder.Entity<OnboardingDerivedOutput>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.OutputType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.OutputCode).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.OutputName).HasMaxLength(255);
+                entity.Property(e => e.OutputNameAr).HasMaxLength(255);
+                entity.Property(e => e.Applicability).HasMaxLength(20);
+                entity.HasIndex(e => new { e.OnboardingWizardId, e.OutputType, e.OutputCode });
+                entity.HasIndex(e => e.IsActive);
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.OnboardingWizard)
+                    .WithMany()
+                    .HasForeignKey(e => e.OnboardingWizardId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Layer 16: RulesEvaluationLog (Onboarding) - Rule evaluation audit trail
+            modelBuilder.Entity<Models.Entities.Onboarding.RulesEvaluationLog>(entity =>
+            {
+                entity.ToTable("OnboardingRulesEvaluationLogs");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.RuleCode).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.RuleName).HasMaxLength(255);
+                entity.Property(e => e.RuleVersion).HasMaxLength(20);
+                entity.Property(e => e.Result).IsRequired().HasMaxLength(20);
+                entity.HasIndex(e => new { e.OnboardingWizardId, e.TriggerStep });
+                entity.HasIndex(e => e.EvaluatedAt);
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.OnboardingWizard)
+                    .WithMany()
+                    .HasForeignKey(e => e.OnboardingWizardId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Layer 17: ExplainabilityPayload - Human-readable decision explanations
+            modelBuilder.Entity<ExplainabilityPayload>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.DecisionType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.SubjectCode).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.SubjectName).HasMaxLength(255);
+                entity.Property(e => e.Decision).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.PrimaryReason).IsRequired();
+                entity.Property(e => e.OverriddenByUserId).HasMaxLength(100);
+                entity.Property(e => e.OverrideDecision).HasMaxLength(20);
+                entity.HasIndex(e => new { e.TenantId, e.DecisionType, e.SubjectCode });
+                entity.HasIndex(e => e.GeneratedAt);
+                entity.HasQueryFilter(e => !e.IsDeleted);
+            });
+
+            // ═══════════════════════════════════════════════════════════════════════════════
+            // 43-Layer Architecture: Tenant Compliance Resolution (Layers 31-36)
+            // ═══════════════════════════════════════════════════════════════════════════════
+
+            // Layer 31: TenantFrameworkSelection - Tenant's framework choices
+            modelBuilder.Entity<TenantFrameworkSelection>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.FrameworkCode).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.FrameworkName).HasMaxLength(255);
+                entity.Property(e => e.FrameworkNameAr).HasMaxLength(255);
+                entity.Property(e => e.FrameworkVersion).HasMaxLength(20);
+                entity.Property(e => e.SelectionType).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.Applicability).HasMaxLength(20);
+                entity.Property(e => e.RegulatorCode).HasMaxLength(50);
+                entity.Property(e => e.ComplianceStatus).HasMaxLength(20);
+                entity.HasIndex(e => new { e.TenantId, e.FrameworkCode });
+                entity.HasIndex(e => e.IsActive);
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.Tenant)
+                    .WithMany()
+                    .HasForeignKey(e => e.TenantId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Layer 32: TenantOverlay - Overlay selections
+            modelBuilder.Entity<TenantOverlay>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.OverlayType).IsRequired().HasMaxLength(30);
+                entity.Property(e => e.OverlayCode).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.OverlayName).HasMaxLength(255);
+                entity.Property(e => e.OverlayNameAr).HasMaxLength(255);
+                entity.Property(e => e.SelectionType).HasMaxLength(20);
+                entity.HasIndex(e => new { e.TenantId, e.OverlayType, e.OverlayCode });
+                entity.HasIndex(e => e.IsActive);
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.Tenant)
+                    .WithMany()
+                    .HasForeignKey(e => e.TenantId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Layer 33: TenantControlSet - Resolved controls per tenant
+            modelBuilder.Entity<TenantControlSet>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.ControlCode).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.ControlName).HasMaxLength(500);
+                entity.Property(e => e.ControlNameAr).HasMaxLength(500);
+                entity.Property(e => e.FrameworkCode).HasMaxLength(50);
+                entity.Property(e => e.ControlDomain).HasMaxLength(100);
+                entity.Property(e => e.ControlFamily).HasMaxLength(100);
+                entity.Property(e => e.Source).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.SourceCode).HasMaxLength(100);
+                entity.Property(e => e.ApplicabilityStatus).HasMaxLength(20);
+                entity.Property(e => e.OwnerTeam).HasMaxLength(100);
+                entity.Property(e => e.EvidenceFrequency).HasMaxLength(20);
+                entity.Property(e => e.ImplementationStatus).HasMaxLength(20);
+                entity.Property(e => e.ComplianceStatus).HasMaxLength(25);
+                entity.HasIndex(e => new { e.TenantId, e.FrameworkCode, e.ControlCode });
+                entity.HasIndex(e => new { e.TenantId, e.Source });
+                entity.HasIndex(e => e.IsActive);
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.Tenant)
+                    .WithMany()
+                    .HasForeignKey(e => e.TenantId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Layer 34: TenantScopeBoundary - In-scope entities/systems
+            modelBuilder.Entity<TenantScopeBoundary>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.ScopeType).IsRequired().HasMaxLength(30);
+                entity.Property(e => e.ScopeCode).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.ScopeName).HasMaxLength(255);
+                entity.Property(e => e.ScopeNameAr).HasMaxLength(255);
+                entity.Property(e => e.Description).HasMaxLength(1000);
+                entity.Property(e => e.ExclusionApprovedBy).HasMaxLength(100);
+                entity.Property(e => e.CriticalityTier).HasMaxLength(20);
+                entity.Property(e => e.OwnerTeam).HasMaxLength(100);
+                entity.Property(e => e.Environment).HasMaxLength(20);
+                entity.Property(e => e.Location).HasMaxLength(100);
+                entity.HasIndex(e => new { e.TenantId, e.ScopeType, e.ScopeCode });
+                entity.HasIndex(e => e.IsInScope);
+                entity.HasIndex(e => e.IsActive);
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.Tenant)
+                    .WithMany()
+                    .HasForeignKey(e => e.TenantId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.ParentScope)
+                    .WithMany()
+                    .HasForeignKey(e => e.ParentScopeId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Layer 35: TenantRiskProfile - Risk characteristics
+            modelBuilder.Entity<TenantRiskProfile>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.PIIVolume).HasMaxLength(20);
+                entity.Property(e => e.PCIScopeLevel).HasMaxLength(20);
+                entity.Property(e => e.ClassificationLevel).HasMaxLength(20);
+                entity.Property(e => e.CustomerVolumeTier).HasMaxLength(20);
+                entity.Property(e => e.TransactionVolumeTier).HasMaxLength(20);
+                entity.Property(e => e.CriticalInfrastructureSector).HasMaxLength(50);
+                entity.Property(e => e.RiskTier).HasMaxLength(20);
+                entity.Property(e => e.OverallRiskScore).HasPrecision(5, 2);
+                entity.HasIndex(e => e.TenantId).IsUnique();
                 entity.HasQueryFilter(e => !e.IsDeleted);
 
                 entity.HasOne(e => e.Tenant)

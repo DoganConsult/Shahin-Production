@@ -9,11 +9,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace GrcMvc.Data.Migrations.Auth
+namespace GrcMvc.Migrations.Auth
 {
     [DbContext(typeof(GrcAuthDbContext))]
-    [Migration("20260110191825_AddSecurityAuditTables")]
-    partial class AddSecurityAuditTables
+    [Migration("20260117191403_FixAuthCustomColumns")]
+    partial class FixAuthCustomColumns
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

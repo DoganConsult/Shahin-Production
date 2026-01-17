@@ -1,5 +1,4 @@
 using GrcMvc.Data.Seeds;
-using GrcMvc.Data.Seed;
 using GrcMvc.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -49,6 +48,10 @@ public class ApplicationInitializer
             _logger.LogInformation("📋 Seeding subscription plans...");
             await SubscriptionPlanSeeds.SeedAsync(_context);
 
+            // Seed GRC Lookup Tables (Countries, Sectors, Frameworks, etc.)
+            _logger.LogInformation("🌍 Seeding GRC lookup tables (Countries, Sectors, Frameworks, Regulators)...");
+            await GrcLookupSeeds.SeedAllAsync(_context, _logger);
+
             // Seed Role Profiles (STAGE 2 - KSA & Multi-level Approval)
             await RoleProfileSeeds.SeedRoleProfilesAsync(_context, _logger);
 
@@ -70,7 +73,7 @@ public class ApplicationInitializer
                 // Uses RoleManager API to add permission claims to AspNetRoleClaims
                 using var grcScope = _serviceProvider.CreateScope();
                 var grcLogger = grcScope.ServiceProvider.GetRequiredService<ILogger<GrcRoleDataSeedContributor>>();
-                var grcRoleSeeder = new GrcRoleDataSeedContributor(roleManager, grcLogger);
+                var grcRoleSeeder = new GrcRoleDataSeedContributor(grcScope.ServiceProvider, grcLogger);
                 await grcRoleSeeder.SeedAsync();
             }
             else

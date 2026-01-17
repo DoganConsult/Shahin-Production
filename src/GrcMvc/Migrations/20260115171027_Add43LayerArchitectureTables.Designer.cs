@@ -3,6 +3,7 @@ using System;
 using GrcMvc.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace GrcMvc.Migrations
 {
     [DbContext(typeof(GrcDbContext))]
-    partial class GrcDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260115171027_Add43LayerArchitectureTables")]
+    partial class Add43LayerArchitectureTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,115 +26,6 @@ namespace GrcMvc.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("GrcMvc.Models.Entities.AbuseEventLog", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ActionTaken")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DetailsJson")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<string>("EventType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("IpAddress")
-                        .IsRequired()
-                        .HasMaxLength(45)
-                        .HasColumnType("character varying(45)");
-
-                    b.Property<string>("RequestPath")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("Severity")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<string>("UserAgent")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("abuse_event_logs");
-                });
-
-            modelBuilder.Entity("GrcMvc.Models.Entities.AbuseIpTracking", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("BlockExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("BlockReason")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<DateTime?>("BlockedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("CaptchaFailures")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("CountersResetAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CountryCode")
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
-
-                    b.Property<int>("FailedLoginAttempts")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("FailedRegistrationAttempts")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("FirstSeenAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("IpAddress")
-                        .IsRequired()
-                        .HasMaxLength(45)
-                        .HasColumnType("character varying(45)");
-
-                    b.Property<bool>("IsBlocked")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("LastActivityAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("RateLimitViolations")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RiskScore")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TotalSuspiciousActivities")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("abuse_ip_tracking");
-                });
 
             modelBuilder.Entity("GrcMvc.Models.Entities.ActionPlan", b =>
                 {
@@ -12680,47 +12574,6 @@ namespace GrcMvc.Migrations
                     b.ToTable("Invoices");
                 });
 
-            modelBuilder.Entity("GrcMvc.Models.Entities.IpAccessList", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("AddedBy")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("IpAddressOrRange")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("ListType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Reason")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ip_access_list");
-                });
-
             modelBuilder.Entity("GrcMvc.Models.Entities.LegalDocument", b =>
                 {
                     b.Property<Guid>("Id")
@@ -24913,10 +24766,6 @@ namespace GrcMvc.Migrations
                     b.Property<string>("DataClassification")
                         .HasColumnType("text");
 
-                    b.Property<string>("DataIsolationLevel")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<Guid?>("DefaultWorkspaceId")
                         .HasColumnType("uuid");
 
@@ -24926,37 +24775,16 @@ namespace GrcMvc.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("EmailVerificationLastSentAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("EmailVerificationResendCount")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("EmailVerificationTokenExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("EmailVerificationTokenHash")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("EmailVerifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("FirstAdminUserId")
                         .HasColumnType("text");
 
                     b.Property<Guid?>("GrcPlanId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Industry")
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsEmailVerified")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsOwnerCreated")
@@ -25002,17 +24830,11 @@ namespace GrcMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<long?>("StorageUsedBytes")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("StripeCustomerId")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("SubscriptionEndDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("SubscriptionPlan")
-                        .HasColumnType("text");
 
                     b.Property<DateTime>("SubscriptionStartDate")
                         .HasColumnType("timestamp with time zone");

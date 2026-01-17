@@ -24,8 +24,13 @@ namespace GrcMvc.Data
             var optionsBuilder = new DbContextOptionsBuilder<GrcDbContext>();
 
             // Get connection string
-            var connectionString = configuration.GetConnectionString("DefaultConnection") 
-                ?? "Host=localhost;Database=GrcMvc;Username=postgres;Password=postgres";
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                // Fallback for local development migrations if not set in environment
+                connectionString = "Host=localhost;Database=GrcMvc;Username=postgres;Password=CHANGE_ME";
+            }
 
             // Configure PostgreSQL (adjust if using SQL Server)
             optionsBuilder.UseNpgsql(connectionString);

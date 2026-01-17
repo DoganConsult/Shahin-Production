@@ -1,0 +1,220 @@
+version: "1.0"
+conflictStrategy: denyOverrides
+metadata:
+  name: grc-baseline-policy
+  owner: grc-admin
+  description: Baseline GRC policy enforcement rules
+
+rules:
+  # Data classification required
+  - id: require-data-classification
+    name: Data Classification Required
+    description: Evidence, PolicyDocument, Assessment, Report must have data classification
+    priority: 10
+    effect: Deny
+    enabled: true
+    match:
+      field: ResourceType
+      operator: in
+      value: ["Evidence", "PolicyDocument", "Assessment", "Report"]
+    conditions:
+      - field: Resource.DataClassification
+        operator: empty
+        value: true
+    message: Data classification is required for this resource type
+    remediationHint: Set DataClassification to one of public, internal, confidential, or restricted
+
+  # Owner required
+  - id: require-owner
+    name: Owner Required
+    description: Evidence, Risk, Audit, PolicyDocument must have an owner
+    priority: 20
+    effect: Deny
+    enabled: true
+    match:
+      field: ResourceType
+      operator: in
+      value: ["Evidence", "Risk", "Audit", "PolicyDocument"]
+    conditions:
+      - field: Resource.Owner
+        operator: empty
+        value: true
+    message: Owner is required for this resource type
+    remediationHint: Set Owner field to identify the responsible person or team
+
+  # Restricted data in prod requires approval
+  - id: prod-restricted-approval
+    name: Production Restricted Data Approval
+    description: Restricted data in production requires approval flag
+    priority: 30
+    effect: Deny
+    enabled: true
+    match:
+      field: Environment
+      operator: eq
+      value: prod
+    conditions:
+      - field: Resource.DataClassification
+        operator: eq
+        value: restricted
+      - field: Resource.ApprovedForProd
+        operator: neq
+        value: true
+    message: Restricted data in production requires approval
+    remediationHint: Set ApprovedForProd to true after obtaining necessary approvals
+
+  # Normalize empty owner values
+  - id: normalize-empty-owner
+    name: Normalize Empty Owner
+    description: Convert empty/unknown/n-a owner values to null
+    priority: 9000
+    effect: Mutate
+    enabled: true
+    match:
+      field: Resource.Owner
+      operator: in
+      value: ["", "unknown", "n/a", "N/A", "Unknown"]
+    mutations:
+      Owner: null
+    message: Normalizing empty owner value to null
+
+  # Evidence submission validation
+  - id: evidence-submission-check
+    name: Evidence Submission Validation
+    description: Evidence must have required fields before submission
+    priority: 40
+    effect: Deny
+    enabled: true
+    match:
+      field: ResourceType
+      operator: eq
+      value: Evidence
+    conditions:
+      - and:
+        - field: Action
+          operator: eq
+          value: submit
+        - or:
+          - field: Resource.Description
+            operator: empty
+            value: true
+          - field: Resource.CollectionDate
+            operator: empty
+            value: true
+    message: Evidence must have description and collection date before submission
+    remediationHint: Provide Description and CollectionDate fields
+
+  # Assessment approval authority
+  - id: assessment-approval-authority
+    name: Assessment Approval Authority
+    description: Only ComplianceManager role can approve assessments
+    priority: 50
+    effect: Deny
+    enabled: true
+    match:
+      field: ResourceType
+      operator: eq
+      value: Assessment
+    conditions:
+      - field: Action
+        operator: eq
+        value: approve
+      - field: PrincipalRoles
+        operator: nin
+        value: ["ComplianceManager", "Admin", "SuperAdmin"]
+    message: You don't have authority to approve assessments
+    remediationHint: Only ComplianceManager, Admin, or SuperAdmin can approve assessments
+
+  # Policy publish validation
+  - id: policy-publish-validation
+    name: Policy Publish Validation
+    description: Policy must be approved before publishing
+    priority: 60
+    effect: Deny
+    enabled: true
+    match:
+      field: ResourceType
+      operator: eq
+      value: PolicyDocument
+    conditions:
+      - field: Action
+        operator: eq
+        value: publish
+      - field: Resource.Status
+        operator: neq
+        value: Approved
+    message: Policy must be approved before publishing
+    remediationHint: Get the policy approved before attempting to publish
+
+  # Risk acceptance authority
+  - id: risk-acceptance-authority
+    name: Risk Acceptance Authority
+    description: Only RiskManager can accept high/critical risks
+    priority: 70
+    effect: Deny
+    enabled: true
+    match:
+      field: ResourceType
+      operator: eq
+      value: Risk
+    conditions:
+      - field: Action
+        operator: eq
+        value: accept
+      - field: Resource.Severity
+        operator: in
+        value: ["High", "Critical"]
+      - field: PrincipalRoles
+        operator: nin
+        value: ["RiskManager", "Admin", "SuperAdmin"]
+    message: You don't have authority to accept high/critical risks
+    remediationHint: Only RiskManager, Admin, or SuperAdmin can accept high/critical risks
+
+  # Audit closure validation
+  - id: audit-closure-validation
+    name: Audit Closure Validation
+    description: Audit must have all findings resolved before closure
+    priority: 80
+    effect: Deny
+    enabled: true
+    match:
+      field: ResourceType
+      operator: eq
+      value: Audit
+    conditions:
+      - field: Action
+        operator: eq
+        value: close
+      - field: Resource.OpenFindings
+        operator: gt
+        value: 0
+    message: Cannot close audit with open findings
+    remediationHint: Resolve all open findings before closing the audit
+
+exceptions:
+  # Dev environment bypass for prod restrictions
+  - id: dev-bypass-prod-rules
+    ruleIds:
+      - prod-restricted-approval
+    match:
+      field: Environment
+      operator: eq
+      value: dev
+    expiresAt: "2026-12-31T23:59:59Z"
+    reason: Development environment doesn't require production approval
+
+  # Admin emergency override
+  - id: admin-emergency-override
+    ruleIds:
+      - require-data-classification
+      - require-owner
+    match:
+      and:
+        - field: PrincipalRoles
+          operator: contains
+          value: SuperAdmin
+        - field: Metadata.emergencyOverride
+          operator: eq
+          value: true
+    expiresAt: "2026-06-30T23:59:59Z"
+    reason: SuperAdmin emergency override for critical operations

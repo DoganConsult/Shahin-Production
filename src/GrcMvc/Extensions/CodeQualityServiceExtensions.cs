@@ -1,4 +1,4 @@
-using GrcMvc.BackgroundJobs;
+// using GrcMvc.BackgroundJobs; // Disabled: Incomplete code moved to _incomplete_code/
 using GrcMvc.Services.Implementations;
 using GrcMvc.Services.Interfaces;
 using Hangfire;
@@ -19,8 +19,8 @@ public static class CodeQualityServiceExtensions
         services.AddHttpClient<ICodeQualityService, CodeQualityService>();
         services.AddHttpClient<IAlertService, AlertService>();
 
-        // Register background jobs
-        services.AddScoped<CodeQualityMonitorJob>();
+        // NOTE: CodeQualityMonitorJob disabled - incomplete implementation
+        // services.AddScoped<CodeQualityMonitorJob>();
 
         return services;
     }
@@ -34,12 +34,13 @@ public static class CodeQualityServiceExtensions
         if (!enabled)
             return app;
 
-        // Configure recurring jobs
-        ConfigureRecurringJobs(configuration);
+        // NOTE: Background jobs disabled - incomplete implementation
+        // ConfigureRecurringJobs(configuration);
 
         return app;
     }
 
+    /* Disabled: CodeQualityMonitorJob not implemented
     private static void ConfigureRecurringJobs(IConfiguration configuration)
     {
         // Daily code quality scan
@@ -75,4 +76,5 @@ public static class CodeQualityServiceExtensions
                 new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
         }
     }
+    */
 }

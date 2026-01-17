@@ -1,39 +1,10 @@
-apiVersion: policy.doganconsult.io/v1
-kind: Policy
-
+version: "1.0"
+conflictStrategy: denyOverrides
 metadata:
   name: baseline-governance
-  namespace: default
-  version: "1.1.0"
-  createdAt: "2025-01-22T18:30:00+03:00"
-  labels:
-    owner: "dogan-consult"
-    domain: "governance"
-  annotations:
-    purpose: "Baseline deterministic enforcement rules for all resources"
-
-spec:
-  mode: enforce
-  defaultEffect: allow
-
-  execution:
-    order: sequential
-    shortCircuit: true
-    conflictStrategy: denyOverrides
-
-  target:
-    resourceTypes:
-      - "Any"
-    environments:
-      - "dev"
-      - "staging"
-      - "prod"
-
-  audit:
-    logDecisions: true
-    retentionDays: 365
-    sinks:
-      - type: stdout
+  owner: dogan-consult
+  domain: governance
+  purpose: Baseline deterministic enforcement rules for GRC resources
 
   rules:
     # ===== BASELINE DATA GOVERNANCE RULES =====

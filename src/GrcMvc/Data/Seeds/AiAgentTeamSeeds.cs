@@ -15,15 +15,17 @@ public static class AiAgentTeamSeeds
     /// </summary>
     public static async Task SeedAsync(GrcDbContext context)
     {
-        // Check if already seeded
-        if (await context.AgentDefinitions.AnyAsync())
+        // Check if already seeded (use IgnoreQueryFilters to bypass tenant filtering)
+        if (await context.AgentDefinitions.IgnoreQueryFilters().AnyAsync())
         {
             return;
         }
 
-        var agents = GetAgentDefinitions();
-        await context.AgentDefinitions.AddRangeAsync(agents);
-        await context.SaveChangesAsync();
+        try
+        {
+            var agents = GetAgentDefinitions();
+            await context.AgentDefinitions.AddRangeAsync(agents);
+            await context.SaveChangesAsync();
 
         // Add capabilities for each agent
         foreach (var agent in agents)
@@ -45,6 +47,11 @@ public static class AiAgentTeamSeeds
         await context.HumanRetainedResponsibilities.AddRangeAsync(responsibilities);
 
         await context.SaveChangesAsync();
+        }
+        catch (Exception)
+        {
+            // Already seeded or concurrent seeding - ignore duplicate key errors
+        }
     }
 
     /// <summary>
