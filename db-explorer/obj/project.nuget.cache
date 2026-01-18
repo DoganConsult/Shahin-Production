@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "LysLoi7o7zg=",
+  "success": true,
+  "projectFilePath": "C:\\Shahin-ai\\db-explorer\\DatabaseExplorer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\dogan\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\dogan\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.0\\microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\dogan\\.nuget\\packages\\npgsql\\8.0.3\\npgsql.8.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

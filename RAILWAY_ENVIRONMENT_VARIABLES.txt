@@ -1,0 +1,163 @@
+addd allacurla secret we have it ony test se========================================
+RAILWAY ENVIRONMENT VARIABLES
+Copy and paste these into Railway Dashboard
+========================================
+
+INSTRUCTIONS:
+1. Go to Railway Dashboard: https://railway.app
+2. Select your project: "Shahin-ai.com"
+3. Select service: "shahin-ai-producion"
+4. Click "Variables" tab
+5. Click "+ New Variable" for each one below
+6. Copy the Variable Name and Value exactly as shown
+7. Click "Add" after each variable
+
+========================================
+VARIABLE 1: DATABASE_URL
+========================================
+Variable Name:
+DATABASE_URL
+
+Variable Value:
+${{ Postgres.DATABASE_URL }}
+
+Note: Use the template variable exactly as shown. Railway will automatically replace it with the actual database connection string.
+
+========================================
+VARIABLE 2: ASPNETCORE_ENVIRONMENT
+========================================
+Variable Name:
+ASPNETCORE_ENVIRONMENT
+
+Variable Value:
+Production
+
+========================================
+VARIABLE 3: ASPNETCORE_URLS
+========================================
+Variable Name:
+ASPNETCORE_URLS
+
+Variable Value:
+http://0.0.0.0:5000
+
+========================================
+VARIABLE 4: JWT_SECRET
+========================================
+Variable Name:
+JWT_SECRET
+
+Variable Value:
+etETf%Z9jqm-AiH_YlIBoudRU^bv+rK?c4XGQs#nh5pOJ*1!y2PC7F.@W0&w$Lkx
+
+Note: This is a secure 64-character secret key for JWT authentication.
+
+========================================
+VARIABLE 5: JwtSettings__Issuer
+========================================
+Variable Name:
+JwtSettings__Issuer
+
+Variable Value:
+https://portal.shahin-ai.com
+
+========================================
+VARIABLE 6: JwtSettings__Audience
+========================================
+Variable Name:
+JwtSettings__Audience
+
+Variable Value:
+https://portal.shahin-ai.com
+
+========================================
+VARIABLE 7: Redis__ConnectionString
+========================================
+Variable Name:
+Redis__ConnectionString
+
+Variable Value:
+${{ Redis.REDIS_URL }}
+
+Note: Use the template variable exactly as shown. Railway will automatically replace it with the actual Redis connection string.
+
+========================================
+VARIABLE 8: Redis__Enabled
+========================================
+Variable Name:
+Redis__Enabled
+
+Variable Value:
+true
+
+========================================
+SUMMARY
+========================================
+Total Variables: 8
+Required: All 8 must be added
+Time to add: ~2-3 minutes
+
+After adding all variables:
+1. Click "Deploy" button in Railway Dashboard
+2. Wait 7-13 minutes for deployment
+3. Check logs for success: railway logs --follow
+
+========================================
+QUICK COPY FORMAT (for faster input)
+========================================
+
+DATABASE_URL=${{ Postgres.DATABASE_URL }}
+ASPNETCORE_ENVIRONMENT=Production
+ASPNETCORE_URLS=http://0.0.0.0:5000
+JWT_SECRET=etETf%Z9jqm-AiH_YlIBoudRU^bv+rK?c4XGQs#nh5pOJ*1!y2PC7F.@W0&w$Lkx
+JwtSettings__Issuer=https://portal.shahin-ai.com
+JwtSettings__Audience=https://portal.shahin-ai.com
+Redis__ConnectionString=${{ Redis.REDIS_URL }}
+Redis__Enabled=true
+
+========================================
+IMPORTANT NOTES
+========================================
+
+1. Template Variables:
+   - ${{ Postgres.DATABASE_URL }} - Railway auto-fills this
+   - ${{ Redis.REDIS_URL }} - Railway auto-fills this
+   - DO NOT replace these with actual values
+   - Railway will automatically inject the correct values
+
+2. JWT_SECRET:
+   - This is a secure randomly generated key
+   - Also saved in: railway-jwt-secret.txt
+   - Keep this secret and secure
+
+3. Domain Names:
+   - portal.shahin-ai.com is your application domain
+   - Update if you use a different domain
+
+4. Redis:
+   - Redis__Enabled=true activates Redis caching
+   - Improves performance significantly
+
+========================================
+VERIFICATION
+========================================
+
+After adding all variables, verify in Railway Dashboard:
+- Go to Variables tab
+- You should see all 8 variables listed
+- DATABASE_URL should show the template: ${{ Postgres.DATABASE_URL }}
+- Redis__ConnectionString should show: ${{ Redis.REDIS_URL }}
+
+========================================
+NEXT STEPS
+========================================
+
+1. Add all 8 variables above ✓
+2. Click "Deploy" button
+3. Monitor deployment:
+   railway logs --follow
+4. Wait for success message:
+   [DB] ✅ Main database migrations applied successfully (321 tables)
+5. Application will be live!
+
+========================================

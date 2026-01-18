@@ -1,0 +1,10 @@
+{
+  "DATABASE_URL": "${{Postgres.DATABASE_URL}}",
+  "ASPNETCORE_ENVIRONMENT": "Production",
+  "ASPNETCORE_URLS": "http://0.0.0.0:5000",
+  "JWT_SECRET": "etETf%Z9jqm-AiH_YlIBoudRU^bv+rK?c4XGQs#nh5pOJ*1!y2PC7F.@W0&w$Lkx",
+  "JwtSettings__Issuer": "https://portal.shahin-ai.com",
+  "JwtSettings__Audience": "https://portal.shahin-ai.com",
+  "Redis__ConnectionString": "${{Redis.REDIS_URL}}",
+  "Redis__Enabled": "true"
+}
