@@ -1,111 +1,229 @@
 /**
  * Wizard Motivation & Smart Guidance Styles
- * Gamification, celebrations, tooltips, and dynamic guidance
+ * Enterprise-safe gamification, tooltips, and dynamic guidance
+ * Updated: Enterprise mode with subtle, professional animations
  */
 
 /* ============================================================================
-   Celebration Overlay
+   Motion Tokens & Reduce Motion
+   ============================================================================ */
+:root {
+    /* ------------------------------------------------------------------------
+       Wizard Motion Tokens (Local Aliases)
+       - Inherits from global --motion-* tokens when available
+       - Falls back to local values for standalone wizard usage
+    ------------------------------------------------------------------------ */
+
+    /* Standard easing (inherits global) */
+    --wz-ease: var(--motion-ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+
+    /* Duration-only tokens (inherits global) */
+    --wz-dur-fast: var(--motion-dur-fast, 150ms);
+    --wz-dur-interactive: var(--motion-dur-interactive, 200ms);
+    --wz-dur-base: var(--motion-dur-base, 250ms);
+    --wz-dur-slow: var(--motion-dur-slow, 350ms);
+    --wz-dur-content: var(--motion-dur-content, 400ms);
+
+    /* Transition tokens (inherits global) */
+    --wz-t-fast: var(--motion-t-fast, var(--wz-dur-fast) var(--wz-ease));
+    --wz-t-base: var(--motion-t-base, var(--wz-dur-base) var(--wz-ease));
+    --wz-t-slow: var(--motion-t-slow, var(--wz-dur-slow) var(--wz-ease));
+    --wz-t-interactive: var(--motion-t-interactive, var(--wz-dur-interactive) var(--wz-ease));
+
+    /* Distance tokens (inherits global) */
+    --wz-shift-sm: var(--motion-shift-sm, 20px);
+    --wz-shift-md: var(--motion-shift-md, 30px);
+
+    /* Direction for RTL-safe transforms (inherits global) */
+    --wz-dir: var(--motion-dir, 1);
+}
+
+/* Note: Global reduce-motion policy is in shahin-motion-tokens.css
+   Below are wizard-specific overrides only */
+
+/* ============================================================================
+   Enterprise Toast (replaces celebration overlay)
+   ============================================================================ */
+.wz-toast-container {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 1050;
+}
+
+.wz-toast {
+    width: min(420px, calc(100vw - 32px));
+    background: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 12px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity var(--wz-t-base), transform var(--wz-t-base);
+    pointer-events: none;
+}
+
+.wz-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.wz-toast-body {
+    display: flex;
+    gap: 10px;
+    padding: 12px 12px;
+    align-items: flex-start;
+}
+
+.wz-toast-icon {
+    color: #10B981;
+    margin-top: 2px;
+}
+
+.wz-toast-title {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.wz-toast-msg {
+    font-size: 0.9rem;
+    color: #475569;
+    margin-top: 2px;
+}
+
+.wz-toast-close {
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    color: #64748B;
+    cursor: pointer;
+}
+
+.wz-toast-close:hover {
+    color: #0f172a;
+}
+
+/* ============================================================================
+   Card Entry Animation (enterprise-safe)
+   ============================================================================ */
+.wz-enter {
+    opacity: 0;
+    transform: translateY(6px);
+    animation: wzCardIn var(--wz-dur-base) var(--wz-ease) forwards;
+}
+
+@keyframes wzCardIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================================
+   Celebration Toast (Enterprise-safe: top-right toast, no fullscreen overlay)
    ============================================================================ */
 .celebration-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
+    top: 20px;
+    right: 20px;
+    z-index: 1060;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transform: translateY(-8px);
+    transition: opacity var(--wz-t-base), transform var(--wz-t-base), visibility 0s linear var(--wz-dur-base);
+    pointer-events: none;
 }
 
 .celebration-overlay.show {
     opacity: 1;
     visibility: visible;
+    transform: translateY(0);
+    transition: opacity var(--wz-t-base), transform var(--wz-t-base);
+    pointer-events: auto;
 }
 
-.celebration-content {
-    text-align: center;
-    color: white;
-    animation: celebrationBounce 0.5s ease;
+.celebration-toast {
+    width: 380px;
+    max-width: calc(100vw - 40px);
+    background: #0F172A;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-left: 4px solid #10B981;
+    border-radius: 12px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    pointer-events: auto;
 }
 
 .celebration-icon {
-    font-size: 5rem;
+    flex: 0 0 auto;
+    font-size: 1.4rem;
     color: #10B981;
-    margin-bottom: 1.5rem;
-    animation: iconPulse 0.5s ease-in-out;
+    margin-top: 2px;
+}
+
+.celebration-body {
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 .celebration-title {
-    font-size: 2.5rem;
+    font-size: 0.95rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
-    background: linear-gradient(135deg, #10B981, #3B82F6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #E2E8F0;
+    margin-bottom: 2px;
 }
 
 .celebration-message {
-    font-size: 1.25rem;
+    font-size: 0.85rem;
     color: #94A3B8;
-    margin-bottom: 1.5rem;
+    margin-bottom: 8px;
 }
 
-.celebration-unlocks {
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    border-radius: 12px;
-    padding: 1.5rem;
-    max-width: 500px;
-    margin: 0 auto;
+.celebration-close {
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    padding: 4px 6px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: color var(--wz-t-fast), background var(--wz-t-fast);
 }
 
-.unlock-title {
-    color: #10B981;
+.celebration-close:hover {
+    color: #E2E8F0;
+    background: rgba(148, 163, 184, 0.10);
+}
+
+.celebration-unlocks .unlock-title {
+    font-size: 0.8rem;
     font-weight: 600;
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
+    color: #A7F3D0;
+    margin-bottom: 6px;
 }
 
-.unlock-items {
+.celebration-unlocks .unlock-items {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    justify-content: center;
+    gap: 6px;
 }
 
-.unlock-item {
-    background: rgba(16, 185, 129, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.9rem;
+.celebration-unlocks .unlock-item {
+    background: rgba(16, 185, 129, 0.10);
+    border: 1px solid rgba(16, 185, 129, 0.18);
     color: #E2E8F0;
-    display: flex;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 6px;
 }
 
-.unlock-item i {
+.celebration-unlocks .unlock-item i {
     color: #10B981;
-}
-
-@keyframes celebrationBounce {
-    0% { transform: scale(0.5); opacity: 0; }
-    60% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes iconPulse {
-    0% { transform: scale(0); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
 }
 
 /* ============================================================================
@@ -151,9 +269,9 @@
     right: 24px;
     z-index: 1050;
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(var(--wz-shift-sm));
     visibility: hidden;
-    transition: all 0.3s ease;
+    transition: opacity var(--wz-t-base), transform var(--wz-t-base), visibility 0s linear var(--wz-dur-base);
 }
 
 .smart-tip-container.show {
@@ -195,7 +313,7 @@
     color: #94A3B8;
     cursor: pointer;
     padding: 4px 8px;
-    transition: color 0.2s;
+    transition: color var(--wz-t-interactive);
 }
 
 .smart-tip-close:hover {
@@ -210,36 +328,143 @@
 }
 
 /* ============================================================================
-   Live Preview Panel
+   Live Preview Panel (Enterprise-neutral styling)
    ============================================================================ */
+/* ---------------------------------------------------------------------------
+   Live Preview Panel: enterprise-safe motion
+   --------------------------------------------------------------------------- */
 .live-preview-panel {
     position: fixed;
     right: 0;
     top: 50%;
     transform: translateY(-50%);
     width: 280px;
-    background: linear-gradient(180deg, #1E293B, #0F172A);
-    border-left: 1px solid rgba(16, 185, 129, 0.3);
+    background: #ffffff;
+    border-left: 1px solid rgba(15, 23, 42, 0.12);
     border-radius: 16px 0 0 16px;
-    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);
-    z-index: 100;
-    transition: transform 0.3s ease;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.1);
+    z-index: 1040; /* below Bootstrap modal (1050) */
+    opacity: 1;
+    will-change: transform, opacity;
+    transition: transform var(--wz-t-base), opacity var(--wz-t-base);
 }
 
+/* Collapsed: tuck to the right + slight fade */
 .live-preview-panel.collapsed {
+    opacity: 0.92;
     transform: translateY(-50%) translateX(240px);
 }
 
+/* Optional: subtle "entered" state for first paint (set via JS) */
+.live-preview-panel.is-entering {
+    opacity: 0;
+    transform: translateY(-50%) translateX(16px);
+}
+
+/* When visible after enter */
+.live-preview-panel.is-entering.is-entered {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}
+
+/* Content update micro-interaction (no layout jump) */
+.preview-item {
+    transition: background-color var(--wz-t-fast);
+}
+
+/* Preview content fade on update */
+.preview-outputs, .preview-impact {
+    transition: opacity var(--wz-t-fast);
+}
+.preview-outputs.is-updating, .preview-impact.is-updating {
+    opacity: 0.85;
+}
+
+/* ============================================================================
+   Reduce Motion — Panel-Specific Overrides (clarity)
+   Place right after preview/content fade styles
+   ============================================================================ */
+@media (prefers-reduced-motion: reduce) {
+    /* Live Preview Panel: disable slide mechanics */
+    .live-preview-panel,
+    .live-preview-panel.collapsed {
+        transition: none !important;
+        transform: translateY(-50%) !important; /* keep fixed dock position */
+    }
+
+    /* Preview content elements */
+    .preview-item,
+    .preview-outputs,
+    .preview-impact {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    /* Celebration toast: no slide-in */
+    .celebration-overlay {
+        transition: none !important;
+        transform: none !important;
+    }
+
+    /* Smart tip: no lift/fade motion */
+    .smart-tip-container,
+    .smart-tip-container.show {
+        transition: none !important;
+        transform: none !important;
+    }
+
+    /* Next Best Action: no hover motion */
+    .nba-action,
+    .nba-action:hover {
+        transition: none !important;
+        transform: none !important;
+    }
+
+    /* Tooltips: no scale/fade motion (Bootstrap) */
+    .tooltip,
+    .tooltip.show {
+        transition: none !important;
+        transform: none !important;
+    }
+
+    /* Card highlight: no transition */
+    .card-complete-highlight {
+        transition: none !important;
+    }
+
+    /* Celebration content/icon: no animations */
+    .celebration-content,
+    .celebration-icon {
+        animation: none !important;
+    }
+
+    /* Particles: fully disabled */
+    .particles-container {
+        display: none !important;
+    }
+
+    /* Field success indicator: no fade */
+    .field-success-indicator,
+    .card-complete-badge {
+        transition: none !important;
+    }
+
+    /* Wizard main content: no entry animation */
+    .wizard-main-content {
+        animation: none !important;
+    }
+}
+
 .preview-header {
-    background: rgba(16, 185, 129, 0.15);
+    background: rgba(59, 130, 246, 0.06);
     padding: 16px;
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #10B981;
+    color: #0f172a;
     font-weight: 600;
     border-radius: 16px 0 0 0;
-    border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 .preview-header i:first-child {
@@ -256,7 +481,7 @@
     color: #94A3B8;
     cursor: pointer;
     padding: 4px 8px;
-    transition: all 0.2s;
+    transition: color var(--wz-t-interactive);
 }
 
 .preview-toggle:hover {
@@ -278,7 +503,7 @@
 }
 
 .preview-section h6 {
-    color: #94A3B8;
+    color: #475569;
     font-size: 0.85rem;
     margin-bottom: 12px;
     display: flex;
@@ -302,9 +527,9 @@
     align-items: flex-start;
     gap: 10px;
     padding: 10px;
-    background: rgba(16, 185, 129, 0.08);
+    background: rgba(15, 23, 42, 0.03);
     border-radius: 8px;
-    color: #E2E8F0;
+    color: #0f172a;
     font-size: 0.9rem;
     line-height: 1.4;
 }
@@ -353,15 +578,15 @@
     align-items: center;
     gap: 12px;
     padding: 10px;
-    background: rgba(16, 185, 129, 0.08);
+    background: rgba(15, 23, 42, 0.03);
     border-radius: 10px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color var(--wz-t-interactive), transform var(--wz-t-interactive);
 }
 
 .nba-action:hover {
-    background: rgba(16, 185, 129, 0.15);
-    transform: translateX(4px);
+    background: rgba(15, 23, 42, 0.06);
+    transform: translateX(3px);
 }
 
 .nba-action-icon {
@@ -385,7 +610,7 @@
 }
 
 .nba-action-title {
-    color: #E2E8F0;
+    color: #334155;
     font-size: 0.85rem;
     font-weight: 500;
 }
@@ -408,7 +633,7 @@
     margin-left: 6px;
     color: #64748B;
     cursor: help;
-    transition: color 0.2s;
+    transition: color var(--wz-t-interactive);
 }
 
 .why-icon:hover {
@@ -417,6 +642,18 @@
 
 .why-icon i {
     font-size: 0.85rem;
+}
+
+/* Tooltip: gentle fade/scale (Bootstrap-compatible) */
+.tooltip {
+    opacity: 0;
+    transform: scale(0.98);
+    transition: opacity var(--wz-t-fast), transform var(--wz-t-fast);
+}
+
+.tooltip.show {
+    opacity: 1;
+    transform: scale(1);
 }
 
 /* Bootstrap tooltip override for wizard */
@@ -444,7 +681,7 @@
     top: 50%;
     transform: translateY(-50%);
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity var(--wz-t-base);
 }
 
 .field-success-indicator.show {
@@ -461,37 +698,37 @@
 }
 
 /* ============================================================================
-   Card Complete Celebration
+   Card Complete Celebration (Enterprise: subtle, no expanding glow)
    ============================================================================ */
 .card-complete-badge {
     margin-left: auto;
-    background: rgba(16, 185, 129, 0.2);
+    background: rgba(16, 185, 129, 0.12);
     color: #10B981;
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 0.8rem;
     opacity: 0;
-    transform: scale(0.8);
-    transition: all 0.3s ease;
+    transition: opacity var(--wz-t-fast);
 }
 
 .card-complete-badge.show {
     opacity: 1;
-    transform: scale(1);
 }
 
 .card-complete-badge i {
     margin-right: 4px;
 }
 
+/* Enterprise mode: no pulse animation, just subtle border highlight */
 .card-complete-pulse {
-    animation: cardPulse 0.6s ease;
+    border-color: #10B981 !important;
 }
 
-@keyframes cardPulse {
-    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-    70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+/* Card complete highlight (enterprise-safe: calm outline, no pulse ring) */
+.card-complete-highlight {
+    outline: 2px solid rgba(16, 185, 129, 0.22);
+    outline-offset: 2px;
+    transition: outline-color var(--wz-t-interactive);
 }
 
 /* ============================================================================
@@ -510,7 +747,7 @@
     height: 8px;
     border-radius: 50%;
     background: #334155;
-    transition: all 0.3s ease;
+    transition: background var(--wz-t-base), box-shadow var(--wz-t-base), transform var(--wz-t-base);
 }
 
 .milestone-marker.completed {
@@ -548,13 +785,13 @@
    Step Transition Animations
    ============================================================================ */
 .wizard-main-content {
-    animation: contentFadeIn 0.4s ease;
+    animation: contentFadeIn var(--wz-dur-content) var(--wz-ease);
 }
 
 @keyframes contentFadeIn {
     from {
         opacity: 0;
-        transform: translateX(20px);
+        transform: translateX(calc(var(--wz-dir) * var(--wz-shift-sm)));
     }
     to {
         opacity: 1;
@@ -594,11 +831,13 @@
 /* ============================================================================
    Light Theme Adjustments
    ============================================================================ */
-body:not(.dark-mode) .celebration-overlay {
-    background: rgba(255, 255, 255, 0.95);
+body:not(.dark-mode) .celebration-toast {
+    background: #FFFFFF;
+    border-color: rgba(15, 23, 42, 0.12);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
 }
 
-body:not(.dark-mode) .celebration-content {
+body:not(.dark-mode) .celebration-title {
     color: #1E293B;
 }
 
@@ -606,13 +845,22 @@ body:not(.dark-mode) .celebration-message {
     color: #64748B;
 }
 
-body:not(.dark-mode) .celebration-unlocks {
-    background: rgba(16, 185, 129, 0.05);
-    border-color: rgba(16, 185, 129, 0.2);
+body:not(.dark-mode) .celebration-close {
+    color: #64748B;
 }
 
-body:not(.dark-mode) .unlock-item {
-    background: rgba(16, 185, 129, 0.1);
+body:not(.dark-mode) .celebration-close:hover {
+    color: #1E293B;
+    background: rgba(15, 23, 42, 0.06);
+}
+
+body:not(.dark-mode) .celebration-unlocks .unlock-title {
+    color: #059669;
+}
+
+body:not(.dark-mode) .celebration-unlocks .unlock-item {
+    background: rgba(16, 185, 129, 0.08);
+    border-color: rgba(16, 185, 129, 0.15);
     color: #334155;
 }
 

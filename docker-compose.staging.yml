@@ -1,58 +1,179 @@
-# Staging Docker Compose - Shahin AI GRC Platform
-# For testing before production deployment
+# ========================================================
+# Shahin AI GRC Platform - Staging Environment
+# Full Features Enabled for Testing
+# ========================================================
+#
+# Usage:
+#   docker compose -f docker-compose.staging.yml up -d --build
+#
+# This deploys to the same server with full features enabled.
+# Uses separate database and Redis from production.
+#
+# ========================================================
 
 services:
+  # ============================================
+  # PostgreSQL 15 Database - Staging
+  # ============================================
+  postgres-staging:
+    image: postgres:15-alpine
+    container_name: shahin-postgres-staging
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-shahin_staging}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ShahinStaging2026!}
+      POSTGRES_DB: ${POSTGRES_DB:-shahin_grc_staging}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_staging_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-shahin_staging} -d ${POSTGRES_DB:-shahin_grc_staging}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - shahin-staging-network
+
+  # ============================================
+  # Redis 7 Cache - Staging
+  # ============================================
+  redis-staging:
+    image: redis:7-alpine
+    container_name: shahin-redis-staging
+    restart: always
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_staging_data:/data
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shahin-staging-network
+
+  # ============================================
+  # GrcMvc Application - Staging
+  # Full Features Enabled
+  # ============================================
   grcmvc-staging:
     build:
       context: .
       dockerfile: src/GrcMvc/Dockerfile
-    container_name: shahin-grc-staging
-    ports:
-      - "8080:80"
-    env_file:
-      - .env.staging
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Staging
-      - ASPNETCORE_URLS=http://+:80
+    container_name: shahin-grcmvc-staging
+    restart: always
     depends_on:
-      db-staging:
+      postgres-staging:
         condition: service_healthy
-    networks:
-      - grc-staging-network
-    restart: unless-stopped
-
-  db-staging:
-    image: postgres:15-alpine
-    container_name: shahin-grc-db-staging
+      redis-staging:
+        condition: service_healthy
     environment:
-      - POSTGRES_USER=${DB_USER:-shahin_staging}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-ShahinStaging2026!}
-      - POSTGRES_DB=${DB_NAME:-shahin_grc_staging}
+      # Core Settings
+      - ASPNETCORE_ENVIRONMENT=Staging
+      - ASPNETCORE_URLS=http://+:8080
+
+      # Database Connections
+      - ConnectionStrings__DefaultConnection=Host=postgres-staging;Port=5432;Database=shahin_grc_staging;Username=${POSTGRES_USER:-shahin_staging};Password=${POSTGRES_PASSWORD:-ShahinStaging2026!};SSL Mode=Disable
+      - ConnectionStrings__GrcAuthDb=Host=postgres-staging;Port=5432;Database=shahin_grc_staging;Username=${POSTGRES_USER:-shahin_staging};Password=${POSTGRES_PASSWORD:-ShahinStaging2026!};SSL Mode=Disable
+      - ConnectionStrings__HangfireConnection=Host=postgres-staging;Port=5432;Database=shahin_grc_staging;Username=${POSTGRES_USER:-shahin_staging};Password=${POSTGRES_PASSWORD:-ShahinStaging2026!};SSL Mode=Disable
+      - ConnectionStrings__Redis=redis-staging:6379
+
+      # JWT Settings
+      - JWT_SECRET=${JWT_SECRET:-ShahinAI-Staging-JWT-Secret-Key-For-Testing-2026-FullFeatures!}
+      - JwtSettings__Secret=${JWT_SECRET:-ShahinAI-Staging-JWT-Secret-Key-For-Testing-2026-FullFeatures!}
+      - JwtSettings__Issuer=ShahinAI-Staging
+      - JwtSettings__Audience=ShahinAI-Staging-Users
+
+      # Redis Cache
+      - Redis__ConnectionString=redis-staging:6379
+      - Redis__Enabled=true
+      - Redis__UseForSignalR=true
+
+      # Feature Flags - ALL ENABLED
+      - GrcFeatureFlags__UseSecurePasswordGeneration=true
+      - GrcFeatureFlags__UseSessionBasedClaims=true
+      - GrcFeatureFlags__UseEnhancedAuditLogging=true
+      - GrcFeatureFlags__UseDeterministicTenantResolution=true
+      - GrcFeatureFlags__DisableDemoLogin=false
+      - GrcFeatureFlags__EnableTrialSignup=true
+      - GrcFeatureFlags__AllowDemoLoginInProduction=true
+      - GrcFeatureFlags__ShowTrialEditionBanner=true
+
+      # Full Features Enabled
+      - Features__OnboardingEnabled=true
+      - Features__WorkflowEngineEnabled=true
+      - Features__AIAgentsEnabled=true
+      - Features__AnalyticsEnabled=true
+      - Features__MultiTenancyEnabled=true
+      - Features__EmailOperationsEnabled=true
+      - Features__HangfireEnabled=true
+      - Features__CachingEnabled=true
+
+      # Hangfire Background Jobs
+      - Hangfire__Enabled=true
+      - Hangfire__DashboardPath=/hangfire
+
+      # SMTP (optional - set in .env)
+      - SmtpSettings__Host=${SMTP_HOST:-smtp.office365.com}
+      - SmtpSettings__Port=587
+      - SmtpSettings__FromEmail=${SMTP_FROM_EMAIL:-info@shahin-ai.com}
+      - SmtpSettings__Username=${SMTP_USERNAME:-}
+      - SmtpSettings__Password=${SMTP_PASSWORD:-}
+
+      # Claude AI (optional - set in .env)
+      - ClaudeAgents__Enabled=${CLAUDE_ENABLED:-true}
+      - ClaudeAgents__ApiKey=${CLAUDE_API_KEY:-}
+
+      # Azure/Copilot (optional - set in .env)
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID:-}
+      - COPILOT_CLIENT_ID=${COPILOT_CLIENT_ID:-}
+      - COPILOT_CLIENT_SECRET=${COPILOT_CLIENT_SECRET:-}
+
+      # Admin Users
+      - GRC_ADMIN_PASSWORD=${GRC_ADMIN_PASSWORD:-Admin@123456!}
+      - GRC_PLATFORM_ADMIN_PASSWORD=${GRC_PLATFORM_ADMIN_PASSWORD:-Platform@123456!}
+      - Security__AllowPublicRegistration=true
+
+      # Disable Rate Limiting for Testing
+      - RateLimiting__Enabled=false
+      - FraudDetection__Enabled=false
+
     ports:
-      - "5434:5432"
+      - "8081:8080"
     volumes:
-      - grc_staging_db_data:/var/lib/postgresql/data
-    networks:
-      - grc-staging-network
+      - grcmvc_staging_logs:/app/logs
+      - grcmvc_staging_storage:/app/storage
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U shahin_staging -d shahin_grc_staging"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  redis-staging:
-    image: redis:7-alpine
-    container_name: shahin-grc-redis-staging
-    ports:
-      - "6381:6379"
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     networks:
-      - grc-staging-network
+      - shahin-staging-network
 
+# ============================================
+# Networks
+# ============================================
 networks:
-  grc-staging-network:
-    name: shahin-grc-staging
+  shahin-staging-network:
     driver: bridge
+    name: shahin-staging-network
 
+# ============================================
+# Volumes
+# ============================================
 volumes:
-  grc_staging_db_data:
-    name: shahin_grc_staging_db
+  postgres_staging_data:
+    name: shahin-postgres-staging-data
+  redis_staging_data:
+    name: shahin-redis-staging-data
+  grcmvc_staging_logs:
+    name: shahin-grcmvc-staging-logs
+  grcmvc_staging_storage:
+    name: shahin-grcmvc-staging-storage

@@ -125,11 +125,11 @@ public class GrcMvcAbpModule : AbpModule
     {
         var configuration = context.Services.GetConfiguration();
 
-        // Enable ABP background workers (OpenIddict issue resolved with proper module registration)
-        // ABP workers handle simple periodic tasks, Hangfire for complex workflows
+        // Disable ABP background workers (OpenIddict has null logger bug in v8.2.2)
+        // Hangfire handles all background processing instead
         Configure<AbpBackgroundWorkerOptions>(options =>
         {
-            options.IsEnabled = true; // ENABLED - Fixed OpenIddict worker issue
+            options.IsEnabled = false; // DISABLED - OpenIddict null logger bug
         });
 
         // Configure ABP Entity Framework Core

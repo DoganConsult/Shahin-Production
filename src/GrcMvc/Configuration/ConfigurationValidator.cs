@@ -11,18 +11,15 @@ public class ConfigurationValidator : IHostedService
     private readonly ILogger<ConfigurationValidator> _logger;
     private readonly IConfiguration _configuration;
     private readonly IOptions<ClaudeApiSettings> _claudeSettings;
-    private readonly IOptions<JwtSettings> _jwtSettings;
 
     public ConfigurationValidator(
         ILogger<ConfigurationValidator> logger,
         IConfiguration configuration,
-        IOptions<ClaudeApiSettings> claudeSettings,
-        IOptions<JwtSettings> jwtSettings)
+        IOptions<ClaudeApiSettings> claudeSettings)
     {
         _logger = logger;
         _configuration = configuration;
         _claudeSettings = claudeSettings;
-        _jwtSettings = jwtSettings;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -42,20 +39,9 @@ public class ConfigurationValidator : IHostedService
             _logger.LogInformation("✓ Database connection string configured");
         }
 
-        // Validate JWT Settings
-        var jwtSecret = _jwtSettings.Value.Secret;
-        if (string.IsNullOrWhiteSpace(jwtSecret))
-        {
-            errors.Add("JWT Secret (JwtSettings:Secret) is not configured");
-        }
-        else if (jwtSecret.Length < 32)
-        {
-            errors.Add($"JWT Secret is too short ({jwtSecret.Length} characters). Minimum 32 characters required for security.");
-        }
-        else
-        {
-            _logger.LogInformation("✓ JWT settings configured");
-        }
+        // Validate OpenIddict configuration (replaces JWT)
+        // OpenIddict uses ASP.NET Core Data Protection for token encryption
+        _logger.LogInformation("✓ OpenIddict authentication configured (uses /connect/token endpoint)");
 
         // Validate Claude API (Optional but recommended)
         var claudeApiKey = _claudeSettings.Value.ApiKey;

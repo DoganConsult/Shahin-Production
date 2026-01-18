@@ -39,14 +39,50 @@ ingress:
   # ══════════════════════════════════════════════════════════════
   # PRODUCTION APP - portal.shahin-ai.com (User Access)
   # Main application access for authenticated users
-  # Docker container: shahin-grc-production on port 80
+  # Docker container: shahin-grc-production on port 5000 (mapped to 80 inside)
   # ══════════════════════════════════════════════════════════════
   - hostname: portal.shahin-ai.com
-    service: http://localhost:80
+    service: http://localhost:5000
+    originRequest:
+      connectTimeout: 30s
+      tunnel: grc-platform-prod
+      noTLSVerify: true
+
+  - hostname: app.shahin-ai.com
+    service: http://localhost:5000
     originRequest:
       connectTimeout: 30s
       noTLSVerify: true
 
+  # Public landing pages - no auth required
+  - hostname: grc.shahin-ai.com
+    path: ^/$|^/landing|^/about|^/features|^/pricing|^/contact
+    service: http://localhost:8080
+    originRequest:
+      noTLSVerify: true
+  
+  # Public API endpoints
+  - hostname: grc.shahin-ai.com
+    path: ^/api/public
+    service: http://localhost:8080
+  
+  # Platform admin routes - requires auth
+  - hostname: grc.shahin-ai.com
+    path: ^/platform-admin
+    service: http://localhost:8080
+    originRequest:
+      httpHostHeader: grc.shahin-ai.com
+  
+  # Tenant-specific routes
+  - hostname: "*.grc.shahin-ai.com"
+    service: http://localhost:8080
+    originRequest:
+      httpHostHeader: "$1.grc.shahin-ai.com"
+  
+  # Main application - authenticated
+  - hostname: grc.shahin-ai.com
+    service: http://localhost:8080
+  
   # ══════════════════════════════════════════════════════════════
   # STAGING - staging.shahin-ai.com → Port 5001
   # ══════════════════════════════════════════════════════════════
@@ -78,12 +114,12 @@ ingress:
       noTLSVerify: true
 
   # ══════════════════════════════════════════════════════════════
-  # TENANT SUBDOMAINS - *.shahin-ai.com → Port 80 (Production)
+  # TENANT SUBDOMAINS - *.shahin-ai.com → Port 5000 (Production)
   # Wildcard for multi-tenant subdomains (e.g., acme.shahin-ai.com)
   # Must be LAST before catch-all (specific rules take precedence)
   # ══════════════════════════════════════════════════════════════
   - hostname: "*.shahin-ai.com"
-    service: http://localhost:80
+    service: http://localhost:5000
     originRequest:
       connectTimeout: 30s
       noTLSVerify: true

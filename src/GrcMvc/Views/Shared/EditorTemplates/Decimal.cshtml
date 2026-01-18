@@ -1,0 +1,14 @@
+@model decimal?
+
+@{
+    var fieldName = ViewData.TemplateInfo.HtmlFieldPrefix;
+    var value = Model?.ToString("0.##") ?? "";
+}
+
+<input type="number"
+       id="@fieldName"
+       name="@fieldName"
+       value="@value"
+       class="form-control grc-decimal-editor"
+       step="0.01"
+       min="0" />

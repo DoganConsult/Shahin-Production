@@ -1,15 +1,13 @@
 using GrcMvc.Configuration;
 using GrcMvc.Filters;
 using GrcMvc.Resources;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using System.Globalization;
-using System.Text;
 using System.Threading.RateLimiting;
+using OpenIddict.Validation.AspNetCore;
 
 namespace GrcMvc.Extensions;
 
@@ -19,39 +17,21 @@ namespace GrcMvc.Extensions;
 public static class AuthenticationExtensions
 {
     /// <summary>
-    /// Configure JWT authentication and authorization policies
+    /// Configure ABP OpenIddict authentication
+    /// ABP OpenIddict provides OAuth2/OpenID Connect authentication
+    /// This method configures the validation handler for API endpoints
     /// </summary>
-    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddOpenIddictAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        var jwtSettings = configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>();
-        if (jwtSettings == null || !jwtSettings.IsValid())
-        {
-            throw new InvalidOperationException(
-                "JWT settings are invalid or missing. Set JwtSettings__Secret (min 32 chars) via environment variable.");
-        }
-
-        var key = Encoding.UTF8.GetBytes(jwtSettings.Secret);
+        // ABP OpenIddict is configured in GrcMvcAbpModule
+        // This method now configures OpenIddict validation for API endpoints
 
         services.AddAuthentication(options =>
         {
-            options.DefaultScheme = Microsoft.AspNetCore.Identity.IdentityConstants.ApplicationScheme;
-            options.DefaultSignInScheme = Microsoft.AspNetCore.Identity.IdentityConstants.ExternalScheme;
-            options.DefaultAuthenticateScheme = Microsoft.AspNetCore.Identity.IdentityConstants.ApplicationScheme;
-            options.DefaultChallengeScheme = Microsoft.AspNetCore.Identity.IdentityConstants.ApplicationScheme;
-        })
-        .AddJwtBearer(options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = true,
-                ValidIssuer = jwtSettings.Issuer,
-                ValidateAudience = true,
-                ValidAudience = jwtSettings.Audience,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.FromMinutes(1)
-            };
+            // Use OpenIddict for API authentication
+            options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+            options.DefaultAuthenticateScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
         });
 
         return services;

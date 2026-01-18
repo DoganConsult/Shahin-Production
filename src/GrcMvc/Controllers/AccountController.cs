@@ -7,15 +7,14 @@ using GrcMvc.Models.Entities;
 using GrcMvc.Models.ViewModels;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Services;
+using GrcMvc.Helpers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using System.Security.Claims;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using GrcMvc.Data;
 using GrcMvc.Constants;
 
@@ -103,6 +102,33 @@ namespace GrcMvc.Controllers
                     var user = await _userManager.FindByEmailAsync(model.Email);
                     if (user != null)
                     {
+                        // PHASE 1 LOGIN GATE: Block unverified users
+                        if (!user.EmailConfirmed)
+                        {
+                            // Sign out immediately - they shouldn't be logged in
+                            await _signInManager.SignOutAsync();
+
+                            // Find their tenant to enable resend
+                            var unverifiedTenant = await _context.Tenants
+                                .FirstOrDefaultAsync(t => t.AdminEmail == user.Email && !t.IsEmailVerified);
+
+                            if (unverifiedTenant != null)
+                            {
+                                _logger.LogWarning("Login blocked for unverified user {Email}, TenantId: {TenantId}",
+                                    model.Email, unverifiedTenant.Id);
+                                return View("VerifyEmailPending", new VerifyEmailPendingViewModel
+                                {
+                                    TenantId = unverifiedTenant.Id,
+                                    Email = MaskEmail(user.Email ?? "")
+                                });
+                            }
+
+                            // User exists but no tenant - generic error
+                            _logger.LogWarning("Login blocked for unverified user {Email} with no matching tenant", model.Email);
+                            ModelState.AddModelError("", "Please verify your email address before logging in.");
+                            return View(model);
+                        }
+
                         // CRITICAL FIX: Enhanced logging with IP, user agent, timestamp
                         var loginIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
                         var loginUserAgent = HttpContext.Request.Headers["User-Agent"].ToString();
@@ -117,7 +143,7 @@ namespace GrcMvc.Controllers
                             {
                                 // Log login attempt (success)
                                 await _authAuditService.LogLoginAttemptAsync(
-                                    userId: user.Id,
+                                    userId: user.Id.ToString(), // Convert Guid to string
                                     email: model.Email,
                                     success: true,
                                     ipAddress: loginIpAddress,
@@ -126,7 +152,7 @@ namespace GrcMvc.Controllers
                                 // Log authentication event
                                 await _authAuditService.LogAuthenticationEventAsync(new AuthenticationAuditEvent
                                 {
-                                    UserId = user.Id,
+                                    UserId = user.Id.ToString(),
                                     Email = model.Email,
                                     EventType = "Login",
                                     Success = true,
@@ -138,7 +164,7 @@ namespace GrcMvc.Controllers
                                     {
                                         ["RememberMe"] = model.RememberMe,
                                         ["TenantId"] = (await _context.TenantUsers
-                                            .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted))?.TenantId.ToString() ?? "N/A"
+                                            .FirstOrDefaultAsync(tu => tu.UserId == user.Id.ToString().ToString() && !tu.IsDeleted))?.TenantId.ToString() ?? "N/A"
                                     }
                                 });
 
@@ -159,16 +185,16 @@ namespace GrcMvc.Controllers
                             {
                                 var tenantId = Guid.Empty; // Will be resolved in ProcessPostLoginAsync
                                 var tenantUser = await _context.TenantUsers
-                                    .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
+                                    .FirstOrDefaultAsync(tu => tu.UserId == user.Id.ToString().ToString() && !tu.IsDeleted);
                                 if (tenantUser != null) tenantId = tenantUser.TenantId;
 
                                 await _auditEventService.LogEventAsync(
                                     tenantId,
                                     "USER_LOGIN_SUCCESS",
                                     "User",
-                                    user.Id,
+                                    user.Id.ToString(),
                                     "Login",
-                                    user.Id,
+                                    user.Id.ToString(),
                                     System.Text.Json.JsonSerializer.Serialize(new
                                     {
                                         email = user.Email,
@@ -235,12 +261,12 @@ namespace GrcMvc.Controllers
                             if (user != null)
                             {
                                 await _authAuditService.LogAccountLockoutAsync(
-                                    userId: user.Id,
+                                    userId: user.Id.ToString(),
                                     reason: "Too many failed login attempts",
                                     ipAddress: loginIpAddress);
 
                                 await _authAuditService.LogLoginAttemptAsync(
-                                    userId: user.Id,
+                                    userId: user.Id.ToString(),
                                     email: model.Email,
                                     success: false,
                                     ipAddress: loginIpAddress,
@@ -299,7 +325,7 @@ namespace GrcMvc.Controllers
                                     : "Invalid credentials";
                         
                         await _authAuditService.LogLoginAttemptAsync(
-                            userId: failedUser?.Id,
+                            userId: failedUser?.Id.ToString(),
                             email: model.Email,
                             success: false,
                             ipAddress: failedLoginIp,
@@ -309,7 +335,7 @@ namespace GrcMvc.Controllers
 
                         await _authAuditService.LogAuthenticationEventAsync(new AuthenticationAuditEvent
                         {
-                            UserId = failedUser?.Id,
+                            UserId = failedUser?.Id.ToString(),
                             Email = model.Email,
                             EventType = "FailedLogin",
                             Success = false,
@@ -338,7 +364,7 @@ namespace GrcMvc.Controllers
                     try
                     {
                         var failedUser = await _userManager.FindByEmailAsync(model.Email);
-                        var failedUserId = failedUser?.Id ?? "unknown";
+                        var failedUserId = failedUser?.Id.ToString() ?? "unknown";
                         var tenantId = Guid.Empty;
 
                         await _auditEventService.LogEventAsync(
@@ -383,7 +409,7 @@ namespace GrcMvc.Controllers
             // Get tenant user record
             var tenantUser = await _context.TenantUsers
                 .Include(tu => tu.Tenant)
-                .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
+                .FirstOrDefaultAsync(tu => tu.UserId == user.Id.ToString().ToString() && !tu.IsDeleted);
 
             if (tenantUser?.TenantId == null)
             {
@@ -546,17 +572,29 @@ namespace GrcMvc.Controllers
             {
                 var user = new ApplicationUser
                 {
-                    UserName = model.Email,
-                    Email = model.Email,
                     FirstName = model.FirstName ?? string.Empty,
                     LastName = model.LastName ?? string.Empty,
                     Department = model.Department ?? string.Empty,
-                    JobTitle = model.JobTitle ?? string.Empty,
-                    // HIGH PRIORITY SECURITY FIX: Only auto-confirm email in development environment
-                    EmailConfirmed = !HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsProduction()
+                    JobTitle = model.JobTitle ?? string.Empty
                 };
-
+                
+                // UserManager.CreateAsync will set UserName and Email based on the user object
+                // We need to use a different approach since ABP has protected setters
                 var result = await _userManager.CreateAsync(user, model.Password);
+                
+                // Set the email after creation using UserManager
+                if (result.Succeeded)
+                {
+                    await _userManager.SetUserNameAsync(user, model.Email);
+                    await _userManager.SetEmailAsync(user, model.Email);
+                }
+                
+                // Update EmailConfirmed after creation
+                if (result.Succeeded && !HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsProduction())
+                {
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    await _userManager.ConfirmEmailAsync(user, token);
+                }
 
                 if (result.Succeeded)
                 {
@@ -663,7 +701,7 @@ namespace GrcMvc.Controllers
             // SECURITY: Check password history to prevent reuse
             if (_passwordHistoryService != null)
             {
-                var isInHistory = await _passwordHistoryService.IsPasswordInHistoryAsync(user.Id, model.NewPassword);
+                var isInHistory = await _passwordHistoryService.IsPasswordInHistoryAsync(user.Id.ToString(), model.NewPassword);
                 if (isInHistory)
                 {
                     ModelState.AddModelError(nameof(model.NewPassword), 
@@ -687,10 +725,10 @@ namespace GrcMvc.Controllers
                     {
                         var passwordHistory = new PasswordHistory
                         {
-                            UserId = user.Id,
+                            UserId = user.Id.ToString(),
                             PasswordHash = oldPasswordHash, // Store old hash (captured before change)
                             ChangedAt = DateTime.UtcNow,
-                            ChangedByUserId = user.Id,
+                            ChangedByUserId = user.Id.ToString(),
                             Reason = "First login password change",
                             IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
                             UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
@@ -710,8 +748,8 @@ namespace GrcMvc.Controllers
                         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
                         var userAgent = HttpContext.Request.Headers["User-Agent"].ToString();
                         await _authAuditService.LogPasswordChangeAsync(
-                            userId: user.Id,
-                            changedByUserId: user.Id,
+                            userId: user.Id.ToString(),
+                            changedByUserId: user.Id.ToString(),
                             reason: "First login password change",
                             ipAddress: ipAddress,
                             userAgent: userAgent);
@@ -784,7 +822,11 @@ namespace GrcMvc.Controllers
             user.FirstName = model.FirstName ?? string.Empty;
             user.LastName = model.LastName ?? string.Empty;
             user.Department = model.Department ?? string.Empty;
-            user.PhoneNumber = model.PhoneNumber ?? string.Empty;
+            // Set phone number using UserManager to handle protected setter
+            if (!string.IsNullOrEmpty(model.PhoneNumber))
+            {
+                await _userManager.SetPhoneNumberAsync(user, model.PhoneNumber);
+            }
 
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
@@ -827,7 +869,7 @@ namespace GrcMvc.Controllers
             // SECURITY: Check password history to prevent reuse
             if (_passwordHistoryService != null)
             {
-                var isInHistory = await _passwordHistoryService.IsPasswordInHistoryAsync(user.Id, model.NewPassword);
+                var isInHistory = await _passwordHistoryService.IsPasswordInHistoryAsync(user.Id.ToString(), model.NewPassword);
                 if (isInHistory)
                 {
                     ModelState.AddModelError(nameof(model.NewPassword), 
@@ -859,10 +901,10 @@ namespace GrcMvc.Controllers
                 {
                     var passwordHistory = new PasswordHistory
                     {
-                        UserId = user.Id,
+                        UserId = user.Id.ToString(),
                         PasswordHash = oldPasswordHash, // Store old hash (captured before change)
                         ChangedAt = DateTime.UtcNow,
-                        ChangedByUserId = user.Id,
+                        ChangedByUserId = user.Id.ToString(),
                         Reason = "User initiated",
                         IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
                         UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
@@ -882,8 +924,8 @@ namespace GrcMvc.Controllers
                     var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
                     var userAgent = HttpContext.Request.Headers["User-Agent"].ToString();
                     await _authAuditService.LogPasswordChangeAsync(
-                        userId: user.Id,
-                        changedByUserId: user.Id,
+                        userId: user.Id.ToString(),
+                        changedByUserId: user.Id.ToString(),
                         reason: "User initiated",
                         ipAddress: ipAddress,
                         userAgent: userAgent);
@@ -893,7 +935,7 @@ namespace GrcMvc.Controllers
                 if (_sessionManagementService != null)
                 {
                     await _sessionManagementService.RevokeAllSessionsAsync(
-                        user.Id, 
+                        user.Id.ToString(), 
                         "Password changed - all sessions revoked for security");
                     _logger.LogInformation("Revoked all sessions for user {UserId} due to password change", user.Id);
                 }
@@ -1128,7 +1170,7 @@ namespace GrcMvc.Controllers
             // SECURITY: Check password history to prevent reuse
             if (_passwordHistoryService != null)
             {
-                var isInHistory = await _passwordHistoryService.IsPasswordInHistoryAsync(user.Id, model.Password);
+                var isInHistory = await _passwordHistoryService.IsPasswordInHistoryAsync(user.Id.ToString(), model.Password);
                 if (isInHistory)
                 {
                     ModelState.AddModelError(nameof(model.Password), 
@@ -1151,10 +1193,10 @@ namespace GrcMvc.Controllers
                     {
                         var passwordHistory = new PasswordHistory
                         {
-                            UserId = user.Id,
+                            UserId = user.Id.ToString(),
                             PasswordHash = oldPasswordHash, // Store old hash (captured before change)
                             ChangedAt = DateTime.UtcNow,
-                            ChangedByUserId = user.Id,
+                            ChangedByUserId = user.Id.ToString(),
                             Reason = "Password reset via email",
                             IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
                             UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
@@ -1174,8 +1216,8 @@ namespace GrcMvc.Controllers
                         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
                         var userAgent = HttpContext.Request.Headers["User-Agent"].ToString();
                         await _authAuditService.LogPasswordChangeAsync(
-                            userId: user.Id,
-                            changedByUserId: user.Id,
+                            userId: user.Id.ToString(),
+                            changedByUserId: user.Id.ToString(),
                             reason: "Password reset via email",
                             ipAddress: ipAddress,
                             userAgent: userAgent);
@@ -1185,7 +1227,7 @@ namespace GrcMvc.Controllers
                     if (_sessionManagementService != null)
                     {
                         await _sessionManagementService.RevokeAllSessionsAsync(
-                            user.Id, 
+                            user.Id.ToString(), 
                             "Password reset - all sessions revoked for security");
                         _logger.LogInformation("Revoked all sessions for user {UserId} due to password reset", user.Id);
                     }
@@ -1236,55 +1278,23 @@ namespace GrcMvc.Controllers
             return View();
         }
 
-        // API endpoint for JWT token generation (for API access)
+        /// <summary>
+        /// DEPRECATED: Custom JWT token endpoint
+        /// Use /connect/token with OAuth2 flow instead (ABP OpenIddict)
+        /// </summary>
         [HttpPost]
         [AllowAnonymous]
         [Route("api/account/token")]
-        public async Task<IActionResult> GenerateToken([FromBody] LoginViewModel model)
+        [Obsolete("Use /connect/token endpoint with OAuth2 flow instead")]
+        public IActionResult GenerateToken([FromBody] LoginViewModel model)
         {
-            if (!ModelState.IsValid)
+            _logger.LogWarning("Deprecated /api/account/token endpoint called. Redirecting to OpenIddict.");
+            return BadRequest(new
             {
-                return BadRequest(ModelState);
-            }
-
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
-            {
-                return Unauthorized(new { message = "Invalid credentials" });
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var claims = new[]
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id?.ToString() ?? string.Empty),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Name, user.UserName ?? string.Empty)
-            }.Union(roles.Select(role => new Claim(ClaimTypes.Role, role)));
-
-            var jwtSecret = _configuration["JwtSettings:Secret"];
-            if (string.IsNullOrEmpty(jwtSecret))
-            {
-                _logger.LogError("JWT Secret is not configured");
-                return StatusCode(500, new { message = "Server configuration error" });
-            }
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["JwtSettings:Issuer"],
-                audience: _configuration["JwtSettings:Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(Convert.ToDouble(
-                    _configuration["JwtSettings:ExpirationInHours"] ?? "24")),
-                signingCredentials: creds
-            );
-
-            return Ok(new
-            {
-                token = new JwtSecurityTokenHandler().WriteToken(token),
-                expiration = token.ValidTo
+                error = "endpoint_deprecated",
+                message = "This endpoint is deprecated. Use /connect/token with OAuth2 password grant flow.",
+                redirect = "/connect/token",
+                documentation = "https://docs.shahin-ai.com/api/authentication"
             });
         }
 
@@ -1307,24 +1317,24 @@ namespace GrcMvc.Controllers
 
             // Get user's tenant info
             var tenantUser = await dbContext.TenantUsers
-                .FirstOrDefaultAsync(tu => tu.UserId == userId && tu.TenantId == tenantId && !tu.IsDeleted);
+                .FirstOrDefaultAsync(tu => tu.UserId == user.Id.ToString().ToString() && tu.TenantId == tenantId && !tu.IsDeleted);
 
             // Get assigned profiles
-            var assignments = await profileService.GetUserAssignmentsAsync(userId, tenantId);
-            var permissions = await profileService.GetUserPermissionsAsync(userId, tenantId);
-            var workflowRoles = await profileService.GetUserWorkflowRolesAsync(userId, tenantId);
+            var assignments = await profileService.GetUserAssignmentsAsync(userId.ToString(), tenantId);
+            var permissions = await profileService.GetUserPermissionsAsync(userId.ToString(), tenantId);
+            var workflowRoles = await profileService.GetUserWorkflowRolesAsync(userId.ToString(), tenantId);
 
             // Get notification preferences
-            var notifPrefs = await notificationService.GetUserPreferencesAsync(userId, tenantId);
+            var notifPrefs = await notificationService.GetUserPreferencesAsync(userId.ToString(), tenantId);
 
             // Get pending tasks count
             var pendingTasks = await dbContext.WorkflowTasks
-                .CountAsync(t => t.AssignedToUserId.ToString() == userId &&
+                .CountAsync(t => t.AssignedToUserId.ToString() == userId.ToString() &&
                     t.Status == "Pending" && !t.IsDeleted);
 
             var model = new UserProfileViewModel
             {
-                UserId = userId,
+                UserId = userId.ToString(),
                 Email = user.Email ?? "",
                 FullName = $"{user.FirstName} {user.LastName}".Trim(),
                 RoleName = tenantUser?.RoleCode ?? "",
@@ -1424,7 +1434,7 @@ namespace GrcMvc.Controllers
 
                 // Check TenantUser exists and is Admin
                 var tenantUser = await _context.TenantUsers
-                    .FirstOrDefaultAsync(tu => tu.TenantId == model.TenantId && tu.UserId == user.Id);
+                    .FirstOrDefaultAsync(tu => tu.TenantId == model.TenantId && tu.UserId == user.Id.ToString());
 
                 // MEDIUM PRIORITY FIX: Use RoleConstants instead of magic string
                 if (tenantUser == null || !RoleConstants.IsTenantAdmin(tenantUser.RoleCode) || tenantUser.Status != "Active")
@@ -1537,7 +1547,7 @@ namespace GrcMvc.Controllers
                 // Find active tenant for this user
                 var tenantUser = await _context.TenantUsers
                     .Include(tu => tu.Tenant)
-                    .Where(tu => tu.UserId == user.Id 
+                    .Where(tu => tu.UserId == user.Id.ToString() 
                         && tu.Status == "Active" 
                         && !tu.IsDeleted)
                     .OrderByDescending(tu => tu.ActivatedAt ?? tu.CreatedDate)
@@ -1614,5 +1624,273 @@ namespace GrcMvc.Controllers
                 _ => "User"
             };
         }
+
+        /// <summary>
+        /// Mask email for display (j***@company.com)
+        /// </summary>
+        private static string MaskEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email) || !email.Contains('@'))
+                return email;
+
+            var parts = email.Split('@');
+            var local = parts[0];
+            var domain = parts[1];
+
+            if (local.Length <= 2)
+                return $"{local[0]}***@{domain}";
+
+            return $"{local[0]}{new string('*', Math.Min(local.Length - 2, 5))}{local[^1]}@{domain}";
+        }
+
+        // =====================================================================
+        // PHASE 1: Email Verification + Set Password Flow
+        // =====================================================================
+
+        /// <summary>
+        /// GET: /account/verify - Verify email and show set password form
+        /// </summary>
+        [HttpGet("verify")]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerifyAndSetPassword(Guid tenantId, string token)
+        {
+            if (tenantId == Guid.Empty || string.IsNullOrEmpty(token))
+            {
+                return View("LinkExpired", new LinkExpiredViewModel { CanResend = false });
+            }
+
+            var tenant = await _context.Tenants.FindAsync(tenantId);
+            if (tenant == null)
+            {
+                _logger.LogWarning("Verification attempted for non-existent tenant {TenantId}", tenantId);
+                return View("LinkExpired", new LinkExpiredViewModel { CanResend = false });
+            }
+
+            // Already verified - redirect to login
+            if (tenant.IsEmailVerified)
+            {
+                _logger.LogInformation("Verification link used for already verified tenant {TenantId}", tenantId);
+                TempData["Success"] = "Your email is already verified. Please log in.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            // Verify token hash matches
+            if (!TokenHelper.VerifyToken(token, tenant.EmailVerificationTokenHash))
+            {
+                _logger.LogWarning("Invalid verification token for tenant {TenantId}", tenantId);
+                return View("LinkExpired", new LinkExpiredViewModel
+                {
+                    CanResend = true,
+                    TenantId = tenantId,
+                    Email = MaskEmail(tenant.AdminEmail)
+                });
+            }
+
+            // Check expiration (24 hours)
+            if (tenant.EmailVerificationTokenExpiresAt < DateTime.UtcNow)
+            {
+                _logger.LogWarning("Expired verification token for tenant {TenantId}", tenantId);
+                return View("LinkExpired", new LinkExpiredViewModel
+                {
+                    CanResend = true,
+                    TenantId = tenantId,
+                    Email = MaskEmail(tenant.AdminEmail)
+                });
+            }
+
+            // Token valid - show password form
+            return View(new VerifyAndSetPasswordViewModel
+            {
+                TenantId = tenantId,
+                Token = token,
+                Email = MaskEmail(tenant.AdminEmail)
+            });
+        }
+
+        /// <summary>
+        /// POST: /account/verify - Process password and complete verification
+        /// </summary>
+        [HttpPost("verify")]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyAndSetPassword(VerifyAndSetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var tenant = await _context.Tenants.FindAsync(model.TenantId);
+            if (tenant == null)
+            {
+                return View("LinkExpired", new LinkExpiredViewModel { CanResend = false });
+            }
+
+            // Re-verify token (in case of replay)
+            if (!TokenHelper.VerifyToken(model.Token, tenant.EmailVerificationTokenHash))
+            {
+                _logger.LogWarning("Invalid token on POST for tenant {TenantId}", model.TenantId);
+                return View("LinkExpired", new LinkExpiredViewModel
+                {
+                    CanResend = true,
+                    TenantId = model.TenantId,
+                    Email = MaskEmail(tenant.AdminEmail)
+                });
+            }
+
+            // Check expiration again
+            if (tenant.EmailVerificationTokenExpiresAt < DateTime.UtcNow)
+            {
+                return View("LinkExpired", new LinkExpiredViewModel
+                {
+                    CanResend = true,
+                    TenantId = model.TenantId,
+                    Email = MaskEmail(tenant.AdminEmail)
+                });
+            }
+
+            // Find the user
+            var user = await _userManager.FindByEmailAsync(tenant.AdminEmail);
+            if (user == null)
+            {
+                _logger.LogError("User not found for verified tenant {TenantId}", model.TenantId);
+                ModelState.AddModelError("", "An error occurred. Please contact support.");
+                return View(model);
+            }
+
+            // Use Identity's password reset mechanism to set password
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, resetToken, model.Password);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+                return View(model);
+            }
+
+            // Mark user as verified
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            await _userManager.ConfirmEmailAsync(user, token);
+            user.MustChangePassword = false;
+            user.LastPasswordChangedAt = DateTime.UtcNow;
+            await _userManager.UpdateAsync(user);
+
+            // Mark tenant as verified and active
+            tenant.IsEmailVerified = true;
+            tenant.EmailVerifiedAt = DateTime.UtcNow;
+            tenant.EmailVerificationTokenHash = null; // Clear token (single use)
+            tenant.Status = "Active";
+            tenant.IsActive = true;
+
+            // Issue #7: Update TenantUser activation status
+            var tenantUser = await _context.TenantUsers
+                .FirstOrDefaultAsync(tu => tu.TenantId == tenant.Id && tu.UserId == user.Id.ToString());
+            if (tenantUser != null)
+            {
+                tenantUser.Status = "Active";
+                tenantUser.ActivatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation(
+                "Email verified and password set for tenant {TenantId}, user {UserId}",
+                tenant.Id, user.Id);
+
+            // Store password in history if service available
+            if (_authContext != null && !string.IsNullOrEmpty(user.PasswordHash))
+            {
+                try
+                {
+                    var passwordHistory = new PasswordHistory
+                    {
+                        UserId = user.Id.ToString(),
+                        PasswordHash = user.PasswordHash,
+                        ChangedAt = DateTime.UtcNow,
+                        ChangedByUserId = user.Id.ToString(),
+                        Reason = "Initial password set during email verification",
+                        IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+                        UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
+                    };
+                    _authContext.PasswordHistory.Add(passwordHistory);
+                    await _authContext.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to store initial password history for user {UserId}", user.Id);
+                }
+            }
+
+            // Sign in the user
+            await _signInManager.SignInAsync(user, isPersistent: false);
+
+            // Issue #15: Send welcome email after successful verification
+            try
+            {
+                var userName = $"{user.FirstName} {user.LastName}".Trim();
+                if (string.IsNullOrEmpty(userName))
+                    userName = user.Email?.Split('@')[0] ?? "User";
+
+                var loginUrl = Url.Action("Login", "Account", null, Request.Scheme) ?? string.Empty;
+
+                await _grcEmailService.SendWelcomeEmailAsync(
+                    user.Email!,
+                    userName,
+                    loginUrl,
+                    organizationName: "Shahin GRC Platform",
+                    isArabic: true);
+
+                _logger.LogInformation("Welcome email sent to {Email} after verification", user.Email);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to send welcome email to {Email}", user.Email);
+                // Don't fail the verification process
+            }
+
+            TempData["Success"] = "Your email has been verified and password set. Welcome!";
+
+            // Redirect to onboarding wizard
+            return RedirectToAction("Index", "OnboardingWizard", new { tenantId = tenant.Id });
+        }
     }
-}
+
+    // =====================================================================
+    // Phase 1 ViewModels for Email Verification
+    // =====================================================================
+
+    public class VerifyAndSetPasswordViewModel
+    {
+        public Guid TenantId { get; set; }
+        public string Token { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty; // Masked email for display
+
+        [Required(ErrorMessage = "Password is required")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "Password must be at least 8 characters")]
+        [DataType(DataType.Password)]
+        [Display(Name = "Password")]
+        public string Password { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Please confirm your password")]
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm Password")]
+        [Compare("Password", ErrorMessage = "Passwords do not match")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
+
+    public class LinkExpiredViewModel
+    {
+        public bool CanResend { get; set; }
+        public Guid TenantId { get; set; }
+        public string Email { get; set; } = string.Empty;
+    }
+
+    public class VerifyEmailPendingViewModel
+    {
+        public Guid TenantId { get; set; }
+        public string Email { get; set; } = string.Empty;
+    }
+} // End namespace GrcMvc.Controllers

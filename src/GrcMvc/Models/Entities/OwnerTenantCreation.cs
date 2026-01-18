@@ -7,7 +7,7 @@ namespace GrcMvc.Models.Entities
     /// </summary>
     public class OwnerTenantCreation : BaseEntity
     {
-        public string OwnerId { get; set; } = string.Empty; // ApplicationUser.Id of owner (string from Identity)
+        public Guid OwnerId { get; set; } // ApplicationUser.Id of owner (Guid from ABP Identity)
         public Guid TenantId { get; set; }
         public string AdminUsername { get; set; } = string.Empty;
         public DateTime CredentialsExpiresAt { get; set; }

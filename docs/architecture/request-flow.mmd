@@ -1,0 +1,45 @@
+%% Shahin AI GRC Platform - End-to-End Request Flow
+%% Sequence diagram showing complete request lifecycle
+
+sequenceDiagram
+    participant U as User Browser
+    participant CF as Cloudflare
+    participant NG as Nginx
+    participant MVC as GrcMvc ASP.NET
+    participant SVC as Service Layer
+    participant DB as PostgreSQL
+    participant REDIS as Redis Cache
+    participant AI as Claude AI
+
+    U->>CF: HTTPS Request shahin.ai
+    CF->>CF: WAF + DDoS Protection
+    CF->>NG: Forward to Origin
+    NG->>NG: SSL Termination
+
+    alt Static Content
+        NG-->>U: Cached Response
+    else Dynamic Request
+        NG->>MVC: Route to Controller
+        MVC->>MVC: [Authorize] Check JWT
+        MVC->>MVC: [RequireTenant] Resolve Tenant
+        MVC->>REDIS: Check Cache
+
+        alt Cache Hit
+            REDIS-->>MVC: Cached Data
+        else Cache Miss
+            MVC->>SVC: Call Service
+            SVC->>DB: Query with TenantId Filter
+            DB-->>SVC: Tenant-Scoped Data
+            SVC-->>MVC: Business Response
+            MVC->>REDIS: Store in Cache
+        end
+
+        opt AI Analysis Requested
+            MVC->>AI: Claude API Call
+            AI-->>MVC: Analysis Result
+        end
+
+        MVC-->>NG: JSON/HTML Response
+        NG-->>CF: Response
+        CF-->>U: HTTPS Response
+    end

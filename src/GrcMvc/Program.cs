@@ -5,11 +5,35 @@ using GrcMvc.Data.Seeds;
 using GrcMvc.Extensions;
 using Serilog;
 using Volo.Abp;
+using GrcMvc;
 
 // =============================================================================
 // Shahin GRC Platform - Startup Configuration
 // Clean, maintainable, production-ready ASP.NET Core 8.0 application
 // =============================================================================
+
+// Check for test commands
+if (args.Length > 0 && args[0] == "TestDb")
+{
+    var configBuilder = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json", optional: true)
+        .AddEnvironmentVariables();
+    
+    var testConfig = configBuilder.Build();
+    var exitCode = await TestDbConnection.Run(testConfig);
+    Environment.Exit(exitCode);
+    return;
+}
+
+// Check for database explorer command
+if (args.Length > 0 && args[0] == "explore-db")
+{
+    var exitCode = await DatabaseExplorer.ExploreDatabase(args.Skip(1).ToArray());
+    Environment.Exit(exitCode);
+    return;
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,7 +96,7 @@ try
     // PHASE 5: AUTHENTICATION & SECURITY
     // =============================================================================
     builder.Services.AddIdentityConfiguration();
-    builder.Services.AddJwtAuthentication(builder.Configuration);
+    builder.Services.AddOpenIddictAuthentication(builder.Configuration);
     builder.Services.AddAuthorizationPolicies();
     builder.Services.AddRateLimiting(builder.Configuration);
     builder.Services.AddDataProtectionConfiguration(builder.Configuration, builder.Environment);

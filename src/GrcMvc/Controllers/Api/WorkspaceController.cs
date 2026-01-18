@@ -8,9 +8,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-
 using Microsoft.Extensions.Localization;
 using GrcMvc.Resources;
+using Volo.Abp.MultiTenancy;
 namespace GrcMvc.Controllers.Api
 {
     /// <summary>
@@ -23,17 +23,24 @@ namespace GrcMvc.Controllers.Api
     {
         private readonly IWorkspaceContextService _workspaceContext;
         private readonly IWorkspaceManagementService _workspaceService;
+        
+        // ABP Services for modern tenant management
+        private readonly ICurrentTenant _currentTenant;
+        
+        // Legacy service for backward compatibility
         private readonly ITenantContextService _tenantContext;
         private readonly ILogger<WorkspaceController> _logger;
 
         public WorkspaceController(
             IWorkspaceContextService workspaceContext,
             IWorkspaceManagementService workspaceService,
+            ICurrentTenant currentTenant,
             ITenantContextService tenantContext,
             ILogger<WorkspaceController> logger)
         {
             _workspaceContext = workspaceContext ?? throw new ArgumentNullException(nameof(workspaceContext));
             _workspaceService = workspaceService ?? throw new ArgumentNullException(nameof(workspaceService));
+            _currentTenant = currentTenant ?? throw new ArgumentNullException(nameof(currentTenant));
             _tenantContext = tenantContext ?? throw new ArgumentNullException(nameof(tenantContext));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

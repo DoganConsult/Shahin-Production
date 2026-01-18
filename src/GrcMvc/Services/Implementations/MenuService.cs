@@ -45,7 +45,7 @@ public class MenuService : IMenuService
 
             // Get tenant from TenantUser
             var tenantUser = await _context.TenantUsers
-                .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
+                .FirstOrDefaultAsync(tu => tu.UserId == user.Id.ToString() && !tu.IsDeleted);
             var tenantId = tenantUser?.TenantId ?? Guid.Empty;
 
             // Get role IDs for user's role names (lookup from auth DB via UserManager)
@@ -407,7 +407,7 @@ public class MenuService : IMenuService
 
             // Get tenant from TenantUser
             var tenantUser = await _context.TenantUsers
-                .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
+                .FirstOrDefaultAsync(tu => tu.UserId == user.Id.ToString() && !tu.IsDeleted);
             var tenantId = tenantUser?.TenantId ?? Guid.Empty;
 
             // Always allow Home and Dashboard
@@ -444,7 +444,7 @@ public class MenuService : IMenuService
 
             // Get tenant from TenantUser
             var tenantUser = await _context.TenantUsers
-                .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
+                .FirstOrDefaultAsync(tu => tu.UserId == user.Id.ToString() && !tu.IsDeleted);
             var tenantId = tenantUser?.TenantId ?? Guid.Empty;
 
             // Get role IDs for user's role names

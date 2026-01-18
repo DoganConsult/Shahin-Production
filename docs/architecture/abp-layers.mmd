@@ -1,0 +1,80 @@
+%% Shahin AI GRC Platform - ABP Framework Layered Architecture
+%% Shows all layers and cross-cutting concerns
+
+flowchart TB
+    subgraph ClientApps["CLIENT APPLICATIONS"]
+        direction LR
+        Mobile["Mobile App"]
+        SPA["Next.js SPA"]
+        External["External<br/>Third Party Apps"]
+    end
+
+    subgraph PresentationLayer["PRESENTATION LAYER"]
+        direction LR
+        MVC["ASP.NET Core MVC<br/>136 Controllers<br/>425 Views"]
+        Localization["Localization<br/>EN + AR"]
+        Navigation["Navigation"]
+        Notification["User<br/>Notification"]
+    end
+
+    subgraph DistributedServiceLayer["DISTRIBUTED SERVICE LAYER"]
+        direction LR
+        APIControllers["API Controllers<br/>70+ REST Endpoints"]
+        WebhookHandlers["Webhook Handlers<br/>Email, Stripe"]
+    end
+
+    subgraph ApplicationLayer["APPLICATION LAYER"]
+        direction LR
+        AppServices["Application Services<br/>146 Services"]
+        DTOs["Data Transfer Objects<br/>Models/DTOs/"]
+        AIAgents["AI Agents<br/>12 Claude Agents"]
+    end
+
+    subgraph DomainLayer["DOMAIN LAYER"]
+        direction LR
+        DomainEvents["Domain Events"]
+        Specifications["Specifications"]
+        ValueObjects["Value Objects"]
+        DomainServices["Domain Services"]
+        Entities["Entities<br/>113+ Models"]
+        RepoInterfaces["Repository<br/>Interfaces"]
+    end
+
+    subgraph InfrastructureLayer["INFRASTRUCTURE LAYER"]
+        direction LR
+        RepoImpl["Repository<br/>Implementation"]
+        DataFilters["Data Filters<br/>Tenant, Soft Delete"]
+        ORM["EF Core 8.0<br/>PostgreSQL"]
+        Migrations["Database<br/>Migrations 60+"]
+    end
+
+    subgraph CrossCutting["CROSS-CUTTING CONCERNS"]
+        direction TB
+        subgraph Security["Security"]
+            ObjectMapper["AutoMapper"]
+            Authorization["Authorization<br/>214+ Permissions"]
+            ExceptionHandling["Exception<br/>Handling"]
+        end
+        subgraph Performance["Performance"]
+            Caching["Redis Cache"]
+            Session["Session<br/>Management"]
+            ConfigMgmt["Configuration"]
+            UnitOfWork["Unit of Work"]
+        end
+        subgraph Operations["Operations"]
+            Logging["Serilog<br/>Logging"]
+            FeatureMgmt["Feature<br/>Management"]
+            MultiTenancy["Multi-Tenancy<br/>Row-Level"]
+            DI["Dependency<br/>Injection"]
+            AuditLogging["Audit<br/>Logging"]
+        end
+    end
+
+    ClientApps --> PresentationLayer
+    PresentationLayer --> DistributedServiceLayer
+    DistributedServiceLayer --> ApplicationLayer
+    ApplicationLayer --> DomainLayer
+    DomainLayer --> InfrastructureLayer
+    CrossCutting -.-> PresentationLayer
+    CrossCutting -.-> ApplicationLayer
+    CrossCutting -.-> InfrastructureLayer

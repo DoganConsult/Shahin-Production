@@ -1,0 +1,39 @@
+@model DateTime?
+
+@if (Model.HasValue)
+{
+    var culture = System.Threading.Thread.CurrentThread.CurrentUICulture;
+    var value = Model.Value;
+    var now = DateTime.UtcNow;
+    var diff = now - value;
+
+    <span class="grc-datetime" data-timestamp="@value.ToString("o")" title="@value.ToString("F", culture)">
+        @if (diff.TotalMinutes < 1)
+        {
+            @Localizer["JustNow"]
+        }
+        else if (diff.TotalHours < 1)
+        {
+            var mins = (int)diff.TotalMinutes;
+            @Localizer["MinutesAgo", mins]
+        }
+        else if (diff.TotalDays < 1)
+        {
+            var hours = (int)diff.TotalHours;
+            @Localizer["HoursAgo", hours]
+        }
+        else if (diff.TotalDays < 7)
+        {
+            var days = (int)diff.TotalDays;
+            @Localizer["DaysAgo", days]
+        }
+        else
+        {
+            @value.ToString("d MMM yyyy", culture)
+        }
+    </span>
+}
+else
+{
+    <span class="text-muted">—</span>
+}

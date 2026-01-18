@@ -5,12 +5,17 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     var summary = ViewData["WizardSummary"] as WizardSummaryDto;
     var tenantId = summary?.TenantId ?? Guid.Empty;
+
+    // Setup for _WizardMotivation partial
+    ViewData["StepNumber"] = 12;
+    ViewData["StepName"] = "StepL";
+    ViewData["TenantId"] = tenantId;
 }
 
 <div class="d-flex">
     @await Html.PartialAsync("_WizardSidebar", summary)
 
-    <div class="flex-grow-1 p-4">
+    <div class="flex-grow-1 p-4 wz-page wizard-main-content" id="wzStepLPage">
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
@@ -29,7 +34,7 @@
                 <!-- Success Definition -->
                 <div class="card mb-4">
                     <div class="card-header bg-success text-white">
-                        <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Success Definition in 90 Days (Q91)</h5>
+                        <h5 class="mb-0" data-why="SuccessMetricsTop3"><i class="fas fa-trophy me-2"></i>Success Definition in 90 Days (Q91)</h5>
                     </div>
                     <div class="card-body">
                         <p class="text-muted mb-3">Pick your top 3 success metrics:</p>
@@ -64,41 +69,45 @@
                 </div>
 
                 <!-- Baseline Measurements -->
-                <div class="card mb-4">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Baseline Measurements (Q92-94)</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="text-muted mb-3">Current state (for comparison after 90 days):</p>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="BaselineAuditPrepHoursPerMonth" class="form-label">
-                                    Audit Prep Hours/Month
-                                </label>
-                                <div class="input-group">
-                                    <input type="number" asp-for="BaselineAuditPrepHoursPerMonth" 
-                                           class="form-control" step="0.5" min="0" placeholder="e.g., 40">
-                                    <span class="input-group-text">hours</span>
-                                </div>
+                <div id="wzBaselineReveal" class="wz-reveal">
+                    <div class="wz-reveal-inner">
+                        <div class="card mb-4">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0" data-why="BaselineAuditPrepHoursPerMonth"><i class="fas fa-chart-line me-2"></i>Baseline Measurements (Q92-94)</h5>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="BaselineRemediationClosureDays" class="form-label">
-                                    Avg. Remediation Closure Time
-                                </label>
-                                <div class="input-group">
-                                    <input type="number" asp-for="BaselineRemediationClosureDays" 
-                                           class="form-control" step="0.5" min="0" placeholder="e.g., 45">
-                                    <span class="input-group-text">days</span>
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="BaselineOverdueControlsPerMonth" class="form-label">
-                                    Overdue Controls/Month
-                                </label>
-                                <div class="input-group">
-                                    <input type="number" asp-for="BaselineOverdueControlsPerMonth" 
-                                           class="form-control" min="0" placeholder="e.g., 15">
-                                    <span class="input-group-text">controls</span>
+                            <div class="card-body">
+                                <p class="text-muted mb-3">Current state (for comparison after 90 days):</p>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label asp-for="BaselineAuditPrepHoursPerMonth" class="form-label">
+                                            Audit Prep Hours/Month
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="number" asp-for="BaselineAuditPrepHoursPerMonth"
+                                                   class="form-control" step="0.5" min="0" placeholder="e.g., 40">
+                                            <span class="input-group-text">hours</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label asp-for="BaselineRemediationClosureDays" class="form-label">
+                                            Avg. Remediation Closure Time
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="number" asp-for="BaselineRemediationClosureDays"
+                                                   class="form-control" step="0.5" min="0" placeholder="e.g., 45">
+                                            <span class="input-group-text">days</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label asp-for="BaselineOverdueControlsPerMonth" class="form-label">
+                                            Overdue Controls/Month
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="number" asp-for="BaselineOverdueControlsPerMonth"
+                                                   class="form-control" min="0" placeholder="e.g., 15">
+                                            <span class="input-group-text">controls</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -106,33 +115,37 @@
                 </div>
 
                 <!-- Pilot Scope -->
-                <div class="card mb-4">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0"><i class="fas fa-flask me-2"></i>Pilot Scope (Q96)</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="text-muted mb-3">Select control domains for initial pilot (top 10-20 controls):</p>
-                        <div class="row">
-                            @{
-                                var domains = new[] {
-                                    "Access Control", "Cryptography", "Network Security",
-                                    "Incident Response", "Business Continuity", "Vendor Management",
-                                    "Asset Management", "Change Management", "Data Protection"
-                                };
-                            }
-                            @foreach (var domain in domains)
-                            {
-                                <div class="col-md-4 mb-2">
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" 
-                                               name="PilotScope" value="@domain" id="pilot_@domain.Replace(" ", "_")"
-                                               @(Model.PilotScope.Contains(domain) ? "checked" : "")>
-                                        <label class="form-check-label" for="pilot_@domain.Replace(" ", "_")">
-                                            @domain
-                                        </label>
-                                    </div>
+                <div id="wzPilotReveal" class="wz-reveal">
+                    <div class="wz-reveal-inner">
+                        <div class="card mb-4">
+                            <div class="card-header bg-warning text-dark">
+                                <h5 class="mb-0" data-why="PilotScope"><i class="fas fa-flask me-2"></i>Pilot Scope (Q96)</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted mb-3">Select control domains for initial pilot (top 10-20 controls):</p>
+                                <div class="row wz-stagger">
+                                    @{
+                                        var domains = new[] {
+                                            "Access Control", "Cryptography", "Network Security",
+                                            "Incident Response", "Business Continuity", "Vendor Management",
+                                            "Asset Management", "Change Management", "Data Protection"
+                                        };
+                                    }
+                                    @foreach (var domain in domains)
+                                    {
+                                        <div class="col-md-4 mb-2">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input"
+                                                       name="PilotScope" value="@domain" id="pilot_@domain.Replace(" ", "_")"
+                                                       @(Model.PilotScope.Contains(domain) ? "checked" : "")>
+                                                <label class="form-check-label" for="pilot_@domain.Replace(" ", "_")">
+                                                    @domain
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
-                            }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -173,24 +186,29 @@
 </div>
 
 @section Scripts {
-    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
-    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
+    @* Issue #18: Use partial which now includes both CSS files *@
+    @await Html.PartialAsync("_WizardMotivation")
     <script>
-        // Initialize Motivation System
-        const motivation = new WizardMotivation({
-            stepNumber: 12,
-            totalSteps: 12,
-            tenantId: '@tenantId',
-            stepName: 'StepL'
-        });
+        // Progressive disclosure - reveal sections when ready
+        function updateProgressiveDisclosure() {
+            const checked = document.querySelectorAll('.success-metric:checked');
+            const baselineReveal = document.getElementById('wzBaselineReveal');
+            const pilotReveal = document.getElementById('wzPilotReveal');
 
-        // Initialize Live Preview Panel
-        const livePreview = new LivePreviewPanel({
-            stepName: 'StepL'
-        });
+            // Show Baseline when at least 1 metric selected
+            if (checked.length >= 1) {
+                baselineReveal.classList.add('is-open');
+            } else {
+                baselineReveal.classList.remove('is-open');
+            }
 
-        // Initialize Why We Ask Tooltips
-        const tooltips = new WhyWeAskTooltips();
+            // Show Pilot when 3 metrics selected
+            if (checked.length >= 3) {
+                pilotReveal.classList.add('is-open');
+            } else {
+                pilotReveal.classList.remove('is-open');
+            }
+        }
 
         // Limit to 3 success metrics
         document.querySelectorAll('.success-metric').forEach(cb => {
@@ -199,8 +217,9 @@
                 if (checked.length > 3) {
                     this.checked = false;
                     alert('Please select exactly 3 success metrics.');
+                    return;
                 }
-                
+
                 // Update card styling
                 document.querySelectorAll('.success-metric').forEach(el => {
                     const card = el.closest('.card');
@@ -210,6 +229,24 @@
                         card.classList.remove('border-success', 'bg-light');
                     }
                 });
+
+                // Update progressive disclosure
+                updateProgressiveDisclosure();
+            });
+        });
+
+        // Initialize on page load (for edit mode with existing selections)
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgressiveDisclosure();
+        });
+
+        // Page exit animation
+        document.querySelectorAll('a[href*="Step"], button[type="submit"]').forEach(el => {
+            el.addEventListener('click', function(e) {
+                const page = document.getElementById('wzStepLPage');
+                if (page && !this.classList.contains('wz-btn-loading')) {
+                    page.classList.add('is-exiting');
+                }
             });
         });
     </script>

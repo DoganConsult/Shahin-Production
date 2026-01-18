@@ -35,6 +35,25 @@
                 </a>
                 <a href="/contact" class="btn btn-outline btn-lg">@L["Landing_BookDemo"]</a>
             </div>
+
+            <!-- KSA Regulatory Trust Badges -->
+            <div class="hero-trust-badges scroll-reveal scroll-reveal-delay-4" style="margin-top: 2.5rem; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1rem;">
+                <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 0.5rem;">Compliant with:</span>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center;">
+                    <span class="trust-badge" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                        <i class="bi bi-shield-check" aria-hidden="true"></i> NCA ECC
+                    </span>
+                    <span class="trust-badge" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: #3b82f6; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                        <i class="bi bi-bank" aria-hidden="true"></i> SAMA CSF
+                    </span>
+                    <span class="trust-badge" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #8b5cf6; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                        <i class="bi bi-person-lock" aria-hidden="true"></i> PDPL
+                    </span>
+                    <span class="trust-badge" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.3); color: #ec4899; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                        <i class="bi bi-globe" aria-hidden="true"></i> ISO 27001
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -566,50 +585,72 @@
 <!-- CTA Section -->
 <section class="cta-section" aria-labelledby="cta-title">
     <div class="container">
+        <!-- Trial Badge -->
+        <div class="scroll-reveal" style="margin-bottom: 1.5rem;">
+            <span class="trial-badge" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 8px 20px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
+                <i class="bi bi-stars" aria-hidden="true"></i>
+                100% Full Platform Access • No Restrictions
+            </span>
+        </div>
+
         <div class="scroll-reveal">
             <h2 id="cta-title" class="cta-title">@L["Landing_Index_CTA_Title"]</h2>
             <p class="cta-subtitle">@L["Landing_Index_CTA_Subtitle"]</p>
         </div>
 
         <div class="hero-actions scroll-reveal">
-            <a href="/register" class="btn btn-gradient btn-lg">
+            <a href="/register" class="btn btn-gradient btn-lg" style="position: relative;">
                 @L["Landing_Index_CTA_Button"]
                 <i class="bi bi-arrow-left-circle-fill" aria-hidden="true"></i>
+                <span style="position: absolute; top: -10px; right: -10px; background: #10b981; color: white; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; font-weight: 600;">7 Days</span>
             </a>
             <a href="/Landing/Contact" class="btn btn-outline btn-lg">@L["Landing_Index_CTA_Contact"]</a>
         </div>
 
-        <div class="cta-features scroll-reveal" role="list" aria-label="@L["Landing_Index_CTA_FeaturesLabel"]">
+        <!-- Enhanced Feature List -->
+        <div class="cta-features scroll-reveal" role="list" aria-label="@L["Landing_Index_CTA_FeaturesLabel"]" style="flex-wrap: wrap; justify-content: center;">
             <div class="cta-feature" role="listitem">
-                <span class="cta-feature-icon" aria-hidden="true">
-                    <i class="bi bi-check-lg"></i>
+                <span class="cta-feature-icon" aria-hidden="true" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">
+                    <i class="bi bi-infinity"></i>
                 </span>
                 <span>@L["Landing_Index_CTA_Feature1"]</span>
             </div>
             <div class="cta-feature" role="listitem">
-                <span class="cta-feature-icon" aria-hidden="true">
-                    <i class="bi bi-check-lg"></i>
+                <span class="cta-feature-icon" aria-hidden="true" style="background: linear-gradient(135deg, #10b981, #34d399);">
+                    <i class="bi bi-credit-card-2-front"></i>
                 </span>
                 <span>@L["Landing_Index_CTA_Feature2"]</span>
             </div>
             <div class="cta-feature" role="listitem">
-                <span class="cta-feature-icon" aria-hidden="true">
-                    <i class="bi bi-check-lg"></i>
+                <span class="cta-feature-icon" aria-hidden="true" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">
+                    <i class="bi bi-headset"></i>
                 </span>
                 <span>@L["Landing_Index_CTA_Feature3"]</span>
             </div>
             <div class="cta-feature" role="listitem">
-                <span class="cta-feature-icon" aria-hidden="true">
-                    <i class="bi bi-check-lg"></i>
+                <span class="cta-feature-icon" aria-hidden="true" style="background: linear-gradient(135deg, #ef4444, #f87171);">
+                    <i class="bi bi-x-circle"></i>
                 </span>
                 <span>@L["Landing_Index_CTA_Feature4"]</span>
+            </div>
+            <div class="cta-feature" role="listitem">
+                <span class="cta-feature-icon" aria-hidden="true" style="background: linear-gradient(135deg, #3b82f6, #60a5fa);">
+                    <i class="bi bi-robot"></i>
+                </span>
+                <span>9 AI Agents Included</span>
+            </div>
+            <div class="cta-feature" role="listitem">
+                <span class="cta-feature-icon" aria-hidden="true" style="background: linear-gradient(135deg, #ec4899, #f472b6);">
+                    <i class="bi bi-shield-check"></i>
+                </span>
+                <span>All Regulatory Frameworks</span>
             </div>
         </div>
     </div>
 </section>
 
 @section Scripts {
-<script>
+<script nonce="@ViewData["CSPNonce"]">
     // Scroll Reveal Animation
     document.addEventListener('DOMContentLoaded', function() {
         const observerOptions = {

@@ -420,7 +420,7 @@ public class PlatformAdminController : ControllerBase
     private static PlatformAdminDto ToDto(PlatformAdmin admin) => new()
     {
         Id = admin.Id,
-        UserId = admin.UserId,
+        UserId = admin.UserId.ToString(),
         DisplayName = admin.DisplayName,
         ContactEmail = admin.ContactEmail,
         ContactPhone = admin.ContactPhone,

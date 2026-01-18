@@ -55,5 +55,15 @@ namespace GrcMvc.Services.Interfaces
         /// Resend activation email for a pending tenant.
         /// </summary>
         Task<bool> ResendActivationEmailAsync(string adminEmail);
+
+        /// <summary>
+        /// Get tenant by ID (alias for GetTenantByIdAsync).
+        /// </summary>
+        Task<Tenant?> GetByIdAsync(Guid tenantId);
+
+        /// <summary>
+        /// Check if a user belongs to a specific tenant.
+        /// </summary>
+        Task<bool> UserBelongsToTenantAsync(string userId, Guid tenantId);
     }
 }

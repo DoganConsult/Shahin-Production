@@ -94,12 +94,12 @@ public class AccountControllerV2 : Controller
             if (user != null)
             {
                 // Enhanced: Deterministic tenant resolution
-                var tenantId = await _tenantResolver.ResolveCurrentTenantAsync(user.Id);
+                var tenantId = await _tenantResolver.ResolveCurrentTenantAsync(user.Id.ToString());
                 
                 if (tenantId.HasValue)
                 {
                     // Record tenant access
-                    await _tenantResolver.RecordTenantAccessAsync(user.Id, tenantId.Value);
+                    await _tenantResolver.RecordTenantAccessAsync(user.Id.ToString(), tenantId.Value);
                 }
                 
                 _logger.LogInformation(

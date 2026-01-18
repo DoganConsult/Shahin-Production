@@ -170,6 +170,7 @@ _Pvt_Extensions
 .env.local
 .env.production
 .env.staging
+.env.docker
 *.env
 
 # Uploads folder (contains user files)
@@ -185,7 +186,8 @@ old-documentation/
 # Database files
 *.db
 *.db-shm
-*.db-wal*.tar
+*.db-wal
+*.tar
 *.tar.gz
 
 # Sensitive files with secrets
@@ -198,3 +200,14 @@ QUICK_REFERENCE_CARD.md
 # Publish folders
 [Pp]ublish/
 src/GrcMvc/[Pp]ublish/
+src/GrcMvc/publish-*/
+**/publish-fresh/
+**/publish-staging/
+
+# Next.js build output
+.next/
+**/.next/
+out/
+
+# Temporary C# files
+nul

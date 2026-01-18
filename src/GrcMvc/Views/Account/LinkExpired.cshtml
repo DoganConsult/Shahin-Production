@@ -1,0 +1,85 @@
+@model GrcMvc.Controllers.LinkExpiredViewModel
+@{
+    ViewData["Title"] = "Link Expired";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7 text-center">
+            <!-- Warning Icon -->
+            <div class="mb-4">
+                <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                </div>
+            </div>
+
+            <!-- Message -->
+            <h1 class="h2 mb-3">Link Expired or Invalid</h1>
+            <p class="lead text-muted mb-4">
+                This verification link is no longer valid.
+            </p>
+
+            <!-- Explanation Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">This can happen if:</h5>
+                    <ul class="text-start mb-0">
+                        <li class="mb-2">The link expired (after 24 hours)</li>
+                        <li class="mb-2">You already used this link</li>
+                        <li class="mb-2">You requested a new verification email</li>
+                        <li>The link was modified or incomplete</li>
+                    </ul>
+                </div>
+            </div>
+
+            @if (Model.CanResend && Model.TenantId != Guid.Empty)
+            {
+                <!-- Resend Option -->
+                <div class="card bg-light border-0 mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-envelope-arrow-up me-2"></i>Need a new link?
+                        </h5>
+                        @if (!string.IsNullOrEmpty(Model.Email))
+                        {
+                            <p class="text-muted mb-3">We'll send a new verification email to <strong>@Model.Email</strong></p>
+                        }
+                        <form asp-controller="Register" asp-action="ResendVerification" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="tenantId" value="@Model.TenantId" />
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-arrow-clockwise me-2"></i> Send New Verification Email
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+
+            <!-- Already Verified? -->
+            <div class="alert alert-info">
+                <i class="bi bi-lightbulb me-2"></i>
+                <strong>Already verified?</strong>
+                <p class="mb-0 small">If you've already set your password, you can log in directly.</p>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-grid gap-2 mb-4">
+                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Go to Login
+                </a>
+                <a asp-controller="Register" asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i> Back to Registration
+                </a>
+            </div>
+
+            <!-- Support -->
+            <div class="mt-4">
+                <p class="text-muted small">
+                    Need help? Contact us at
+                    <a href="mailto:support@shahin-ai.com">support@shahin-ai.com</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

@@ -4,16 +4,10 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <!-- Suppress non-critical warnings:
-         CS8618: Non-nullable property uninitialized (handled by constructors/defaults)
-         CS1998: Async without await (placeholder implementations)
-         CS0108: Member hides inherited (intentional overrides)
-         CS8619: Nullability mismatch in anonymous types
-         CS7022: Multiple entry points
-         CS0105: Duplicate using directives
-         CS0168: Variable declared but never used (exception handlers - global middleware handles all errors)
-    -->
-    <NoWarn>$(NoWarn);8600;8601;8602;8603;8604;8613;8618;8619;8629;8632;1929;1998;0108;0618;7022;0105;0168</NoWarn>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>.</DockerfileContext>
+    <Features>experimental-data-section-string-literals</Features>
+    <NoWarn>$(NoWarn);8600;8601;8602;8603;8604;8613;8618;8619;8629;8632;1929;1998;0108;0618;7022;0105;0168;CS8103</NoWarn>
     <CopyRefAssembliesToPublishDirectory>true</CopyRefAssembliesToPublishDirectory>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <!-- Keep physical .cshtml files for runtime compilation (don't precompile into DLL) -->
@@ -109,19 +103,33 @@
     <PackageReference Include="Volo.Abp.EntityFrameworkCore.PostgreSql" Version="8.2.2" />
     <!-- Identity & Authentication -->
     <PackageReference Include="Volo.Abp.Identity.Domain" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.Identity.Application" Version="8.2.2" />
     <PackageReference Include="Volo.Abp.Identity.Application.Contracts" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.Identity.EntityFrameworkCore" Version="8.2.2" />
     <PackageReference Include="Volo.Abp.PermissionManagement.Domain" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.PermissionManagement.Application" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.PermissionManagement.EntityFrameworkCore" Version="8.2.2" />
     <!-- Multi-Tenancy -->
     <PackageReference Include="Volo.Abp.AspNetCore.MultiTenancy" Version="8.2.2" />
     <PackageReference Include="Volo.Abp.TenantManagement.Domain" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.TenantManagement.Application" Version="8.2.2" />
     <PackageReference Include="Volo.Abp.TenantManagement.Application.Contracts" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.TenantManagement.EntityFrameworkCore" Version="8.2.2" />
     <!-- Features & Audit -->
     <PackageReference Include="Volo.Abp.FeatureManagement.Domain" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.Application" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.EntityFrameworkCore" Version="8.2.2" />
     <PackageReference Include="Volo.Abp.AuditLogging.Domain" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.AuditLogging.EntityFrameworkCore" Version="8.2.2" />
+    <!-- Settings Management -->
+    <PackageReference Include="Volo.Abp.SettingManagement.Domain" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.SettingManagement.Application" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.SettingManagement.EntityFrameworkCore" Version="8.2.2" />
     <!-- OpenIddict SSO Server (FREE - LGPL License) -->
     <PackageReference Include="OpenIddict.AspNetCore" Version="5.2.0" />
     <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="5.2.0" />
     <PackageReference Include="Volo.Abp.OpenIddict.Domain" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.OpenIddict.EntityFrameworkCore" Version="8.2.2" />
     <PackageReference Include="Volo.Abp.OpenIddict.AspNetCore" Version="8.2.2" />
   </ItemGroup>
 

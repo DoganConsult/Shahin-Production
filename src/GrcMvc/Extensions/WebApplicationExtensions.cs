@@ -200,6 +200,11 @@ public static class WebApplicationExtensions
 
         // Platform Admin routes (must be first)
         app.MapControllerRoute(
+            name: "platform-admin",
+            pattern: "platform-admin/{action=Dashboard}/{id?}",
+            defaults: new { controller = "PlatformAdminDashboard" });
+
+        app.MapControllerRoute(
             name: "admin-portal",
             pattern: "admin/{action=Login}/{id?}",
             defaults: new { controller = "AdminPortal" });

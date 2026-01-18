@@ -1,27 +1,30 @@
-/* ===== ENTERPRISE DASHBOARD - COMMAND CENTER THEME ===== */
+/* ===== ENTERPRISE DASHBOARD - MODERN LIGHT THEME ===== */
 :root {
-    --dash-bg-primary: #0f1419;
-    --dash-bg-secondary: #1a1f2e;
-    --dash-bg-tertiary: #242b3d;
-    --dash-bg-card: rgba(26, 31, 46, 0.8);
-    --dash-bg-card-hover: rgba(36, 43, 61, 0.95);
-    --dash-accent-primary: #10b981;
-    --dash-accent-secondary: #3b82f6;
-    --dash-accent-warning: #f59e0b;
-    --dash-accent-danger: #ef4444;
-    --dash-accent-info: #06b6d4;
-    --dash-accent-purple: #8b5cf6;
-    --dash-gradient-primary: linear-gradient(135deg, #10b981 0%, #0d9488 100%);
-    --dash-gradient-secondary: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-    --dash-gradient-warning: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+    /* Light Theme Colors */
+    --dash-bg-primary: #f8fafc;
+    --dash-bg-secondary: #ffffff;
+    --dash-bg-tertiary: #f1f5f9;
+    --dash-bg-card: rgba(255, 255, 255, 0.95);
+    --dash-bg-card-hover: #ffffff;
+    --dash-accent-primary: #059669;
+    --dash-accent-secondary: #2563eb;
+    --dash-accent-warning: #d97706;
+    --dash-accent-danger: #dc2626;
+    --dash-accent-info: #0284c7;
+    --dash-accent-purple: #7c3aed;
+    --dash-gradient-primary: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --dash-gradient-secondary: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    --dash-gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     --dash-gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    --dash-gradient-purple: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
-    --dash-text-primary: #f9fafb;
-    --dash-text-secondary: #9ca3af;
+    --dash-gradient-purple: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    --dash-text-primary: #111827;
+    --dash-text-secondary: #4b5563;
     --dash-text-tertiary: #6b7280;
-    --dash-border: rgba(255, 255, 255, 0.08);
-    --dash-border-hover: rgba(255, 255, 255, 0.15);
-    --dash-glow-primary: 0 0 20px rgba(16, 185, 129, 0.3);
+    --dash-border: rgba(0, 0, 0, 0.06);
+    --dash-border-hover: rgba(0, 0, 0, 0.1);
+    --dash-glow-primary: 0 4px 14px rgba(16, 185, 129, 0.2);
+    --dash-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+    --dash-shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .enterprise-dashboard {
@@ -38,9 +41,9 @@
     margin-bottom: 24px;
     padding: 20px 24px;
     background: var(--dash-bg-card);
-    backdrop-filter: blur(20px);
     border-radius: 16px;
     border: 1px solid var(--dash-border);
+    box-shadow: var(--dash-shadow-card);
 }
 
 .command-title {
@@ -119,13 +122,13 @@
 
 .kpi-card {
     background: var(--dash-bg-card);
-    backdrop-filter: blur(20px);
     border-radius: 16px;
     border: 1px solid var(--dash-border);
     padding: 20px;
     position: relative;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: box-shadow var(--motion-t-base), transform var(--motion-t-base);
+    box-shadow: var(--dash-shadow-card);
 }
 
 .kpi-card::before {
@@ -146,6 +149,7 @@
 .kpi-card:hover {
     background: var(--dash-bg-card-hover);
     transform: translateY(-2px);
+    box-shadow: var(--dash-shadow-card-hover);
 }
 
 .kpi-header {
@@ -237,10 +241,10 @@
 
 .dash-panel {
     background: var(--dash-bg-card);
-    backdrop-filter: blur(20px);
     border-radius: 16px;
     border: 1px solid var(--dash-border);
     overflow: hidden;
+    box-shadow: var(--dash-shadow-card);
 }
 
 .panel-header {
@@ -249,7 +253,7 @@
     align-items: center;
     padding: 16px 20px;
     border-bottom: 1px solid var(--dash-border);
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--dash-bg-tertiary);
 }
 
 .panel-title {
@@ -304,7 +308,7 @@
     position: absolute;
     width: 160px;
     height: 160px;
-    background: var(--dash-bg-primary);
+    background: var(--dash-bg-secondary);
     border-radius: 50%;
     top: 20px;
     left: 20px;
@@ -313,6 +317,7 @@
     align-items: center;
     justify-content: flex-end;
     padding-bottom: 30px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .gauge-value {
@@ -377,7 +382,7 @@
     font-weight: 600;
     color: white;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: transform var(--motion-t-interactive), background-color var(--motion-t-interactive);
     min-width: 36px;
 }
 
@@ -408,7 +413,7 @@
 }
 
 .activity-item:hover {
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--dash-bg-tertiary);
 }
 
 .activity-icon {
@@ -522,7 +527,7 @@
 .progress-bar-fill {
     height: 100%;
     border-radius: 4px;
-    transition: width 0.5s ease;
+    transition: width var(--motion-t-slow);
 }
 
 .progress-bar-fill.green { background: var(--dash-gradient-primary); }
@@ -539,7 +544,7 @@
     color: var(--dash-text-tertiary);
     text-transform: uppercase;
     border-bottom: 1px solid var(--dash-border);
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--dash-bg-tertiary);
 }
 .dash-table td {
     padding: 14px 16px;
@@ -547,7 +552,7 @@
     color: var(--dash-text-primary);
     border-bottom: 1px solid var(--dash-border);
 }
-.dash-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+.dash-table tr:hover td { background: var(--dash-bg-tertiary); }
 
 .dash-badge {
     padding: 4px 10px;

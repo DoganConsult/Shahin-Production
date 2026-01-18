@@ -1,7 +1,7 @@
 @model ActivateTenantDto
 
 @{
-    ViewData["Title"] = "GRC System - Activate Organization";
+    ViewData["Title"] = Localizer["Activate_Title"];
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -12,7 +12,7 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-info text-white">
                     <h4 class="mb-0">
-                        <i class="fas fa-envelope-open"></i> Activate Your Organization
+                        <i class="fas fa-envelope-open"></i> @Localizer["Activate_ActivateOrg"]
                     </h4>
                 </div>
 
@@ -39,7 +39,7 @@
                     }
 
                     <p class="text-muted mb-4">
-                        Please check your email for the activation link, or enter your activation token below.
+                        @Localizer["Activate_CheckEmail"]
                     </p>
 
                     <form asp-action="ActivatePost" asp-controller="Auth" method="post" novalidate>
@@ -49,7 +49,7 @@
                         <!-- Activation Token -->
                         <div class="mb-3">
                             <label asp-for="ActivationToken" class="form-label">
-                                <span class="text-danger">*</span> Activation Token
+                                <span class="text-danger">*</span> @Localizer["Activate_Token"]
                             </label>
                             <input asp-for="ActivationToken" class="form-control form-control-lg font-monospace"
                                 placeholder="Paste your activation token here">
@@ -73,7 +73,7 @@
                         <!-- Submit Button -->
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-info btn-lg">
-                                <i class="fas fa-check"></i> Activate Organization
+                                <i class="fas fa-check"></i> @Localizer["Activate_ActivateOrg"]
                             </button>
                         </div>
                     </form>
@@ -82,7 +82,7 @@
 
                     <!-- Resend Activation Email Section -->
                     <div class="text-center">
-                        <p class="text-muted mb-3">Didn't receive an activation email?</p>
+                        <p class="text-muted mb-3">@Localizer["Activate_DidntReceive"]</p>
                         
                         <form asp-controller="Auth" asp-action="ResendActivation" method="post" class="d-inline">
                             @Html.AntiForgeryToken()

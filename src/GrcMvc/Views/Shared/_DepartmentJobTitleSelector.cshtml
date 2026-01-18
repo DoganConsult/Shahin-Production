@@ -1,0 +1,197 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@*
+    Reusable Department & Job Title Selector Partial View
+    Usage: <partial name="_DepartmentJobTitleSelector" />
+
+    Model requirements:
+    - Department (string)
+    - JobTitle (string)
+*@
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label class="form-label">@L["Auth_Department"]</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-building"></i></span>
+            <select name="Department" class="form-select dept-job-selector" id="departmentSelect_@Guid.NewGuid().ToString("N").Substring(0,8)">
+                <option value="">-- @L["Auth_SelectDepartment"] --</option>
+                <option value="IT">@L["Dept_IT"]</option>
+                <option value="Compliance">@L["Dept_Compliance"]</option>
+                <option value="RiskManagement">@L["Dept_RiskManagement"]</option>
+                <option value="InternalAudit">@L["Dept_InternalAudit"]</option>
+                <option value="Legal">@L["Dept_Legal"]</option>
+                <option value="Finance">@L["Dept_Finance"]</option>
+                <option value="HR">@L["Dept_HR"]</option>
+                <option value="Operations">@L["Dept_Operations"]</option>
+                <option value="Security">@L["Dept_Security"]</option>
+                <option value="Management">@L["Dept_Management"]</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <label class="form-label">@L["Auth_JobTitle"]</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-briefcase"></i></span>
+            <select class="form-select job-title-selector" id="jobTitleSelect_@Guid.NewGuid().ToString("N").Substring(0,8)">
+                <option value="">-- @L["Auth_SelectJobTitle"] --</option>
+            </select>
+        </div>
+        <small class="form-text text-info role-description" style="display: none;"></small>
+        <div class="custom-job-title-div mt-2" style="display: none;">
+            <input name="JobTitle" class="form-control custom-job-title-input"
+                   placeholder="@L["Auth_EnterCustomJobTitle"]" />
+        </div>
+        <input type="hidden" name="JobTitle" class="final-job-title" />
+    </div>
+</div>
+
+<script>
+(function() {
+    // Job titles by department - GRC Role Profiles
+    const jobTitlesByDepartment = {
+        'IT': [
+            { value: 'SecurityManager', text: '@L["Role_SecurityManager"]' },
+            { value: 'RiskAnalyst', text: '@L["Role_RiskAnalyst"]' },
+            { value: 'ComplianceOfficer', text: '@L["Role_ComplianceOfficer"]' },
+            { value: 'ProcessOwner', text: '@L["Role_ProcessOwner"]' }
+        ],
+        'Compliance': [
+            { value: 'ChiefComplianceOfficer', text: '@L["Role_CCO"]' },
+            { value: 'ComplianceManager', text: '@L["Role_ComplianceManager"]' },
+            { value: 'ComplianceOfficer', text: '@L["Role_ComplianceOfficer"]' },
+            { value: 'DocumentationSpecialist', text: '@L["Role_DocumentationSpecialist"]' }
+        ],
+        'RiskManagement': [
+            { value: 'ChiefRiskOfficer', text: '@L["Role_CRO"]' },
+            { value: 'RiskManager', text: '@L["Role_RiskManager"]' },
+            { value: 'RiskAnalyst', text: '@L["Role_RiskAnalyst"]' }
+        ],
+        'InternalAudit': [
+            { value: 'AuditManager', text: '@L["Role_AuditManager"]' },
+            { value: 'QualityAssuranceManager', text: '@L["Role_QAManager"]' },
+            { value: 'ReportingAnalyst', text: '@L["Role_ReportingAnalyst"]' }
+        ],
+        'Legal': [
+            { value: 'LegalManager', text: '@L["Role_LegalManager"]' },
+            { value: 'PrivacyOfficer', text: '@L["Role_PrivacyOfficer"]' }
+        ],
+        'Finance': [
+            { value: 'FinanceManager', text: '@L["Role_FinanceManager"]' },
+            { value: 'ReportingAnalyst', text: '@L["Role_ReportingAnalyst"]' }
+        ],
+        'HR': [
+            { value: 'HRManager', text: '@L["Role_HRManager"]' },
+            { value: 'ProcessOwner', text: '@L["Role_ProcessOwner"]' }
+        ],
+        'Operations': [
+            { value: 'OperationalManager', text: '@L["Role_OperationalManager"]' },
+            { value: 'ProcessOwner', text: '@L["Role_ProcessOwner"]' }
+        ],
+        'Security': [
+            { value: 'SecurityManager', text: '@L["Role_SecurityManager"]' },
+            { value: 'PrivacyOfficer', text: '@L["Role_PrivacyOfficer"]' },
+            { value: 'RiskAnalyst', text: '@L["Role_RiskAnalyst"]' }
+        ],
+        'Management': [
+            { value: 'TenantAdmin', text: '@L["Role_TenantAdmin"]' },
+            { value: 'ExecutiveDirector', text: '@L["Role_ExecutiveDirector"]' },
+            { value: 'ChiefRiskOfficer', text: '@L["Role_CRO"]' },
+            { value: 'ChiefComplianceOfficer', text: '@L["Role_CCO"]' },
+            { value: 'BoardMember', text: '@L["Role_BoardMember"]' }
+        ]
+    };
+
+    // Role descriptions
+    const roleDescriptions = {
+        'TenantAdmin': '@L["RoleDesc_TenantAdmin"]',
+        'ExecutiveDirector': '@L["RoleDesc_ExecutiveDirector"]',
+        'ChiefRiskOfficer': '@L["RoleDesc_CRO"]',
+        'ChiefComplianceOfficer': '@L["RoleDesc_CCO"]',
+        'RiskManager': '@L["RoleDesc_RiskManager"]',
+        'ComplianceManager': '@L["RoleDesc_ComplianceManager"]',
+        'AuditManager': '@L["RoleDesc_AuditManager"]',
+        'SecurityManager': '@L["RoleDesc_SecurityManager"]',
+        'BoardMember': '@L["RoleDesc_BoardMember"]'
+    };
+
+    const defaultOption = '<option value="">-- @L["Auth_SelectJobTitle"] --</option>';
+    const otherOption = '<option value="__OTHER__">@L["Role_Other"]</option>';
+
+    // Initialize all department-job selectors on page
+    $(document).ready(function() {
+        $('.dept-job-selector').each(function() {
+            const deptSelect = $(this);
+            const container = deptSelect.closest('.row');
+            const jobSelect = container.find('.job-title-selector');
+            const roleDesc = container.find('.role-description');
+            const customDiv = container.find('.custom-job-title-div');
+            const customInput = container.find('.custom-job-title-input');
+            const finalJobTitle = container.find('.final-job-title');
+
+            // Department change handler
+            deptSelect.change(function() {
+                const dept = $(this).val();
+                jobSelect.html(defaultOption);
+                customDiv.hide();
+                customInput.val('');
+                finalJobTitle.val('');
+                roleDesc.hide().text('');
+
+                if (dept && jobTitlesByDepartment[dept]) {
+                    jobTitlesByDepartment[dept].forEach(function(job) {
+                        jobSelect.append($('<option>', {
+                            value: job.value,
+                            text: job.text
+                        }));
+                    });
+                    jobSelect.append(otherOption);
+                }
+            });
+
+            // Job title change handler
+            jobSelect.change(function() {
+                const selectedValue = $(this).val();
+                if (selectedValue === '__OTHER__') {
+                    customDiv.show();
+                    customInput.focus();
+                    finalJobTitle.val('');
+                    roleDesc.hide();
+                } else {
+                    customDiv.hide();
+                    customInput.val('');
+                    finalJobTitle.val(selectedValue);
+
+                    // Show role description if available
+                    if (roleDescriptions[selectedValue]) {
+                        roleDesc.text(roleDescriptions[selectedValue]).show();
+                    } else {
+                        roleDesc.hide();
+                    }
+                }
+            });
+
+            // Sync custom input
+            customInput.on('input', function() {
+                finalJobTitle.val($(this).val());
+            });
+        });
+
+        // Form submit handler
+        $('form').on('submit', function() {
+            $(this).find('.job-title-selector').each(function() {
+                const container = $(this).closest('.row');
+                const customInput = container.find('.custom-job-title-input');
+                const finalJobTitle = container.find('.final-job-title');
+
+                if ($(this).val() === '__OTHER__') {
+                    finalJobTitle.val(customInput.val());
+                } else {
+                    finalJobTitle.val($(this).val());
+                }
+            });
+        });
+    });
+})();
+</script>

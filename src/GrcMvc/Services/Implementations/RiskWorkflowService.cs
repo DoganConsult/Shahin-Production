@@ -287,7 +287,7 @@ namespace GrcMvc.Services.Implementations
                 {
                     await _notificationService.SendNotificationAsync(
                         workflowInstanceId: Guid.Empty, // No workflow instance for direct notifications
-                        recipientUserId: stakeholder.Id,
+                        recipientUserId: stakeholder.Id.ToString(),
                         notificationType: "RiskUpdate",
                         subject: $"Risk Update: {risk.Name}",
                         body: message,
@@ -325,7 +325,7 @@ namespace GrcMvc.Services.Implementations
                 {
                     await _notificationService.SendNotificationAsync(
                         workflowInstanceId: Guid.Empty,
-                        recipientUserId: owner.Id,
+                        recipientUserId: owner.Id.ToString(),
                         notificationType: "RiskOwnerNotification",
                         subject: $"Risk Action Required: {risk.Name}",
                         body: message,

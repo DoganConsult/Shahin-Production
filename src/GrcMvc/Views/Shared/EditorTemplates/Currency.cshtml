@@ -1,0 +1,28 @@
+@model decimal?
+
+@{
+    var culture = System.Threading.Thread.CurrentThread.CurrentUICulture;
+    var isRtl = culture.TextInfo.IsRightToLeft;
+    var fieldName = ViewData.TemplateInfo.HtmlFieldPrefix;
+    var value = Model?.ToString("0.00") ?? "";
+    var currencySymbol = isRtl ? "ر.س" : "SAR";
+}
+
+<div class="input-group grc-currency-editor">
+    @if (!isRtl)
+    {
+        <span class="input-group-text">@currencySymbol</span>
+    }
+    <input type="number"
+           id="@fieldName"
+           name="@fieldName"
+           value="@value"
+           class="form-control"
+           step="0.01"
+           min="0"
+           placeholder="0.00" />
+    @if (isRtl)
+    {
+        <span class="input-group-text">@currencySymbol</span>
+    }
+</div>

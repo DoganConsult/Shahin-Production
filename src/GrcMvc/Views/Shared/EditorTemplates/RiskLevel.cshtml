@@ -1,0 +1,40 @@
+@model string
+
+@{
+    var fieldName = ViewData.TemplateInfo.HtmlFieldPrefix;
+    var currentValue = Model ?? "";
+
+    var levels = new[] {
+        ("Critical", "danger"),
+        ("High", "orange"),
+        ("Medium", "warning"),
+        ("Low", "success"),
+        ("VeryLow", "info")
+    };
+}
+
+<div class="grc-risklevel-editor">
+    <select id="@fieldName" name="@fieldName" class="form-select">
+        <option value="">@Localizer["RiskLevel_SelectPlaceholder"]</option>
+        @foreach (var (value, color) in levels)
+        {
+            var isSelected = currentValue.Equals(value, StringComparison.OrdinalIgnoreCase);
+            if (isSelected)
+            {
+                <option value="@value" data-color="@color" selected>@Localizer[$"RiskLevel_{value}"]</option>
+            }
+            else
+            {
+                <option value="@value" data-color="@color">@Localizer[$"RiskLevel_{value}"]</option>
+            }
+        }
+    </select>
+</div>
+
+<style>
+    .grc-risklevel-editor select option[data-color="danger"] { color: #dc3545; }
+    .grc-risklevel-editor select option[data-color="orange"] { color: #fd7e14; }
+    .grc-risklevel-editor select option[data-color="warning"] { color: #ffc107; }
+    .grc-risklevel-editor select option[data-color="success"] { color: #198754; }
+    .grc-risklevel-editor select option[data-color="info"] { color: #0dcaf0; }
+</style>

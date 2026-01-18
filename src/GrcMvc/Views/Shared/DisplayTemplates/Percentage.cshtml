@@ -1,0 +1,43 @@
+@model decimal?
+
+@{
+    var culture = System.Threading.Thread.CurrentThread.CurrentUICulture;
+    var isRtl = culture.TextInfo.IsRightToLeft;
+    var value = Model ?? 0;
+    var percent = Math.Min(Math.Max(value, 0), 100);
+
+    var colorClass = percent switch
+    {
+        >= 80 => "bg-success",
+        >= 60 => "bg-info",
+        >= 40 => "bg-warning",
+        >= 20 => "bg-orange",
+        _ => "bg-danger"
+    };
+}
+
+@if (Model.HasValue)
+{
+    <div class="grc-percentage d-flex align-items-center gap-2">
+        <div class="progress flex-grow-1" style="height: 8px; min-width: 80px;">
+            <div class="progress-bar @colorClass"
+                 role="progressbar"
+                 style="width: @percent%;"
+                 aria-valuenow="@percent"
+                 aria-valuemin="0"
+                 aria-valuemax="100">
+            </div>
+        </div>
+        <span class="badge @colorClass" style="min-width: 50px;">
+            @percent.ToString("0")%
+        </span>
+    </div>
+}
+else
+{
+    <span class="text-muted">—</span>
+}
+
+<style>
+    .bg-orange { background-color: #fd7e14 !important; }
+</style>

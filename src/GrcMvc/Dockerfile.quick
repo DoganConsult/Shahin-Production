@@ -1,0 +1,22 @@
+# Quick Dockerfile - Uses pre-published output
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+
+WORKDIR /app
+EXPOSE 8080
+
+# Copy pre-published files
+COPY publish-fresh/ .
+
+# Create directories
+RUN mkdir -p /app/logs /app/wwwroot
+
+# Environment
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_URLS=http://+:80
+ENV ASPNETCORE_HTTP_PORTS=80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl --fail http://localhost:80/health || exit 1
+
+ENTRYPOINT ["dotnet", "GrcMvc.dll"]

@@ -32,6 +32,9 @@ namespace GrcMvc.Services.Interfaces
         /// <summary>Check if trial is active and valid</summary>
         Task<bool> IsTrialActiveAsync(Guid tenantId);
 
+        /// <summary>Check if trial has expired</summary>
+        Task<bool> IsTrialExpiredAsync(Guid tenantId);
+
         /// <summary>Get days remaining in trial</summary>
         Task<int> GetDaysRemainingAsync(Guid tenantId);
 

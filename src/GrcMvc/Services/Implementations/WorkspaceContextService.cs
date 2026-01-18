@@ -96,10 +96,11 @@ namespace GrcMvc.Services.Implementations
         {
             try
             {
+                var userIdGuid = Guid.Parse(userId);
                 // First try: user's primary workspace
                 var primaryWorkspaceId = _context.Set<WorkspaceMembership>()
                     .Where(wm => wm.TenantId == tenantId
-                              && wm.UserId == userId
+                              && wm.UserId == userIdGuid
                               && wm.IsPrimary
                               && wm.Status == "Active"
                               && !wm.IsDeleted)
@@ -121,7 +122,7 @@ namespace GrcMvc.Services.Implementations
                 // Third try: any workspace user belongs to
                 var anyWorkspaceId = _context.Set<WorkspaceMembership>()
                     .Where(wm => wm.TenantId == tenantId
-                              && wm.UserId == userId
+                              && wm.UserId == userIdGuid
                               && wm.Status == "Active"
                               && !wm.IsDeleted)
                     .Select(wm => wm.WorkspaceId)
@@ -150,9 +151,10 @@ namespace GrcMvc.Services.Implementations
                 return _cachedWorkspaceIds;
             }
 
+            var userIdGuid = Guid.Parse(userId);
             var workspaceIds = await _context.Set<WorkspaceMembership>()
                 .Where(wm => wm.TenantId == tenantId
-                          && wm.UserId == userId
+                          && wm.UserId == userIdGuid
                           && wm.Status == "Active"
                           && !wm.IsDeleted)
                 .Select(wm => wm.WorkspaceId)
@@ -193,10 +195,11 @@ namespace GrcMvc.Services.Implementations
             if (tenantId == Guid.Empty || string.IsNullOrEmpty(userId))
                 return null;
 
+            var userIdGuid = Guid.Parse(userId);
             // First try: user's primary workspace
             var primaryMembership = await _context.Set<WorkspaceMembership>()
                 .Where(wm => wm.TenantId == tenantId
-                          && wm.UserId == userId
+                          && wm.UserId == userIdGuid
                           && wm.IsPrimary
                           && wm.Status == "Active"
                           && !wm.IsDeleted)
@@ -221,7 +224,7 @@ namespace GrcMvc.Services.Implementations
             // Third try: any workspace user has access to
             var anyWorkspace = await _context.Set<WorkspaceMembership>()
                 .Where(wm => wm.TenantId == tenantId
-                          && wm.UserId == userId
+                          && wm.UserId == userIdGuid
                           && wm.Status == "Active"
                           && !wm.IsDeleted)
                 .Select(wm => wm.WorkspaceId)
@@ -251,10 +254,11 @@ namespace GrcMvc.Services.Implementations
                 return _cachedWorkspaceRoles;
             }
 
+            var userIdGuid = Guid.Parse(userId);
             var membership = await _context.Set<WorkspaceMembership>()
                 .Where(wm => wm.TenantId == tenantId
                           && wm.WorkspaceId == workspaceId
-                          && wm.UserId == userId
+                          && wm.UserId == userIdGuid
                           && wm.Status == "Active"
                           && !wm.IsDeleted)
                 .FirstOrDefaultAsync();

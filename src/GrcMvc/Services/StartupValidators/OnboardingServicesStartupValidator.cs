@@ -34,6 +34,25 @@ namespace GrcMvc.Services.StartupValidators
         {
             _logger.LogInformation("🔍 Starting Onboarding Services validation...");
 
+            // #region agent log - H3: Onboarding validator entry
+            var logPath = @"c:\Shahin-ai\.cursor\debug.log";
+            try
+            {
+                var logEntry = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    sessionId = "debug-session",
+                    runId = "startup-run-1",
+                    hypothesisId = "H3",
+                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                    location = "OnboardingServicesStartupValidator.cs:34",
+                    message = "Onboarding Services validation starting",
+                    data = new { validating = true }
+                });
+                System.IO.File.AppendAllText(logPath, logEntry + "\n");
+            }
+            catch { }
+            // #endregion
+
             var validationErrors = new System.Collections.Generic.List<string>();
             var validationWarnings = new System.Collections.Generic.List<string>();
 
@@ -42,6 +61,28 @@ namespace GrcMvc.Services.StartupValidators
                 using var scope = _serviceScopeFactory.CreateScope();
                 var coverageService = scope.ServiceProvider.GetService<IOnboardingCoverageService>();
                 var registryService = scope.ServiceProvider.GetService<IFieldRegistryService>();
+                
+                // #region agent log - H3: Check DI registration
+                try
+                {
+                    var logEntry = System.Text.Json.JsonSerializer.Serialize(new
+                    {
+                        sessionId = "debug-session",
+                        runId = "startup-run-1",
+                        hypothesisId = "H3",
+                        timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                        location = "OnboardingServicesStartupValidator.cs:44",
+                        message = "Checked DI service registration",
+                        data = new
+                        {
+                            coverageServiceRegistered = coverageService != null,
+                            registryServiceRegistered = registryService != null
+                        }
+                    });
+                    System.IO.File.AppendAllText(logPath, logEntry + "\n");
+                }
+                catch { }
+                // #endregion
                 
                 // 1. Validate coverage manifest path exists
                 await ValidateCoverageManifestAsync(validationErrors, validationWarnings, cancellationToken);
@@ -111,6 +152,31 @@ namespace GrcMvc.Services.StartupValidators
                     manifestPath = Path.Combine(projectRoot, manifestPath);
                 }
             }
+
+            // #region agent log - H7: Manifest file check
+            var logPath = @"c:\Shahin-ai\.cursor\debug.log";
+            try
+            {
+                var fileExists = File.Exists(manifestPath);
+                var logEntry = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    sessionId = "debug-session",
+                    runId = "startup-run-1",
+                    hypothesisId = "H7",
+                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                    location = "OnboardingServicesStartupValidator.cs:115",
+                    message = "Coverage manifest file existence check",
+                    data = new
+                    {
+                        expectedPath = manifestPath,
+                        fileExists,
+                        resolvedPath = Path.IsPathRooted(manifestPath)
+                    }
+                });
+                System.IO.File.AppendAllText(logPath, logEntry + "\n");
+            }
+            catch { }
+            // #endregion
 
             if (!File.Exists(manifestPath))
             {

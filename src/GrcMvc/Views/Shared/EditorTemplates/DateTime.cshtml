@@ -1,0 +1,17 @@
+@model DateTime?
+
+@{
+    var culture = System.Threading.Thread.CurrentThread.CurrentUICulture;
+    var isRtl = culture.TextInfo.IsRightToLeft;
+    var fieldName = ViewData.TemplateInfo.HtmlFieldPrefix;
+    var value = Model?.ToString("yyyy-MM-ddTHH:mm") ?? "";
+}
+
+<div class="grc-datetime-editor">
+    <input type="datetime-local"
+           id="@fieldName"
+           name="@fieldName"
+           value="@value"
+           class="form-control"
+           data-rtl="@isRtl.ToString().ToLower()" />
+</div>

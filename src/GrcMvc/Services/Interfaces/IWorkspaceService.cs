@@ -13,14 +13,14 @@ public interface IWorkspaceService
     /// </summary>
     Task<UserWorkspace> CreateWorkspaceAsync(
         Guid tenantId,
-        string userId,
+        Guid userId,
         string roleCode,
         string createdBy);
 
     /// <summary>
     /// Get user's workspace
     /// </summary>
-    Task<UserWorkspace?> GetUserWorkspaceAsync(string userId);
+    Task<UserWorkspace?> GetUserWorkspaceAsync(Guid userId);
 
     /// <summary>
     /// Pre-map tasks to user's workspace based on role and applicable frameworks
@@ -40,7 +40,7 @@ public interface IWorkspaceService
     /// <summary>
     /// Get user's pending tasks
     /// </summary>
-    Task<IEnumerable<UserWorkspaceTask>> GetUserTasksAsync(string userId, string? status = null);
+    Task<IEnumerable<UserWorkspaceTask>> GetUserTasksAsync(Guid userId, string? status = null);
 
     /// <summary>
     /// Update task status

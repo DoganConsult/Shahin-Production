@@ -58,7 +58,7 @@ public interface IConsentService
     /// </summary>
     Task<UserConsent> RecordConsentAsync(
         Guid tenantId,
-        string userId,
+        Guid userId,
         string consentType,
         string documentVersion,
         bool isGranted,
@@ -68,20 +68,20 @@ public interface IConsentService
     /// <summary>
     /// Check if user has given consent for a specific document type
     /// </summary>
-    Task<bool> HasConsentAsync(string userId, string consentType);
+    Task<bool> HasConsentAsync(Guid userId, string consentType);
 
     /// <summary>
     /// Get all consents for a user
     /// </summary>
-    Task<IEnumerable<UserConsent>> GetUserConsentsAsync(string userId);
+    Task<IEnumerable<UserConsent>> GetUserConsentsAsync(Guid userId);
 
     /// <summary>
     /// Withdraw consent
     /// </summary>
-    Task<UserConsent> WithdrawConsentAsync(string userId, string consentType, string reason);
+    Task<UserConsent> WithdrawConsentAsync(Guid userId, string consentType, string reason);
 
     /// <summary>
     /// Check if all mandatory consents are given
     /// </summary>
-    Task<bool> HasAllMandatoryConsentsAsync(string userId);
+    Task<bool> HasAllMandatoryConsentsAsync(Guid userId);
 }

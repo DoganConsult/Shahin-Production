@@ -164,17 +164,115 @@ public static class WebApplicationBuilderExtensions
 
     private static void ResolveConnectionStrings(WebApplicationBuilder builder)
     {
-        // FORCE RAILWAY DATABASE CONNECTION - OVERRIDE EVERYTHING
-        string connectionString = "Host=caboose.proxy.rlwy.net;Port=11527;Database=GrcMvcDb;Username=postgres;Password=QNcTvViWopMfCunsyIkkXwuDpufzhkLs;SSL Mode=Require;Trust Server Certificate=true";
+        // Priority order for connection strings:
+        // 1. ABP Settings (database - encrypted) - checked via IConfiguration after ABP is configured
+        // 2. Environment variables (Railway DB, Docker, etc.)
+        // 3. Configuration files (appsettings.json)
         
-        Console.WriteLine("[CONFIG] FORCING Railway PostgreSQL connection");
-        Console.WriteLine("[CONFIG] Database: caboose.proxy.rlwy.net:11527 / postgres@GrcMvcDb");
+        Console.WriteLine("[CONFIG] ========================================");
+        Console.WriteLine("[CONFIG] Resolving Connection Strings");
+        Console.WriteLine("[CONFIG] ========================================");
         
-        // Set all possible connection string keys
+        // Debug: Log all environment variables related to connections
+        LogEnvironmentVariables(new[] { 
+            "ConnectionStrings__DefaultConnection", 
+            "CONNECTION_STRING",
+            "ConnectionStrings__GrcAuthDb",
+            "AUTH_CONNECTION_STRING"
+        });
+
+        // Read connection string with fallback chain
+        var connectionString = GetConnectionStringWithFallback(
+            builder, 
+            "DefaultConnection",
+            new[] { "ConnectionStrings__DefaultConnection", "CONNECTION_STRING" }
+        );
+
+        // Support Railway DB format (DATABASE_URL)
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            var railwayUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+            if (!string.IsNullOrWhiteSpace(railwayUrl))
+            {
+                // Convert Railway format: postgresql://user:pass@host:port/dbname
+                // To: Host=host;Database=dbname;Username=user;Password=pass;Port=port
+                try
+                {
+                    var uri = new Uri(railwayUrl);
+                    var userInfo = uri.UserInfo.Split(':');
+                    if (userInfo.Length == 2)
+                    {
+                        connectionString = 
+                            $"Host={uri.Host};Database={uri.LocalPath.TrimStart('/')};" +
+                            $"Username={Uri.UnescapeDataString(userInfo[0])};" +
+                            $"Password={Uri.UnescapeDataString(userInfo[1])};Port={uri.Port}";
+                        
+                        Console.WriteLine("[CONFIG] ✅ Converted Railway DATABASE_URL to connection string");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[CONFIG] ⚠️  Failed to parse DATABASE_URL: {ex.Message}");
+                }
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            var errorMessage = 
+                "Database connection string 'DefaultConnection' is required.\n" +
+                "Set one of the following:\n" +
+                "  - Environment variable: ConnectionStrings__DefaultConnection\n" +
+                "  - Environment variable: CONNECTION_STRING\n" +
+                "  - Environment variable: DATABASE_URL (Railway format)\n" +
+                "  - Configuration file: appsettings.json (ConnectionStrings.DefaultConnection)\n" +
+                "  - ABP Setting: GrcMvc.DefaultConnection (after ABP initialization)";
+            
+            Console.WriteLine($"[CONFIG] ❌ FATAL: {errorMessage}");
+            throw new InvalidOperationException(errorMessage);
+        }
+
+        // Validate connection string format
+        try
+        {
+            var csb = new NpgsqlConnectionStringBuilder(connectionString);
+            if (string.IsNullOrWhiteSpace(csb.Host))
+            {
+                throw new InvalidOperationException("Connection string missing Host");
+            }
+            if (string.IsNullOrWhiteSpace(csb.Database))
+            {
+                throw new InvalidOperationException("Connection string missing Database");
+            }
+            Console.WriteLine("[CONFIG] ✅ Connection string format validated");
+        }
+        catch (Exception ex) when (!(ex is InvalidOperationException))
+        {
+            throw new InvalidOperationException(
+                $"Invalid connection string format: {ex.Message}", ex);
+        }
+
+        var source = GetConnectionStringSource(builder, connectionString);
+        Console.WriteLine($"[CONFIG] ✅ Using database connection from: {source}");
+        Console.WriteLine($"[CONFIG] 📊 Database: {GetDatabaseInfo(connectionString)}");
+        Console.WriteLine("[CONFIG] 🔄 Setting in IConfiguration for all layers to use");
+
+        // Set all possible connection string keys for compatibility
         builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
         builder.Configuration["ConnectionStrings:Default"] = connectionString;
-        string authConnectionString = connectionString;
+        
+        Console.WriteLine("[CONFIG] ✅ Connection string set in IConfiguration");
+        Console.WriteLine("[CONFIG] 📍 All layers will read from: ConnectionStrings:DefaultConnection");
 
+        // Resolve auth database connection string
+        Console.WriteLine("[CONFIG] 🔍 Resolving auth database connection...");
+        var authConnectionString = GetConnectionStringWithFallback(
+            builder,
+            "GrcAuthDb",
+            new[] { "ConnectionStrings__GrcAuthDb", "AUTH_CONNECTION_STRING" }
+        );
+
+        // If auth connection string not explicitly set, derive it from main connection string
         if (string.IsNullOrWhiteSpace(authConnectionString) && !string.IsNullOrWhiteSpace(connectionString))
         {
             try
@@ -182,9 +280,12 @@ public static class WebApplicationBuilderExtensions
                 var csb = new NpgsqlConnectionStringBuilder(connectionString);
                 csb.Database = $"{csb.Database}_auth";
                 authConnectionString = csb.ConnectionString;
+                Console.WriteLine("[CONFIG] ✅ Derived auth database connection from main connection string");
+                Console.WriteLine($"[CONFIG] 📊 Auth Database: {GetDatabaseInfo(authConnectionString)}");
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"[CONFIG] ⚠️  WARNING: Failed to derive auth connection string: {ex.Message}");
                 authConnectionString = connectionString;
             }
         }
@@ -192,6 +293,143 @@ public static class WebApplicationBuilderExtensions
         if (!string.IsNullOrWhiteSpace(authConnectionString))
         {
             builder.Configuration["ConnectionStrings:GrcAuthDb"] = authConnectionString;
+            Console.WriteLine("[CONFIG] ✅ Auth connection string set in IConfiguration");
+        }
+        
+        Console.WriteLine("[CONFIG] ========================================");
+        Console.WriteLine("[CONFIG] Connection String Resolution Complete");
+        Console.WriteLine("[CONFIG] ========================================");
+    }
+
+    private static void LogEnvironmentVariables(string[] variableNames)
+    {
+        Console.WriteLine("[CONFIG] 🔍 Checking environment variables:");
+        foreach (var varName in variableNames)
+        {
+            var value = Environment.GetEnvironmentVariable(varName);
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                // Mask sensitive parts
+                var masked = MaskSensitiveValue(varName, value);
+                Console.WriteLine($"[CONFIG]   ✅ {varName} = {masked}");
+            }
+            else
+            {
+                Console.WriteLine($"[CONFIG]   ❌ {varName} = (not set)");
+            }
+        }
+    }
+
+    private static string MaskSensitiveValue(string varName, string value)
+    {
+        // Mask connection strings and secrets
+        if (varName.Contains("Connection") || varName.Contains("Secret") || varName.Contains("Password") || varName.Contains("Key"))
+        {
+            try
+            {
+                if (value.Contains("Host="))
+                {
+                    // Connection string format
+                    var parts = value.Split(';');
+                    var masked = new List<string>();
+                    foreach (var part in parts)
+                    {
+                        if (part.StartsWith("Password=", StringComparison.OrdinalIgnoreCase) ||
+                            part.StartsWith("Pwd=", StringComparison.OrdinalIgnoreCase))
+                        {
+                            masked.Add(part.Split('=')[0] + "=***");
+                        }
+                        else
+                        {
+                            masked.Add(part);
+                        }
+                    }
+                    return string.Join(";", masked);
+                }
+                else
+                {
+                    // Simple secret value
+                    return value.Length > 10 ? $"{value.Substring(0, 4)}...{value.Substring(value.Length - 4)}" : "***";
+                }
+            }
+            catch
+            {
+                return "***";
+            }
+        }
+        return value;
+    }
+
+    private static string? GetConnectionStringWithFallback(
+        WebApplicationBuilder builder, 
+        string configKey, 
+        string[] envVarNames)
+    {
+        Console.WriteLine($"[CONFIG] 🔍 Resolving connection string: {configKey}");
+        
+        // 1. Try environment variables first (Railway DB, Docker, etc.)
+        foreach (var envVarName in envVarNames)
+        {
+            var envValue = Environment.GetEnvironmentVariable(envVarName);
+            if (!string.IsNullOrWhiteSpace(envValue))
+            {
+                Console.WriteLine($"[CONFIG]   ✅ Found in environment variable: {envVarName}");
+                return envValue;
+            }
+            else
+            {
+                Console.WriteLine($"[CONFIG]   ❌ Not found: {envVarName}");
+            }
+        }
+
+        // 2. Try configuration (may include ABP Settings after ABP is initialized)
+        var configValue = builder.Configuration.GetConnectionString(configKey);
+        if (!string.IsNullOrWhiteSpace(configValue))
+        {
+            Console.WriteLine($"[CONFIG]   ✅ Found in IConfiguration: ConnectionStrings:{configKey}");
+            return configValue;
+        }
+        
+        configValue = builder.Configuration[$"ConnectionStrings:{configKey}"];
+        if (!string.IsNullOrWhiteSpace(configValue))
+        {
+            Console.WriteLine($"[CONFIG]   ✅ Found in IConfiguration: ConnectionStrings:{configKey} (alternative path)");
+            return configValue;
+        }
+
+        Console.WriteLine($"[CONFIG]   ❌ Not found in IConfiguration: ConnectionStrings:{configKey}");
+        return null;
+    }
+
+    private static string GetConnectionStringSource(WebApplicationBuilder builder, string connectionString)
+    {
+        // Check which source provided the connection string
+        if (Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection") == connectionString ||
+            Environment.GetEnvironmentVariable("CONNECTION_STRING") == connectionString)
+        {
+            return "Environment Variable (Railway/Docker)";
+        }
+
+        if (builder.Configuration.GetConnectionString("DefaultConnection") == connectionString)
+        {
+            // Could be from ABP Settings or appsettings.json
+            // ABP Settings are loaded into IConfiguration after ABP initialization
+            return "Configuration (ABP Settings or appsettings.json)";
+        }
+
+        return "Unknown Source";
+    }
+
+    private static string GetDatabaseInfo(string connectionString)
+    {
+        try
+        {
+            var csb = new NpgsqlConnectionStringBuilder(connectionString);
+            return $"{csb.Host}:{csb.Port} / {csb.Username}@{csb.Database}";
+        }
+        catch
+        {
+            return "[connection string format]";
         }
     }
 
@@ -243,6 +481,10 @@ public static class WebApplicationBuilderExtensions
 
     private static void ConfigureCloudServices(WebApplicationBuilder builder)
     {
+        Console.WriteLine("[CONFIG] ========================================");
+        Console.WriteLine("[CONFIG] Configuring Cloud Services");
+        Console.WriteLine("[CONFIG] ========================================");
+        
         // Azure Tenant ID (shared across services)
         var azureTenantId = Environment.GetEnvironmentVariable("AZURE_TENANT_ID")
                          ?? Environment.GetEnvironmentVariable("Azure__TenantId")
@@ -253,16 +495,32 @@ public static class WebApplicationBuilderExtensions
             builder.Configuration["SmtpSettings:TenantId"] = azureTenantId;
             builder.Configuration["EmailOperations:MicrosoftGraph:TenantId"] = azureTenantId;
             builder.Configuration["CopilotAgent:TenantId"] = azureTenantId;
+            Console.WriteLine("[CONFIG] ✅ Azure Tenant ID configured");
+        }
+        else
+        {
+            Console.WriteLine("[CONFIG] ⚠️  Azure Tenant ID not set or invalid");
         }
 
         // SMTP Settings
-        builder.Configuration["SmtpSettings:ClientId"] = Environment.GetEnvironmentVariable("SMTP_CLIENT_ID") ?? "";
-        builder.Configuration["SmtpSettings:ClientSecret"] = Environment.GetEnvironmentVariable("SMTP_CLIENT_SECRET") ?? "";
-        builder.Configuration["SmtpSettings:FromEmail"] = Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL") ?? "";
+        var smtpClientId = Environment.GetEnvironmentVariable("SMTP_CLIENT_ID") ?? "";
+        var smtpClientSecret = Environment.GetEnvironmentVariable("SMTP_CLIENT_SECRET") ?? "";
+        var smtpFromEmail = Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL") ?? "";
+        
+        builder.Configuration["SmtpSettings:ClientId"] = smtpClientId;
+        builder.Configuration["SmtpSettings:ClientSecret"] = smtpClientSecret;
+        builder.Configuration["SmtpSettings:FromEmail"] = smtpFromEmail;
+        
+        Console.WriteLine($"[CONFIG] 📧 SMTP: ClientId={(!string.IsNullOrEmpty(smtpClientId) ? "SET" : "NOT SET")}, FromEmail={smtpFromEmail}");
 
         // Microsoft Graph API
-        builder.Configuration["EmailOperations:MicrosoftGraph:ClientId"] = Environment.GetEnvironmentVariable("MSGRAPH_CLIENT_ID") ?? "";
-        builder.Configuration["EmailOperations:MicrosoftGraph:ClientSecret"] = Environment.GetEnvironmentVariable("MSGRAPH_CLIENT_SECRET") ?? "";
+        var msGraphClientId = Environment.GetEnvironmentVariable("MSGRAPH_CLIENT_ID") ?? "";
+        var msGraphClientSecret = Environment.GetEnvironmentVariable("MSGRAPH_CLIENT_SECRET") ?? "";
+        
+        builder.Configuration["EmailOperations:MicrosoftGraph:ClientId"] = msGraphClientId;
+        builder.Configuration["EmailOperations:MicrosoftGraph:ClientSecret"] = msGraphClientSecret;
+        
+        Console.WriteLine($"[CONFIG] 📊 MS Graph: ClientId={(!string.IsNullOrEmpty(msGraphClientId) ? "SET" : "NOT SET")}");
 
         // Claude AI
         var claudeApiKey = Environment.GetEnvironmentVariable("CLAUDE_API_KEY")
@@ -275,14 +533,25 @@ public static class WebApplicationBuilderExtensions
         builder.Configuration["ClaudeAgents:Enabled"] = Environment.GetEnvironmentVariable("CLAUDE_ENABLED")
                                                       ?? Environment.GetEnvironmentVariable("ClaudeAgents__Enabled")
                                                       ?? "true";
+        
+        Console.WriteLine($"[CONFIG] 🤖 Claude AI: ApiKey={(!string.IsNullOrEmpty(claudeApiKey) ? "SET" : "NOT SET")}, Model={builder.Configuration["ClaudeAgents:Model"]}, Enabled={builder.Configuration["ClaudeAgents:Enabled"]}");
 
         // Camunda BPM
-        builder.Configuration["Camunda:BaseUrl"] = Environment.GetEnvironmentVariable("CAMUNDA_BASE_URL") ?? "http://localhost:8085/camunda";
-        builder.Configuration["Camunda:Enabled"] = Environment.GetEnvironmentVariable("CAMUNDA_ENABLED") ?? "false";
+        var camundaBaseUrl = Environment.GetEnvironmentVariable("CAMUNDA_BASE_URL") ?? "http://localhost:8085/camunda";
+        var camundaEnabled = Environment.GetEnvironmentVariable("CAMUNDA_ENABLED") ?? "false";
+        builder.Configuration["Camunda:BaseUrl"] = camundaBaseUrl;
+        builder.Configuration["Camunda:Enabled"] = camundaEnabled;
+        
+        Console.WriteLine($"[CONFIG] 🔄 Camunda: BaseUrl={camundaBaseUrl}, Enabled={camundaEnabled}");
 
         // Kafka
-        builder.Configuration["Kafka:BootstrapServers"] = Environment.GetEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS") ?? "localhost:9092";
-        builder.Configuration["Kafka:Enabled"] = Environment.GetEnvironmentVariable("KAFKA_ENABLED") ?? "false";
+        var kafkaBootstrapServers = Environment.GetEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS") ?? "localhost:9092";
+        var kafkaEnabled = Environment.GetEnvironmentVariable("KAFKA_ENABLED") ?? "false";
+        builder.Configuration["Kafka:BootstrapServers"] = kafkaBootstrapServers;
+        builder.Configuration["Kafka:Enabled"] = kafkaEnabled;
+        
+        Console.WriteLine($"[CONFIG] 📨 Kafka: BootstrapServers={kafkaBootstrapServers}, Enabled={kafkaEnabled}");
+        Console.WriteLine("[CONFIG] ========================================");
     }
 
     #endregion

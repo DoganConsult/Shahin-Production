@@ -7,6 +7,11 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     var summary = ViewData["WizardSummary"] as WizardSummaryDto;
     var tenantId = summary?.TenantId ?? Guid.Empty;
+
+    // Issue #18: Setup ViewData for _WizardMotivation partial
+    ViewData["StepNumber"] = 1;
+    ViewData["StepName"] = "StepA";
+    ViewData["TenantId"] = tenantId;
 }
 
 <div class="d-flex wizard-container">
@@ -343,14 +348,16 @@
 </div>
 
 @section Scripts {
+    @* Issue #18: Use standardized partial for motivation CSS/JS *@
+    @await Html.PartialAsync("_WizardMotivation")
+
+    @* Step-specific CSS/JS *@
     <link rel="stylesheet" href="~/css/wizard-enhancements.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/wizard-enterprise-theme.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
     <script src="~/js/wizard-autosave.js" asp-append-version="true"></script>
     <script src="~/js/wizard-validation.js" asp-append-version="true"></script>
     <script src="~/js/wizard-helpers.js" asp-append-version="true"></script>
     <script src="~/js/wizard-file-upload.js" asp-append-version="true"></script>
-    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
 
     <script>
         // Initialize auto-save
@@ -358,22 +365,6 @@
 
         // Initialize helpers (already auto-initialized but we can access instance)
         const helpers = new WizardHelpers();
-
-        // Initialize Motivation System
-        const motivation = new WizardMotivation({
-            stepNumber: 1,
-            totalSteps: 12,
-            tenantId: '@tenantId',
-            stepName: 'StepA'
-        });
-
-        // Initialize Live Preview Panel
-        const livePreview = new LivePreviewPanel({
-            stepName: 'StepA'
-        });
-
-        // Initialize Why We Ask Tooltips
-        const tooltips = new WhyWeAskTooltips();
 
         // Toggle data residency countries visibility
         document.getElementById('hasDataResidency').addEventListener('change', function() {

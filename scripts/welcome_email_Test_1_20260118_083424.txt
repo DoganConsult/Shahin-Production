@@ -1,0 +1,27 @@
+TO: elgazzar082@gmail.com
+SUBJECT: Welcome to Shahin AI GRC Platform - Your Admin Credentials
+FROM: Info@doganconsult.com
+------------------------------------------------------------
+
+
+Dear Admin,
+
+Your tenant "Test 1" has been created on Shahin AI GRC Platform.
+
+LOGIN CREDENTIALS:
+- Email: elgazzar082@gmail.com
+- Temporary Password: Admin@Test123!
+- Login URL: https://shahin-ai.com/login
+
+IMPORTANT: You must change your password on first login.
+
+GETTING STARTED:
+1. Log in with your credentials above
+2. Complete the onboarding wizard
+3. Set up your organization profile
+4. Invite team members
+
+Need help? Contact support@shahin-ai.com
+
+Best regards,
+Shahin AI Team

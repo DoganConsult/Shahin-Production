@@ -1,0 +1,25 @@
+@model string
+
+@{
+    var fieldName = ViewData.TemplateInfo.HtmlFieldPrefix;
+    var currentValue = Model ?? "";
+}
+
+<select id="@fieldName" name="@fieldName" class="form-select grc-status-editor">
+    <option value="">@Localizer["Status_SelectPlaceholder"]</option>
+    @{
+        var statuses = new[] { "Active", "Pending", "Draft", "Inactive" };
+        foreach (var status in statuses)
+        {
+            var isSelected = currentValue.Equals(status, StringComparison.OrdinalIgnoreCase);
+            if (isSelected)
+            {
+                <option value="@status" selected>@Localizer[$"Status_{status}"]</option>
+            }
+            else
+            {
+                <option value="@status">@Localizer[$"Status_{status}"]</option>
+            }
+        }
+    }
+</select>

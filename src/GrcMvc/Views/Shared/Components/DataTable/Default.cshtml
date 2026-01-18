@@ -1,0 +1,123 @@
+@model GrcMvc.ViewComponents.DataTableModel
+
+@{
+    var culture = System.Threading.Thread.CurrentThread.CurrentUICulture;
+    var isRtl = culture.TextInfo.IsRightToLeft;
+    var tableId = Model.Id;
+}
+
+<div class="grc-datatable" id="@tableId-container">
+    @if (Model.Searchable)
+    {
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text"
+                           class="form-control border-start-0 ps-0"
+                           id="@tableId-search"
+                           placeholder="@Localizer["DataTable_Search"]"
+                           oninput="filterTable@(tableId)(this.value)" />
+                </div>
+            </div>
+            @if (Model.Paginated)
+            {
+                <div class="col-md-2 ms-auto">
+                    <select class="form-select" id="@tableId-pagesize" onchange="changePageSize@(tableId)(this.value)">
+                        @if (Model.PageSize == 10) { <option value="10" selected>10</option> } else { <option value="10">10</option> }
+                        @if (Model.PageSize == 25) { <option value="25" selected>25</option> } else { <option value="25">25</option> }
+                        @if (Model.PageSize == 50) { <option value="50" selected>50</option> } else { <option value="50">50</option> }
+                        @if (Model.PageSize == 100) { <option value="100" selected>100</option> } else { <option value="100">100</option> }
+                    </select>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="@tableId">
+            <thead class="table-light">
+                <tr>
+                    @foreach (var col in Model.Columns)
+                    {
+                        <th style="@(!string.IsNullOrEmpty(col.Width) ? $"width: {col.Width};" : "")"
+                            @(col.Sortable && Model.Sortable ? $"onclick=\"sortTable{tableId}('{col.Key}')\" style=\"cursor:pointer;\"" : "")>
+                            @(isRtl && !string.IsNullOrEmpty(col.TitleAr) ? col.TitleAr : col.Title)
+                            @if (col.Sortable && Model.Sortable)
+                            {
+                                <i class="bi bi-arrow-down-up text-muted ms-1 small"></i>
+                            }
+                        </th>
+                    }
+                </tr>
+            </thead>
+            <tbody id="@tableId-body">
+                @if (Model.Data.Any())
+                {
+                    <tr><td colspan="@Model.Columns.Count" class="text-center text-muted py-3">
+                        @Localizer["DataTable_Loading"]
+                    </td></tr>
+                }
+                else
+                {
+                    <tr><td colspan="@Model.Columns.Count" class="text-center text-muted py-5">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        @(Model.EmptyMessage ?? Localizer["DataTable_NoData"].Value)
+                    </td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.Paginated)
+    {
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="text-muted small" id="@tableId-info">
+                @Localizer["DataTable_ShowingZero"]
+            </div>
+            <nav>
+                <ul class="pagination pagination-sm mb-0" id="@tableId-pagination"></ul>
+            </nav>
+        </div>
+    }
+</div>
+
+<script>
+    // DataTable functionality for @tableId
+    (function() {
+        const tableId = '@tableId';
+        let currentPage = 1;
+        let pageSize = @Model.PageSize;
+        let sortKey = '';
+        let sortDir = 'asc';
+        let searchTerm = '';
+
+        window['filterTable' + tableId] = function(term) {
+            searchTerm = term.toLowerCase();
+            currentPage = 1;
+            render();
+        };
+
+        window['sortTable' + tableId] = function(key) {
+            if (sortKey === key) {
+                sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortKey = key;
+                sortDir = 'asc';
+            }
+            render();
+        };
+
+        window['changePageSize' + tableId] = function(size) {
+            pageSize = parseInt(size);
+            currentPage = 1;
+            render();
+        };
+
+        function render() {
+            console.log('Rendering table:', tableId, { currentPage, pageSize, sortKey, sortDir, searchTerm });
+        }
+    })();
+</script>

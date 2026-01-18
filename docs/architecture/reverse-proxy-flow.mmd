@@ -1,0 +1,29 @@
+%% Shahin AI GRC Platform - Reverse Proxy Flow
+%% Shows user devices connecting through internet to reverse proxy to origin servers
+
+flowchart LR
+    subgraph Users["User Devices"]
+        D1["User Device<br/>shahin.ai"]
+        D2["User Device<br/>shahin.ai"]
+        D3["User Device<br/>shahin.ai"]
+    end
+
+    subgraph Internet["Internet"]
+        Cloud["Cloud"]
+    end
+
+    subgraph Proxy["Reverse Proxy (Nginx)"]
+        RP["Nginx<br/>:80/:443<br/>SSL Termination"]
+    end
+
+    subgraph Origins["Origin Servers"]
+        F1["GrcMvc<br/>ASP.NET Core 8<br/>:8888"]
+        F2["Next.js SSR<br/>Landing Pages<br/>:3000"]
+    end
+
+    D1 --> Cloud
+    D2 --> Cloud
+    D3 --> Cloud
+    Cloud --> RP
+    RP -->|"/api/*<br/>/Dashboard/*"| F1
+    RP -->|"/<br/>/pricing"| F2

@@ -99,7 +99,7 @@
                                 <small class="text-muted">Target Completion</small>
                                 @if (Model.TargetDate.HasValue)
                                 {
-                                    var isOverdue = Model.TargetDate.Value < DateTime.Now && Model.Status != "Completed";
+                                    var isOverdue = Model.TargetDate.Value < DateTime.UtcNow && Model.Status != "Completed";
                                     <h5 class="@(isOverdue ? "text-danger" : "")">
                                         @Model.TargetDate.Value.ToString("MMM dd, yyyy")
                                         @if (isOverdue)

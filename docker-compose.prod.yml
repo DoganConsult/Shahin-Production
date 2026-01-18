@@ -1,0 +1,182 @@
+# ========================================================
+# Shahin AI GRC Platform - Production Docker Compose
+# Railway/Cloud Deployment Configuration
+# ========================================================
+#
+# Usage:
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# Prerequisites:
+#   1. Copy .env.production.template to .env
+#   2. Fill in all required environment variables
+#   3. Ensure PostgreSQL and Redis are accessible
+#
+# ========================================================
+
+services:
+  # ============================================
+  # GrcMvc Application - Main GRC Platform
+  # ============================================
+  grcmvc:
+    build:
+      context: .
+      dockerfile: src/GrcMvc/Dockerfile
+    container_name: shahin-grcmvc-prod
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      # Database connections (from .env)
+      - ConnectionStrings__DefaultConnection=${ConnectionStrings__DefaultConnection}
+      - ConnectionStrings__GrcAuthDb=${ConnectionStrings__GrcAuthDb}
+      - ConnectionStrings__HangfireConnection=${ConnectionStrings__HangfireConnection}
+      - ConnectionStrings__Redis=${ConnectionStrings__Redis}
+      # JWT Settings
+      - JwtSettings__Secret=${JWT_SECRET}
+      - JwtSettings__Issuer=ShahinAI
+      - JwtSettings__Audience=ShahinAIUsers
+      - JwtSettings__ExpiryInMinutes=60
+      # Redis
+      - Redis__ConnectionString=${Redis__ConnectionString}
+      - Redis__Enabled=true
+      - Redis__UseForSignalR=true
+      # SMTP Settings
+      - SmtpSettings__Host=${SMTP_HOST:-smtp.office365.com}
+      - SmtpSettings__Port=${SMTP_PORT:-587}
+      - SmtpSettings__EnableSsl=true
+      - SmtpSettings__FromEmail=${SMTP_FROM_EMAIL}
+      - SmtpSettings__Username=${SMTP_USERNAME}
+      - SmtpSettings__Password=${SMTP_PASSWORD}
+      - SmtpSettings__UseOAuth2=${SMTP_USE_OAUTH2:-true}
+      - SmtpSettings__TenantId=${AZURE_TENANT_ID}
+      - SmtpSettings__ClientId=${SMTP_CLIENT_ID}
+      - SmtpSettings__ClientSecret=${SMTP_CLIENT_SECRET}
+      # Microsoft Graph (Email Operations)
+      - EmailOperations__Enabled=true
+      - EmailOperations__MicrosoftGraph__TenantId=${AZURE_TENANT_ID}
+      - EmailOperations__MicrosoftGraph__ClientId=${MSGRAPH_CLIENT_ID}
+      - EmailOperations__MicrosoftGraph__ClientSecret=${MSGRAPH_CLIENT_SECRET}
+      # Claude AI Integration
+      - ClaudeAgents__Enabled=true
+      - ClaudeAgents__ApiKey=${CLAUDE_API_KEY}
+      - ClaudeAgents__Model=claude-sonnet-4-20250514
+      # Feature Flags
+      - GrcFeatureFlags__DisableDemoLogin=true
+      - GrcFeatureFlags__EnableTrialSignup=true
+      - GrcFeatureFlags__UseSecurePasswordGeneration=true
+    ports:
+      - "8080:8080"
+    volumes:
+      - grcmvc_logs:/app/logs
+      - grcmvc_storage:/var/www/shahin-ai/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - shahin-prod-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # ============================================
+  # PostgreSQL 15 Database (optional - for self-hosted)
+  # Comment out if using managed database (Railway, AWS RDS, etc.)
+  # ============================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: shahin-postgres-prod
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-GrcMvcDb}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB:-GrcMvcDb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shahin-prod-network
+    profiles:
+      - self-hosted
+
+  # ============================================
+  # Redis 7 Cache (optional - for self-hosted)
+  # Comment out if using managed Redis (Railway, AWS ElastiCache, etc.)
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: shahin-redis-prod
+    restart: always
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_prod_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shahin-prod-network
+    profiles:
+      - self-hosted
+
+  # ============================================
+  # Nginx Reverse Proxy (optional)
+  # Handles SSL termination and load balancing
+  # ============================================
+  nginx:
+    image: nginx:alpine
+    container_name: shahin-nginx-prod
+    restart: always
+    depends_on:
+      - grcmvc
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    networks:
+      - shahin-prod-network
+    profiles:
+      - with-nginx
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  shahin-prod-network:
+    driver: bridge
+    name: shahin-production-network
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  grcmvc_logs:
+    name: shahin-grcmvc-logs
+  grcmvc_storage:
+    name: shahin-grcmvc-storage
+  postgres_prod_data:
+    name: shahin-postgres-prod-data
+  redis_prod_data:
+    name: shahin-redis-prod-data
+  nginx_logs:
+    name: shahin-nginx-logs

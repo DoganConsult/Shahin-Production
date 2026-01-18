@@ -70,11 +70,11 @@ public class SuggestedAction
 /// </summary>
 public class EmailAiService : IEmailAiService
 {
-    private readonly IClaudeAgentService _claudeService;
+    private readonly IClaudeAgentService? _claudeService;
     private readonly ILogger<EmailAiService> _logger;
 
     public EmailAiService(
-        IClaudeAgentService claudeService,
+        IClaudeAgentService? claudeService,
         ILogger<EmailAiService> logger)
     {
         _claudeService = claudeService;
@@ -83,6 +83,13 @@ public class EmailAiService : IEmailAiService
 
     public async Task<EmailClassificationResult> ClassifyEmailAsync(string subject, string body, string? brand = null)
     {
+        // Check if Claude service is available
+        if (_claudeService == null)
+        {
+            _logger.LogWarning("Claude AI service not available, using fallback classification");
+            return FallbackClassification(subject, body);
+        }
+
         var prompt = $@"أنت مساعد ذكي لتصنيف رسائل البريد الإلكتروني لشركة {brand ?? "شاهين"}.
 
 صنّف الرسالة التالية إلى إحدى الفئات:
@@ -168,6 +175,13 @@ public class EmailAiService : IEmailAiService
 
     public async Task<string> GenerateReplyAsync(EmailReplyContext context)
     {
+        // Check if Claude service is available
+        if (_claudeService == null)
+        {
+            _logger.LogWarning("Claude AI service not available, using fallback reply");
+            return FallbackReply(context);
+        }
+
         var brandInfo = context.Brand switch
         {
             EmailBrands.DoganConsult => "Dogan Consult - مكتب استشارات متخصص في الحوكمة والمخاطر والامتثال",
@@ -214,6 +228,13 @@ public class EmailAiService : IEmailAiService
 
     public async Task<Dictionary<string, object>> ExtractEntitiesAsync(string subject, string body)
     {
+        // Check if Claude service is available
+        if (_claudeService == null)
+        {
+            _logger.LogWarning("Claude AI service not available, skipping entity extraction");
+            return new Dictionary<string, object>();
+        }
+
         var prompt = $@"استخرج المعلومات المهمة من الرسالة التالية:
 
 الموضوع: {subject}
@@ -315,5 +336,87 @@ public class EmailAiService : IEmailAiService
         }
 
         return actions;
+    }
+
+    // Fallback methods when Claude AI is not available
+    private EmailClassificationResult FallbackClassification(string subject, string body)
+    {
+        var classification = EmailClassification.Unclassified;
+        var priority = EmailPriority.Normal;
+
+        // Simple keyword-based classification
+        var text = (subject + " " + body).ToLower();
+        
+        if (text.Contains("bug") || text.Contains("error") || text.Contains("خطأ") || text.Contains("مشكلة"))
+        {
+            classification = EmailClassification.BugReport;
+            priority = EmailPriority.High;
+        }
+        else if (text.Contains("price") || text.Contains("quote") || text.Contains("سعر") || text.Contains("عرض"))
+        {
+            classification = EmailClassification.QuoteRequest;
+            priority = EmailPriority.High;
+        }
+        else if (text.Contains("demo") || text.Contains("تجريبي") || text.Contains("عرض توضيحي"))
+        {
+            classification = EmailClassification.DemoRequest;
+            priority = EmailPriority.High;
+        }
+        else if (text.Contains("support") || text.Contains("help") || text.Contains("دعم") || text.Contains("مساعدة"))
+        {
+            classification = EmailClassification.TechnicalSupport;
+            priority = EmailPriority.Normal;
+        }
+        else if (text.Contains("bill") || text.Contains("invoice") || text.Contains("payment") || text.Contains("فاتورة") || text.Contains("دفع"))
+        {
+            classification = EmailClassification.BillingInquiry;
+            priority = EmailPriority.Normal;
+        }
+        else if (text.Contains("complaint") || text.Contains("شكوى") || text.Contains("اعتراض"))
+        {
+            classification = EmailClassification.Complaint;
+            priority = EmailPriority.Urgent;
+        }
+
+        return new EmailClassificationResult
+        {
+            Classification = classification,
+            Confidence = 60,
+            SuggestedPriority = priority,
+            RequiresHumanReview = classification == EmailClassification.Unclassified || classification == EmailClassification.Complaint,
+            Reasoning = "تصنيف تلقائي بسيط (Claude AI غير متوفر)"
+        };
+    }
+
+    private string FallbackReply(EmailReplyContext context)
+    {
+        var isArabic = context.Language == "ar";
+        
+        return context.Classification switch
+        {
+            EmailClassification.TechnicalSupport => isArabic
+                ? "شكراً لتواصلك معنا. تم استلام طلب الدعم الفني الخاص بك وسيقوم فريقنا المتخصص بالرد عليك في أقرب وقت ممكن."
+                : "Thank you for contacting us. Your technical support request has been received and our specialized team will respond to you as soon as possible.",
+            
+            EmailClassification.BillingInquiry => isArabic
+                ? "شكراً لاستفسارك. تم استلام طلبك المتعلق بالفواتير وسيقوم قسم المحاسبة بالرد عليك خلال 24 ساعة."
+                : "Thank you for your inquiry. Your billing request has been received and our accounting department will respond within 24 hours.",
+            
+            EmailClassification.QuoteRequest => isArabic
+                ? "شكراً لاهتمامك بخدماتنا. سيقوم فريق المبيعات بالتواصل معك قريباً لتقديم عرض سعر مفصل."
+                : "Thank you for your interest in our services. Our sales team will contact you soon with a detailed quote.",
+            
+            EmailClassification.DemoRequest => isArabic
+                ? "شكراً لطلبك عرضاً توضيحياً. سيتواصل معك أحد ممثلينا لجدولة موعد مناسب."
+                : "Thank you for requesting a demo. One of our representatives will contact you to schedule a convenient time.",
+            
+            EmailClassification.Complaint => isArabic
+                ? "نعتذر عن أي إزعاج. تم تصعيد شكواك إلى الإدارة وسنتواصل معك في أقرب وقت لحل المشكلة."
+                : "We apologize for any inconvenience. Your complaint has been escalated to management and we will contact you soon to resolve the issue.",
+            
+            _ => isArabic
+                ? "شكراً لتواصلك معنا. تم استلام رسالتك وسيقوم فريقنا بالرد عليك قريباً."
+                : "Thank you for contacting us. Your message has been received and our team will respond to you soon."
+        };
     }
 }

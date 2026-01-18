@@ -10,7 +10,7 @@ namespace GrcMvc.Models.Entities
     /// </summary>
     public class PlatformAdmin : BaseEntity
     {
-        public string UserId { get; set; } = string.Empty; // ApplicationUser.Id (Identity string)
+        public Guid UserId { get; set; } // ApplicationUser.Id (ABP Identity Guid)
 
         /// <summary>
         /// Admin level: Owner (full access), CoOwner, Support, ReadOnly

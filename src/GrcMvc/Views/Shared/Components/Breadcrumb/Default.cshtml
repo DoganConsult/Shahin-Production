@@ -1,0 +1,36 @@
+@model List<GrcMvc.ViewComponents.BreadcrumbItem>
+
+@{
+    var culture = System.Threading.Thread.CurrentThread.CurrentUICulture;
+    var isRtl = culture.TextInfo.IsRightToLeft;
+}
+
+<nav aria-label="@Localizer["Breadcrumb_AriaLabel"]" class="grc-breadcrumb">
+    <ol class="breadcrumb mb-0">
+        @foreach (var item in Model)
+        {
+            if (item.IsActive)
+            {
+                <li class="breadcrumb-item active" aria-current="page">
+                    @if (!string.IsNullOrEmpty(item.Icon))
+                    {
+                        <i class="bi @item.Icon me-1"></i>
+                    }
+                    @(isRtl && !string.IsNullOrEmpty(item.TitleAr) ? item.TitleAr : item.Title)
+                </li>
+            }
+            else
+            {
+                <li class="breadcrumb-item">
+                    <a href="@item.Url" class="text-decoration-none">
+                        @if (!string.IsNullOrEmpty(item.Icon))
+                        {
+                            <i class="bi @item.Icon me-1"></i>
+                        }
+                        @(isRtl && !string.IsNullOrEmpty(item.TitleAr) ? item.TitleAr : item.Title)
+                    </a>
+                </li>
+            }
+        }
+    </ol>
+</nav>

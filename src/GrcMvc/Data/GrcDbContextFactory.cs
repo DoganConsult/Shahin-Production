@@ -23,13 +23,15 @@ namespace GrcMvc.Data
 
             var optionsBuilder = new DbContextOptionsBuilder<GrcDbContext>();
 
-            // Get connection string
+            // Get connection string from environment variables or configuration
             var connectionString = configuration.GetConnectionString("DefaultConnection");
             
             if (string.IsNullOrWhiteSpace(connectionString))
             {
-                // Fallback for local development migrations if not set in environment
-                connectionString = "Host=localhost;Database=GrcMvc;Username=postgres;Password=CHANGE_ME";
+                throw new InvalidOperationException(
+                    "Connection string not found. Please set ConnectionStrings__DefaultConnection environment variable " +
+                    "or configure it in appsettings.json. Example: " +
+                    "ConnectionStrings__DefaultConnection=\"Host=localhost;Database=GrcMvc;Username=postgres;Password=your_password;Port=5432\"");
             }
 
             // Configure PostgreSQL (adjust if using SQL Server)

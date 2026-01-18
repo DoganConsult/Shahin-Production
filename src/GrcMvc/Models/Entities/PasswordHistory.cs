@@ -15,9 +15,10 @@ namespace GrcMvc.Models.Entities
 
         /// <summary>
         /// User ID (foreign key to ApplicationUser)
+        /// Kept as string for compatibility - will migrate to Guid in future deployment
         /// </summary>
         [Required]
-        [MaxLength(450)] // ASP.NET Identity UserId length
+        [MaxLength(450)]
         public string UserId { get; set; } = string.Empty;
 
         /// <summary>
@@ -35,6 +36,7 @@ namespace GrcMvc.Models.Entities
 
         /// <summary>
         /// User ID who initiated the change (for admin resets)
+        /// Kept as string for compatibility - will migrate to Guid in future deployment
         /// </summary>
         [MaxLength(450)]
         public string? ChangedByUserId { get; set; }

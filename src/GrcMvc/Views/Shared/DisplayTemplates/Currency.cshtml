@@ -1,0 +1,24 @@
+@model decimal?
+
+@{
+    var culture = System.Threading.Thread.CurrentThread.CurrentUICulture;
+    var isRtl = culture.TextInfo.IsRightToLeft;
+}
+
+@if (Model.HasValue)
+{
+    <span class="grc-currency fw-semibold">
+        @if (isRtl)
+        {
+            @Model.Value.ToString("N2", culture) <small class="text-muted">@Localizer["Currency_SAR"]</small>
+        }
+        else
+        {
+            <small class="text-muted">@Localizer["Currency_SAR"]</small> @Model.Value.ToString("N2", culture)
+        }
+    </span>
+}
+else
+{
+    <span class="text-muted">—</span>
+}

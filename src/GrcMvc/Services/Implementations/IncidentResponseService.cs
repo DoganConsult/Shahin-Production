@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Common.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -111,10 +112,13 @@ public class IncidentResponseService : IIncidentResponseService
         return incident != null ? MapToDetailDto(incident) : null;
     }
 
-    public async Task<IncidentResponseDto> UpdateIncidentAsync(Guid incidentId, UpdateIncidentRequest request)
+    public async Task<Result<IncidentResponseDto>> UpdateIncidentAsync(Guid incidentId, UpdateIncidentRequest request)
     {
-        var incident = await _context.Set<Incident>().FindAsync(incidentId)
-            ?? throw new InvalidOperationException($"Incident {incidentId} not found");
+        var incident = await _context.Set<Incident>().FindAsync(incidentId);
+        if (incident == null)
+        {
+            return Result<IncidentResponseDto>.Failure(Error.NotFound("Incident", incidentId));
+        }
 
         if (request.Title != null) incident.Title = request.Title;
         if (request.TitleAr != null) incident.TitleAr = request.TitleAr;
@@ -143,7 +147,7 @@ public class IncidentResponseService : IIncidentResponseService
 
         await _context.SaveChangesAsync();
 
-        return MapToDto(incident);
+        return Result<IncidentResponseDto>.Success(MapToDto(incident));
     }
 
     public async Task<List<IncidentResponseDto>> GetAllAsync(Guid tenantId)
@@ -217,10 +221,13 @@ public class IncidentResponseService : IIncidentResponseService
 
     #region Incident Lifecycle
 
-    public async Task<IncidentResponseDto> StartInvestigationAsync(Guid incidentId, StartInvestigationRequest request)
+    public async Task<Result<IncidentResponseDto>> StartInvestigationAsync(Guid incidentId, StartInvestigationRequest request)
     {
-        var incident = await _context.Set<Incident>().FindAsync(incidentId)
-            ?? throw new InvalidOperationException($"Incident {incidentId} not found");
+        var incident = await _context.Set<Incident>().FindAsync(incidentId);
+        if (incident == null)
+        {
+            return Result<IncidentResponseDto>.Failure(Error.NotFound("Incident", incidentId));
+        }
 
         var previousStatus = incident.Status;
         incident.Status = "Investigating";
@@ -242,13 +249,16 @@ public class IncidentResponseService : IIncidentResponseService
 
         _logger.LogInformation("Started investigation for incident {IncidentNumber}", incident.IncidentNumber);
 
-        return MapToDto(incident);
+        return Result<IncidentResponseDto>.Success(MapToDto(incident));
     }
 
-    public async Task<IncidentResponseDto> MarkContainedAsync(Guid incidentId, ContainmentRequest request)
+    public async Task<Result<IncidentResponseDto>> MarkContainedAsync(Guid incidentId, ContainmentRequest request)
     {
-        var incident = await _context.Set<Incident>().FindAsync(incidentId)
-            ?? throw new InvalidOperationException($"Incident {incidentId} not found");
+        var incident = await _context.Set<Incident>().FindAsync(incidentId);
+        if (incident == null)
+        {
+            return Result<IncidentResponseDto>.Failure(Error.NotFound("Incident", incidentId));
+        }
 
         var previousStatus = incident.Status;
         incident.Status = "Contained";
@@ -267,13 +277,16 @@ public class IncidentResponseService : IIncidentResponseService
 
         await _context.SaveChangesAsync();
 
-        return MapToDto(incident);
+        return Result<IncidentResponseDto>.Success(MapToDto(incident));
     }
 
-    public async Task<IncidentResponseDto> MarkEradicatedAsync(Guid incidentId, EradicationRequest request)
+    public async Task<Result<IncidentResponseDto>> MarkEradicatedAsync(Guid incidentId, EradicationRequest request)
     {
-        var incident = await _context.Set<Incident>().FindAsync(incidentId)
-            ?? throw new InvalidOperationException($"Incident {incidentId} not found");
+        var incident = await _context.Set<Incident>().FindAsync(incidentId);
+        if (incident == null)
+        {
+            return Result<IncidentResponseDto>.Failure(Error.NotFound("Incident", incidentId));
+        }
 
         var previousStatus = incident.Status;
         incident.Status = "Eradicated";
@@ -293,13 +306,16 @@ public class IncidentResponseService : IIncidentResponseService
 
         await _context.SaveChangesAsync();
 
-        return MapToDto(incident);
+        return Result<IncidentResponseDto>.Success(MapToDto(incident));
     }
 
-    public async Task<IncidentResponseDto> MarkRecoveredAsync(Guid incidentId, RecoveryRequest request)
+    public async Task<Result<IncidentResponseDto>> MarkRecoveredAsync(Guid incidentId, RecoveryRequest request)
     {
-        var incident = await _context.Set<Incident>().FindAsync(incidentId)
-            ?? throw new InvalidOperationException($"Incident {incidentId} not found");
+        var incident = await _context.Set<Incident>().FindAsync(incidentId);
+        if (incident == null)
+        {
+            return Result<IncidentResponseDto>.Failure(Error.NotFound("Incident", incidentId));
+        }
 
         var previousStatus = incident.Status;
         incident.Status = "Recovered";
@@ -318,13 +334,16 @@ public class IncidentResponseService : IIncidentResponseService
 
         await _context.SaveChangesAsync();
 
-        return MapToDto(incident);
+        return Result<IncidentResponseDto>.Success(MapToDto(incident));
     }
 
-    public async Task<IncidentResponseDto> CloseIncidentAsync(Guid incidentId, CloseIncidentRequest request)
+    public async Task<Result<IncidentResponseDto>> CloseIncidentAsync(Guid incidentId, CloseIncidentRequest request)
     {
-        var incident = await _context.Set<Incident>().FindAsync(incidentId)
-            ?? throw new InvalidOperationException($"Incident {incidentId} not found");
+        var incident = await _context.Set<Incident>().FindAsync(incidentId);
+        if (incident == null)
+        {
+            return Result<IncidentResponseDto>.Failure(Error.NotFound("Incident", incidentId));
+        }
 
         var previousStatus = incident.Status;
         incident.Status = "Closed";
@@ -347,13 +366,16 @@ public class IncidentResponseService : IIncidentResponseService
 
         _logger.LogInformation("Closed incident {IncidentNumber}", incident.IncidentNumber);
 
-        return MapToDto(incident);
+        return Result<IncidentResponseDto>.Success(MapToDto(incident));
     }
 
-    public async Task<IncidentResponseDto> ReopenIncidentAsync(Guid incidentId, string reason, string reopenedBy)
+    public async Task<Result<IncidentResponseDto>> ReopenIncidentAsync(Guid incidentId, string reason, string reopenedBy)
     {
-        var incident = await _context.Set<Incident>().FindAsync(incidentId)
-            ?? throw new InvalidOperationException($"Incident {incidentId} not found");
+        var incident = await _context.Set<Incident>().FindAsync(incidentId);
+        if (incident == null)
+        {
+            return Result<IncidentResponseDto>.Failure(Error.NotFound("Incident", incidentId));
+        }
 
         var previousStatus = incident.Status;
         incident.Status = "Open";
@@ -371,13 +393,16 @@ public class IncidentResponseService : IIncidentResponseService
 
         await _context.SaveChangesAsync();
 
-        return MapToDto(incident);
+        return Result<IncidentResponseDto>.Success(MapToDto(incident));
     }
 
-    public async Task<IncidentResponseDto> MarkFalsePositiveAsync(Guid incidentId, string reason, string markedBy)
+    public async Task<Result<IncidentResponseDto>> MarkFalsePositiveAsync(Guid incidentId, string reason, string markedBy)
     {
-        var incident = await _context.Set<Incident>().FindAsync(incidentId)
-            ?? throw new InvalidOperationException($"Incident {incidentId} not found");
+        var incident = await _context.Set<Incident>().FindAsync(incidentId);
+        if (incident == null)
+        {
+            return Result<IncidentResponseDto>.Failure(Error.NotFound("Incident", incidentId));
+        }
 
         var previousStatus = incident.Status;
         incident.Status = "False Positive";
@@ -394,13 +419,16 @@ public class IncidentResponseService : IIncidentResponseService
 
         await _context.SaveChangesAsync();
 
-        return MapToDto(incident);
+        return Result<IncidentResponseDto>.Success(MapToDto(incident));
     }
 
-    public async Task<IncidentResponseDto> EscalateAsync(Guid incidentId, EscalationRequest request)
+    public async Task<Result<IncidentResponseDto>> EscalateAsync(Guid incidentId, EscalationRequest request)
     {
-        var incident = await _context.Set<Incident>().FindAsync(incidentId)
-            ?? throw new InvalidOperationException($"Incident {incidentId} not found");
+        var incident = await _context.Set<Incident>().FindAsync(incidentId);
+        if (incident == null)
+        {
+            return Result<IncidentResponseDto>.Failure(Error.NotFound("Incident", incidentId));
+        }
 
         var previousSeverity = incident.Severity;
         incident.Severity = request.NewSeverity;
@@ -419,17 +447,20 @@ public class IncidentResponseService : IIncidentResponseService
         _logger.LogWarning("Escalated incident {IncidentNumber} from {Previous} to {New}", 
             incident.IncidentNumber, previousSeverity, request.NewSeverity);
 
-        return MapToDto(incident);
+        return Result<IncidentResponseDto>.Success(MapToDto(incident));
     }
 
     #endregion
 
     #region Assignment & Ownership
 
-    public async Task<IncidentResponseDto> AssignHandlerAsync(Guid incidentId, string handlerId, string handlerName, string? team = null)
+    public async Task<Result<IncidentResponseDto>> AssignHandlerAsync(Guid incidentId, string handlerId, string handlerName, string? team = null)
     {
-        var incident = await _context.Set<Incident>().FindAsync(incidentId)
-            ?? throw new InvalidOperationException($"Incident {incidentId} not found");
+        var incident = await _context.Set<Incident>().FindAsync(incidentId);
+        if (incident == null)
+        {
+            return Result<IncidentResponseDto>.Failure(Error.NotFound("Incident", incidentId));
+        }
 
         incident.HandlerId = handlerId;
         incident.HandlerName = handlerName;
@@ -446,13 +477,16 @@ public class IncidentResponseService : IIncidentResponseService
 
         await _context.SaveChangesAsync();
 
-        return MapToDto(incident);
+        return Result<IncidentResponseDto>.Success(MapToDto(incident));
     }
 
-    public async Task<IncidentResponseDto> ReassignAsync(Guid incidentId, string newHandlerId, string newHandlerName, string reason)
+    public async Task<Result<IncidentResponseDto>> ReassignAsync(Guid incidentId, string newHandlerId, string newHandlerName, string reason)
     {
-        var incident = await _context.Set<Incident>().FindAsync(incidentId)
-            ?? throw new InvalidOperationException($"Incident {incidentId} not found");
+        var incident = await _context.Set<Incident>().FindAsync(incidentId);
+        if (incident == null)
+        {
+            return Result<IncidentResponseDto>.Failure(Error.NotFound("Incident", incidentId));
+        }
 
         var previousHandler = incident.HandlerName;
         incident.HandlerId = newHandlerId;
@@ -469,7 +503,7 @@ public class IncidentResponseService : IIncidentResponseService
 
         await _context.SaveChangesAsync();
 
-        return MapToDto(incident);
+        return Result<IncidentResponseDto>.Success(MapToDto(incident));
     }
 
     public async Task<List<IncidentResponseDto>> GetByHandlerAsync(string handlerId)
@@ -497,9 +531,14 @@ public class IncidentResponseService : IIncidentResponseService
 
     #region Timeline & Communication
 
-    public async Task<IncidentTimelineDto> AddTimelineEntryAsync(Guid incidentId, AddTimelineEntryRequest request)
+    public async Task<Result<IncidentTimelineDto>> AddTimelineEntryAsync(Guid incidentId, AddTimelineEntryRequest request)
     {
-        return await AddTimelineEntryInternalAsync(incidentId, request);
+        var result = await AddTimelineEntryInternalAsync(incidentId, request);
+        if (result.IsSuccess)
+        {
+            return Result<IncidentTimelineDto>.Success(result.Value!);
+        }
+        return Result<IncidentTimelineDto>.Failure(result.Error);
     }
 
     public async Task<List<IncidentTimelineDto>> GetTimelineAsync(Guid incidentId)
@@ -512,9 +551,9 @@ public class IncidentResponseService : IIncidentResponseService
         return entries.Select(MapToTimelineDto).ToList();
     }
 
-    public async Task<IncidentTimelineDto> AddNoteAsync(Guid incidentId, string note, string addedBy)
+    public async Task<Result<IncidentTimelineDto>> AddNoteAsync(Guid incidentId, string note, string addedBy)
     {
-        return await AddTimelineEntryInternalAsync(incidentId, new AddTimelineEntryRequest
+        var result = await AddTimelineEntryInternalAsync(incidentId, new AddTimelineEntryRequest
         {
             EntryType = "Update",
             Title = "Note Added",
@@ -522,16 +561,24 @@ public class IncidentResponseService : IIncidentResponseService
             PerformedByName = addedBy,
             IsInternal = true
         });
+        if (result.IsSuccess)
+        {
+            return Result<IncidentTimelineDto>.Success(result.Value!);
+        }
+        return Result<IncidentTimelineDto>.Failure(result.Error);
     }
 
     #endregion
 
     #region Regulatory Notifications
 
-    public async Task<NotificationRequirementDto> CheckNotificationRequirementsAsync(Guid incidentId)
+    public async Task<Result<NotificationRequirementDto>> CheckNotificationRequirementsAsync(Guid incidentId)
     {
-        var incident = await _context.Set<Incident>().FindAsync(incidentId)
-            ?? throw new InvalidOperationException($"Incident {incidentId} not found");
+        var incident = await _context.Set<Incident>().FindAsync(incidentId);
+        if (incident == null)
+        {
+            return Result<NotificationRequirementDto>.Failure(Error.NotFound("Incident", incidentId));
+        }
 
         var result = new NotificationRequirementDto
         {
@@ -567,13 +614,16 @@ public class IncidentResponseService : IIncidentResponseService
 
         result.RequiresNotification = result.Regulators.Any();
 
-        return result;
+        return Result<NotificationRequirementDto>.Success(result);
     }
 
-    public async Task<IncidentResponseDto> MarkNotificationSentAsync(Guid incidentId, MarkNotificationRequest request)
+    public async Task<Result<IncidentResponseDto>> MarkNotificationSentAsync(Guid incidentId, MarkNotificationRequest request)
     {
-        var incident = await _context.Set<Incident>().FindAsync(incidentId)
-            ?? throw new InvalidOperationException($"Incident {incidentId} not found");
+        var incident = await _context.Set<Incident>().FindAsync(incidentId);
+        if (incident == null)
+        {
+            return Result<IncidentResponseDto>.Failure(Error.NotFound("Incident", incidentId));
+        }
 
         incident.NotificationSent = true;
         incident.NotificationSentDate = request.SentDate;
@@ -589,7 +639,7 @@ public class IncidentResponseService : IIncidentResponseService
 
         await _context.SaveChangesAsync();
 
-        return MapToDto(incident);
+        return Result<IncidentResponseDto>.Success(MapToDto(incident));
     }
 
     public async Task<List<IncidentResponseDto>> GetPendingNotificationsAsync(Guid tenantId)
@@ -616,10 +666,13 @@ public class IncidentResponseService : IIncidentResponseService
 
     #region Risk & Control Linkage
 
-    public async Task LinkToRiskAsync(Guid incidentId, Guid riskId)
+    public async Task<Result> LinkToRiskAsync(Guid incidentId, Guid riskId)
     {
-        var incident = await _context.Set<Incident>().FindAsync(incidentId)
-            ?? throw new InvalidOperationException($"Incident {incidentId} not found");
+        var incident = await _context.Set<Incident>().FindAsync(incidentId);
+        if (incident == null)
+        {
+            return Result.Failure(Error.NotFound("Incident", incidentId));
+        }
 
         var riskIds = string.IsNullOrEmpty(incident.RelatedRiskIds)
             ? new List<Guid>()
@@ -632,12 +685,16 @@ public class IncidentResponseService : IIncidentResponseService
             incident.ModifiedDate = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }
+        return Result.Success();
     }
 
-    public async Task LinkToControlAsync(Guid incidentId, Guid controlId)
+    public async Task<Result> LinkToControlAsync(Guid incidentId, Guid controlId)
     {
-        var incident = await _context.Set<Incident>().FindAsync(incidentId)
-            ?? throw new InvalidOperationException($"Incident {incidentId} not found");
+        var incident = await _context.Set<Incident>().FindAsync(incidentId);
+        if (incident == null)
+        {
+            return Result.Failure(Error.NotFound("Incident", incidentId));
+        }
 
         var controlIds = string.IsNullOrEmpty(incident.RelatedControlIds)
             ? new List<Guid>()
@@ -650,6 +707,7 @@ public class IncidentResponseService : IIncidentResponseService
             incident.ModifiedDate = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }
+        return Result.Success();
     }
 
     public async Task<List<IncidentResponseDto>> GetByRiskAsync(Guid riskId)
@@ -831,14 +889,17 @@ public class IncidentResponseService : IIncidentResponseService
         return $"INC-{year}-{(count + 1):D5}";
     }
 
-    private async Task<IncidentTimelineDto> AddTimelineEntryInternalAsync(
+    private async Task<Result<IncidentTimelineDto>> AddTimelineEntryInternalAsync(
         Guid incidentId, 
         AddTimelineEntryRequest request,
         string? statusBefore = null,
         string? statusAfter = null)
     {
-        var incident = await _context.Set<Incident>().FindAsync(incidentId)
-            ?? throw new InvalidOperationException($"Incident {incidentId} not found");
+        var incident = await _context.Set<Incident>().FindAsync(incidentId);
+        if (incident == null)
+        {
+            return Result<IncidentTimelineDto>.Failure(Error.NotFound("Incident", incidentId));
+        }
 
         var entry = new IncidentTimelineEntry
         {
@@ -860,7 +921,7 @@ public class IncidentResponseService : IIncidentResponseService
         _context.Set<IncidentTimelineEntry>().Add(entry);
         await _context.SaveChangesAsync();
 
-        return MapToTimelineDto(entry);
+        return Result<IncidentTimelineDto>.Success(MapToTimelineDto(entry));
     }
 
     private async Task<IEnumerable<IncidentResponseDto>> GetRecentIncidentsAsync(Guid tenantId, int limit)

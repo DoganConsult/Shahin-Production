@@ -35,16 +35,22 @@ namespace GrcMvc
 
                     adminUser = new ApplicationUser
                     {
-                        UserName = "support@shahin-ai.com",
-                        Email = "support@shahin-ai.com",
                         FirstName = "Admin",
                         LastName = "User",
                         Department = "Management",
-                        JobTitle = "System Administrator",
-                        EmailConfirmed = true
+                        JobTitle = "System Administrator"
                     };
 
                     var createResult = await userManager.CreateAsync(adminUser, newPassword);
+
+                    if (createResult.Succeeded)
+                    {
+                        // Set UserName, Email, and confirm email using UserManager methods
+                        await userManager.SetUserNameAsync(adminUser, "support@shahin-ai.com");
+                        await userManager.SetEmailAsync(adminUser, "support@shahin-ai.com");
+                        var confirmToken = await userManager.GenerateEmailConfirmationTokenAsync(adminUser);
+                        await userManager.ConfirmEmailAsync(adminUser, confirmToken);
+                    }
 
                     if (!createResult.Succeeded)
                     {
@@ -60,8 +66,8 @@ namespace GrcMvc
                     Console.WriteLine($"Found admin user: {adminUser.Email}");
 
                     // Reset password to new value
-                    var token = await userManager.GeneratePasswordResetTokenAsync(adminUser);
-                    var resetResult = await userManager.ResetPasswordAsync(adminUser, token, newPassword);
+                    var passwordResetToken = await userManager.GeneratePasswordResetTokenAsync(adminUser);
+                    var resetResult = await userManager.ResetPasswordAsync(adminUser, passwordResetToken, newPassword);
 
                     if (!resetResult.Succeeded)
                     {
@@ -76,8 +82,8 @@ namespace GrcMvc
                     // Ensure email is confirmed
                     if (!adminUser.EmailConfirmed)
                     {
-                        adminUser.EmailConfirmed = true;
-                        await userManager.UpdateAsync(adminUser);
+                        var emailConfirmToken = await userManager.GenerateEmailConfirmationTokenAsync(adminUser);
+                        await userManager.ConfirmEmailAsync(adminUser, emailConfirmToken);
                     }
 
                     Console.WriteLine("Admin password reset successfully!");

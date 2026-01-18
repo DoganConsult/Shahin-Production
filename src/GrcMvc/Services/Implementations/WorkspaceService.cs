@@ -90,7 +90,7 @@ public class WorkspaceService : IWorkspaceService
     }
 
     public async Task<UserWorkspace> CreateWorkspaceAsync(
-        Guid tenantId, string userId, string roleCode, string createdBy)
+        Guid tenantId, Guid userId, string roleCode, string createdBy)
     {
         // Check if workspace already exists
         var existing = await _unitOfWork.UserWorkspaces
@@ -136,7 +136,7 @@ public class WorkspaceService : IWorkspaceService
         return workspace;
     }
 
-    public async Task<UserWorkspace?> GetUserWorkspaceAsync(string userId)
+    public async Task<UserWorkspace?> GetUserWorkspaceAsync(Guid userId)
     {
         return await _unitOfWork.UserWorkspaces
             .Query()
@@ -297,7 +297,7 @@ public class WorkspaceService : IWorkspaceService
             .FirstOrDefaultAsync(t => t.RoleCode == roleCode && t.IsActive && t.IsDefault && !t.IsDeleted);
     }
 
-    public async Task<IEnumerable<UserWorkspaceTask>> GetUserTasksAsync(string userId, string? status = null)
+    public async Task<IEnumerable<UserWorkspaceTask>> GetUserTasksAsync(Guid userId, string? status = null)
     {
         var workspace = await GetUserWorkspaceAsync(userId);
         if (workspace == null) return Enumerable.Empty<UserWorkspaceTask>();
@@ -333,7 +333,7 @@ public class WorkspaceService : IWorkspaceService
 
         foreach (var member in teamMembers)
         {
-            var workspace = await CreateWorkspaceAsync(tenantId, member.UserId, member.RoleCode, createdBy);
+            var workspace = await CreateWorkspaceAsync(tenantId, Guid.Parse(member.UserId), member.RoleCode, createdBy);
 
             // Pre-map tasks for this user
             await PreMapTasksAsync(workspace.Id, tenantId, member.RoleCode, assessmentIds, createdBy);

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using GrcMvc.Common.Results;
 
 namespace GrcMvc.Services.Interfaces;
 
@@ -13,7 +14,7 @@ public interface IEvidenceAgentService
     /// <summary>
     /// Analyze evidence quality and completeness
     /// </summary>
-    Task<EvidenceQualityAnalysis> AnalyzeEvidenceQualityAsync(
+    Task<Result<EvidenceQualityAnalysis>> AnalyzeEvidenceQualityAsync(
         Guid evidenceId,
         CancellationToken cancellationToken = default);
 
@@ -28,7 +29,7 @@ public interface IEvidenceAgentService
     /// <summary>
     /// Suggest which requirements/controls an evidence might satisfy
     /// </summary>
-    Task<EvidenceMatchingResult> SuggestEvidenceMatchesAsync(
+    Task<Result<EvidenceMatchingResult>> SuggestEvidenceMatchesAsync(
         Guid evidenceId,
         CancellationToken cancellationToken = default);
 
@@ -51,7 +52,7 @@ public interface IEvidenceAgentService
     /// <summary>
     /// AI-powered evidence categorization and tagging
     /// </summary>
-    Task<EvidenceCategorizationResult> CategorizeEvidenceAsync(
+    Task<Result<EvidenceCategorizationResult>> CategorizeEvidenceAsync(
         Guid evidenceId,
         CancellationToken cancellationToken = default);
 

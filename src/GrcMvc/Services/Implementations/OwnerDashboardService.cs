@@ -241,7 +241,7 @@ public class OwnerDashboardService : IOwnerDashboardService
             CreationInfo = creationInfo != null ? new OwnerTenantCreationDto
             {
                 TenantId = creationInfo.TenantId,
-                OwnerId = creationInfo.OwnerId,
+                OwnerId = creationInfo.OwnerId.ToString(),
                 CreatedDate = creationInfo.CreatedDate,
                 CredentialsExpiresAt = creationInfo.CredentialsExpiresAt,
                 DeliveryMethod = creationInfo.DeliveryMethod,

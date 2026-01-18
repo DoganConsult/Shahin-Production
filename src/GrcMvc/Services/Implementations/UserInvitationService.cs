@@ -71,19 +71,15 @@ namespace GrcMvc.Services.Implementations
 
             if (existingUser != null)
             {
-                userId = existingUser.Id;
+                userId = existingUser.Id.ToString();
             }
             else
             {
                 // Create new user (inactive until invitation accepted)
                 var newUser = new ApplicationUser
                 {
-                    UserName = email,
-                    Email = email,
                     FirstName = firstName,
                     LastName = lastName,
-                    EmailConfirmed = false,
-                    IsActive = false
                 };
 
                 var result = await _userManager.CreateAsync(newUser);
@@ -93,7 +89,12 @@ namespace GrcMvc.Services.Implementations
                     throw new GrcException($"Failed to create user: {errors}", GrcErrorCodes.ValidationFailed);
                 }
 
-                userId = newUser.Id;
+                // Set UserName and Email using UserManager methods
+                await _userManager.SetUserNameAsync(newUser, email);
+                await _userManager.SetEmailAsync(newUser, email);
+                // Don't confirm email for invited users - they'll confirm via invitation
+
+                userId = newUser.Id.ToString();
             }
 
             // Create tenant user with invitation
@@ -161,9 +162,10 @@ namespace GrcMvc.Services.Implementations
             var user = tenantUser.User;
             if (!user.EmailConfirmed)
             {
-                user.EmailConfirmed = true;
-                user.IsActive = true;
-                await _userManager.UpdateAsync(user);
+                // Use UserManager to confirm email properly
+                var emailToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                await _userManager.ConfirmEmailAsync(user, emailToken);
+                // Note: IsActive should be managed through ABP Identity service if needed
 
                 // Set password
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -221,7 +223,7 @@ namespace GrcMvc.Services.Implementations
                     }
 
                     // Auto-map tasks from active assessments based on RACI
-                    await AutoMapTasksForUserAsync(tenantUser.TenantId, user.Id, tenantUser.RoleCode);
+                    await AutoMapTasksForUserAsync(tenantUser.TenantId, user.Id.ToString(), tenantUser.RoleCode);
 
                     _logger.LogInformation("Assigned user {UserId} to tenant workspace with role {RoleCode}",
                         user.Id, tenantUser.RoleCode);
@@ -243,7 +245,7 @@ namespace GrcMvc.Services.Implementations
                 affectedEntityType: "TenantUser",
                 affectedEntityId: tenantUser.Id.ToString(),
                 action: "Activate",
-                actor: user.Id,
+                actor: user.Id.ToString(),
                 payloadJson: System.Text.Json.JsonSerializer.Serialize(new
                 {
                     UserId = user.Id,

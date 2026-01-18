@@ -6,7 +6,7 @@
 @{
     var requestCulture = Context.Features.Get<IRequestCultureFeature>();
     var isArabic = requestCulture?.RequestCulture?.UICulture?.Name == "ar";
-    ViewData["Title"] = isArabic ? "نظام GRC - التسجيل" : "GRC System - Onboarding";
+    ViewData["Title"] = Localizer["Onboarding_Title"];
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     // Check authentication status
@@ -54,7 +54,7 @@
                 <div class="card shadow-sm sticky-top" style="top: 20px;">
                     <div class="card-body p-3">
                         <h5 class="card-title mb-3">
-                            <i class="bi bi-list-check text-primary me-2"></i>12-Step Wizard
+                            <i class="bi bi-list-check text-primary me-2"></i>@Localizer["Onboarding_12StepWizard"]
                         </h5>
 
                         <div class="progress mb-3" style="height: 8px;">
@@ -106,7 +106,7 @@
 
                         <div class="mt-3 pt-2 border-top">
                             <small class="text-muted">
-                                <i class="bi bi-clock me-1"></i> Est. 15-20 minutes
+                                <i class="bi bi-clock me-1"></i> @Localizer["Onboarding_EstTime"]
                             </small>
                         </div>
                     </div>
@@ -117,16 +117,16 @@
             <div class="col-md-9">
                 <div class="card shadow">
                     <div class="card-body p-5">
-                        <h1 class="mb-4">مرحباً بك في نظام إدارة الحوكمة والمخاطر والامتثال</h1>
+                        <h1 class="mb-4">@Localizer["Onboarding_WelcomeTitle"]</h1>
 
                         <div class="alert alert-info border-0" role="alert">
                             <i class="bi bi-info-circle"></i>
-                            <strong class="ms-2">أكمل عملية الإعداد</strong> لتهيئة مؤسستك وتحديد نطاق الامتثال الخاص بك.
+                            <strong class="ms-2">@Localizer["Onboarding_CompleteSetup"]</strong> @Localizer["Onboarding_SetupDescription"]
                         </div>
 
                         <div class="row mt-4">
                             <div class="col-md-6">
-                                <h5 class="mb-3"><i class="bi bi-check2-square text-success me-2"></i>ما ستقوم بتهيئته:</h5>
+                                <h5 class="mb-3"><i class="bi bi-check2-square text-success me-2"></i>@Localizer["Onboarding_WhatYouConfigure"]</h5>
                                 <ul class="list-unstyled">
                                     <li class="mb-2">
                                         <i class="bi bi-check-circle text-success"></i>
@@ -149,7 +149,7 @@
                             <div class="col-md-6">
                                 <div class="card bg-light border-0">
                                     <div class="card-body">
-                                        <h6><i class="bi bi-magic text-primary me-2"></i><strong>المخرجات المُشتقة تلقائياً:</strong></h6>
+                                        <h6><i class="bi bi-magic text-primary me-2"></i><strong>@Localizer["Onboarding_AutoDerivedOutputs"]</strong></h6>
                                         <ul class="text-muted small mt-2 mb-0">
                                             <li><i class="bi bi-check text-success"></i> الأُطر التنظيمية المطبقة (NCA, SAMA, PDPL)</li>
                                             <li><i class="bi bi-check text-success"></i> الخطوط الأساسية والإضافات للضوابط</li>
@@ -167,30 +167,30 @@
                             {
                                 <!-- Not logged in - register first -->
                                 <a href="/Account/Register" class="btn btn-primary btn-lg px-5 py-3">
-                                    <i class="bi bi-person-plus me-2"></i> سجّل حسابك أولاً
+                                    <i class="bi bi-person-plus me-2"></i> @Localizer["Onboarding_RegisterFirst"]
                                 </a>
                                 <p class="text-muted mt-3">
-                                    لديك حساب؟ <a href="/Account/Login">تسجيل الدخول</a>
+                                    @Localizer["Onboarding_HaveAccount"] <a href="/Account/Login">@Localizer["Login"]</a>
                                 </p>
                             }
                             else if (!hasTenant)
                             {
                                 <!-- Logged in but no tenant - create organization -->
                                 <a href="/Onboarding/Signup" class="btn btn-success btn-lg px-5 py-3">
-                                    <i class="bi bi-building-add me-2"></i> أنشئ مؤسستك
+                                    <i class="bi bi-building-add me-2"></i> @Localizer["Onboarding_CreateOrg"]
                                 </a>
                                 <p class="text-muted mt-3 small">
-                                    <i class="bi bi-info-circle me-1"></i> سيتم إنشاء مساحة عمل خاصة بمؤسستك
+                                    <i class="bi bi-info-circle me-1"></i> @Localizer["Onboarding_WorkspaceCreated"]
                                 </p>
                             }
                             else
                             {
                                 <!-- Has tenant - start wizard -->
                                 <a href="/OnboardingWizard/StepA/@tenantId" class="btn btn-success btn-lg px-5 py-3" id="btn-start-wizard">
-                                    <i class="bi bi-rocket-takeoff me-2"></i> ابدأ الإعداد
+                                    <i class="bi bi-rocket-takeoff me-2"></i> @Localizer["Onboarding_StartSetup"]
                                 </a>
                                 <p class="text-muted mt-3 small">
-                                    <i class="bi bi-clock me-1"></i> 12 خطوة - حوالي 15-20 دقيقة
+                                    <i class="bi bi-clock me-1"></i> @Localizer["Onboarding_12Steps15Min"]
                                 </p>
                             }
                         </div>

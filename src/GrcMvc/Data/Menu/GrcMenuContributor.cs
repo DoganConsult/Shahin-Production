@@ -320,7 +320,7 @@ public class GrcMenuContributor : IMenuContributor
 
             // Get tenant ID from TenantUser
             var tenantUser = await context.TenantUsers
-                .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
+                .FirstOrDefaultAsync(tu => tu.UserId == user.Id.ToString() && !tu.IsDeleted);
             var tenantId = tenantUser?.TenantId ?? Guid.Empty;
 
             // Get role IDs for user's role names

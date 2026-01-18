@@ -326,13 +326,13 @@ namespace GrcMvc.Controllers
                 if (actorIds.Any())
                 {
                     var users = await _userManager.Users
-                        .Where(u => actorIds.Contains(u.Id))
+                        .Where(u => actorIds.Contains(u.Id.ToString()))
                         .Select(u => new { u.Id, u.Email, u.FullName })
                         .ToListAsync();
 
                     foreach (var user in users)
                     {
-                        userNames[user.Id] = !string.IsNullOrEmpty(user.FullName) ? user.FullName : user.Email;
+                        userNames[user.Id.ToString()] = !string.IsNullOrEmpty(user.FullName) ? user.FullName : user.Email;
                     }
                 }
 

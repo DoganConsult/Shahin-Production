@@ -113,7 +113,7 @@ namespace GrcMvc.Services.Implementations
                     Id = Guid.NewGuid(),
                     TenantId = request.TenantId,
                     WorkspaceId = workspace.Id,
-                    UserId = userId,
+                    UserId = Guid.Parse(userId),
                     IsPrimary = request.IsDefault, // Primary if this is the default workspace
                     Status = "Active",
                     WorkspaceRolesJson = JsonSerializer.Serialize(new List<string> { "WorkspaceAdmin" }),
@@ -232,8 +232,9 @@ namespace GrcMvc.Services.Implementations
                 throw new EntityNotFoundException("Workspace", workspaceId);
 
             // Check for existing membership
+            var userIdGuid = Guid.Parse(request.UserId);
             var existing = await _context.WorkspaceMemberships
-                .FirstOrDefaultAsync(m => m.WorkspaceId == workspaceId && m.UserId == request.UserId && !m.IsDeleted);
+                .FirstOrDefaultAsync(m => m.WorkspaceId == workspaceId && m.UserId == userIdGuid && !m.IsDeleted);
 
             if (existing != null)
             {
@@ -252,7 +253,7 @@ namespace GrcMvc.Services.Implementations
                 Id = Guid.NewGuid(),
                 TenantId = request.TenantId,
                 WorkspaceId = workspaceId,
-                UserId = request.UserId,
+                UserId = userIdGuid,
                 WorkspaceRolesJson = JsonSerializer.Serialize(request.WorkspaceRoles),
                 IsPrimary = request.IsPrimary,
                 IsWorkspaceAdmin = request.IsWorkspaceAdmin,
@@ -281,8 +282,9 @@ namespace GrcMvc.Services.Implementations
 
         public async Task RemoveMemberAsync(Guid workspaceId, string userId)
         {
+            var userIdGuid = Guid.Parse(userId);
             var membership = await _context.WorkspaceMemberships
-                .FirstOrDefaultAsync(m => m.WorkspaceId == workspaceId && m.UserId == userId && !m.IsDeleted);
+                .FirstOrDefaultAsync(m => m.WorkspaceId == workspaceId && m.UserId == userIdGuid && !m.IsDeleted);
 
             if (membership != null)
             {
@@ -298,8 +300,9 @@ namespace GrcMvc.Services.Implementations
 
         public async Task UpdateMemberRolesAsync(Guid workspaceId, string userId, List<string> roles)
         {
+            var userIdGuid = Guid.Parse(userId);
             var membership = await _context.WorkspaceMemberships
-                .FirstOrDefaultAsync(m => m.WorkspaceId == workspaceId && m.UserId == userId && !m.IsDeleted);
+                .FirstOrDefaultAsync(m => m.WorkspaceId == workspaceId && m.UserId == userIdGuid && !m.IsDeleted);
 
             if (membership == null)
                 throw new EntityNotFoundException("WorkspaceMembership", $"{userId}:{workspaceId}");
@@ -311,9 +314,10 @@ namespace GrcMvc.Services.Implementations
 
         public async Task SetPrimaryWorkspaceAsync(Guid tenantId, string userId, Guid workspaceId)
         {
+            var userIdGuid = Guid.Parse(userId);
             // Unset existing primary
             var existingPrimary = await _context.WorkspaceMemberships
-                .Where(m => m.TenantId == tenantId && m.UserId == userId && m.IsPrimary && !m.IsDeleted)
+                .Where(m => m.TenantId == tenantId && m.UserId == userIdGuid && m.IsPrimary && !m.IsDeleted)
                 .ToListAsync();
             foreach (var p in existingPrimary)
             {
@@ -322,7 +326,7 @@ namespace GrcMvc.Services.Implementations
 
             // Set new primary
             var membership = await _context.WorkspaceMemberships
-                .FirstOrDefaultAsync(m => m.WorkspaceId == workspaceId && m.UserId == userId && !m.IsDeleted);
+                .FirstOrDefaultAsync(m => m.WorkspaceId == workspaceId && m.UserId == userIdGuid && !m.IsDeleted);
 
             if (membership != null)
             {

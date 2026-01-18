@@ -70,7 +70,7 @@ namespace GrcMvc.Services.Implementations
                 if (user != null)
                 {
                     var tenantUser = await _context.TenantUsers
-                        .FirstOrDefaultAsync(tu => tu.UserId == user.Id && tu.TenantId == tenantId && !tu.IsDeleted);
+                        .FirstOrDefaultAsync(tu => tu.UserId == user.Id.ToString() && tu.TenantId == tenantId && !tu.IsDeleted);
                     if (tenantUser != null)
                     {
                         _logger.LogDebug("Resolved assignee from GUID: {UserId}", userId);
@@ -107,11 +107,11 @@ namespace GrcMvc.Services.Implementations
                 foreach (var u in usersInRole)
                 {
                     var tenantUser = await _context.TenantUsers
-                        .FirstOrDefaultAsync(tu => tu.UserId == u.Id && tu.TenantId == tenantId && !tu.IsDeleted);
+                        .FirstOrDefaultAsync(tu => tu.UserId == u.Id.ToString() && tu.TenantId == tenantId && !tu.IsDeleted);
                     if (tenantUser != null)
                     {
                         _logger.LogDebug("Resolved assignee from Identity role {RoleName}: {UserId}", assignee, u.Id);
-                        return Guid.TryParse(u.Id, out var uid) ? uid : null;
+                        return u.Id;
                     }
                 }
             }
@@ -121,11 +121,11 @@ namespace GrcMvc.Services.Implementations
             if (userByEmail != null)
             {
                 var tenantUser = await _context.TenantUsers
-                    .FirstOrDefaultAsync(tu => tu.UserId == userByEmail.Id && tu.TenantId == tenantId && !tu.IsDeleted);
+                    .FirstOrDefaultAsync(tu => tu.UserId == userByEmail.Id.ToString() && tu.TenantId == tenantId && !tu.IsDeleted);
                 if (tenantUser != null)
                 {
                     _logger.LogDebug("Resolved assignee from email {Email}: {UserId}", assignee, userByEmail.Id);
-                    return Guid.TryParse(userByEmail.Id, out var uid) ? uid : null;
+                    return userByEmail.Id;
                 }
             }
 

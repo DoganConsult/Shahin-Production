@@ -1,147 +1,176 @@
-namespace GrcMvc.Common.Results;
+using Microsoft.AspNetCore.Mvc;
 
-/// <summary>
-/// Extension methods for working with Result types
-/// </summary>
-public static class ResultExtensions
+namespace GrcMvc.Common.Results
 {
     /// <summary>
-    /// Converts a nullable value to a Result, returning failure if null
+    /// Extension methods for working with Result types
     /// </summary>
-    public static Result<T> ToResult<T>(this T? value, string entityName, object id) where T : class
+    public static class ResultExtensions
     {
-        if (value == null)
-            return Result<T>.Failure(
-                new Error(ErrorCodes.EntityNotFound,
-                         $"{entityName} not found",
-                         $"{entityName} with ID {id} does not exist",
-                         new Dictionary<string, object> { { "EntityType", entityName }, { "EntityId", id } }));
-        return Result<T>.Success(value);
-    }
-
-    /// <summary>
-    /// Converts a nullable value to a Result with custom error message
-    /// </summary>
-    public static Result<T> ToResult<T>(this T? value, Error error) where T : class
-    {
-        return value == null ? Result<T>.Failure(error) : Result<T>.Success(value);
-    }
-
-    /// <summary>
-    /// Executes an action if the result is successful
-    /// </summary>
-    public static Result<T> OnSuccess<T>(this Result<T> result, Action<T> action)
-    {
-        if (result.IsSuccess && result.Value != null)
-            action(result.Value);
-        return result;
-    }
-
-    /// <summary>
-    /// Executes an action if the result is a failure
-    /// </summary>
-    public static Result<T> OnFailure<T>(this Result<T> result, Action<Error> action)
-    {
-        if (result.IsFailure && result.Error != null)
-            action(result.Error);
-        return result;
-    }
-
-    /// <summary>
-    /// Maps a successful result to a new type
-    /// </summary>
-    public static Result<TOut> Map<TIn, TOut>(this Result<TIn> result, Func<TIn, TOut> mapper)
-    {
-        return result.IsSuccess && result.Value != null
-            ? Result<TOut>.Success(mapper(result.Value))
-            : Result<TOut>.Failure(result.Error!);
-    }
-
-    /// <summary>
-    /// Binds a successful result to a new result-returning function
-    /// </summary>
-    public static async Task<Result<TOut>> Bind<TIn, TOut>(
-        this Result<TIn> result,
-        Func<TIn, Task<Result<TOut>>> binder)
-    {
-        return result.IsSuccess && result.Value != null
-            ? await binder(result.Value)
-            : Result<TOut>.Failure(result.Error!);
-    }
-
-    /// <summary>
-    /// Returns the value if successful, otherwise throws an exception
-    /// </summary>
-    public static T Unwrap<T>(this Result<T> result)
-    {
-        if (result.IsFailure)
-            throw new InvalidOperationException($"Cannot unwrap failed result: {result.Error}");
-        return result.Value!;
-    }
-
-    /// <summary>
-    /// Returns the value if successful, otherwise returns the default value
-    /// </summary>
-    public static T UnwrapOr<T>(this Result<T> result, T defaultValue)
-    {
-        return result.IsSuccess && result.Value != null ? result.Value : defaultValue;
-    }
-
-    /// <summary>
-    /// Returns the value if successful, otherwise computes and returns the default value
-    /// </summary>
-    public static T UnwrapOrElse<T>(this Result<T> result, Func<Error, T> defaultValueProvider)
-    {
-        return result.IsSuccess && result.Value != null
-            ? result.Value
-            : defaultValueProvider(result.Error!);
-    }
-
-    /// <summary>
-    /// Converts a Task<T> to a Result<T>, catching exceptions
-    /// </summary>
-    public static async Task<Result<T>> ToResultAsync<T>(this Task<T> task, string errorCode = ErrorCodes.ExternalApiFailure)
-    {
-        try
+        /// <summary>
+        /// Converts a Result to an IActionResult for API responses
+        /// </summary>
+        public static IActionResult ToActionResult(this Result result)
         {
-            var value = await task;
-            return value != null
-                ? Result<T>.Success(value)
-                : Result<T>.Failure(errorCode, "Operation returned null value");
-        }
-        catch (Exception ex)
-        {
-            return Result<T>.Failure(
-                new Error(errorCode, ex.Message, ex.StackTrace,
-                    new Dictionary<string, object> { { "ExceptionType", ex.GetType().Name } }));
-        }
-    }
+            if (result.IsSuccess)
+            {
+                return new OkResult();
+            }
 
-    /// <summary>
-    /// Combines multiple results into a single result
-    /// Returns success only if all results are successful
-    /// </summary>
-    public static Result Combine(params Result[] results)
-    {
-        foreach (var result in results)
+            return result.Error!.Code switch
+            {
+                ErrorCode.NotFound => new NotFoundObjectResult(new { error = result.Error.Message, details = result.Error.Details }),
+                ErrorCode.ValidationError => new BadRequestObjectResult(new { error = result.Error.Message, details = result.Error.Details }),
+                ErrorCode.Unauthorized => new UnauthorizedObjectResult(new { error = result.Error.Message, details = result.Error.Details }),
+                ErrorCode.Forbidden => new ObjectResult(new { error = result.Error.Message, details = result.Error.Details }) { StatusCode = 403 },
+                ErrorCode.Conflict => new ConflictObjectResult(new { error = result.Error.Message, details = result.Error.Details }),
+                ErrorCode.BadRequest => new BadRequestObjectResult(new { error = result.Error.Message, details = result.Error.Details }),
+                _ => new ObjectResult(new { error = result.Error.Message, details = result.Error.Details }) { StatusCode = 500 }
+            };
+        }
+
+        /// <summary>
+        /// Converts a Result<T> to an IActionResult for API responses
+        /// </summary>
+        public static IActionResult ToActionResult<T>(this Result<T> result)
+        {
+            if (result.IsSuccess)
+            {
+                return new OkObjectResult(result.Value);
+            }
+
+            return result.Error!.Code switch
+            {
+                ErrorCode.NotFound => new NotFoundObjectResult(new { error = result.Error.Message, details = result.Error.Details }),
+                ErrorCode.ValidationError => new BadRequestObjectResult(new { error = result.Error.Message, details = result.Error.Details }),
+                ErrorCode.Unauthorized => new UnauthorizedObjectResult(new { error = result.Error.Message, details = result.Error.Details }),
+                ErrorCode.Forbidden => new ObjectResult(new { error = result.Error.Message, details = result.Error.Details }) { StatusCode = 403 },
+                ErrorCode.Conflict => new ConflictObjectResult(new { error = result.Error.Message, details = result.Error.Details }),
+                ErrorCode.BadRequest => new BadRequestObjectResult(new { error = result.Error.Message, details = result.Error.Details }),
+                _ => new ObjectResult(new { error = result.Error.Message, details = result.Error.Details }) { StatusCode = 500 }
+            };
+        }
+
+        /// <summary>
+        /// Executes an action if the result is successful
+        /// </summary>
+        public static Result OnSuccess(this Result result, Action action)
+        {
+            if (result.IsSuccess)
+            {
+                action();
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Executes an action if the result is successful
+        /// </summary>
+        public static Result<T> OnSuccess<T>(this Result<T> result, Action<T> action)
+        {
+            if (result.IsSuccess && result.Value != null)
+            {
+                action(result.Value);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Executes an action if the result is a failure
+        /// </summary>
+        public static Result OnFailure(this Result result, Action<Error> action)
+        {
+            if (result.IsFailure && result.Error != null)
+            {
+                action(result.Error);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Executes an action if the result is a failure
+        /// </summary>
+        public static Result<T> OnFailure<T>(this Result<T> result, Action<Error> action)
+        {
+            if (result.IsFailure && result.Error != null)
+            {
+                action(result.Error);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Maps a successful result to a new type
+        /// </summary>
+        public static Result<TOut> Map<TIn, TOut>(this Result<TIn> result, Func<TIn, TOut> mapper)
         {
             if (result.IsFailure)
-                return result;
-        }
-        return Result.Success();
-    }
+            {
+                return Result<TOut>.Failure(result.Error!);
+            }
 
-    /// <summary>
-    /// Combines multiple results into a single result with aggregated errors
-    /// </summary>
-    public static Result CombineAll(params Result[] results)
-    {
-        var errors = results.Where(r => r.IsFailure).Select(r => r.Error).ToList();
-        if (errors.Any())
-        {
-            var aggregatedMessage = string.Join("; ", errors.Select(e => e!.Message));
-            return Result.Failure(ErrorCodes.ValidationFailed, "Multiple validation errors occurred", aggregatedMessage);
+            if (result.Value == null)
+            {
+                return Result<TOut>.Failure(ErrorCode.InternalError, "Cannot map null value");
+            }
+
+            return Result<TOut>.Success(mapper(result.Value));
         }
-        return Result.Success();
+
+        /// <summary>
+        /// Chains multiple operations that return Result
+        /// </summary>
+        public static async Task<Result<TOut>> BindAsync<TIn, TOut>(
+            this Result<TIn> result, 
+            Func<TIn, Task<Result<TOut>>> func)
+        {
+            if (result.IsFailure)
+            {
+                return Result<TOut>.Failure(result.Error!);
+            }
+
+            if (result.Value == null)
+            {
+                return Result<TOut>.Failure(ErrorCode.InternalError, "Cannot bind null value");
+            }
+
+            return await func(result.Value);
+        }
+
+        /// <summary>
+        /// Matches the result to one of two functions based on success/failure
+        /// </summary>
+        public static TOut Match<TIn, TOut>(
+            this Result<TIn> result,
+            Func<TIn, TOut> onSuccess,
+            Func<Error, TOut> onFailure)
+        {
+            return result.IsSuccess && result.Value != null
+                ? onSuccess(result.Value)
+                : onFailure(result.Error!);
+        }
+
+        /// <summary>
+        /// Ensures a condition is met, otherwise returns a failure
+        /// </summary>
+        public static Result<T> Ensure<T>(
+            this Result<T> result,
+            Func<T, bool> predicate,
+            Error error)
+        {
+            if (result.IsFailure)
+            {
+                return result;
+            }
+
+            if (result.Value == null)
+            {
+                return Result<T>.Failure(ErrorCode.InternalError, "Cannot ensure on null value");
+            }
+
+            return predicate(result.Value)
+                ? result
+                : Result<T>.Failure(error);
+        }
     }
 }

@@ -47,9 +47,9 @@ namespace GrcMvc.Services
         {
             try
             {
-                var user = await _authContext.Users
+                var user = await _authContext.Set<ApplicationUser>()
                     .Include(u => u.RoleProfile)
-                    .FirstOrDefaultAsync(u => u.Id == userId);
+                    .FirstOrDefaultAsync(u => u.Id == Guid.Parse(userId));
 
                 if (user == null)
                     return new UserInboxViewModel();

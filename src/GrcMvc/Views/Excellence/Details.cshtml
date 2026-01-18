@@ -59,7 +59,7 @@
                                 <p class="fs-5">
                                     @if (Model.TargetDate.HasValue)
                                     {
-                                        var isOverdue = Model.TargetDate.Value < DateTime.Now && Model.Status != "Completed";
+                                        var isOverdue = Model.TargetDate.Value < DateTime.UtcNow && Model.Status != "Completed";
                                         <span class="@(isOverdue ? "text-danger" : "")">
                                             @Model.TargetDate.Value.ToString("MMM dd, yyyy")
                                             @if (isOverdue)

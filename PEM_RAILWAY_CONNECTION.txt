@@ -1,0 +1,19 @@
+PEM Server Connection Details for Railway PostgreSQL
+=====================================================
+
+Instead of localhost:5432, use these settings in PEM:
+
+Host: caboose.proxy.rlwy.net
+Port: 11527
+Database: GrcMvcDb
+Username: postgres
+Password: QNcTvViWopMfCunsyIkkXwuDpufzhkLs
+SSL Mode: Required
+
+In the PEM installer:
+1. Change Host from "localhost" to: caboose.proxy.rlwy.net
+2. Change Port from "5432" to: 11527
+3. Use the password: QNcTvViWopMfCunsyIkkXwuDpufzhkLs
+4. Make sure SSL is enabled (it's required for Railway)
+
+Note: Railway PostgreSQL already has SSL enabled and requires it.

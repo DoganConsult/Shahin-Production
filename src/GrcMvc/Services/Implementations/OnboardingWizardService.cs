@@ -17,6 +17,12 @@ namespace GrcMvc.Services.Implementations
     /// Service for comprehensive onboarding wizard API operations.
     /// Handles all 12 sections (A-L) with progressive save and validation.
     /// Maps between API DTOs and the existing OnboardingWizard entity.
+    ///
+    /// 43-Layer Architecture Integration:
+    /// - Creates answer snapshots (Layer 14) on section saves
+    /// - Triggers rules evaluation (Layer 16) on step completion
+    /// - Generates explainability payloads (Layer 17) for decisions
+    /// - Derives compliance outputs (Layer 15) on wizard completion
     /// </summary>
     public class OnboardingWizardService : IOnboardingWizardService
     {
@@ -25,6 +31,7 @@ namespace GrcMvc.Services.Implementations
         private readonly IAuditEventService _auditService;
         private readonly IOnboardingCoverageService _coverageService;
         private readonly IFieldRegistryService _fieldRegistryService;
+        private readonly IOnboardingControlPlaneService _controlPlaneService;
         private readonly IConfiguration _configuration;
         private readonly ILogger<OnboardingWizardService> _logger;
 
@@ -41,6 +48,7 @@ namespace GrcMvc.Services.Implementations
             IAuditEventService auditService,
             IOnboardingCoverageService coverageService,
             IFieldRegistryService fieldRegistryService,
+            IOnboardingControlPlaneService controlPlaneService,
             IConfiguration configuration,
             ILogger<OnboardingWizardService> logger)
         {
@@ -49,6 +57,7 @@ namespace GrcMvc.Services.Implementations
             _auditService = auditService;
             _coverageService = coverageService;
             _fieldRegistryService = fieldRegistryService;
+            _controlPlaneService = controlPlaneService;
             _configuration = configuration;
             _logger = logger;
         }
@@ -634,14 +643,48 @@ namespace GrcMvc.Services.Implementations
 
             await _unitOfWork.SaveChangesAsync();
 
-            // Trigger scope derivation
+            // 43-Layer Architecture: Complete onboarding via control plane (Layers 14-17, 31-35)
+            // This creates final snapshot, derives framework selections, applies overlays,
+            // resolves control sets, creates scope boundaries, and calculates risk profile
             try
             {
-                await _rulesEngine.DeriveAndPersistScopeAsync(tenantId, userId);
+                var controlPlaneResult = await _controlPlaneService.CompleteOnboardingAsync(
+                    tenantId, wizard.Id, userId);
+
+                if (!controlPlaneResult.Success)
+                {
+                    _logger.LogWarning(
+                        "Control plane completion returned errors for tenant {TenantId}: {Errors}",
+                        tenantId, string.Join(", ", controlPlaneResult.Errors ?? new List<string>()));
+                }
+                else
+                {
+                    _logger.LogInformation(
+                        "43-Layer compliance resolution completed for tenant {TenantId}: " +
+                        "{FrameworkCount} frameworks, {ControlCount} controls, {ScopeCount} scope items",
+                        tenantId,
+                        controlPlaneResult.FrameworkSelectionsCount,
+                        controlPlaneResult.ControlsResolvedCount,
+                        controlPlaneResult.ScopeBoundariesCount);
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Scope derivation failed for tenant {TenantId}, but wizard completed", tenantId);
+                _logger.LogWarning(ex,
+                    "43-Layer control plane completion failed for tenant {TenantId}, falling back to legacy derivation",
+                    tenantId);
+
+                // Fallback to legacy scope derivation
+                try
+                {
+                    await _rulesEngine.DeriveAndPersistScopeAsync(tenantId, userId);
+                }
+                catch (Exception legacyEx)
+                {
+                    _logger.LogWarning(legacyEx,
+                        "Legacy scope derivation also failed for tenant {TenantId}",
+                        tenantId);
+                }
             }
 
             var scope = await GetDerivedScopeAsync(tenantId);
@@ -804,6 +847,44 @@ namespace GrcMvc.Services.Implementations
                 NextSection = nextSection,
                 Message = message
             };
+
+            // 43-Layer Architecture: Create answer snapshot (Layer 14) on section save
+            try
+            {
+                var stepNumber = currentIndex + 1;
+                var answersJson = GetSectionAnswersJson(wizard, section);
+                var userId = wizard.ModifiedBy ?? "system";
+
+                await _controlPlaneService.CreateSnapshotAsync(
+                    wizard.Id,
+                    stepNumber,
+                    section,
+                    answersJson,
+                    userId);
+
+                _logger.LogDebug(
+                    "Created answer snapshot for wizard {WizardId} section {Section}",
+                    wizard.Id, section);
+
+                // If section is complete, trigger rules evaluation (Layer 16)
+                if (complete)
+                {
+                    var inputContext = BuildInputContextFromWizard(wizard, section);
+                    var rulesResult = await _controlPlaneService.EvaluateRulesAsync(
+                        wizard.Id, stepNumber, inputContext);
+
+                    _logger.LogDebug(
+                        "Evaluated {RuleCount} rules for wizard {WizardId} section {Section}",
+                        rulesResult?.MatchedRules ?? 0, wizard.Id, section);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex,
+                    "Error creating snapshot/rules evaluation for wizard {WizardId} section {Section}",
+                    wizard.Id, section);
+                // Don't fail the save operation for control plane errors
+            }
 
             // Add coverage validation if enabled
             var enableCoverageValidation = _configuration?.GetValue<bool>("Onboarding:ValidateOnSectionSave", true) ?? true;
@@ -1064,6 +1145,144 @@ namespace GrcMvc.Services.Implementations
                 "C" or "D" or "E" => "MISSION_1_SCOPE_RISK",
                 _ => null
             };
+        }
+
+        /// <summary>
+        /// Get section answers as JSON for snapshot creation.
+        /// </summary>
+        private string GetSectionAnswersJson(OnboardingWizard wizard, string section)
+        {
+            var answers = new Dictionary<string, object?>();
+
+            switch (section.ToUpper())
+            {
+                case "A":
+                    answers["legalNameEn"] = wizard.OrganizationLegalNameEn;
+                    answers["legalNameAr"] = wizard.OrganizationLegalNameAr;
+                    answers["tradeName"] = wizard.TradeName;
+                    answers["countryOfIncorporation"] = wizard.CountryOfIncorporation;
+                    answers["operatingCountries"] = wizard.OperatingCountriesJson;
+                    answers["primaryHqLocation"] = wizard.PrimaryHqLocation;
+                    answers["timezone"] = wizard.DefaultTimezone;
+                    answers["primaryLanguage"] = wizard.PrimaryLanguage;
+                    answers["corporateEmailDomains"] = wizard.CorporateEmailDomainsJson;
+                    answers["orgType"] = wizard.OrganizationType;
+                    answers["industrySector"] = wizard.IndustrySector;
+                    break;
+
+                case "B":
+                    answers["primaryDriver"] = wizard.PrimaryDriver;
+                    answers["targetTimeline"] = wizard.TargetTimeline;
+                    answers["currentPainPoints"] = wizard.CurrentPainPointsJson;
+                    answers["desiredMaturity"] = wizard.DesiredMaturity;
+                    break;
+
+                case "C":
+                    answers["primaryRegulators"] = wizard.PrimaryRegulatorsJson;
+                    answers["secondaryRegulators"] = wizard.SecondaryRegulatorsJson;
+                    answers["mandatoryFrameworks"] = wizard.MandatoryFrameworksJson;
+                    answers["optionalFrameworks"] = wizard.OptionalFrameworksJson;
+                    break;
+
+                case "D":
+                    answers["inScopeLegalEntities"] = wizard.InScopeLegalEntitiesJson;
+                    answers["inScopeBusinessUnits"] = wizard.InScopeBusinessUnitsJson;
+                    answers["inScopeSystems"] = wizard.InScopeSystemsJson;
+                    answers["inScopeProcesses"] = wizard.InScopeProcessesJson;
+                    answers["inScopeEnvironments"] = wizard.InScopeEnvironments;
+                    break;
+
+                case "E":
+                    answers["dataTypesProcessed"] = wizard.DataTypesProcessedJson;
+                    answers["hasPaymentCardData"] = wizard.HasPaymentCardData;
+                    answers["hasCrossBorderTransfers"] = wizard.HasCrossBorderDataTransfers;
+                    answers["customerVolumeTier"] = wizard.CustomerVolumeTier;
+                    answers["transactionVolumeTier"] = wizard.TransactionVolumeTier;
+                    break;
+
+                case "F":
+                    answers["identityProvider"] = wizard.IdentityProvider;
+                    answers["ssoEnabled"] = wizard.SsoEnabled;
+                    answers["cloudProviders"] = wizard.CloudProvidersJson;
+                    answers["itsmPlatform"] = wizard.ItsmPlatform;
+                    answers["siemPlatform"] = wizard.SiemPlatform;
+                    break;
+
+                default:
+                    // For other sections, return basic info
+                    answers["section"] = section;
+                    answers["currentStep"] = wizard.CurrentStep;
+                    break;
+            }
+
+            return JsonSerializer.Serialize(answers, _jsonOptions);
+        }
+
+        /// <summary>
+        /// Build input context dictionary from wizard data for rules evaluation.
+        /// Maps wizard fields to rule engine input format.
+        /// </summary>
+        private Dictionary<string, object> BuildInputContextFromWizard(OnboardingWizard wizard, string section)
+        {
+            var context = new Dictionary<string, object>
+            {
+                ["tenantId"] = wizard.TenantId.ToString(),
+                ["wizardId"] = wizard.Id.ToString(),
+                ["section"] = section,
+                ["currentStep"] = wizard.CurrentStep,
+                ["progressPercent"] = wizard.ProgressPercent
+            };
+
+            // Add section-specific context based on completed section
+            switch (section.ToUpper())
+            {
+                case "A": // Organization Identity
+                    context["countryOfIncorporation"] = wizard.CountryOfIncorporation ?? "";
+                    context["operatingCountries"] = wizard.OperatingCountriesJson ?? "[]";
+                    context["orgType"] = wizard.OrganizationType ?? "";
+                    context["industrySector"] = wizard.IndustrySector ?? "";
+                    context["hasDataResidencyRequirement"] = wizard.HasDataResidencyRequirement;
+                    break;
+
+                case "C": // Regulatory Applicability
+                    context["primaryRegulators"] = wizard.PrimaryRegulatorsJson ?? "[]";
+                    context["mandatoryFrameworks"] = wizard.MandatoryFrameworksJson ?? "[]";
+                    context["optionalFrameworks"] = wizard.OptionalFrameworksJson ?? "[]";
+                    break;
+
+                case "D": // Scope Definition
+                    context["inScopeLegalEntities"] = wizard.InScopeLegalEntitiesJson ?? "[]";
+                    context["inScopeBusinessUnits"] = wizard.InScopeBusinessUnitsJson ?? "[]";
+                    context["inScopeSystems"] = wizard.InScopeSystemsJson ?? "[]";
+                    context["inScopeProcesses"] = wizard.InScopeProcessesJson ?? "[]";
+                    context["inScopeEnvironments"] = wizard.InScopeEnvironments ?? "";
+                    context["systemCriticalityTiers"] = wizard.SystemCriticalityTiersJson ?? "[]";
+                    break;
+
+                case "E": // Data & Risk Profile
+                    context["dataTypesProcessed"] = wizard.DataTypesProcessedJson ?? "[]";
+                    context["hasPaymentCardData"] = wizard.HasPaymentCardData;
+                    context["hasCrossBorderTransfers"] = wizard.HasCrossBorderDataTransfers;
+                    context["hasThirdPartyDataProcessing"] = wizard.HasThirdPartyDataProcessing;
+                    context["customerVolumeTier"] = wizard.CustomerVolumeTier ?? "";
+                    context["transactionVolumeTier"] = wizard.TransactionVolumeTier ?? "";
+                    context["hasInternetFacingSystems"] = wizard.HasInternetFacingSystems;
+                    break;
+
+                case "F": // Technology Landscape
+                    context["cloudProviders"] = wizard.CloudProvidersJson ?? "[]";
+                    context["identityProvider"] = wizard.IdentityProvider ?? "";
+                    context["ssoEnabled"] = wizard.SsoEnabled;
+                    break;
+
+                case "K": // Baseline & Overlays
+                    context["adoptDefaultBaseline"] = wizard.AdoptDefaultBaseline;
+                    context["selectedOverlays"] = wizard.SelectedOverlaysJson ?? "[]";
+                    context["hasClientSpecificControls"] = wizard.HasClientSpecificControls;
+                    break;
+            }
+
+            return context;
         }
 
         #endregion

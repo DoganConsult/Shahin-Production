@@ -47,7 +47,7 @@ namespace GrcMvc.Services.Implementations
             if (_cache.TryGetValue(cacheKey, out ApplicationUser? cached))
                 return cached;
 
-            var user = await _authContext.Users.FindAsync(userId);
+            var user = await _authContext.Set<ApplicationUser>().FindAsync(userId);
             if (user != null)
             {
                 _cache.Set(cacheKey, user, CacheDuration);
@@ -81,13 +81,13 @@ namespace GrcMvc.Services.Implementations
             // Fetch uncached users in batch
             if (uncachedIds.Any())
             {
-                var users = await _authContext.Users
-                    .Where(u => uncachedIds.Contains(u.Id))
+                var users = await _authContext.Set<ApplicationUser>()
+                    .Where(u => uncachedIds.Contains(u.Id.ToString()))
                     .ToListAsync();
 
                 foreach (var user in users)
                 {
-                    result[user.Id] = user;
+                    result[user.Id.ToString()] = user;
                     _cache.Set($"{UserCachePrefix}{user.Id}", user, CacheDuration);
                 }
             }
@@ -107,7 +107,7 @@ namespace GrcMvc.Services.Implementations
                 return new List<ApplicationUser>();
 
             var normalizedSearch = searchTerm.ToUpperInvariant();
-            return await _authContext.Users
+            return await _authContext.Set<ApplicationUser>()
                 .Where(u => u.NormalizedEmail!.Contains(normalizedSearch) ||
                            u.FirstName.ToUpper().Contains(normalizedSearch) ||
                            u.LastName.ToUpper().Contains(normalizedSearch))
@@ -117,7 +117,7 @@ namespace GrcMvc.Services.Implementations
 
         public async Task<List<ApplicationUser>> GetAllActiveUsersAsync()
         {
-            return await _authContext.Users
+            return await _authContext.Set<ApplicationUser>()
                 .Where(u => u.IsActive)
                 .OrderBy(u => u.LastName)
                 .ThenBy(u => u.FirstName)
@@ -126,7 +126,7 @@ namespace GrcMvc.Services.Implementations
 
         public async Task<int> GetUserCountAsync()
         {
-            return await _authContext.Users.CountAsync();
+            return await _authContext.Set<ApplicationUser>().CountAsync();
         }
 
         // ===== ROLE LOOKUPS =====
@@ -171,7 +171,7 @@ namespace GrcMvc.Services.Implementations
 
             if (uncachedIds.Any())
             {
-                var roles = await _authContext.Roles
+                var roles = await _authContext.Set<IdentityRole>()
                     .Where(r => uncachedIds.Contains(r.Id))
                     .ToListAsync();
 
@@ -193,7 +193,7 @@ namespace GrcMvc.Services.Implementations
 
         public async Task<List<IdentityRole>> GetAllRolesAsync()
         {
-            return await _authContext.Roles.OrderBy(r => r.Name).ToListAsync();
+            return await _authContext.Set<IdentityRole>().OrderBy(r => r.Name).ToListAsync();
         }
 
         // ===== USER-ROLE LOOKUPS =====

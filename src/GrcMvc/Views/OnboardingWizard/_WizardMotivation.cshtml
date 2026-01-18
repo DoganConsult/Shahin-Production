@@ -1,41 +1,90 @@
 @*
-    Wizard Motivation Partial View
+    Wizard Motivation Partial View (Enterprise-Safe)
     Include this in wizard step views to enable motivation features
-    Usage: @await Html.PartialAsync("_WizardMotivation", new { StepNumber = 1, StepName = "StepA" })
+    Usage: @await Html.PartialAsync("_WizardMotivation")
 *@
 
 @{
-    var stepNumber = ViewData["StepNumber"] ?? 1;
-    var stepName = ViewData["StepName"] ?? "StepA";
-    var tenantId = ViewData["TenantId"] ?? Guid.Empty;
+    // Robust parsing from ViewData
+    var stepNumberObj = ViewData["StepNumber"];
+    var stepNumber = stepNumberObj is int i
+        ? i
+        : (int.TryParse(stepNumberObj?.ToString(), out var sn) ? sn : 1);
+
+    var stepName = ViewData["StepName"]?.ToString() ?? "StepA";
+
+    var tenantIdObj = ViewData["TenantId"];
+    var tenantId = tenantIdObj is Guid g
+        ? g
+        : (Guid.TryParse(tenantIdObj?.ToString(), out var tg) ? tg : Guid.Empty);
+
     var totalSteps = 12;
 }
 
-<!-- Motivation CSS -->
+@* Issue #17: Include both CSS files for consistency across all wizard steps *@
+<link rel="stylesheet" href="~/css/wizard-motion.css" asp-append-version="true" />
 <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
-
-<!-- Motivation JS -->
 <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Motivation System
-        window.wizardMotivation = new WizardMotivation({
-            stepNumber: @stepNumber,
-            totalSteps: @totalSteps,
-            tenantId: '@tenantId',
-            stepName: '@stepName'
-        });
+(function () {
+    function init() {
+        const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        // Initialize Live Preview Panel
-        window.livePreview = new LivePreviewPanel({
-            stepName: '@stepName'
-        });
+        // Enterprise defaults: helpful motion, not flashy
+        const enterpriseConfig = reducedMotion ? {
+            enableCelebrations: false,
+            enableTips: true,
+            enableProgress: true,
+            enablePreview: true,
+            enableParticles: false,
+            entryAnimation: false,
+            tipDelay: 1200,
+            celebrationDuration: 1200
+        } : {
+            enableCelebrations: true,
+            enableTips: true,
+            enableProgress: true,
+            enablePreview: true,
+            enableParticles: false,     // OFF in compliance UI
+            entryAnimation: true,
+            tipDelay: 1800,
+            celebrationDuration: 1600
+        };
 
-        // Initialize Why We Ask Tooltips
-        window.tooltips = new WhyWeAskTooltips();
+        // Guard against multiple initializations (partial used across many views)
+        if (!window.wizardMotivation) {
+            window.wizardMotivation = new WizardMotivation({
+                stepNumber: @stepNumber,
+                totalSteps: @totalSteps,
+                tenantId: '@tenantId',
+                stepName: '@stepName',
+                config: enterpriseConfig
+            });
+        }
 
-        // Console log for debugging
-        console.log('Wizard Motivation System initialized for @stepName');
-    });
+        if (!window.livePreview) {
+            window.livePreview = new LivePreviewPanel({
+                stepName: '@stepName'
+            });
+        }
+
+        if (!window.nextBestAction) {
+            window.nextBestAction = new NextBestActionPanel({
+                stepNumber: @stepNumber,
+                stepName: '@stepName'
+            });
+        }
+
+        if (!window.tooltips) {
+            window.tooltips = new WhyWeAskTooltips();
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
 </script>

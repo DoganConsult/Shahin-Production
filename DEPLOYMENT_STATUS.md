@@ -51,7 +51,7 @@ tail -f /var/log/grc-app.log
 The nginx configuration is already set up for `app.shahin-ai.com` in:
 - `/etc/nginx/sites-enabled/shahin-ai-landing.conf`
 
-It proxies to `127.0.0.1:8080` which is the application port.
+It proxies to `127.0.0.1:5000` which is the application origin port.
 
 ---
 

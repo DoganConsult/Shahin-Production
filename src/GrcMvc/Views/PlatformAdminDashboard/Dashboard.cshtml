@@ -1,0 +1,144 @@
+@model GrcMvc.Models.ViewModels.PlatformAdminDashboardViewModel
+@{
+    ViewData["Title"] = "Platform Admin Dashboard";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-4">Platform Administration</h1>
+            <p class="lead">Welcome, @Model.AdminName (@Model.AdminLevel)</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Total Tenants</h5>
+                    <h2 class="card-text">@Model.TotalTenants</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Active Tenants</h5>
+                    <h2 class="card-text">@Model.ActiveTenants</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Trial Tenants</h5>
+                    <h2 class="card-text">@Model.TrialTenants</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger">
+                <div class="card-body">
+                    <h5 class="card-title">Suspended</h5>
+                    <h2 class="card-text">@Model.SuspendedTenants</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.CanCreateTenants)
+                    {
+                        <a href="@Url.Action("CreateTenant")" class="btn btn-success me-2">
+                            <i class="bi bi-plus-circle"></i> Create New Tenant
+                        </a>
+                    }
+                    <a href="@Url.Action("TenantList")" class="btn btn-primary me-2">
+                        <i class="bi bi-list"></i> View All Tenants
+                    </a>
+                    <button class="btn btn-info" onclick="exportReport()">
+                        <i class="bi bi-download"></i> Export Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Tenants -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <h5>Recent Tenants</h5>
+                    <span class="text-muted">Created this month: @Model.TenantsCreatedThisMonth</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Organization</th>
+                                    <th>Slug</th>
+                                    <th>Status</th>
+                                    <th>Tier</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var tenant in Model.RecentTenants)
+                                {
+                                    <tr>
+                                        <td>@tenant.OrganizationName</td>
+                                        <td><code>@tenant.TenantSlug</code></td>
+                                        <td>
+                                            @if (tenant.Status == "Active")
+                                            {
+                                                <span class="badge bg-success">@tenant.Status</span>
+                                            }
+                                            else if (tenant.Status == "Suspended")
+                                            {
+                                                <span class="badge bg-danger">@tenant.Status</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning">@tenant.Status</span>
+                                            }
+                                        </td>
+                                        <td>@tenant.SubscriptionTier</td>
+                                        <td>@tenant.CreatedDate.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            <a href="@Url.Action("TenantDetails", new { id = tenant.Id })" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function exportReport() {
+            // Call API to export tenant report
+            window.location.href = '/api/platform/tenant-management/export';
+        }
+    </script>
+}

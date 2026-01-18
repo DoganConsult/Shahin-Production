@@ -1,0 +1,82 @@
+@model string
+
+@{
+    var fieldName = ViewData.TemplateInfo.HtmlFieldPrefix;
+    var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 8);
+    var accept = ViewData["Accept"]?.ToString() ?? "*/*";
+    var maxSize = ViewData["MaxSize"]?.ToString() ?? "10485760"; // 10MB default
+    var maxSizeMB = int.Parse(maxSize) / 1024 / 1024;
+}
+
+<div class="grc-fileupload-editor" id="upload-@uniqueId">
+    <div class="upload-zone border border-2 border-dashed rounded p-4 text-center"
+         ondragover="event.preventDefault(); this.classList.add('border-primary', 'bg-light');"
+         ondragleave="this.classList.remove('border-primary', 'bg-light');"
+         ondrop="handleDrop@uniqueId(event)">
+        <i class="bi bi-cloud-arrow-up fs-1 text-muted"></i>
+        <p class="mb-2">@Localizer["FileUpload_DragOrBrowse"]</p>
+        <label class="btn btn-primary btn-sm">
+            <i class="bi bi-folder2-open me-1"></i>
+            @Localizer["FileUpload_Browse"]
+            <input type="file"
+                   id="@fieldName"
+                   name="@fieldName"
+                   accept="@accept"
+                   class="d-none file-input-@uniqueId"
+                   onchange="handleFile@uniqueId(this)" />
+        </label>
+        <p class="small text-muted mt-2 mb-0">
+            @Localizer["FileUpload_MaxSize", maxSizeMB]
+        </p>
+    </div>
+    <div class="preview-zone mt-2 d-none" id="preview-@uniqueId">
+        <div class="d-flex align-items-center gap-2 p-2 border rounded bg-light">
+            <i class="bi bi-file-earmark fs-4"></i>
+            <div class="flex-grow-1">
+                <div class="file-name fw-semibold"></div>
+                <div class="file-size small text-muted"></div>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearFile@uniqueId()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function handleFile@uniqueId(input) {
+        const file = input.files[0];
+        if (file) {
+            const preview = document.getElementById('preview-@uniqueId');
+            preview.classList.remove('d-none');
+            preview.querySelector('.file-name').textContent = file.name;
+            preview.querySelector('.file-size').textContent = (file.size / 1024).toFixed(1) + ' KB';
+        }
+    }
+
+    function handleDrop@uniqueId(e) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('border-primary', 'bg-light');
+        const input = document.querySelector('.file-input-@uniqueId');
+        input.files = e.dataTransfer.files;
+        handleFile@uniqueId(input);
+    }
+
+    function clearFile@uniqueId() {
+        const input = document.querySelector('.file-input-@uniqueId');
+        input.value = '';
+        document.getElementById('preview-@uniqueId').classList.add('d-none');
+    }
+</script>
+
+<style>
+    .grc-fileupload-editor .upload-zone {
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .grc-fileupload-editor .upload-zone:hover {
+        border-color: var(--bs-primary) !important;
+        background-color: var(--bs-light);
+    }
+    .border-dashed { border-style: dashed !important; }
+</style>

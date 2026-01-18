@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
-using GrcMvc.Configuration;
 using GrcMvc.Constants;
 using GrcMvc.Data;
 using GrcMvc.Models.DTOs;
@@ -16,14 +13,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 
 namespace GrcMvc.Services.Implementations
 {
     /// <summary>
-    /// CRITICAL FIX: Identity-based AuthenticationService
-    /// Replaces mock implementation with proper ASP.NET Core Identity integration
-    /// Uses UserManager, SignInManager, and proper JWT token generation
+    /// OpenIddict-based AuthenticationService
+    /// Uses ASP.NET Core Identity for user management
+    /// Token generation is handled by OpenIddict at /connect/token endpoint
+    ///
+    /// MIGRATION NOTE: Custom JWT has been removed. Use /connect/token for OAuth2 tokens.
     /// </summary>
     public class IdentityAuthenticationService : IAuthenticationService
     {
@@ -32,7 +30,6 @@ namespace GrcMvc.Services.Implementations
         private readonly IConfiguration _configuration;
         private readonly GrcDbContext _context;
         private readonly ILogger<IdentityAuthenticationService> _logger;
-        private readonly JwtSettings _jwtSettings;
         private readonly GrcAuthDbContext? _authContext;
         private readonly IAuthenticationAuditService? _authAuditService;
 
@@ -52,10 +49,13 @@ namespace GrcMvc.Services.Implementations
             _logger = logger;
             _authContext = authContext;
             _authAuditService = authAuditService;
-            _jwtSettings = configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>() 
-                ?? throw new InvalidOperationException("JWT settings are not configured");
         }
 
+        /// <summary>
+        /// DEPRECATED: Use /connect/token endpoint with OAuth2 password grant instead.
+        /// This method now only validates credentials and returns user info without tokens.
+        /// </summary>
+        [Obsolete("Use /connect/token endpoint with OAuth2 password grant for authentication")]
         public async Task<AuthTokenDto?> LoginAsync(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -65,9 +65,9 @@ namespace GrcMvc.Services.Implementations
                 return null;
             }
 
-            // CRITICAL FIX: Use proper password validation with UserManager
-            var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: false, lockoutOnFailure: true);
-            
+            // Validate password using Identity
+            var result = await _signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
+
             if (!result.Succeeded)
             {
                 _logger.LogWarning("Login failed for user {Email}: {Result}", email, result);
@@ -82,29 +82,18 @@ namespace GrcMvc.Services.Implementations
             var roles = await _userManager.GetRolesAsync(user);
             var claims = await _userManager.GetClaimsAsync(user);
 
-            // Get tenant user for tenant context
-            var tenantUser = await _context.TenantUsers
-                .Include(tu => tu.Tenant)
-                .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
+            _logger.LogInformation("User {Email} credentials validated. Use /connect/token for OAuth2 tokens.", email);
 
-            // CRITICAL FIX: Generate proper JWT token with signing
-            var token = GenerateJwtToken(user, roles.ToList(), claims.ToList(), tenantUser?.TenantId);
-            var refreshToken = GenerateRefreshToken();
-
-            // Store refresh token
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-            await _userManager.UpdateAsync(user);
-
+            // Return user info with deprecation notice - no JWT token
             return new AuthTokenDto
             {
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
-                RefreshToken = refreshToken,
+                AccessToken = "DEPRECATED:Use_/connect/token_endpoint",
+                RefreshToken = "DEPRECATED:Use_/connect/token_endpoint",
                 TokenType = "Bearer",
-                ExpiresIn = (int)(token.ValidTo - DateTime.UtcNow).TotalSeconds,
+                ExpiresIn = 0,
                 User = new AuthUserDto
                 {
-                    Id = user.Id,
+                    Id = user.Id.ToString(),
                     Email = user.Email ?? string.Empty,
                     FullName = user.FullName,
                     Department = user.Department,
@@ -114,6 +103,11 @@ namespace GrcMvc.Services.Implementations
             };
         }
 
+        /// <summary>
+        /// DEPRECATED: Use /connect/token endpoint after registration for tokens.
+        /// This method creates the user but does not return tokens.
+        /// </summary>
+        [Obsolete("Use /connect/token endpoint with OAuth2 password grant for authentication after registration")]
         public async Task<AuthTokenDto?> RegisterAsync(string email, string password, string fullName)
         {
             // Check if user already exists
@@ -132,13 +126,9 @@ namespace GrcMvc.Services.Implementations
             // Create user
             var user = new ApplicationUser
             {
-                UserName = email,
-                Email = email,
                 FirstName = firstName,
                 LastName = lastName,
-                EmailConfirmed = !_configuration.GetValue<bool>("RequireEmailConfirmation", false),
                 CreatedDate = DateTime.UtcNow,
-                IsActive = true
             };
 
             var result = await _userManager.CreateAsync(user, password);
@@ -148,28 +138,35 @@ namespace GrcMvc.Services.Implementations
                 return null;
             }
 
+            // Set UserName and Email using UserManager methods
+            await _userManager.SetUserNameAsync(user, email);
+            await _userManager.SetEmailAsync(user, email);
+            
+            // Conditionally confirm email
+            if (!_configuration.GetValue<bool>("RequireEmailConfirmation", false))
+            {
+                var emailToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                await _userManager.ConfirmEmailAsync(user, emailToken);
+            }
+
             // Assign default role
             await _userManager.AddToRoleAsync(user, "User");
 
-            // Generate token
             var roles = await _userManager.GetRolesAsync(user);
             var claims = await _userManager.GetClaimsAsync(user);
-            var token = GenerateJwtToken(user, roles.ToList(), claims.ToList(), null);
-            var refreshToken = GenerateRefreshToken();
 
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-            await _userManager.UpdateAsync(user);
+            _logger.LogInformation("User {Email} registered successfully. Use /connect/token for OAuth2 tokens.", email);
 
+            // Return user info with deprecation notice - no JWT token
             return new AuthTokenDto
             {
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
-                RefreshToken = refreshToken,
+                AccessToken = "DEPRECATED:Use_/connect/token_endpoint",
+                RefreshToken = "DEPRECATED:Use_/connect/token_endpoint",
                 TokenType = "Bearer",
-                ExpiresIn = (int)(token.ValidTo - DateTime.UtcNow).TotalSeconds,
+                ExpiresIn = 0,
                 User = new AuthUserDto
                 {
-                    Id = user.Id,
+                    Id = user.Id.ToString(),
                     Email = user.Email ?? string.Empty,
                     FullName = user.FullName,
                     Department = user.Department,
@@ -179,88 +176,38 @@ namespace GrcMvc.Services.Implementations
             };
         }
 
-        public async Task<bool> ValidateTokenAsync(string token)
+        /// <summary>
+        /// DEPRECATED: Token validation is now handled by OpenIddict middleware.
+        /// Use [Authorize] attribute on controllers instead.
+        /// </summary>
+        [Obsolete("Token validation is handled by OpenIddict middleware. Use [Authorize] attribute.")]
+        public Task<bool> ValidateTokenAsync(string token)
         {
-            try
-            {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(_jwtSettings.Secret);
-                
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = true,
-                    ValidIssuer = _jwtSettings.Issuer,
-                    ValidateAudience = true,
-                    ValidAudience = _jwtSettings.Audience,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
-                }, out SecurityToken validatedToken);
-
-                return validatedToken != null;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Token validation failed");
-                return false;
-            }
+            _logger.LogWarning("ValidateTokenAsync is deprecated. Use OpenIddict middleware with [Authorize] attribute.");
+            // OpenIddict handles token validation via middleware
+            return Task.FromResult(false);
         }
 
-        public async Task<AuthUserDto?> GetUserFromTokenAsync(string token)
+        /// <summary>
+        /// DEPRECATED: Use HttpContext.User claims from OpenIddict middleware instead.
+        /// </summary>
+        [Obsolete("Use HttpContext.User claims from OpenIddict middleware instead")]
+        public Task<AuthUserDto?> GetUserFromTokenAsync(string token)
         {
-            if (!await ValidateTokenAsync(token))
-                return null;
-
-            try
-            {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var jwtToken = tokenHandler.ReadJwtToken(token);
-                var userId = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
-
-                if (string.IsNullOrEmpty(userId))
-                    return null;
-
-                var user = await _userManager.FindByIdAsync(userId);
-                if (user == null)
-                    return null;
-
-                var roles = await _userManager.GetRolesAsync(user);
-                var claims = await _userManager.GetClaimsAsync(user);
-
-                return new AuthUserDto
-                {
-                    Id = user.Id,
-                    Email = user.Email ?? string.Empty,
-                    FullName = user.FullName,
-                    Department = user.Department,
-                    Roles = roles.ToList(),
-                    Permissions = claims.Where(c => c.Type.StartsWith("permission.")).Select(c => c.Value).ToList()
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to get user from token");
-                return null;
-            }
+            _logger.LogWarning("GetUserFromTokenAsync is deprecated. Use HttpContext.User claims from OpenIddict middleware.");
+            return Task.FromResult<AuthUserDto?>(null);
         }
 
+        /// <summary>
+        /// Logout - invalidates refresh token if stored
+        /// </summary>
         public async Task<bool> LogoutAsync(string token)
         {
             try
             {
-                var user = await GetUserFromTokenAsync(token);
-                if (user == null)
-                    return false;
-
-                var appUser = await _userManager.FindByIdAsync(user.Id);
-                if (appUser != null)
-                {
-                    appUser.RefreshToken = null;
-                    appUser.RefreshTokenExpiry = null;
-                    await _userManager.UpdateAsync(appUser);
-                }
-
+                // Sign out from Identity
+                await _signInManager.SignOutAsync();
+                _logger.LogInformation("User signed out successfully");
                 return true;
             }
             catch (Exception ex)
@@ -270,47 +217,14 @@ namespace GrcMvc.Services.Implementations
             }
         }
 
-        public async Task<AuthTokenDto?> RefreshTokenAsync(string refreshToken)
+        /// <summary>
+        /// DEPRECATED: Use /connect/token endpoint with refresh_token grant type instead.
+        /// </summary>
+        [Obsolete("Use /connect/token endpoint with grant_type=refresh_token")]
+        public Task<AuthTokenDto?> RefreshTokenAsync(string refreshToken)
         {
-            // Use UserManager's underlying store instead of non-existent Users DbSet
-            var allUsers = await _userManager.Users.ToListAsync();
-            var user = allUsers.FirstOrDefault(u => u.RefreshToken == refreshToken && 
-                                         u.RefreshTokenExpiry > DateTime.UtcNow);
-
-            if (user == null)
-            {
-                _logger.LogWarning("Invalid or expired refresh token");
-                return null;
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var claims = await _userManager.GetClaimsAsync(user);
-            var tenantUser = await _context.TenantUsers
-                .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
-
-            var newToken = GenerateJwtToken(user, roles.ToList(), claims.ToList(), tenantUser?.TenantId);
-            var newRefreshToken = GenerateRefreshToken();
-
-            user.RefreshToken = newRefreshToken;
-            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-            await _userManager.UpdateAsync(user);
-
-            return new AuthTokenDto
-            {
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(newToken),
-                RefreshToken = newRefreshToken,
-                TokenType = "Bearer",
-                ExpiresIn = (int)(newToken.ValidTo - DateTime.UtcNow).TotalSeconds,
-                User = new AuthUserDto
-                {
-                    Id = user.Id,
-                    Email = user.Email ?? string.Empty,
-                    FullName = user.FullName,
-                    Department = user.Department,
-                    Roles = roles.ToList(),
-                    Permissions = claims.Where(c => c.Type.StartsWith("permission.")).Select(c => c.Value).ToList()
-                }
-            };
+            _logger.LogWarning("RefreshTokenAsync is deprecated. Use /connect/token with grant_type=refresh_token.");
+            return Task.FromResult<AuthTokenDto?>(null);
         }
 
         public async Task<UserProfileDto?> GetUserProfileAsync(string userId)
@@ -323,7 +237,7 @@ namespace GrcMvc.Services.Implementations
 
             return new UserProfileDto
             {
-                Id = user.Id,
+                Id = user.Id.ToString(),
                 Email = user.Email ?? string.Empty,
                 FullName = user.FullName,
                 Department = user.Department,
@@ -350,8 +264,13 @@ namespace GrcMvc.Services.Implementations
                 user.LastName = nameParts.Length > 1 ? nameParts[1] : string.Empty;
             }
             user.Department = updateProfileDto.Department ?? user.Department;
-            user.PhoneNumber = updateProfileDto.PhoneNumber ?? user.PhoneNumber;
             user.JobTitle = updateProfileDto.JobTitle ?? user.JobTitle;
+
+            // Set PhoneNumber using UserManager
+            if (!string.IsNullOrEmpty(updateProfileDto.PhoneNumber))
+            {
+                await _userManager.SetPhoneNumberAsync(user, updateProfileDto.PhoneNumber);
+            }
 
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
@@ -369,26 +288,25 @@ namespace GrcMvc.Services.Implementations
             if (user == null)
                 return false;
 
-            // CRITICAL FIX: Store old password hash BEFORE changing password
+            // Store old password hash BEFORE changing password
             string? oldPasswordHash = user.PasswordHash;
 
             var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
             if (result.Succeeded)
             {
-                // CRITICAL FIX: Store password history and log audit event
                 try
                 {
-                    // Store old password hash in history (captured before change)
+                    // Store old password hash in history
                     if (_authContext != null && !string.IsNullOrEmpty(oldPasswordHash))
                     {
                         var passwordHistory = new PasswordHistory
                         {
-                            UserId = user.Id,
-                            PasswordHash = oldPasswordHash, // Store old hash (captured before change)
+                            UserId = user.Id.ToString(),
+                            PasswordHash = oldPasswordHash,
                             ChangedAt = DateTime.UtcNow,
                             ChangedByUserId = userId,
                             Reason = "User initiated",
-                            IpAddress = null, // Not available in service layer
+                            IpAddress = null,
                             UserAgent = null
                         };
                         _authContext.PasswordHistory.Add(passwordHistory);
@@ -403,8 +321,8 @@ namespace GrcMvc.Services.Implementations
                     if (_authAuditService != null)
                     {
                         await _authAuditService.LogPasswordChangeAsync(
-                            userId: user.Id,
-                            changedByUserId: userId,
+                            userId: user.Id.ToString(),
+                            changedByUserId: userId.ToString(),
                             reason: "User initiated",
                             ipAddress: null,
                             userAgent: null);
@@ -413,7 +331,6 @@ namespace GrcMvc.Services.Implementations
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex, "Failed to store password history or log audit event for user {UserId}", userId);
-                    // Don't fail password change if audit logging fails
                 }
             }
 
@@ -435,14 +352,12 @@ namespace GrcMvc.Services.Implementations
             }
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            // In real implementation, send email with token
-            // For now, return token (should be sent via email in production)
 
             return new PasswordResetResponseDto
             {
                 Success = true,
                 Message = "Password reset link has been sent to your email",
-                ResetToken = token, // Should not be returned in production - send via email
+                ResetToken = token, // Should be sent via email in production
                 ExpiryTime = DateTime.UtcNow.AddHours(1)
             };
         }
@@ -453,42 +368,37 @@ namespace GrcMvc.Services.Implementations
             if (user == null)
                 return false;
 
-            // CRITICAL FIX: Store old password hash BEFORE resetting password
             string? oldPasswordHash = user.PasswordHash;
 
             var result = await _userManager.ResetPasswordAsync(user, resetPasswordDto.Token, resetPasswordDto.NewPassword);
             if (result.Succeeded)
             {
-                // CRITICAL FIX: Store password history and log audit event
                 try
                 {
-                    // Store old password hash in history (captured before change)
                     if (_authContext != null && !string.IsNullOrEmpty(oldPasswordHash))
                     {
                         var passwordHistory = new PasswordHistory
                         {
-                            UserId = user.Id,
-                            PasswordHash = oldPasswordHash, // Store old hash (captured before change)
+                            UserId = user.Id.ToString(),
+                            PasswordHash = oldPasswordHash,
                             ChangedAt = DateTime.UtcNow,
-                            ChangedByUserId = user.Id,
+                            ChangedByUserId = user.Id.ToString(),
                             Reason = "Password reset via email",
-                            IpAddress = null, // Not available in service layer
+                            IpAddress = null,
                             UserAgent = null
                         };
                         _authContext.PasswordHistory.Add(passwordHistory);
                         await _authContext.SaveChangesAsync();
                     }
 
-                    // Update password change timestamp
                     user.LastPasswordChangedAt = DateTime.UtcNow;
                     await _userManager.UpdateAsync(user);
 
-                    // Log audit event
                     if (_authAuditService != null)
                     {
                         await _authAuditService.LogPasswordChangeAsync(
-                            userId: user.Id,
-                            changedByUserId: user.Id,
+                            userId: user.Id.ToString(),
+                            changedByUserId: user.Id.ToString(),
                             reason: "Password reset via email",
                             ipAddress: null,
                             userAgent: null);
@@ -496,60 +406,13 @@ namespace GrcMvc.Services.Implementations
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "Failed to store password history or log audit event for user {UserId}", user.Id);
-                    // Don't fail password reset if audit logging fails
+                    _logger.LogWarning(ex, "Failed to store password history for user {UserId}", user.Id);
                     user.LastPasswordChangedAt = DateTime.UtcNow;
                     await _userManager.UpdateAsync(user);
                 }
             }
 
             return result.Succeeded;
-        }
-
-        private JwtSecurityToken GenerateJwtToken(ApplicationUser user, List<string> roles, List<Claim> claims, Guid? tenantId)
-        {
-            var jwtClaims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
-            };
-
-            // Add tenant ID if available
-            if (tenantId.HasValue)
-            {
-                jwtClaims.Add(new Claim(ClaimConstants.TenantId, tenantId.Value.ToString()));
-            }
-
-            // Add roles
-            foreach (var role in roles)
-            {
-                jwtClaims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            // Add custom claims
-            jwtClaims.AddRange(claims);
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            return new JwtSecurityToken(
-                issuer: _jwtSettings.Issuer,
-                audience: _jwtSettings.Audience,
-                claims: jwtClaims,
-                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes),
-                signingCredentials: creds
-            );
-        }
-
-        private string GenerateRefreshToken()
-        {
-            var randomNumber = new byte[32];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomNumber);
-            return Convert.ToBase64String(randomNumber);
         }
     }
 }

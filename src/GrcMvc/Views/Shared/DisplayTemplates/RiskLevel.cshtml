@@ -1,0 +1,32 @@
+@model string
+
+@{
+    var level = Model?.ToLower() ?? "";
+
+    var (bgClass, icon, labelKey, textClass) = level switch
+    {
+        "critical" or "very high" or "veryhigh" => ("bg-danger", "bi-exclamation-octagon-fill", "RiskLevel_Critical", ""),
+        "high" => ("bg-orange", "bi-exclamation-triangle-fill", "RiskLevel_High", "text-white"),
+        "medium" or "moderate" => ("bg-warning", "bi-exclamation-circle", "RiskLevel_Medium", "text-dark"),
+        "low" => ("bg-success", "bi-check-circle", "RiskLevel_Low", ""),
+        "very low" or "verylow" or "minimal" => ("bg-info", "bi-info-circle", "RiskLevel_VeryLow", ""),
+        "none" or "n/a" => ("bg-secondary", "bi-dash-circle", "RiskLevel_None", ""),
+        _ => ("bg-light", "bi-question-circle", "RiskLevel_Unknown", "text-dark")
+    };
+}
+
+@if (!string.IsNullOrEmpty(Model))
+{
+    <span class="badge @bgClass @textClass grc-risk-level">
+        <i class="bi @icon me-1"></i>
+        @Localizer[labelKey]
+    </span>
+}
+else
+{
+    <span class="badge bg-light text-muted">—</span>
+}
+
+<style>
+    .bg-orange { background-color: #fd7e14 !important; }
+</style>

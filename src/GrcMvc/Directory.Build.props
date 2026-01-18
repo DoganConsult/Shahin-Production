@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <ExperimentalDataSectionStringLiterals>true</ExperimentalDataSectionStringLiterals>
+    <NoWarn>CS8103</NoWarn>
+  </PropertyGroup>
+</Project>

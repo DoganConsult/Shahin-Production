@@ -46,17 +46,23 @@ public static class PlatformAdminSeeds
 
             user = new ApplicationUser
             {
-                UserName = OwnerEmail,
-                Email = OwnerEmail,
-                EmailConfirmed = true,
                 FirstName = "Platform",
                 LastName = "Owner",
-                IsActive = true,
                 CreatedDate = DateTime.UtcNow,
                 MustChangePassword = true  // Force password change on first login
             };
 
             var createResult = await userManager.CreateAsync(user, GetDefaultPassword());
+            
+            if (createResult.Succeeded)
+            {
+                // Set UserName, Email, and confirm email using UserManager methods
+                await userManager.SetUserNameAsync(user, OwnerEmail);
+                await userManager.SetEmailAsync(user, OwnerEmail);
+                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                await userManager.ConfirmEmailAsync(user, token);
+            }
+            
             if (!createResult.Succeeded)
             {
                 logger.LogError("❌ Failed to create Platform Owner user: {Errors}",
@@ -84,7 +90,7 @@ public static class PlatformAdminSeeds
         // Create Platform Admin record with full Owner permissions
         var platformAdmin = new PlatformAdmin
         {
-            Id = Guid.NewGuid(),
+            // Id is auto-generated - don't set manually
             UserId = user.Id,
             DisplayName = OwnerDisplayName,
             ContactEmail = OwnerEmail,
@@ -149,7 +155,7 @@ public static class PlatformAdminSeeds
             return false;
         }
 
-        var user = await userManager.FindByIdAsync(admin.UserId);
+        var user = await userManager.FindByIdAsync(admin.UserId.ToString());
         if (user == null)
         {
             logger.LogWarning("User not found for Platform Admin: {Email}", adminEmail);

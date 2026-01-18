@@ -65,9 +65,16 @@ namespace GrcMvc.Controllers
                 try
                 {
                     await _policyHelper.EnforceCreateAsync("Vendor", dto, dataClassification: dto.DataClassification, owner: dto.Owner);
-                    var vendor = await _vendorService.CreateAsync(dto);
+                    var result = await _vendorService.CreateAsync(dto);
+                    
+                    if (result.IsFailure)
+                    {
+                        ModelState.AddModelError("", result.Error?.Message ?? "Error creating vendor.");
+                        return View(dto);
+                    }
+                    
                     TempData["Success"] = "Vendor created successfully";
-                    return RedirectToAction(nameof(Details), new { id = vendor.Id });
+                    return RedirectToAction(nameof(Details), new { id = result.Value!.Id });
                 }
                 catch (PolicyViolationException pex)
                 {
@@ -123,10 +130,20 @@ namespace GrcMvc.Controllers
                 try
                 {
                     await _policyHelper.EnforceUpdateAsync("Vendor", dto, dataClassification: dto.DataClassification, owner: dto.Owner);
-                    var vendor = await _vendorService.UpdateAsync(id, dto);
-                    if (vendor == null) return NotFound();
+                    var result = await _vendorService.UpdateAsync(id, dto);
+                    
+                    if (result.IsFailure)
+                    {
+                        if (result.Error?.Code == GrcMvc.Common.Results.ErrorCode.NotFound)
+                        {
+                            return NotFound();
+                        }
+                        ModelState.AddModelError("", result.Error?.Message ?? "Error updating vendor.");
+                        return View(dto);
+                    }
+                    
                     TempData["Success"] = "Vendor updated successfully";
-                    return RedirectToAction(nameof(Details), new { id = vendor.Id });
+                    return RedirectToAction(nameof(Details), new { id = result.Value!.Id });
                 }
                 catch (PolicyViolationException pex)
                 {

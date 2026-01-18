@@ -1,0 +1,44 @@
+%% Shahin AI GRC Platform - Multi-Tenant Data Flow
+%% Shows how tenant isolation works at each layer
+
+flowchart TB
+    subgraph Request["Incoming Request"]
+        JWT["JWT Token<br/>Contains TenantId Claim"]
+    end
+
+    subgraph Middleware["Middleware Pipeline"]
+        TenantResolver["TenantResolutionMiddleware<br/>Extract TenantId from JWT"]
+        AuthMiddleware["Authorization Middleware<br/>Validate Permissions"]
+    end
+
+    subgraph Controller["Controller Layer"]
+        BaseController["GrcApiControllerBase<br/>Inject ITenantContextService"]
+    end
+
+    subgraph Service["Service Layer"]
+        TenantService["ITenantContextService<br/>GetCurrentTenantId()"]
+    end
+
+    subgraph DbContext["GrcDbContext"]
+        GlobalFilter["Global Query Filter<br/>WHERE TenantId = @CurrentTenantId<br/>Applied Automatically"]
+    end
+
+    subgraph Database["PostgreSQL Database"]
+        TenantA["Tenant A Data<br/>Visible"]
+        TenantB["Tenant B Data<br/>Hidden"]
+        TenantC["Tenant C Data<br/>Hidden"]
+    end
+
+    Request --> Middleware
+    Middleware --> Controller
+    Controller --> Service
+    Service --> DbContext
+    DbContext --> Database
+
+    GlobalFilter -.->|"Returns Only"| TenantA
+    GlobalFilter -.->|"Filtered Out"| TenantB
+    GlobalFilter -.->|"Filtered Out"| TenantC
+
+    style TenantA fill:#90EE90
+    style TenantB fill:#FFB6C1
+    style TenantC fill:#FFB6C1

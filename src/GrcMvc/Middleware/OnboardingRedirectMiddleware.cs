@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using GrcMvc.Constants;
 using GrcMvc.Data;
 using Microsoft.EntityFrameworkCore;
@@ -64,15 +65,33 @@ namespace GrcMvc.Middleware
                     return;
                 }
 
-                // If onboarding is not completed, redirect to wizard
+                // If onboarding is not completed, check if user is first admin or if FirstAdminUserId is not set (backward compatibility)
                 if (!OnboardingStatus.IsCompleted(tenant.OnboardingStatus))
                 {
-                    _logger.LogInformation(
-                        "Redirecting user to onboarding wizard. TenantId={TenantId}, Status={Status}, Path={Path}",
-                        tenantId, tenant.OnboardingStatus, path);
+                    // Get current user ID
+                    var currentUserId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    
+                    // Only redirect if:
+                    // 1. FirstAdminUserId is not set (backward compatibility - redirect all users)
+                    // 2. Current user is the first admin
+                    var shouldRedirect = string.IsNullOrEmpty(tenant.FirstAdminUserId) || 
+                                        (currentUserId != null && currentUserId == tenant.FirstAdminUserId);
 
-                    context.Response.Redirect($"/OnboardingWizard/Index?tenantId={tenantId}");
-                    return;
+                    if (shouldRedirect)
+                    {
+                        _logger.LogInformation(
+                            "Redirecting user to onboarding wizard. TenantId={TenantId}, Status={Status}, Path={Path}, FirstAdminUserId={FirstAdminUserId}, CurrentUserId={CurrentUserId}",
+                            tenantId, tenant.OnboardingStatus, path, tenant.FirstAdminUserId, currentUserId);
+
+                        context.Response.Redirect($"/OnboardingWizard/Index?tenantId={tenantId}");
+                        return;
+                    }
+                    else
+                    {
+                        _logger.LogDebug(
+                            "Skipping onboarding redirect - user is not first admin. TenantId={TenantId}, FirstAdminUserId={FirstAdminUserId}, CurrentUserId={CurrentUserId}",
+                            tenantId, tenant.FirstAdminUserId, currentUserId);
+                    }
                 }
             }
             catch (Exception ex)

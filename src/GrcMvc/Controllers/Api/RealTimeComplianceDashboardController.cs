@@ -4,6 +4,7 @@ using GrcMvc.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Volo.Abp.MultiTenancy;
 
 namespace GrcMvc.Controllers.Api;
 
@@ -19,15 +20,22 @@ namespace GrcMvc.Controllers.Api;
 public class RealTimeComplianceDashboardController : ControllerBase
 {
     private readonly GrcDbContext _dbContext;
+    
+    // ABP Service for modern tenant management
+    private readonly ICurrentTenant _currentTenant;
+    
+    // Legacy service for backward compatibility
     private readonly ITenantContextService _tenantContext;
     private readonly ILogger<RealTimeComplianceDashboardController> _logger;
 
     public RealTimeComplianceDashboardController(
         GrcDbContext dbContext,
+        ICurrentTenant currentTenant,
         ITenantContextService tenantContext,
         ILogger<RealTimeComplianceDashboardController> logger)
     {
         _dbContext = dbContext;
+        _currentTenant = currentTenant;
         _tenantContext = tenantContext;
         _logger = logger;
     }
@@ -43,7 +51,8 @@ public class RealTimeComplianceDashboardController : ControllerBase
     {
         try
         {
-            var tenantId = _tenantContext.GetCurrentTenantId();
+            // Use ABP's ICurrentTenant (modern approach)
+            var tenantId = _currentTenant.Id ?? _tenantContext.GetCurrentTenantId();
             var isArabic = lang?.ToLower() == "ar";
 
             // Get framework controls and tenant controls
@@ -125,7 +134,8 @@ public class RealTimeComplianceDashboardController : ControllerBase
     {
         try
         {
-            var tenantId = _tenantContext.GetCurrentTenantId();
+            // Use ABP's ICurrentTenant (modern approach)
+            var tenantId = _currentTenant.Id ?? _tenantContext.GetCurrentTenantId();
             var isArabic = lang?.ToLower() == "ar";
 
             var frameworkControls = await _dbContext.FrameworkControls
@@ -296,7 +306,8 @@ public class RealTimeComplianceDashboardController : ControllerBase
     {
         try
         {
-            var tenantId = _tenantContext.GetCurrentTenantId();
+            // Use ABP's ICurrentTenant (modern approach)
+            var tenantId = _currentTenant.Id ?? _tenantContext.GetCurrentTenantId();
             var isArabic = lang?.ToLower() == "ar";
 
             var query = _dbContext.Controls
@@ -390,7 +401,8 @@ public class RealTimeComplianceDashboardController : ControllerBase
     {
         try
         {
-            var tenantId = _tenantContext.GetCurrentTenantId();
+            // Use ABP's ICurrentTenant (modern approach)
+            var tenantId = _currentTenant.Id ?? _tenantContext.GetCurrentTenantId();
             var isArabic = lang?.ToLower() == "ar";
             var now = DateTime.UtcNow;
 

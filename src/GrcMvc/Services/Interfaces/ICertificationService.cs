@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GrcMvc.Common.Results;
 
 namespace GrcMvc.Services.Interfaces;
 
@@ -31,12 +32,12 @@ public interface ICertificationService
     /// <summary>
     /// Update certification
     /// </summary>
-    Task<CertificationDto> UpdateAsync(Guid id, UpdateCertificationRequest request);
+    Task<Result<CertificationDto>> UpdateAsync(Guid id, UpdateCertificationRequest request);
     
     /// <summary>
     /// Delete certification
     /// </summary>
-    Task DeleteAsync(Guid id);
+    Task<Result> DeleteAsync(Guid id);
     
     /// <summary>
     /// Get all certifications for tenant
@@ -60,32 +61,32 @@ public interface ICertificationService
     /// <summary>
     /// Start certification process (planning)
     /// </summary>
-    Task<CertificationDto> StartCertificationAsync(Guid id, StartCertificationRequest request);
+    Task<Result<CertificationDto>> StartCertificationAsync(Guid id, StartCertificationRequest request);
     
     /// <summary>
     /// Mark certification as obtained/issued
     /// </summary>
-    Task<CertificationDto> MarkIssuedAsync(Guid id, MarkIssuedRequest request);
+    Task<Result<CertificationDto>> MarkIssuedAsync(Guid id, MarkIssuedRequest request);
     
     /// <summary>
     /// Renew certification
     /// </summary>
-    Task<CertificationDto> RenewAsync(Guid id, RenewCertificationRequest request);
+    Task<Result<CertificationDto>> RenewAsync(Guid id, RenewCertificationRequest request);
     
     /// <summary>
     /// Suspend certification
     /// </summary>
-    Task<CertificationDto> SuspendAsync(Guid id, string reason, string suspendedBy);
+    Task<Result<CertificationDto>> SuspendAsync(Guid id, string reason, string suspendedBy);
     
     /// <summary>
     /// Reinstate suspended certification
     /// </summary>
-    Task<CertificationDto> ReinstateAsync(Guid id, string notes, string reinstatedBy);
+    Task<Result<CertificationDto>> ReinstateAsync(Guid id, string notes, string reinstatedBy);
     
     /// <summary>
     /// Mark certification as expired
     /// </summary>
-    Task<CertificationDto> MarkExpiredAsync(Guid id);
+    Task<Result<CertificationDto>> MarkExpiredAsync(Guid id);
     
     #endregion
 
@@ -94,12 +95,12 @@ public interface ICertificationService
     /// <summary>
     /// Schedule an audit
     /// </summary>
-    Task<CertificationAuditDto> ScheduleAuditAsync(Guid certificationId, ScheduleAuditRequest request);
+    Task<Result<CertificationAuditDto>> ScheduleAuditAsync(Guid certificationId, ScheduleAuditRequest request);
     
     /// <summary>
     /// Record audit result
     /// </summary>
-    Task<CertificationAuditDto> RecordAuditResultAsync(Guid auditId, RecordAuditResultRequest request);
+    Task<Result<CertificationAuditDto>> RecordAuditResultAsync(Guid auditId, RecordAuditResultRequest request);
     
     /// <summary>
     /// Get audit by ID
@@ -114,7 +115,7 @@ public interface ICertificationService
     /// <summary>
     /// Mark corrective actions complete
     /// </summary>
-    Task<CertificationAuditDto> CompleteCorrectiveActionsAsync(Guid auditId, string notes, string completedBy);
+    Task<Result<CertificationAuditDto>> CompleteCorrectiveActionsAsync(Guid auditId, string notes, string completedBy);
     
     /// <summary>
     /// Get upcoming audits
@@ -143,7 +144,7 @@ public interface ICertificationService
     /// <summary>
     /// Update next surveillance date
     /// </summary>
-    Task<CertificationDto> UpdateSurveillanceDateAsync(Guid id, DateTime nextDate);
+    Task<Result<CertificationDto>> UpdateSurveillanceDateAsync(Guid id, DateTime nextDate);
     
     #endregion
 
@@ -176,7 +177,7 @@ public interface ICertificationService
     /// <summary>
     /// Assign owner to certification
     /// </summary>
-    Task<CertificationDto> AssignOwnerAsync(Guid id, string ownerId, string ownerName, string? department);
+    Task<Result<CertificationDto>> AssignOwnerAsync(Guid id, string ownerId, string ownerName, string? department);
     
     /// <summary>
     /// Get certifications by owner

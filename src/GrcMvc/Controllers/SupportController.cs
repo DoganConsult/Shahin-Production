@@ -208,7 +208,7 @@ public class SupportApiController : ControllerBase
 
             var consent = await _consentService.RecordConsentAsync(
                 request.TenantId,
-                request.UserId,
+                Guid.Parse(request.UserId),
                 request.ConsentType,
                 request.DocumentVersion,
                 request.IsGranted,
@@ -238,8 +238,9 @@ public class SupportApiController : ControllerBase
     {
         try
         {
-            var hasAll = await _consentService.HasAllMandatoryConsentsAsync(userId);
-            var consents = await _consentService.GetUserConsentsAsync(userId);
+            var userIdGuid = Guid.Parse(userId);
+            var hasAll = await _consentService.HasAllMandatoryConsentsAsync(userIdGuid);
+            var consents = await _consentService.GetUserConsentsAsync(userIdGuid);
 
             return Ok(new
             {

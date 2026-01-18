@@ -144,12 +144,8 @@ namespace GrcMvc.Services.Implementations
                 // Create ApplicationUser
                 var user = new ApplicationUser
                 {
-                    UserName = username,
-                    Email = tenant.AdminEmail,
-                    EmailConfirmed = true, // Auto-confirm for owner-generated accounts
                     FirstName = "Admin",
                     LastName = tenant.OrganizationName,
-                    IsActive = true,
                     CreatedDate = DateTime.UtcNow
                 };
 
@@ -159,6 +155,12 @@ namespace GrcMvc.Services.Implementations
                     var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
                     throw new GrcException($"Failed to create user: {errors}", GrcErrorCodes.ValidationFailed);
                 }
+
+                // Set UserName, Email and confirm email using UserManager methods
+                await _userManager.SetUserNameAsync(user, username);
+                await _userManager.SetEmailAsync(user, tenant.AdminEmail);
+                var emailToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                await _userManager.ConfirmEmailAsync(user, emailToken);
 
                 // Ensure Admin role exists
                 if (!await _roleManager.RoleExistsAsync("Admin"))
@@ -175,7 +177,7 @@ namespace GrcMvc.Services.Implementations
                 {
                     Id = Guid.NewGuid(),
                     TenantId = tenantId,
-                    UserId = user.Id,
+                    UserId = user.Id.ToString(),
                     RoleCode = "Admin",
                     TitleCode = "TENANT_ADMIN",
                     Status = "Active",
@@ -193,7 +195,7 @@ namespace GrcMvc.Services.Implementations
                 var ownerTenantCreation = new OwnerTenantCreation
                 {
                     Id = Guid.NewGuid(),
-                    OwnerId = ownerId,
+                    OwnerId = Guid.Parse(ownerId),
                     TenantId = tenantId,
                     AdminUsername = username,
                     CredentialsExpiresAt = expirationDate,
@@ -272,7 +274,7 @@ namespace GrcMvc.Services.Implementations
 
                 // Check TenantUser exists and is Admin for this tenant
                 var tenantUser = await _context.TenantUsers
-                    .FirstOrDefaultAsync(tu => tu.TenantId == tenantId && tu.UserId == user.Id);
+                    .FirstOrDefaultAsync(tu => tu.TenantId == tenantId && tu.UserId == user.Id.ToString());
 
                 if (tenantUser == null || tenantUser.RoleCode != "Admin" || tenantUser.Status != "Active")
                 {

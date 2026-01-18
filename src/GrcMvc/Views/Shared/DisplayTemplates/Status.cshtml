@@ -1,0 +1,30 @@
+@model string
+
+@{
+    var status = Model?.ToLower() ?? "";
+
+    var (bgClass, icon, labelKey) = status switch
+    {
+        "active" or "approved" or "completed" or "compliant" => ("bg-success", "bi-check-circle-fill", "Status_Active"),
+        "pending" or "inprogress" or "in_progress" or "in progress" => ("bg-warning text-dark", "bi-hourglass-split", "Status_Pending"),
+        "inactive" or "disabled" or "archived" => ("bg-secondary", "bi-pause-circle", "Status_Inactive"),
+        "draft" => ("bg-info", "bi-pencil", "Status_Draft"),
+        "rejected" or "failed" or "non_compliant" or "noncompliant" => ("bg-danger", "bi-x-circle-fill", "Status_Rejected"),
+        "expired" or "overdue" => ("bg-danger", "bi-exclamation-triangle-fill", "Status_Expired"),
+        "review" or "under_review" or "submitted" => ("bg-primary", "bi-eye", "Status_UnderReview"),
+        "scheduled" or "planned" => ("bg-info", "bi-calendar-event", "Status_Scheduled"),
+        _ => ("bg-light text-dark", "bi-question-circle", "Status_Unknown")
+    };
+}
+
+@if (!string.IsNullOrEmpty(Model))
+{
+    <span class="badge @bgClass grc-status">
+        <i class="bi @icon me-1"></i>
+        @Localizer[labelKey]
+    </span>
+}
+else
+{
+    <span class="badge bg-light text-muted">—</span>
+}

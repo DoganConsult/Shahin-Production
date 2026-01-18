@@ -93,11 +93,7 @@ namespace GrcMvc.Tests.Integration
             _context.WorkflowTasks.Add(overdueTask);
             await _context.SaveChangesAsync();
 
-            var job = new EscalationJob(
-                _context,
-                _mockEscalationService.Object,
-                _mockNotificationService.Object,
-                _mockEscalationLogger.Object);
+            var job = new EscalationJob(_context, _mockEscalationService.Object, _mockNotificationService.Object, _mockEscalationLogger.Object);
 
             // Act
             await job.ExecuteAsync();
@@ -174,11 +170,7 @@ namespace GrcMvc.Tests.Integration
 
             await _context.SaveChangesAsync();
 
-            var job = new EscalationJob(
-                _context,
-                _mockEscalationService.Object,
-                _mockNotificationService.Object,
-                _mockEscalationLogger.Object);
+            var job = new EscalationJob(_context, _mockEscalationService.Object, _mockNotificationService.Object, _mockEscalationLogger.Object);
 
             // Act
             await job.ExecuteAsync();
@@ -219,11 +211,7 @@ namespace GrcMvc.Tests.Integration
             _context.WorkflowTasks.Add(alreadyEscalated);
             await _context.SaveChangesAsync();
 
-            var job = new EscalationJob(
-                _context,
-                _mockEscalationService.Object,
-                _mockNotificationService.Object,
-                _mockEscalationLogger.Object);
+            var job = new EscalationJob(_context, _mockEscalationService.Object, _mockNotificationService.Object, _mockEscalationLogger.Object);
 
             // Act
             await job.ExecuteAsync();
@@ -371,11 +359,7 @@ namespace GrcMvc.Tests.Integration
         public void EscalationJob_CanBeInstantiated()
         {
             // Arrange & Act
-            var job = new EscalationJob(
-                _context,
-                _mockEscalationService.Object,
-                _mockNotificationService.Object,
-                _mockEscalationLogger.Object);
+            var job = new EscalationJob(_context, _mockEscalationService.Object, _mockNotificationService.Object, _mockEscalationLogger.Object);
 
             // Assert
             Assert.NotNull(job);

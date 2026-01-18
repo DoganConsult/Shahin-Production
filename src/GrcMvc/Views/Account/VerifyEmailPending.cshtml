@@ -1,0 +1,84 @@
+@model GrcMvc.Controllers.VerifyEmailPendingViewModel
+@{
+    ViewData["Title"] = "Email Verification Required";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7 text-center">
+            <!-- Locked Icon -->
+            <div class="mb-4">
+                <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                    <i class="bi bi-envelope-exclamation text-info" style="font-size: 3rem;"></i>
+                </div>
+            </div>
+
+            <!-- Message -->
+            <h1 class="h2 mb-3">Email Verification Required</h1>
+            <p class="lead text-muted mb-4">
+                Please verify your email before logging in.
+            </p>
+
+            <!-- Info Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <p class="mb-3">
+                        We sent a verification email to <strong>@Model.Email</strong>
+                    </p>
+                    <p class="text-muted small mb-0">
+                        Click the link in the email to verify your account and set your password.
+                        The link expires in 24 hours.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Resend Option -->
+            <div class="card bg-light border-0 mb-4">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="bi bi-question-circle me-2"></i>Didn't receive it?
+                    </h6>
+                    <p class="text-muted small mb-3">Check your spam folder or request a new email.</p>
+                    <form asp-controller="Register" asp-action="ResendVerification" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="tenantId" value="@Model.TenantId" />
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-envelope-arrow-up me-2"></i> Resend Verification Email
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="alert alert-light border text-start">
+                <h6 class="alert-heading">
+                    <i class="bi bi-lightbulb me-1"></i> Tips
+                </h6>
+                <ul class="mb-0 small">
+                    <li>Check your spam/junk folder</li>
+                    <li>Add noreply@shahin-ai.com to your contacts</li>
+                    <li>Make sure you're checking the right email account</li>
+                </ul>
+            </div>
+
+            <!-- Already Verified? -->
+            <div class="mt-4">
+                <p class="text-muted small mb-2">
+                    Already verified? Click the link in your email to set your password.
+                </p>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-2"></i> Back to Login
+                </a>
+            </div>
+
+            <!-- Support -->
+            <div class="mt-4">
+                <p class="text-muted small">
+                    Need help? Contact us at
+                    <a href="mailto:support@shahin-ai.com">support@shahin-ai.com</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

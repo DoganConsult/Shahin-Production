@@ -599,12 +599,14 @@ namespace GrcMvc.Controllers
 
             try
             {
-                // Generate tenant slug if not provided
-                var tenantSlug = model.TenantSlug ?? model.OrganizationName?.ToLower()
-                    .Replace(" ", "-")
-                    .Replace("_", "-")
-                    .Replace(".", "-")
-                    .Trim('-');
+                // Generate tenant slug if not provided (check empty string too, not just null)
+                var tenantSlug = string.IsNullOrWhiteSpace(model.TenantSlug)
+                    ? model.OrganizationName?.ToLower()
+                        .Replace(" ", "-")
+                        .Replace("_", "-")
+                        .Replace(".", "-")
+                        .Trim('-')
+                    : model.TenantSlug;
 
                 if (string.IsNullOrWhiteSpace(tenantSlug))
                 {

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Common.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -80,10 +81,13 @@ public class CertificationService : ICertificationService
         return certification != null ? MapToDetailDto(certification) : null;
     }
 
-    public async Task<CertificationDto> UpdateAsync(Guid id, UpdateCertificationRequest request)
+    public async Task<Result<CertificationDto>> UpdateAsync(Guid id, UpdateCertificationRequest request)
     {
-        var certification = await _context.Set<Certification>().FindAsync(id)
-            ?? throw new InvalidOperationException($"Certification {id} not found");
+        var certification = await _context.Set<Certification>().FindAsync(id);
+        if (certification == null)
+        {
+            return Result<CertificationDto>.Failure(Error.NotFound("Certification", id));
+        }
 
         if (request.Name != null) certification.Name = request.Name;
         if (request.NameAr != null) certification.NameAr = request.NameAr;
@@ -100,18 +104,22 @@ public class CertificationService : ICertificationService
 
         await _context.SaveChangesAsync();
 
-        return MapToDto(certification);
+        return Result<CertificationDto>.Success(MapToDto(certification));
     }
 
-    public async Task DeleteAsync(Guid id)
+    public async Task<Result> DeleteAsync(Guid id)
     {
-        var certification = await _context.Set<Certification>().FindAsync(id)
-            ?? throw new InvalidOperationException($"Certification {id} not found");
+        var certification = await _context.Set<Certification>().FindAsync(id);
+        if (certification == null)
+        {
+            return Result.Failure(Error.NotFound("Certification", id));
+        }
 
         _context.Set<Certification>().Remove(certification);
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Deleted certification {Id}", id);
+        return Result.Success();
     }
 
     public async Task<List<CertificationDto>> GetAllAsync(Guid tenantId)
@@ -148,10 +156,13 @@ public class CertificationService : ICertificationService
 
     #region Lifecycle Management
 
-    public async Task<CertificationDto> StartCertificationAsync(Guid id, StartCertificationRequest request)
+    public async Task<Result<CertificationDto>> StartCertificationAsync(Guid id, StartCertificationRequest request)
     {
-        var certification = await _context.Set<Certification>().FindAsync(id)
-            ?? throw new InvalidOperationException($"Certification {id} not found");
+        var certification = await _context.Set<Certification>().FindAsync(id);
+        if (certification == null)
+        {
+            return Result<CertificationDto>.Failure(Error.NotFound("Certification", id));
+        }
 
         certification.Status = "InProgress";
         certification.AuditorName = request.AuditorName;
@@ -163,13 +174,16 @@ public class CertificationService : ICertificationService
 
         _logger.LogInformation("Started certification process for {Code}", certification.Code);
 
-        return MapToDto(certification);
+        return Result<CertificationDto>.Success(MapToDto(certification));
     }
 
-    public async Task<CertificationDto> MarkIssuedAsync(Guid id, MarkIssuedRequest request)
+    public async Task<Result<CertificationDto>> MarkIssuedAsync(Guid id, MarkIssuedRequest request)
     {
-        var certification = await _context.Set<Certification>().FindAsync(id)
-            ?? throw new InvalidOperationException($"Certification {id} not found");
+        var certification = await _context.Set<Certification>().FindAsync(id);
+        if (certification == null)
+        {
+            return Result<CertificationDto>.Failure(Error.NotFound("Certification", id));
+        }
 
         certification.Status = "Active";
         certification.CertificationNumber = request.CertificationNumber;
@@ -190,13 +204,16 @@ public class CertificationService : ICertificationService
         _logger.LogInformation("Marked certification {Code} as issued, expires {ExpiryDate}", 
             certification.Code, request.ExpiryDate);
 
-        return MapToDto(certification);
+        return Result<CertificationDto>.Success(MapToDto(certification));
     }
 
-    public async Task<CertificationDto> RenewAsync(Guid id, RenewCertificationRequest request)
+    public async Task<Result<CertificationDto>> RenewAsync(Guid id, RenewCertificationRequest request)
     {
-        var certification = await _context.Set<Certification>().FindAsync(id)
-            ?? throw new InvalidOperationException($"Certification {id} not found");
+        var certification = await _context.Set<Certification>().FindAsync(id);
+        if (certification == null)
+        {
+            return Result<CertificationDto>.Failure(Error.NotFound("Certification", id));
+        }
 
         certification.Status = "Active";
         certification.LastRenewalDate = DateTime.UtcNow;
@@ -215,13 +232,16 @@ public class CertificationService : ICertificationService
         _logger.LogInformation("Renewed certification {Code}, new expiry: {ExpiryDate}", 
             certification.Code, request.NewExpiryDate);
 
-        return MapToDto(certification);
+        return Result<CertificationDto>.Success(MapToDto(certification));
     }
 
-    public async Task<CertificationDto> SuspendAsync(Guid id, string reason, string suspendedBy)
+    public async Task<Result<CertificationDto>> SuspendAsync(Guid id, string reason, string suspendedBy)
     {
-        var certification = await _context.Set<Certification>().FindAsync(id)
-            ?? throw new InvalidOperationException($"Certification {id} not found");
+        var certification = await _context.Set<Certification>().FindAsync(id);
+        if (certification == null)
+        {
+            return Result<CertificationDto>.Failure(Error.NotFound("Certification", id));
+        }
 
         certification.Status = "Suspended";
         certification.Notes = string.IsNullOrEmpty(certification.Notes)
@@ -233,13 +253,16 @@ public class CertificationService : ICertificationService
 
         _logger.LogWarning("Suspended certification {Code}: {Reason}", certification.Code, reason);
 
-        return MapToDto(certification);
+        return Result<CertificationDto>.Success(MapToDto(certification));
     }
 
-    public async Task<CertificationDto> ReinstateAsync(Guid id, string notes, string reinstatedBy)
+    public async Task<Result<CertificationDto>> ReinstateAsync(Guid id, string notes, string reinstatedBy)
     {
-        var certification = await _context.Set<Certification>().FindAsync(id)
-            ?? throw new InvalidOperationException($"Certification {id} not found");
+        var certification = await _context.Set<Certification>().FindAsync(id);
+        if (certification == null)
+        {
+            return Result<CertificationDto>.Failure(Error.NotFound("Certification", id));
+        }
 
         certification.Status = "Active";
         certification.Notes = string.IsNullOrEmpty(certification.Notes)
@@ -251,13 +274,16 @@ public class CertificationService : ICertificationService
 
         _logger.LogInformation("Reinstated certification {Code}", certification.Code);
 
-        return MapToDto(certification);
+        return Result<CertificationDto>.Success(MapToDto(certification));
     }
 
-    public async Task<CertificationDto> MarkExpiredAsync(Guid id)
+    public async Task<Result<CertificationDto>> MarkExpiredAsync(Guid id)
     {
-        var certification = await _context.Set<Certification>().FindAsync(id)
-            ?? throw new InvalidOperationException($"Certification {id} not found");
+        var certification = await _context.Set<Certification>().FindAsync(id);
+        if (certification == null)
+        {
+            return Result<CertificationDto>.Failure(Error.NotFound("Certification", id));
+        }
 
         certification.Status = "Expired";
         certification.ModifiedDate = DateTime.UtcNow;
@@ -266,17 +292,20 @@ public class CertificationService : ICertificationService
 
         _logger.LogWarning("Certification {Code} has expired", certification.Code);
 
-        return MapToDto(certification);
+        return Result<CertificationDto>.Success(MapToDto(certification));
     }
 
     #endregion
 
     #region Audit Management
 
-    public async Task<CertificationAuditDto> ScheduleAuditAsync(Guid certificationId, ScheduleAuditRequest request)
+    public async Task<Result<CertificationAuditDto>> ScheduleAuditAsync(Guid certificationId, ScheduleAuditRequest request)
     {
-        var certification = await _context.Set<Certification>().FindAsync(certificationId)
-            ?? throw new InvalidOperationException($"Certification {certificationId} not found");
+        var certification = await _context.Set<Certification>().FindAsync(certificationId);
+        if (certification == null)
+        {
+            return Result<CertificationAuditDto>.Failure(Error.NotFound("Certification", certificationId));
+        }
 
         var audit = new CertificationAudit
         {
@@ -307,15 +336,18 @@ public class CertificationService : ICertificationService
         _logger.LogInformation("Scheduled {AuditType} audit for certification {Code} on {Date}", 
             request.AuditType, certification.Code, request.AuditDate);
 
-        return MapToAuditDto(audit, certification.Name);
+        return Result<CertificationAuditDto>.Success(MapToAuditDto(audit, certification.Name));
     }
 
-    public async Task<CertificationAuditDto> RecordAuditResultAsync(Guid auditId, RecordAuditResultRequest request)
+    public async Task<Result<CertificationAuditDto>> RecordAuditResultAsync(Guid auditId, RecordAuditResultRequest request)
     {
         var audit = await _context.Set<CertificationAudit>()
             .Include(a => a.Certification)
-            .FirstOrDefaultAsync(a => a.Id == auditId)
-            ?? throw new InvalidOperationException($"Audit {auditId} not found");
+            .FirstOrDefaultAsync(a => a.Id == auditId);
+        if (audit == null)
+        {
+            return Result<CertificationAuditDto>.Failure(Error.NotFound("Audit", auditId));
+        }
 
         audit.Result = request.Result;
         audit.MajorFindings = request.MajorFindings;
@@ -349,7 +381,7 @@ public class CertificationService : ICertificationService
         _logger.LogInformation("Recorded {AuditType} audit result for certification {Code}: {Result}", 
             audit.AuditType, audit.Certification?.Code, request.Result);
 
-        return MapToAuditDto(audit, audit.Certification?.Name ?? "");
+        return Result<CertificationAuditDto>.Success(MapToAuditDto(audit, audit.Certification?.Name ?? ""));
     }
 
     public async Task<CertificationAuditDto?> GetAuditByIdAsync(Guid auditId)
@@ -373,12 +405,15 @@ public class CertificationService : ICertificationService
         return audits.Select(a => MapToAuditDto(a, certification?.Name ?? "")).ToList();
     }
 
-    public async Task<CertificationAuditDto> CompleteCorrectiveActionsAsync(Guid auditId, string notes, string completedBy)
+    public async Task<Result<CertificationAuditDto>> CompleteCorrectiveActionsAsync(Guid auditId, string notes, string completedBy)
     {
         var audit = await _context.Set<CertificationAudit>()
             .Include(a => a.Certification)
-            .FirstOrDefaultAsync(a => a.Id == auditId)
-            ?? throw new InvalidOperationException($"Audit {auditId} not found");
+            .FirstOrDefaultAsync(a => a.Id == auditId);
+        if (audit == null)
+        {
+            return Result<CertificationAuditDto>.Failure(Error.NotFound("Audit", auditId));
+        }
 
         audit.CorrectiveActionsCompleted = true;
         audit.Notes = string.IsNullOrEmpty(audit.Notes)
@@ -388,7 +423,7 @@ public class CertificationService : ICertificationService
 
         await _context.SaveChangesAsync();
 
-        return MapToAuditDto(audit, audit.Certification?.Name ?? "");
+        return Result<CertificationAuditDto>.Success(MapToAuditDto(audit, audit.Certification?.Name ?? ""));
     }
 
     public async Task<List<CertificationAuditDto>> GetUpcomingAuditsAsync(Guid tenantId, int days = 90)
@@ -487,17 +522,20 @@ public class CertificationService : ICertificationService
         return actions.OrderBy(a => a.DaysUntilExpiry).ToList();
     }
 
-    public async Task<CertificationDto> UpdateSurveillanceDateAsync(Guid id, DateTime nextDate)
+    public async Task<Result<CertificationDto>> UpdateSurveillanceDateAsync(Guid id, DateTime nextDate)
     {
-        var certification = await _context.Set<Certification>().FindAsync(id)
-            ?? throw new InvalidOperationException($"Certification {id} not found");
+        var certification = await _context.Set<Certification>().FindAsync(id);
+        if (certification == null)
+        {
+            return Result<CertificationDto>.Failure(Error.NotFound("Certification", id));
+        }
 
         certification.NextSurveillanceDate = nextDate;
         certification.ModifiedDate = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
 
-        return MapToDto(certification);
+        return Result<CertificationDto>.Success(MapToDto(certification));
     }
 
     #endregion
@@ -627,10 +665,13 @@ public class CertificationService : ICertificationService
 
     #region Ownership & Assignment
 
-    public async Task<CertificationDto> AssignOwnerAsync(Guid id, string ownerId, string ownerName, string? department)
+    public async Task<Result<CertificationDto>> AssignOwnerAsync(Guid id, string ownerId, string ownerName, string? department)
     {
-        var certification = await _context.Set<Certification>().FindAsync(id)
-            ?? throw new InvalidOperationException($"Certification {id} not found");
+        var certification = await _context.Set<Certification>().FindAsync(id);
+        if (certification == null)
+        {
+            return Result<CertificationDto>.Failure(Error.NotFound("Certification", id));
+        }
 
         certification.OwnerId = ownerId;
         certification.OwnerName = ownerName;
@@ -641,7 +682,7 @@ public class CertificationService : ICertificationService
 
         _logger.LogInformation("Assigned owner {OwnerName} to certification {Code}", ownerName, certification.Code);
 
-        return MapToDto(certification);
+        return Result<CertificationDto>.Success(MapToDto(certification));
     }
 
     public async Task<List<CertificationDto>> GetByOwnerAsync(string ownerId)

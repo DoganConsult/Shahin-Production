@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GrcMvc.Common.Results;
 using GrcMvc.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -44,31 +45,29 @@ public class SerialCodeApiController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), 400)]
     public async Task<IActionResult> Generate([FromBody] GenerateSerialCodeRequest request)
     {
-        try
+        var result = await _serialCodeService.GenerateAsync(new SerialCodeRequest
         {
-            var result = await _serialCodeService.GenerateAsync(new SerialCodeRequest
-            {
-                EntityType = request.EntityType,
-                TenantCode = request.TenantCode,
-                EntityId = request.EntityId,
-                Stage = request.Stage,
-                Year = request.Year,
-                Metadata = request.Metadata,
-                CreatedBy = User.Identity?.Name ?? "System"
-            });
+            EntityType = request.EntityType,
+            TenantCode = request.TenantCode,
+            EntityId = request.EntityId,
+            Stage = request.Stage,
+            Year = request.Year,
+            Metadata = request.Metadata,
+            CreatedBy = User.Identity?.Name ?? "System"
+        });
 
-            return CreatedAtAction(nameof(GetByCode), new { code = result.Code }, result);
-        }
-        catch (ArgumentException ex)
+        if (result.IsFailure)
         {
-            _logger.LogWarning(ex, "Invalid serial code generation request");
+            _logger.LogWarning("Invalid serial code generation request: {Error}", result.Error?.Message);
             return BadRequest(new ProblemDetails
             {
                 Title = "Invalid Request",
-                Detail = "An error occurred processing your request.",
+                Detail = result.Error?.Message ?? "An error occurred processing your request.",
                 Status = 400
             });
         }
+
+        return CreatedAtAction(nameof(GetByCode), new { code = result.Value!.Code }, result.Value);
     }
 
     /// <summary>
@@ -132,20 +131,19 @@ public class SerialCodeApiController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), 400)]
     public IActionResult Parse(string code)
     {
-        try
-        {
-            var parsed = _serialCodeService.Parse(code);
-            return Ok(parsed);
-        }
-        catch (ArgumentException)
+        var result = _serialCodeService.Parse(code);
+        
+        if (result.IsFailure)
         {
             return BadRequest(new ProblemDetails
             {
                 Title = "Invalid Serial Code",
-                Detail = "An error occurred processing your request.",
+                Detail = result.Error?.Message ?? "An error occurred processing your request.",
                 Status = 400
             });
         }
+        
+        return Ok(result.Value);
     }
 
     // =========================================================================
@@ -245,29 +243,30 @@ public class SerialCodeApiController : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> CreateNewVersion(string code, [FromBody] CreateVersionRequest? request = null)
     {
-        try
+        var result = await _serialCodeService.CreateNewVersionAsync(code, request?.ChangeReason);
+        
+        if (result.IsFailure)
         {
-            var result = await _serialCodeService.CreateNewVersionAsync(code, request?.ChangeReason);
-            return CreatedAtAction(nameof(GetByCode), new { code = result.Code }, result);
-        }
-        catch (ArgumentException)
-        {
-            return NotFound(new ProblemDetails
+            var error = result.Error;
+            if (error?.Code == GrcMvc.Common.Results.ErrorCode.NotFound)
             {
-                Title = "Not Found",
-                Detail = "An error occurred processing your request.",
-                Status = 404
-            });
-        }
-        catch (InvalidOperationException)
-        {
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Not Found",
+                    Detail = error.Message,
+                    Status = 404
+                });
+            }
+            
             return BadRequest(new ProblemDetails
             {
                 Title = "Operation Failed",
-                Detail = "An error occurred processing your request.",
+                Detail = error?.Message ?? "An error occurred processing your request.",
                 Status = 400
             });
         }
+
+        return CreatedAtAction(nameof(GetByCode), new { code = result.Value!.Code }, result.Value);
     }
 
     /// <summary>
@@ -388,29 +387,30 @@ public class SerialCodeApiController : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> ConfirmReservation(string reservationId, [FromBody] ConfirmReservationRequest request)
     {
-        try
+        var result = await _serialCodeService.ConfirmReservationAsync(reservationId, request.EntityId);
+        
+        if (result.IsFailure)
         {
-            var result = await _serialCodeService.ConfirmReservationAsync(reservationId, request.EntityId);
-            return Ok(result);
-        }
-        catch (ArgumentException)
-        {
-            return NotFound(new ProblemDetails
+            var error = result.Error;
+            if (error?.Code == ErrorCode.NotFound)
             {
-                Title = "Not Found",
-                Detail = "An error occurred processing your request.",
-                Status = 404
-            });
-        }
-        catch (InvalidOperationException)
-        {
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Not Found",
+                    Detail = error.Message,
+                    Status = 404
+                });
+            }
+            
             return BadRequest(new ProblemDetails
             {
                 Title = "Operation Failed",
-                Detail = "An error occurred processing your request.",
+                Detail = error?.Message ?? "An error occurred processing your request.",
                 Status = 400
             });
         }
+        
+        return Ok(result.Value);
     }
 
     /// <summary>
@@ -422,29 +422,30 @@ public class SerialCodeApiController : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> CancelReservation(string reservationId)
     {
-        try
+        var result = await _serialCodeService.CancelReservationAsync(reservationId);
+        
+        if (result.IsFailure)
         {
-            await _serialCodeService.CancelReservationAsync(reservationId);
-            return NoContent();
-        }
-        catch (ArgumentException)
-        {
-            return NotFound(new ProblemDetails
+            var error = result.Error;
+            if (error?.Code == ErrorCode.NotFound)
             {
-                Title = "Not Found",
-                Detail = "An error occurred processing your request.",
-                Status = 404
-            });
-        }
-        catch (InvalidOperationException)
-        {
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Not Found",
+                    Detail = error.Message,
+                    Status = 404
+                });
+            }
+            
             return BadRequest(new ProblemDetails
             {
                 Title = "Operation Failed",
-                Detail = "An error occurred processing your request.",
+                Detail = error?.Message ?? "An error occurred processing your request.",
                 Status = 400
             });
         }
+        
+        return NoContent();
     }
 
     // =========================================================================
@@ -460,29 +461,30 @@ public class SerialCodeApiController : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> Void(string code, [FromBody] VoidSerialCodeRequest request)
     {
-        try
+        var result = await _serialCodeService.VoidAsync(code, request.Reason);
+        
+        if (result.IsFailure)
         {
-            await _serialCodeService.VoidAsync(code, request.Reason);
-            return NoContent();
-        }
-        catch (ArgumentException)
-        {
-            return NotFound(new ProblemDetails
+            var error = result.Error;
+            if (error?.Code == ErrorCode.NotFound)
             {
-                Title = "Not Found",
-                Detail = "An error occurred processing your request.",
-                Status = 404
-            });
-        }
-        catch (InvalidOperationException)
-        {
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Not Found",
+                    Detail = error.Message,
+                    Status = 404
+                });
+            }
+            
             return BadRequest(new ProblemDetails
             {
                 Title = "Operation Failed",
-                Detail = "An error occurred processing your request.",
+                Detail = error?.Message ?? "An error occurred processing your request.",
                 Status = 400
             });
         }
+        
+        return NoContent();
     }
 
     /// <summary>
@@ -493,20 +495,19 @@ public class SerialCodeApiController : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> GetTraceabilityReport(string code)
     {
-        try
-        {
-            var report = await _serialCodeService.GetTraceabilityReportAsync(code);
-            return Ok(report);
-        }
-        catch (ArgumentException)
+        var result = await _serialCodeService.GetTraceabilityReportAsync(code);
+        
+        if (result.IsFailure)
         {
             return NotFound(new ProblemDetails
             {
                 Title = "Not Found",
-                Detail = "An error occurred processing your request.",
+                Detail = result.Error?.Message ?? "An error occurred processing your request.",
                 Status = 404
             });
         }
+        
+        return Ok(result.Value);
     }
 
     /// <summary>

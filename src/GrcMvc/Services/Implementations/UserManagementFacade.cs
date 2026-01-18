@@ -56,7 +56,7 @@ public class UserManagementFacade : IUserManagementFacade
                 
                 result = new UserDto
                 {
-                    Id = user.Id,
+                    Id = user.Id.ToString(),
                     Email = user.Email ?? string.Empty,
                     FullName = $"{user.FirstName} {user.LastName}".Trim(),
                     IsActive = user.IsActive,
@@ -75,7 +75,7 @@ public class UserManagementFacade : IUserManagementFacade
                 
                 result = new UserDto
                 {
-                    Id = legacyUser.UserId,
+                    Id = legacyUser.UserId.ToString(),
                     Email = legacyUser.ContactEmail ?? string.Empty,
                     FullName = legacyUser.DisplayName ?? string.Empty,
                     IsActive = legacyUser.Status == "Active",
@@ -180,7 +180,7 @@ public class UserManagementFacade : IUserManagementFacade
                     var roles = await _userManager.GetRolesAsync(user);
                     users.Add(new UserDto
                     {
-                        Id = user.Id,
+                        Id = user.Id.ToString(),
                         Email = user.Email ?? string.Empty,
                         FullName = $"{user.FirstName} {user.LastName}".Trim(),
                         IsActive = user.IsActive,
@@ -194,7 +194,7 @@ public class UserManagementFacade : IUserManagementFacade
                 var legacyAdmins = await _legacyService.GetAllAsync();
                 users = legacyAdmins.Select(admin => new UserDto
                 {
-                    Id = admin.UserId,
+                    Id = admin.UserId.ToString(),
                     Email = admin.ContactEmail ?? string.Empty,
                     FullName = admin.DisplayName ?? string.Empty,
                     IsActive = admin.Status == "Active",

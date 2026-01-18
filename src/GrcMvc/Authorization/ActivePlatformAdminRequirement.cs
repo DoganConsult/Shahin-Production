@@ -55,7 +55,7 @@ public class ActivePlatformAdminHandler : AuthorizationHandler<ActivePlatformAdm
 
         var platformAdmin = await dbContext.PlatformAdmins
             .AsNoTracking()
-            .FirstOrDefaultAsync(pa => pa.UserId == userId && !pa.IsDeleted);
+            .FirstOrDefaultAsync(pa => pa.UserId == Guid.Parse(userId) && !pa.IsDeleted);
 
         if (platformAdmin == null)
         {

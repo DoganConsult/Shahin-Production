@@ -242,6 +242,9 @@
   <data name="Nav_Workspaces" xml:space="preserve">
     <value>Workspaces</value>
   </data>
+  <data name="Nav_Landing" xml:space="preserve">
+    <value>Home Page</value>
+  </data>
 
   <!-- GRC Domain - Risks -->
   <data name="Risks" xml:space="preserve">
@@ -1966,6 +1969,15 @@
   </data>
   <data name="Auth_SwitchToLegacyTenantLogin" xml:space="preserve">
     <value>Switch to Legacy Tenant Login</value>
+  </data>
+  <data name="Auth_AcceptTerms" xml:space="preserve">
+    <value>I agree to the</value>
+  </data>
+  <data name="Auth_TermsAndConditions" xml:space="preserve">
+    <value>Terms and Conditions</value>
+  </data>
+  <data name="Auth_PasswordRequirements" xml:space="preserve">
+    <value>Password must be at least 8 characters and contain uppercase, lowercase letters and numbers</value>
   </data>
   <data name="Landing_Title" xml:space="preserve">
     <value>Shahin Platform - Governance, Risk, and Compliance System</value>
@@ -4047,6 +4059,357 @@
   </data>
   <data name="Shared_Mobile_More" xml:space="preserve">
     <value>More</value>
+  </data>
+
+  <!-- Display/Editor Templates i18n (new keys only) -->
+  <data name="JustNow" xml:space="preserve">
+    <value>Just now</value>
+  </data>
+  <data name="MinutesAgo" xml:space="preserve">
+    <value>{0} minutes ago</value>
+  </data>
+  <data name="HoursAgo" xml:space="preserve">
+    <value>{0} hours ago</value>
+  </data>
+  <data name="DaysAgo" xml:space="preserve">
+    <value>{0} days ago</value>
+  </data>
+
+  <!-- Additional Status Labels -->
+  <data name="Status_Expired" xml:space="preserve">
+    <value>Expired</value>
+  </data>
+  <data name="Status_UnderReview" xml:space="preserve">
+    <value>Under Review</value>
+  </data>
+  <data name="Status_Scheduled" xml:space="preserve">
+    <value>Scheduled</value>
+  </data>
+  <data name="Status_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="Status_SelectPlaceholder" xml:space="preserve">
+    <value>-- Select Status --</value>
+  </data>
+
+  <!-- Additional Risk Levels -->
+  <data name="RiskLevel_VeryLow" xml:space="preserve">
+    <value>Very Low</value>
+  </data>
+  <data name="RiskLevel_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="RiskLevel_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="RiskLevel_SelectPlaceholder" xml:space="preserve">
+    <value>-- Select Risk Level --</value>
+  </data>
+
+  <!-- Currency -->
+  <data name="Currency_SAR" xml:space="preserve">
+    <value>SAR</value>
+  </data>
+
+  <!-- Password Editor -->
+  <data name="Password_Placeholder" xml:space="preserve">
+    <value>Enter password</value>
+  </data>
+  <data name="Password_VeryWeak" xml:space="preserve">
+    <value>Very Weak</value>
+  </data>
+  <data name="Password_Weak" xml:space="preserve">
+    <value>Weak</value>
+  </data>
+  <data name="Password_Fair" xml:space="preserve">
+    <value>Fair</value>
+  </data>
+  <data name="Password_Strong" xml:space="preserve">
+    <value>Strong</value>
+  </data>
+  <data name="Password_VeryStrong" xml:space="preserve">
+    <value>Very Strong</value>
+  </data>
+
+  <!-- File Upload -->
+  <data name="FileUpload_DragOrBrowse" xml:space="preserve">
+    <value>Drag files here or</value>
+  </data>
+  <data name="FileUpload_Browse" xml:space="preserve">
+    <value>Browse</value>
+  </data>
+  <data name="FileUpload_MaxSize" xml:space="preserve">
+    <value>Max file size: {0} MB</value>
+  </data>
+
+  <!-- Notifications -->
+  <data name="Notification_UnreadCount" xml:space="preserve">
+    <value>{0} unread notifications</value>
+  </data>
+  <data name="Notification_Title" xml:space="preserve">
+    <value>Notifications</value>
+  </data>
+  <data name="Notification_MarkAllRead" xml:space="preserve">
+    <value>Mark all as read</value>
+  </data>
+  <data name="Notification_NoNotifications" xml:space="preserve">
+    <value>No notifications</value>
+  </data>
+  <data name="Notification_ViewAll" xml:space="preserve">
+    <value>View All Notifications</value>
+  </data>
+
+  <!-- Activity Feed -->
+  <data name="Activity_NoRecentActivities" xml:space="preserve">
+    <value>No recent activities</value>
+  </data>
+  <data name="Action_created" xml:space="preserve">
+    <value>created</value>
+  </data>
+  <data name="Action_updated" xml:space="preserve">
+    <value>updated</value>
+  </data>
+  <data name="Action_deleted" xml:space="preserve">
+    <value>deleted</value>
+  </data>
+  <data name="Action_approved" xml:space="preserve">
+    <value>approved</value>
+  </data>
+  <data name="Action_rejected" xml:space="preserve">
+    <value>rejected</value>
+  </data>
+  <data name="Action_commented" xml:space="preserve">
+    <value>commented on</value>
+  </data>
+
+  <!-- Dashboard Widget -->
+  <data name="Widget_VsLastMonth" xml:space="preserve">
+    <value>vs last month</value>
+  </data>
+
+  <!-- DataTable -->
+  <data name="DataTable_Search" xml:space="preserve">
+    <value>Search...</value>
+  </data>
+  <data name="DataTable_Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="DataTable_NoData" xml:space="preserve">
+    <value>No data available</value>
+  </data>
+  <data name="DataTable_ShowingZero" xml:space="preserve">
+    <value>Showing 0 of 0 records</value>
+  </data>
+
+  <!-- Timeline -->
+  <data name="Timeline_NoEvents" xml:space="preserve">
+    <value>No events</value>
+  </data>
+
+  <!-- Breadcrumb -->
+  <data name="Breadcrumb_AriaLabel" xml:space="preserve">
+    <value>Navigation</value>
+  </data>
+
+  <!-- Onboarding -->
+  <data name="Onboarding_Title" xml:space="preserve">
+    <value>GRC System - Onboarding</value>
+  </data>
+  <data name="Onboarding_12StepWizard" xml:space="preserve">
+    <value>12-Step Wizard</value>
+  </data>
+  <data name="Onboarding_EstTime" xml:space="preserve">
+    <value>Est. 15-20 minutes</value>
+  </data>
+  <data name="Onboarding_WelcomeTitle" xml:space="preserve">
+    <value>Welcome to GRC Governance, Risk &amp; Compliance System</value>
+  </data>
+  <data name="Onboarding_CompleteSetup" xml:space="preserve">
+    <value>Complete the setup</value>
+  </data>
+  <data name="Onboarding_SetupDescription" xml:space="preserve">
+    <value>to configure your organization and define your compliance scope.</value>
+  </data>
+  <data name="Onboarding_WhatYouConfigure" xml:space="preserve">
+    <value>What you will configure:</value>
+  </data>
+  <data name="Onboarding_AutoDerivedOutputs" xml:space="preserve">
+    <value>Auto-derived outputs:</value>
+  </data>
+  <data name="Onboarding_RegisterFirst" xml:space="preserve">
+    <value>Register your account first</value>
+  </data>
+  <data name="Onboarding_HaveAccount" xml:space="preserve">
+    <value>Have an account?</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Onboarding_CreateOrg" xml:space="preserve">
+    <value>Create your organization</value>
+  </data>
+  <data name="Onboarding_WorkspaceCreated" xml:space="preserve">
+    <value>A workspace will be created for your organization</value>
+  </data>
+  <data name="Onboarding_StartSetup" xml:space="preserve">
+    <value>Start Setup</value>
+  </data>
+  <data name="Onboarding_12Steps15Min" xml:space="preserve">
+    <value>12 steps - about 15-20 minutes</value>
+  </data>
+  <data name="Onboarding_Progress" xml:space="preserve">
+    <value>Onboarding Progress</value>
+  </data>
+
+  <!-- Signup -->
+  <data name="Signup_Title" xml:space="preserve">
+    <value>GRC System - Organization Signup</value>
+  </data>
+  <data name="Signup_RegisterOrg" xml:space="preserve">
+    <value>Register Your Organization</value>
+  </data>
+  <data name="Signup_OrgName" xml:space="preserve">
+    <value>Organization Name</value>
+  </data>
+  <data name="Signup_AdminEmail" xml:space="preserve">
+    <value>Administrator Email</value>
+  </data>
+  <data name="Signup_SubscriptionTier" xml:space="preserve">
+    <value>Subscription Tier</value>
+  </data>
+  <data name="Signup_PrimaryCountry" xml:space="preserve">
+    <value>Primary Country of Operation</value>
+  </data>
+  <data name="Signup_SecureRegistration" xml:space="preserve">
+    <value>Secure Registration</value>
+  </data>
+  <data name="Signup_SecureDescription" xml:space="preserve">
+    <value>Your organization data is encrypted and secured with enterprise-grade security standards.</value>
+  </data>
+  <data name="Signup_QuickSetup" xml:space="preserve">
+    <value>Quick Setup</value>
+  </data>
+  <data name="Signup_QuickSetupDescription" xml:space="preserve">
+    <value>Complete the onboarding process in 10-15 minutes and start managing compliance immediately.</value>
+  </data>
+
+  <!-- Activate -->
+  <data name="Activate_Title" xml:space="preserve">
+    <value>GRC System - Activate Organization</value>
+  </data>
+  <data name="Activate_ActivateOrg" xml:space="preserve">
+    <value>Activate Your Organization</value>
+  </data>
+  <data name="Activate_CheckEmail" xml:space="preserve">
+    <value>Please check your email for the activation link, or enter your activation token below.</value>
+  </data>
+  <data name="Activate_Token" xml:space="preserve">
+    <value>Activation Token</value>
+  </data>
+  <data name="Activate_DidntReceive" xml:space="preserve">
+    <value>Didn't receive an activation email?</value>
+  </data>
+
+  <!-- OrgProfile -->
+  <data name="OrgProfile_Title" xml:space="preserve">
+    <value>GRC System - Organization Profile</value>
+  </data>
+  <data name="OrgProfile_Header" xml:space="preserve">
+    <value>Organization Profile</value>
+  </data>
+  <data name="OrgProfile_BasicInfo" xml:space="preserve">
+    <value>Basic Information</value>
+  </data>
+  <data name="OrgProfile_Geographic" xml:space="preserve">
+    <value>Geographic &amp; Operational</value>
+  </data>
+
+  <!-- ReviewScope -->
+  <data name="ReviewScope_Title" xml:space="preserve">
+    <value>GRC System - Review Compliance Scope</value>
+  </data>
+  <data name="ReviewScope_Header" xml:space="preserve">
+    <value>Derived Compliance Scope</value>
+  </data>
+
+  <!-- CreatePlan -->
+  <data name="CreatePlan_Title" xml:space="preserve">
+    <value>GRC System - Create Assessment Plan</value>
+  </data>
+  <data name="CreatePlan_Header" xml:space="preserve">
+    <value>Create Your First Assessment Plan</value>
+  </data>
+
+  <!-- GuidedWelcome -->
+  <data name="GuidedWelcome_Title" xml:space="preserve">
+    <value>Welcome to Your GRC Trial</value>
+  </data>
+
+  <!-- Wizard Sidebar (additional keys) -->
+  <data name="Wizard_Progress" xml:space="preserve">
+    <value>Progress</value>
+  </data>
+  <data name="Wizard_StepsCompleted" xml:space="preserve">
+    <value>{0} of {1} steps completed</value>
+  </data>
+  <data name="Wizard_EstimatedRemaining" xml:space="preserve">
+    <value>estimated remaining</value>
+  </data>
+  <data name="Wizard_AlmostDone" xml:space="preserve">
+    <value>Almost Done!</value>
+  </data>
+  <data name="Wizard_ReviewFinalize" xml:space="preserve">
+    <value>Review and finalize</value>
+  </data>
+  <data name="Wizard_SaveExit" xml:space="preserve">
+    <value>Save &amp; Exit</value>
+  </data>
+  <data name="Wizard_ViewSummary" xml:space="preserve">
+    <value>View Summary</value>
+  </data>
+
+  <!-- Reports -->
+  <data name="Reports_Title" xml:space="preserve">
+    <value>Reports &amp; Analytics</value>
+  </data>
+  <data name="Reports_Subtitle" xml:space="preserve">
+    <value>Compliance scores, trends, and drill-downs</value>
+  </data>
+  <data name="Reports_OverallComplianceScore" xml:space="preserve">
+    <value>Overall Compliance Score</value>
+  </data>
+  <data name="Reports_Assessments" xml:space="preserve">
+    <value>Assessments</value>
+  </data>
+  <data name="Reports_Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Reports_Evidence" xml:space="preserve">
+    <value>Evidence</value>
+  </data>
+  <data name="Reports_Exceptions" xml:space="preserve">
+    <value>Exceptions</value>
+  </data>
+  <data name="Reports_ComplianceReport" xml:space="preserve">
+    <value>Compliance Report</value>
+  </data>
+  <data name="Reports_ComplianceDesc" xml:space="preserve">
+    <value>View compliance status by baseline and package</value>
+  </data>
+  <data name="Reports_ViewReport" xml:space="preserve">
+    <value>View Report</value>
+  </data>
+  <data name="Reports_EvidenceReport" xml:space="preserve">
+    <value>Evidence Report</value>
+  </data>
+  <data name="Reports_EvidenceDesc" xml:space="preserve">
+    <value>View all collected and approved evidence</value>
+  </data>
+  <data name="Reports_ExceptionReport" xml:space="preserve">
+    <value>Exception Report</value>
+  </data>
+  <data name="Reports_ExceptionDesc" xml:space="preserve">
+    <value>View all control exceptions and their status</value>
   </data>
 
 </root>

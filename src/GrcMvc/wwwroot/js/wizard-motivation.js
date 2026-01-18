@@ -10,15 +10,36 @@ class WizardMotivation {
         this.tenantId = options.tenantId || '';
         this.stepName = options.stepName || 'StepA';
 
-        // Configuration
-        this.config = {
-            enableCelebrations: true,
+        // Detect reduce-motion preference for accessibility
+        this.reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+        this.prefersReducedMotion = this.reduceMotion; // alias for backward compatibility
+
+        // Configuration (enterprise-safe defaults + allow overrides from options.config)
+        const defaults = {
+            mode: 'enterprise',
+            enableCelebrations: true,      // toast, not fullscreen overlay
+            celebrationStyle: 'toast',
+            enableParticles: false,        // off in GRC contexts
             enableTips: true,
             enableProgress: true,
             enablePreview: true,
-            tipDelay: 3000,
-            celebrationDuration: 2500
+            entryAnimation: !this.reduceMotion,
+            tipDelay: 2500,
+            celebrationDuration: 2200,
+            // Motion spec (predictable, short)
+            transitionMs: 180,
+            enterStaggerMs: 80
         };
+
+        this.config = { ...defaults, ...(options.config || {}) };
+
+        // Override motion settings when reduce-motion is preferred
+        if (this.reduceMotion) {
+            this.config.enableParticles = false;
+            this.config.transitionMs = 0;
+            this.config.enterStaggerMs = 0;
+            this.config.celebrationDuration = 1800;
+        }
 
         // Step metadata with tips and unlock messages
         this.stepMetadata = {
@@ -186,7 +207,11 @@ class WizardMotivation {
     init() {
         this.createMotivationElements();
         this.attachEventListeners();
-        this.showEntryAnimation();
+
+        // Only show entry animation if enabled
+        if (this.config.entryAnimation) {
+            this.showEntryAnimation();
+        }
 
         // Delayed tip display
         if (this.config.enableTips) {
@@ -195,33 +220,44 @@ class WizardMotivation {
     }
 
     createMotivationElements() {
-        // Create celebration overlay
+        // Celebration overlay (enterprise toast, not fullscreen)
         if (!document.getElementById('celebration-overlay')) {
-            const celebrationOverlay = document.createElement('div');
-            celebrationOverlay.id = 'celebration-overlay';
-            celebrationOverlay.className = 'celebration-overlay';
-            celebrationOverlay.innerHTML = `
-                <div class="celebration-content">
-                    <div class="celebration-icon"><i class="fas fa-check-circle"></i></div>
-                    <h3 class="celebration-title">Step Complete!</h3>
-                    <p class="celebration-message"></p>
-                    <div class="celebration-unlocks"></div>
+            const overlay = document.createElement('div');
+            overlay.id = 'celebration-overlay';
+            overlay.className = 'celebration-overlay';
+            overlay.innerHTML = `
+                <div class="celebration-toast" role="status" aria-live="polite">
+                    <div class="celebration-icon" aria-hidden="true">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="celebration-body">
+                        <div class="celebration-title">Configuration updated</div>
+                        <div class="celebration-message"></div>
+                        <div class="celebration-unlocks"></div>
+                    </div>
+                    <button type="button" class="celebration-close" aria-label="Dismiss">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
                 </div>
             `;
-            document.body.appendChild(celebrationOverlay);
+            document.body.appendChild(overlay);
+
+            overlay.querySelector('.celebration-close').addEventListener('click', () => {
+                overlay.classList.remove('show');
+            });
         }
 
-        // Create smart tip container
+        // Smart tip container (keep, but enterprise styling handled in CSS)
         if (!document.getElementById('smart-tip-container')) {
             const tipContainer = document.createElement('div');
             tipContainer.id = 'smart-tip-container';
             tipContainer.className = 'smart-tip-container';
             tipContainer.innerHTML = `
-                <div class="smart-tip">
+                <div class="smart-tip" role="note" aria-live="polite">
                     <div class="smart-tip-header">
                         <i class="fas fa-lightbulb"></i>
-                        <span>Smart Tip</span>
-                        <button class="smart-tip-close"><i class="fas fa-times"></i></button>
+                        <span>Tip</span>
+                        <button class="smart-tip-close" aria-label="Dismiss tip"><i class="fas fa-times"></i></button>
                     </div>
                     <div class="smart-tip-content"></div>
                 </div>
@@ -232,23 +268,38 @@ class WizardMotivation {
                 this.hideTip();
             });
         }
-
-        // Create progress celebration particles
-        if (!document.getElementById('particles-container')) {
-            const particles = document.createElement('div');
-            particles.id = 'particles-container';
-            particles.className = 'particles-container';
-            document.body.appendChild(particles);
-        }
     }
 
     attachEventListeners() {
         // Track form field completion for micro-celebrations
+        // Only show indicator when: field is required OR changed from empty to non-empty
         document.querySelectorAll('.form-control, .form-select').forEach(field => {
+            // Store initial value to detect meaningful changes
+            field._wzPrevValue = field.value || '';
+
+            field.addEventListener('focus', (e) => {
+                // Capture value on focus to detect changes
+                e.target._wzPrevValue = e.target.value || '';
+            });
+
             field.addEventListener('blur', (e) => {
-                if (e.target.value) {
-                    this.showFieldComplete(e.target);
+                const target = e.target;
+                const prevValue = target._wzPrevValue || '';
+                const currentValue = target.value || '';
+                const isRequired = target.hasAttribute('required');
+
+                // Only celebrate if:
+                // 1. Field is required and now has a value, OR
+                // 2. Field changed from empty to non-empty (first-time fill)
+                const isFirstFill = !prevValue && currentValue;
+                const isRequiredFilled = isRequired && currentValue;
+
+                if (isFirstFill || isRequiredFilled) {
+                    this.showFieldComplete(target);
                 }
+
+                // Update prev value for next check
+                target._wzPrevValue = currentValue;
             });
         });
 
@@ -277,16 +328,23 @@ class WizardMotivation {
     }
 
     showEntryAnimation() {
+        // Respect user's reduce-motion preference
+        if (this.reduceMotion) return;
+
         const cards = document.querySelectorAll('.card');
         cards.forEach((card, index) => {
+            // Start hidden and slightly below
             card.style.opacity = '0';
-            card.style.transform = 'translateY(30px)';
+            card.style.transform = 'translateY(12px)';
 
+            // Staggered reveal with configurable timing
+            const delay = 60 + (index * this.config.enterStaggerMs);
             setTimeout(() => {
-                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                card.style.transition =
+                    `opacity ${this.config.transitionMs}ms ease-out, transform ${this.config.transitionMs}ms ease-out`;
                 card.style.opacity = '1';
                 card.style.transform = 'translateY(0)';
-            }, 100 + (index * 150));
+            }, delay);
         });
     }
 
@@ -337,9 +395,9 @@ class WizardMotivation {
             setTimeout(() => badge.classList.add('show'), 10);
         }
 
-        // Subtle pulse animation
-        card.classList.add('card-complete-pulse');
-        setTimeout(() => card.classList.remove('card-complete-pulse'), 600);
+        // Calm highlight instead of pulse (enterprise-safe)
+        card.classList.add('card-complete-highlight');
+        setTimeout(() => card.classList.remove('card-complete-highlight'), 900);
     }
 
     showStepCompleteCelebration() {
@@ -347,64 +405,48 @@ class WizardMotivation {
 
         const metadata = this.stepMetadata[this.stepName] || {};
         const overlay = document.getElementById('celebration-overlay');
+        if (!overlay) return;
 
-        if (overlay) {
-            // Update content
-            overlay.querySelector('.celebration-title').textContent =
-                `${metadata.title || 'Step'} Complete!`;
-            overlay.querySelector('.celebration-message').textContent =
-                `Great job! You've completed step ${this.stepNumber} of ${this.totalSteps}`;
+        // Update toast content
+        overlay.querySelector('.celebration-title').textContent = 'Configuration updated';
+        overlay.querySelector('.celebration-message').textContent =
+            `Step ${this.stepNumber} of ${this.totalSteps} saved successfully.`;
 
-            // Show unlocks
-            const unlocksContainer = overlay.querySelector('.celebration-unlocks');
-            if (metadata.unlocks && metadata.unlocks.length > 0) {
-                unlocksContainer.innerHTML = `
-                    <p class="unlock-title">You unlocked:</p>
-                    <div class="unlock-items">
-                        ${metadata.unlocks.map(u => `
-                            <span class="unlock-item">
-                                <i class="fas fa-unlock"></i> ${u}
-                            </span>
-                        `).join('')}
-                    </div>
-                `;
-            }
-
-            // Show overlay
-            overlay.classList.add('show');
-
-            // Show particles
-            this.showParticles();
-
-            // Hide after duration
-            setTimeout(() => {
-                overlay.classList.remove('show');
-            }, this.config.celebrationDuration);
+        // Show unlocked features (up to 3)
+        const unlocksContainer = overlay.querySelector('.celebration-unlocks');
+        if (metadata.unlocks?.length) {
+            unlocksContainer.innerHTML = `
+                <div class="unlock-title">Enabled:</div>
+                <div class="unlock-items">
+                    ${metadata.unlocks.slice(0, 3).map(u => `
+                        <span class="unlock-item">
+                            <i class="fas fa-check" aria-hidden="true"></i> ${u}
+                        </span>
+                    `).join('')}
+                </div>
+            `;
+        } else {
+            unlocksContainer.innerHTML = '';
         }
+
+        overlay.classList.add('show');
+        setTimeout(() => overlay.classList.remove('show'), this.config.celebrationDuration);
     }
 
     showParticles() {
-        const container = document.getElementById('particles-container');
-        if (!container) return;
-
-        const colors = ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899'];
-
-        for (let i = 0; i < 50; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-            particle.style.left = Math.random() * 100 + 'vw';
-            particle.style.animationDelay = Math.random() * 0.5 + 's';
-            particle.style.animationDuration = (Math.random() * 1 + 1) + 's';
-            container.appendChild(particle);
-
-            setTimeout(() => particle.remove(), 2000);
-        }
+        // Enterprise UX: no confetti/particles in regulated GRC tools
+        // Guard against both config and reduce-motion preference
+        if (!this.config.enableParticles || this.reduceMotion) return;
+        // Intentionally a no-op for professional compliance software
     }
 
     showSmartTip() {
         const metadata = this.stepMetadata[this.stepName];
         if (!metadata || !metadata.tips || metadata.tips.length === 0) return;
+
+        // Show tip only once per step per tenant (prevents nagging)
+        const key = `wz_tip_shown_${this.tenantId}_${this.stepName}`;
+        if (localStorage.getItem(key) === '1') return;
 
         const container = document.getElementById('smart-tip-container');
         if (!container) return;
@@ -415,8 +457,11 @@ class WizardMotivation {
         container.querySelector('.smart-tip-content').textContent = tip;
         container.classList.add('show');
 
-        // Auto-hide after 10 seconds
-        setTimeout(() => this.hideTip(), 10000);
+        // Mark as shown
+        localStorage.setItem(key, '1');
+
+        // Auto-hide after 9 seconds
+        setTimeout(() => this.hideTip(), 9000);
     }
 
     hideTip() {
@@ -462,7 +507,13 @@ class LivePreviewPanel {
             StepC: this.generateStepCPreview.bind(this),
             StepD: this.generateStepDPreview.bind(this),
             StepE: this.generateStepEPreview.bind(this),
-            StepF: this.generateStepFPreview.bind(this)
+            StepF: this.generateStepFPreview.bind(this),
+            StepG: this.generateStepGPreview.bind(this),
+            StepH: this.generateStepHPreview.bind(this),
+            StepI: this.generateStepIPreview.bind(this),
+            StepJ: this.generateStepJPreview.bind(this),
+            StepK: this.generateStepKPreview.bind(this),
+            StepL: this.generateStepLPreview.bind(this)
         };
 
         this.init();
@@ -480,39 +531,58 @@ class LivePreviewPanel {
 
         const panel = document.createElement('div');
         panel.id = this.containerId;
-        panel.className = 'live-preview-panel';
+        panel.className = 'live-preview-panel is-entering';
+        panel.setAttribute('role', 'complementary');
+        panel.setAttribute('aria-label', 'Live preview panel');
         panel.innerHTML = `
             <div class="preview-header">
-                <i class="fas fa-eye"></i>
+                <i class="fas fa-eye" aria-hidden="true"></i>
                 <span>Live Preview</span>
-                <button class="preview-toggle" title="Collapse">
-                    <i class="fas fa-chevron-right"></i>
+                <button class="preview-toggle" type="button" title="Collapse" aria-label="Collapse Live Preview" aria-expanded="true">
+                    <i class="fas fa-chevron-right" aria-hidden="true"></i>
                 </button>
             </div>
             <div class="preview-body">
                 <div class="preview-section">
-                    <h6><i class="fas fa-cog"></i> What will be generated:</h6>
+                    <h6><i class="fas fa-cog" aria-hidden="true"></i> What will be generated:</h6>
                     <div class="preview-outputs"></div>
                 </div>
                 <div class="preview-section">
-                    <h6><i class="fas fa-chart-line"></i> Impact:</h6>
+                    <h6><i class="fas fa-chart-line" aria-hidden="true"></i> Impact:</h6>
                     <div class="preview-impact"></div>
                 </div>
             </div>
         `;
 
-        // Add to main content area
-        const mainContent = document.querySelector('.wizard-main-content');
-        if (mainContent) {
-            mainContent.appendChild(panel);
+        // Attach to body to avoid parent overflow/stacking issues
+        document.body.appendChild(panel);
+
+        // One-time enter: keep it subtle and skip for reduce motion
+        const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        if (!reduceMotion) {
+            requestAnimationFrame(() => {
+                panel.classList.add('is-entered');
+            });
+            // Clean up class after transition ends
+            panel.addEventListener('transitionend', () => {
+                panel.classList.remove('is-entering', 'is-entered');
+            }, { once: true });
+        } else {
+            panel.classList.remove('is-entering');
         }
 
         // Toggle functionality
-        panel.querySelector('.preview-toggle').addEventListener('click', () => {
-            panel.classList.toggle('collapsed');
+        const toggleBtn = panel.querySelector('.preview-toggle');
+        toggleBtn.addEventListener('click', () => {
+            const isCollapsed = panel.classList.toggle('collapsed');
+
             const icon = panel.querySelector('.preview-toggle i');
-            icon.classList.toggle('fa-chevron-right');
-            icon.classList.toggle('fa-chevron-left');
+            icon.classList.toggle('fa-chevron-right', !isCollapsed);
+            icon.classList.toggle('fa-chevron-left', isCollapsed);
+
+            toggleBtn.setAttribute('aria-expanded', String(!isCollapsed));
+            toggleBtn.setAttribute('aria-label', isCollapsed ? 'Expand Live Preview' : 'Collapse Live Preview');
+            toggleBtn.title = isCollapsed ? 'Expand' : 'Collapse';
         });
     }
 
@@ -537,22 +607,28 @@ class LivePreviewPanel {
         const outputsContainer = document.querySelector('.preview-outputs');
         const impactContainer = document.querySelector('.preview-impact');
 
+        const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
         if (outputsContainer && preview.outputs) {
+            if (!reduceMotion) outputsContainer.classList.add('is-updating');
             outputsContainer.innerHTML = preview.outputs.map(o => `
                 <div class="preview-item">
-                    <i class="fas fa-check-circle text-success"></i>
+                    <i class="fas fa-check-circle text-success" aria-hidden="true"></i>
                     <span>${o}</span>
                 </div>
             `).join('');
+            if (!reduceMotion) setTimeout(() => outputsContainer.classList.remove('is-updating'), 120);
         }
 
         if (impactContainer && preview.impact) {
+            if (!reduceMotion) impactContainer.classList.add('is-updating');
             impactContainer.innerHTML = preview.impact.map(i => `
                 <div class="preview-item ${i.type || ''}">
-                    <i class="fas ${i.icon || 'fa-arrow-right'}"></i>
+                    <i class="fas ${i.icon || 'fa-arrow-right'}" aria-hidden="true"></i>
                     <span>${i.text}</span>
                 </div>
             `).join('');
+            if (!reduceMotion) setTimeout(() => impactContainer.classList.remove('is-updating'), 120);
         }
     }
 
@@ -659,9 +735,12 @@ class LivePreviewPanel {
         const frameworks = document.querySelectorAll('[name="MandatoryFrameworks"]:checked');
         if (frameworks.length > 0) {
             outputs.push(`${frameworks.length} frameworks selected`);
+            // Fixed: proper range calculation (was math bug: 50-100 evaluated incorrectly)
+            const low = frameworks.length * 50;
+            const high = frameworks.length * 100;
             impact.push({
                 icon: 'fa-list-check',
-                text: `~${frameworks.length * 50-100} controls estimated`,
+                text: `Estimated control set: ${low}–${high} controls`,
                 type: 'info'
             });
         }
@@ -724,6 +803,196 @@ class LivePreviewPanel {
                 icon: 'fa-shield-alt',
                 text: 'Automated evidence from SIEM',
                 type: 'success'
+            });
+        }
+
+        return { outputs, impact };
+    }
+
+    generateStepGPreview() {
+        const outputs = ['Team Structure'];
+        const impact = [];
+
+        const departments = document.querySelectorAll('[name="Departments"]:checked');
+        if (departments.length > 0) {
+            outputs.push(`${departments.length} departments configured`);
+            impact.push({
+                icon: 'fa-sitemap',
+                text: `RACI matrix for ${departments.length} teams`,
+                type: 'info'
+            });
+        }
+
+        const riskOwner = document.querySelector('[name="RiskOwnerName"]')?.value;
+        if (riskOwner) {
+            impact.push({
+                icon: 'fa-user-tie',
+                text: `Risk Owner: ${riskOwner}`,
+                type: 'success'
+            });
+        }
+
+        return { outputs, impact };
+    }
+
+    generateStepHPreview() {
+        const outputs = ['Access Controls'];
+        const impact = [];
+
+        const users = document.querySelectorAll('.user-row').length;
+        if (users > 0) {
+            outputs.push(`${users} users to onboard`);
+        }
+
+        const roles = document.querySelectorAll('[name="UserRoles"]:checked');
+        if (roles.length > 0) {
+            impact.push({
+                icon: 'fa-user-shield',
+                text: `${roles.length} role types configured`,
+                type: 'info'
+            });
+        }
+
+        const mfaEnabled = document.querySelector('[name="RequireMFA"]:checked');
+        if (mfaEnabled) {
+            impact.push({
+                icon: 'fa-lock',
+                text: 'MFA enforcement enabled',
+                type: 'success'
+            });
+        }
+
+        return { outputs, impact };
+    }
+
+    generateStepIPreview() {
+        const outputs = ['Notification Settings'];
+        const impact = [];
+
+        const channels = document.querySelectorAll('[name="NotificationChannels"]:checked');
+        if (channels.length > 0) {
+            const channelNames = Array.from(channels).map(c => c.value).join(', ');
+            outputs.push(`Channels: ${channelNames}`);
+            impact.push({
+                icon: 'fa-bell',
+                text: `${channels.length} notification channels active`,
+                type: 'info'
+            });
+        }
+
+        const escalation = document.querySelector('[name="EscalationPolicy"]')?.value;
+        if (escalation) {
+            impact.push({
+                icon: 'fa-arrow-up',
+                text: 'Escalation policy configured',
+                type: 'success'
+            });
+        }
+
+        return { outputs, impact };
+    }
+
+    generateStepJPreview() {
+        const outputs = ['Scheduling Configuration'];
+        const impact = [];
+
+        const frequency = document.querySelector('[name="AssessmentFrequency"]')?.value;
+        if (frequency) {
+            outputs.push(`Assessment cycle: ${frequency}`);
+            impact.push({
+                icon: 'fa-calendar-check',
+                text: `${frequency} assessment schedule`,
+                type: 'info'
+            });
+        }
+
+        const reviewCycle = document.querySelector('[name="ControlReviewCycle"]')?.value;
+        if (reviewCycle) {
+            impact.push({
+                icon: 'fa-sync',
+                text: `Control reviews: ${reviewCycle}`,
+                type: 'info'
+            });
+        }
+
+        return { outputs, impact };
+    }
+
+    generateStepKPreview() {
+        const outputs = ['Advanced Settings'];
+        const impact = [];
+
+        const autoEvidence = document.querySelector('[name="AutoEvidenceCollection"]:checked');
+        if (autoEvidence) {
+            outputs.push('Automated evidence collection');
+            impact.push({
+                icon: 'fa-robot',
+                text: 'Evidence automation enabled',
+                type: 'success'
+            });
+        }
+
+        const aiAssist = document.querySelector('[name="AIAssistEnabled"]:checked');
+        if (aiAssist) {
+            impact.push({
+                icon: 'fa-brain',
+                text: 'AI-assisted compliance enabled',
+                type: 'success'
+            });
+        }
+
+        return { outputs, impact };
+    }
+
+    generateStepLPreview() {
+        const outputs = ['Success Dashboard', 'KPI Tracker', 'Improvement Goals'];
+        const impact = [];
+
+        // Q91: top 3 success metrics
+        const metrics = Array.from(document.querySelectorAll('.success-metric:checked'))
+            .map(x => x.value);
+
+        if (metrics.length) {
+            const metricLabels = metrics.map(m => m.replace(/_/g, ' ')).join(', ');
+            impact.push({
+                icon: 'fa-trophy',
+                text: `Tracking: ${metricLabels}`,
+                type: 'info'
+            });
+        } else {
+            impact.push({
+                icon: 'fa-circle-exclamation',
+                text: 'Select 3 success metrics to enable KPI tracking.',
+                type: 'warning'
+            });
+        }
+
+        // Q92-94 baseline values
+        const auditHrs = document.querySelector('[name="BaselineAuditPrepHoursPerMonth"]')?.value;
+        const closureDays = document.querySelector('[name="BaselineRemediationClosureDays"]')?.value;
+        const overdueControls = document.querySelector('[name="BaselineOverdueControlsPerMonth"]')?.value;
+
+        if (auditHrs) {
+            impact.push({ icon: 'fa-clock', text: `Baseline audit prep: ${auditHrs} hrs/month`, type: 'success' });
+        }
+        if (closureDays) {
+            impact.push({ icon: 'fa-calendar', text: `Baseline remediation closure: ${closureDays} days`, type: 'success' });
+        }
+        if (overdueControls) {
+            impact.push({ icon: 'fa-list-check', text: `Baseline overdue controls: ${overdueControls}/month`, type: 'success' });
+        }
+
+        // Q96 pilot scope
+        const pilot = Array.from(document.querySelectorAll('[name="PilotScope"]:checked'))
+            .map(x => x.value);
+
+        if (pilot.length) {
+            outputs.push(`Pilot scope: ${pilot.length} domains`);
+            const pilotSummary = pilot.slice(0, 3).join(', ') + (pilot.length > 3 ? '…' : '');
+            impact.push({
+                icon: 'fa-flask',
+                text: `Pilot domains: ${pilotSummary}`,
+                type: 'info'
             });
         }
 
@@ -812,6 +1081,7 @@ class NextBestActionPanel {
 
         const actions = [];
 
+        // Standard required fields check
         if (emptyRequired > 0) {
             actions.push({
                 icon: 'fa-edit',
@@ -821,12 +1091,63 @@ class NextBestActionPanel {
             });
         }
 
-        actions.push({
-            icon: 'fa-arrow-right',
-            title: 'Continue to next step',
-            time: '~1 min',
-            priority: ''
-        });
+        // Step-specific contextual actions
+        if (this.stepName === 'StepL') {
+            // Q91: Success metrics (need exactly 3)
+            const metricsChecked = document.querySelectorAll('.success-metric:checked').length;
+            if (metricsChecked !== 3) {
+                actions.push({
+                    icon: 'fa-trophy',
+                    title: `Select 3 success metrics (${metricsChecked}/3 selected)`,
+                    time: '~1 min',
+                    priority: 'high'
+                });
+            }
+
+            // Q92-94: Baseline values (recommended but not required)
+            const baselineAny =
+                !!document.querySelector('[name="BaselineAuditPrepHoursPerMonth"]')?.value ||
+                !!document.querySelector('[name="BaselineRemediationClosureDays"]')?.value ||
+                !!document.querySelector('[name="BaselineOverdueControlsPerMonth"]')?.value;
+
+            if (!baselineAny) {
+                actions.push({
+                    icon: 'fa-chart-line',
+                    title: 'Add baseline values to measure 90-day impact',
+                    time: '~1 min',
+                    priority: ''
+                });
+            }
+
+            // Q96: Pilot scope (recommended)
+            const pilotSelected = document.querySelectorAll('[name="PilotScope"]:checked').length;
+            if (pilotSelected === 0) {
+                actions.push({
+                    icon: 'fa-flask',
+                    title: 'Select pilot domains for initial implementation',
+                    time: '~1 min',
+                    priority: ''
+                });
+            }
+
+            // Final step: show complete action
+            if (metricsChecked === 3) {
+                actions.push({
+                    icon: 'fa-check-double',
+                    title: 'Complete onboarding & go to dashboard',
+                    time: '~1 min',
+                    priority: 'high'
+                });
+            }
+        } else {
+            // Default actions for other steps
+            actions.push({
+                icon: 'fa-arrow-right',
+                title: 'Continue to next step',
+                time: '~1 min',
+                priority: ''
+            });
+        }
 
         actions.push({
             icon: 'fa-save',
@@ -846,6 +1167,7 @@ class NextBestActionPanel {
 class WhyWeAskTooltips {
     constructor() {
         this.tooltipData = {
+            // StepA - Organization Identity
             'OrganizationLegalNameEn': 'Your legal name appears on official compliance reports, audit documents, and regulatory submissions.',
             'OrganizationLegalNameAr': 'Arabic name enables bilingual reports required by some GCC regulators.',
             'CountryOfIncorporation': 'Determines which regulatory frameworks apply to your organization.',
@@ -856,15 +1178,107 @@ class WhyWeAskTooltips {
             'OperatingCountries': 'Multi-jurisdiction operations may require additional compliance frameworks.',
             'PrimaryLanguage': 'Sets the default language for notifications and reports.',
             'HasDataResidencyRequirement': 'Some regulations require data to remain within specific geographic boundaries.',
-            'CorporateEmailDomains': 'Used to validate user registrations and enable SSO configurations.'
+            'CorporateEmailDomains': 'Used to validate user registrations and enable SSO configurations.',
+
+            // StepB - Assurance Objective
+            'PrimaryDriver': 'Determines how we prioritize your compliance activities and dashboard focus.',
+            'CompliancePainPoints': 'Helps us customize automation and recommendations for your specific challenges.',
+            'DesiredMaturityLevel': 'Sets the target for tracking improvement over time.',
+            'CurrentMaturityLevel': 'Establishes baseline to measure your compliance growth journey.',
+
+            // StepC - Regulatory Applicability
+            'PrimaryRegulator': 'Your primary regulator determines mandatory frameworks and reporting requirements.',
+            'MandatoryFrameworks': 'Frameworks required by regulators form the core of your control baseline.',
+            'ExistingCertifications': 'Existing certifications can reduce duplicate compliance efforts through control inheritance.',
+            'BenchmarkingFrameworks': 'Voluntary frameworks help align with international best practices.',
+
+            // StepD - Scope Definition
+            'InScopeEntities': 'Entities within scope define the organizational boundary for compliance assessments.',
+            'InScopeSystems': 'Systems in scope determine which technical controls apply and evidence sources needed.',
+            'ScopeExclusions': 'Documenting exclusions provides audit trail for regulatory justification.',
+            'SystemCriticality': 'Criticality tiers inform RTO/RPO requirements and assessment prioritization.',
+
+            // StepE - Data & Risk Profile
+            'DataTypes': 'Data classifications trigger specific privacy and security framework requirements.',
+            'ProcessesPaymentCards': 'Payment card processing mandates PCI-DSS compliance controls.',
+            'ProcessesHealthData': 'Health data triggers HIPAA or local health privacy regulations.',
+            'ThirdPartyProcessors': 'Third-party processors are key inputs for vendor risk management.',
+            'DataResidencyRequirements': 'Data residency affects cloud provider selection and storage controls.',
+
+            // StepF - Technology Landscape
+            'IdentityProvider': 'Connecting your identity provider enables SSO and user provisioning automation.',
+            'SiemPlatform': 'SIEM integration enables automated evidence collection for monitoring controls.',
+            'CloudProviders': 'Cloud providers inform cloud-specific security controls and shared responsibility model.',
+            'TicketingSystem': 'Ticketing integration automates remediation tracking and evidence collection.',
+            'CodeRepository': 'Code repository integration enables secure development lifecycle evidence.',
+
+            // StepG - Control Ownership
+            'GovernanceModel': 'Governance model determines how controls are assigned and managed across teams.',
+            'ControlOwnershipApproach': 'Centralized vs federated ownership affects workflow and escalation paths.',
+            'ExceptionApprovers': 'Exception approvers ensure risk acceptance is properly authorized and documented.',
+            'EscalationPath': 'Clear escalation paths prevent controls from stalling in remediation.',
+
+            // StepH - Teams & Access
+            'Departments': 'Departments define the organizational structure for RACI mapping.',
+            'TeamMembers': 'Team members receive role-based access to relevant controls and evidence tasks.',
+            'UserRoles': 'Role types determine permissions and dashboard views for each user.',
+            'RequireMFA': 'MFA enforcement ensures compliance portal access meets security standards.',
+
+            // StepI - Workflow & Cadence
+            'NotificationChannels': 'Notification channels determine how users receive alerts and reminders.',
+            'EscalationPolicy': 'Escalation policy ensures overdue items get appropriate management attention.',
+            'ReminderFrequency': 'Reminder frequency balances user engagement with notification fatigue.',
+            'WorkflowApprovals': 'Workflow approvals ensure evidence and exceptions are properly reviewed.',
+
+            // StepJ - Evidence Standards
+            'AssessmentFrequency': 'Assessment frequency determines your compliance calendar and workload distribution.',
+            'ControlReviewCycle': 'Control review cycles ensure your security posture stays current.',
+            'EvidenceNamingConvention': 'Naming conventions ensure consistent evidence organization for auditors.',
+            'EvidenceRetentionPeriod': 'Retention periods must meet regulatory requirements for audit evidence.',
+            'EvidenceAccessRules': 'Access rules protect sensitive evidence while enabling necessary reviews.',
+
+            // StepK - Baseline & Overlays
+            'ControlBaseline': 'The control baseline forms the foundation of your compliance program.',
+            'ControlOverlays': 'Overlays add industry or jurisdiction-specific controls to your baseline.',
+            'CustomControls': 'Custom controls capture internal policy requirements not covered by frameworks.',
+            'AutoEvidenceCollection': 'Automated evidence reduces manual effort and improves collection consistency.',
+            'AIAssistEnabled': 'AI assistance helps with control mapping, gap analysis, and remediation guidance.',
+
+            // StepL - Go-Live & Success Metrics (Q91-Q96)
+            'SuccessMetricsTop3': 'Defines executive KPIs used to demonstrate measurable program outcomes after go-live.',
+            'BaselineAuditPrepHoursPerMonth': 'Creates a baseline to quantify time savings and audit readiness improvements.',
+            'BaselineRemediationClosureDays': 'Enables tracking remediation SLA improvement over 90 days.',
+            'BaselineOverdueControlsPerMonth': 'Measures control operational maturity and backlog reduction.',
+            'PilotScope': 'Determines which control domains are prioritized in the first implementation wave.'
         };
 
         this.init();
     }
 
     init() {
+        // Add tooltips by field name
         Object.keys(this.tooltipData).forEach(fieldName => {
             this.addTooltip(fieldName);
+        });
+
+        // Support tooltips on arbitrary elements via data-why attribute
+        // Useful for section headers, checkbox groups, etc.
+        document.querySelectorAll('[data-why]').forEach(el => {
+            const key = el.getAttribute('data-why');
+            const text = this.tooltipData[key];
+            if (!text || el.querySelector('.why-icon')) return;
+
+            const icon = document.createElement('span');
+            icon.className = 'why-icon';
+            icon.innerHTML = '<i class="fas fa-question-circle"></i>';
+            icon.setAttribute('title', text);
+            icon.setAttribute('data-bs-toggle', 'tooltip');
+            icon.setAttribute('data-bs-placement', 'top');
+            el.appendChild(icon);
+
+            if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+                new bootstrap.Tooltip(icon);
+            }
         });
     }
 

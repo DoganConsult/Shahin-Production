@@ -34,7 +34,7 @@ public class ConsentService : IConsentService
 
     public async Task<UserConsent> RecordConsentAsync(
         Guid tenantId,
-        string userId,
+        Guid userId,
         string consentType,
         string documentVersion,
         bool isGranted,
@@ -57,7 +57,7 @@ public class ConsentService : IConsentService
             existingConsent.WithdrawnAt = null;
             existingConsent.WithdrawalReason = null;
             existingConsent.ModifiedDate = DateTime.UtcNow;
-            existingConsent.ModifiedBy = userId;
+            existingConsent.ModifiedBy = userId.ToString();
 
             await _unitOfWork.SaveChangesAsync();
             _logger.LogInformation("Updated consent {ConsentType} for user {UserId}", consentType, userId);
@@ -81,7 +81,7 @@ public class ConsentService : IConsentService
             UserAgent = userAgent,
             DocumentHash = documentHash,
             CreatedDate = DateTime.UtcNow,
-            CreatedBy = userId
+            CreatedBy = userId.ToString()
         };
 
         await _unitOfWork.UserConsents.AddAsync(consent);
@@ -91,7 +91,7 @@ public class ConsentService : IConsentService
         return consent;
     }
 
-    public async Task<bool> HasConsentAsync(string userId, string consentType)
+    public async Task<bool> HasConsentAsync(Guid userId, string consentType)
     {
         return await _unitOfWork.UserConsents
             .Query()
@@ -102,7 +102,7 @@ public class ConsentService : IConsentService
                           !c.IsDeleted);
     }
 
-    public async Task<IEnumerable<UserConsent>> GetUserConsentsAsync(string userId)
+    public async Task<IEnumerable<UserConsent>> GetUserConsentsAsync(Guid userId)
     {
         return await _unitOfWork.UserConsents
             .Query()
@@ -111,7 +111,7 @@ public class ConsentService : IConsentService
             .ToListAsync();
     }
 
-    public async Task<UserConsent> WithdrawConsentAsync(string userId, string consentType, string reason)
+    public async Task<UserConsent> WithdrawConsentAsync(Guid userId, string consentType, string reason)
     {
         var consent = await _unitOfWork.UserConsents
             .Query()
@@ -124,7 +124,7 @@ public class ConsentService : IConsentService
         consent.WithdrawnAt = DateTime.UtcNow;
         consent.WithdrawalReason = reason;
         consent.ModifiedDate = DateTime.UtcNow;
-        consent.ModifiedBy = userId;
+        consent.ModifiedBy = userId.ToString();
 
         await _unitOfWork.SaveChangesAsync();
 
@@ -132,7 +132,7 @@ public class ConsentService : IConsentService
         return consent;
     }
 
-    public async Task<bool> HasAllMandatoryConsentsAsync(string userId)
+    public async Task<bool> HasAllMandatoryConsentsAsync(Guid userId)
     {
         // Get all mandatory document types
         var mandatoryTypes = await _unitOfWork.LegalDocuments

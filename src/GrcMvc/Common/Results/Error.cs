@@ -1,33 +1,88 @@
-namespace GrcMvc.Common.Results;
-
-/// <summary>
-/// Represents a structured error with code, message, and optional metadata
-/// </summary>
-public class Error
+namespace GrcMvc.Common.Results
 {
-    public string Code { get; }
-    public string Message { get; }
-    public string? Details { get; }
-    public Dictionary<string, object>? Metadata { get; }
-
-    public Error(string code, string message, string? details = null, Dictionary<string, object>? metadata = null)
-    {
-        Code = code ?? throw new ArgumentNullException(nameof(code));
-        Message = message ?? throw new ArgumentNullException(nameof(message));
-        Details = details;
-        Metadata = metadata;
-    }
-
     /// <summary>
-    /// Creates an error with a single metadata entry
+    /// Represents an error that occurred during an operation
     /// </summary>
-    public static Error WithMetadata(string code, string message, string key, object value)
+    public class Error
     {
-        return new Error(code, message, null, new Dictionary<string, object> { { key, value } });
-    }
+        /// <summary>
+        /// The error code (e.g., "NOT_FOUND", "VALIDATION_ERROR")
+        /// </summary>
+        public string Code { get; }
 
-    public override string ToString()
-    {
-        return $"[{Code}] {Message}" + (Details != null ? $": {Details}" : string.Empty);
+        /// <summary>
+        /// A human-readable error message
+        /// </summary>
+        public string Message { get; }
+
+        /// <summary>
+        /// Additional details about the error (optional)
+        /// </summary>
+        public string? Details { get; }
+
+        /// <summary>
+        /// Creates a new error
+        /// </summary>
+        public Error(string code, string message, string? details = null)
+        {
+            Code = code ?? throw new ArgumentNullException(nameof(code));
+            Message = message ?? throw new ArgumentNullException(nameof(message));
+            Details = details;
+        }
+
+        /// <summary>
+        /// Returns a string representation of the error
+        /// </summary>
+        public override string ToString()
+        {
+            return Details != null 
+                ? $"[{Code}] {Message} - {Details}" 
+                : $"[{Code}] {Message}";
+        }
+
+        /// <summary>
+        /// Predefined error: Entity not found
+        /// </summary>
+        public static Error NotFound(string entityName, object id) 
+            => new Error(
+                ErrorCode.NotFound, 
+                $"{entityName} not found",
+                $"No {entityName} found with ID: {id}");
+
+        /// <summary>
+        /// Predefined error: Validation failed
+        /// </summary>
+        public static Error Validation(string message, string? details = null) 
+            => new Error(ErrorCode.ValidationError, message, details);
+
+        /// <summary>
+        /// Predefined error: Unauthorized access
+        /// </summary>
+        public static Error Unauthorized(string message = "Unauthorized access") 
+            => new Error(ErrorCode.Unauthorized, message);
+
+        /// <summary>
+        /// Predefined error: Forbidden access
+        /// </summary>
+        public static Error Forbidden(string message = "Access forbidden") 
+            => new Error(ErrorCode.Forbidden, message);
+
+        /// <summary>
+        /// Predefined error: Conflict (e.g., duplicate entry)
+        /// </summary>
+        public static Error Conflict(string message, string? details = null) 
+            => new Error(ErrorCode.Conflict, message, details);
+
+        /// <summary>
+        /// Predefined error: Invalid operation
+        /// </summary>
+        public static Error InvalidOperation(string message, string? details = null) 
+            => new Error(ErrorCode.InvalidOperation, message, details);
+
+        /// <summary>
+        /// Predefined error: Internal server error
+        /// </summary>
+        public static Error Internal(string message = "An internal error occurred", string? details = null) 
+            => new Error(ErrorCode.InternalError, message, details);
     }
 }

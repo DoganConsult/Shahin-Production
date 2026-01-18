@@ -1,0 +1,82 @@
+{
+  "feature_flags": {
+    "foundation_security": {
+      "enabled": true,
+      "description": "Core authentication, authorization, RBAC, and tenant management",
+      "modules": ["identity", "auth", "rbac", "tenant"],
+      "phase": 1
+    },
+    "core_risk_control_assessment": {
+      "enabled": false,
+      "description": "Risk management, control library, and assessment execution",
+      "modules": ["risk", "control", "assessment"],
+      "phase": 2
+    },
+    "core_audit_policy_evidence_vendor": {
+      "enabled": false,
+      "description": "Audit management, policy management, evidence, and vendor management",
+      "modules": ["audit", "policy", "evidence", "vendor"],
+      "phase": 3
+    },
+    "workflow_automation": {
+      "enabled": false,
+      "description": "Workflow engine and background jobs",
+      "modules": ["workflow", "jobs", "escalation"],
+      "phase": 4
+    },
+    "integrations": {
+      "enabled": false,
+      "description": "External integrations (email, SSO, webhooks, government)",
+      "modules": ["email", "sso", "webhooks", "ksa"],
+      "phase": 5
+    },
+    "ai_analytics": {
+      "enabled": false,
+      "description": "AI agents and analytics services",
+      "modules": ["claude", "analytics", "dashboards"],
+      "phase": 6
+    }
+  },
+  "deployment_stages": {
+    "canary": {
+      "foundation_security": true,
+      "core_risk_control_assessment": false,
+      "core_audit_policy_evidence_vendor": false,
+      "workflow_automation": false,
+      "integrations": false,
+      "ai_analytics": false
+    },
+    "pilot": {
+      "foundation_security": true,
+      "core_risk_control_assessment": true,
+      "core_audit_policy_evidence_vendor": false,
+      "workflow_automation": false,
+      "integrations": false,
+      "ai_analytics": false
+    },
+    "partial": {
+      "foundation_security": true,
+      "core_risk_control_assessment": true,
+      "core_audit_policy_evidence_vendor": true,
+      "workflow_automation": true,
+      "integrations": false,
+      "ai_analytics": false
+    },
+    "full": {
+      "foundation_security": true,
+      "core_risk_control_assessment": true,
+      "core_audit_policy_evidence_vendor": true,
+      "workflow_automation": true,
+      "integrations": true,
+      "ai_analytics": true
+    }
+  },
+  "rollout_schedule": {
+    "week_1_2": ["foundation_security"],
+    "week_3_4": ["core_risk_control_assessment"],
+    "week_5_6": ["core_audit_policy_evidence_vendor"],
+    "week_7_8": ["workflow_automation"],
+    "week_9_10": ["integrations"],
+    "week_11_12": ["ai_analytics"]
+  }
+}

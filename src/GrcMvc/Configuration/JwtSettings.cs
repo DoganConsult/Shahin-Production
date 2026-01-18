@@ -3,8 +3,11 @@ using System.ComponentModel.DataAnnotations;
 namespace GrcMvc.Configuration
 {
     /// <summary>
-    /// Strongly-typed JWT configuration settings
+    /// DEPRECATED: Custom JWT has been replaced by OpenIddict
+    /// Use /connect/token endpoint for OAuth2/OpenID Connect authentication
+    /// This class is kept for backward compatibility and will be removed in a future version
     /// </summary>
+    [Obsolete("Use OpenIddict at /connect/token endpoint instead. This class will be removed in a future version.")]
     public sealed class JwtSettings
     {
         public const string SectionName = "JwtSettings";

@@ -132,8 +132,23 @@
         </div>
     </div>
 
+    <!-- Environment Variables -->
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-sliders"></i> Environment Variables</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">Manage application configuration through environment variables. This includes database connections, API keys, and other sensitive settings.</p>
+                <a href="@Url.Action("EnvironmentVariables", "AdminPortal")" class="btn btn-primary">
+                    <i class="bi bi-sliders"></i> Manage Environment Variables
+                </a>
+            </div>
+        </div>
+    </div>
+
     <div class="alert alert-secondary mt-4">
         <i class="bi bi-info-circle"></i>
-        <strong>Note:</strong> Platform settings are currently read-only. Contact Shahin-AI support to modify these settings.
+        <strong>Note:</strong> Most platform settings are configured via environment variables. Use the "Manage Environment Variables" section above to modify configuration.
     </div>
 </div>

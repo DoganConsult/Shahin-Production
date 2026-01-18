@@ -49,9 +49,9 @@ namespace GrcMvc.Services
             try
             {
                 // Get user from Auth DB
-                var user = await _authContext.Users
+                var user = await _authContext.Set<ApplicationUser>()
                     .Include(u => u.RoleProfile)
-                    .FirstOrDefaultAsync(u => u.Id == userId && u.IsActive);
+                    .FirstOrDefaultAsync(u => u.Id == Guid.Parse(userId) && u.IsActive);
 
                 if (user == null)
                 {
@@ -92,7 +92,7 @@ namespace GrcMvc.Services
 
                 return new UserWorkspaceViewModel
                 {
-                    UserId = user.Id,
+                    UserId = user.Id.ToString(),
                     UserName = user.FullName,
                     RoleProfile = user.RoleProfile,
                     Layer = user.RoleProfile.Layer,
@@ -127,7 +127,7 @@ namespace GrcMvc.Services
             try
             {
                 // Get user from Auth DB
-                var user = await _authContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                var user = await _authContext.Set<ApplicationUser>().FirstOrDefaultAsync(u => u.Id == Guid.Parse(userId));
                 if (user == null)
                 {
                     _logger.LogError($"❌ User {userId} not found");
@@ -153,7 +153,7 @@ namespace GrcMvc.Services
                 user.Skills = JsonSerializer.Serialize(new List<string> { "Role assigned on " + DateTime.UtcNow });
                 user.Abilities = JsonSerializer.Serialize(new List<string> { "Profile: " + roleProfile.RoleName });
 
-                _authContext.Users.Update(user);
+                _authContext.Set<ApplicationUser>().Update(user);
                 await _authContext.SaveChangesAsync();
 
                 _logger.LogInformation($"✅ User {user.FullName} assigned to role {roleProfile.RoleName}");
@@ -173,9 +173,9 @@ namespace GrcMvc.Services
             try
             {
                 // Get user from Auth DB
-                var user = await _authContext.Users
+                var user = await _authContext.Set<ApplicationUser>()
                     .Include(u => u.RoleProfile)
-                    .FirstOrDefaultAsync(u => u.Id == userId);
+                    .FirstOrDefaultAsync(u => u.Id == Guid.Parse(userId));
 
                 if (user?.RoleProfile?.ParticipatingWorkflows == null)
                 {

@@ -1,0 +1,44 @@
+@{
+    ViewData["Title"] = "Registration Closed";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <img src="~/images/brand/eagle-logo-128.png" alt="Shahin AI" class="mb-3" style="height: 80px;" />
+                <h1 class="h3">Registration Currently Closed</h1>
+            </div>
+
+            <!-- Message Card -->
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-door-closed text-warning" style="font-size: 4rem;"></i>
+                    </div>
+
+                    <p class="text-muted mb-4">
+                        Public registration is currently not available.
+                        If you have received an invitation, please use the link provided in your email.
+                    </p>
+
+                    <hr class="my-4" />
+
+                    <p class="mb-0">
+                        <strong>Need access?</strong><br />
+                        Contact us at <a href="mailto:support@shahin-ai.com">support@shahin-ai.com</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Login Link -->
+            <div class="text-center mt-4">
+                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Go to Login
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

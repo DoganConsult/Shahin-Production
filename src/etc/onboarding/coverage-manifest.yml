@@ -1,0 +1,31 @@
+# Onboarding Coverage Manifest
+# This file defines the coverage requirements for onboarding
+
+version: 1.0
+modules:
+  - name: Company Profile
+    required: true
+    fields:
+      - companyName
+      - industry
+      - size
+      - location
+    
+  - name: Compliance Requirements
+    required: true
+    fields:
+      - frameworks
+      - regulations
+      - certifications
+      
+  - name: Risk Profile
+    required: false
+    fields:
+      - riskAppetite
+      - riskCategories
+      - riskThresholds
+
+coverage_threshold: 80
+validation_rules:
+  - all_required_modules_complete
+  - minimum_field_completion: 75

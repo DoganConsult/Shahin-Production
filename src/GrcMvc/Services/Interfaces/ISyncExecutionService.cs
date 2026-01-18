@@ -1,3 +1,5 @@
+using GrcMvc.Common.Results;
+
 namespace GrcMvc.Services.Interfaces;
 
 /// <summary>
@@ -8,7 +10,7 @@ public interface ISyncExecutionService
     /// <summary>
     /// Execute a sync job manually
     /// </summary>
-    Task<Guid> ExecuteSyncJobAsync(Guid syncJobId, CancellationToken cancellationToken = default);
+    Task<Result<Guid>> ExecuteSyncJobAsync(Guid syncJobId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Execute all scheduled sync jobs that are due
@@ -18,17 +20,17 @@ public interface ISyncExecutionService
     /// <summary>
     /// Cancel a running sync job
     /// </summary>
-    Task CancelSyncJobAsync(Guid executionLogId, CancellationToken cancellationToken = default);
+    Task<Result> CancelSyncJobAsync(Guid executionLogId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get sync execution status
     /// </summary>
-    Task<SyncExecutionStatus> GetExecutionStatusAsync(Guid executionLogId, CancellationToken cancellationToken = default);
+    Task<Result<SyncExecutionStatus>> GetExecutionStatusAsync(Guid executionLogId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retry a failed sync job
     /// </summary>
-    Task<Guid> RetrySyncJobAsync(Guid failedExecutionLogId, CancellationToken cancellationToken = default);
+    Task<Result<Guid>> RetrySyncJobAsync(Guid failedExecutionLogId, CancellationToken cancellationToken = default);
 }
 
 /// <summary>

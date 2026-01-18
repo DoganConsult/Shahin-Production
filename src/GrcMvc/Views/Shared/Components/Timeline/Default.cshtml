@@ -1,0 +1,139 @@
+@model GrcMvc.ViewComponents.TimelineModel
+
+@{
+    var culture = System.Threading.Thread.CurrentThread.CurrentUICulture;
+    var isRtl = culture.TextInfo.IsRightToLeft;
+}
+
+<div class="grc-timeline @(Model.Compact ? "timeline-compact" : "")">
+    @if (Model.Events.Any())
+    {
+        @foreach (var evt in Model.Events)
+        {
+            <div class="timeline-item @(evt.IsCurrent ? "timeline-current" : "") @(evt.IsCompleted ? "timeline-completed" : "timeline-pending")">
+                <div class="timeline-marker bg-@evt.Color @(evt.IsCurrent ? "timeline-marker-pulse" : "")">
+                    <i class="bi @evt.Icon text-white"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            @if (!string.IsNullOrEmpty(evt.Link))
+                            {
+                                <a href="@evt.Link" class="fw-semibold text-decoration-none">
+                                    @(isRtl && !string.IsNullOrEmpty(evt.TitleAr) ? evt.TitleAr : evt.Title)
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="fw-semibold">
+                                    @(isRtl && !string.IsNullOrEmpty(evt.TitleAr) ? evt.TitleAr : evt.Title)
+                                </span>
+                            }
+                            @if (!string.IsNullOrEmpty(evt.User))
+                            {
+                                <span class="text-muted small ms-2">
+                                    <i class="bi bi-person me-1"></i>@evt.User
+                                </span>
+                            }
+                        </div>
+                        <small class="text-muted">
+                            <i class="bi bi-clock me-1"></i>
+                            @evt.Timestamp.ToString("d MMM yyyy HH:mm", culture)
+                        </small>
+                    </div>
+                    @if (!string.IsNullOrEmpty(evt.Description))
+                    {
+                        <p class="text-muted small mt-1 mb-0">
+                            @(isRtl && !string.IsNullOrEmpty(evt.DescriptionAr) ? evt.DescriptionAr : evt.Description)
+                        </p>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center text-muted py-4">
+            <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
+            @Localizer["Timeline_NoEvents"]
+        </div>
+    }
+</div>
+
+<style>
+    .grc-timeline {
+        position: relative;
+        padding: 0;
+    }
+
+    .grc-timeline::before {
+        content: '';
+        position: absolute;
+        @(isRtl ? "right" : "left"): 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--bs-gray-300);
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-@(isRtl ? "right" : "left"): 50px;
+        padding-bottom: 1.5rem;
+    }
+
+    .timeline-item:last-child {
+        padding-bottom: 0;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        @(isRtl ? "right" : "left"): 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        z-index: 1;
+    }
+
+    .timeline-marker-pulse {
+        animation: pulse 2s infinite;
+    }
+
+    .timeline-pending .timeline-marker {
+        background-color: var(--bs-gray-400) !important;
+    }
+
+    .timeline-content {
+        background: var(--bs-gray-100);
+        padding: 1rem;
+        border-radius: 0.5rem;
+    }
+
+    .timeline-current .timeline-content {
+        border: 2px solid var(--bs-primary);
+        background: var(--bs-white);
+    }
+
+    .timeline-compact .timeline-item {
+        padding-bottom: 1rem;
+    }
+
+    .timeline-compact .timeline-marker {
+        width: 24px;
+        height: 24px;
+        font-size: 0.625rem;
+    }
+
+    .timeline-compact .timeline-content {
+        padding: 0.75rem;
+    }
+
+    @@keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(var(--bs-primary-rgb), 0.4); }
+        50% { box-shadow: 0 0 0 8px rgba(var(--bs-primary-rgb), 0); }
+    }
+</style>

@@ -1,0 +1,81 @@
+@model string
+
+@{
+    var culture = System.Threading.Thread.CurrentThread.CurrentUICulture;
+    var isRtl = culture.TextInfo.IsRightToLeft;
+    var fieldName = ViewData.TemplateInfo.HtmlFieldPrefix;
+    var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 8);
+}
+
+<div class="grc-richtext-editor">
+    <div class="toolbar border rounded-top p-1 bg-light" id="toolbar-@uniqueId">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-command="bold" title="Bold">
+            <i class="bi bi-type-bold"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-command="italic" title="Italic">
+            <i class="bi bi-type-italic"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-command="underline" title="Underline">
+            <i class="bi bi-type-underline"></i>
+        </button>
+        <span class="border-start mx-1"></span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-command="insertUnorderedList" title="Bullet List">
+            <i class="bi bi-list-ul"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-command="insertOrderedList" title="Numbered List">
+            <i class="bi bi-list-ol"></i>
+        </button>
+        <span class="border-start mx-1"></span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-command="createLink" title="Insert Link">
+            <i class="bi bi-link-45deg"></i>
+        </button>
+    </div>
+    <div class="editor-content border border-top-0 rounded-bottom p-2"
+         id="editor-@uniqueId"
+         contenteditable="true"
+         dir="@(isRtl ? "rtl" : "ltr")"
+         style="min-height: 150px; max-height: 400px; overflow-y: auto;">
+        @Html.Raw(Model ?? "")
+    </div>
+    <input type="hidden" id="@fieldName" name="@fieldName" value="@Model" />
+</div>
+
+<script>
+    (function() {
+        const toolbar = document.getElementById('toolbar-@uniqueId');
+        const editor = document.getElementById('editor-@uniqueId');
+        const hidden = document.querySelector('input[name="@fieldName"]');
+
+        toolbar.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const command = this.dataset.command;
+                if (command === 'createLink') {
+                    const url = prompt('Enter URL:');
+                    if (url) document.execCommand(command, false, url);
+                } else {
+                    document.execCommand(command, false, null);
+                }
+                editor.focus();
+            });
+        });
+
+        editor.addEventListener('input', function() {
+            hidden.value = this.innerHTML;
+        });
+
+        editor.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const text = e.clipboardData.getData('text/plain');
+            document.execCommand('insertText', false, text);
+        });
+    })();
+</script>
+
+<style>
+    .grc-richtext-editor .editor-content:focus {
+        outline: none;
+        border-color: var(--bs-primary) !important;
+        box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+    }
+</style>

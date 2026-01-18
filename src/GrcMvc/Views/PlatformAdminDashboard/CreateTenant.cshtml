@@ -1,0 +1,254 @@
+@model GrcMvc.Models.ViewModels.CreateTenantFormViewModel
+@{
+    ViewData["Title"] = "Create New Tenant";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="bi bi-building-add"></i> Create New Tenant</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="CreateTenant" method="post">
+                        @Html.AntiForgeryToken()
+                        
+                        <!-- Organization Section -->
+                        <div class="border rounded p-3 mb-4">
+                            <h5 class="mb-3">Organization Information</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="OrganizationName" class="form-label required"></label>
+                                        <input asp-for="OrganizationName" class="form-control" />
+                                        <span asp-validation-for="OrganizationName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="TenantSlug" class="form-label required"></label>
+                                        <input asp-for="TenantSlug" class="form-control" placeholder="company-name" />
+                                        <small class="text-muted">URL: yourdomain.com/{slug}</small>
+                                        <span asp-validation-for="TenantSlug" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="TenantCode" class="form-label"></label>
+                                        <input asp-for="TenantCode" class="form-control" placeholder="ACME" />
+                                        <span asp-validation-for="TenantCode" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="Industry" class="form-label required"></label>
+                                        <select asp-for="Industry" class="form-control">
+                                            <option value="">Select Industry</option>
+                                            @foreach(var industry in Model.AvailableIndustries)
+                                            {
+                                                <option value="@industry">@industry</option>
+                                            }
+                                        </select>
+                                        <span asp-validation-for="Industry" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="CompanySize" class="form-label required"></label>
+                                        <select asp-for="CompanySize" class="form-control">
+                                            @foreach(var size in Model.AvailableCompanySizes)
+                                            {
+                                                <option value="@size">@size employees</option>
+                                            }
+                                        </select>
+                                        <span asp-validation-for="CompanySize" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="CompanyWebsite" class="form-label"></label>
+                                        <input asp-for="CompanyWebsite" class="form-control" placeholder="https://www.example.com" />
+                                        <span asp-validation-for="CompanyWebsite" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Admin User Section -->
+                        <div class="border rounded p-3 mb-4">
+                            <h5 class="mb-3">Administrator Account</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="AdminFirstName" class="form-label required"></label>
+                                        <input asp-for="AdminFirstName" class="form-control" />
+                                        <span asp-validation-for="AdminFirstName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="AdminLastName" class="form-label required"></label>
+                                        <input asp-for="AdminLastName" class="form-control" />
+                                        <span asp-validation-for="AdminLastName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="AdminEmail" class="form-label required"></label>
+                                        <input asp-for="AdminEmail" type="email" class="form-control" />
+                                        <span asp-validation-for="AdminEmail" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="AdminPhone" class="form-label"></label>
+                                        <input asp-for="AdminPhone" class="form-control" placeholder="+966501234567" />
+                                        <span asp-validation-for="AdminPhone" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="AdminJobTitle" class="form-label"></label>
+                                        <input asp-for="AdminJobTitle" class="form-control" placeholder="Chief Compliance Officer" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="AdminDepartment" class="form-label"></label>
+                                        <input asp-for="AdminDepartment" class="form-control" placeholder="Risk & Compliance" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Subscription Section -->
+                        <div class="border rounded p-3 mb-4">
+                            <h5 class="mb-3">Subscription Settings</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="SubscriptionTier" class="form-label required"></label>
+                                        <select asp-for="SubscriptionTier" class="form-control">
+                                            @foreach(var tier in Model.AvailableTiers)
+                                            {
+                                                <option value="@tier">@tier</option>
+                                            }
+                                        </select>
+                                        <span asp-validation-for="SubscriptionTier" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="LicenseCount" class="form-label required"></label>
+                                        <input asp-for="LicenseCount" type="number" class="form-control" min="1" />
+                                        <span asp-validation-for="LicenseCount" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="SubscriptionEndDate" class="form-label"></label>
+                                        <input asp-for="SubscriptionEndDate" type="date" class="form-control" />
+                                        <small class="text-muted">Leave blank for 1 year default</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-check mb-3">
+                                <input asp-for="BypassPayment" class="form-check-input" type="checkbox" />
+                                <label asp-for="BypassPayment" class="form-check-label">
+                                    Bypass payment requirements (Platform admin privilege)
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Location Section (Optional) -->
+                        <div class="border rounded p-3 mb-4">
+                            <h5 class="mb-3">Location Details (Optional)</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="Country" class="form-label"></label>
+                                        <input asp-for="Country" class="form-control" value="Saudi Arabia" />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="State" class="form-label"></label>
+                                        <input asp-for="State" class="form-control" placeholder="Riyadh Region" />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="City" class="form-label"></label>
+                                        <input asp-for="City" class="form-control" placeholder="Riyadh" />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="BusinessRegistrationNumber" class="form-label"></label>
+                                        <input asp-for="BusinessRegistrationNumber" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Create Tenant
+                            </button>
+                            <a asp-action="Dashboard" class="btn btn-secondary btn-lg">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Auto-generate slug from organization name
+        document.getElementById('OrganizationName').addEventListener('blur', function() {
+            var slug = document.getElementById('TenantSlug');
+            if (!slug.value) {
+                slug.value = this.value.toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+            }
+        });
+        
+        // Auto-generate tenant code from organization name
+        document.getElementById('OrganizationName').addEventListener('blur', function() {
+            var code = document.getElementById('TenantCode');
+            if (!code.value) {
+                var words = this.value.split(' ');
+                code.value = words.map(w => w[0]).join('').toUpperCase().substring(0, 10);
+            }
+        });
+    </script>
+    <style>
+        .required:after {
+            content: " *";
+            color: red;
+        }
+    </style>
+}

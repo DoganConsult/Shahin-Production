@@ -22,7 +22,7 @@ The 404/502 errors were caused by incorrect server block matching. HTTPS request
 
 ### 3. Upstream Configuration
 - `nextjs_landing` → `127.0.0.1:3000` ✅
-- `grc_backend` → `127.0.0.1:8080` ✅
+- `grc_backend` → `127.0.0.1:5000` ✅
 
 ## Configuration File
 - **Location**: `/etc/nginx/sites-available/shahin-ai-landing.conf`

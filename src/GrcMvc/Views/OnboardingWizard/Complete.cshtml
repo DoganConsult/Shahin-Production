@@ -4,6 +4,11 @@
     ViewData["Title"] = "Onboarding Complete";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var tenantId = Model.TenantId;
+
+    // Issue #18: Setup ViewData for _WizardMotivation partial
+    ViewData["StepNumber"] = 13;
+    ViewData["StepName"] = "Complete";
+    ViewData["TenantId"] = tenantId;
 }
 
 <div class="container py-5">
@@ -35,7 +40,7 @@
                             <small class="text-muted d-block">Tenant ID:</small>
                             <code class="fs-5 user-select-all" id="tenantIdValue">@tenantId</code>
                         </div>
-                        <button class="btn btn-outline-primary" onclick="copyTenantId()" title="Copy to clipboard">
+                        <button class="btn btn-outline-primary" onclick="copyTenantId(event)" title="Copy to clipboard">
                             <i class="fas fa-copy"></i> Copy
                         </button>
                     </div>
@@ -211,25 +216,68 @@
     </div>
 </div>
 
+<!-- Copy Toast -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="wzCopyToast" class="toast" role="status" aria-live="polite" aria-atomic="true">
+        <div class="toast-body">
+            <i class="fas fa-check text-success me-2"></i> Tenant ID copied.
+        </div>
+    </div>
+</div>
+
+<!-- Finalize Overlay -->
+<div id="wzFinalizeOverlay" class="wz-overlay d-none" aria-hidden="true">
+    <div class="wz-overlay-card">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <div class="spinner-border" role="status" aria-hidden="true"></div>
+            <strong>Finalizing your workspace…</strong>
+        </div>
+        <ol class="small text-muted mb-0">
+            <li class="wz-stage is-active">Syncing organization profile</li>
+            <li class="wz-stage">Creating default workspace</li>
+            <li class="wz-stage">Applying teams and RACI</li>
+            <li class="wz-stage">Redirecting to dashboard</li>
+        </ol>
+    </div>
+</div>
+
 @section Scripts {
-<script>
-    function copyTenantId() {
-        var tenantId = document.getElementById('tenantIdValue').innerText;
-        navigator.clipboard.writeText(tenantId).then(function() {
-            // Show success feedback
-            var btn = event.target.closest('button');
-            var originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-check text-success"></i> Copied!';
-            btn.classList.remove('btn-outline-primary');
-            btn.classList.add('btn-success');
-            setTimeout(function() {
-                btn.innerHTML = originalHtml;
-                btn.classList.remove('btn-success');
-                btn.classList.add('btn-outline-primary');
-            }, 2000);
-        }).catch(function(err) {
-            alert('Failed to copy. Please select and copy manually: ' + tenantId);
+    @* Issue #18: Use partial which includes both CSS files *@
+    @await Html.PartialAsync("_WizardMotivation")
+    <script>
+        function copyTenantId(evt) {
+            const tenantId = document.getElementById('tenantIdValue').innerText.trim();
+            const btn = evt?.target?.closest('button');
+
+            navigator.clipboard.writeText(tenantId).then(function() {
+                // Button micro-feedback (fast, non-flashy)
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check text-success"></i> Copied';
+                btn.classList.remove('btn-outline-primary');
+                btn.classList.add('btn-success');
+
+                // Toast
+                const toastEl = document.getElementById('wzCopyToast');
+                if (toastEl && window.bootstrap) {
+                    const t = new bootstrap.Toast(toastEl, { delay: 1600 });
+                    t.show();
+                }
+
+                setTimeout(function() {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-outline-primary');
+                }, 1400);
+            }).catch(function() {
+                // Safe fallback
+                alert('Copy failed. Please select and copy manually: ' + tenantId);
+            });
+        }
+
+        // Finalize overlay (staged progress)
+        document.querySelector('form[asp-action="FinalizeOnboarding"]')?.addEventListener('submit', function() {
+            const overlay = document.getElementById('wzFinalizeOverlay');
+            overlay?.classList.remove('d-none');
         });
-    }
-</script>
+    </script>
 }

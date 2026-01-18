@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Common.Results;
 using System;
 using System.Threading.Tasks;
 
@@ -81,16 +82,17 @@ public class IncidentController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateIncident(Guid id, [FromBody] UpdateIncidentRequest request)
     {
-        try
+        var result = await _incidentService.UpdateIncidentAsync(id, request);
+        if (result.IsSuccess)
         {
-            var result = await _incidentService.UpdateIncidentAsync(id, request);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error updating incident {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -125,16 +127,17 @@ public class IncidentController : ControllerBase
     [HttpPost("{id}/investigate")]
     public async Task<IActionResult> StartInvestigation(Guid id, [FromBody] StartInvestigationRequest request)
     {
-        try
+        var result = await _incidentService.StartInvestigationAsync(id, request);
+        if (result.IsSuccess)
         {
-            var result = await _incidentService.StartInvestigationAsync(id, request);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error starting investigation for incident {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -143,16 +146,17 @@ public class IncidentController : ControllerBase
     [HttpPost("{id}/contain")]
     public async Task<IActionResult> MarkContained(Guid id, [FromBody] ContainmentRequest request)
     {
-        try
+        var result = await _incidentService.MarkContainedAsync(id, request);
+        if (result.IsSuccess)
         {
-            var result = await _incidentService.MarkContainedAsync(id, request);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error marking incident {Id} as contained", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -161,16 +165,17 @@ public class IncidentController : ControllerBase
     [HttpPost("{id}/eradicate")]
     public async Task<IActionResult> MarkEradicated(Guid id, [FromBody] EradicationRequest request)
     {
-        try
+        var result = await _incidentService.MarkEradicatedAsync(id, request);
+        if (result.IsSuccess)
         {
-            var result = await _incidentService.MarkEradicatedAsync(id, request);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error marking incident {Id} as eradicated", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -179,16 +184,17 @@ public class IncidentController : ControllerBase
     [HttpPost("{id}/recover")]
     public async Task<IActionResult> MarkRecovered(Guid id, [FromBody] RecoveryRequest request)
     {
-        try
+        var result = await _incidentService.MarkRecoveredAsync(id, request);
+        if (result.IsSuccess)
         {
-            var result = await _incidentService.MarkRecoveredAsync(id, request);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error marking incident {Id} as recovered", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -197,16 +203,17 @@ public class IncidentController : ControllerBase
     [HttpPost("{id}/close")]
     public async Task<IActionResult> CloseIncident(Guid id, [FromBody] CloseIncidentRequest request)
     {
-        try
+        var result = await _incidentService.CloseIncidentAsync(id, request);
+        if (result.IsSuccess)
         {
-            var result = await _incidentService.CloseIncidentAsync(id, request);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error closing incident {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -215,16 +222,17 @@ public class IncidentController : ControllerBase
     [HttpPost("{id}/reopen")]
     public async Task<IActionResult> ReopenIncident(Guid id, [FromBody] ReopenIncidentRequest request)
     {
-        try
+        var result = await _incidentService.ReopenIncidentAsync(id, request.Reason, request.ReopenedBy);
+        if (result.IsSuccess)
         {
-            var result = await _incidentService.ReopenIncidentAsync(id, request.Reason, request.ReopenedBy);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error reopening incident {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -233,16 +241,17 @@ public class IncidentController : ControllerBase
     [HttpPost("{id}/false-positive")]
     public async Task<IActionResult> MarkFalsePositive(Guid id, [FromBody] FalsePositiveRequest request)
     {
-        try
+        var result = await _incidentService.MarkFalsePositiveAsync(id, request.Reason, request.MarkedBy);
+        if (result.IsSuccess)
         {
-            var result = await _incidentService.MarkFalsePositiveAsync(id, request.Reason, request.MarkedBy);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error marking incident {Id} as false positive", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -251,16 +260,17 @@ public class IncidentController : ControllerBase
     [HttpPost("{id}/escalate")]
     public async Task<IActionResult> Escalate(Guid id, [FromBody] EscalationRequest request)
     {
-        try
+        var result = await _incidentService.EscalateAsync(id, request);
+        if (result.IsSuccess)
         {
-            var result = await _incidentService.EscalateAsync(id, request);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error escalating incident {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     #endregion
@@ -273,16 +283,17 @@ public class IncidentController : ControllerBase
     [HttpPost("{id}/assign")]
     public async Task<IActionResult> AssignHandler(Guid id, [FromBody] AssignHandlerRequest request)
     {
-        try
+        var result = await _incidentService.AssignHandlerAsync(id, request.HandlerId, request.HandlerName, request.Team);
+        if (result.IsSuccess)
         {
-            var result = await _incidentService.AssignHandlerAsync(id, request.HandlerId, request.HandlerName, request.Team);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error assigning handler to incident {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -316,16 +327,17 @@ public class IncidentController : ControllerBase
     [HttpPost("{id}/timeline")]
     public async Task<IActionResult> AddTimelineEntry(Guid id, [FromBody] AddTimelineEntryRequest request)
     {
-        try
+        var result = await _incidentService.AddTimelineEntryAsync(id, request);
+        if (result.IsSuccess)
         {
-            var result = await _incidentService.AddTimelineEntryAsync(id, request);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error adding timeline entry to incident {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -344,16 +356,17 @@ public class IncidentController : ControllerBase
     [HttpPost("{id}/note")]
     public async Task<IActionResult> AddNote(Guid id, [FromBody] AddNoteRequest request)
     {
-        try
+        var result = await _incidentService.AddNoteAsync(id, request.Note, request.AddedBy);
+        if (result.IsSuccess)
         {
-            var result = await _incidentService.AddNoteAsync(id, request.Note, request.AddedBy);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error adding note to incident {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     #endregion
@@ -366,16 +379,17 @@ public class IncidentController : ControllerBase
     [HttpGet("{id}/notification-requirements")]
     public async Task<IActionResult> CheckNotificationRequirements(Guid id)
     {
-        try
+        var result = await _incidentService.CheckNotificationRequirementsAsync(id);
+        if (result.IsSuccess)
         {
-            var result = await _incidentService.CheckNotificationRequirementsAsync(id);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error checking notification requirements for incident {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -384,16 +398,17 @@ public class IncidentController : ControllerBase
     [HttpPost("{id}/notification-sent")]
     public async Task<IActionResult> MarkNotificationSent(Guid id, [FromBody] MarkNotificationRequest request)
     {
-        try
+        var result = await _incidentService.MarkNotificationSentAsync(id, request);
+        if (result.IsSuccess)
         {
-            var result = await _incidentService.MarkNotificationSentAsync(id, request);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error marking notification sent for incident {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -417,16 +432,17 @@ public class IncidentController : ControllerBase
     [HttpPost("{id}/link-risk/{riskId}")]
     public async Task<IActionResult> LinkToRisk(Guid id, Guid riskId)
     {
-        try
+        var result = await _incidentService.LinkToRiskAsync(id, riskId);
+        if (result.IsSuccess)
         {
-            await _incidentService.LinkToRiskAsync(id, riskId);
             return Ok(new { success = true, message = "Linked to risk" });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error linking incident {Id} to risk {RiskId}", id, riskId);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -435,16 +451,17 @@ public class IncidentController : ControllerBase
     [HttpPost("{id}/link-control/{controlId}")]
     public async Task<IActionResult> LinkToControl(Guid id, Guid controlId)
     {
-        try
+        var result = await _incidentService.LinkToControlAsync(id, controlId);
+        if (result.IsSuccess)
         {
-            await _incidentService.LinkToControlAsync(id, controlId);
             return Ok(new { success = true, message = "Linked to control" });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error linking incident {Id} to control {ControlId}", id, controlId);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>

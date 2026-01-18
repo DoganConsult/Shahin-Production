@@ -44,7 +44,7 @@ public class PlatformAdminService : IPlatformAdminService
         return await _context.PlatformAdmins
             .Include(p => p.User)
             .Where(p => !p.IsDeleted)
-            .FirstOrDefaultAsync(p => p.UserId == userId);
+            .FirstOrDefaultAsync(p => p.UserId == Guid.Parse(userId));
     }
 
     public async Task<List<PlatformAdmin>> GetAllAsync()
@@ -79,7 +79,7 @@ public class PlatformAdminService : IPlatformAdminService
     public async Task<bool> IsUserPlatformAdminAsync(string userId)
     {
         return await _context.PlatformAdmins
-            .AnyAsync(p => p.UserId == userId && p.Status == "Active" && !p.IsDeleted);
+            .AnyAsync(p => p.UserId == Guid.Parse(userId) && p.Status == "Active" && !p.IsDeleted);
     }
 
     public async Task<bool> HasPermissionAsync(string userId, PlatformPermission permission)
@@ -133,7 +133,7 @@ public class PlatformAdminService : IPlatformAdminService
         var admin = new PlatformAdmin
         {
             Id = Guid.NewGuid(),
-            UserId = dto.UserId,
+            UserId = Guid.Parse(dto.UserId),
             DisplayName = dto.DisplayName,
             ContactEmail = dto.ContactEmail,
             ContactPhone = dto.ContactPhone,

@@ -392,6 +392,7 @@ public interface ISSOIntegrationService
     Task<string> GetAuthorizationUrlAsync(string provider, string redirectUri, string state);
     Task<SSOUserInfo?> ExchangeCodeAsync(string provider, string code, string redirectUri);
     Task<bool> ValidateTokenAsync(string token);
+    Task<SSOUserInfo?> RefreshTokenAsync(string provider, string refreshToken);
 }
 
 public class SSOUserInfo
@@ -399,8 +400,13 @@ public class SSOUserInfo
     public string Id { get; set; } = "";
     public string Email { get; set; } = "";
     public string Name { get; set; } = "";
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Picture { get; set; }
     public string? Provider { get; set; }
-    public Dictionary<string, string> Claims { get; set; } = new();
+    public string? AccessToken { get; set; }
+    public string? RefreshToken { get; set; }
+    public JsonElement Claims { get; set; }
 }
 
 /// <summary>
@@ -445,21 +451,256 @@ public class SSOIntegrationService : ISSOIntegrationService
             return null;
         }
 
-        // Token exchange would happen here
-        // For now, return stub
-        return new SSOUserInfo
+        try
         {
-            Id = Guid.NewGuid().ToString(),
-            Email = "user@example.com",
-            Name = "SSO User",
-            Provider = provider
-        };
+            // Get token endpoint for provider
+            var tenantId = _config[$"SSO:{provider}:TenantId"] ?? _config["AZURE_TENANT_ID"] ?? "common";
+            
+            var tokenEndpoint = provider.ToLower() switch
+            {
+                "azure" => $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token",
+                "google" => "https://oauth2.googleapis.com/token",
+                "okta" => $"https://{_config["SSO:Okta:Domain"]}/oauth2/v1/token",
+                _ => throw new NotSupportedException($"SSO provider '{provider}' not supported")
+            };
+
+            // Build token exchange request
+            var tokenRequest = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["grant_type"] = "authorization_code",
+                ["code"] = code,
+                ["redirect_uri"] = redirectUri,
+                ["client_id"] = clientId,
+                ["client_secret"] = clientSecret,
+                ["scope"] = "openid email profile"
+            });
+
+            _logger.LogInformation("Exchanging OAuth2 code for {Provider}", provider);
+
+            var response = await _httpClient.PostAsync(tokenEndpoint, tokenRequest);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Token exchange failed for {Provider}: {Status} - {Content}", 
+                    provider, response.StatusCode, responseContent);
+                return null;
+            }
+
+            var tokenResponse = JsonSerializer.Deserialize<JsonElement>(responseContent);
+            
+            // Extract tokens
+            var accessToken = tokenResponse.TryGetProperty("access_token", out var at) ? at.GetString() : null;
+            var idToken = tokenResponse.TryGetProperty("id_token", out var it) ? it.GetString() : null;
+            var refreshToken = tokenResponse.TryGetProperty("refresh_token", out var rt) ? rt.GetString() : null;
+
+            if (string.IsNullOrEmpty(idToken) && string.IsNullOrEmpty(accessToken))
+            {
+                _logger.LogError("No tokens returned from {Provider}", provider);
+                return null;
+            }
+
+            // Parse ID token to get user info (JWT format: header.payload.signature)
+            var tokenToParse = idToken ?? accessToken;
+            var userInfo = ParseJwtClaims(tokenToParse!, provider);
+            
+            if (userInfo != null)
+            {
+                userInfo.AccessToken = accessToken;
+                userInfo.RefreshToken = refreshToken;
+            }
+
+            _logger.LogInformation("SSO authentication successful for {Email} via {Provider}", 
+                userInfo?.Email ?? "unknown", provider);
+            
+            return userInfo;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "SSO token exchange failed for {Provider}", provider);
+            return null;
+        }
     }
 
-    public Task<bool> ValidateTokenAsync(string token)
+    private SSOUserInfo? ParseJwtClaims(string jwt, string provider)
     {
-        // Token validation would happen here
-        return Task.FromResult(!string.IsNullOrEmpty(token));
+        try
+        {
+            // JWT format: header.payload.signature
+            var parts = jwt.Split('.');
+            if (parts.Length < 2)
+            {
+                _logger.LogWarning("Invalid JWT format from {Provider}", provider);
+                return null;
+            }
+
+            // Decode payload (base64url)
+            var payload = parts[1];
+            // Add padding if needed
+            payload = payload.Replace('-', '+').Replace('_', '/');
+            switch (payload.Length % 4)
+            {
+                case 2: payload += "=="; break;
+                case 3: payload += "="; break;
+            }
+
+            var jsonBytes = Convert.FromBase64String(payload);
+            var claims = JsonSerializer.Deserialize<JsonElement>(jsonBytes);
+
+            // Extract claims (different providers use different claim names)
+            var id = GetClaimValue(claims, "sub", "oid", "user_id") ?? Guid.NewGuid().ToString();
+            var email = GetClaimValue(claims, "email", "preferred_username", "upn") ?? "";
+            var name = GetClaimValue(claims, "name", "given_name", "family_name") ?? "";
+            var firstName = GetClaimValue(claims, "given_name", "first_name");
+            var lastName = GetClaimValue(claims, "family_name", "last_name");
+            var picture = GetClaimValue(claims, "picture", "photo");
+
+            // If name is empty, try to combine first + last name
+            if (string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(firstName))
+            {
+                name = $"{firstName} {lastName}".Trim();
+            }
+
+            return new SSOUserInfo
+            {
+                Id = id,
+                Email = email,
+                Name = name,
+                FirstName = firstName,
+                LastName = lastName,
+                Picture = picture,
+                Provider = provider,
+                Claims = claims
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to parse JWT claims from {Provider}", provider);
+            return null;
+        }
+    }
+
+    private static string? GetClaimValue(JsonElement claims, params string[] claimNames)
+    {
+        foreach (var name in claimNames)
+        {
+            if (claims.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String)
+            {
+                var str = value.GetString();
+                if (!string.IsNullOrEmpty(str))
+                    return str;
+            }
+        }
+        return null;
+    }
+
+    public async Task<bool> ValidateTokenAsync(string token)
+    {
+        if (string.IsNullOrEmpty(token))
+            return false;
+
+        try
+        {
+            // Basic JWT structure validation
+            var parts = token.Split('.');
+            if (parts.Length != 3)
+                return false;
+
+            // Decode and check expiry
+            var payload = parts[1].Replace('-', '+').Replace('_', '/');
+            switch (payload.Length % 4)
+            {
+                case 2: payload += "=="; break;
+                case 3: payload += "="; break;
+            }
+
+            var jsonBytes = Convert.FromBase64String(payload);
+            var claims = JsonSerializer.Deserialize<JsonElement>(jsonBytes);
+
+            if (claims.TryGetProperty("exp", out var expClaim))
+            {
+                var exp = expClaim.GetInt64();
+                var expDate = DateTimeOffset.FromUnixTimeSeconds(exp);
+                if (expDate < DateTimeOffset.UtcNow)
+                {
+                    _logger.LogWarning("Token has expired");
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Token validation failed");
+            return false;
+        }
+    }
+
+    public async Task<SSOUserInfo?> RefreshTokenAsync(string provider, string refreshToken)
+    {
+        var clientId = _config[$"SSO:{provider}:ClientId"];
+        var clientSecret = _config[$"SSO:{provider}:ClientSecret"];
+
+        if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(clientSecret) || string.IsNullOrEmpty(refreshToken))
+        {
+            _logger.LogWarning("Cannot refresh token - missing configuration for {Provider}", provider);
+            return null;
+        }
+
+        try
+        {
+            var tenantId = _config[$"SSO:{provider}:TenantId"] ?? _config["AZURE_TENANT_ID"] ?? "common";
+            
+            var tokenEndpoint = provider.ToLower() switch
+            {
+                "azure" => $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token",
+                "google" => "https://oauth2.googleapis.com/token",
+                "okta" => $"https://{_config["SSO:Okta:Domain"]}/oauth2/v1/token",
+                _ => throw new NotSupportedException($"SSO provider '{provider}' not supported")
+            };
+
+            var refreshRequest = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["grant_type"] = "refresh_token",
+                ["refresh_token"] = refreshToken,
+                ["client_id"] = clientId,
+                ["client_secret"] = clientSecret,
+                ["scope"] = "openid email profile"
+            });
+
+            var response = await _httpClient.PostAsync(tokenEndpoint, refreshRequest);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Token refresh failed for {Provider}: {Content}", provider, responseContent);
+                return null;
+            }
+
+            var tokenResponse = JsonSerializer.Deserialize<JsonElement>(responseContent);
+            var accessToken = tokenResponse.TryGetProperty("access_token", out var at) ? at.GetString() : null;
+            var idToken = tokenResponse.TryGetProperty("id_token", out var it) ? it.GetString() : null;
+            var newRefreshToken = tokenResponse.TryGetProperty("refresh_token", out var rt) ? rt.GetString() : refreshToken;
+
+            var tokenToParse = idToken ?? accessToken;
+            if (string.IsNullOrEmpty(tokenToParse))
+                return null;
+
+            var userInfo = ParseJwtClaims(tokenToParse, provider);
+            if (userInfo != null)
+            {
+                userInfo.AccessToken = accessToken;
+                userInfo.RefreshToken = newRefreshToken;
+            }
+
+            return userInfo;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Token refresh failed for {Provider}", provider);
+            return null;
+        }
     }
 }
 

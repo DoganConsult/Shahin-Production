@@ -14,6 +14,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.MultiTenancy;
+using Volo.Abp.Identity.EntityFrameworkCore;
+using Volo.Abp.PermissionManagement.EntityFrameworkCore;
+using Volo.Abp.AuditLogging.EntityFrameworkCore;
+using Volo.Abp.FeatureManagement.EntityFrameworkCore;
+using Volo.Abp.TenantManagement.EntityFrameworkCore;
+using Volo.Abp.SettingManagement.EntityFrameworkCore;
+using Volo.Abp.OpenIddict.EntityFrameworkCore;
 
 namespace GrcMvc.Data
 {
@@ -493,6 +500,28 @@ namespace GrcMvc.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Configure ABP Identity tables (AbpUsers, AbpRoles, etc.)
+            modelBuilder.ConfigureIdentity();
+
+            // Configure ABP Permission Management tables
+            modelBuilder.ConfigurePermissionManagement();
+
+            // Configure ABP Audit Logging tables (AbpAuditLogs, AbpEntityChanges)
+            modelBuilder.ConfigureAuditLogging();
+
+            // Configure ABP Feature Management tables (AbpFeatures, AbpFeatureValues)
+            modelBuilder.ConfigureFeatureManagement();
+
+            // Note: ConfigureTenantManagement() is NOT called because we have a derived Tenant class
+            // that extends Volo.Abp.TenantManagement.Tenant with GRC-specific properties.
+            // The derived Tenant is configured below with its own configuration.
+
+            // Configure ABP Setting Management tables (AbpSettings)
+            modelBuilder.ConfigureSettingManagement();
+
+            // Configure ABP OpenIddict tables (for OAuth2/OpenID Connect)
+            modelBuilder.ConfigureOpenIddict();
+
             // Apply global query filters for multi-tenant isolation
             ApplyGlobalQueryFilters(modelBuilder);
 
@@ -691,10 +720,12 @@ namespace GrcMvc.Data
                 entity.Property(e => e.JobTitle).HasMaxLength(100);
             });
 
-            // Configure Tenant
+            // Configure Tenant (extends ABP Tenant with GRC-specific properties)
             modelBuilder.Entity<Tenant>(entity =>
             {
+                entity.ToTable("AbpTenants");
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(64);
                 entity.Property(e => e.TenantSlug).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.OrganizationName).IsRequired().HasMaxLength(255);
                 entity.Property(e => e.AdminEmail).IsRequired().HasMaxLength(255);
@@ -704,6 +735,14 @@ namespace GrcMvc.Data
                 entity.HasIndex(e => e.AdminEmail);
                 entity.HasQueryFilter(e => !e.IsDeleted);
             });
+
+            // Ignore the base ABP Tenant class and related entities to avoid discriminator conflicts
+            modelBuilder.Ignore<Volo.Abp.TenantManagement.Tenant>();
+            modelBuilder.Ignore<Volo.Abp.TenantManagement.TenantConnectionString>();
+
+            // Ignore ApplicationUser in main DbContext - it's properly configured in GrcAuthDbContext
+            // This prevents query filter conflicts with IdentityUser hierarchy
+            modelBuilder.Ignore<ApplicationUser>();
 
             // Configure TenantUser
             modelBuilder.Entity<TenantUser>(entity =>
@@ -725,7 +764,7 @@ namespace GrcMvc.Data
             modelBuilder.Entity<PlatformAdmin>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
+                entity.Property(e => e.UserId).IsRequired(); // Guid type - no MaxLength needed
                 entity.Property(e => e.DisplayName).IsRequired().HasMaxLength(256);
                 entity.Property(e => e.ContactEmail).IsRequired().HasMaxLength(256);
                 entity.Property(e => e.ContactPhone).HasMaxLength(50);

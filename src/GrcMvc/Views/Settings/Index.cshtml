@@ -1,0 +1,276 @@
+@model GrcMvc.Controllers.SettingsViewModel
+@{
+    ViewData["Title"] = "Settings Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1>Settings Management</h1>
+            <p class="text-muted">Manage application configuration settings</p>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Connection Strings -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-database me-2"></i>Connection Strings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="UpdateConnectionStrings" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ConnectionStrings.DefaultConnection" class="form-label"></label>
+                                    <input asp-for="ConnectionStrings.DefaultConnection" class="form-control" type="password" />
+                                    <span asp-validation-for="ConnectionStrings.DefaultConnection" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ConnectionStrings.GrcAuthDb" class="form-label"></label>
+                                    <input asp-for="ConnectionStrings.GrcAuthDb" class="form-control" type="password" />
+                                    <span asp-validation-for="ConnectionStrings.GrcAuthDb" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ConnectionStrings.HangfireConnection" class="form-label"></label>
+                                    <input asp-for="ConnectionStrings.HangfireConnection" class="form-control" type="password" />
+                                    <span asp-validation-for="ConnectionStrings.HangfireConnection" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ConnectionStrings.Redis" class="form-label"></label>
+                                    <input asp-for="ConnectionStrings.Redis" class="form-control" type="password" />
+                                    <span asp-validation-for="ConnectionStrings.Redis" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Update Connection Strings
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Settings -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>Security Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="UpdateSecuritySettings" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="SecuritySettings.AllowPublicRegistration" class="form-check-input" />
+                                        <label asp-for="SecuritySettings.AllowPublicRegistration" class="form-check-label"></label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="SecuritySettings.RequireEmailConfirmation" class="form-check-input" />
+                                        <label asp-for="SecuritySettings.RequireEmailConfirmation" class="form-check-label"></label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="SecuritySettings.PasswordMinLength" class="form-label"></label>
+                                    <input asp-for="SecuritySettings.PasswordMinLength" class="form-control" type="number" min="6" max="128" />
+                                    <span asp-validation-for="SecuritySettings.PasswordMinLength" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="SecuritySettings.RequireUppercase" class="form-check-input" />
+                                        <label asp-for="SecuritySettings.RequireUppercase" class="form-check-label"></label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="SecuritySettings.RequireLowercase" class="form-check-input" />
+                                        <label asp-for="SecuritySettings.RequireLowercase" class="form-check-label"></label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="SecuritySettings.RequireDigit" class="form-check-input" />
+                                        <label asp-for="SecuritySettings.RequireDigit" class="form-check-label"></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="SecuritySettings.RequireSpecialChar" class="form-check-input" />
+                                        <label asp-for="SecuritySettings.RequireSpecialChar" class="form-check-label"></label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="SecuritySettings.MaxLoginAttempts" class="form-label"></label>
+                                    <input asp-for="SecuritySettings.MaxLoginAttempts" class="form-control" type="number" min="3" max="10" />
+                                    <span asp-validation-for="SecuritySettings.MaxLoginAttempts" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="SecuritySettings.LockoutDuration" class="form-label"></label>
+                                    <input asp-for="SecuritySettings.LockoutDuration" class="form-control" type="number" min="5" max="60" />
+                                    <span asp-validation-for="SecuritySettings.LockoutDuration" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Update Security Settings
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Settings -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-cog me-2"></i>Application Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="UpdateAppSettings" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="AppSettings.ApplicationName" class="form-label"></label>
+                                    <input asp-for="AppSettings.ApplicationName" class="form-control" />
+                                    <span asp-validation-for="AppSettings.ApplicationName" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="AppSettings.SupportEmail" class="form-label"></label>
+                                    <input asp-for="AppSettings.SupportEmail" class="form-control" type="email" />
+                                    <span asp-validation-for="AppSettings.SupportEmail" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="AppSettings.Version" class="form-label"></label>
+                                    <input asp-for="AppSettings.Version" class="form-control" />
+                                    <span asp-validation-for="AppSettings.Version" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="AppSettings.EnableLogging" class="form-check-input" />
+                                        <label asp-for="AppSettings.EnableLogging" class="form-check-label"></label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="AppSettings.LogLevel" class="form-label"></label>
+                                    <select asp-for="AppSettings.LogLevel" class="form-select">
+                                        <option value="Trace">Trace</option>
+                                        <option value="Debug">Debug</option>
+                                        <option value="Information">Information</option>
+                                        <option value="Warning">Warning</option>
+                                        <option value="Error">Error</option>
+                                        <option value="Critical">Critical</option>
+                                    </select>
+                                    <span asp-validation-for="AppSettings.LogLevel" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="AppSettings.EnableMetrics" class="form-check-input" />
+                                        <label asp-for="AppSettings.EnableMetrics" class="form-check-label"></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <div class="form-check form-check-warning">
+                                        <input asp-for="AppSettings.MaintenanceMode" class="form-check-input" />
+                                        <label asp-for="AppSettings.MaintenanceMode" class="form-check-label"></label>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        When enabled, the application will be in maintenance mode and users will see a maintenance page.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Update Application Settings
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Toggle password visibility for connection strings
+        document.querySelectorAll('input[type="password"]').forEach(input => {
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+
+            const toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'btn btn-outline-secondary';
+            toggle.style.position = 'absolute';
+            toggle.style.right = '10px';
+            toggle.style.top = '50%';
+            toggle.style.transform = 'translateY(-50%)';
+            toggle.style.borderRadius = '0 0.375rem 0.375rem 0';
+            toggle.innerHTML = '<i class="fas fa-eye"></i>';
+            
+            wrapper.appendChild(toggle);
+
+            toggle.addEventListener('click', () => {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    toggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                } else {
+                    input.type = 'password';
+                    toggle.innerHTML = '<i class="fas fa-eye"></i>';
+                }
+            });
+        });
+    </script>
+}

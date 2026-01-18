@@ -117,9 +117,14 @@ namespace GrcMvc.Models.DTOs
     /// </summary>
     public class StepDScopeDefinitionDto
     {
+        [MinLength(1, ErrorMessage = "At least one legal entity must be in scope")]
         public List<LegalEntityEntry> InScopeLegalEntities { get; set; } = new();
+
         public List<string> InScopeBusinessUnits { get; set; } = new();
+
+        [MinLength(1, ErrorMessage = "At least one system must be in scope")]
         public List<SystemEntry> InScopeSystems { get; set; } = new();
+
         public List<string> InScopeProcesses { get; set; } = new(); // onboarding, payments, p2p, change_mgmt, incident_response
         public string InScopeEnvironments { get; set; } = "both"; // production, non_production, both
         public List<string> InScopeLocations { get; set; } = new(); // data centers, cloud regions
@@ -134,6 +139,7 @@ namespace GrcMvc.Models.DTOs
     public class StepEDataRiskProfileDto
     {
         [Required(ErrorMessage = "At least one data type must be selected")]
+        [MinLength(1, ErrorMessage = "At least one data type must be selected")]
         public List<string> DataTypesProcessed { get; set; } = new(); // PII, PCI, PHI, confidential, classified
 
         public bool HasPaymentCardData { get; set; } = false;

@@ -239,7 +239,7 @@ public class KafkaConsumerService : BackgroundService
                 {
                     await notificationService.SendNotificationAsync(
                         workflowInstanceId: Guid.Empty,
-                        recipientUserId: manager.Id,
+                        recipientUserId: manager.Id.ToString(),
                         notificationType: "AssessmentSubmitted",
                         subject: "Assessment Submitted for Review",
                         body: $"Assessment {evt.AssessmentId} has been submitted and requires review.",
@@ -306,7 +306,7 @@ public class KafkaConsumerService : BackgroundService
                     {
                         await notificationService.SendNotificationAsync(
                             workflowInstanceId: Guid.Empty,
-                            recipientUserId: user.Id,
+                            recipientUserId: user.Id.ToString(),
                             notificationType: "RiskIdentified",
                             subject: $"[{evt.Severity}] New Risk Identified: {evt.Title}",
                             body: $"A new {evt.Severity} severity risk has been identified and requires attention.",

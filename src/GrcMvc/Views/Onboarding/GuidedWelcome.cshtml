@@ -1,5 +1,6 @@
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
-    ViewData["Title"] = "Welcome to Your GRC Trial";
+    ViewData["Title"] = Localizer["GuidedWelcome_Title"];
     Layout = null;
 }
 

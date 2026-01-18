@@ -102,7 +102,7 @@ html[dir="ltr"] .fa {
 /* Dashboard cards */
 .dashboard-card {
     border-left: 4px solid;
-    transition: transform 0.2s;
+    transition: transform var(--motion-t-interactive), box-shadow var(--motion-t-interactive);
 }
 
 .dashboard-card:hover {

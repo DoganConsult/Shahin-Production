@@ -7,7 +7,9 @@
 @{
     var requestCulture = Context.Features.Get<IRequestCultureFeature>();
     var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
-    var isRtl = currentCulture == "ar";
+    // RTL check: Arabic (ar, ar-SA, ar-AE, etc.), Hebrew (he), Persian (fa), Urdu (ur)
+    var isRtl = currentCulture.StartsWith("ar") || currentCulture.StartsWith("he") ||
+                currentCulture.StartsWith("fa") || currentCulture.StartsWith("ur");
     var htmlLang = currentCulture;
     var htmlDir = isRtl ? "rtl" : "ltr";
 }
@@ -24,10 +26,10 @@
     <meta name="application-name" content="@AppInfo.Name" />
     <meta name="author" content="@AppInfo.CompanyName" />
     <meta name="culture" content="@currentCulture" />
-    <!-- Google Fonts for Arabic -->
+    <!-- Google Fonts - Modern Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@300;400;500;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @if (isRtl)
     {
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" />
@@ -44,6 +46,7 @@
 
     <!-- Shahin AI Design System -->
     <link rel="stylesheet" href="~/css/shahin-design-system.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/shahin-motion-tokens.css" asp-append-version="true" />
     @if (isRtl)
     {
         <link rel="stylesheet" href="~/css/shahin-rtl.css" asp-append-version="true" />
@@ -51,11 +54,14 @@
     }
     <link rel="stylesheet" href="~/css/shahin-custom.css" asp-append-version="true" />
 
+    <!-- Modern Light Enterprise Theme (must be last to override) -->
+    <link rel="stylesheet" href="~/css/shahin-modern-light.css" asp-append-version="true" />
+
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm shahin-navbar border-bottom shadow-sm mb-3">
             <div class="container-fluid">
                 @if (User.Identity?.IsAuthenticated == true)
                 {
@@ -102,7 +108,7 @@
                             @if (isRiskUser)
                             {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                     <i class="bi bi-exclamation-triangle"></i> @L["Nav_RiskManagement"]
                                 </a>
                                 <ul class="dropdown-menu">
@@ -120,7 +126,7 @@
                             @if (isComplianceUser)
                             {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                     <i class="bi bi-clipboard-check"></i> @L["Nav_Compliance"]
                                 </a>
                                 <ul class="dropdown-menu">
@@ -155,7 +161,7 @@
                             }
                             @* Dashboards - Available to all authenticated users *@
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                     <i class="bi bi-speedometer2"></i> @L["Nav_Dashboards"]
                                 </a>
                                 <ul class="dropdown-menu">
@@ -206,7 +212,7 @@
                             @if (isAdmin || User.IsInRole("ComplianceManager") || User.IsInRole("RiskManager"))
                             {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-cogs"></i> @L["Nav_Manage"]
                                 </a>
                                 <ul class="dropdown-menu">
@@ -228,6 +234,7 @@
                                     @if (isAdmin)
                                     {
                                     <li><a class="dropdown-item" asp-controller="Invitation" asp-action="Index"><i class="fas fa-user-plus me-2 text-primary"></i>@L["Invitations"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Settings" asp-action="Index"><i class="fas fa-cog me-2 text-secondary"></i>@L["Settings"]</a></li>
                                     }
                                     @if (isReportsUser)
                                     {
@@ -242,7 +249,7 @@
                             @if (isWorkflowUser)
                             {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                     <i class="bi bi-diagram-3"></i> @L["Nav_Workflows"]
                                 </a>
                                 <ul class="dropdown-menu">
@@ -278,10 +285,10 @@
                             }
 
                             <li class="nav-item dropdown help-menu">
-                                <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-question-circle"></i> @L["Nav_Help"]
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-dark">
+                                <ul class="dropdown-menu shahin-dropdown-menu">
                                     <li>
                                         <a class="dropdown-item" asp-controller="Help" asp-action="Index">
                                             <i class="bi bi-house me-2"></i>@L["HelpCenter"]
@@ -319,7 +326,7 @@
                             @if (isReportsUser)
                             {
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-controller="Home" asp-action="Reports">
+                                <a class="nav-link" asp-controller="Home" asp-action="Reports">
                                     <i class="bi bi-file-earmark-bar-graph"></i> @L["Reports"]
                                 </a>
                             </li>
@@ -329,7 +336,7 @@
                             @if (isAdmin)
                             {
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                         <i class="bi bi-gear"></i> @L["Nav_Admin"]
                                     </a>
                                     <ul class="dropdown-menu">
@@ -356,10 +363,10 @@
                             <li class="nav-item me-2">
                                 <form class="d-flex" action="@Url.Action("Search", "Home")" method="get">
                                     <div class="input-group input-group-sm">
-                                        <input type="text" name="q" class="form-control bg-dark text-light border-secondary"
+                                        <input type="text" name="q" class="form-control shahin-search-input"
                                                placeholder="@L["Search"]..." style="width: 200px;" aria-label="Search">
-                                        <button class="btn btn-outline-secondary" type="submit">
-                                            <i class="bi bi-search text-light"></i>
+                                        <button class="btn shahin-search-btn" type="submit">
+                                            <i class="bi bi-search"></i>
                                         </button>
                                     </div>
                                 </form>
@@ -367,7 +374,7 @@
                         }
                         <!-- Language Switcher -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-globe"></i>
                                 @if (currentCulture == "ar")
                                 {
@@ -416,7 +423,7 @@
                         {
                             @await Component.InvokeAsync("WorkspaceSwitcher")
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-light d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
                                     <span class="user-avatar bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 0.9rem;">
                                         @{
                                             var userName = User.Identity?.Name ?? "";
@@ -486,7 +493,7 @@
                         {
                             <!-- Simple login link for unauthenticated users -->
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-controller="Account" asp-action="Login">
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">
                                     <i class="bi bi-person-circle me-1"></i> تسجيل الدخول
                                 </a>
                             </li>
@@ -513,32 +520,47 @@
             </div>
         }
 
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+        @* Page Header Section - for page titles, breadcrumbs, and action buttons *@
+        @await RenderSectionAsync("PageHeader", required: false)
+
+        <div class="d-flex">
+            @* Sidebar Section - for page-specific navigation *@
+            @if (IsSectionDefined("Sidebar"))
+            {
+                <aside class="grc-sidebar flex-shrink-0" style="width: 250px;">
+                    @await RenderSectionAsync("Sidebar", required: false)
+                </aside>
+            }
+
+            <main role="main" class="pb-3 flex-grow-1">
+                @* Actions Section - for contextual action buttons *@
+                @await RenderSectionAsync("Actions", required: false)
+                @RenderBody()
+            </main>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted bg-dark mt-5">
+    <footer class="shahin-footer border-top mt-5">
         <div class="container-fluid py-3">
             <div class="row align-items-center">
                 <div class="col-md-4">
                     <div class="d-flex align-items-center">
                         <img src="~/images/brand/favicon-32.png" alt="@AppInfo.Name" width="24" height="24" class="me-2 opacity-75" />
-                        <span class="text-light">@AppInfo.FooterText</span>
+                        <span class="footer-text">@AppInfo.FooterText</span>
                     </div>
                 </div>
                 <div class="col-md-4 text-center">
-                    <span class="text-secondary" style="font-size: 0.85rem;">
-                        Powered by 
-                        <a href="@AppInfo.CompanyUrl" target="_blank" rel="noopener" class="text-info text-decoration-none fw-bold">
+                    <span class="footer-secondary" style="font-size: 0.85rem;">
+                        Powered by
+                        <a href="@AppInfo.CompanyUrl" target="_blank" rel="noopener" class="footer-link fw-bold">
                             <i class="bi bi-lightning-charge-fill"></i> @AppInfo.CompanyName
                         </a>
                     </span>
                 </div>
                 <div class="col-md-4 @(isRtl ? "text-start" : "text-end")">
-                    <span class="text-secondary small me-3">@AppInfo.VersionDisplay</span>
-                    <a asp-controller="Help" asp-action="Index" class="text-light text-decoration-none @(isRtl ? "ms-3" : "me-3")">المساعدة</a>
-                    <a asp-controller="Help" asp-action="Contact" class="text-light text-decoration-none">الدعم الفني</a>
+                    <span class="footer-secondary small me-3">@AppInfo.VersionDisplay</span>
+                    <a asp-controller="Help" asp-action="Index" class="footer-link text-decoration-none @(isRtl ? "ms-3" : "me-3")">المساعدة</a>
+                    <a asp-controller="Help" asp-action="Contact" class="footer-link text-decoration-none">الدعم الفني</a>
                 </div>
             </div>
         </div>
@@ -619,5 +641,8 @@
     @await Html.PartialAsync("_ThemeAndMobile")
 
     @await RenderSectionAsync("Scripts", required: false)
+
+    @* Modals Section - for page-specific modal dialogs *@
+    @await RenderSectionAsync("Modals", required: false)
 </body>
 </html>

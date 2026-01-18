@@ -1,0 +1,31 @@
+@model bool?
+
+@{
+    var fieldName = ViewData.TemplateInfo.HtmlFieldPrefix;
+    var isChecked = Model ?? false;
+}
+
+<div class="form-check form-switch grc-boolean-editor">
+    <input type="checkbox"
+           id="@fieldName"
+           name="@fieldName"
+           value="true"
+           class="form-check-input"
+           @(isChecked ? "checked" : "") />
+    <input type="hidden" name="@fieldName" value="false" />
+    <label class="form-check-label" for="@fieldName">
+        @(isChecked ? Localizer["Yes"] : Localizer["No"])
+    </label>
+</div>
+
+<style>
+    .grc-boolean-editor .form-check-input {
+        width: 3em;
+        height: 1.5em;
+        cursor: pointer;
+    }
+    .grc-boolean-editor .form-check-input:checked {
+        background-color: var(--bs-success);
+        border-color: var(--bs-success);
+    }
+</style>

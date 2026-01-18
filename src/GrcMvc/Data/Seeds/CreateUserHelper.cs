@@ -73,19 +73,25 @@ public static class CreateUserHelper
             // Create user
             var user = new ApplicationUser
             {
-                UserName = email,
-                Email = email,
-                EmailConfirmed = true, // Set to true for seed users, set to false for production with email confirmation
                 FirstName = firstName,
                 LastName = lastName,
                 Department = department ?? "General",
                 JobTitle = jobTitle ?? "User",
-                IsActive = true,
                 CreatedDate = DateTime.UtcNow,
                 MustChangePassword = true // Force password change on first login for security
             };
 
             var createResult = await userManager.CreateAsync(user, password);
+            
+            if (createResult.Succeeded)
+            {
+                // Set UserName, Email, and confirm email using UserManager methods
+                await userManager.SetUserNameAsync(user, email);
+                await userManager.SetEmailAsync(user, email);
+                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                await userManager.ConfirmEmailAsync(user, token);
+            }
+            
             if (!createResult.Succeeded)
             {
                 logger.LogError($"Failed to create user: {string.Join(", ", createResult.Errors.Select(e => e.Description))}");
@@ -120,7 +126,7 @@ public static class CreateUserHelper
             {
                 var roleCode = await GetOrCreateRoleCodeAsync(context, "USER", "User", logger);
                 var titleCode = await GetOrCreateTitleCodeAsync(context, "USER_TITLE", jobTitle ?? "User", logger);
-                await LinkUserToTenantAsync(context, user.Id, targetTenantId, roleCode, titleCode, logger);
+                await LinkUserToTenantAsync(context, user.Id.ToString(), targetTenantId, roleCode, titleCode, logger);
             }
             catch (Exception ex)
             {

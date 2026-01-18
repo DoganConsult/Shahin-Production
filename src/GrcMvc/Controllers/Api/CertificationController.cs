@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Common.Results;
 using System;
 using System.Threading.Tasks;
 
@@ -81,16 +82,17 @@ public class CertificationController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateCertification(Guid id, [FromBody] UpdateCertificationRequest request)
     {
-        try
+        var result = await _certificationService.UpdateAsync(id, request);
+        if (result.IsSuccess)
         {
-            var result = await _certificationService.UpdateAsync(id, request);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error updating certification {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -99,16 +101,17 @@ public class CertificationController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCertification(Guid id)
     {
-        try
+        var result = await _certificationService.DeleteAsync(id);
+        if (result.IsSuccess)
         {
-            await _certificationService.DeleteAsync(id);
             return Ok(new { success = true, message = "Certification deleted" });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error deleting certification {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -154,16 +157,17 @@ public class CertificationController : ControllerBase
     [HttpPost("{id}/start")]
     public async Task<IActionResult> StartCertification(Guid id, [FromBody] StartCertificationRequest request)
     {
-        try
+        var result = await _certificationService.StartCertificationAsync(id, request);
+        if (result.IsSuccess)
         {
-            var result = await _certificationService.StartCertificationAsync(id, request);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error starting certification {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -172,16 +176,17 @@ public class CertificationController : ControllerBase
     [HttpPost("{id}/issue")]
     public async Task<IActionResult> MarkIssued(Guid id, [FromBody] MarkIssuedRequest request)
     {
-        try
+        var result = await _certificationService.MarkIssuedAsync(id, request);
+        if (result.IsSuccess)
         {
-            var result = await _certificationService.MarkIssuedAsync(id, request);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error marking certification {Id} as issued", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -190,16 +195,17 @@ public class CertificationController : ControllerBase
     [HttpPost("{id}/renew")]
     public async Task<IActionResult> RenewCertification(Guid id, [FromBody] RenewCertificationRequest request)
     {
-        try
+        var result = await _certificationService.RenewAsync(id, request);
+        if (result.IsSuccess)
         {
-            var result = await _certificationService.RenewAsync(id, request);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error renewing certification {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -208,16 +214,17 @@ public class CertificationController : ControllerBase
     [HttpPost("{id}/suspend")]
     public async Task<IActionResult> SuspendCertification(Guid id, [FromBody] SuspendCertificationRequest request)
     {
-        try
+        var result = await _certificationService.SuspendAsync(id, request.Reason, request.SuspendedBy);
+        if (result.IsSuccess)
         {
-            var result = await _certificationService.SuspendAsync(id, request.Reason, request.SuspendedBy);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error suspending certification {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -226,16 +233,17 @@ public class CertificationController : ControllerBase
     [HttpPost("{id}/reinstate")]
     public async Task<IActionResult> ReinstateCertification(Guid id, [FromBody] ReinstateCertificationRequest request)
     {
-        try
+        var result = await _certificationService.ReinstateAsync(id, request.Notes, request.ReinstatedBy);
+        if (result.IsSuccess)
         {
-            var result = await _certificationService.ReinstateAsync(id, request.Notes, request.ReinstatedBy);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error reinstating certification {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -244,16 +252,17 @@ public class CertificationController : ControllerBase
     [HttpPost("{id}/expire")]
     public async Task<IActionResult> MarkExpired(Guid id)
     {
-        try
+        var result = await _certificationService.MarkExpiredAsync(id);
+        if (result.IsSuccess)
         {
-            var result = await _certificationService.MarkExpiredAsync(id);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error marking certification {Id} as expired", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     #endregion
@@ -266,16 +275,17 @@ public class CertificationController : ControllerBase
     [HttpPost("{certificationId}/audits")]
     public async Task<IActionResult> ScheduleAudit(Guid certificationId, [FromBody] ScheduleAuditRequest request)
     {
-        try
+        var result = await _certificationService.ScheduleAuditAsync(certificationId, request);
+        if (result.IsSuccess)
         {
-            var result = await _certificationService.ScheduleAuditAsync(certificationId, request);
-            return CreatedAtAction(nameof(GetAudit), new { auditId = result.Id }, new { success = true, data = result });
+            return CreatedAtAction(nameof(GetAudit), new { auditId = result.Value!.Id }, new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error scheduling audit for certification {Id}", certificationId);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -284,16 +294,17 @@ public class CertificationController : ControllerBase
     [HttpPut("audits/{auditId}/result")]
     public async Task<IActionResult> RecordAuditResult(Guid auditId, [FromBody] RecordAuditResultRequest request)
     {
-        try
+        var result = await _certificationService.RecordAuditResultAsync(auditId, request);
+        if (result.IsSuccess)
         {
-            var result = await _certificationService.RecordAuditResultAsync(auditId, request);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error recording audit result for {AuditId}", auditId);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -323,16 +334,17 @@ public class CertificationController : ControllerBase
     [HttpPost("audits/{auditId}/corrective-actions-complete")]
     public async Task<IActionResult> CompleteCorrectiveActions(Guid auditId, [FromBody] CompleteCorrectiveActionsRequest request)
     {
-        try
+        var result = await _certificationService.CompleteCorrectiveActionsAsync(auditId, request.Notes, request.CompletedBy);
+        if (result.IsSuccess)
         {
-            var result = await _certificationService.CompleteCorrectiveActionsAsync(auditId, request.Notes, request.CompletedBy);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error completing corrective actions for audit {AuditId}", auditId);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>
@@ -389,16 +401,17 @@ public class CertificationController : ControllerBase
     [HttpPut("{id}/surveillance-date")]
     public async Task<IActionResult> UpdateSurveillanceDate(Guid id, [FromBody] UpdateSurveillanceDateRequest request)
     {
-        try
+        var result = await _certificationService.UpdateSurveillanceDateAsync(id, request.NextDate);
+        if (result.IsSuccess)
         {
-            var result = await _certificationService.UpdateSurveillanceDateAsync(id, request.NextDate);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error updating surveillance date for certification {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     #endregion
@@ -460,16 +473,17 @@ public class CertificationController : ControllerBase
     [HttpPost("{id}/owner")]
     public async Task<IActionResult> AssignOwner(Guid id, [FromBody] AssignCertificationOwnerRequest request)
     {
-        try
+        var result = await _certificationService.AssignOwnerAsync(id, request.OwnerId, request.OwnerName, request.Department);
+        if (result.IsSuccess)
         {
-            var result = await _certificationService.AssignOwnerAsync(id, request.OwnerId, request.OwnerName, request.Department);
-            return Ok(new { success = true, data = result });
+            return Ok(new { success = true, data = result.Value });
         }
-        catch (Exception ex)
+        
+        return result.Error.Code switch
         {
-            _logger.LogError(ex, "Error assigning owner to certification {Id}", id);
-            return BadRequest(new { success = false, error = "An error occurred processing your request." });
-        }
+            ErrorCode.NotFound => NotFound(new { success = false, error = result.Error.Message }),
+            _ => BadRequest(new { success = false, error = result.Error.Message })
+        };
     }
 
     /// <summary>

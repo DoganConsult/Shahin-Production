@@ -211,9 +211,10 @@ namespace GrcMvc.Services.Implementations
             }
 
             // Fallback to Labels for backward compatibility
-            if (tenant.Labels.TryGetValue("TenantCode", out var code) && !string.IsNullOrEmpty(code))
+            if (!string.IsNullOrEmpty(tenant.Labels) && tenant.Labels.Contains("TenantCode"))
             {
-                return code;
+                // Parse TenantCode from Labels JSON string if needed
+                // For now, derive from organization name
             }
 
             // Derive from organization name
@@ -249,9 +250,8 @@ namespace GrcMvc.Services.Implementations
             tenant.TenantCode = newCode;
             
             // Also store in Labels for backward compatibility
-            var labels = tenant.Labels;
-            labels["TenantCode"] = newCode;
-            tenant.Labels = labels;
+            // Labels is a string property, so we'll store as JSON
+            tenant.Labels = System.Text.Json.JsonSerializer.Serialize(new { TenantCode = newCode });
             
             await _context.SaveChangesAsync();
             

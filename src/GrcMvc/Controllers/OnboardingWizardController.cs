@@ -103,6 +103,29 @@ namespace GrcMvc.Controllers
             return View(summary);
         }
 
+        /// <summary>
+        /// Get wizard status for loading/progress UX (supports overlay polling)
+        /// </summary>
+        [HttpGet("Status/{tenantId:guid}")]
+        public async Task<IActionResult> Status(Guid tenantId)
+        {
+            var wizard = await _context.OnboardingWizards
+                .AsNoTracking()
+                .FirstOrDefaultAsync(w => w.TenantId == tenantId);
+
+            if (wizard == null)
+                return NotFound();
+
+            return Json(new
+            {
+                tenantId = wizard.TenantId,
+                status = wizard.WizardStatus,
+                progressPercent = wizard.ProgressPercent,
+                currentStep = wizard.CurrentStep,
+                lastSavedAtUtc = wizard.LastStepSavedAt
+            });
+        }
+
         // ============================================================================
         // STEP A: Organization Identity and Tenancy
         // ============================================================================
@@ -619,6 +642,30 @@ namespace GrcMvc.Controllers
             return View("Complete", summary);
         }
 
+        /// <summary>
+        /// Shows processing status when onboarding is already in progress (duplicate submission protection)
+        /// </summary>
+        [HttpGet("WorkflowCompleted/{tenantId:guid}")]
+        public async Task<IActionResult> WorkflowCompleted(Guid tenantId)
+        {
+            var wizard = await _context.OnboardingWizards
+                .FirstOrDefaultAsync(w => w.TenantId == tenantId);
+
+            if (wizard == null)
+                return NotFound();
+
+            // If processing is complete, redirect to Complete view
+            if (wizard.WizardStatus == "Completed")
+            {
+                return RedirectToAction(nameof(Complete), new { tenantId });
+            }
+
+            // If still processing, show the processing view
+            var summary = BuildWizardSummary(wizard);
+            ViewData["WizardStatus"] = wizard.WizardStatus;
+            return View("WorkflowProcessing", summary);
+        }
+
         [HttpPost("FinalizeOnboarding/{tenantId:guid}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FinalizeOnboarding(Guid tenantId)
@@ -695,6 +742,15 @@ namespace GrcMvc.Controllers
                     {
                         _logger.LogWarning(wsEx, "Failed to create default workspace for tenant {TenantId} - may already exist", tenantId);
                     }
+                }
+                else
+                {
+                    // CRITICAL: No workspace service available - log warning
+                    _logger.LogWarning(
+                        "No workspace provisioning service available for tenant {TenantId}. " +
+                        "Both ITenantOnboardingProvisioner and IWorkspaceManagementService are null. " +
+                        "Tenant will not have a default workspace until manually provisioned.",
+                        tenantId);
                 }
 
                 // Create teams if requested (essential for RACI)
@@ -1315,7 +1371,29 @@ namespace GrcMvc.Controllers
 
         private async Task CreateRaciAssignmentsAsync(OnboardingWizard wizard)
         {
-            var raciMappings = JsonSerializer.Deserialize<List<RaciEntry>>(wizard.RaciMappingJson, _jsonOptions) ?? new List<RaciEntry>();
+            // Guard against null or empty JSON
+            if (string.IsNullOrWhiteSpace(wizard.RaciMappingJson))
+            {
+                _logger.LogInformation("No RACI mappings defined for tenant {TenantId}, skipping RACI assignment creation", wizard.TenantId);
+                return;
+            }
+
+            List<RaciEntry> raciMappings;
+            try
+            {
+                raciMappings = JsonSerializer.Deserialize<List<RaciEntry>>(wizard.RaciMappingJson, _jsonOptions) ?? new List<RaciEntry>();
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogWarning(ex, "Failed to deserialize RACI mappings for tenant {TenantId}", wizard.TenantId);
+                return;
+            }
+
+            if (!raciMappings.Any())
+            {
+                _logger.LogInformation("RACI mappings list is empty for tenant {TenantId}", wizard.TenantId);
+                return;
+            }
 
             foreach (var raci in raciMappings)
             {

@@ -763,7 +763,7 @@ public class SmartOnboardingService : ISmartOnboardingService
                 TeamWorkspaces = workspaces.Select(w => new WorkspaceSummaryDto
                 {
                     Id = w.Id,
-                    UserId = w.UserId,
+                    UserId = w.UserId.ToString(),
                     RoleCode = w.RoleCode,
                     RoleName = w.RoleName,
                     DefaultLandingPage = w.DefaultLandingPage

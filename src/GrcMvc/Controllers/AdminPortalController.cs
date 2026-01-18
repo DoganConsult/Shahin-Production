@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
+using GrcMvc.Services.Interfaces;
 
 namespace GrcMvc.Controllers;
 
@@ -18,17 +19,26 @@ public class AdminPortalController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ILogger<AdminPortalController> _logger;
+    private readonly IEnvironmentVariableService _envVarService;
+    private readonly ICacheClearService _cacheClearService;
+    private readonly IConfigurationRoot _configurationRoot;
 
     public AdminPortalController(
         GrcDbContext context,
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        ILogger<AdminPortalController> logger)
+        ILogger<AdminPortalController> logger,
+        IEnvironmentVariableService envVarService,
+        ICacheClearService cacheClearService,
+        IConfiguration configuration)
     {
         _context = context;
         _userManager = userManager;
         _signInManager = signInManager;
         _logger = logger;
+        _envVarService = envVarService;
+        _cacheClearService = cacheClearService;
+        _configurationRoot = configuration as IConfigurationRoot ?? throw new InvalidOperationException("IConfiguration must be IConfigurationRoot");
     }
 
     /// <summary>
@@ -180,6 +190,140 @@ public class AdminPortalController : Controller
         }
 
         return View(tenant);
+    }
+
+    /// <summary>
+    /// Environment Variables Management
+    /// Route: /admin/environment-variables
+    /// </summary>
+    [Authorize(Roles = "PlatformAdmin,Admin")]
+    public async Task<IActionResult> EnvironmentVariables()
+    {
+        try
+        {
+            var variables = await _envVarService.GetAllVariablesAsync();
+            var envFilePath = _envVarService.GetEnvFilePath();
+            var isWritable = _envVarService.IsWritable();
+
+            ViewBag.EnvFilePath = envFilePath;
+            ViewBag.IsWritable = isWritable;
+            ViewBag.Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown";
+            ViewBag.EnvVarService = _envVarService; // For GetAbpSettingName method
+
+            return View(variables);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading environment variables");
+            TempData["Error"] = "Failed to load environment variables";
+            return View(new Dictionary<string, List<EnvironmentVariableItem>>());
+        }
+    }
+
+    /// <summary>
+    /// Update Environment Variables
+    /// </summary>
+    [HttpPost]
+    [Authorize(Roles = "PlatformAdmin,Admin")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateEnvironmentVariables(Dictionary<string, string> variables, bool useAbpSettings = true, bool clearCache = true)
+    {
+        try
+        {
+            _logger.LogInformation("[CONFIG] 🔄 Starting environment variable update...");
+            _logger.LogInformation("[CONFIG] 📊 Updating {Count} variables (ABP Settings: {UseAbp}, Clear Cache: {ClearCache})", 
+                variables.Count, useAbpSettings, clearCache);
+
+            // Update variables
+            await _envVarService.UpdateVariablesAsync(variables, useAbpSettings);
+            
+            // Reload configuration to pick up new values
+            _logger.LogInformation("[CONFIG] 🔄 Reloading IConfiguration to pick up new values...");
+            _configurationRoot.Reload();
+            _logger.LogInformation("[CONFIG] ✅ IConfiguration reloaded");
+
+            // Clear caches if requested
+            if (clearCache)
+            {
+                _logger.LogInformation("[CONFIG] 🗑️  Clearing configuration caches...");
+                await _cacheClearService.ClearConfigurationCacheAsync();
+                _logger.LogInformation("[CONFIG] ✅ Caches cleared");
+            }
+
+            // Log updated variables (masked)
+            foreach (var kvp in variables)
+            {
+                var masked = kvp.Key.Contains("Secret") || kvp.Key.Contains("Password") || kvp.Key.Contains("Key")
+                    ? "***" 
+                    : kvp.Value;
+                _logger.LogInformation("[CONFIG] ✅ Updated: {Key} = {Value}", kvp.Key, masked);
+            }
+            
+            var message = useAbpSettings
+                ? $"Successfully updated {variables.Count} variable(s) in ABP Settings (encrypted in database). Changes take effect immediately. Caches cleared."
+                : $"Successfully updated {variables.Count} variable(s) in .env file. Configuration reloaded. Caches cleared.";
+            
+            TempData["Success"] = message;
+            
+            return RedirectToAction(nameof(EnvironmentVariables));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[CONFIG] ❌ Error updating environment variables");
+            TempData["Error"] = $"Failed to update environment variables: {ex.Message}";
+            return RedirectToAction(nameof(EnvironmentVariables));
+        }
+    }
+
+    /// <summary>
+    /// Clear all caches
+    /// </summary>
+    [HttpPost]
+    [Authorize(Roles = "PlatformAdmin,Admin")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ClearAllCaches()
+    {
+        try
+        {
+            _logger.LogInformation("[CACHE] 🗑️  Clearing all caches...");
+            await _cacheClearService.ClearAllCachesAsync();
+            
+            // Reload configuration
+            _configurationRoot.Reload();
+            
+            TempData["Success"] = "All caches cleared and configuration reloaded. New environment variables will be picked up.";
+            return RedirectToAction(nameof(EnvironmentVariables));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[CACHE] ❌ Error clearing caches");
+            TempData["Error"] = $"Failed to clear caches: {ex.Message}";
+            return RedirectToAction(nameof(EnvironmentVariables));
+        }
+    }
+
+    /// <summary>
+    /// Migrate environment variables to ABP Settings
+    /// </summary>
+    [HttpPost]
+    [Authorize(Roles = "PlatformAdmin,Admin")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> MigrateToAbpSettings()
+    {
+        try
+        {
+            await _envVarService.MigrateToAbpSettingsAsync();
+            _logger.LogInformation("Platform admin migrated environment variables to ABP Settings");
+            TempData["Success"] = "Successfully migrated environment variables to ABP Settings (encrypted in database).";
+            
+            return RedirectToAction(nameof(EnvironmentVariables));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error migrating to ABP Settings");
+            TempData["Error"] = $"Failed to migrate: {ex.Message}";
+            return RedirectToAction(nameof(EnvironmentVariables));
+        }
     }
 
     /// <summary>

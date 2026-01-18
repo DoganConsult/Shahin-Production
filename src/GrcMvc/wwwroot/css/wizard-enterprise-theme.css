@@ -12,7 +12,7 @@
     border: 1px solid var(--wizard-border);
     border-radius: 16px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
+    transition: background-color var(--motion-t-base), border-color var(--motion-t-base), transform var(--motion-t-base), box-shadow var(--motion-t-base);
     margin-bottom: 1.5rem;
 }
 
@@ -74,7 +74,7 @@
     background: var(--wizard-bg-tertiary);
     border: 1px solid var(--wizard-border);
     color: var(--wizard-text-primary);
-    transition: all 0.3s ease;
+    transition: background-color var(--motion-t-interactive), border-color var(--motion-t-interactive), box-shadow var(--motion-t-interactive);
 }
 
 .wizard-container .form-control:focus,
@@ -122,7 +122,7 @@
     color: white;
     font-weight: 600;
     box-shadow: var(--wizard-glow-primary);
-    transition: all 0.3s ease;
+    transition: transform var(--motion-t-interactive), box-shadow var(--motion-t-interactive);
 }
 
 .wizard-container .btn-primary:hover {
@@ -186,7 +186,7 @@
 .wizard-step {
     background: transparent;
     border-left: 3px solid transparent;
-    transition: all 0.3s ease;
+    transition: background-color var(--motion-t-base), border-color var(--motion-t-base);
 }
 
 .wizard-step:hover:not(.disabled) {

@@ -54,7 +54,7 @@ namespace GrcMvc.Services.Implementations
 
                 if (superAdminRole != null)
                 {
-                    var superAdminUsers = await _authContext.UserRoles
+                    var superAdminUsers = await _authContext.Set<IdentityUserRole<string>>()
                         .Where(ur => ur.RoleId == superAdminRole.Id)
                         .Select(ur => ur.UserId)
                         .ToListAsync();
@@ -63,7 +63,7 @@ namespace GrcMvc.Services.Implementations
 
                 if (ownerRole != null)
                 {
-                    var ownerUsers = await _authContext.UserRoles
+                    var ownerUsers = await _authContext.Set<IdentityUserRole<string>>()
                         .Where(ur => ur.RoleId == ownerRole.Id)
                         .Select(ur => ur.UserId)
                         .ToListAsync();
@@ -118,16 +118,22 @@ namespace GrcMvc.Services.Implementations
                 // Create user
                 var user = new ApplicationUser
                 {
-                    UserName = email,
-                    Email = email,
-                    EmailConfirmed = true,
                     FirstName = firstName,
                     LastName = lastName,
-                    IsActive = true,
                     CreatedDate = DateTime.UtcNow
                 };
 
                 var createResult = await _userManager.CreateAsync(user, password);
+                
+                if (createResult.Succeeded)
+                {
+                    // Set UserName, Email, and confirm email using UserManager methods
+                    await _userManager.SetUserNameAsync(user, email);
+                    await _userManager.SetEmailAsync(user, email);
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    await _userManager.ConfirmEmailAsync(user, token);
+                }
+                
                 if (!createResult.Succeeded)
                 {
                     var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
@@ -161,7 +167,7 @@ namespace GrcMvc.Services.Implementations
                 }
 
                 _logger.LogInformation("First owner account created: {Email} (ID: {UserId})", email, user.Id);
-                return (true, null, user.Id);
+                return (true, null, user.Id.ToString());
             }
             catch (Exception ex)
             {

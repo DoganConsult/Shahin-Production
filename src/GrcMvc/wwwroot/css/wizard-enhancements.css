@@ -76,7 +76,7 @@ body.dark-mode {
     border: 1px solid var(--wizard-border);
     z-index: 1000;
     font-size: 0.875rem;
-    transition: all 0.3s ease;
+    transition: background-color var(--motion-t-base), border-color var(--motion-t-base), box-shadow var(--motion-t-base);
 }
 
 .auto-save-indicator:hover {
@@ -216,7 +216,7 @@ body.dark-mode {
         top: 0;
         height: 100vh;
         z-index: 1050;
-        transition: left 0.3s ease;
+        transition: left var(--motion-t-base);
         box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     }
 
@@ -308,7 +308,7 @@ body.dark-mode {
    Conditional Fields (Hidden by Default)
    ============================================================================ */
 .conditional-field {
-    transition: all 0.3s ease;
+    transition: max-height var(--motion-t-base), opacity var(--motion-t-base), margin var(--motion-t-base), padding var(--motion-t-base);
     overflow: hidden;
 }
 
@@ -332,7 +332,7 @@ body.dark-mode {
     border-radius: 8px;
     padding: 30px;
     text-align: center;
-    transition: all 0.3s ease;
+    transition: border-color var(--motion-t-base), background-color var(--motion-t-base);
     cursor: pointer;
 }
 
@@ -398,7 +398,7 @@ body.dark-mode {
     border: none;
     background: transparent;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color var(--motion-t-interactive), color var(--motion-t-interactive);
     font-weight: 500;
 }
 

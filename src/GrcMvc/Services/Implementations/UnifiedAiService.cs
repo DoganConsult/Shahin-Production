@@ -798,7 +798,10 @@ Return JSON:
                     result.AnalysisAr = parsed.AnalysisAr;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(ex, "Failed to parse AI response JSON, using raw response");
+            }
         }
 
         return result;

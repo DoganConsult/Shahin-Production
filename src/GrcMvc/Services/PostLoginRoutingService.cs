@@ -81,7 +81,7 @@ namespace GrcMvc.Services
             // First check if user needs onboarding (before role-based routing)
             var tenantUser = await _context.TenantUsers
                 .Include(tu => tu.Tenant)
-                .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
+                .FirstOrDefaultAsync(tu => tu.UserId == user.Id.ToString() && !tu.IsDeleted);
 
             if (tenantUser == null)
             {
@@ -135,7 +135,7 @@ namespace GrcMvc.Services
         {
             var tenantUser = await _context.TenantUsers
                 .Include(tu => tu.Tenant)
-                .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
+                .FirstOrDefaultAsync(tu => tu.UserId == user.Id.ToString() && !tu.IsDeleted);
 
             if (tenantUser?.Tenant != null)
             {
@@ -152,7 +152,7 @@ namespace GrcMvc.Services
         {
             var tenantUser = await _context.TenantUsers
                 .Include(tu => tu.Tenant)
-                .FirstOrDefaultAsync(tu => tu.UserId == user.Id && tu.IsOwnerGenerated && !tu.IsDeleted);
+                .FirstOrDefaultAsync(tu => tu.UserId == user.Id.ToString() && tu.IsOwnerGenerated && !tu.IsDeleted);
 
             if (tenantUser?.Tenant != null)
             {

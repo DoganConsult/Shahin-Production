@@ -18,6 +18,10 @@ public class GrcFeatureDefinitionProvider : FeatureDefinitionProvider
 {
     public override void Define(IFeatureDefinitionContext context)
     {
+        // #region agent log
+        try { System.IO.File.AppendAllText(@"c:\Shahin-ai\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new{location="GrcFeatureDefinitionProvider.cs:Define",message="ABP FeatureDefinitionProvider.Define() called",data=new{contextType=context.GetType().Name},timestamp=DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),sessionId="debug-session",hypothesisId="C"})+"\n"); } catch {}
+        // #endregion
+        
         // ══════════════════════════════════════════════════════════════
         // GRC CORE FEATURES
         // ══════════════════════════════════════════════════════════════

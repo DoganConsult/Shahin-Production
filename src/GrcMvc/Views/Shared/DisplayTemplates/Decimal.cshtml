@@ -1,0 +1,14 @@
+@model decimal?
+
+@{
+    var culture = System.Threading.Thread.CurrentThread.CurrentUICulture;
+}
+
+@if (Model.HasValue)
+{
+    <span class="grc-decimal">@Model.Value.ToString("N2", culture)</span>
+}
+else
+{
+    <span class="text-muted">—</span>
+}

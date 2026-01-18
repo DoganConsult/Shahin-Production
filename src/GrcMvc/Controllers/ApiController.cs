@@ -13,10 +13,12 @@ using GrcAuthorizationService = GrcMvc.Services.Interfaces.IAuthorizationService
 namespace GrcMvc.Controllers
 {
     /// <summary>
-    /// Main API controller for workflow, control, evidence, and assessment endpoints
+    /// Legacy API controller for workflow, control, evidence, and assessment endpoints
+    /// NOTE: This controller uses /api/legacy prefix to avoid conflicts with dedicated API controllers.
+    /// For new integrations, use the dedicated controllers (AssessmentApiController, AuditApiController, etc.)
     /// </summary>
     [Authorize]
-    [Route("api")]
+    [Route("api/legacy")]
     [ApiController]
     public class ApiController : ControllerBase
     {
@@ -743,7 +745,7 @@ namespace GrcMvc.Controllers
                     controlsNonCompliant = 14,
                     pendingActions = 23,
                     overdueItems = 3,
-                    lastUpdateDate = DateTime.Now
+                    lastUpdateDate = DateTime.UtcNow
                 };
 
                 return Ok(ApiResponse<object>.SuccessResponse(overview, "Overview retrieved successfully"));

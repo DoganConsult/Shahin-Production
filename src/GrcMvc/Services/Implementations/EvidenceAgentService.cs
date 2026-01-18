@@ -1,6 +1,7 @@
 using GrcMvc.Configuration;
 using GrcMvc.Data;
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Common.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Text;
@@ -36,7 +37,7 @@ public class EvidenceAgentService : IEvidenceAgentService
         return !string.IsNullOrWhiteSpace(_settings.ApiKey);
     }
 
-    public async Task<EvidenceQualityAnalysis> AnalyzeEvidenceQualityAsync(
+    public async Task<Result<EvidenceQualityAnalysis>> AnalyzeEvidenceQualityAsync(
         Guid evidenceId,
         CancellationToken cancellationToken = default)
     {
@@ -48,12 +49,12 @@ public class EvidenceAgentService : IEvidenceAgentService
 
         if (evidence == null)
         {
-            throw new InvalidOperationException($"Evidence {evidenceId} not found");
+            return Result<EvidenceQualityAnalysis>.Failure(Error.NotFound("Evidence", evidenceId));
         }
 
         if (!await IsAvailableAsync(cancellationToken))
         {
-            return CreateFallbackQualityAnalysis(evidenceId);
+            return Result<EvidenceQualityAnalysis>.Success(CreateFallbackQualityAnalysis(evidenceId));
         }
 
         try
@@ -99,8 +100,13 @@ Respond with JSON:
   }}
 }}";
 
-            var response = await CallClaudeApiAsync(prompt, cancellationToken);
-            var result = JsonSerializer.Deserialize<EvidenceQualityAnalysis>(response);
+            var responseResult = await CallClaudeApiAsync(prompt, cancellationToken);
+            if (!responseResult.IsSuccess)
+            {
+                return Result<EvidenceQualityAnalysis>.Success(CreateFallbackQualityAnalysis(evidenceId));
+            }
+            
+            var result = JsonSerializer.Deserialize<EvidenceQualityAnalysis>(responseResult.Value!);
 
             if (result != null)
             {
@@ -108,15 +114,15 @@ Respond with JSON:
                 result.AnalyzedAt = DateTime.UtcNow;
                 _logger.LogInformation("Evidence quality analysis completed for {EvidenceId}: {Rating}",
                     evidenceId, result.QualityRating);
-                return result;
+                return Result<EvidenceQualityAnalysis>.Success(result);
             }
 
-            return CreateFallbackQualityAnalysis(evidenceId);
+            return Result<EvidenceQualityAnalysis>.Success(CreateFallbackQualityAnalysis(evidenceId));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error analyzing evidence quality for {EvidenceId}", evidenceId);
-            return CreateFallbackQualityAnalysis(evidenceId);
+            return Result<EvidenceQualityAnalysis>.Success(CreateFallbackQualityAnalysis(evidenceId));
         }
     }
 
@@ -173,7 +179,7 @@ Respond with JSON:
         };
     }
 
-    public async Task<EvidenceMatchingResult> SuggestEvidenceMatchesAsync(
+    public async Task<Result<EvidenceMatchingResult>> SuggestEvidenceMatchesAsync(
         Guid evidenceId,
         CancellationToken cancellationToken = default)
     {
@@ -184,7 +190,7 @@ Respond with JSON:
 
         if (evidence == null)
         {
-            throw new InvalidOperationException($"Evidence {evidenceId} not found");
+            return Result<EvidenceMatchingResult>.Failure(Error.NotFound("Evidence", evidenceId));
         }
 
         // Get unlinked controls that might match
@@ -208,13 +214,13 @@ Respond with JSON:
             .Take(10)
             .ToList();
 
-        return new EvidenceMatchingResult
+        return Result<EvidenceMatchingResult>.Success(new EvidenceMatchingResult
         {
             EvidenceId = evidenceId,
             MatchedRequirements = new List<MatchedRequirement>(),
             MatchedControls = matchedControls,
             AnalyzedAt = DateTime.UtcNow
-        };
+        });
     }
 
     public async Task<EvidenceExpirationRisk> AnalyzeExpirationRisksAsync(
@@ -318,7 +324,7 @@ Respond with JSON:
         };
     }
 
-    public async Task<EvidenceCategorizationResult> CategorizeEvidenceAsync(
+    public async Task<Result<EvidenceCategorizationResult>> CategorizeEvidenceAsync(
         Guid evidenceId,
         CancellationToken cancellationToken = default)
     {
@@ -329,12 +335,12 @@ Respond with JSON:
 
         if (evidence == null)
         {
-            throw new InvalidOperationException($"Evidence {evidenceId} not found");
+            return Result<EvidenceCategorizationResult>.Failure(Error.NotFound("Evidence", evidenceId));
         }
 
         if (!await IsAvailableAsync(cancellationToken))
         {
-            return CreateFallbackCategorization(evidenceId, evidence);
+            return Result<EvidenceCategorizationResult>.Success(CreateFallbackCategorization(evidenceId, evidence));
         }
 
         try
@@ -357,32 +363,37 @@ Respond with JSON:
   ""categorizationConfidence"": 85
 }}";
 
-            var response = await CallClaudeApiAsync(prompt, cancellationToken);
-            var result = JsonSerializer.Deserialize<EvidenceCategorizationResult>(response);
+            var responseResult = await CallClaudeApiAsync(prompt, cancellationToken);
+            if (!responseResult.IsSuccess)
+            {
+                return Result<EvidenceCategorizationResult>.Success(CreateFallbackCategorization(evidenceId, evidence));
+            }
+            
+            var result = JsonSerializer.Deserialize<EvidenceCategorizationResult>(responseResult.Value!);
 
             if (result != null)
             {
                 result.EvidenceId = evidenceId;
                 result.AnalyzedAt = DateTime.UtcNow;
-                return result;
+                return Result<EvidenceCategorizationResult>.Success(result);
             }
 
-            return CreateFallbackCategorization(evidenceId, evidence);
+            return Result<EvidenceCategorizationResult>.Success(CreateFallbackCategorization(evidenceId, evidence));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error categorizing evidence {EvidenceId}", evidenceId);
-            return CreateFallbackCategorization(evidenceId, evidence);
+            return Result<EvidenceCategorizationResult>.Success(CreateFallbackCategorization(evidenceId, evidence));
         }
     }
 
     #region Private Helper Methods
 
-    private async Task<string> CallClaudeApiAsync(string prompt, CancellationToken cancellationToken)
+    private async Task<Result<string>> CallClaudeApiAsync(string prompt, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(_settings.ApiKey))
         {
-            throw new InvalidOperationException("Claude API key is not configured");
+            return Result<string>.Failure(Error.InvalidOperation("Claude API key is not configured"));
         }
 
         var request = new
@@ -409,7 +420,7 @@ Respond with JSON:
         var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
         var claudeResponse = JsonSerializer.Deserialize<ClaudeApiResponse>(responseJson);
 
-        return claudeResponse?.Content?.FirstOrDefault()?.Text ?? "{}";
+        return Result<string>.Success(claudeResponse?.Content?.FirstOrDefault()?.Text ?? "{}");
     }
 
     private string DeterminePriority(string? category)

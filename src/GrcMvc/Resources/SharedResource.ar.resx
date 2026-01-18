@@ -240,6 +240,9 @@
   <data name="Nav_Workspaces" xml:space="preserve">
     <value>مساحات العمل</value>
   </data>
+  <data name="Nav_Landing" xml:space="preserve">
+    <value>الصفحة الرئيسية</value>
+  </data>
   <data name="Risks" xml:space="preserve">
     <value>المخاطر</value>
   </data>
@@ -3632,5 +3635,667 @@
   </data>
   <data name="Api_Error_TaskNotFoundOrNotCompleted" xml:space="preserve">
     <value>المهمة غير موجودة أو لا يمكن إكمالها</value>
+  </data>
+
+  <!-- Display/Editor Templates i18n (new keys only) -->
+  <data name="JustNow" xml:space="preserve">
+    <value>الآن</value>
+  </data>
+  <data name="MinutesAgo" xml:space="preserve">
+    <value>منذ {0} دقيقة</value>
+  </data>
+  <data name="HoursAgo" xml:space="preserve">
+    <value>منذ {0} ساعة</value>
+  </data>
+  <data name="DaysAgo" xml:space="preserve">
+    <value>منذ {0} يوم</value>
+  </data>
+
+  <!-- Additional Status Labels -->
+  <data name="Status_Expired" xml:space="preserve">
+    <value>منتهي الصلاحية</value>
+  </data>
+  <data name="Status_UnderReview" xml:space="preserve">
+    <value>قيد المراجعة</value>
+  </data>
+  <data name="Status_Scheduled" xml:space="preserve">
+    <value>مجدول</value>
+  </data>
+  <data name="Status_Unknown" xml:space="preserve">
+    <value>غير معروف</value>
+  </data>
+  <data name="Status_SelectPlaceholder" xml:space="preserve">
+    <value>-- اختر الحالة --</value>
+  </data>
+
+  <!-- Additional Risk Levels -->
+  <data name="RiskLevel_VeryLow" xml:space="preserve">
+    <value>منخفض جداً</value>
+  </data>
+  <data name="RiskLevel_None" xml:space="preserve">
+    <value>لا يوجد</value>
+  </data>
+  <data name="RiskLevel_Unknown" xml:space="preserve">
+    <value>غير معروف</value>
+  </data>
+  <data name="RiskLevel_SelectPlaceholder" xml:space="preserve">
+    <value>-- اختر مستوى المخاطر --</value>
+  </data>
+
+  <!-- Currency -->
+  <data name="Currency_SAR" xml:space="preserve">
+    <value>ر.س</value>
+  </data>
+
+  <!-- Password Editor -->
+  <data name="Password_Placeholder" xml:space="preserve">
+    <value>أدخل كلمة المرور</value>
+  </data>
+  <data name="Password_VeryWeak" xml:space="preserve">
+    <value>ضعيفة جداً</value>
+  </data>
+  <data name="Password_Weak" xml:space="preserve">
+    <value>ضعيفة</value>
+  </data>
+  <data name="Password_Fair" xml:space="preserve">
+    <value>متوسطة</value>
+  </data>
+  <data name="Password_Strong" xml:space="preserve">
+    <value>قوية</value>
+  </data>
+  <data name="Password_VeryStrong" xml:space="preserve">
+    <value>قوية جداً</value>
+  </data>
+
+  <!-- File Upload -->
+  <data name="FileUpload_DragOrBrowse" xml:space="preserve">
+    <value>اسحب الملفات هنا أو</value>
+  </data>
+  <data name="FileUpload_Browse" xml:space="preserve">
+    <value>تصفح</value>
+  </data>
+  <data name="FileUpload_MaxSize" xml:space="preserve">
+    <value>الحد الأقصى لحجم الملف: {0} ميجابايت</value>
+  </data>
+
+  <!-- Notifications -->
+  <data name="Notification_UnreadCount" xml:space="preserve">
+    <value>{0} إشعارات غير مقروءة</value>
+  </data>
+  <data name="Notification_Title" xml:space="preserve">
+    <value>الإشعارات</value>
+  </data>
+  <data name="Notification_MarkAllRead" xml:space="preserve">
+    <value>تحديد الكل كمقروء</value>
+  </data>
+  <data name="Notification_NoNotifications" xml:space="preserve">
+    <value>لا توجد إشعارات</value>
+  </data>
+  <data name="Notification_ViewAll" xml:space="preserve">
+    <value>عرض جميع الإشعارات</value>
+  </data>
+
+  <!-- Activity Feed -->
+  <data name="Activity_NoRecentActivities" xml:space="preserve">
+    <value>لا توجد أنشطة حديثة</value>
+  </data>
+  <data name="Action_created" xml:space="preserve">
+    <value>أنشأ</value>
+  </data>
+  <data name="Action_updated" xml:space="preserve">
+    <value>حدّث</value>
+  </data>
+  <data name="Action_deleted" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="Action_approved" xml:space="preserve">
+    <value>وافق على</value>
+  </data>
+  <data name="Action_rejected" xml:space="preserve">
+    <value>رفض</value>
+  </data>
+  <data name="Action_commented" xml:space="preserve">
+    <value>علّق على</value>
+  </data>
+
+  <!-- Dashboard Widget -->
+  <data name="Widget_VsLastMonth" xml:space="preserve">
+    <value>مقارنة بالشهر الماضي</value>
+  </data>
+
+  <!-- DataTable -->
+  <data name="DataTable_Search" xml:space="preserve">
+    <value>بحث...</value>
+  </data>
+  <data name="DataTable_Loading" xml:space="preserve">
+    <value>جاري التحميل...</value>
+  </data>
+  <data name="DataTable_NoData" xml:space="preserve">
+    <value>لا توجد بيانات</value>
+  </data>
+  <data name="DataTable_ShowingZero" xml:space="preserve">
+    <value>عرض 0 من 0 سجل</value>
+  </data>
+
+  <!-- Timeline -->
+  <data name="Timeline_NoEvents" xml:space="preserve">
+    <value>لا توجد أحداث</value>
+  </data>
+
+  <!-- Breadcrumb -->
+  <data name="Breadcrumb_AriaLabel" xml:space="preserve">
+    <value>التنقل</value>
+  </data>
+
+  <!-- Onboarding -->
+  <data name="Onboarding_Title" xml:space="preserve">
+    <value>نظام GRC - التسجيل</value>
+  </data>
+  <data name="Onboarding_12StepWizard" xml:space="preserve">
+    <value>معالج 12 خطوة</value>
+  </data>
+  <data name="Onboarding_EstTime" xml:space="preserve">
+    <value>الوقت المقدر: 15-20 دقيقة</value>
+  </data>
+  <data name="Onboarding_WelcomeTitle" xml:space="preserve">
+    <value>مرحباً بك في نظام إدارة الحوكمة والمخاطر والامتثال</value>
+  </data>
+  <data name="Onboarding_CompleteSetup" xml:space="preserve">
+    <value>أكمل عملية الإعداد</value>
+  </data>
+  <data name="Onboarding_SetupDescription" xml:space="preserve">
+    <value>لتهيئة مؤسستك وتحديد نطاق الامتثال الخاص بك.</value>
+  </data>
+  <data name="Onboarding_WhatYouConfigure" xml:space="preserve">
+    <value>ما ستقوم بتهيئته:</value>
+  </data>
+  <data name="Onboarding_AutoDerivedOutputs" xml:space="preserve">
+    <value>المخرجات المُشتقة تلقائياً:</value>
+  </data>
+  <data name="Onboarding_RegisterFirst" xml:space="preserve">
+    <value>سجّل حسابك أولاً</value>
+  </data>
+  <data name="Onboarding_HaveAccount" xml:space="preserve">
+    <value>لديك حساب؟</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>تسجيل الدخول</value>
+  </data>
+  <data name="Onboarding_CreateOrg" xml:space="preserve">
+    <value>أنشئ مؤسستك</value>
+  </data>
+  <data name="Onboarding_WorkspaceCreated" xml:space="preserve">
+    <value>سيتم إنشاء مساحة عمل خاصة بمؤسستك</value>
+  </data>
+  <data name="Onboarding_StartSetup" xml:space="preserve">
+    <value>ابدأ الإعداد</value>
+  </data>
+  <data name="Onboarding_12Steps15Min" xml:space="preserve">
+    <value>12 خطوة - حوالي 15-20 دقيقة</value>
+  </data>
+  <data name="Onboarding_Progress" xml:space="preserve">
+    <value>تقدم التسجيل</value>
+  </data>
+
+  <!-- Signup -->
+  <data name="Signup_Title" xml:space="preserve">
+    <value>نظام GRC - تسجيل المؤسسة</value>
+  </data>
+  <data name="Signup_RegisterOrg" xml:space="preserve">
+    <value>تسجيل مؤسستك</value>
+  </data>
+  <data name="Signup_OrgName" xml:space="preserve">
+    <value>اسم المؤسسة</value>
+  </data>
+  <data name="Signup_AdminEmail" xml:space="preserve">
+    <value>البريد الإلكتروني للمسؤول</value>
+  </data>
+  <data name="Signup_SubscriptionTier" xml:space="preserve">
+    <value>مستوى الاشتراك</value>
+  </data>
+  <data name="Signup_PrimaryCountry" xml:space="preserve">
+    <value>البلد الرئيسي للعمليات</value>
+  </data>
+  <data name="Signup_SecureRegistration" xml:space="preserve">
+    <value>تسجيل آمن</value>
+  </data>
+  <data name="Signup_SecureDescription" xml:space="preserve">
+    <value>بيانات مؤسستك مشفرة ومؤمنة بمعايير أمان المؤسسات.</value>
+  </data>
+  <data name="Signup_QuickSetup" xml:space="preserve">
+    <value>إعداد سريع</value>
+  </data>
+  <data name="Signup_QuickSetupDescription" xml:space="preserve">
+    <value>أكمل عملية التسجيل في 10-15 دقيقة وابدأ إدارة الامتثال فوراً.</value>
+  </data>
+
+  <!-- Activate -->
+  <data name="Activate_Title" xml:space="preserve">
+    <value>نظام GRC - تفعيل المؤسسة</value>
+  </data>
+  <data name="Activate_ActivateOrg" xml:space="preserve">
+    <value>تفعيل مؤسستك</value>
+  </data>
+  <data name="Activate_CheckEmail" xml:space="preserve">
+    <value>يرجى التحقق من بريدك الإلكتروني للحصول على رابط التفعيل، أو أدخل رمز التفعيل أدناه.</value>
+  </data>
+  <data name="Activate_Token" xml:space="preserve">
+    <value>رمز التفعيل</value>
+  </data>
+  <data name="Activate_DidntReceive" xml:space="preserve">
+    <value>لم تستلم بريد التفعيل؟</value>
+  </data>
+
+  <!-- OrgProfile -->
+  <data name="OrgProfile_Title" xml:space="preserve">
+    <value>نظام GRC - ملف المؤسسة</value>
+  </data>
+  <data name="OrgProfile_Header" xml:space="preserve">
+    <value>ملف المؤسسة</value>
+  </data>
+  <data name="OrgProfile_BasicInfo" xml:space="preserve">
+    <value>المعلومات الأساسية</value>
+  </data>
+  <data name="OrgProfile_Geographic" xml:space="preserve">
+    <value>المعلومات الجغرافية والتشغيلية</value>
+  </data>
+
+  <!-- ReviewScope -->
+  <data name="ReviewScope_Title" xml:space="preserve">
+    <value>نظام GRC - مراجعة نطاق الامتثال</value>
+  </data>
+  <data name="ReviewScope_Header" xml:space="preserve">
+    <value>نطاق الامتثال المُشتق</value>
+  </data>
+
+  <!-- CreatePlan -->
+  <data name="CreatePlan_Title" xml:space="preserve">
+    <value>نظام GRC - إنشاء خطة التقييم</value>
+  </data>
+  <data name="CreatePlan_Header" xml:space="preserve">
+    <value>إنشاء خطة التقييم الأولى</value>
+  </data>
+
+  <!-- GuidedWelcome -->
+  <data name="GuidedWelcome_Title" xml:space="preserve">
+    <value>مرحباً بك في نسختك التجريبية من GRC</value>
+  </data>
+
+  <!-- Wizard Sidebar -->
+  <data name="Wizard_Sidebar_Title" xml:space="preserve">
+    <value>معالج التسجيل</value>
+  </data>
+  <data name="Wizard_Progress" xml:space="preserve">
+    <value>التقدم</value>
+  </data>
+  <data name="Wizard_StepsCompleted" xml:space="preserve">
+    <value>{0} من {1} خطوات مكتملة</value>
+  </data>
+  <data name="Wizard_EstimatedRemaining" xml:space="preserve">
+    <value>الوقت المتبقي المقدر</value>
+  </data>
+  <data name="Wizard_AlmostDone" xml:space="preserve">
+    <value>أوشكت على الانتهاء!</value>
+  </data>
+  <data name="Wizard_ReviewFinalize" xml:space="preserve">
+    <value>مراجعة وإنهاء</value>
+  </data>
+  <data name="Wizard_SaveExit" xml:space="preserve">
+    <value>حفظ والخروج</value>
+  </data>
+  <data name="Wizard_ViewSummary" xml:space="preserve">
+    <value>عرض الملخص</value>
+  </data>
+
+  <!-- Reports -->
+  <data name="Reports_Title" xml:space="preserve">
+    <value>التقارير والتحليلات</value>
+  </data>
+  <data name="Reports_Subtitle" xml:space="preserve">
+    <value>درجات الامتثال والاتجاهات والتفاصيل</value>
+  </data>
+  <data name="Reports_OverallComplianceScore" xml:space="preserve">
+    <value>درجة الامتثال الإجمالية</value>
+  </data>
+  <data name="Reports_Assessments" xml:space="preserve">
+    <value>التقييمات</value>
+  </data>
+  <data name="Reports_Completed" xml:space="preserve">
+    <value>مكتمل</value>
+  </data>
+  <data name="Reports_Evidence" xml:space="preserve">
+    <value>الأدلة</value>
+  </data>
+  <data name="Reports_Exceptions" xml:space="preserve">
+    <value>الاستثناءات</value>
+  </data>
+  <data name="Reports_ComplianceReport" xml:space="preserve">
+    <value>تقرير الامتثال</value>
+  </data>
+  <data name="Reports_ComplianceDesc" xml:space="preserve">
+    <value>عرض حالة الامتثال حسب الخط الأساسي والحزمة</value>
+  </data>
+  <data name="Reports_ViewReport" xml:space="preserve">
+    <value>عرض التقرير</value>
+  </data>
+  <data name="Reports_EvidenceReport" xml:space="preserve">
+    <value>تقرير الأدلة</value>
+  </data>
+  <data name="Reports_EvidenceDesc" xml:space="preserve">
+    <value>عرض جميع الأدلة المجمعة والمعتمدة</value>
+  </data>
+  <data name="Reports_ExceptionReport" xml:space="preserve">
+    <value>تقرير الاستثناءات</value>
+  </data>
+  <data name="Reports_ExceptionDesc" xml:space="preserve">
+    <value>عرض جميع استثناءات الضوابط وحالتها</value>
+  </data>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+  <!-- ONBOARDING WIZARD - Buttons -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+  <data name="Button_Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="Button_SaveContinueLater" xml:space="preserve">
+    <value>حفظ والمتابعة لاحقاً</value>
+  </data>
+  <data name="Button_SaveContinueToStepB" xml:space="preserve">
+    <value>حفظ والمتابعة إلى الامتثال</value>
+  </data>
+  <data name="Button_SaveContinueToStepC" xml:space="preserve">
+    <value>حفظ والمتابعة إلى إعداد المخاطر</value>
+  </data>
+  <data name="Button_SaveContinueToStepD" xml:space="preserve">
+    <value>حفظ والمتابعة إلى الضوابط</value>
+  </data>
+  <data name="Button_SaveContinueToStepE" xml:space="preserve">
+    <value>حفظ والمتابعة إلى السياسات</value>
+  </data>
+  <data name="Button_SaveContinueToStepF" xml:space="preserve">
+    <value>حفظ والمتابعة إلى إعداد الفريق</value>
+  </data>
+  <data name="Button_SaveContinueToStepG" xml:space="preserve">
+    <value>حفظ والمتابعة إلى التكاملات</value>
+  </data>
+  <data name="Button_SaveContinueToStepH" xml:space="preserve">
+    <value>حفظ والمتابعة إلى التقييمات</value>
+  </data>
+  <data name="Button_SaveContinueToStepI" xml:space="preserve">
+    <value>حفظ والمتابعة إلى التقارير</value>
+  </data>
+  <data name="Button_SaveContinueToStepJ" xml:space="preserve">
+    <value>حفظ والمتابعة إلى سير العمل</value>
+  </data>
+  <data name="Button_SaveContinueToStepK" xml:space="preserve">
+    <value>حفظ والمتابعة إلى الأمان</value>
+  </data>
+  <data name="Button_SaveContinueToStepL" xml:space="preserve">
+    <value>مراجعة وإكمال الإعداد</value>
+  </data>
+  <data name="Button_Back" xml:space="preserve">
+    <value>رجوع</value>
+  </data>
+  <data name="Button_CompleteSetup" xml:space="preserve">
+    <value>إكمال الإعداد</value>
+  </data>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+  <!-- Countries (GCC + MENA) -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+  <data name="Country_SA" xml:space="preserve">
+    <value>المملكة العربية السعودية</value>
+  </data>
+  <data name="Country_AE" xml:space="preserve">
+    <value>الإمارات العربية المتحدة</value>
+  </data>
+  <data name="Country_QA" xml:space="preserve">
+    <value>قطر</value>
+  </data>
+  <data name="Country_KW" xml:space="preserve">
+    <value>الكويت</value>
+  </data>
+  <data name="Country_BH" xml:space="preserve">
+    <value>البحرين</value>
+  </data>
+  <data name="Country_OM" xml:space="preserve">
+    <value>سلطنة عُمان</value>
+  </data>
+  <data name="Country_EG" xml:space="preserve">
+    <value>مصر</value>
+  </data>
+  <data name="Country_JO" xml:space="preserve">
+    <value>الأردن</value>
+  </data>
+  <data name="Country_LB" xml:space="preserve">
+    <value>لبنان</value>
+  </data>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+  <!-- Organization Types -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+  <data name="OrgType_Enterprise" xml:space="preserve">
+    <value>مؤسسة كبرى (أكثر من 1000 موظف)</value>
+  </data>
+  <data name="OrgType_SME" xml:space="preserve">
+    <value>منشأة متوسطة وصغيرة (50-999 موظف)</value>
+  </data>
+  <data name="OrgType_Startup" xml:space="preserve">
+    <value>شركة ناشئة (أقل من 50 موظف)</value>
+  </data>
+  <data name="OrgType_Government" xml:space="preserve">
+    <value>جهة حكومية / قطاع عام</value>
+  </data>
+  <data name="OrgType_RegulatedFI" xml:space="preserve">
+    <value>مؤسسة مالية مرخصة</value>
+  </data>
+  <data name="OrgType_Fintech" xml:space="preserve">
+    <value>تقنية مالية / تمويل رقمي</value>
+  </data>
+  <data name="OrgType_Telecom" xml:space="preserve">
+    <value>مزود خدمات اتصالات</value>
+  </data>
+  <data name="OrgType_Healthcare" xml:space="preserve">
+    <value>مقدم رعاية صحية</value>
+  </data>
+  <data name="OrgType_Other" xml:space="preserve">
+    <value>أخرى</value>
+  </data>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+  <!-- Industry Sectors -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+  <data name="Industry_Banking" xml:space="preserve">
+    <value>البنوك والخدمات المالية</value>
+  </data>
+  <data name="Industry_Insurance" xml:space="preserve">
+    <value>التأمين</value>
+  </data>
+  <data name="Industry_Healthcare" xml:space="preserve">
+    <value>الرعاية الصحية وعلوم الحياة</value>
+  </data>
+  <data name="Industry_Telecom" xml:space="preserve">
+    <value>الاتصالات</value>
+  </data>
+  <data name="Industry_Energy" xml:space="preserve">
+    <value>الطاقة والمرافق</value>
+  </data>
+  <data name="Industry_Government" xml:space="preserve">
+    <value>الحكومة والقطاع العام</value>
+  </data>
+  <data name="Industry_Retail" xml:space="preserve">
+    <value>التجزئة والمستهلك</value>
+  </data>
+  <data name="Industry_Technology" xml:space="preserve">
+    <value>التقنية والبرمجيات</value>
+  </data>
+  <data name="Industry_Manufacturing" xml:space="preserve">
+    <value>التصنيع</value>
+  </data>
+  <data name="Industry_Education" xml:space="preserve">
+    <value>التعليم</value>
+  </data>
+  <data name="Industry_RealEstate" xml:space="preserve">
+    <value>العقارات والإنشاءات</value>
+  </data>
+  <data name="Industry_Transportation" xml:space="preserve">
+    <value>النقل واللوجستيات</value>
+  </data>
+  <data name="Industry_Other" xml:space="preserve">
+    <value>أخرى</value>
+  </data>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+  <!-- Languages -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+  <data name="Language_Bilingual" xml:space="preserve">
+    <value>ثنائي اللغة (الإنجليزية والعربية)</value>
+  </data>
+  <data name="Language_EnglishOnly" xml:space="preserve">
+    <value>الإنجليزية فقط</value>
+  </data>
+  <data name="Language_ArabicOnly" xml:space="preserve">
+    <value>العربية فقط</value>
+  </data>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+  <!-- Domain Verification Methods -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+  <data name="DomainVerification_AdminEmail" xml:space="preserve">
+    <value>التحقق عبر البريد الإلكتروني للمسؤول</value>
+  </data>
+  <data name="DomainVerification_DNS" xml:space="preserve">
+    <value>سجل DNS TXT</value>
+  </data>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+  <!-- Onboarding Step A: Organization Identity -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+  <data name="Onboarding_StepA_Title" xml:space="preserve">
+    <value>هوية المنظمة</value>
+  </data>
+  <data name="Onboarding_StepA_Heading" xml:space="preserve">
+    <value>هوية المنظمة والملف التعريفي</value>
+  </data>
+  <data name="Onboarding_StepA_Questions" xml:space="preserve">
+    <value>أخبرنا عن منظمتك</value>
+  </data>
+  <data name="Onboarding_StepA_LegalName_Header" xml:space="preserve">
+    <value>معلومات الكيان القانوني</value>
+  </data>
+  <data name="Onboarding_StepA_LegalNameEn_Label" xml:space="preserve">
+    <value>الاسم القانوني (بالإنجليزية)</value>
+  </data>
+  <data name="Onboarding_StepA_LegalNameEn_Placeholder" xml:space="preserve">
+    <value>أدخل الاسم القانوني الرسمي للمنظمة</value>
+  </data>
+  <data name="Onboarding_StepA_LegalNameAr_Label" xml:space="preserve">
+    <value>الاسم القانوني (بالعربية)</value>
+  </data>
+  <data name="Onboarding_StepA_LegalNameAr_Placeholder" xml:space="preserve">
+    <value>أدخل الاسم القانوني الرسمي</value>
+  </data>
+  <data name="Onboarding_StepA_TradeName_Label" xml:space="preserve">
+    <value>الاسم التجاري / العلامة التجارية</value>
+  </data>
+  <data name="Onboarding_StepA_TradeName_Placeholder" xml:space="preserve">
+    <value>أدخل الاسم التجاري إن كان مختلفاً</value>
+  </data>
+  <data name="Onboarding_StepA_Geographic_Header" xml:space="preserve">
+    <value>الحضور الجغرافي والتشغيلي</value>
+  </data>
+  <data name="Onboarding_StepA_Country_Label" xml:space="preserve">
+    <value>بلد التأسيس</value>
+  </data>
+  <data name="Onboarding_StepA_HqLocation_Label" xml:space="preserve">
+    <value>موقع المقر الرئيسي</value>
+  </data>
+  <data name="Onboarding_StepA_HqLocation_Placeholder" xml:space="preserve">
+    <value>المدينة، المنطقة</value>
+  </data>
+  <data name="Onboarding_StepA_Timezone_Label" xml:space="preserve">
+    <value>المنطقة الزمنية الافتراضية</value>
+  </data>
+  <data name="Onboarding_StepA_OperatingCountries_Label" xml:space="preserve">
+    <value>دول العمليات</value>
+  </data>
+  <data name="Onboarding_StepA_OrgType_Header" xml:space="preserve">
+    <value>نوع المنظمة وتصنيف القطاع</value>
+  </data>
+  <data name="Onboarding_StepA_OrgType_Label" xml:space="preserve">
+    <value>نوع المنظمة</value>
+  </data>
+  <data name="Onboarding_StepA_Industry_Label" xml:space="preserve">
+    <value>القطاع الصناعي الرئيسي</value>
+  </data>
+  <data name="Onboarding_StepA_BusinessLines_Label" xml:space="preserve">
+    <value>خطوط الأعمال / الخدمات</value>
+  </data>
+  <data name="Onboarding_StepA_Communication_Header" xml:space="preserve">
+    <value>التواصل والتحقق من النطاق</value>
+  </data>
+  <data name="Onboarding_StepA_PrimaryLanguage_Label" xml:space="preserve">
+    <value>لغة التواصل الرئيسية</value>
+  </data>
+  <data name="Onboarding_StepA_DomainVerification_Label" xml:space="preserve">
+    <value>طريقة التحقق من النطاق</value>
+  </data>
+  <data name="Onboarding_StepA_EmailDomains_Label" xml:space="preserve">
+    <value>نطاقات البريد الإلكتروني للشركة</value>
+  </data>
+  <data name="Onboarding_StepA_EmailDomain_Placeholder" xml:space="preserve">
+    <value>company.com</value>
+  </data>
+  <data name="Onboarding_StepA_AddDomain" xml:space="preserve">
+    <value>إضافة نطاق آخر</value>
+  </data>
+  <data name="Onboarding_StepA_DataResidency_Header" xml:space="preserve">
+    <value>إقامة البيانات والسيادة</value>
+  </data>
+  <data name="Onboarding_StepA_DataResidency_Label" xml:space="preserve">
+    <value>المنظمة لديها متطلبات إقامة البيانات</value>
+  </data>
+  <data name="Onboarding_StepA_DataResidency_Help" xml:space="preserve">
+    <value>فعّل إذا كانت منظمتك ملزمة بتخزين البيانات ضمن حدود جغرافية محددة</value>
+  </data>
+  <data name="Onboarding_StepA_DataResidencyCountries_Label" xml:space="preserve">
+    <value>مواقع إقامة البيانات المطلوبة</value>
+  </data>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+  <!-- Onboarding Steps B-L Titles -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+  <data name="Onboarding_StepB_Title" xml:space="preserve">
+    <value>أطر الامتثال</value>
+  </data>
+  <data name="Onboarding_StepB_Heading" xml:space="preserve">
+    <value>اختيار الأطر التنظيمية والامتثال</value>
+  </data>
+  <data name="Onboarding_StepB_Questions" xml:space="preserve">
+    <value>حدد الأطر واللوائح المطبقة</value>
+  </data>
+  <data name="Onboarding_StepC_Title" xml:space="preserve">
+    <value>إعداد المخاطر</value>
+  </data>
+  <data name="Onboarding_StepC_Heading" xml:space="preserve">
+    <value>إعداد إطار إدارة المخاطر</value>
+  </data>
+  <data name="Onboarding_StepC_Questions" xml:space="preserve">
+    <value>حدد شهيتك للمخاطر ومنهجيتك</value>
+  </data>
+  <data name="Onboarding_StepD_Title" xml:space="preserve">
+    <value>إعداد الضوابط</value>
+  </data>
+  <data name="Onboarding_StepD_Heading" xml:space="preserve">
+    <value>إعداد إطار الضوابط والمكتبة</value>
+  </data>
+  <data name="Onboarding_StepD_Questions" xml:space="preserve">
+    <value>حدد مكتبات الضوابط والملكية</value>
+  </data>
+  <data name="Onboarding_StepE_Title" xml:space="preserve">
+    <value>السياسات</value>
+  </data>
+  <data name="Onboarding_StepE_Heading" xml:space="preserve">
+    <value>إعداد إدارة السياسات والوثائق</value>
   </data>
 </root>

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GrcMvc.Common.Results;
 
 namespace GrcMvc.Services.Interfaces;
 
@@ -19,7 +20,7 @@ public interface ISerialCodeService
     /// <summary>
     /// Generate a new serial code for an entity
     /// </summary>
-    Task<SerialCodeResult> GenerateAsync(SerialCodeRequest request);
+    Task<Result<SerialCodeResult>> GenerateAsync(SerialCodeRequest request);
 
     /// <summary>
     /// Generate multiple serial codes in a batch (atomic operation)
@@ -38,7 +39,7 @@ public interface ISerialCodeService
     /// <summary>
     /// Parse a serial code into its components
     /// </summary>
-    ParsedSerialCode Parse(string code);
+    Result<ParsedSerialCode> Parse(string code);
 
     // =========================================================================
     // LOOKUP
@@ -72,7 +73,7 @@ public interface ISerialCodeService
     /// Create a new version of an existing serial code
     /// Marks the previous version as superseded
     /// </summary>
-    Task<SerialCodeResult> CreateNewVersionAsync(string baseCode, string? changeReason = null);
+    Task<Result<SerialCodeResult>> CreateNewVersionAsync(string baseCode, string? changeReason = null);
 
     /// <summary>
     /// Get the latest version code for a base code
@@ -115,12 +116,12 @@ public interface ISerialCodeService
     /// <summary>
     /// Confirm a reserved serial code
     /// </summary>
-    Task<SerialCodeResult> ConfirmReservationAsync(string reservationId, Guid entityId);
+    Task<Result<SerialCodeResult>> ConfirmReservationAsync(string reservationId, Guid entityId);
 
     /// <summary>
     /// Cancel a reservation
     /// </summary>
-    Task CancelReservationAsync(string reservationId);
+    Task<Result> CancelReservationAsync(string reservationId);
 
     // =========================================================================
     // ADMINISTRATION
@@ -134,12 +135,12 @@ public interface ISerialCodeService
     /// <summary>
     /// Void a serial code (mark as invalid)
     /// </summary>
-    Task VoidAsync(string code, string reason);
+    Task<Result> VoidAsync(string code, string reason);
 
     /// <summary>
     /// Generate traceability report for a serial code
     /// </summary>
-    Task<SerialCodeTraceabilityReport> GetTraceabilityReportAsync(string code);
+    Task<Result<SerialCodeTraceabilityReport>> GetTraceabilityReportAsync(string code);
 }
 
 // =============================================================================

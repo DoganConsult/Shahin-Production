@@ -276,7 +276,7 @@ namespace GrcMvc.Services.Implementations
                 {
                     await _notificationService.SendNotificationAsync(
                         workflowInstanceId: Guid.Empty,
-                        recipientUserId: reviewer.Id,
+                        recipientUserId: reviewer.Id.ToString(),
                         notificationType: "EvidenceReview",
                         subject: $"Evidence Review Required: {evidence.Title}",
                         body: message,
@@ -342,7 +342,7 @@ namespace GrcMvc.Services.Implementations
                 {
                     await _notificationService.SendNotificationAsync(
                         workflowInstanceId: Guid.Empty,
-                        recipientUserId: submitter.Id,
+                        recipientUserId: submitter.Id.ToString(),
                         notificationType: "EvidenceStatusUpdate",
                         subject: $"Evidence Status Update: {evidence.Title}",
                         body: message,

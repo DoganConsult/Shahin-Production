@@ -141,7 +141,9 @@ namespace GrcMvc.Models.Enums
             new()
             {
                 { WorkflowInstanceStatus.Pending, new HashSet<WorkflowInstanceStatus> 
-                    { WorkflowInstanceStatus.InProgress, WorkflowInstanceStatus.Cancelled } },
+                    { WorkflowInstanceStatus.InProgress, WorkflowInstanceStatus.InApproval, 
+                      WorkflowInstanceStatus.Rejected, WorkflowInstanceStatus.Cancelled,
+                      WorkflowInstanceStatus.Completed } },
                     
                 { WorkflowInstanceStatus.InProgress, new HashSet<WorkflowInstanceStatus> 
                     { WorkflowInstanceStatus.InApproval, WorkflowInstanceStatus.Completed, 

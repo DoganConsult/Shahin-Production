@@ -240,6 +240,9 @@
   <data name="Nav_Workspaces" xml:space="preserve">
     <value>Workspaces</value>
   </data>
+  <data name="Nav_Landing" xml:space="preserve">
+    <value>Home Page</value>
+  </data>
   <data name="Risks" xml:space="preserve">
     <value>Risks</value>
   </data>

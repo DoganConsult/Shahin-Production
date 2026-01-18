@@ -68,7 +68,7 @@
 ### Nginx
 - **Status**: ✅ Active
 - **Config**: `/etc/nginx/sites-enabled/app-shahin-ai.conf`
-- **Upstream**: `127.0.0.1:8080`
+- **Upstream**: `127.0.0.1:5000`
 
 ---
 

@@ -43,7 +43,7 @@
 
 .navbar .dropdown-item {
   padding: var(--shahin-space-3) var(--shahin-space-4);
-  transition: all var(--shahin-transition-fast);
+  transition: background-color var(--motion-t-fast), color var(--motion-t-fast);
   border-radius: var(--shahin-radius-sm);
   margin: 0 var(--shahin-space-1);
 }

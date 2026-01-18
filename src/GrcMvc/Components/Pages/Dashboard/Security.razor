@@ -420,7 +420,7 @@
             {
                 Name = "قاعدة البيانات",
                 Status = canConnect ? "Healthy" : "Down",
-                LastCheck = DateTime.Now
+                LastCheck = DateTime.UtcNow
             });
         }
         catch (Exception ex)

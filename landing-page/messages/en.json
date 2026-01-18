@@ -1,0 +1,483 @@
+{
+  "metadata": {
+    "title": "Shahin AI | AI-Powered GRC Platform for Saudi Arabia",
+    "description": "Intelligent Governance, Risk, and Compliance platform powered by AI. Automate compliance with KSA regulations including NCA ECC, SAMA, and PDPL."
+  },
+  "nav": {
+    "expertise": "Solutions",
+    "approach": "How It Works",
+    "sectors": "Industries",
+    "about": "About",
+    "contact": "Contact",
+    "services": "Platform",
+    "language": "العربية"
+  },
+  "hero": {
+    "badge": "AI-Powered GRC Platform",
+    "title": "GRC Made",
+    "titleHighlight": "Operational",
+    "description": "Shahin AI is a Governance, Risk, and Compliance (GRC) platform that transforms regulatory requirements into structured workflows, clear ownership, and audit-ready evidence.",
+    "cta_primary": "Request GRC Demo",
+    "cta_secondary": "Start Operational Pilot",
+    "stats": {
+      "years": "AI Agents",
+      "clients": "Regulations Covered",
+      "projects": "Controls Monitored"
+    }
+  },
+  "expertise": {
+    "badge": "Core Modules",
+    "title": "Comprehensive GRC Platform",
+    "subtitle": "Four integrated modules covering the complete GRC lifecycle for regulated enterprises.",
+    "items": {
+      "telecom": {
+        "title": "Governance & Policy Management",
+        "description": "Centralized policy repository with version control, approval workflows, and automated distribution. Track policy acknowledgments and ensure organizational alignment."
+      },
+      "datacenters": {
+        "title": "Risk Identification & Assessment",
+        "description": "Systematic risk identification with AI-assisted scoring and prioritization. Heat maps, risk registers, and mitigation tracking aligned to your risk appetite."
+      },
+      "cybersecurity": {
+        "title": "Compliance Controls & Evidence",
+        "description": "Map controls to multiple frameworks simultaneously. Automated evidence collection, gap analysis, and continuous compliance monitoring for NCA, SAMA, PDPL."
+      },
+      "governance": {
+        "title": "Audit Readiness & Reporting",
+        "description": "Streamlined audit workflows with automated evidence packaging. Executive dashboards, compliance reports, and audit trails in Arabic and English."
+      },
+      "learn_more": "Learn more"
+    }
+  },
+  "approach": {
+    "badge": "How It Works",
+    "title": "AI-First Approach",
+    "subtitle": "12 specialized AI agents working together to automate and enhance your GRC operations with human oversight.",
+    "steps": {
+      "assess": {
+        "title": "Connect",
+        "description": "Integrate with your existing systems - ERP, IAM, SIEM, and document repositories"
+      },
+      "design": {
+        "title": "Analyze",
+        "description": "AI agents continuously monitor compliance status and assess risks in real-time"
+      },
+      "assure": {
+        "title": "Automate",
+        "description": "Automated workflows for evidence collection, audit trails, and remediation tracking"
+      },
+      "support": {
+        "title": "Report",
+        "description": "Generate executive reports in Arabic and English with AI-powered insights"
+      }
+    }
+  },
+  "sectors": {
+    "badge": "Industries",
+    "title": "Built for Regulated Industries",
+    "subtitle": "Purpose-built for organizations operating under Saudi Arabian regulatory requirements.",
+    "items": {
+      "government": {
+        "title": "Government & Public Sector",
+        "description": "NCA ECC compliance for ministries, authorities, and government entities"
+      },
+      "telecom": {
+        "title": "Financial Services",
+        "description": "SAMA Cybersecurity Framework compliance for banks and financial institutions"
+      },
+      "infrastructure": {
+        "title": "Healthcare",
+        "description": "PDPL and healthcare data protection compliance for medical providers"
+      },
+      "enterprise": {
+        "title": "Critical Infrastructure",
+        "description": "Energy, utilities, and telecommunications regulatory compliance"
+      }
+    }
+  },
+  "whyus": {
+    "badge": "Why Shahin AI",
+    "title": "Why Choose Shahin AI",
+    "subtitle": "Purpose-built for government and regulated enterprises in Saudi Arabia.",
+    "reasons": [
+      "Built for Saudi regulatory context – NCA ECC, SAMA, PDPL, and more",
+      "Arabic-first interface with full bilingual support",
+      "AI-assisted analysis of policies, risks, and controls",
+      "Designed for compliance officers, risk managers, and auditors"
+    ]
+  },
+  "cta": {
+    "title": "Ready to Transform Your GRC?",
+    "description": "Start your free 14-day trial and experience AI-powered compliance management.",
+    "button": "Contact Sales"
+  },
+  "footer": {
+    "description": "Shahin AI is an intelligent GRC platform that automates compliance, risk management, and audit processes for organizations operating in Saudi Arabia.",
+    "servicesTitle": "Platform",
+    "companyTitle": "Company",
+    "services": {
+      "telecommunications": "Compliance Management",
+      "dataCenters": "Risk Assessment",
+      "cybersecurity": "Audit Management",
+      "governance": "Policy & Controls"
+    },
+    "company": {
+      "about": "About Us",
+      "contact": "Contact",
+      "language": "العربية"
+    },
+    "newsletter": {
+      "title": "Stay Updated",
+      "description": "Subscribe for GRC insights and platform updates.",
+      "placeholder": "Enter your email",
+      "success": "Thank you for subscribing!"
+    },
+    "legal": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookie Policy"
+    },
+    "copyright": "© {year} Shahin AI. All rights reserved."
+  },
+  "contact": {
+    "badge": "Get Started",
+    "title": "Contact Us",
+    "subtitle": "Schedule a demo or speak with our GRC experts about your compliance needs.",
+    "info": {
+      "title": "Contact Information",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "addressValue": "Riyadh, Saudi Arabia",
+      "hours": "Support Hours",
+      "hoursValue": "Sunday - Thursday: 8:00 AM - 8:00 PM"
+    },
+    "form": {
+      "title": "Request a Demo",
+      "name": "Full Name",
+      "email": "Work Email",
+      "phone": "Phone Number",
+      "company": "Organization Name",
+      "service": "Primary Interest",
+      "selectService": "Select an area",
+      "services": {
+        "telecommunications": "Compliance Management",
+        "dataCenters": "Risk Assessment",
+        "cybersecurity": "Audit Management",
+        "governance": "Policy & Controls",
+        "other": "General Inquiry"
+      },
+      "message": "Tell us about your requirements",
+      "submit": "Request Demo",
+      "submitting": "Sending...",
+      "success": {
+        "title": "Request Received!",
+        "message": "Our team will contact you within 24 hours."
+      }
+    }
+  },
+  "about": {
+    "badge": "About Us",
+    "title": "About Shahin AI",
+    "subtitle": "Building the future of GRC with artificial intelligence",
+    "story": {
+      "title": "Our Story",
+      "p1": "Shahin AI was founded to solve the complex challenge of regulatory compliance in Saudi Arabia's rapidly evolving digital landscape.",
+      "p2": "We combine cutting-edge AI technology with deep expertise in KSA regulations to deliver a platform that makes compliance effortless.",
+      "p3": "Our team of AI researchers, GRC experts, and engineers are committed to empowering organizations with intelligent automation."
+    },
+    "mission": {
+      "title": "Our Mission",
+      "description": "To democratize GRC excellence by making AI-powered compliance accessible to every organization in Saudi Arabia."
+    },
+    "vision": {
+      "title": "Our Vision",
+      "description": "A future where every organization can achieve regulatory compliance effortlessly through intelligent automation."
+    },
+    "values": {
+      "title": "Our Values",
+      "subtitle": "The principles that drive our innovation and service",
+      "excellence": {
+        "title": "AI Excellence",
+        "description": "We push the boundaries of AI to deliver transformative GRC solutions"
+      },
+      "partnership": {
+        "title": "Customer Success",
+        "description": "Your compliance success is our primary measure of achievement"
+      },
+      "innovation": {
+        "title": "Continuous Innovation",
+        "description": "We constantly evolve our AI to meet emerging regulatory requirements"
+      },
+      "integrity": {
+        "title": "Trust & Security",
+        "description": "We protect your data with the highest security standards"
+      }
+    },
+    "stats": {
+      "title": "Platform Impact",
+      "years": "AI Agents",
+      "clients": "Frameworks",
+      "projects": "Controls",
+      "countries": "Languages"
+    }
+  },
+  "services": {
+    "badge": "Platform",
+    "title": "Shahin AI Platform",
+    "subtitle": "Comprehensive AI-powered GRC capabilities",
+    "grid": {
+      "title": "Platform Modules",
+      "subtitle": "Integrated solutions for every aspect of Governance, Risk, and Compliance"
+    },
+    "items": {
+      "telecommunications": {
+        "title": "Compliance Management",
+        "description": "Automate compliance monitoring across KSA regulatory frameworks with AI-powered gap analysis and continuous control assessment.",
+        "features": [
+          "NCA ECC Framework Compliance",
+          "SAMA Cybersecurity Framework",
+          "PDPL Data Protection",
+          "Automated Gap Analysis",
+          "Control Effectiveness Scoring",
+          "Remediation Tracking"
+        ]
+      },
+      "dataCenters": {
+        "title": "Risk Assessment",
+        "description": "AI-powered risk identification, scoring, and prioritization with predictive analytics and mitigation recommendations.",
+        "features": [
+          "Automated Risk Identification",
+          "AI Risk Scoring & Prioritization",
+          "Predictive Risk Analytics",
+          "Mitigation Strategy Generation",
+          "Risk Heat Maps & Dashboards",
+          "Integration with GRC Workflows"
+        ]
+      },
+      "cybersecurity": {
+        "title": "Audit Management",
+        "description": "Streamline audit processes with AI-assisted evidence collection, finding analysis, and remediation workflow automation.",
+        "features": [
+          "Automated Evidence Collection",
+          "AI Finding Analysis",
+          "Audit Trail Management",
+          "Remediation Workflows",
+          "External Audit Support",
+          "Compliance Reporting"
+        ]
+      },
+      "governance": {
+        "title": "Policy & Control Management",
+        "description": "AI-powered policy review, compliance alignment checking, and control library management with bilingual support.",
+        "features": [
+          "Policy Document Review",
+          "Framework Alignment Checking",
+          "Control Library Management",
+          "Arabic/English Support",
+          "Version Control & Approval",
+          "Policy Gap Identification"
+        ]
+      }
+    },
+    "cta": {
+      "title": "Ready to See Shahin AI in Action?",
+      "description": "Schedule a personalized demo with our GRC experts.",
+      "button": "Request Demo"
+    }
+  },
+  "serviceDetail": {
+    "cta": {
+      "consult": "Request Demo",
+      "title": "Ready to Get Started?",
+      "description": "Start your free trial and experience AI-powered GRC.",
+      "button": "Start Free Trial"
+    },
+    "sections": {
+      "features": "Key Features",
+      "benefits": "Benefits"
+    },
+    "telecommunications": {
+      "title": "Compliance Management",
+      "description": "Automate compliance monitoring for KSA regulatory frameworks with AI-powered continuous assessment.",
+      "overview": {
+        "title": "Overview",
+        "p1": "Shahin AI's Compliance Management module provides comprehensive coverage of Saudi Arabian regulatory frameworks including NCA ECC, SAMA Cybersecurity Framework, and PDPL.",
+        "p2": "Our AI agents continuously monitor your compliance status, identify gaps, and provide actionable remediation recommendations."
+      },
+      "features": [
+        "NCA ECC Framework Coverage",
+        "SAMA Cybersecurity Compliance",
+        "PDPL Data Protection",
+        "Automated Gap Analysis",
+        "Control Effectiveness Scoring",
+        "Remediation Tracking"
+      ],
+      "benefits": [
+        "Reduce compliance effort by 70%",
+        "Real-time compliance visibility",
+        "Automated evidence collection",
+        "Proactive gap identification",
+        "Audit-ready documentation",
+        "Bilingual reporting"
+      ]
+    },
+    "dataCenters": {
+      "title": "Risk Assessment",
+      "description": "AI-powered risk intelligence platform for proactive risk management.",
+      "overview": {
+        "title": "Overview",
+        "p1": "Our Risk Assessment module leverages machine learning to identify, score, and prioritize risks across your organization.",
+        "p2": "AI-generated mitigation strategies are tailored to your specific business context and regulatory requirements."
+      },
+      "features": [
+        "Automated Risk Identification",
+        "AI Risk Scoring",
+        "Predictive Analytics",
+        "Mitigation Recommendations",
+        "Risk Heat Maps",
+        "KRI Monitoring"
+      ],
+      "benefits": [
+        "Proactive risk identification",
+        "Data-driven prioritization",
+        "Reduced risk exposure",
+        "Faster response times",
+        "Executive visibility",
+        "Continuous monitoring"
+      ]
+    },
+    "cybersecurity": {
+      "title": "Audit Management",
+      "description": "Streamline audits with AI-assisted evidence collection and finding management.",
+      "overview": {
+        "title": "Overview",
+        "p1": "Shahin AI's Audit Management module automates the audit lifecycle from planning to remediation tracking.",
+        "p2": "AI agents assist with evidence collection, finding analysis, and workflow automation to reduce audit burden."
+      },
+      "features": [
+        "Audit Planning & Scheduling",
+        "Automated Evidence Collection",
+        "AI Finding Analysis",
+        "Remediation Workflows",
+        "Audit Trail Management",
+        "External Audit Support"
+      ],
+      "benefits": [
+        "70% faster audit cycles",
+        "Reduced manual effort",
+        "Comprehensive audit trails",
+        "Improved finding resolution",
+        "Better auditor relationships",
+        "Continuous readiness"
+      ]
+    },
+    "governance": {
+      "title": "Policy & Control Management",
+      "description": "AI-powered policy review and control library management with bilingual support.",
+      "overview": {
+        "title": "Overview",
+        "p1": "Manage your policy documents and control library with AI-assisted review, alignment checking, and gap identification.",
+        "p2": "Full Arabic and English language support ensures your documentation meets local requirements."
+      },
+      "features": [
+        "Policy Document Review",
+        "Framework Alignment",
+        "Control Library",
+        "Version Control",
+        "Approval Workflows",
+        "Gap Identification"
+      ],
+      "benefits": [
+        "Consistent policy quality",
+        "Framework alignment assurance",
+        "Streamlined approvals",
+        "Bilingual documentation",
+        "Reduced review time",
+        "Comprehensive coverage"
+      ]
+    }
+  },
+  "legal": {
+    "privacy": {
+      "badge": "Privacy",
+      "title": "Privacy Policy",
+      "lastUpdated": "Last Updated: January 2024",
+      "intro": "At Shahin AI, we are committed to protecting your privacy and data. This policy explains how we collect, use, and safeguard your information.",
+      "sections": [
+        {
+          "title": "Information We Collect",
+          "content": "We collect information you provide when using our platform, including contact details, organization information, and GRC-related data."
+        },
+        {
+          "title": "How We Use Your Information",
+          "content": "We use information to provide our GRC services, improve our AI models, and communicate important updates about your compliance status."
+        },
+        {
+          "title": "Data Protection",
+          "content": "Your data is encrypted at rest and in transit. We comply with PDPL and international data protection standards."
+        },
+        {
+          "title": "Your Rights",
+          "content": "You have the right to access, correct, and delete your data. Contact us at privacy@shahin-ai.com to exercise these rights."
+        },
+        {
+          "title": "Contact Us",
+          "content": "For privacy-related inquiries, contact our Data Protection Officer at: privacy@shahin-ai.com"
+        }
+      ]
+    },
+    "terms": {
+      "badge": "Terms",
+      "title": "Terms of Service",
+      "lastUpdated": "Last Updated: January 2024",
+      "intro": "By using Shahin AI platform, you agree to these terms and conditions.",
+      "sections": [
+        {
+          "title": "Services",
+          "content": "Shahin AI provides AI-powered GRC platform services. Access is subject to subscription agreements and usage policies."
+        },
+        {
+          "title": "Data Ownership",
+          "content": "You retain ownership of all data you upload to the platform. Shahin AI processes this data solely to provide our services."
+        },
+        {
+          "title": "AI-Generated Content",
+          "content": "AI-generated recommendations are advisory in nature. Users are responsible for reviewing and implementing compliance decisions."
+        },
+        {
+          "title": "Governing Law",
+          "content": "These terms are governed by the laws of the Kingdom of Saudi Arabia."
+        },
+        {
+          "title": "Modifications",
+          "content": "We may update these terms periodically. Continued use of the platform constitutes acceptance of modified terms."
+        }
+      ]
+    },
+    "cookies": {
+      "badge": "Cookies",
+      "title": "Cookie Policy",
+      "lastUpdated": "Last Updated: January 2024",
+      "intro": "We use cookies to improve your experience on our platform.",
+      "sections": [
+        {
+          "title": "What Are Cookies",
+          "content": "Cookies are small text files stored on your device to enhance functionality and user experience."
+        },
+        {
+          "title": "How We Use Them",
+          "content": "We use cookies for authentication, preferences, and platform performance analytics."
+        },
+        {
+          "title": "Types of Cookies",
+          "content": "Essential cookies for platform operation and analytical cookies for usage insights."
+        },
+        {
+          "title": "Managing Cookies",
+          "content": "You can manage cookies through your browser settings or our cookie preference center."
+        }
+      ]
+    }
+  }
+}

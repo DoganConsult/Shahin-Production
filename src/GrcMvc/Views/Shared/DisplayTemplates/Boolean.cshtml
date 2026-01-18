@@ -1,0 +1,23 @@
+@model bool?
+
+@if (Model.HasValue)
+{
+    if (Model.Value)
+    {
+        <span class="badge bg-success">
+            <i class="bi bi-check-circle me-1"></i>
+            @Localizer["Yes"]
+        </span>
+    }
+    else
+    {
+        <span class="badge bg-secondary">
+            <i class="bi bi-x-circle me-1"></i>
+            @Localizer["No"]
+        </span>
+    }
+}
+else
+{
+    <span class="badge bg-light text-muted">—</span>
+}

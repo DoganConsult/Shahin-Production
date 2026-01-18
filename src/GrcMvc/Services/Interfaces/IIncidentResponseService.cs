@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GrcMvc.Common.Results;
 
 namespace GrcMvc.Services.Interfaces;
 
@@ -32,7 +33,7 @@ public interface IIncidentResponseService
     /// <summary>
     /// Update incident
     /// </summary>
-    Task<IncidentResponseDto> UpdateIncidentAsync(Guid incidentId, UpdateIncidentRequest request);
+    Task<Result<IncidentResponseDto>> UpdateIncidentAsync(Guid incidentId, UpdateIncidentRequest request);
     
     /// <summary>
     /// Get all incidents for tenant
@@ -51,42 +52,42 @@ public interface IIncidentResponseService
     /// <summary>
     /// Start investigation
     /// </summary>
-    Task<IncidentResponseDto> StartInvestigationAsync(Guid incidentId, StartInvestigationRequest request);
+    Task<Result<IncidentResponseDto>> StartInvestigationAsync(Guid incidentId, StartInvestigationRequest request);
     
     /// <summary>
     /// Mark incident as contained
     /// </summary>
-    Task<IncidentResponseDto> MarkContainedAsync(Guid incidentId, ContainmentRequest request);
+    Task<Result<IncidentResponseDto>> MarkContainedAsync(Guid incidentId, ContainmentRequest request);
     
     /// <summary>
     /// Mark incident as eradicated
     /// </summary>
-    Task<IncidentResponseDto> MarkEradicatedAsync(Guid incidentId, EradicationRequest request);
+    Task<Result<IncidentResponseDto>> MarkEradicatedAsync(Guid incidentId, EradicationRequest request);
     
     /// <summary>
     /// Mark incident as recovered
     /// </summary>
-    Task<IncidentResponseDto> MarkRecoveredAsync(Guid incidentId, RecoveryRequest request);
+    Task<Result<IncidentResponseDto>> MarkRecoveredAsync(Guid incidentId, RecoveryRequest request);
     
     /// <summary>
     /// Close incident
     /// </summary>
-    Task<IncidentResponseDto> CloseIncidentAsync(Guid incidentId, CloseIncidentRequest request);
+    Task<Result<IncidentResponseDto>> CloseIncidentAsync(Guid incidentId, CloseIncidentRequest request);
     
     /// <summary>
     /// Reopen incident
     /// </summary>
-    Task<IncidentResponseDto> ReopenIncidentAsync(Guid incidentId, string reason, string reopenedBy);
+    Task<Result<IncidentResponseDto>> ReopenIncidentAsync(Guid incidentId, string reason, string reopenedBy);
     
     /// <summary>
     /// Mark as false positive
     /// </summary>
-    Task<IncidentResponseDto> MarkFalsePositiveAsync(Guid incidentId, string reason, string markedBy);
+    Task<Result<IncidentResponseDto>> MarkFalsePositiveAsync(Guid incidentId, string reason, string markedBy);
     
     /// <summary>
     /// Escalate incident
     /// </summary>
-    Task<IncidentResponseDto> EscalateAsync(Guid incidentId, EscalationRequest request);
+    Task<Result<IncidentResponseDto>> EscalateAsync(Guid incidentId, EscalationRequest request);
     
     #endregion
 
@@ -95,12 +96,12 @@ public interface IIncidentResponseService
     /// <summary>
     /// Assign handler to incident
     /// </summary>
-    Task<IncidentResponseDto> AssignHandlerAsync(Guid incidentId, string handlerId, string handlerName, string? team = null);
+    Task<Result<IncidentResponseDto>> AssignHandlerAsync(Guid incidentId, string handlerId, string handlerName, string? team = null);
     
     /// <summary>
     /// Reassign incident
     /// </summary>
-    Task<IncidentResponseDto> ReassignAsync(Guid incidentId, string newHandlerId, string newHandlerName, string reason);
+    Task<Result<IncidentResponseDto>> ReassignAsync(Guid incidentId, string newHandlerId, string newHandlerName, string reason);
     
     /// <summary>
     /// Get incidents by handler
@@ -119,7 +120,7 @@ public interface IIncidentResponseService
     /// <summary>
     /// Add timeline entry
     /// </summary>
-    Task<IncidentTimelineDto> AddTimelineEntryAsync(Guid incidentId, AddTimelineEntryRequest request);
+    Task<Result<IncidentTimelineDto>> AddTimelineEntryAsync(Guid incidentId, AddTimelineEntryRequest request);
     
     /// <summary>
     /// Get timeline for incident
@@ -129,7 +130,7 @@ public interface IIncidentResponseService
     /// <summary>
     /// Add internal note
     /// </summary>
-    Task<IncidentTimelineDto> AddNoteAsync(Guid incidentId, string note, string addedBy);
+    Task<Result<IncidentTimelineDto>> AddNoteAsync(Guid incidentId, string note, string addedBy);
     
     #endregion
 
@@ -138,12 +139,12 @@ public interface IIncidentResponseService
     /// <summary>
     /// Check if incident requires regulatory notification
     /// </summary>
-    Task<NotificationRequirementDto> CheckNotificationRequirementsAsync(Guid incidentId);
+    Task<Result<NotificationRequirementDto>> CheckNotificationRequirementsAsync(Guid incidentId);
     
     /// <summary>
     /// Mark notification as sent
     /// </summary>
-    Task<IncidentResponseDto> MarkNotificationSentAsync(Guid incidentId, MarkNotificationRequest request);
+    Task<Result<IncidentResponseDto>> MarkNotificationSentAsync(Guid incidentId, MarkNotificationRequest request);
     
     /// <summary>
     /// Get incidents pending notification
@@ -162,12 +163,12 @@ public interface IIncidentResponseService
     /// <summary>
     /// Link incident to risk
     /// </summary>
-    Task LinkToRiskAsync(Guid incidentId, Guid riskId);
+    Task<Result> LinkToRiskAsync(Guid incidentId, Guid riskId);
     
     /// <summary>
     /// Link incident to control failure
     /// </summary>
-    Task LinkToControlAsync(Guid incidentId, Guid controlId);
+    Task<Result> LinkToControlAsync(Guid incidentId, Guid controlId);
     
     /// <summary>
     /// Get incidents related to a risk

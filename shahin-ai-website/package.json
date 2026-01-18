@@ -6,12 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate:og": "node scripts/generate-og-images.js",
+    "generate:favicons": "node scripts/generate-favicons.js"
   },
   "dependencies": {
     "framer-motion": "^10.16.16",
     "lucide-react": "^0.562.0",
     "next": "^14.0.4",
+    "next-intl": "^3.26.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -21,6 +24,7 @@
     "@types/react-dom": "^18.2.18",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.32",
+    "sharp": "^0.33.5",
     "tailwindcss": "^3.3.6",
     "typescript": "^5.3.3"
   }

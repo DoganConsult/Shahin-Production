@@ -116,7 +116,7 @@ namespace GrcMvc.Models.Entities
         public virtual Workspace Workspace { get; set; } = null!;
 
         [Required]
-        public string UserId { get; set; } = string.Empty;
+        public Guid UserId { get; set; }
 
         [ForeignKey("UserId")]
         public virtual ApplicationUser User { get; set; } = null!;

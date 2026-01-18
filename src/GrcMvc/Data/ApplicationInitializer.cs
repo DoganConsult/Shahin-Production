@@ -93,12 +93,37 @@ public class ApplicationInitializer
             _logger.LogInformation("🤖 Seeding AI Agent Team (Dr. Dogan's Team)...");
             await AiAgentTeamSeeds.SeedAsync(_context);
 
+            // Seed OpenIddict applications (OAuth2 clients)
+            _logger.LogInformation("🔐 Seeding OpenIddict applications...");
+            await SeedOpenIddictDataAsync();
+
             _logger.LogInformation("✅ Application initialization completed successfully");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "❌ Error during application initialization");
             throw;
+        }
+    }
+
+    private async Task SeedOpenIddictDataAsync()
+    {
+        try
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var openIddictSeeder = scope.ServiceProvider.GetService<OpenIddictDataSeeder>();
+            if (openIddictSeeder != null)
+            {
+                await openIddictSeeder.SeedAsync();
+            }
+            else
+            {
+                _logger.LogWarning("OpenIddictDataSeeder not registered. Skipping OpenIddict seeding.");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to seed OpenIddict data. This may be expected if OpenIddict tables are not created yet.");
         }
     }
 

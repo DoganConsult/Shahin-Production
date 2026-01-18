@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using GrcMvc.Common.Results;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
@@ -38,12 +39,13 @@ public class SerialCodeService : ISerialCodeService
     // GENERATION
     // =========================================================================
 
-    public async Task<SerialCodeResult> GenerateAsync(SerialCodeRequest request)
+    public async Task<Result<SerialCodeResult>> GenerateAsync(SerialCodeRequest request)
     {
         // Validate tenant code
         if (!SerialCodePrefixes.IsValidTenantCode(request.TenantCode))
         {
-            throw new ArgumentException($"Invalid tenant code: {request.TenantCode}. Must be 3-6 uppercase alphanumeric characters.");
+            return Result<SerialCodeResult>.Failure(
+                Error.Validation($"Invalid tenant code: {request.TenantCode}. Must be 3-6 uppercase alphanumeric characters."));
         }
 
         var prefix = SerialCodePrefixes.GetPrefix(request.EntityType);
@@ -82,7 +84,7 @@ public class SerialCodeService : ISerialCodeService
 
         _logger.LogInformation("Generated serial code {Code} for {EntityType}", code, request.EntityType);
 
-        return new SerialCodeResult
+        return Result<SerialCodeResult>.Success(new SerialCodeResult
         {
             Code = code,
             Prefix = prefix,
@@ -94,7 +96,7 @@ public class SerialCodeService : ISerialCodeService
             CreatedAt = registry.CreatedAt,
             CreatedBy = createdBy,
             EntityId = request.EntityId
-        };
+        });
     }
 
     public async Task<List<SerialCodeResult>> GenerateBatchAsync(List<SerialCodeRequest> requests)
@@ -108,7 +110,12 @@ public class SerialCodeService : ISerialCodeService
             foreach (var request in requests)
             {
                 var result = await GenerateAsync(request);
-                results.Add(result);
+                if (result.IsFailure)
+                {
+                    await transaction.RollbackAsync();
+                    throw new InvalidOperationException($"Failed to generate serial code: {result.Error?.Message}");
+                }
+                results.Add(result.Value!);
             }
 
             await transaction.CommitAsync();
@@ -209,14 +216,16 @@ public class SerialCodeService : ISerialCodeService
         };
     }
 
-    public ParsedSerialCode Parse(string code)
+    public Result<ParsedSerialCode> Parse(string code)
     {
         var result = Validate(code);
         if (result.Parsed == null || !result.IsValid)
         {
-            throw new ArgumentException($"Invalid serial code: {code}. Errors: {string.Join(", ", result.Errors)}");
+            return Result<ParsedSerialCode>.Failure(
+                Error.Validation($"Invalid serial code: {code}", 
+                    $"Errors: {string.Join(", ", result.Errors)}"));
         }
-        return result.Parsed;
+        return Result<ParsedSerialCode>.Success(result.Parsed);
     }
 
     // =========================================================================
@@ -240,7 +249,14 @@ public class SerialCodeService : ISerialCodeService
 
     public async Task<List<SerialCodeVersion>> GetHistoryAsync(string code)
     {
-        var parsed = Parse(code);
+        var parseResult = Parse(code);
+        if (parseResult.IsFailure)
+        {
+            // If parsing fails, return empty list or throw
+            return new List<SerialCodeVersion>();
+        }
+
+        var parsed = parseResult.Value!;
 
         // Find all versions with the same base code
         var records = await _context.Set<SerialCodeRegistry>()
@@ -279,7 +295,7 @@ public class SerialCodeService : ISerialCodeService
     // VERSIONING
     // =========================================================================
 
-    public async Task<SerialCodeResult> CreateNewVersionAsync(string baseCode, string? changeReason = null)
+    public async Task<Result<SerialCodeResult>> CreateNewVersionAsync(string baseCode, string? changeReason = null)
     {
         // Get current active version
         var current = await _context.Set<SerialCodeRegistry>()
@@ -288,14 +304,17 @@ public class SerialCodeService : ISerialCodeService
 
         if (current == null)
         {
-            throw new ArgumentException($"Serial code not found or not active: {baseCode}");
+            return Result<SerialCodeResult>.Failure(
+                Error.NotFound("SerialCode", baseCode));
         }
 
         // Check max version
         var newVersion = current.Version + 1;
         if (newVersion > 99)
         {
-            throw new InvalidOperationException($"Maximum version (99) reached for: {baseCode}");
+            return Result<SerialCodeResult>.Failure(
+                Error.InvalidOperation("Maximum version (99) reached", 
+                    $"Code: {baseCode}"));
         }
 
         // Mark current as superseded
@@ -330,7 +349,7 @@ public class SerialCodeService : ISerialCodeService
 
         _logger.LogInformation("Created new version {NewCode} from {OldCode}", newCode, baseCode);
 
-        return new SerialCodeResult
+        return Result<SerialCodeResult>.Success(new SerialCodeResult
         {
             Code = newCode,
             Prefix = current.Prefix,
@@ -342,12 +361,18 @@ public class SerialCodeService : ISerialCodeService
             CreatedAt = newRegistry.CreatedAt,
             CreatedBy = newRegistry.CreatedBy,
             EntityId = current.EntityId
-        };
+        });
     }
 
     public async Task<string> GetLatestVersionAsync(string baseCode)
     {
-        var parsed = Parse(baseCode);
+        var parseResult = Parse(baseCode);
+        if (parseResult.IsFailure)
+        {
+            return baseCode; // Return original if parsing fails
+        }
+
+        var parsed = parseResult.Value!;
 
         var latest = await _context.Set<SerialCodeRegistry>()
             .AsNoTracking()
@@ -503,11 +528,13 @@ public class SerialCodeService : ISerialCodeService
         };
     }
 
-    public async Task<SerialCodeResult> ConfirmReservationAsync(string reservationId, Guid entityId)
+    public async Task<Result<SerialCodeResult>> ConfirmReservationAsync(string reservationId, Guid entityId)
     {
         if (!Guid.TryParse(reservationId, out var id))
         {
-            throw new ArgumentException("Invalid reservation ID");
+            return Result<SerialCodeResult>.Failure(
+                Error.Validation("Invalid reservation ID format", 
+                    $"Provided ID: {reservationId}"));
         }
 
         var reservation = await _context.Set<SerialCodeReservation>()
@@ -515,19 +542,24 @@ public class SerialCodeService : ISerialCodeService
 
         if (reservation == null)
         {
-            throw new ArgumentException($"Reservation not found: {reservationId}");
+            return Result<SerialCodeResult>.Failure(
+                Error.NotFound("Reservation", reservationId));
         }
 
         if (reservation.Status != "reserved")
         {
-            throw new InvalidOperationException($"Reservation is not in 'reserved' status: {reservation.Status}");
+            return Result<SerialCodeResult>.Failure(
+                Error.InvalidOperation("Reservation is not in 'reserved' status", 
+                    $"Current status: {reservation.Status}"));
         }
 
         if (reservation.ExpiresAt < DateTime.UtcNow)
         {
             reservation.Status = "expired";
             await _context.SaveChangesAsync();
-            throw new InvalidOperationException($"Reservation has expired at {reservation.ExpiresAt}");
+            return Result<SerialCodeResult>.Failure(
+                Error.InvalidOperation("Reservation has expired", 
+                    $"Expired at: {reservation.ExpiresAt:yyyy-MM-dd HH:mm:ss} UTC"));
         }
 
         // Create the registry entry
@@ -557,7 +589,7 @@ public class SerialCodeService : ISerialCodeService
 
         _logger.LogInformation("Confirmed reservation {ReservationId} as {Code}", reservationId, reservation.ReservedCode);
 
-        return new SerialCodeResult
+        return Result<SerialCodeResult>.Success(new SerialCodeResult
         {
             Code = registry.Code,
             Prefix = registry.Prefix,
@@ -569,14 +601,16 @@ public class SerialCodeService : ISerialCodeService
             CreatedAt = registry.CreatedAt,
             CreatedBy = registry.CreatedBy,
             EntityId = entityId
-        };
+        });
     }
 
-    public async Task CancelReservationAsync(string reservationId)
+    public async Task<Result> CancelReservationAsync(string reservationId)
     {
         if (!Guid.TryParse(reservationId, out var id))
         {
-            throw new ArgumentException("Invalid reservation ID");
+            return Result.Failure(
+                Error.Validation("Invalid reservation ID format", 
+                    $"Provided ID: {reservationId}"));
         }
 
         var reservation = await _context.Set<SerialCodeReservation>()
@@ -584,12 +618,15 @@ public class SerialCodeService : ISerialCodeService
 
         if (reservation == null)
         {
-            throw new ArgumentException($"Reservation not found: {reservationId}");
+            return Result.Failure(
+                Error.NotFound("Reservation", reservationId));
         }
 
         if (reservation.Status != "reserved")
         {
-            throw new InvalidOperationException($"Cannot cancel reservation in status: {reservation.Status}");
+            return Result.Failure(
+                Error.InvalidOperation("Cannot cancel reservation", 
+                    $"Current status: {reservation.Status}"));
         }
 
         reservation.Status = "cancelled";
@@ -598,6 +635,8 @@ public class SerialCodeService : ISerialCodeService
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Cancelled reservation {ReservationId}", reservationId);
+        
+        return Result.Success();
     }
 
     // =========================================================================
@@ -616,19 +655,22 @@ public class SerialCodeService : ISerialCodeService
         return (counter?.CurrentSequence ?? 0) + 1;
     }
 
-    public async Task VoidAsync(string code, string reason)
+    public async Task<Result> VoidAsync(string code, string reason)
     {
         var registry = await _context.Set<SerialCodeRegistry>()
             .FirstOrDefaultAsync(r => r.Code == code);
 
         if (registry == null)
         {
-            throw new ArgumentException($"Serial code not found: {code}");
+            return Result.Failure(
+                Error.NotFound("SerialCode", code));
         }
 
         if (registry.Status == "void")
         {
-            throw new InvalidOperationException($"Serial code is already void: {code}");
+            return Result.Failure(
+                Error.InvalidOperation("Serial code is already void", 
+                    $"Code: {code}"));
         }
 
         registry.Status = "void";
@@ -638,14 +680,17 @@ public class SerialCodeService : ISerialCodeService
         await _context.SaveChangesAsync();
 
         _logger.LogWarning("Voided serial code {Code} for reason: {Reason}", code, reason);
+        
+        return Result.Success();
     }
 
-    public async Task<SerialCodeTraceabilityReport> GetTraceabilityReportAsync(string code)
+    public async Task<Result<SerialCodeTraceabilityReport>> GetTraceabilityReportAsync(string code)
     {
         var record = await GetByCodeAsync(code);
         if (record == null)
         {
-            throw new ArgumentException($"Serial code not found: {code}");
+            return Result<SerialCodeTraceabilityReport>.Failure(
+                Error.NotFound("SerialCode", code));
         }
 
         var history = await GetHistoryAsync(code);
@@ -663,7 +708,7 @@ public class SerialCodeService : ISerialCodeService
             EntityType = r.EntityType
         }).ToList();
 
-        return new SerialCodeTraceabilityReport
+        return Result<SerialCodeTraceabilityReport>.Success(new SerialCodeTraceabilityReport
         {
             CurrentCode = code,
             EntityType = record.EntityType,
@@ -671,7 +716,7 @@ public class SerialCodeService : ISerialCodeService
             VersionHistory = history,
             RelatedCodes = relatedCodes,
             AuditTrail = new List<SerialCodeAuditEntry>() // Would be populated from audit log
-        };
+        });
     }
 
     // =========================================================================

@@ -16,8 +16,9 @@ namespace GrcMvc.Models.Entities
 
         /// <summary>
         /// User ID (null for failed authentication events where user doesn't exist)
+        /// Kept as string for compatibility - will migrate to Guid in future deployment
         /// </summary>
-        [MaxLength(450)] // ASP.NET Identity UserId length
+        [MaxLength(450)]
         public string? UserId { get; set; }
 
         /// <summary>

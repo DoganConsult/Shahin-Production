@@ -1,0 +1,20 @@
+At line:1 char:86
++ ... =\  SharedResource.en.resx | ForEach-Object { ($_ -split  \')[1] } |  ...
++                                                                 ~
+Unexpected token ')' in expression or statement.
+At line:1 char:88
++ ... \  SharedResource.en.resx | ForEach-Object { ($_ -split  \')[1] } | S ...
++                                                                  ~
+Missing type name after '['.
+At line:1 char:91
++ ... haredResource.en.resx | ForEach-Object { ($_ -split  \')[1] } | Sort- ...
++                                                                 ~
+Unexpected token '}' in expression or statement.
+At line:1 char:93
++ ... redResource.en.resx | ForEach-Object { ($_ -split  \')[1] } | Sort-Ob ...
++                                                                 ~
+An empty pipe element is not allowed.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordEx 
+   ception
+    + FullyQualifiedErrorId : UnexpectedToken
+ 

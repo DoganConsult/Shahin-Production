@@ -1,88 +1,126 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
 using GrcMvc.Services.Interfaces;
-using GrcMvc.Data;
-using System;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
-namespace GrcMvc.Authorization;
-
-/// <summary>
-/// Authorization attribute that ensures tenant context is properly set before action execution.
-/// Validates that user has access to the tenant and tenant context is available.
-/// CRITICAL: Also verifies user actually belongs to the requested tenant (prevents tenant hopping).
-/// Uses async database operations to prevent thread pool exhaustion under load.
-/// </summary>
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-public class RequireTenantAttribute : Attribute, IAsyncAuthorizationFilter
+namespace GrcMvc.Authorization
 {
-    public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
+    /// <summary>
+    /// Validates tenant context from claims against database
+    /// Prevents tenant hopping via claim manipulation
+    /// CRITICAL FIX: Issue #12 - Tenant context validation
+    /// </summary>
+    public class RequireTenantAttribute : TypeFilterAttribute
     {
-        var tenantContextService = context.HttpContext.RequestServices.GetService<ITenantContextService>();
-
-        if (tenantContextService == null)
+        public RequireTenantAttribute() : base(typeof(RequireTenantFilter))
         {
-            context.Result = new UnauthorizedObjectResult("Tenant context service not available");
-            return;
+        }
+    }
+
+    public class RequireTenantFilter : IAsyncActionFilter
+    {
+        private readonly ITenantService _tenantService;
+        private readonly ILogger<RequireTenantFilter> _logger;
+
+        public RequireTenantFilter(
+            ITenantService tenantService,
+            ILogger<RequireTenantFilter> logger)
+        {
+            _tenantService = tenantService;
+            _logger = logger;
         }
 
-        if (!tenantContextService.IsAuthenticated())
+        public async Task OnActionExecutionAsync(
+            ActionExecutingContext context,
+            ActionExecutionDelegate next)
         {
-            context.Result = new UnauthorizedObjectResult("User is not authenticated");
-            return;
-        }
-
-        var tenantId = tenantContextService.GetCurrentTenantId();
-        if (tenantId == Guid.Empty)
-        {
-            context.Result = new BadRequestObjectResult("Tenant context is required but not set");
-            return;
-        }
-
-        // CRITICAL FIX: Verify user actually belongs to this tenant
-        // This prevents authorization bypass where any authenticated user could access any tenant
-        var userId = context.HttpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
-        {
-            context.Result = new UnauthorizedObjectResult("User identity not found");
-            return;
-        }
-
-        // Check if user has TenantId claim matching the resolved tenant
-        var tenantIdClaim = context.HttpContext.User?.FindFirstValue("TenantId");
-        if (!string.IsNullOrEmpty(tenantIdClaim) && Guid.TryParse(tenantIdClaim, out var claimTenantId))
-        {
-            if (claimTenantId == tenantId)
+            var user = context.HttpContext.User;
+            
+            // Require authenticated user
+            if (!user.Identity?.IsAuthenticated ?? true)
             {
-                // Claim matches - fast path, allow access
+                _logger.LogWarning("Unauthenticated access attempt blocked by RequireTenant");
+                context.Result = new UnauthorizedResult();
                 return;
             }
+
+            // Get tenant ID from claims
+            var tenantIdClaim = user.FindFirst("TenantId")?.Value 
+                             ?? user.FindFirst("tenant_id")?.Value;
+            
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userEmail = user.FindFirst(ClaimTypes.Email)?.Value;
+            
+            if (string.IsNullOrEmpty(tenantIdClaim) || !Guid.TryParse(tenantIdClaim, out var tenantId))
+            {
+                _logger.LogWarning(
+                    "SECURITY: Tenant ID not found in claims for user {UserId} ({Email})",
+                    userId, userEmail);
+                
+                context.Result = new ForbidResult();
+                return;
+            }
+
+            try
+            {
+                // Validate tenant exists and is active
+                var tenant = await _tenantService.GetByIdAsync(tenantId);
+                if (tenant == null || !tenant.IsActive)
+                {
+                    _logger.LogWarning(
+                        "SECURITY: Tenant validation failed. " +
+                        "TenantId: {TenantId}, User: {UserId} ({Email}), " +
+                        "TenantExists: {Exists}, TenantActive: {Active}",
+                        tenantId, userId, userEmail,
+                        tenant != null,
+                        tenant?.IsActive ?? false);
+                    
+                    context.Result = new ForbidResult();
+                    return;
+                }
+
+                // Validate user belongs to this tenant (database check)
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    var userBelongsToTenant = await _tenantService
+                        .UserBelongsToTenantAsync(userId, tenantId);
+                    
+                    if (!userBelongsToTenant)
+                    {
+                        var remoteIp = context.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                        
+                        _logger.LogError(
+                            "SECURITY ALERT: Tenant hopping attempt detected! " +
+                            "User {UserId} ({Email}) attempted to access Tenant {TenantId} " +
+                            "without membership. IP: {IP}, Path: {Path}",
+                            userId, userEmail, tenantId, remoteIp,
+                            context.HttpContext.Request.Path);
+                        
+                        context.Result = new ForbidResult();
+                        return;
+                    }
+                }
+
+                // Store validated tenant in HttpContext for controllers
+                context.HttpContext.Items["ValidatedTenantId"] = tenantId;
+                context.HttpContext.Items["ValidatedTenant"] = tenant;
+                
+                _logger.LogDebug(
+                    "Tenant validation passed: TenantId={TenantId}, UserId={UserId}",
+                    tenantId, userId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "SECURITY: Error validating tenant {TenantId} for user {UserId}",
+                    tenantId, userId);
+                
+                // Fail closed on errors
+                context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return;
+            }
+
+            await next();
         }
-
-        // Fallback: Verify via database that user belongs to this tenant
-        var dbContext = context.HttpContext.RequestServices.GetService<GrcDbContext>();
-        if (dbContext == null)
-        {
-            context.Result = new StatusCodeResult(500);
-            return;
-        }
-
-        var userBelongsToTenant = await dbContext.TenantUsers
-            .AsNoTracking()
-            .AnyAsync(tu => tu.UserId == userId && tu.TenantId == tenantId && tu.Status == "Active" && !tu.IsDeleted);
-
-        if (!userBelongsToTenant)
-        {
-            // User does not belong to this tenant - deny access
-            context.Result = new ForbidResult();
-            return;
-        }
-
-        // User verified to belong to tenant, allow action to proceed
     }
 }

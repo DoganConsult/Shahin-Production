@@ -41,6 +41,13 @@
     <link rel="stylesheet" href="~/css/landing.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/tailwind.output.css" asp-append-version="true" />
 
+    <!-- Shahin Design System -->
+    <link rel="stylesheet" href="~/css/shahin-design-system.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/shahin-rtl.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/shahin-custom.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/shahin-enterprise-elite.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/shahin-modern-light.css" asp-append-version="true" />
+
     <!-- Open Graph / Social Meta Tags -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="@canonicalUrl" />
@@ -155,6 +162,16 @@
                 </div>
 
                 <div class="nav-actions">
+                    <!-- Language Switcher -->
+                    <div class="lang-switcher" style="display: inline-flex; align-items: center; gap: 4px; background: var(--bg-secondary); border-radius: 25px; padding: 4px; margin-left: 8px;">
+                        <a href="?lang=ar" class="lang-btn active" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: white; font-size: 0.75rem; font-weight: 600; text-decoration: none; transition: all 0.2s ease;" title="العربية">
+                            ع
+                        </a>
+                        <a href="?lang=en" class="lang-btn" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: transparent; color: var(--text-secondary); font-size: 0.75rem; font-weight: 600; text-decoration: none; transition: all 0.2s ease;" title="English">
+                            EN
+                        </a>
+                    </div>
+
                     <!-- Theme Toggle -->
                     <button class="theme-toggle" onclick="toggleTheme()" aria-label="تبديل المظهر" title="تبديل المظهر">
                         <i class="bi bi-sun-fill theme-icon-light" aria-hidden="true"></i>
@@ -302,7 +319,7 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
-    <script>
+    <script nonce="@ViewData["CSPNonce"]">
         // ===== THEME TOGGLE =====
         function toggleTheme() {
             const html = document.documentElement;
@@ -354,7 +371,7 @@
             }
         });
 
-        // ===== FADE-IN ANIMATION ON SCROLL =====
+        // ===== SCROLL REVEAL & FADE-IN ANIMATION =====
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
@@ -363,13 +380,56 @@
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
+                    // Add appropriate class based on element type
+                    if (entry.target.classList.contains('scroll-reveal')) {
+                        entry.target.classList.add('revealed');
+                    } else {
+                        entry.target.classList.add('visible');
+                    }
                 }
             });
         }, observerOptions);
 
+        // Observe fade-in and fade-up elements
         document.querySelectorAll('.fade-in, .fade-up').forEach(el => {
             observer.observe(el);
+        });
+
+        // Observe scroll-reveal elements (hero, stats, features, etc.)
+        document.querySelectorAll('.scroll-reveal').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Counter animation for stats
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const counter = entry.target;
+                    const target = parseInt(counter.getAttribute('data-target')) || 0;
+                    const suffix = counter.getAttribute('data-suffix') || '';
+                    const duration = 2000;
+                    const startTime = performance.now();
+                    
+                    function updateCounter(currentTime) {
+                        const elapsed = currentTime - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const easeOut = 1 - Math.pow(1 - progress, 3);
+                        const current = Math.floor(target * easeOut);
+                        counter.textContent = current.toLocaleString('ar-SA') + suffix;
+                        
+                        if (progress < 1) {
+                            requestAnimationFrame(updateCounter);
+                        }
+                    }
+                    
+                    requestAnimationFrame(updateCounter);
+                    counterObserver.unobserve(counter);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.counter-animated').forEach(el => {
+            counterObserver.observe(el);
         });
     </script>
 
@@ -412,7 +472,7 @@
         </div>
     </div>
 
-    <script>
+    <script nonce="@ViewData["CSPNonce"]">
         // ===== AI CHAT WIDGET =====
         (function() {
             const chatWidget = document.getElementById('ai-chat-widget');

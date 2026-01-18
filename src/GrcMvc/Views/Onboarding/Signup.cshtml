@@ -1,7 +1,7 @@
 @model CreateTenantDto
 
 @{
-    ViewData["Title"] = "GRC System - Organization Signup";
+    ViewData["Title"] = Localizer["Signup_Title"];
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -11,7 +11,7 @@
             <!-- Progress Indicator -->
             <div class="card mb-4 border-0 bg-light">
                 <div class="card-body">
-                    <h5 class="card-title mb-3">Onboarding Progress</h5>
+                    <h5 class="card-title mb-3">@Localizer["Onboarding_Progress"]</h5>
                     <div class="progress" style="height: 25px;">
                         <div class="progress-bar bg-success" role="progressbar" style="width: 25%;" aria-valuenow="25"
                             aria-valuemin="0" aria-valuemax="100">
@@ -28,7 +28,7 @@
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <h4 class="mb-0">
-                        <i class="fas fa-building"></i> Register Your Organization
+                        <i class="fas fa-building"></i> @Localizer["Signup_RegisterOrg"]
                     </h4>
                 </div>
 
@@ -39,7 +39,7 @@
                         <!-- Organization Name -->
                         <div class="mb-3">
                             <label asp-for="OrganizationName" class="form-label">
-                                <span class="text-danger">*</span> Organization Name
+                                <span class="text-danger">*</span> @Localizer["Signup_OrgName"]
                             </label>
                             <input asp-for="OrganizationName" class="form-control form-control-lg"
                                 placeholder="Enter your organization name">
@@ -51,7 +51,7 @@
                         <!-- Admin Email -->
                         <div class="mb-3">
                             <label asp-for="AdminEmail" class="form-label">
-                                <span class="text-danger">*</span> Administrator Email
+                                <span class="text-danger">*</span> @Localizer["Signup_AdminEmail"]
                             </label>
                             <input asp-for="AdminEmail" type="email" class="form-control form-control-lg"
                                 placeholder="admin@example.com">
@@ -63,7 +63,7 @@
                         <!-- Subscription Tier -->
                         <div class="mb-3">
                             <label asp-for="SubscriptionTier" class="form-label">
-                                <span class="text-danger">*</span> Subscription Tier
+                                <span class="text-danger">*</span> @Localizer["Signup_SubscriptionTier"]
                             </label>
                             <select asp-for="SubscriptionTier" class="form-select form-select-lg">
                                 <option value="">-- Select Subscription Tier --</option>
@@ -79,7 +79,7 @@
                         <!-- Country -->
                         <div class="mb-3">
                             <label asp-for="Country" class="form-label">
-                                <span class="text-danger">*</span> Primary Country of Operation
+                                <span class="text-danger">*</span> @Localizer["Signup_PrimaryCountry"]
                             </label>
                             <select asp-for="Country" class="form-select form-select-lg">
                                 <option value="">-- Select Country --</option>
@@ -147,10 +147,9 @@
                     <div class="card border-0 bg-light">
                         <div class="card-body">
                             <h5 class="card-title">
-                                <i class="fas fa-lock text-success"></i> Secure Registration
+                                <i class="fas fa-lock text-success"></i> @Localizer["Signup_SecureRegistration"]
                             </h5>
-                            <p class="card-text small">Your organization data is encrypted and secured with
-                                enterprise-grade security standards.</p>
+                            <p class="card-text small">@Localizer["Signup_SecureDescription"]</p>
                         </div>
                     </div>
                 </div>
@@ -158,10 +157,9 @@
                     <div class="card border-0 bg-light">
                         <div class="card-body">
                             <h5 class="card-title">
-                                <i class="fas fa-clock text-info"></i> Quick Setup
+                                <i class="fas fa-clock text-info"></i> @Localizer["Signup_QuickSetup"]
                             </h5>
-                            <p class="card-text small">Complete the onboarding process in 10-15 minutes and start
-                                managing compliance immediately.</p>
+                            <p class="card-text small">@Localizer["Signup_QuickSetupDescription"]</p>
                         </div>
                     </div>
                 </div>

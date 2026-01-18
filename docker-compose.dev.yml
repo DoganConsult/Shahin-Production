@@ -1,0 +1,131 @@
+# Shahin GRC Platform - Local Development Environment
+# Usage:
+#   Infrastructure only (recommended): docker compose -f docker-compose.dev.yml up -d
+#   Full stack: docker compose -f docker-compose.dev.yml --profile full up -d
+
+services:
+  # ============================================
+  # PostgreSQL 15 Database
+  # ============================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: shahin-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-shahin_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ShahinDev2026}
+      POSTGRES_DB: ${POSTGRES_DB:-GrcMvcDb}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - shahin_postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-shahin_admin} -d ${POSTGRES_DB:-GrcMvcDb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - shahin-network
+
+  # ============================================
+  # Redis 7 Cache
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: shahin-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - shahin_redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shahin-network
+
+  # ============================================
+  # GrcMvc Backend (Optional - full profile)
+  # Run with: docker compose --profile full up -d
+  # ============================================
+  grcmvc:
+    build:
+      context: ./src/GrcMvc
+      dockerfile: Dockerfile.dev
+    container_name: shahin-grcmvc
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=GrcMvcDb;Username=${POSTGRES_USER:-shahin_admin};Password=${POSTGRES_PASSWORD:-ShahinDev2026}
+      - ConnectionStrings__GrcAuthDb=Host=postgres;Port=5432;Database=GrcMvcDb;Username=${POSTGRES_USER:-shahin_admin};Password=${POSTGRES_PASSWORD:-ShahinDev2026}
+      - ConnectionStrings__HangfireConnection=Host=postgres;Port=5432;Database=GrcMvcDb;Username=${POSTGRES_USER:-shahin_admin};Password=${POSTGRES_PASSWORD:-ShahinDev2026}
+      - ConnectionStrings__Redis=redis:6379
+      - Redis__Enabled=true
+      - Redis__ConnectionString=redis:6379
+      - Hangfire__Enabled=true
+      - JwtSettings__Secret=${JWT_SECRET:-your-super-secret-jwt-key-minimum-32-characters-long-2026}
+    ports:
+      - "${GRCMVC_PORT:-5000}:5000"
+    volumes:
+      - ./src/GrcMvc:/app
+      - /app/bin
+      - /app/obj
+    networks:
+      - shahin-network
+    profiles:
+      - full
+
+  # ============================================
+  # Next.js Frontend (Optional - full profile)
+  # ============================================
+  grc-frontend:
+    build:
+      context: ./grc-frontend
+      dockerfile: Dockerfile.dev
+    container_name: shahin-frontend
+    restart: unless-stopped
+    depends_on:
+      - grcmvc
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-shahin_admin}:${POSTGRES_PASSWORD:-ShahinDev2026}@postgres:5432/GrcMvcDb
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    volumes:
+      - ./grc-frontend:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - shahin-network
+    profiles:
+      - full
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  shahin-network:
+    driver: bridge
+    name: shahin-dev-network
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  shahin_postgres_data:
+    name: shahin-postgres-data
+  shahin_redis_data:
+    name: shahin-redis-data

@@ -74,7 +74,14 @@ namespace GrcMvc.Services.Implementations
         {
             // PostgreSQL database names must be lowercase and can contain underscores
             // Remove hyphens from GUID for valid database name
-            var sanitizedId = tenantId.ToString("N"); // Remove hyphens
+            var sanitizedId = tenantId.ToString("N"); // Remove hyphens (32 hex chars only)
+            
+            // Additional validation: Ensure only alphanumeric characters (defense in depth)
+            if (!System.Text.RegularExpressions.Regex.IsMatch(sanitizedId, "^[a-f0-9]{32}$"))
+            {
+                throw new GrcException($"Invalid tenant ID format: {tenantId}", GrcErrorCodes.GeneralError);
+            }
+            
             return $"grcmvc_tenant_{sanitizedId}";
         }
 
@@ -105,7 +112,14 @@ namespace GrcMvc.Services.Implementations
                 await connection.OpenAsync(cancellationToken);
 
                 // Create database (PostgreSQL doesn't support parameters in CREATE DATABASE)
-                // We sanitize tenantId to prevent SQL injection
+                // Database name is validated in GetDatabaseName() to prevent SQL injection
+                // Additional validation: Ensure database name matches expected pattern
+                if (!System.Text.RegularExpressions.Regex.IsMatch(databaseName, "^grcmvc_tenant_[a-f0-9]{32}$"))
+                {
+                    throw new GrcException($"Invalid database name format: {databaseName}", GrcErrorCodes.GeneralError);
+                }
+                
+                // Use quoted identifier to prevent SQL injection (defense in depth)
                 var createDbCommand = $"CREATE DATABASE \"{databaseName}\" WITH ENCODING 'UTF8' LC_COLLATE='en_US.UTF-8' LC_CTYPE='en_US.UTF-8'";
                 
                 await using var command = new NpgsqlCommand(createDbCommand, connection);

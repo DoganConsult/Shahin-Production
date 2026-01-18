@@ -70,9 +70,6 @@ public static class UserSeeds
 
             adminUser = new ApplicationUser
             {
-                UserName = adminEmail,
-                Email = adminEmail,
-                EmailConfirmed = true,
                 FirstName = "System",
                 LastName = "Administrator",
                 Department = "IT",
@@ -83,6 +80,15 @@ public static class UserSeeds
             };
 
             var createResult = await userManager.CreateAsync(adminUser, adminPassword);
+
+            if (createResult.Succeeded)
+            {
+                // Set UserName, Email, and confirm email using UserManager methods
+                await userManager.SetUserNameAsync(adminUser, adminEmail);
+                await userManager.SetEmailAsync(adminUser, adminEmail);
+                var token = await userManager.GenerateEmailConfirmationTokenAsync(adminUser);
+                await userManager.ConfirmEmailAsync(adminUser, token);
+            }
 
             if (!createResult.Succeeded)
             {
@@ -126,7 +132,7 @@ public static class UserSeeds
         // LOW PRIORITY FIX: Use RoleConstants instead of magic string
         var adminRoleCode = await GetOrCreateRoleCodeAsync(context, RoleConstants.TenantAdmin, "Administrator", logger);
         var adminTitleCode = await GetOrCreateTitleCodeAsync(context, "SYSTEM_ADMINISTRATOR", "System Administrator", logger);
-        await LinkUserToTenantAsync(context, adminUser.Id, tenantId, adminRoleCode, adminTitleCode, logger);
+        await LinkUserToTenantAsync(context, adminUser.Id.ToString(), tenantId, adminRoleCode, adminTitleCode, logger);
     }
 
     private static async Task SeedManagerUserAsync(
@@ -148,9 +154,6 @@ public static class UserSeeds
 
             managerUser = new ApplicationUser
             {
-                UserName = managerEmail,
-                Email = managerEmail,
-                EmailConfirmed = true,
                 FirstName = "Compliance",
                 LastName = "Manager",
                 Department = "Compliance",
@@ -160,6 +163,15 @@ public static class UserSeeds
             };
 
             var createResult = await userManager.CreateAsync(managerUser, managerPassword);
+
+            if (createResult.Succeeded)
+            {
+                // Set UserName, Email, and confirm email using UserManager methods
+                await userManager.SetUserNameAsync(managerUser, managerEmail);
+                await userManager.SetEmailAsync(managerUser, managerEmail);
+                var token = await userManager.GenerateEmailConfirmationTokenAsync(managerUser);
+                await userManager.ConfirmEmailAsync(managerUser, token);
+            }
 
             if (!createResult.Succeeded)
             {
@@ -193,7 +205,7 @@ public static class UserSeeds
         // Link manager to tenant - use generic role if specific role doesn't exist
         var managerRoleCode = await GetOrCreateRoleCodeAsync(context, "COMPLIANCE_MANAGER", "Compliance Manager", logger);
         var managerTitleCode = await GetOrCreateTitleCodeAsync(context, "COMPLIANCE_MANAGER_TITLE", "Compliance Manager", logger);
-        await LinkUserToTenantAsync(context, managerUser.Id, tenantId, managerRoleCode, managerTitleCode, logger);
+        await LinkUserToTenantAsync(context, managerUser.Id.ToString(), tenantId, managerRoleCode, managerTitleCode, logger);
     }
 
     private static async Task<string> GetOrCreateRoleCodeAsync(
@@ -296,7 +308,7 @@ public static class UserSeeds
         ILogger logger)
     {
         // Verify user exists in database before linking (handles context synchronization)
-        var userExists = await context.Set<ApplicationUser>().AnyAsync(u => u.Id == userId);
+        var userExists = await context.Set<ApplicationUser>().AnyAsync(u => u.Id.ToString() == userId);
         if (!userExists)
         {
             logger.LogWarning($"User {userId} not found in database. Skipping tenant link.");

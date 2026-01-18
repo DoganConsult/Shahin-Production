@@ -10,9 +10,16 @@ using Microsoft.Extensions.Configuration;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using GrcMvc.Data;
 
-// Get connection string from environment or config
-var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") 
-    ?? "Host=localhost;Database=GrcAuthDb;Username=postgres;Password=postgres;Port=5432";
+// Get connection string from environment variable (REQUIRED)
+var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+
+if (string.IsNullOrEmpty(connectionString))
+{
+    Console.Error.WriteLine("ERROR: CONNECTION_STRING environment variable is required.");
+    Console.Error.WriteLine("Please set the CONNECTION_STRING environment variable before running this script.");
+    Console.Error.WriteLine("Example: export CONNECTION_STRING=\"Host=localhost;Database=GrcAuthDb;Username=postgres;Password=YourSecurePassword;Port=5432\"");
+    Environment.Exit(1);
+}
 
 var args = Environment.GetCommandLineArgs();
 if (args.Length < 5)

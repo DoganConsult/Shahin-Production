@@ -72,9 +72,12 @@ namespace GrcMvc.Services.Implementations
             }
         }
 
-        public async Task<VendorDto> CreateAsync(CreateVendorDto dto)
+        public async Task<Result<VendorDto>> CreateAsync(CreateVendorDto dto)
         {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
+            if (dto == null)
+            {
+                return Result<VendorDto>.Failure(Error.Validation("Vendor data is required"));
+            }
 
             try
             {
@@ -98,23 +101,26 @@ namespace GrcMvc.Services.Implementations
                 await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogInformation("Vendor created with ID {Id}", vendor.Id);
-                return _mapper.Map<VendorDto>(vendor);
+                return Result<VendorDto>.Success(_mapper.Map<VendorDto>(vendor));
             }
             catch (PolicyViolationException pve)
             {
                 _logger.LogWarning(pve, "Policy violation creating vendor");
-                throw;
+                return Result<VendorDto>.Failure(Error.Forbidden(pve.Message));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating vendor");
-                throw;
+                return Result<VendorDto>.Failure(Error.Internal("Failed to create vendor", ex.Message));
             }
         }
 
-        public async Task<VendorDto> UpdateAsync(Guid id, UpdateVendorDto dto)
+        public async Task<Result<VendorDto>> UpdateAsync(Guid id, UpdateVendorDto dto)
         {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
+            if (dto == null)
+            {
+                return Result<VendorDto>.Failure(Error.Validation("Vendor update data is required"));
+            }
 
             try
             {
@@ -122,7 +128,7 @@ namespace GrcMvc.Services.Implementations
                 if (vendor == null)
                 {
                     _logger.LogWarning("Vendor with ID {Id} not found for update", id);
-                    return null!; // Caller should check for null
+                    return Result<VendorDto>.Failure(Error.NotFound("Vendor", id));
                 }
 
                 _mapper.Map(dto, vendor);
@@ -140,21 +146,21 @@ namespace GrcMvc.Services.Implementations
                 await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogInformation("Vendor updated with ID {Id}", id);
-                return _mapper.Map<VendorDto>(vendor);
+                return Result<VendorDto>.Success(_mapper.Map<VendorDto>(vendor));
             }
             catch (PolicyViolationException pve)
             {
                 _logger.LogWarning(pve, "Policy violation updating vendor");
-                throw;
+                return Result<VendorDto>.Failure(Error.Forbidden(pve.Message));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating vendor with ID {Id}", id);
-                throw;
+                return Result<VendorDto>.Failure(Error.Internal("Failed to update vendor", ex.Message));
             }
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task<Result> DeleteAsync(Guid id)
         {
             try
             {
@@ -162,7 +168,7 @@ namespace GrcMvc.Services.Implementations
                 if (vendor == null)
                 {
                     _logger.LogWarning("Vendor with ID {Id} not found for deletion", id);
-                    return; // Idempotent delete - already gone
+                    return Result.Failure(Error.NotFound("Vendor", id));
                 }
 
                 vendor.IsDeleted = true;
@@ -174,11 +180,12 @@ namespace GrcMvc.Services.Implementations
                 await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogInformation("Vendor deleted with ID {Id}", id);
+                return Result.Success();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting vendor with ID {Id}", id);
-                throw;
+                return Result.Failure(Error.Internal("Failed to delete vendor", ex.Message));
             }
         }
 
@@ -197,7 +204,7 @@ namespace GrcMvc.Services.Implementations
             }
         }
 
-        public async Task AssessAsync(Guid id)
+        public async Task<Result> AssessAsync(Guid id)
         {
             try
             {
@@ -205,7 +212,7 @@ namespace GrcMvc.Services.Implementations
                 if (vendor == null)
                 {
                     _logger.LogWarning("Vendor with ID {Id} not found for assessment", id);
-                    return; // Cannot assess non-existent vendor
+                    return Result.Failure(Error.NotFound("Vendor", id));
                 }
 
                 vendor.LastAssessmentDate = DateTime.UtcNow;
@@ -217,11 +224,12 @@ namespace GrcMvc.Services.Implementations
                 await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogInformation("Vendor assessment started for ID {Id}", id);
+                return Result.Success();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error assessing vendor with ID {Id}", id);
-                throw;
+                return Result.Failure(Error.Internal("Failed to start vendor assessment", ex.Message));
             }
         }
 

@@ -1,4 +1,5 @@
 @model WizardSummaryDto
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
 @{
     var tenantId = Model.TenantId;
@@ -19,13 +20,13 @@
     <div class="p-4">
         <h5 class="mb-3">
             <i class="fas fa-rocket text-primary me-2"></i>
-            Onboarding Wizard
+            @Localizer["Wizard_Sidebar_Title"]
         </h5>
 
         <!-- Enhanced Progress Section -->
         <div class="mb-4 progress-section">
             <div class="d-flex justify-content-between mb-1">
-                <small class="text-muted">Progress</small>
+                <small class="text-muted">@Localizer["Wizard_Progress"]</small>
                 <small class="text-primary fw-bold">@Model.ProgressPercent%</small>
             </div>
             <div class="progress" style="height: 10px; border-radius: 10px;">
@@ -48,7 +49,7 @@
 
             <!-- Steps Counter -->
             <div class="steps-counter mt-2 text-center">
-                <span class="badge bg-primary">@completedSteps of @totalSteps steps completed</span>
+                <span class="badge bg-primary">@Localizer["Wizard_StepsCompleted", completedSteps, totalSteps]</span>
             </div>
         </div>
 
@@ -61,7 +62,7 @@
                 </div>
                 <div class="time-estimate-content">
                     <div class="time-value">~@estimatedMinutesRemaining min</div>
-                    <div class="time-label">estimated remaining</div>
+                    <div class="time-label">@Localizer["Wizard_EstimatedRemaining"]</div>
                 </div>
             </div>
         }
@@ -72,8 +73,8 @@
                     <i class="fas fa-trophy"></i>
                 </div>
                 <div class="completion-content">
-                    <div class="completion-title">Almost Done!</div>
-                    <div class="completion-label">Review and finalize</div>
+                    <div class="completion-title">@Localizer["Wizard_AlmostDone"]</div>
+                    <div class="completion-label">@Localizer["Wizard_ReviewFinalize"]</div>
                 </div>
             </div>
         }
@@ -129,12 +130,12 @@
             <form asp-action="SaveAndExit" asp-route-tenantId="@tenantId" method="post">
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn btn-outline-secondary btn-sm w-100 mb-2 action-btn">
-                    <i class="fas fa-save me-1"></i> Save & Exit
+                    <i class="fas fa-save me-1"></i> @Localizer["Wizard_SaveExit"]
                 </button>
             </form>
             <a href="@Url.Action("Summary", "OnboardingWizard", new { tenantId })"
                class="btn btn-outline-info btn-sm w-100 action-btn">
-                <i class="fas fa-list-alt me-1"></i> View Summary
+                <i class="fas fa-list-alt me-1"></i> @Localizer["Wizard_ViewSummary"]
             </a>
         </div>
 
@@ -265,14 +266,16 @@
 
     /* Wizard Steps */
     .wizard-step {
-        transition: all 0.2s ease;
+        transition: background-color var(--wz-base, 180ms) var(--wz-ease, cubic-bezier(.2,.8,.2,1)),
+                    transform var(--wz-base, 180ms) var(--wz-ease, cubic-bezier(.2,.8,.2,1)),
+                    border-color var(--wz-base, 180ms) var(--wz-ease, cubic-bezier(.2,.8,.2,1));
         border-left: 3px solid transparent;
     }
 
     .wizard-step:hover:not(.disabled) {
         background-color: rgba(59, 130, 246, 0.08);
         border-left-color: #3B82F6;
-        transform: translateX(4px);
+        transform: translateX(3px);
     }
 
     .wizard-step.current {
@@ -340,5 +343,22 @@
 
     .motivation-quote .fa-quote-left {
         opacity: 0.5;
+    }
+
+    /* Reduce Motion - Accessibility */
+    @@media (prefers-reduced-motion: reduce) {
+        .progress-bar-animated {
+            animation: none !important;
+        }
+        .pulse-badge {
+            animation: none !important;
+        }
+        .milestone.current {
+            animation: none !important;
+            transform: none !important;
+        }
+        .wizard-step {
+            transition-duration: 1ms !important;
+        }
     }
 </style>
