@@ -1,6 +1,7 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "dotnet publish -c Release -o /app/publish"
+buildCommand = "cd Shahin-Jan-2026/src/GrcMvc && dotnet publish -c Release -o /app/publish"
+watchPatterns = ["Shahin-Jan-2026/src/GrcMvc/**"]
 
 [deploy]
 startCommand = "dotnet /app/publish/GrcMvc.dll"
