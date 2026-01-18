@@ -1,10 +1,19 @@
 using Microsoft.AspNetCore.Identity;
+using Volo.Abp.Identity;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GrcMvc.Models.Entities
 {
-    public class ApplicationUser : IdentityUser
+    /// <summary>
+    /// Application user extending ABP Identity.
+    /// All custom GRC-specific properties are preserved.
+    /// ABP services (IIdentityUserAppService) can now be used alongside existing functionality.
+    /// 
+    /// Migration completed: Now inherits from ABP Identity instead of ASP.NET Core Identity.
+    /// This enables full ABP Identity service integration while maintaining all custom properties.
+    /// </summary>
+    public class ApplicationUser : Volo.Abp.Identity.IdentityUser
     {
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
@@ -43,7 +52,7 @@ namespace GrcMvc.Models.Entities
         /// </summary>
         public string? AssignedScope { get; set; }
 
-        public bool IsActive { get; set; } = true;
+        public new bool IsActive { get; set; } = true;
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? LastLoginDate { get; set; }
         public string? RefreshToken { get; set; }

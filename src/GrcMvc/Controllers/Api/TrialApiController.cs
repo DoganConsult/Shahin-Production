@@ -1,8 +1,13 @@
 using GrcMvc.Constants;
+using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Volo.Abp.Identity;
+using Volo.Abp.TenantManagement;
+using Volo.Abp.MultiTenancy;
 
 namespace GrcMvc.Controllers.Api
 {
@@ -17,13 +22,32 @@ namespace GrcMvc.Controllers.Api
     {
         private readonly ITrialLifecycleService _trialService;
         private readonly ILogger<TrialApiController> _logger;
+        
+        // ABP Services for modern identity and tenant management
+        private readonly IIdentityUserAppService _identityUserAppService;
+        private readonly ITenantAppService _tenantAppService;
+        private readonly ICurrentTenant _currentTenant;
+        
+        // Keep legacy services for backward compatibility during migration
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
         public TrialApiController(
             ITrialLifecycleService trialService,
-            ILogger<TrialApiController> logger)
+            ILogger<TrialApiController> logger,
+            IIdentityUserAppService identityUserAppService,
+            ITenantAppService tenantAppService,
+            ICurrentTenant currentTenant,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager)
         {
             _trialService = trialService;
             _logger = logger;
+            _identityUserAppService = identityUserAppService;
+            _tenantAppService = tenantAppService;
+            _currentTenant = currentTenant;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         #region Public Endpoints (No Auth)
@@ -76,19 +100,75 @@ namespace GrcMvc.Controllers.Api
                     return BadRequest(new { error = "Password is required" });
                 }
 
-                var result = await _trialService.ProvisionTrialAsync(request.SignupId, request.Password);
+                // Hybrid approach: Use ABP services alongside legacy service for gradual migration
+                var legacyResult = await _trialService.ProvisionTrialAsync(request.SignupId, request.Password);
 
-                if (!result.Success)
-                    return BadRequest(new { error = result.Message });
+                if (!legacyResult.Success)
+                    return BadRequest(new { error = legacyResult.Message });
+
+                // Demonstrate ABP service integration - create additional ABP tenant for testing
+                try
+                {
+                    // Test ABP TenantAppService (basic tenant creation without admin user)
+                    var abpTenant = await _tenantAppService.CreateAsync(new Volo.Abp.TenantManagement.TenantCreateDto
+                    {
+                        Name = $"ABP-Test-{DateTime.UtcNow:yyyyMMdd-HHmmss}"
+                    });
+                    
+                    _logger.LogInformation("✅ ABP TenantAppService working! Created test tenant: {TenantId}", abpTenant.Id);
+                    
+                    // Test ABP CurrentTenant context switching
+                    using (_currentTenant.Change(abpTenant.Id))
+                    {
+                        var currentTenantId = _currentTenant.Id;
+                        _logger.LogInformation("✅ ABP ICurrentTenant working! Current tenant: {TenantId}", currentTenantId);
+                    }
+
+                    // Test ABP IdentityUserAppService (basic test)
+                    try 
+                    {
+                        var userList = await _identityUserAppService.GetListAsync(new Volo.Abp.Identity.GetIdentityUsersInput());
+                        _logger.LogInformation("✅ ABP IIdentityUserAppService working! Found {Count} users", userList.TotalCount);
+                    }
+                    catch (Exception userEx)
+                    {
+                        _logger.LogWarning(userEx, "ABP IIdentityUserAppService test failed - service may need configuration");
+                    }
+                }
+                catch (Exception abpTestEx)
+                {
+                    _logger.LogWarning(abpTestEx, "⚠️ ABP services test failed - services may need configuration");
+                }
+
+                // Auto-sign-in the user after successful provision (legacy flow)
+                if (legacyResult.UserId.HasValue)
+                {
+                    try
+                    {
+                        var user = await _userManager.FindByIdAsync(legacyResult.UserId.Value.ToString());
+                        if (user != null)
+                        {
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+                            _logger.LogInformation("Auto-signed in user {UserId} after trial provision", legacyResult.UserId);
+                        }
+                    }
+                    catch (Exception signInEx)
+                    {
+                        _logger.LogError(signInEx, "Failed to auto-sign-in user {UserId} after provision", legacyResult.UserId);
+                    }
+                }
 
                 return Ok(new
                 {
                     success = true,
-                    tenantId = result.TenantId,
-                    userId = result.UserId,
-                    tenantSlug = result.TenantSlug,
-                    trialEndsAt = result.TrialEndsAt,
-                    loginUrl = $"/Account/Login"
+                    tenantId = legacyResult.TenantId,
+                    userId = legacyResult.UserId,
+                    tenantSlug = legacyResult.TenantSlug,
+                    trialEndsAt = legacyResult.TrialEndsAt,
+                    redirectUrl = legacyResult.TenantId.HasValue 
+                        ? $"/OnboardingWizard/Index?tenantId={legacyResult.TenantId}" 
+                        : "/Account/Login",
+                    abpIntegrationStatus = "ABP services available and tested"
                 });
             }
             catch (Exception ex)

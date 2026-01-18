@@ -12,6 +12,7 @@ using GrcMvc.Data.Repositories;
 using GrcMvc.Models.Entities;
 using Volo.Abp.Settings;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace GrcMvc.Extensions;
@@ -28,7 +29,16 @@ public static class ServiceCollectionExtensions
     {
         // Core services
         services.AddScoped<Services.IAppInfoService, Services.AppInfoService>();
-        
+        services.AddScoped<Services.Interfaces.IEnvironmentVariableService, Services.Implementations.EnvironmentVariableService>();
+        services.AddScoped<Services.Interfaces.ICacheClearService, Services.Implementations.CacheClearService>();
+        services.AddScoped<Services.Interfaces.ICurrentUserService, Services.Implementations.CurrentUserService>();
+
+        // Owner setup service (required for initial platform setup)
+        services.AddScoped<Services.Interfaces.IOwnerSetupService, Services.Implementations.OwnerSetupService>();
+
+        // OpenIddict data seeder (for OAuth2 application registration)
+        services.AddScoped<Data.Seeds.OpenIddictDataSeeder>();
+
         // Repository pattern
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IUnitOfWork, TenantAwareUnitOfWork>();
@@ -45,6 +55,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Policy.IPolicyAuditLogger, Application.Policy.PolicyAuditLogger>();
         services.AddScoped<Application.Policy.IDotPathResolver, Application.Policy.DotPathResolver>();
         services.AddScoped<Application.Policy.IMutationApplier, Application.Policy.MutationApplier>();
+        services.AddScoped<Application.Policy.PolicyEnforcementHelper>();
         
         // Database resolvers - commented out due to missing interfaces
         // services.AddScoped<ITenantDatabaseResolver, Services.Implementations.TenantDatabaseResolver>();
@@ -82,10 +93,22 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddDatabaseContexts(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found");
+        // Debug logging for connection string resolution
+        Console.WriteLine("[DB] ========================================");
+        Console.WriteLine("[DB] Configuring Database Contexts");
+        Console.WriteLine("[DB] ========================================");
+        
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            Console.WriteLine("[DB] ❌ Connection string 'DefaultConnection' not found");
+            throw new InvalidOperationException("Connection string 'DefaultConnection' not found");
+        }
+        
+        Console.WriteLine("[DB] ✅ Main Database Connection String: {0}", MaskConnectionString(connectionString));
         
         var authConnectionString = configuration.GetConnectionString("GrcAuthDb") ?? connectionString;
+        Console.WriteLine("[DB] ✅ Auth Database Connection String: {0}", MaskConnectionString(authConnectionString));
         
         // ABP handles GrcDbContext registration via AddAbpDbContext in GrcMvcAbpModule
         // Register Auth DbContext for Identity
@@ -104,39 +127,58 @@ public static class ServiceCollectionExtensions
             });
         }, ServiceLifetime.Scoped);
         
+        Console.WriteLine("[DB] ✅ Database contexts configured");
+        Console.WriteLine("[DB] 📍 All DbContext instances will use connection strings from IConfiguration");
+        Console.WriteLine("[DB] 🔄 Connection strings are dynamically read (no caching at this layer)");
+        Console.WriteLine("[DB] ========================================");
+        
         return services;
+    }
+
+    private static string MaskConnectionString(string connectionString)
+    {
+        if (string.IsNullOrWhiteSpace(connectionString))
+            return "[empty]";
+        
+        try
+        {
+            var parts = connectionString.Split(';');
+            var masked = new List<string>();
+            foreach (var part in parts)
+            {
+                if (part.StartsWith("Password=", StringComparison.OrdinalIgnoreCase) ||
+                    part.StartsWith("Pwd=", StringComparison.OrdinalIgnoreCase))
+                {
+                    masked.Add(part.Split('=')[0] + "=***");
+                }
+                else
+                {
+                    masked.Add(part);
+                }
+            }
+            return string.Join(";", masked);
+        }
+        catch
+        {
+            return "[invalid format]";
+        }
     }
     
     /// <summary>
-    /// Configure ASP.NET Core Identity with enhanced security
+    /// Identity Configuration - Delegated to ABP Framework
+    /// ABP Identity modules handle all identity management automatically
+    /// UserManager and SignInManager will be provided by ABP if needed
     /// </summary>
     public static IServiceCollection AddIdentityConfiguration(this IServiceCollection services)
     {
-        services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-        {
-            // Password settings - Strengthened
-            options.Password.RequireDigit = true;
-            options.Password.RequiredLength = 12;
-            options.Password.RequireNonAlphanumeric = true;
-            options.Password.RequireUppercase = true;
-            options.Password.RequireLowercase = true;
-            
-            // Lockout settings
-            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-            options.Lockout.MaxFailedAccessAttempts = 3;
-            options.Lockout.AllowedForNewUsers = true;
-            
-            // User settings
-            options.User.RequireUniqueEmail = true;
-            
-            // Sign-in settings (production only)
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
-            var isProduction = environment.Equals("Production", StringComparison.OrdinalIgnoreCase);
-            options.SignIn.RequireConfirmedEmail = isProduction;
-            options.SignIn.RequireConfirmedAccount = isProduction;
-        })
-        .AddEntityFrameworkStores<GrcAuthDbContext>()
-        .AddDefaultTokenProviders();
+        // ABP Identity is fully configured through AbpIdentityApplicationModule
+        // All identity services are automatically registered by ABP:
+        // - IIdentityUserAppService (modern service)
+        // - UserManager<ApplicationUser> (legacy compatibility)
+        // - SignInManager<ApplicationUser> (legacy compatibility)
+        // - Password policies, lockout, security features
+        
+        // No additional configuration needed - ABP handles everything
         
         return services;
     }

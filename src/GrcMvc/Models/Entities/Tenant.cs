@@ -1,18 +1,55 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using Volo.Abp.TenantManagement;
 
 namespace GrcMvc.Models.Entities
 {
     /// <summary>
     /// Represents a tenant (organization) in the multi-tenant GRC platform.
-    /// Layer 2: Tenant Context
+    /// Extends ABP's Tenant entity with GRC-specific business properties.
+    /// 
+    /// Migration completed: Now inherits from ABP TenantManagement.Tenant
+    /// This enables ITenantAppService usage while preserving all custom properties.
     /// </summary>
-    public class Tenant : BaseEntity
+    public class Tenant : Volo.Abp.TenantManagement.Tenant
     {
+        // Add properties that were in BaseEntity but missing in ABP Tenant
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedDate { get; set; }
+        public string CreatedBy { get; set; } = string.Empty;
+        public string UpdatedBy { get; set; } = string.Empty;
+        
+        // Add additional properties from BaseEntity
+        public string? ModifiedBy { get; set; }
+        public DateTime? DeletedAt { get; set; }
+        public string? Labels { get; set; }
+        
+        // Alias properties for backward compatibility with views
+        [NotMapped]
+        public DateTime CreatedAt
+        {
+            get => CreatedDate;
+            set => CreatedDate = value;
+        }
+        
+        [NotMapped]
+        public DateTime? ModifiedDate
+        {
+            get => UpdatedDate;
+            set => UpdatedDate = value;
+        }
+        
         public string TenantSlug { get; set; } = string.Empty;
         public string OrganizationName { get; set; } = string.Empty;
         public string AdminEmail { get; set; } = string.Empty;
-        
+
+        /// <summary>
+        /// Industry/Sector of the organization (e.g., Financial Services, Healthcare, Government)
+        /// Captured during self-registration (Issue #4)
+        /// </summary>
+        public string? Industry { get; set; }
+
         /// <summary>
         /// Primary contact email for the tenant (used for trial signups)
         /// </summary>
@@ -92,6 +129,40 @@ namespace GrcMvc.Models.Entities
         public string BillingStatus { get; set; } = "Active";
 
         // =============================================================================
+        // EMAIL VERIFICATION (Phase 1: Self-Registration Security)
+        // =============================================================================
+
+        /// <summary>
+        /// SHA256 hash of the email verification token (raw token never stored)
+        /// </summary>
+        public string? EmailVerificationTokenHash { get; set; }
+
+        /// <summary>
+        /// When the verification token expires (24 hours from creation)
+        /// </summary>
+        public DateTime? EmailVerificationTokenExpiresAt { get; set; }
+
+        /// <summary>
+        /// Whether the admin email has been verified
+        /// </summary>
+        public bool IsEmailVerified { get; set; } = false;
+
+        /// <summary>
+        /// When the email was verified
+        /// </summary>
+        public DateTime? EmailVerifiedAt { get; set; }
+
+        /// <summary>
+        /// When the last verification email was sent (for rate limiting)
+        /// </summary>
+        public DateTime? EmailVerificationLastSentAt { get; set; }
+
+        /// <summary>
+        /// Number of times verification email has been resent (max 5)
+        /// </summary>
+        public int EmailVerificationResendCount { get; set; } = 0;
+
+        // =============================================================================
         // ONBOARDING LINKAGE (One workspace per tenant, created during finalization)
         // =============================================================================
 
@@ -116,9 +187,38 @@ namespace GrcMvc.Models.Entities
         public string OnboardingStatus { get; set; } = "NOT_STARTED";
 
         /// <summary>
+        /// ID of the first admin user who created this tenant (for targeted onboarding redirects)
+        /// </summary>
+        public string? FirstAdminUserId { get; set; }
+
+        /// <summary>
+        /// When onboarding was started
+        /// </summary>
+        public DateTime? OnboardingStartedAt { get; set; }
+
+        /// <summary>
         /// When onboarding was completed
         /// </summary>
         public DateTime? OnboardingCompletedAt { get; set; }
+
+        // =============================================================================
+        // USAGE TRACKING FIELDS
+        // =============================================================================
+
+        /// <summary>
+        /// Total storage used by this tenant in bytes
+        /// </summary>
+        public long? StorageUsedBytes { get; set; } = 0;
+
+        /// <summary>
+        /// Current subscription plan code (starter, professional, enterprise)
+        /// </summary>
+        public string? SubscriptionPlan { get; set; }
+
+        /// <summary>
+        /// Data isolation level: Shared, Isolated, Dedicated
+        /// </summary>
+        public string DataIsolationLevel { get; set; } = "Shared";
 
         // Navigation properties
         public virtual ICollection<TenantUser> Users { get; set; } = new List<TenantUser>();

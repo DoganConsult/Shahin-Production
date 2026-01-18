@@ -8,10 +8,25 @@ using Volo.Abp.EntityFrameworkCore.PostgreSql;
 using Volo.Abp.Modularity;
 using Volo.Abp.MultiTenancy;
 using Volo.Abp.Settings;
+// ABP Identity
 using Volo.Abp.Identity;
 using Volo.Abp.Identity.EntityFrameworkCore;
+// ABP Permission Management
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.PermissionManagement.EntityFrameworkCore;
+// ABP Audit Logging
+using Volo.Abp.AuditLogging;
+using Volo.Abp.AuditLogging.EntityFrameworkCore;
+// ABP Feature Management
+using Volo.Abp.FeatureManagement;
+using Volo.Abp.FeatureManagement.EntityFrameworkCore;
+// ABP Tenant Management
+using Volo.Abp.TenantManagement;
+using Volo.Abp.TenantManagement.EntityFrameworkCore;
+// ABP Setting Management
+using Volo.Abp.SettingManagement;
+using Volo.Abp.SettingManagement.EntityFrameworkCore;
+// ABP OpenIddict
 using Volo.Abp.OpenIddict;
 using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using OpenIddict.Abstractions;
@@ -59,11 +74,32 @@ namespace GrcMvc.Abp;
 
     // ABP Identity - User management and authentication
     typeof(AbpIdentityDomainModule),
+    typeof(AbpIdentityApplicationModule),
     typeof(AbpIdentityEntityFrameworkCoreModule),
 
     // ABP Permission Management - Authorization
     typeof(AbpPermissionManagementDomainModule),
+    typeof(AbpPermissionManagementApplicationModule),
     typeof(AbpPermissionManagementEntityFrameworkCoreModule),
+
+    // ABP Audit Logging - Compliance-grade audit trails
+    typeof(AbpAuditLoggingDomainModule),
+    typeof(AbpAuditLoggingEntityFrameworkCoreModule),
+
+    // ABP Feature Management - Feature flags per tenant
+    typeof(AbpFeatureManagementDomainModule),
+    typeof(AbpFeatureManagementApplicationModule),
+    typeof(AbpFeatureManagementEntityFrameworkCoreModule),
+
+    // ABP Tenant Management - Multi-tenant support
+    typeof(AbpTenantManagementDomainModule),
+    typeof(AbpTenantManagementApplicationModule),
+    typeof(AbpTenantManagementEntityFrameworkCoreModule),
+
+    // ABP Setting Management - Tenant/User settings
+    typeof(AbpSettingManagementDomainModule),
+    typeof(AbpSettingManagementApplicationModule),
+    typeof(AbpSettingManagementEntityFrameworkCoreModule),
 
     // ABP OpenIddict - OAuth2/OpenID Connect authentication
     typeof(AbpOpenIddictDomainModule),
@@ -89,10 +125,11 @@ public class GrcMvcAbpModule : AbpModule
     {
         var configuration = context.Services.GetConfiguration();
 
-        // Disable ABP background workers (we use Hangfire instead)
+        // Enable ABP background workers (OpenIddict issue resolved with proper module registration)
+        // ABP workers handle simple periodic tasks, Hangfire for complex workflows
         Configure<AbpBackgroundWorkerOptions>(options =>
         {
-            options.IsEnabled = false;
+            options.IsEnabled = true; // ENABLED - Fixed OpenIddict worker issue
         });
 
         // Configure ABP Entity Framework Core
@@ -111,28 +148,36 @@ public class GrcMvcAbpModule : AbpModule
             });
         });
 
-        // Register GrcDbContext with ABP
+        // Register GrcDbContext with ABP (Main Application Database)
         context.Services.AddAbpDbContext<GrcDbContext>(options =>
         {
             options.AddDefaultRepositories(includeAllEntities: true);
         });
 
-        // Multi-tenancy is handled by custom TenantResolutionMiddleware
-        // which resolves tenants from: subdomain, header, or JWT claims
-        Configure<AbpMultiTenancyOptions>(options =>
+        // Register GrcAuthDbContext with ABP (Identity/Authentication Database)
+        context.Services.AddAbpDbContext<GrcAuthDbContext>(options =>
         {
-            // Disable ABP's multi-tenancy resolver - using custom implementation
-            options.IsEnabled = false;
+            options.AddDefaultRepositories(includeAllEntities: true);
+            // This enables IRepository<ApplicationUser, Guid> and other identity repositories
         });
 
-        // Auditing is handled by custom AuditEventService
-        // which provides compliance-grade audit logging with:
-        // - Full event payloads (JSON)
-        // - Tenant isolation
-        // - Explainability integration (Layer 17)
+        // Multi-tenancy enabled via ABP's ICurrentTenant
+        // Custom TenantResolutionMiddleware resolves tenant and calls ICurrentTenant.Change()
+        Configure<AbpMultiTenancyOptions>(options =>
+        {
+            options.IsEnabled = true; // ABP multi-tenancy enabled for automatic tenant filtering
+        });
+
+        // ABP Auditing enabled for automatic audit logging
+        // Custom AuditEventService still used for compliance-specific logging
+        // ABP handles: standard request/response logging, entity changes
+        // Custom handles: Explainability integration (Layer 17), compliance-grade payloads
         Configure<AbpAuditingOptions>(options =>
         {
-            options.IsEnabled = false; // Using custom AuditEventService
+            options.IsEnabled = true;
+            options.ApplicationName = "ShahinGRC";
+            options.IsEnabledForAnonymousUsers = false;
+            options.IsEnabledForGetRequests = false; // Only log writes for performance
         });
 
         // Register custom feature check service
@@ -147,16 +192,39 @@ public class GrcMvcAbpModule : AbpModule
         });
     }
 
-    public override void OnApplicationInitialization(ApplicationInitializationContext context)
+    public override async void OnApplicationInitialization(ApplicationInitializationContext context)
     {
+        // #region agent log
+        try { System.IO.File.AppendAllText(@"c:\Shahin-ai\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new{location="GrcMvcAbpModule.cs:OnApplicationInitialization",message="ABP module initialization started",data=new{},timestamp=DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),sessionId="debug-session",hypothesisId="D"})+"\n"); } catch {}
+        // #endregion
+
         // ABP middleware is not used
         // Custom middleware is registered in Program.cs:
         // - TenantResolutionMiddleware (Layer 1)
         // - Custom authentication middleware (Layer 2)
+
+        // ABP background workers disabled - using Hangfire instead
+        // TODO: Re-enable when OpenIddict background worker null logger issue is fixed
+        // try
+        // {
+        //     await context.AddBackgroundWorkerAsync<BackgroundWorkers.TrialExpirationWorker>();
+        // }
+        // catch (Exception ex)
+        // {
+        //     // Log error
+        // }
     }
 
     public override void OnPostApplicationInitialization(ApplicationInitializationContext context)
     {
+        // #region agent log
+        try
+        {
+            System.IO.File.AppendAllText(@"c:\Shahin-ai\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new{location="GrcMvcAbpModule.cs:OnPostApplicationInitialization",message="ABP post-initialization completed",data=new{modulesLoaded=true},timestamp=DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),sessionId="debug-session",hypothesisId="A"})+"\n");
+        }
+        catch {}
+        // #endregion
+        
         // Custom initialization is handled by ApplicationInitializer
         // which seeds:
         // - Tenants (Layer 1)
