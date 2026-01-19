@@ -1,0 +1,42 @@
+{
+  "name": "Shahin GRC Development",
+  "image": "mcr.microsoft.com/devcontainers/dotnet:8.0",
+
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  "forwardPorts": [5010, 5432, 6379],
+
+  "postCreateCommand": "dotnet restore src/GrcMvc/GrcMvc.csproj && docker-compose up -d db redis",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.csdevkit",
+        "ms-azuretools.vscode-docker",
+        "humao.rest-client",
+        "streetsidesoftware.code-spell-checker",
+        "eamodio.gitlens",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "dotnet.defaultSolution": "src/GrcMvc/GrcMvc.csproj",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-dotnettools.csharp"
+      }
+    }
+  },
+
+  "containerEnv": {
+    "ASPNETCORE_ENVIRONMENT": "Development",
+    "ASPNETCORE_URLS": "http://0.0.0.0:5010"
+  },
+
+  "remoteUser": "vscode"
+}
