@@ -859,7 +859,132 @@ See full audit report in `.claude/plans/` for detailed list of missing items.
 
 ---
 
-**Last Updated**: 2026-01-10
+## Claude Code CLI Integration
+
+### Installation
+
+```powershell
+# Windows PowerShell (Run as Administrator)
+irm https://claude.ai/install.ps1 | iex
+
+# Verify installation
+claude --version
+```
+
+### Project Configuration
+
+Claude Code automatically reads this `CLAUDE.md` file for project context. Additional configuration:
+
+```
+.claude/                          # Claude Code settings directory
+├── settings.json                 # Project-specific settings
+├── memory.md                     # Persistent memory across sessions
+└── plans/                        # Auto-saved implementation plans
+```
+
+### Common Claude Code Commands
+
+```bash
+# Start Claude Code in this project
+claude
+
+# Start with specific context
+claude --context "Fix login authentication flow"
+
+# Review code changes
+claude --review
+
+# Debug specific file
+claude "debug src/GrcMvc/Services/AuthenticationService.cs"
+
+# Run tests with AI assistance
+claude "run tests and fix any failures"
+
+# Generate code documentation
+claude "document the API controllers"
+```
+
+### Project-Specific Prompts
+
+**For Backend Development:**
+```
+"Fix the JWT token generation in AuthenticationService"
+"Add a new API endpoint for [feature]"
+"Debug the database connection issue"
+"Optimize the EF Core queries in [service]"
+```
+
+**For Frontend Development:**
+```
+"Update the React login page to handle onboarding redirect"
+"Fix the dashboard API mismatch"
+"Add form validation to [component]"
+```
+
+**For Database Operations:**
+```
+"Create a new migration for [entity]"
+"Seed test data for [feature]"
+"Optimize the database queries"
+```
+
+**For Testing:**
+```
+"Run the Golden Flow tests"
+"Add unit tests for [service]"
+"Debug the failing integration tests"
+```
+
+### Memory Anchors
+
+Claude Code maintains context about:
+- **Tech Stack**: ASP.NET Core 8.0 MVC, PostgreSQL 15, Redis, EF Core 8
+- **Architecture**: Multi-tenant, 200+ entities, 100+ controllers
+- **AI Agents**: 12 specialized agents using Claude API
+- **Key Files**: Program.cs (entry), GrcDbContext.cs (data), appsettings.json (config)
+- **Repository**: https://github.com/DoganConsult/Shahin-Production.git
+
+### Debugging Tips with Claude Code
+
+1. **Entity Type Mismatches**: Common issue with string UserId vs Guid Id
+   ```
+   claude "fix the entity type mismatch in [Entity].cs"
+   ```
+
+2. **Migration Issues**: For EF Core migration conflicts
+   ```
+   claude "resolve the migration conflict for [migration name]"
+   ```
+
+3. **API Debugging**: For endpoint issues
+   ```
+   claude "debug the /api/[endpoint] returning [error]"
+   ```
+
+4. **Performance Issues**: For slow queries
+   ```
+   claude "profile and optimize the [service] queries"
+   ```
+
+### CI/CD Integration
+
+Claude Code can assist with GitHub Actions:
+```yaml
+# In .github/workflows/
+- name: Code Review with Claude
+  run: claude --review --ci
+```
+
+### Security Considerations
+
+- Never commit `.env` files or API keys
+- Claude Code respects `.gitignore` patterns
+- Use environment variables for sensitive data
+- Review AI-generated code before committing
+
+---
+
+**Last Updated**: 2026-01-19
 **Project Version**: 1.0.x
 **Framework Version**: .NET 8.0 / ASP.NET Core 8.0
 **Database Version**: PostgreSQL 15
