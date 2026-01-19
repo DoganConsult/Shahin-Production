@@ -1,0 +1,99 @@
+<Project>
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- SHAHIN GRC - CENTRALIZED BUILD CONFIGURATION & DYNAMIC VERSIONING           -->
+  <!-- This file is automatically applied to all projects in the solution          -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
+  <PropertyGroup>
+    <!-- Product Information -->
+    <Product>Shahin AI GRC Platform</Product>
+    <Company>Dogan Consult</Company>
+    <Authors>Dogan Consult Team</Authors>
+    <Copyright>Copyright (c) 2024-2026 Dogan Consult. All rights reserved.</Copyright>
+
+    <!-- Repository Information -->
+    <RepositoryUrl>https://github.com/DoganConsult/Shahin-Production</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- SEMANTIC VERSIONING: MAJOR.MINOR.PATCH-PRERELEASE+BUILD                 -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Base Version (Update these for releases) -->
+    <VersionMajor>1</VersionMajor>
+    <VersionMinor>0</VersionMinor>
+    <VersionPatch>0</VersionPatch>
+
+    <!-- Build metadata (set by CI/CD or defaults) -->
+    <BuildNumber Condition="'$(BuildNumber)' == ''">0</BuildNumber>
+    <GitCommitShort Condition="'$(GitCommitShort)' == ''">local</GitCommitShort>
+    <BranchName Condition="'$(BranchName)' == ''">local</BranchName>
+
+    <!-- Pre-release suffix based on branch -->
+    <VersionSuffix Condition="'$(BranchName)' == 'develop'">alpha</VersionSuffix>
+    <VersionSuffix Condition="'$(BranchName)' == 'staging'">beta</VersionSuffix>
+    <VersionSuffix Condition="$(BranchName.StartsWith('release/'))">rc</VersionSuffix>
+    <VersionSuffix Condition="$(BranchName.StartsWith('hotfix/'))">hotfix</VersionSuffix>
+    <VersionSuffix Condition="'$(BranchName)' == 'main'"></VersionSuffix>
+    <VersionSuffix Condition="'$(BranchName)' == 'local'">dev</VersionSuffix>
+
+    <!-- Construct full version -->
+    <VersionPrefix>$(VersionMajor).$(VersionMinor).$(VersionPatch)</VersionPrefix>
+    <Version Condition="'$(VersionSuffix)' != ''">$(VersionPrefix)-$(VersionSuffix).$(BuildNumber)</Version>
+    <Version Condition="'$(VersionSuffix)' == ''">$(VersionPrefix)</Version>
+
+    <!-- Assembly versioning -->
+    <AssemblyVersion>$(VersionMajor).$(VersionMinor).$(VersionPatch).$(BuildNumber)</AssemblyVersion>
+    <FileVersion>$(VersionMajor).$(VersionMinor).$(VersionPatch).$(BuildNumber)</FileVersion>
+    <InformationalVersion>$(Version)+$(GitCommitShort)</InformationalVersion>
+  </PropertyGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- BUILD QUALITY SETTINGS                                                      -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
+  <PropertyGroup>
+    <!-- Code Analysis -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+
+    <!-- Documentation -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Deterministic builds for reproducibility -->
+    <Deterministic>true</Deterministic>
+
+    <!-- Source Link for debugging -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- ENVIRONMENT-SPECIFIC BUILD CONFIGURATIONS                                   -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Development Configuration -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>$(DefineConstants);DEBUG;DEVELOPMENT</DefineConstants>
+    <Optimize>false</Optimize>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+
+  <!-- Staging Configuration -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Staging'">
+    <DefineConstants>$(DefineConstants);STAGING</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+  </PropertyGroup>
+
+  <!-- Production Configuration -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DefineConstants>$(DefineConstants);RELEASE;PRODUCTION</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>embedded</DebugType>
+    <TrimUnusedDependencies>true</TrimUnusedDependencies>
+  </PropertyGroup>
+
+</Project>

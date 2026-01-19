@@ -1,0 +1,299 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Shahin GRC Production Readiness & Quality Gates Configuration",
+  "version": "2.0.0",
+  "lastUpdated": "2026-01-19",
+
+  "productionReadinessGates": {
+    "gateA_BuildReleaseQuality": {
+      "name": "Gate A - Build & Release Quality",
+      "nonNegotiable": true,
+      "passCriteria": {
+        "cleanCIBuild": {
+          "description": "dotnet restore, dotnet build -c Release succeeds",
+          "required": true
+        },
+        "noCompilerErrors": {
+          "description": "No compiler errors/warnings treated as errors for Release",
+          "required": true
+        },
+        "dbMigrationsClean": {
+          "description": "DB migrations apply cleanly to empty and upgraded database",
+          "required": true
+        },
+        "versioningExists": {
+          "description": "Versioning and release notes exist for the build",
+          "required": true
+        }
+      },
+      "evidence": [
+        "CI logs + release artifact hash",
+        "Migration execution log + schema version"
+      ]
+    },
+
+    "gateB_GoldenFlows": {
+      "name": "Gate B - End-to-End Golden Flows",
+      "nonNegotiable": true,
+      "testTenantRequired": true,
+      "flows": {
+        "B1_SelfRegistration": {
+          "description": "/api/auth/register -> verification/password set -> login works",
+          "endpoints": ["/api/auth/register", "/api/auth/verify", "/api/auth/login"],
+          "required": true
+        },
+        "B2_TrialSignup": {
+          "description": "/api/trial/signup creates trial record",
+          "endpoints": ["/api/trial/signup"],
+          "required": true
+        },
+        "B3_TrialProvision": {
+          "description": "/api/trial/provision creates tenant + TenantAdmin; immediate login works",
+          "endpoints": ["/api/trial/provision"],
+          "required": true
+        },
+        "B4_UserInvite": {
+          "description": "/api/tenants/{tenantId}/users/invite -> email sent",
+          "endpoints": ["/api/tenants/{tenantId}/users/invite"],
+          "required": true
+        },
+        "B5_AcceptInvite": {
+          "description": "/api/invitation/accept -> user created + role assigned -> login works",
+          "endpoints": ["/api/invitation/accept"],
+          "required": true
+        },
+        "B6_RoleChange": {
+          "description": "assign/remove roles and verify permissions enforce correctly",
+          "endpoints": ["/api/tenants/{tenantId}/users/{userId}/roles"],
+          "required": true
+        }
+      },
+      "evidence": [
+        "API request/response logs (sanitized)",
+        "DB record screenshots/exports (tenant, user, tenantuser)",
+        "Email delivery evidence (message id)"
+      ]
+    },
+
+    "gateC_AuditSecurityControls": {
+      "name": "Gate C - Audit & Security Controls Are Real",
+      "nonNegotiable": true,
+      "auditEventRequirements": {
+        "register": ["AM01_USER_CREATED", "AM01_USER_REGISTERED"],
+        "trialSignup": ["AM01_TRIAL_SIGNUP_INITIATED"],
+        "trialProvision": ["AM01_TENANT_CREATED", "AM01_USER_CREATED", "AM03_ROLE_ASSIGNED"],
+        "invite": ["AM01_USER_INVITED"],
+        "acceptInvite": ["AM01_USER_CREATED", "AM03_ROLE_ASSIGNED"]
+      },
+      "authenticationAuditEvents": [
+        "Login", "FailedLogin", "Logout",
+        "RoleChanged", "2FAEnabled", "2FADisabled",
+        "PasswordChanged", "PasswordReset"
+      ],
+      "securityControls": {
+        "privilegedRolesMFA": {
+          "description": "PlatformAdmin/TenantAdmin require MFA or documented compensating control",
+          "roles": ["PlatformAdmin", "TenantAdmin"],
+          "required": true
+        },
+        "rateLimiting": {
+          "description": "Rate limiting active on auth endpoints",
+          "endpoints": ["/api/auth/*", "/api/trial/*"],
+          "policyName": "auth",
+          "required": true
+        }
+      },
+      "evidence": [
+        "AuditEvent and AuthenticationAuditLog extracts with correlationId and actor/tenant IDs",
+        "MFA policy config + test proof",
+        "Rate limit config and test proof"
+      ]
+    },
+
+    "gateD_OperationalReadiness": {
+      "name": "Gate D - Operational Readiness",
+      "nonNegotiable": true,
+      "requirements": {
+        "tlsEnabled": {
+          "description": "TLS/SSL enabled in production",
+          "required": true
+        },
+        "secretsSecure": {
+          "description": "Secrets stored securely (not in appsettings committed to git)",
+          "required": true
+        },
+        "backupsConfigured": {
+          "description": "Backups configured and tested restore (PostgreSQL)",
+          "required": true
+        },
+        "monitoringDashboards": {
+          "description": "Monitoring dashboards exist: error rate, latency, job failures, email failures",
+          "metrics": ["error_rate", "latency_p95", "job_failures", "email_failures"],
+          "required": true
+        },
+        "alertingConfigured": {
+          "description": "Alerting for critical events",
+          "alerts": ["login_failures_spike", "job_failures", "db_down", "high_error_rate"],
+          "required": true
+        }
+      },
+      "evidence": [
+        "Backup/restore test report",
+        "Monitoring dashboard links + alert rules"
+      ]
+    }
+  },
+
+  "environments": {
+    "development": {
+      "name": "Development",
+      "branch": "develop",
+      "minQualityScore": 60,
+      "requiredGates": ["gateA_BuildReleaseQuality"],
+      "optionalGates": ["gateB_GoldenFlows"],
+      "requiredChecks": {
+        "build": true,
+        "unitTests": false,
+        "integrationTests": false,
+        "securityScan": false,
+        "codeAnalysis": false
+      },
+      "thresholds": {
+        "maxWarnings": 100,
+        "maxErrors": 0,
+        "minCodeCoverage": 0
+      },
+      "deployment": {
+        "autoPromote": true,
+        "requireApproval": false,
+        "healthCheckTimeout": 30
+      }
+    },
+
+    "staging": {
+      "name": "Staging",
+      "branch": "staging",
+      "minQualityScore": 75,
+      "requiredGates": ["gateA_BuildReleaseQuality", "gateB_GoldenFlows", "gateC_AuditSecurityControls"],
+      "optionalGates": ["gateD_OperationalReadiness"],
+      "requiredChecks": {
+        "build": true,
+        "unitTests": true,
+        "integrationTests": false,
+        "securityScan": true,
+        "codeAnalysis": true,
+        "goldenFlowTests": true
+      },
+      "thresholds": {
+        "maxWarnings": 50,
+        "maxErrors": 0,
+        "minCodeCoverage": 50,
+        "maxVulnerabilities": {
+          "critical": 0,
+          "high": 5,
+          "medium": 20,
+          "low": -1
+        }
+      },
+      "deployment": {
+        "autoPromote": false,
+        "requireApproval": false,
+        "healthCheckTimeout": 60,
+        "smokeTestRequired": true,
+        "goldenFlowTestRequired": true
+      }
+    },
+
+    "production": {
+      "name": "Production",
+      "branch": "main",
+      "minQualityScore": 85,
+      "requiredGates": [
+        "gateA_BuildReleaseQuality",
+        "gateB_GoldenFlows",
+        "gateC_AuditSecurityControls",
+        "gateD_OperationalReadiness"
+      ],
+      "requiredChecks": {
+        "build": true,
+        "unitTests": true,
+        "integrationTests": true,
+        "securityScan": true,
+        "codeAnalysis": true,
+        "goldenFlowTests": true,
+        "auditEventValidation": true,
+        "performanceTest": false
+      },
+      "thresholds": {
+        "maxWarnings": 20,
+        "maxErrors": 0,
+        "minCodeCoverage": 70,
+        "maxVulnerabilities": {
+          "critical": 0,
+          "high": 0,
+          "medium": 10,
+          "low": -1
+        }
+      },
+      "deployment": {
+        "autoPromote": false,
+        "requireApproval": true,
+        "approvers": ["admin", "lead-developer"],
+        "minApprovals": 1,
+        "healthCheckTimeout": 120,
+        "smokeTestRequired": true,
+        "goldenFlowTestRequired": true,
+        "rollbackOnFailure": true,
+        "backupRequired": true,
+        "evidencePackRequired": true
+      }
+    }
+  },
+
+  "minimumProductionScope": {
+    "mustBeImplemented": [
+      "Build is green and deployable",
+      "Golden flows (Gate B) pass",
+      "Audit events are emitted consistently (traceability matrix)",
+      "Role enforcement works (RoleConstants are canonical)",
+      "Hangfire jobs stable"
+    ],
+    "canBePostponed": [
+      "Kafka (disabled with governance)",
+      "Camunda (disabled with governance)",
+      "ClickHouse (disabled with governance)",
+      "Redis (disabled with governance)",
+      "AI modules (disabled until policy + provider + opt-in)"
+    ]
+  },
+
+  "hardeningChecklist": {
+    "consistentStatusCodes": "Use canonical Pending/Active/Suspended everywhere",
+    "consistentRoleCodes": "APIs accept only RoleConstants values or map legacy values",
+    "idempotency": "Provision endpoints and reminder jobs are safe to retry",
+    "errorHandling": "No raw exceptions; consistent error envelope + correlationId",
+    "dataRetention": "Defined retention for audit logs and authentication logs"
+  },
+
+  "evidencePack": {
+    "name": "Production Readiness Evidence",
+    "contents": [
+      "Release build logs + version",
+      "DB migration proof",
+      "Golden flow test evidence (requests/responses + DB snapshots)",
+      "AuditEvent extracts for each flow step",
+      "AuthenticationAuditLog extracts (login/failed/role/mfa)",
+      "Backup/restore test evidence",
+      "Monitoring/alerting screenshots"
+    ]
+  },
+
+  "qualityScoreWeights": {
+    "buildSuccess": 25,
+    "goldenFlowsPassing": 25,
+    "auditEventValidation": 20,
+    "securityScanPassing": 15,
+    "unitTestsPassing": 10,
+    "codeCoverage": 5
+  }
+}
