@@ -118,6 +118,10 @@ namespace GrcMvc.Data
         public DbSet<LookupCloudProvider> LookupCloudProviders { get; set; } = null!;
         public DbSet<WizardRecommendation> WizardRecommendations { get; set; } = null!;
 
+        // Access Reviews (AM-11 Control)
+        public DbSet<AccessReview> AccessReviews { get; set; } = null!;
+        public DbSet<AccessReviewItem> AccessReviewItems { get; set; } = null!;
+
         // Teams & RACI (Role-based workflow routing)
         public DbSet<Team> Teams { get; set; } = null!;
         public DbSet<TeamMember> TeamMembers { get; set; } = null!;

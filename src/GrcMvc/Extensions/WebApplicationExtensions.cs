@@ -739,6 +739,19 @@ public static class WebApplicationExtensions
             job => job.CheckExpiringTrialsAsync(),
             "0 9 * * *");
 
+        // AM-11: Access Review Reminders (BP-01 Critical Job)
+        // Daily at 9 AM - check for overdue access reviews
+        RecurringJob.AddOrUpdate<BackgroundJobs.AccessReviewReminderJob>(
+            "access-review-reminder-daily",
+            job => job.ExecuteAsync(),
+            "0 9 * * *");
+
+        // Proactive reminders for approaching due dates (run at 8 AM)
+        RecurringJob.AddOrUpdate<BackgroundJobs.AccessReviewReminderJob>(
+            "access-review-approaching-deadline",
+            job => job.SendApproachingDueDateRemindersAsync(),
+            "0 8 * * *");
+
         logger.LogInformation("✅ Recurring jobs configured");
     }
 

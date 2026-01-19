@@ -6,17 +6,54 @@ import { motion } from "framer-motion"
 import { ArrowRight, Mail, Lock, Eye, EyeOff, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://portal.shahin-ai.com';
+
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    // Call backend API
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    setIsLoading(false)
-    window.location.href = "/dashboard"
+    setError("")
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data?.token) {
+        // Store token
+        localStorage.setItem('authToken', data.data.token);
+
+        // Store tenant info if available
+        if (data.data.tenantId) {
+          localStorage.setItem('tenantId', data.data.tenantId);
+        }
+
+        // Check if user needs onboarding
+        if (data.data.requiresOnboarding && data.data.onboardingUrl) {
+          // Redirect to MVC onboarding wizard
+          window.location.href = `${API_BASE_URL}${data.data.onboardingUrl}`;
+        } else {
+          // Go to dashboard
+          window.location.href = "/dashboard";
+        }
+      } else {
+        setError(data.message || data.error || "بيانات الدخول غير صحيحة");
+      }
+    } catch (err) {
+      setError("فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -44,6 +81,13 @@ export default function LoginPage() {
             مرحباً بعودتك! أدخل بياناتك للمتابعة
           </p>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-lg text-sm text-center">
+              {error}
+            </div>
+          )}
+
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
@@ -55,6 +99,8 @@ export default function LoginPage() {
                 <input
                   type="email"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full h-12 pr-10 pl-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   placeholder="ahmed@example.com"
                 />
@@ -70,6 +116,8 @@ export default function LoginPage() {
                 <input
                   type={showPassword ? "text" : "password"}
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full h-12 pr-10 pl-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   placeholder="********"
                 />

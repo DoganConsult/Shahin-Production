@@ -20,7 +20,21 @@ export default function LoginPage() {
       const response = await api.login(email, password);
       if (response.success && response.data?.token) {
         api.setToken(response.data.token);
-        router.push('/dashboard');
+
+        // Store tenant info if available
+        if (response.data.tenantId) {
+          localStorage.setItem('tenantId', response.data.tenantId);
+        }
+
+        // Check if user needs onboarding
+        if (response.data.requiresOnboarding && response.data.onboardingUrl) {
+          // Redirect to MVC onboarding wizard on the backend
+          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://portal.shahin-ai.com';
+          window.location.href = `${apiBaseUrl}${response.data.onboardingUrl}`;
+        } else {
+          // Go to dashboard for users with completed onboarding
+          router.push('/dashboard');
+        }
       } else {
         setError(response.error || 'Invalid credentials');
       }

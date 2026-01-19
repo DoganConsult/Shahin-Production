@@ -87,10 +87,10 @@ namespace GrcMvc.Models.Entities
         [NotMapped]
         public bool IsActive => RevokedAt == null && ExpiresAt > DateTime.UtcNow;
 
-        // Navigation properties
-        [ForeignKey(nameof(UserId))]
-        public virtual ApplicationUser? User { get; set; }
+        // Note: User navigation property removed due to type mismatch
+        // UserId is string for compatibility, but ApplicationUser.Id is Guid
 
+        // Self-referential navigation properties for token rotation
         [ForeignKey(nameof(ReplacedByTokenId))]
         public virtual RefreshToken? ReplacedByToken { get; set; }
 

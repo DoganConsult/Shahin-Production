@@ -96,8 +96,8 @@ namespace GrcMvc.Models.Entities
         [MaxLength(50)]
         public string? RelatedEntityType { get; set; }
 
-        // Navigation property
-        [ForeignKey(nameof(UserId))]
-        public virtual ApplicationUser? User { get; set; }
+        // Note: Navigation property removed due to type mismatch
+        // UserId is string for compatibility, but ApplicationUser.Id is Guid
+        // Use explicit joins when querying user data
     }
 }

@@ -48,6 +48,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Services.Interfaces.IFieldRegistryService, Services.Implementations.FieldRegistryService>();
         services.AddScoped<Services.Interfaces.IOnboardingWizardService, Services.Implementations.OnboardingWizardService>();
         services.AddScoped<Services.Interfaces.IOnboardingControlPlaneService, Services.Implementations.OnboardingControlPlaneService>();
+
+        // GRC Access Management Controls (AM-01 through AM-12)
+        services.AddScoped<Services.Interfaces.IAccessReviewService, Services.Implementations.AccessReviewService>();
         
         // Policy Engine services
         services.AddSingleton<Application.Policy.IPolicyStore, Application.Policy.PolicyStore>();
@@ -194,6 +197,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<BackgroundJobs.DatabaseBackupJob>();
         services.AddScoped<BackgroundJobs.TrialNurtureJob>();
         services.AddScoped<BackgroundJobs.CodeQualityMonitorJob>();
+        services.AddScoped<BackgroundJobs.AccessReviewReminderJob>(); // AM-11 Access Review Reminders
     }
     
     #endregion

@@ -6,6 +6,7 @@ using GrcMvc.Services.Interfaces;
 using GrcMvc.Application.Permissions;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
@@ -148,6 +149,117 @@ namespace GrcMvc.Controllers
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+        }
+
+        /// <summary>
+        /// Get dashboard summary for current authenticated user
+        /// Auto-detects tenant from user claims or TenantUser relationship
+        /// </summary>
+        [HttpGet("summary")]
+        public async Task<IActionResult> GetDashboardSummary()
+        {
+            try
+            {
+                // Try to get tenant from claims
+                var tenantIdClaim = User.FindFirst("tenant_id")?.Value;
+                Guid? tenantId = null;
+
+                if (!string.IsNullOrEmpty(tenantIdClaim) && Guid.TryParse(tenantIdClaim, out var parsedTenantId))
+                {
+                    tenantId = parsedTenantId;
+                }
+
+                // If no tenant in claims, try to get from TenantUser
+                if (!tenantId.HasValue)
+                {
+                    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+                                User.FindFirst("sub")?.Value ??
+                                User.FindFirst("user_id")?.Value;
+
+                    if (!string.IsNullOrEmpty(userId))
+                    {
+                        var tenantUser = await _unitOfWork.TenantUsers
+                            .Query()
+                            .FirstOrDefaultAsync(tu => tu.UserId == userId && !tu.IsDeleted);
+
+                        tenantId = tenantUser?.TenantId;
+                    }
+                }
+
+                // If still no tenant, return empty stats
+                if (!tenantId.HasValue)
+                {
+                    return Ok(new
+                    {
+                        stats = new
+                        {
+                            activePlans = 0,
+                            completedPlans = 0,
+                            activeBaselines = 0,
+                            estimatedControlCount = 0,
+                            complianceRate = 0,
+                            pendingTasks = 0
+                        },
+                        message = "No tenant associated with user"
+                    });
+                }
+
+                // Get dashboard data for the tenant
+                var tenant = await _unitOfWork.Tenants.GetByIdAsync(tenantId.Value);
+                if (tenant == null)
+                {
+                    return Ok(new
+                    {
+                        stats = new
+                        {
+                            activePlans = 0,
+                            completedPlans = 0,
+                            activeBaselines = 0,
+                            estimatedControlCount = 0,
+                            complianceRate = 0,
+                            pendingTasks = 0
+                        }
+                    });
+                }
+
+                var plans = await _unitOfWork.Plans
+                    .Query()
+                    .Where(p => p.TenantId == tenantId.Value && !p.IsDeleted)
+                    .ToListAsync();
+
+                var activeBaselines = await _unitOfWork.TenantBaselines
+                    .Query()
+                    .Where(b => b.TenantId == tenantId.Value && !b.IsDeleted)
+                    .CountAsync();
+
+                var activePackages = await _unitOfWork.TenantPackages
+                    .Query()
+                    .Where(p => p.TenantId == tenantId.Value && !p.IsDeleted)
+                    .CountAsync();
+
+                var estimatedControlCount = (activeBaselines * 48) + (activePackages * 16);
+
+                return Ok(new
+                {
+                    tenantId = tenantId.Value,
+                    organizationName = tenant.OrganizationName,
+                    onboardingStatus = tenant.OnboardingStatus,
+                    stats = new
+                    {
+                        activePlans = plans.Count(p => p.Status == "Active"),
+                        completedPlans = plans.Count(p => p.Status == "Completed"),
+                        activeBaselines = activeBaselines,
+                        estimatedControlCount = estimatedControlCount,
+                        complianceRate = activeBaselines > 0 ? 75 : 0, // Placeholder - would need actual compliance calculation
+                        pendingTasks = plans.Count(p => p.Status == "InProgress")
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting dashboard summary");
+                return StatusCode(500, new { message = "Error retrieving dashboard data" });
+            }
         }
 
         /// <summary>

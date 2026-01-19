@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
+using GrcMvc.Data;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Models;
 using GrcMvc.Services.Interfaces;
@@ -19,10 +21,14 @@ namespace GrcMvc.Controllers
     public class AccountApiController : ControllerBase
     {
         private readonly IAuthenticationService _authenticationService;
+        private readonly GrcDbContext _context;
 
-        public AccountApiController(IAuthenticationService authenticationService)
+        public AccountApiController(
+            IAuthenticationService authenticationService,
+            GrcDbContext context)
         {
             _authenticationService = authenticationService;
+            _context = context;
         }
 
         /// <summary>
@@ -30,6 +36,7 @@ namespace GrcMvc.Controllers
         /// </summary>
         /// <remarks>
         /// Test with: admin@grc.com / password
+        /// Returns token along with onboarding status to help frontend determine next step.
         /// </remarks>
         [HttpPost("login")]
         [AllowAnonymous]
@@ -45,7 +52,46 @@ namespace GrcMvc.Controllers
                 if (result == null)
                     return Unauthorized(ApiResponse<object>.ErrorResponse("Invalid email or password"));
 
-                return Ok(ApiResponse<AuthTokenDto>.SuccessResponse(result, "Login successful"));
+                // Check tenant and onboarding status
+                var tenantUser = await _context.TenantUsers
+                    .Include(tu => tu.Tenant)
+                    .FirstOrDefaultAsync(tu => tu.UserId == result.User.Id && !tu.IsDeleted);
+
+                var requiresOnboarding = tenantUser == null ||
+                    tenantUser.Tenant == null ||
+                    tenantUser.Tenant.OnboardingStatus != "COMPLETED";
+
+                string? onboardingUrl = null;
+                Guid? tenantId = tenantUser?.TenantId;
+
+                if (requiresOnboarding && tenantId.HasValue)
+                {
+                    onboardingUrl = $"/OnboardingWizard?tenantId={tenantId}";
+                }
+                else if (requiresOnboarding && !tenantId.HasValue)
+                {
+                    // User has no tenant yet - redirect to create tenant/trial flow
+                    onboardingUrl = "/OnboardingWizard";
+                }
+
+                // Return extended response with onboarding info
+                return Ok(new
+                {
+                    success = true,
+                    message = "Login successful",
+                    data = new
+                    {
+                        token = result.AccessToken,
+                        refreshToken = result.RefreshToken,
+                        tokenType = result.TokenType,
+                        expiresIn = result.ExpiresIn,
+                        user = result.User,
+                        tenantId = tenantId,
+                        onboardingStatus = tenantUser?.Tenant?.OnboardingStatus ?? "NOT_STARTED",
+                        requiresOnboarding = requiresOnboarding,
+                        onboardingUrl = onboardingUrl
+                    }
+                });
             }
             catch (Exception ex)
             {

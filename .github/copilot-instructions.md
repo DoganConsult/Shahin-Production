@@ -1,153 +1,246 @@
 # GitHub Copilot Instructions for Shahin AI GRC Platform
 
 > **AI Agents**: Follow these patterns for code generation, refactoring, and debugging  
-> **Updated**: January 2026  
-> **Stack**: ASP.NET Core 8.0 MVC + PostgreSQL + ABP Framework Multi-Tenancy + 12 Claude AI Agents
+> **Updated**: January 19, 2026  
+> **Stack**: ASP.NET Core 8.0 MVC + PostgreSQL + Multi-Tenant ABP + 12 Claude AI Agents
 
----
+## 🎯 Big Picture: Why This Architecture
 
-## 🎯 Quick Start for AI Agents
+**Shahin GRC** is a **multi-tenant, AI-powered compliance automation platform** serving enterprise organizations (KSA-focused: NCA, SAMA, PDPL, CITC). The system employs 12 specialized Claude Sonnet agents for compliance, risk, audit, workflow, analytics, and evidence collection. 
 
-**Project Type**: Enterprise GRC SaaS with 12 specialized AI agents (Claude Sonnet 4.5)  
-**Active Codebase**: `src/GrcMvc/` (monolithic MVC app, 200+ entities, 100+ controllers)  
-**Database**: PostgreSQL 15 via EF Core 8.0.8 (multi-tenant with query filters)  
-**Key Dependencies**: ABP Framework, Hangfire, MassTransit, Camunda BPM, Serilog, QuestPDF
+**Architecture Decision**: Single MVC monolith (not microservices) to reduce complexity while supporting 230+ DbSets, 100+ controllers, 373 Razor views, and 12 agent types. Multi-tenancy is enforced at query filters (not separate databases) for operational simplicity and cost efficiency.
+
+**Data Flow**: 
+1. User → Tenant context via `ITenantContextService` (never defaults)
+2. Controllers invoke Services (business logic, tenant validation)
+3. Services call EF Core DbSets with automatic tenant filters
+4. Complex decisions → Claude agents (policy, risk, workflow recommendations)
+5. Events trigger background jobs (Hangfire) and Kafka streams (MassTransit)
+6. Dashboards consume event projections (real-time, not raw queries)
 
 ### Essential Commands
 ```bash
-# Development
-docker-compose up -d               # Start PostgreSQL, Redis, Kafka, Camunda, RabbitMQ
-dotnet run --project src/GrcMvc   # Run app → http://localhost:5010
-
-# Testing & Debugging
-dotnet test tests/GrcMvc.Tests
-dotnet ef migrations add MigrationName --project src/GrcMvc  # EF Core migrations
-
-# Background jobs: http://localhost:5010/hangfire
-# Camunda BPM: http://localhost:8080/camunda (if enabled)
-# API docs: http://localhost:5010/swagger
+docker-compose up -d                    # Start PostgreSQL, Redis, Kafka, Camunda
+dotnet run --project src/GrcMvc         # http://localhost:5010
+dotnet ef migrations add MigrationName  # Add to src/GrcMvc/Migrations/Grc
+dotnet ef database update               # Apply migrations
+dotnet test tests/GrcMvc.Tests          # Run full test suite
 ```
+
+## 🏗️ Multi-Tenancy: The Core Constraint
+
+**Golden Rule**: Every query **must** be tenant-scoped. No cross-tenant leaks allowed.
+
+### How It Works
+- Every entity inherits `BaseEntity` (`TenantId` as Guid? + `WorkspaceId` for team collaboration)
+- `GrcDbContext.OnModelCreating()` adds global query filters: `.HasQueryFilter(e => e.TenantId == tenantId)`
+- Tenant context injected via `ITenantContextService.GetCurrentTenantId()` (throws if missing)
+- **Never skip the filter**: If you manually write `.FromSqlInterpolated()`, you **must** add `WHERE TenantId = {currentTenantId}`
+
+### Adding a New Entity (Tenant-Safe)
+```csharp
+// 1. Entity in Models/Entities/MyEntity.cs
+public class MyControl : BaseEntity  // Inherits TenantId, WorkspaceId, audit fields
+{
+    public string Name { get; set; }
+    // TenantId, WorkspaceId, IsDeleted, CreatedAt, etc. inherited from BaseEntity
+}
+
+// 2. Add DbSet in GrcDbContext.cs
+public DbSet<MyControl> MyControls { get; set; }
+
+// 3. Query (automatic tenant filtering via global filter)
+var myControls = _dbContext.MyControls.ToList();  // Already filtered by TenantId
+```
+
+## 🤖 12 AI Agents: When and How
+
+**All agents** use `ClaudeAgentService` (unified handler) or specialized services. Tenant ID is **always** passed.
+
+| Agent | Service | Purpose |
+|-------|---------|---------|
+| **Compliance** | `ClaudeAgentService` | Framework selection, control recommendations |
+| **Risk Analysis** | `ILlmService.GenerateRiskInsights()` | Risk scoring, mitigation strategies |
+| **Audit** | `AuditRecommendationAgent` | Audit planning, finding prioritization |
+| **Policy** | `PolicyAgent` | Policy generation, gap analysis |
+| **Workflow** | `WorkflowAgent` | Task recommendations, escalation logic |
+| **Evidence** | `EvidenceCollectionAgent` | Evidence req identification, automation suggestions |
+| **Diagnostic** | `DiagnosticAgentService` | System health, troubleshooting |
+| **Support** | `SupportAgentService` | User help, FAQ generation |
+
+### Calling an Agent (Correct Pattern)
+```csharp
+// ✅ CORRECT: Tenant ID passed, response validated
+var tenantId = _tenantContextService.GetCurrentTenantId();  // Throws if missing
+var risks = await _llmService.GenerateRiskInsights(
+    new RiskAnalysisRequest 
+    { 
+        TenantId = tenantId,
+        ControlIds = new[] { /* ... */ },
+        Tone = "Professional"
+    }
+);
+
+// ❌ WRONG: No tenant validation, hardcoded config
+var risksBad = await _llmService.GenerateRiskInsights(defaultRequest);
+```
+
+**Key Files**:
+- `Services/Implementations/ClaudeAgentService.cs` (498 lines)
+- `Services/Implementations/LlmService.cs` (config per tenant)
+- `Services/Implementations/DiagnosticAgentService.cs`
+- `Services/Implementations/SupportAgentService.cs`
+
+## ⚙️ Workflow Engine: State Machines That Work
+
+**Why**: 10 compliance workflows (Control Implementation, Evidence Collection, Remediation, Approval, etc.) require explicit state management.
+
+**Pattern**: 
+- Entity: `WorkflowInstance` + `WorkflowTask` (state, owner, due date, sla status)
+- Service: `WorkflowService.CreateWorkflow()`, `.AdvanceTask()`, `.EscalateOverdue()`
+- Auto-escalation: `EscalationJob` runs hourly via Hangfire
+
+### Example: Starting an Evidence Collection Workflow
+```csharp
+var workflowId = await _workflowService.CreateWorkflow(
+    WorkflowType.EvidenceCollection,
+    tenantId,
+    new { ControlIds = controlIds, Deadline = DateTime.UtcNow.AddDays(14) }
+);
+// Auto-creates tasks, assigns to control owners, triggers Hangfire reminders
+```
+
+## 🎨 Code Conventions: Consistency Wins
+
+| What | Pattern | Example | Location |
+|------|---------|---------|----------|
+| **Entities** | Singular, PascalCase, inherit `BaseEntity` | `Risk`, `Control`, `AuditFinding` | `Models/Entities/` |
+| **Controllers** | `{Entity}Controller` (MVC), `{Entity}ApiController` (API) | `RiskController.cs`, `RiskApiController.cs` | `Controllers/` |
+| **Services** | `I{Entity}Service` interface + `{Entity}Service` implementation | `IRiskService`, `RiskService` | `Services/{Interface,Implementations}/` |
+| **DTOs** | `{Entity}ReadDto`, `{Entity}CreateDto`, `{Entity}UpdateDto` | `RiskReadDto`, `RiskCreateDto` | `Models/DTOs/` |
+| **Validators** | `{Entity}Validators.cs` with `{Entity}CreateValidator`, `{Entity}UpdateValidator` | `RiskCreateValidator : AbstractValidator<RiskCreateDto>` | `Validators/` |
+| **Migrations** | `Add{EntityName}` or `{ChangeDescription}` | `AddRiskTable`, `AddTenantIdToEvidence` | `Migrations/Grc/` |
+
+### Naming Golden Rules
+- ✅ `var risks = await _riskService.GetAllAsync(tenantId);`
+- ❌ `var r = await GetData();` (cryptic, no tenant context)
+- ✅ `public async Task<IEnumerable<RiskReadDto>> GetAllAsync(Guid tenantId) { ... }`
+- ❌ `public List<Risk> Get() { ... }` (not async, no DTO, no tenant context)
+
+## 🔌 Integration Points & External Services
+
+| Integration | Purpose | Config | File |
+|---|---|---|---|
+| **Claude Sonnet 4.5** | AI agents (compliance, risk, audit, policy, workflow) | `appsettings.json` → `ClaudeAgents:ApiKey` | `Services/Implementations/LlmService.cs` |
+| **Microsoft Graph** | OAuth email, teams integration | `appsettings.json` → `Graph:*` | `Controllers/GraphSubscriptionsController.cs` |
+| **SMTP** | Email delivery (dual: real vs stub) | `Email:Smtp:*` or `Email:UseStub: true` | `Services/Implementations/GrcEmailService.cs` |
+| **Camunda BPM** | Complex workflow orchestration (optional) | Docker: `camunda:7.20` | `docker-compose.yml` |
+| **Kafka + RabbitMQ** | Event streaming, MassTransit | `MassTransit:*`, `MessageBroker:*` | `Program.cs` DI configuration |
+| **PostgreSQL** | Primary data store | `ConnectionStrings:DefaultConnection` | Migrations run on startup |
+| **Redis** | Optional caching | `Redis:ConnectionString` | `Program.cs` service registration |
+
+## 🚀 Critical Workflow: Adding a New Feature
+
+### Step 1: Entity + Migration
+```csharp
+// Models/Entities/MyEntity.cs
+public class MyEntity : BaseEntity
+{
+    public string Title { get; set; }
+    public Guid? ParentId { get; set; }
+}
+
+// Add DbSet in GrcDbContext.cs
+public DbSet<MyEntity> MyEntities { get; set; }
+
+// Create migration
+dotnet ef migrations add AddMyEntity
+```
+
+### Step 2: DTOs + Service
+```csharp
+// Models/DTOs/MyEntity*.cs
+public class MyEntityReadDto { public Guid Id { get; set; } /* ... */ }
+public class MyEntityCreateDto { public string Title { get; set; } /* ... */ }
+
+// Services/IMyEntityService.cs + Implementations/MyEntityService.cs
+public interface IMyEntityService 
+{
+    Task<IEnumerable<MyEntityReadDto>> GetAllAsync(Guid tenantId);
+    Task<MyEntityReadDto> CreateAsync(Guid tenantId, MyEntityCreateDto dto);
+}
+```
+
+### Step 3: Controller + Validation
+```csharp
+// Controllers/MyEntityController.cs (MVC)
+public class MyEntityController : BaseController
+{
+    public async Task<IActionResult> Index()
+    {
+        var entities = await _myEntityService.GetAllAsync(_tenantId);
+        return View(entities);
+    }
+}
+
+// Controllers/Api/MyEntityApiController.cs (API)
+[ApiController]
+[Route("api/[controller]")]
+public class MyEntityApiController : ControllerBase { /* ... */ }
+
+// Validators/MyEntityValidators.cs
+public class MyEntityCreateValidator : AbstractValidator<MyEntityCreateDto>
+{
+    public MyEntityCreateValidator()
+    {
+        RuleFor(x => x.Title).NotEmpty().MaximumLength(255);
+    }
+}
+```
+
+### Step 4: Register in DI (Program.cs)
+```csharp
+builder.Services.AddScoped<IMyEntityService, MyEntityService>();
+builder.Services.AddScoped<MyEntityCreateValidator>();
+```
+
+## 🛡️ Security & Multi-Tenancy Guardrails
+
+**Always validate tenant context**:
+```csharp
+var tenantId = _tenantContextService.GetCurrentTenantId();  // Throws if missing
+if (tenantId == Guid.Empty) throw new SecurityException("Invalid tenant");
+
+var entity = await _dbContext.Risks.FirstOrDefaultAsync(r => r.Id == id && r.TenantId == tenantId);
+if (entity == null) throw new NotFoundException("Not found in your tenant");
+```
+
+**Background job tenant safety**:
+```csharp
+// ✅ CORRECT: Store tenantId in job data
+await _backgroundJobClient.EnqueueAsync<MyJob>(x => x.Execute(tenantId));
+
+// ❌ WRONG: Assuming ambient context persists in background job
+await _backgroundJobClient.EnqueueAsync<MyJob>(x => x.Execute());  // tenantId lost!
+```
+
+## 📚 Key Files & Ratios
+
+| File | Lines | Purpose |
+|------|-------|---------|
+| `Program.cs` | 1,749 | DI, middleware, Hangfire, MassTransit, auth, localization |
+| `GrcDbContext.cs` | 1,697 | 230+ DbSets, query filters, multi-tenant scoping |
+| `ClaudeAgentService.cs` | 498 | Unified handler for 12 AI agents |
+| `DashboardService.cs` | 31KB | Event-driven projections for dashboards |
+| `AdminCatalogService.cs` | 36KB | Control/framework catalog management |
+| `OnboardingWizard.cs` | 25KB | Multi-tenant onboarding flow data |
+
+**Test Coverage**: 34 test files for 833 source files (~4% ratio). Priority: Tenant isolation, workflow state, agent output validation.
 
 ---
 
-## 🏗️ Core Architecture Patterns
-
-### Multi-Tenancy + Workspace Isolation
-- All entities extend `BaseEntity` with `TenantId` (Guid?) and optional `WorkspaceId`
-- Global query filters in `GrcDbContext.OnModelCreating()` auto-scope queries
-- Tenant context via `ITenantContextService.GetCurrentTenantId()` (never throws)
-- Workspace context via `IWorkspaceContextService` for team collaboration
-- Separate auth DB (`GrcAuthDbContext`) for security isolation
-
-### 12 AI Agents (Claude-Based)
-- Unified `ClaudeAgentService` handles 7+ agent types: Compliance, Risk, Audit, Policy, Analytics, Report, Workflow
-- Agents: DiagnosticAgentService, SupportAgentService, EmailAiService
-- Configuration in `appsettings.json` under `ClaudeAgents` (API key required)
-- Governance: `AgentApprovalGate`, `AgentSoDRule`, `AgentConfidenceScore`
-- Example: Risk analysis via `ILlmService.GenerateRiskInsights()`
-
-### Workflow Engine (Custom + Camunda BPM)
-- 10 workflow types: Control Implementation, Risk Assessment, Approval, Evidence Collection, etc.
-- Custom engine: `WorkflowInstance`/`WorkflowTask` entities, state transitions via task completion
-- Camunda integration: BPMN processes for complex orchestrations
-- Auto-escalation via `EscalationJob` (Hangfire)
-
-### Event-Driven Analytics
-- `DashboardProjector` listens to `IGrcEvent` handlers for real-time projections
-- Projections: compliance scores, risk heatmaps, task metrics (no raw data queries)
-- MassTransit for event streaming (Kafka/RabbitMQ)
-
-### Localization & Security
-- Bilingual: English (2,495 strings) + Arabic (2,399 strings) in `Resources/`
-- RTL support via `rtl.css`
-- Security: OWASP headers (`SecurityHeadersMiddleware`), rate limiting (100 req/min), JWT (32+ char secret)
-
-## Key Conventions & Patterns
-
-### Naming & Code Style
-- Entities: PascalCase singular (e.g., `Risk`, `Control`)
-- Controllers: `{Entity}Controller` (MVC), `{Entity}ApiController` (API)
-- Services: `{Entity}Service` implementing `I{Entity}Service`
-- Async/await everywhere; DI via constructor; `ILogger<T>` for logging
-- FluentValidation for DTOs; AutoMapper for mappings
-
-### Database Patterns
-- Soft delete: `IsDeleted` flag on all entities (`BaseEntity`)
-- Audit: `CreatedBy`, `CreatedAt`, `ModifiedBy`, `ModifiedAt`, `RowVersion`
-- Concurrency: Optimistic via `RowVersion`
-- Migrations: 60+ files; run `dotnet ef database update`
-
-### Adding New Entities
-1. Extend `BaseEntity` in `Models/Entities/{Entity}.cs`
-2. Add `DbSet<Entity>` to `GrcDbContext.cs`
-3. Create DTOs in `Models/DTOs/` (Read/Create/Update variants)
-4. Service: `I{Entity}Service` + implementation
-5. Controller: `{Entity}Controller.cs`
-6. Validator: `Validators/{Entity}Validators.cs`
-7. Migration: `dotnet ef migrations add Add{Entity}`
-
-### Tenant-Aware Queries
-```csharp
-var tenantId = _tenantContextService.GetCurrentTenantId();
-var entities = _unitOfWork.Risks
-    .Where(r => r.TenantId == tenantId)
-    .ToList();
-```
-
-### AI Agent Calls
-```csharp
-var insights = await _llmService.GenerateInsights(request, tenantConfig);
-```
-
-## Integration Points
-- Claude AI: 12 agents via `ClaudeAgentService`
-- Microsoft Graph: OAuth2 email via `GraphSubscriptionsController`
-- SMTP: Dual mode (`SmtpEmailService` vs `StubEmailService`)
-- Camunda BPM: Workflow orchestration
-- Kafka/RabbitMQ: Event streaming via MassTransit
-- Redis: Caching (optional)
-
-## Active Roadmap Reminder
-- **24-week ecosystem roadmap** available in workspace
-- **Current Phase**: Phase 1 - Foundation (Weeks 1-6)
-- **Start Here**: `ECOSYSTEM_ROADMAP_INDEX.md`
-- **Investment**: $750K over 24 weeks
-
-## Key Files Reference
-- `Program.cs`: DI, middleware, Hangfire, MassTransit, localization (2,445 lines)
-- `GrcDbContext.cs`: 230+ DbSets, query filters (2,361 lines)
-- `AutoMapperProfile.cs`: Entity↔DTO mappings (~150 lines)
-- `BaseEntity.cs`: Multi-tenant base with audit fields
-- `ClaudeAgentService.cs`: Unified AI agent handler (498 lines)
-- `DashboardProjector.cs`: Event-driven analytics
-- `SecurityHeadersMiddleware.cs`: OWASP headers
-- `docker-compose.yml`: 11 services orchestration
-
----
-
-**Last Updated**: January 16, 2026  
-**Status**: GRC Phase-based development with 12 AI agents + Camunda BPM
-
-### 1. Hangfire Background Jobs
-**Location**: `src/GrcMvc/BackgroundJobs/`
-- **CodeQualityMonitorJob** — Code analysis
-- **EscalationJob** — Auto-escalate overdue tasks
-- **NotificationDeliveryJob** — Batch email sending
-- **SlaMonitorJob** — Track SLA violations
-- **Dashboard**: http://localhost:8080/hangfire
-
-### 2. LLM Service (Tenant-Configurable AI)
-`src/GrcMvc/Services/Implementations/LlmService.cs` (498 lines)
-- Generate workflow insights, risk analysis, compliance recommendations
-- Tenant-specific configuration (API keys, models, tone)
-- Never hardcode — All LLM config via environment or database
-
-### 3. Security & Middleware
-
-**SecurityHeadersMiddleware** — OWASP security headers (CSP, HSTS, X-Frame-Options), server fingerprint removal
-
-**Rate Limiting**:
-- Global: 100 req/min per user/IP
+**Roadmap**: 24-week ecosystem expansion available in `ECOSYSTEM_ROADMAP_INDEX.md`  
+**Last Updated**: January 19, 2026
 - API endpoints: 30 req/min
 - Auth endpoints: 5 req/5min (brute force protection)
 

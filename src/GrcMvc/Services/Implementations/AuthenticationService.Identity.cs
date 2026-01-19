@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using GrcMvc.Constants;
 using GrcMvc.Data;
@@ -13,6 +15,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace GrcMvc.Services.Implementations
 {
@@ -52,10 +55,8 @@ namespace GrcMvc.Services.Implementations
         }
 
         /// <summary>
-        /// DEPRECATED: Use /connect/token endpoint with OAuth2 password grant instead.
-        /// This method now only validates credentials and returns user info without tokens.
+        /// Authenticate user and return JWT token
         /// </summary>
-        [Obsolete("Use /connect/token endpoint with OAuth2 password grant for authentication")]
         public async Task<AuthTokenDto?> LoginAsync(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -82,15 +83,18 @@ namespace GrcMvc.Services.Implementations
             var roles = await _userManager.GetRolesAsync(user);
             var claims = await _userManager.GetClaimsAsync(user);
 
-            _logger.LogInformation("User {Email} credentials validated. Use /connect/token for OAuth2 tokens.", email);
+            // Generate JWT token
+            var accessToken = GenerateJwtToken(user, roles, claims);
+            var refreshToken = GenerateRefreshToken();
 
-            // Return user info with deprecation notice - no JWT token
+            _logger.LogInformation("User {Email} logged in successfully.", email);
+
             return new AuthTokenDto
             {
-                AccessToken = "DEPRECATED:Use_/connect/token_endpoint",
-                RefreshToken = "DEPRECATED:Use_/connect/token_endpoint",
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
                 TokenType = "Bearer",
-                ExpiresIn = 0,
+                ExpiresIn = 28800, // 8 hours in seconds
                 User = new AuthUserDto
                 {
                     Id = user.Id.ToString(),
@@ -104,10 +108,64 @@ namespace GrcMvc.Services.Implementations
         }
 
         /// <summary>
-        /// DEPRECATED: Use /connect/token endpoint after registration for tokens.
-        /// This method creates the user but does not return tokens.
+        /// Generate JWT token for authenticated user
         /// </summary>
-        [Obsolete("Use /connect/token endpoint with OAuth2 password grant for authentication after registration")]
+        private string GenerateJwtToken(ApplicationUser user, IList<string> roles, IList<Claim> userClaims)
+        {
+            var jwtSecret = _configuration["JwtSettings:Secret"] ??
+                           _configuration["Jwt:Key"] ??
+                           "ShahinAI-GRC-Platform-Secret-Key-Min-32-Characters!!";
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var tokenClaims = new List<Claim>
+            {
+                new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new(JwtRegisteredClaimNames.Email, user.Email ?? ""),
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new("name", user.FullName ?? ""),
+                new("user_id", user.Id.ToString())
+            };
+
+            // Add roles
+            foreach (var role in roles)
+            {
+                tokenClaims.Add(new Claim(ClaimTypes.Role, role));
+                tokenClaims.Add(new Claim("role", role));
+            }
+
+            // Add existing user claims
+            tokenClaims.AddRange(userClaims);
+
+            var issuer = _configuration["JwtSettings:Issuer"] ?? _configuration["Jwt:Issuer"] ?? "ShahinAI-GRC";
+            var audience = _configuration["JwtSettings:Audience"] ?? _configuration["Jwt:Audience"] ?? "ShahinAI-GRC-App";
+
+            var token = new JwtSecurityToken(
+                issuer: issuer,
+                audience: audience,
+                claims: tokenClaims,
+                expires: DateTime.UtcNow.AddHours(8),
+                signingCredentials: creds);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        /// <summary>
+        /// Generate a secure refresh token
+        /// </summary>
+        private string GenerateRefreshToken()
+        {
+            var randomBytes = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomBytes);
+            return Convert.ToBase64String(randomBytes);
+        }
+
+        /// <summary>
+        /// Register a new user and return JWT token
+        /// </summary>
         public async Task<AuthTokenDto?> RegisterAsync(string email, string password, string fullName)
         {
             // Check if user already exists
@@ -141,7 +199,7 @@ namespace GrcMvc.Services.Implementations
             // Set UserName and Email using UserManager methods
             await _userManager.SetUserNameAsync(user, email);
             await _userManager.SetEmailAsync(user, email);
-            
+
             // Conditionally confirm email
             if (!_configuration.GetValue<bool>("RequireEmailConfirmation", false))
             {
@@ -155,15 +213,18 @@ namespace GrcMvc.Services.Implementations
             var roles = await _userManager.GetRolesAsync(user);
             var claims = await _userManager.GetClaimsAsync(user);
 
-            _logger.LogInformation("User {Email} registered successfully. Use /connect/token for OAuth2 tokens.", email);
+            // Generate JWT token
+            var accessToken = GenerateJwtToken(user, roles, claims);
+            var refreshToken = GenerateRefreshToken();
 
-            // Return user info with deprecation notice - no JWT token
+            _logger.LogInformation("User {Email} registered successfully.", email);
+
             return new AuthTokenDto
             {
-                AccessToken = "DEPRECATED:Use_/connect/token_endpoint",
-                RefreshToken = "DEPRECATED:Use_/connect/token_endpoint",
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
                 TokenType = "Bearer",
-                ExpiresIn = 0,
+                ExpiresIn = 28800, // 8 hours in seconds
                 User = new AuthUserDto
                 {
                     Id = user.Id.ToString(),

@@ -212,7 +212,7 @@ public class IncidentResponseService : IIncidentResponseService
         {
             Items = items.Select(MapToDto).ToList(),
             TotalCount = totalCount,
-            PageNumber = request.PageNumber,
+            Page = request.PageNumber,
             PageSize = request.PageSize
         };
     }
