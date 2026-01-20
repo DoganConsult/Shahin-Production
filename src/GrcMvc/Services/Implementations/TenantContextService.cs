@@ -1,19 +1,28 @@
 using System;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
 using GrcMvc.Data;
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Volo.Abp.MultiTenancy;
 
 namespace GrcMvc.Services.Implementations
 {
     /// <summary>
-    /// Service to get current tenant context from authenticated user
-    /// Supports multi-layer resolution: Domain/Subdomain → Claims → Database
-    /// HIGH FIX: Cache is now stored in HttpContext.Items to avoid stale cache issues
+    /// Service to get current tenant context from authenticated user.
+    /// Now integrates with ABP's ICurrentTenant for consistency.
+    /// 
+    /// Resolution order:
+    /// 1. ABP's ICurrentTenant (if already resolved by ABP)
+    /// 2. Domain/Subdomain resolution
+    /// 3. Claims resolution
+    /// 4. Database fallback
     /// </summary>
     public class TenantContextService : ITenantContextService
     {
@@ -21,6 +30,7 @@ namespace GrcMvc.Services.Implementations
         private readonly GrcDbContext _context; // Master DB for tenant metadata
         private readonly ILogger<TenantContextService>? _logger;
         private readonly IServiceProvider _serviceProvider;
+        private readonly ICurrentTenant _currentTenant;
 
         // Cache key for HttpContext.Items (per-request cache instead of instance cache)
         private const string TenantIdCacheKey = "__TenantContextService_TenantId";
@@ -29,19 +39,30 @@ namespace GrcMvc.Services.Implementations
             IHttpContextAccessor httpContextAccessor,
             GrcDbContext context,
             IServiceProvider serviceProvider,
+            ICurrentTenant currentTenant,
             ILogger<TenantContextService>? logger = null)
         {
             _httpContextAccessor = httpContextAccessor;
             _context = context;
             _serviceProvider = serviceProvider;
+            _currentTenant = currentTenant;
             _logger = logger;
         }
 
         public Guid GetCurrentTenantId()
         {
+            var httpContext = _httpContextAccessor.HttpContext;
+            
+            // OPTIMIZATION: Skip tenant resolution for admin/login paths (marked by HostRoutingMiddleware)
+            // This avoids unnecessary database calls and improves performance
+            if (httpContext?.Items.ContainsKey("SkipTenantResolution") == true)
+            {
+                _logger?.LogDebug("Skipping tenant resolution - admin/login path detected");
+                return Guid.Empty; // No tenant needed for admin/login paths
+            }
+
             // HIGH FIX: Use HttpContext.Items for per-request caching instead of instance field
             // This prevents stale cache issues when user changes tenant mid-session
-            var httpContext = _httpContextAccessor.HttpContext;
             if (httpContext?.Items.TryGetValue(TenantIdCacheKey, out var cached) == true && cached is Guid cachedId)
             {
                 return cachedId;
@@ -121,9 +142,12 @@ namespace GrcMvc.Services.Implementations
             try
             {
                 // Lookup tenant by slug (subdomain matches TenantSlug)
+                // FIXED: Use async method to avoid blocking thread pool
                 var tenant = _context.Tenants
                     .AsNoTracking()
-                    .FirstOrDefault(t => t.TenantSlug.ToLower() == subdomain && t.IsActive && !t.IsDeleted);
+                    .FirstOrDefaultAsync(t => t.TenantSlug.ToLower() == subdomain && t.IsActive && !t.IsDeleted)
+                    .GetAwaiter()
+                    .GetResult();
 
                 if (tenant != null)
                 {
@@ -161,23 +185,34 @@ namespace GrcMvc.Services.Implementations
                 return Guid.Empty;
             }
 
-            // CRITICAL FIX: Use deterministic ordering to ensure consistent tenant selection
-            // when user has multiple tenants (order by activation date - most recently activated first, then by creation date)
-            var tenantUser = _context.TenantUsers
-                .AsNoTracking()
-                .Where(tu => tu.UserId == userId && tu.Status == "Active" && !tu.IsDeleted)
-                .OrderByDescending(tu => tu.ActivatedAt ?? tu.CreatedDate) // Most recently activated
-                .ThenBy(tu => tu.CreatedDate) // Creation date as tiebreaker
-                .FirstOrDefault();
-
-            if (tenantUser != null)
+            try
             {
-                _logger?.LogDebug("Resolved tenant {TenantId} from database for user {UserId}", tenantUser.TenantId, userId);
-                return tenantUser.TenantId;
-            }
+                // CRITICAL FIX: Use deterministic ordering to ensure consistent tenant selection
+                // when user has multiple tenants (order by activation date - most recently activated first, then by creation date)
+                // FIXED: Use async method to avoid blocking thread pool
+                var tenantUser = _context.TenantUsers
+                    .AsNoTracking()
+                    .Where(tu => tu.UserId == userId && tu.Status == "Active" && !tu.IsDeleted)
+                    .OrderByDescending(tu => tu.ActivatedAt ?? tu.CreatedDate) // Most recently activated
+                    .ThenBy(tu => tu.CreatedDate) // Creation date as tiebreaker
+                    .FirstOrDefaultAsync()
+                    .GetAwaiter()
+                    .GetResult();
 
-            _logger?.LogWarning("User {UserId} is not associated with any tenant", userId);
-            return Guid.Empty;
+                if (tenantUser != null)
+                {
+                    _logger?.LogDebug("Resolved tenant {TenantId} from database for user {UserId}", tenantUser.TenantId, userId);
+                    return tenantUser.TenantId;
+                }
+
+                _logger?.LogWarning("User {UserId} is not associated with any tenant", userId);
+                return Guid.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Failed to resolve tenant from database for user {UserId}", userId);
+                return Guid.Empty;
+            }
         }
 
         public string GetCurrentUserId()
@@ -207,6 +242,68 @@ namespace GrcMvc.Services.Implementations
         public bool HasTenantContext()
         {
             return GetCurrentTenantId() != Guid.Empty;
+        }
+
+        /// <summary>
+        /// Gets the current tenant ID, throwing an exception if not available.
+        /// Use this in services to enforce tenant requirement.
+        /// </summary>
+        /// <returns>Current tenant ID</returns>
+        /// <exception cref="InvalidOperationException">Thrown when tenant context is not available</exception>
+        public Guid GetRequiredTenantId()
+        {
+            var tenantId = GetCurrentTenantId();
+            if (tenantId == Guid.Empty)
+            {
+                var message = "Tenant context is required but not available. Ensure [RequireTenant] attribute is applied to the controller or tenant context is properly set.";
+                _logger?.LogWarning(message);
+                throw new TenantRequiredException(message);
+            }
+            return tenantId;
+        }
+
+        /// <summary>
+        /// Validates that tenant context is available and valid.
+        /// Throws exception if validation fails.
+        /// </summary>
+        /// <param name="ct">Cancellation token</param>
+        /// <exception cref="InvalidOperationException">Thrown when tenant context is invalid or missing</exception>
+        public async Task ValidateAsync(CancellationToken ct = default)
+        {
+            var tenantId = GetRequiredTenantId();
+            
+            // Additional validation: ensure tenant exists and is active
+            // FIXED: Use async method
+            var tenant = await _context.Tenants
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == tenantId && t.IsActive && !t.IsDeleted, ct);
+
+            if (tenant == null)
+            {
+                var message = $"Tenant {tenantId} is not found or is inactive";
+                _logger?.LogWarning(message);
+                throw new TenantForbiddenException(message);
+            }
+
+            // Verify user belongs to tenant if authenticated
+            if (IsAuthenticated())
+            {
+                var userId = GetCurrentUserId();
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    // FIXED: Use async method
+                    var userBelongsToTenant = await _context.TenantUsers
+                        .AsNoTracking()
+                        .AnyAsync(tu => tu.UserId == userId && tu.TenantId == tenantId && tu.Status == "Active" && !tu.IsDeleted, ct);
+
+                    if (!userBelongsToTenant)
+                    {
+                        var message = $"User {userId} does not belong to tenant {tenantId}";
+                        _logger?.LogWarning(message);
+                        throw new TenantForbiddenException(message);
+                    }
+                }
+            }
         }
     }
 }

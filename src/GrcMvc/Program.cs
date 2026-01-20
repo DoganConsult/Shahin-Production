@@ -12,6 +12,7 @@ using GrcMvc.Services.Implementations.RBAC;
 // ABP Framework Integration
 using GrcMvc.Abp;
 using Volo.Abp;
+using Volo.Abp.BackgroundWorkers;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 // Hangfire for background jobs
@@ -20,7 +21,6 @@ using Hangfire.PostgreSql;
 // MassTransit for message queue
 using MassTransit;
 using GrcMvc.Messaging.Consumers;
-using GrcMvc.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Polly;
@@ -30,8 +30,8 @@ using GrcMvc.Models.Entities;
 using GrcMvc.Configuration;
 using GrcMvc.Services;
 using GrcMvc.Middleware;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+// JWT imports removed - using OpenIddict for authentication
+using OpenIddict.Validation.AspNetCore;
 using Microsoft.Extensions.Options;
 using System.Text;
 using FluentValidation.AspNetCore;
@@ -39,6 +39,7 @@ using FluentValidation;
 using GrcMvc.Validators;
 using GrcMvc.Models.DTOs;
 using Npgsql;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
@@ -50,7 +51,6 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.DataProtection;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.Extensions.Options;
 using GrcMvc.Resources;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -63,7 +63,22 @@ builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 // ══════════════════════════════════════════════════════════════
 // ABP Framework - Register ABP Application Module
 // ══════════════════════════════════════════════════════════════
-await builder.Services.AddApplicationAsync<GrcMvcAbpModule>();
+// ABP Framework configuration
+builder.Services.AddApplication<GrcMvcAbpModule>();
+
+// Disable ABP static savers to avoid startup issues
+builder.Services.Configure<Volo.Abp.FeatureManagement.FeatureManagementOptions>(options =>
+{
+    options.SaveStaticFeaturesToDatabase = false;
+});
+builder.Services.Configure<Volo.Abp.PermissionManagement.PermissionManagementOptions>(options =>
+{
+    options.SaveStaticPermissionsToDatabase = false;
+});
+builder.Services.Configure<Volo.Abp.SettingManagement.SettingManagementOptions>(options =>
+{
+    options.SaveStaticSettingsToDatabase = false;
+});
 
 // ══════════════════════════════════════════════════════════════
 // Load Environment Variables from .env file (Production Security)
@@ -145,12 +160,53 @@ if (builder.Environment.IsDevelopment())
 //
 // We support multiple formats for flexibility:
 // - Standard: ConnectionStrings__DefaultConnection (Docker Compose)
+// - Platform: DATABASE_URL (Railway, Heroku, Render, etc.)
 // - Individual: DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
-// - Fallback: appsettings.json defaults
+// - Fallback: appsettings.json defaults (development only)
 
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// If not set via standard configuration, try building from individual DB_* variables
+// Helper function to parse DATABASE_URL (postgresql://user:pass@host:port/db)
+static string? ParseDatabaseUrl(string? databaseUrl)
+{
+    if (string.IsNullOrWhiteSpace(databaseUrl))
+        return null;
+
+    try
+    {
+        // Support both postgresql:// and postgres://
+        if (!databaseUrl.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase) &&
+            !databaseUrl.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        var uri = new Uri(databaseUrl);
+        var userInfo = uri.UserInfo.Split(':');
+        var username = Uri.UnescapeDataString(userInfo[0]);
+        var password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "";
+        var host = uri.Host;
+        var port = uri.Port > 0 ? uri.Port.ToString() : "5432";
+        var database = uri.AbsolutePath.TrimStart('/');
+
+        return $"Host={host};Database={database};Username={username};Password={password};Port={port}";
+    }
+    catch
+    {
+        return null;
+    }
+}
+
+// Priority 1: Try DATABASE_URL (common in Railway, Heroku, Render, etc.)
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+    connectionString = ParseDatabaseUrl(databaseUrl);
+    if (!string.IsNullOrWhiteSpace(connectionString))
+    {
+        builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
+    }
+}
+
+// Priority 2: Try building from individual DB_* variables
 if (string.IsNullOrWhiteSpace(connectionString))
 {
     var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
@@ -168,31 +224,22 @@ if (string.IsNullOrWhiteSpace(connectionString))
     }
 }
 
+// Priority 3: Development fallback (only in Development environment)
+if (string.IsNullOrWhiteSpace(connectionString) && builder.Environment.IsDevelopment())
+{
+    // Try local PostgreSQL default
+    connectionString = "Host=localhost;Database=GrcMvcDb;Username=postgres;Password=postgres;Port=5432";
+    builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
+}
+
 // Get auth connection string (or use default if not set)
 string? authConnectionString = builder.Configuration.GetConnectionString("GrcAuthDb") ?? connectionString;
 if (string.IsNullOrWhiteSpace(authConnectionString) && !string.IsNullOrWhiteSpace(connectionString))
 {
     builder.Configuration["ConnectionStrings:GrcAuthDb"] = connectionString;
 }
-// CRITICAL SECURITY FIX: JWT secret must be provided via environment variable in production
-var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
-if (string.IsNullOrWhiteSpace(jwtSecret))
-{
-    if (builder.Environment.IsProduction())
-    {
-        throw new InvalidOperationException("JWT_SECRET environment variable is required in Production. Set it before starting the application.");
-    }
-    else
-    {
-        // Development: Use secret from appsettings.json (fallback)
-        jwtSecret = builder.Configuration["JwtSettings:Secret"];
-        if (string.IsNullOrWhiteSpace(jwtSecret))
-        {
-            throw new InvalidOperationException("JWT_SECRET not found in environment or appsettings.json");
-        }
-    }
-}
-builder.Configuration["JwtSettings:Secret"] = jwtSecret;
+// NOTE: JWT configuration removed - using OpenIddict for authentication
+// OpenIddict handles token generation and validation automatically
 
 // Production Environment Variable Validation
 if (builder.Environment.IsProduction())
@@ -201,13 +248,14 @@ if (builder.Environment.IsProduction())
 
     // Critical variables for production
     if (string.IsNullOrWhiteSpace(connectionString))
-        missingVars.Add("CONNECTION_STRING or DB_PASSWORD");
+        missingVars.Add("DATABASE_URL, ConnectionStrings__DefaultConnection, or DB_HOST+DB_PASSWORD");
 
     if (missingVars.Count > 0)
     {
         throw new InvalidOperationException(
             $"The following critical environment variables are missing in Production: {string.Join(", ", missingVars)}. " +
-            "Set them before starting the application.");
+            "Set them before starting the application. " +
+            "Platforms like Railway/Heroku typically provide DATABASE_URL automatically.");
     }
 
     // Log warnings for optional but recommended variables
@@ -426,16 +474,50 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 
-    // JWT Bearer authentication in Swagger
-    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    // OpenIddict OAuth2 authentication in Swagger
+    options.AddSecurityDefinition("OpenIddict", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token.",
-        Name = "Authorization",
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.OAuth2,
+        Flows = new Microsoft.OpenApi.Models.OpenApiOAuthFlows
+        {
+            Password = new Microsoft.OpenApi.Models.OpenApiOAuthFlow
+            {
+                TokenUrl = new Uri("/connect/token", UriKind.Relative),
+                Scopes = new Dictionary<string, string>
+                {
+                    { "openid", "OpenId scope" },
+                    { "profile", "Profile scope" },
+                    { "email", "Email scope" },
+                    { "roles", "Roles scope" },
+                    { "offline_access", "Offline access (refresh token)" },
+                    { "grc-api", "GRC API access" }
+                }
+            },
+            AuthorizationCode = new Microsoft.OpenApi.Models.OpenApiOAuthFlow
+            {
+                AuthorizationUrl = new Uri("/connect/authorize", UriKind.Relative),
+                TokenUrl = new Uri("/connect/token", UriKind.Relative),
+                Scopes = new Dictionary<string, string>
+                {
+                    { "openid", "OpenId scope" },
+                    { "profile", "Profile scope" },
+                    { "email", "Email scope" },
+                    { "roles", "Roles scope" },
+                    { "offline_access", "Offline access (refresh token)" },
+                    { "grc-api", "GRC API access" }
+                }
+            },
+            ClientCredentials = new Microsoft.OpenApi.Models.OpenApiOAuthFlow
+            {
+                TokenUrl = new Uri("/connect/token", UriKind.Relative),
+                Scopes = new Dictionary<string, string>
+                {
+                    { "grc-api", "GRC API access" }
+                }
+            }
+        }
     });
-
+    
     options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
     {
         {
@@ -444,10 +526,10 @@ builder.Services.AddSwaggerGen(options =>
                 Reference = new Microsoft.OpenApi.Models.OpenApiReference
                 {
                     Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
+                    Id = "OpenIddict"
                 }
             },
-            Array.Empty<string>()
+            new[] { "openid", "profile", "email", "roles", "offline_access", "grc-api" }
         }
     });
 });
@@ -498,8 +580,7 @@ else
 }
 
 // Bind strongly-typed configuration
-builder.Services.Configure<JwtSettings>(
-    builder.Configuration.GetSection(JwtSettings.SectionName));
+// NOTE: JwtSettings configuration removed - using OpenIddict
 builder.Services.Configure<ApplicationSettings>(
     builder.Configuration.GetSection(ApplicationSettings.SectionName));
 // EmailSettings with proper binding (uses nullable port to handle empty env var override)
@@ -537,9 +618,11 @@ if (string.IsNullOrWhiteSpace(connectionString))
     throw new InvalidOperationException(
         "Database connection string 'DefaultConnection' not found. " +
         "Please set it via one of the following methods:\n" +
-        "1. Environment variable: ConnectionStrings__DefaultConnection\n" +
-        "2. Environment variables: DB_HOST, DB_NAME, DB_USER, DB_PASSWORD\n" +
-        "3. appsettings.{Environment}.json: ConnectionStrings.DefaultConnection");
+        "1. Environment variable: DATABASE_URL (postgresql://user:pass@host:port/db)\n" +
+        "2. Environment variable: ConnectionStrings__DefaultConnection\n" +
+        "3. Environment variables: DB_HOST, DB_NAME, DB_USER, DB_PASSWORD\n" +
+        "4. appsettings.{Environment}.json: ConnectionStrings.DefaultConnection\n\n" +
+        "For local development, ensure PostgreSQL is running and set DB_PASSWORD environment variable.");
 }
 
 // Set connection string in configuration for ABP Framework to use
@@ -650,7 +733,8 @@ builder.Services.AddRateLimiter(options =>
 });
 
 // Configure Identity with enhanced security
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+// Use AddIdentityCore to register UserManager without duplicate authentication schemes
+builder.Services.AddIdentityCore<ApplicationUser>(options =>
 {
     // Password settings - Strengthened
     options.Password.RequireDigit = true;
@@ -671,46 +755,38 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.SignIn.RequireConfirmedEmail = builder.Environment.IsProduction();
     options.SignIn.RequireConfirmedAccount = builder.Environment.IsProduction();
 })
+.AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<GrcAuthDbContext>()
+.AddSignInManager()
 .AddDefaultTokenProviders();
 
-// Configure JWT Authentication (for API endpoints)
-var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>();
-if (jwtSettings == null || !jwtSettings.IsValid())
-{
-    throw new InvalidOperationException(
-        "JWT settings are invalid or missing. " +
-        "Please set JwtSettings__Secret (min 32 chars) via environment variable or User Secrets.");
-}
-
-var key = Encoding.UTF8.GetBytes(jwtSettings.Secret);
-
+// Configure Authentication Schemes
+// NOTE: JWT Bearer authentication removed - using OpenIddict for API authentication
 builder.Services.AddAuthentication(options =>
 {
-    // Use cookie authentication as default for MVC web app
+    // Default scheme for MVC (cookie-based)
     options.DefaultScheme = IdentityConstants.ApplicationScheme;
     options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
     options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
     options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = true,
-        ValidIssuer = jwtSettings.Issuer,
-        ValidateAudience = true,
-        ValidAudience = jwtSettings.Audience,
-        ValidateLifetime = true,
-        ClockSkew = TimeSpan.FromMinutes(1) // Allow 1 minute clock skew
-    };
+    
+    // OpenIddict validation is registered by ABP module (GrcMvcAbpModule)
+    // API controllers use: [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
+    // Or rely on default policy configured below
 });
 
 // Add authorization policies
 builder.Services.AddAuthorization(options =>
 {
+    // Default policy for API routes: use OpenIddict validation
+    // MVC routes will use cookie authentication (IdentityConstants.ApplicationScheme)
+    options.DefaultPolicy = new AuthorizationPolicyBuilder()
+        .AddAuthenticationSchemes(
+            OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme,
+            IdentityConstants.ApplicationScheme) // Fallback to cookie for backward compatibility
+        .RequireAuthenticatedUser()
+        .Build();
+
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
     options.AddPolicy("ComplianceOfficer", policy => policy.RequireRole("ComplianceOfficer", "Admin"));
     options.AddPolicy("RiskManager", policy => policy.RequireRole("RiskManager", "Admin"));
@@ -782,23 +858,14 @@ builder.Services.AddScoped<IUnitOfWork, TenantAwareUnitOfWork>();
 // App Info Service (centralized branding & version info)
 builder.Services.AddSingleton<IAppInfoService, AppInfoService>();
 
-// ABP Feature Check Service - Tenant feature management
-builder.Services.AddScoped<IFeatureCheckService, FeatureCheckService>();
+// Note: IFeatureCheckService is registered in GrcMvcAbpModule.cs (using ABP's IFeatureChecker internally)
 
-// RiskService migrated to IDbContextFactory for tenant database isolation
-builder.Services.AddScoped<IRiskService, RiskService>();
-builder.Services.AddScoped<IControlService, ControlService>();
-builder.Services.AddScoped<IAssessmentService, AssessmentService>();
-builder.Services.AddScoped<IAssessmentExecutionService, AssessmentExecutionService>();
-builder.Services.AddScoped<IAuditService, AuditService>();
-builder.Services.AddScoped<IPolicyService, PolicyService>();
-builder.Services.AddScoped<IWorkflowService, WorkflowService>();
-builder.Services.AddScoped<IFileUploadService, FileUploadService>();
-builder.Services.AddScoped<IActionPlanService, ActionPlanService>();
-builder.Services.AddScoped<IVendorService, VendorService>();
-builder.Services.AddScoped<IRegulatorService, RegulatorService>();
-builder.Services.AddScoped<IComplianceCalendarService, ComplianceCalendarService>();
-builder.Services.AddScoped<IFrameworkManagementService, FrameworkManagementService>();
+// ══════════════════════════════════════════════════════════════════════════════
+// Business Logic Services - MOVED to GrcMvcAbpModule.cs (ABP module registration)
+// Architecture: All tenant-aware services should be registered in ABP module
+// ══════════════════════════════════════════════════════════════════════════════
+// Services moved: IRiskService, IControlService, IAssessmentService, etc.
+// See: GrcMvcAbpModule.cs -> ConfigureServices method
 builder.Services.AddTransient<IAppEmailSender, SmtpEmailSender>();
 
 // PHASE 1: Register critical services for Framework Data, HRIS, Audit Trail, and Rules Engine
@@ -819,6 +886,10 @@ builder.Services.AddScoped<IOnboardingService, OnboardingService>();
 builder.Services.AddScoped<IOnboardingWizardService, OnboardingWizardService>();
 builder.Services.AddScoped<IAuditEventService, AuditEventService>();
 
+// Onboarding Reference Data and AI Recommendation Services
+builder.Services.AddScoped<IOnboardingReferenceDataService, OnboardingReferenceDataService>();
+builder.Services.AddScoped<IOnboardingAIRecommendationService, OnboardingAIRecommendationService>();
+
 // Onboarding Coverage Services - Coverage validation and field registry
 builder.Services.AddScoped<IOnboardingCoverageService, OnboardingCoverageService>();
 builder.Services.AddScoped<IFieldRegistryService, FieldRegistryService>();
@@ -826,6 +897,9 @@ builder.Services.AddScoped<IFieldRegistryService, FieldRegistryService>();
 
 // Owner Dashboard Service - replaces direct DbContext access in OwnerController
 builder.Services.AddScoped<IOwnerDashboardService, OwnerDashboardService>();
+
+// Dashboard Metrics Service - real-time metrics for Platform and Tenant dashboards
+builder.Services.AddScoped<IDashboardMetricsService, DashboardMetricsService>();
 
 // Post-Login Routing Service for role-based redirection
 builder.Services.AddScoped<IPostLoginRoutingService, PostLoginRoutingService>();
@@ -853,6 +927,9 @@ builder.Services.AddScoped<ICredentialExpirationService, CredentialExpirationSer
 
 // Platform Admin (Multi-Tenant Administration - Layer 0)
 builder.Services.AddScoped<IPlatformAdminService, PlatformAdminService>();
+
+// Support Ticketing System (Platform Admin - Custom implementation, not ABP module)
+builder.Services.AddScoped<ISupportTicketService, SupportTicketService>();
 
 // Serial Number Service (system-generated document numbers)
 builder.Services.AddScoped<ISerialNumberService, SerialNumberService>();
@@ -889,18 +966,33 @@ builder.Services.AddScoped<IUserWorkspaceService, UserWorkspaceService>();
 builder.Services.AddScoped<IInboxService, InboxService>();
 
 // Register RBAC Services (Role-Based Access Control)
-builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<GrcMvc.Services.Interfaces.RBAC.IPermissionService, GrcMvc.Services.Implementations.RBAC.PermissionService>();
 builder.Services.AddScoped<IFeatureService, FeatureService>();
 builder.Services.AddScoped<ITenantRoleConfigurationService, TenantRoleConfigurationService>();
 builder.Services.AddScoped<IUserRoleAssignmentService, UserRoleAssignmentService>();
 builder.Services.AddScoped<IAccessControlService, AccessControlService>();
 builder.Services.AddScoped<IRbacSeederService, RbacSeederService>();
 
+// Register Permission Service (for new OpenID Connect integration)
+builder.Services.AddScoped<GrcMvc.Services.Interfaces.IPermissionService, GrcMvc.Services.Implementations.PermissionService>();
+
 // Register User Profile Service (14 user profiles)
 builder.Services.AddScoped<IUserProfileService, UserProfileServiceImpl>();
 
-// Register Tenant Context Service
-builder.Services.AddScoped<ITenantContextService, TenantContextService>();
+// ══════════════════════════════════════════════════════════════════════════════
+// Tenant Context Service - MOVED to GrcMvcAbpModule.cs (ABP module registration)
+// Architecture: All services should be registered in ABP module
+// ══════════════════════════════════════════════════════════════════════════════
+// See: GrcMvcAbpModule.cs -> ConfigureServices method
+
+// Access Review Service (AM-04/AM-11)
+builder.Services.AddScoped<IAccessReviewService, AccessReviewService>();
+
+// Access Management Audit Service (using ABP's auditing)
+builder.Services.AddScoped<IAccessManagementAuditService, AccessManagementAuditService>();
+
+// Usage Tracking Service
+builder.Services.AddScoped<IUsageTrackingService, UsageTrackingService>();
 
 // Register Claims Transformation (adds TenantId claim automatically)
 builder.Services.AddScoped<Microsoft.AspNetCore.Authentication.IClaimsTransformation, GrcMvc.Services.Implementations.ClaimsTransformationService>();
@@ -1001,7 +1093,8 @@ builder.Services.AddScoped<GrcMvc.Services.Integrations.IEvidenceAutomationServi
 builder.Services.AddScoped<IEvidenceService, EvidenceService>();
 
 // Enhanced Report Services with PDF/Excel generation
-builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+// Use ABP's ICurrentUser via adapter (replaces custom CurrentUserService)
+builder.Services.AddScoped<ICurrentUserService, GrcMvc.Services.Adapters.AbpCurrentUserAdapter>();
 builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
 builder.Services.AddScoped<IReportGenerator, ReportGeneratorService>();
 builder.Services.AddScoped<IReportService, EnhancedReportServiceFixed>();
@@ -1043,9 +1136,14 @@ builder.Services.AddScoped<GrcMvc.Data.Menu.GrcMenuContributor>();
 builder.Services.AddScoped<IMenuService, MenuService>();
 
 // CRITICAL FIX: Register Identity-based AuthenticationService instead of mock
-// builder.Services.AddScoped<IAuthenticationService, AuthenticationService>(); // OLD: Mock implementation
-builder.Services.AddScoped<IAuthenticationService, IdentityAuthenticationService>(); // NEW: Identity-based
-builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
+// ✅ FIXED: AuthenticationService now uses ASP.NET Core Identity with database persistence
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>(); // Production-ready Identity implementation
+// Alternative: builder.Services.AddScoped<IAuthenticationService, IdentityAuthenticationService>(); // ABP-based (also available)
+
+// Endpoint Management Service
+builder.Services.AddScoped<GrcMvc.Services.Interfaces.IEndpointDiscoveryService, GrcMvc.Services.Implementations.EndpointDiscoveryService>();
+builder.Services.AddScoped<GrcMvc.Services.Interfaces.IEndpointMonitoringService, GrcMvc.Services.Implementations.EndpointMonitoringService>();
+builder.Services.AddScoped<GrcMvc.Services.Interfaces.IAuthorizationService, AuthorizationService>();
 
 // Authentication Audit Service (comprehensive security audit logging)
 builder.Services.AddScoped<IAuthenticationAuditService, AuthenticationAuditService>();
@@ -1059,8 +1157,7 @@ builder.Services.AddScoped<IPasswordHistoryService, PasswordHistoryService>();
 // Session Management Service (concurrent session limiting - GRC compliance)
 builder.Services.AddScoped<ISessionManagementService, SessionManagementService>();
 
-// CAPTCHA Service (bot protection - GRC compliance)
-builder.Services.AddHttpClient<ICaptchaService, GoogleRecaptchaService>();
+// CAPTCHA Service removed - no longer needed
 
 // Policy Enforcement System
 builder.Services.AddScoped<GrcMvc.Application.Policy.IPolicyEnforcer, GrcMvc.Application.Policy.PolicyEnforcer>();
@@ -1109,6 +1206,9 @@ builder.Services.AddHostedService<GrcMvc.Services.StartupValidators.OnboardingSe
 // Register Catalog Seeder Service
 builder.Services.AddScoped<CatalogSeederService>();
 
+// Register Onboarding Question Catalog Seeder (96 questions from DB)
+builder.Services.AddScoped<GrcMvc.Data.Seeds.OnboardingQuestionSeeder>();
+
 // Register Workflow Definition Seeder Service
 builder.Services.AddScoped<WorkflowDefinitionSeederService>();
 
@@ -1156,6 +1256,7 @@ if (clickHouseEnabled)
     });
     builder.Services.AddScoped<GrcMvc.Services.Analytics.IDashboardProjector, GrcMvc.Services.Analytics.DashboardProjector>();
     builder.Services.AddScoped<GrcMvc.BackgroundJobs.AnalyticsProjectionJob>();
+    builder.Services.AddScoped<GrcMvc.BackgroundJobs.SupportTicketSlaMonitorJob>();
 }
 else
 {
@@ -1321,6 +1422,10 @@ builder.Services.AddScoped<EscalationJob>();
 builder.Services.AddScoped<NotificationDeliveryJob>();
 builder.Services.AddScoped<SlaMonitorJob>();
 builder.Services.AddScoped<WebhookRetryJob>();
+builder.Services.AddScoped<OnboardingAbandonmentJob>();
+
+// ABP Background Workers
+builder.Services.AddSingleton<GrcMvc.BackgroundWorkers.OnboardingAbandonmentWorker>();
 
 // =============================================================================
 // 3b. MASSTRANSIT CONFIGURATION (Message Queue)
@@ -1449,6 +1554,7 @@ builder.Services.AddHttpClient("EmailService")
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ISmtpEmailService, SmtpEmailService>();
 builder.Services.AddScoped<IWebhookService, WebhookService>();
+builder.Services.AddScoped<IUserNotificationDispatcher, UserNotificationDispatcher>();
 
 // Configuration Validation - Validates required settings at startup
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
@@ -1565,6 +1671,8 @@ var app = builder.Build();
 // =============================================================================
 await app.InitializeApplicationAsync();
 
+// Note: AbpBackgroundWorkerOptions is already configured in GrcMvcAbpModule.cs
+
 // =============================================================================
 // AUTO-MIGRATE DATABASE ON STARTUP
 // =============================================================================
@@ -1632,9 +1740,15 @@ app.UseMiddleware<GrcMvc.Middleware.OwnerSetupMiddleware>();
 
 app.UseMiddleware<GrcMvc.Middleware.PolicyViolationExceptionMiddleware>();
 
+// CRITICAL: Host-based routing MUST run BEFORE tenant resolution
+// This allows us to skip tenant resolution for admin.shahin-ai.com and login.shahin-ai.com
+// which don't need tenant context (no delays, no database calls)
+app.UseHostRouting();
+
 // Domain-based tenant resolution middleware
 // Resolves tenant from subdomain (e.g., acme.grcsystem.com) and stores in HttpContext.Items
 // CRITICAL: Enabled for early tenant resolution - improves performance by avoiding repeated DB lookups
+// OPTIMIZATION: Will skip resolution if HostRoutingMiddleware sets SkipTenantResolution flag
 app.UseMiddleware<GrcMvc.Middleware.TenantResolutionMiddleware>();
 
 app.UseHttpsRedirection();
@@ -1643,8 +1757,7 @@ app.UseStaticFiles();
 // MEDIUM PRIORITY FIX: Add security headers (CSP, X-Frame-Options, etc.) - must be early in pipeline
 app.UseSecurityHeaders();
 
-// Host-based routing (login.shahin-ai.com → Admin, shahin-ai.com → Landing)
-app.UseHostRouting();
+// Host-based routing moved earlier (before TenantResolutionMiddleware) to set skip flags
 
 app.UseRouting();
 
@@ -1779,6 +1892,23 @@ if (enableHangfire)
 
     appLogger.LogInformation("✅ Integration layer background jobs scheduled: sync, events, health monitoring");
 
+    // Access Review Jobs (AM-04)
+    // Send reminders for overdue access reviews - daily at 9 AM
+    RecurringJob.AddOrUpdate<GrcMvc.Jobs.AccessReviewReminderJob>(
+        "access-review-reminders",
+        job => job.SendRemindersAsync(),
+        "0 9 * * *", // Daily at 9 AM
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+    // Execute access review decisions - every 30 minutes
+    RecurringJob.AddOrUpdate<GrcMvc.Jobs.AccessReviewReminderJob>(
+        "access-review-execution",
+        job => job.ExecuteDecisionsAsync(),
+        "*/30 * * * *", // Every 30 minutes
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+    appLogger.LogInformation("✅ Access Review jobs scheduled: reminders and decision execution");
+
     // Analytics projection jobs (only if ClickHouse is enabled)
     var analyticsEnabled = builder.Configuration.GetValue<bool>("Analytics:Enabled", false);
     if (analyticsEnabled)
@@ -1828,7 +1958,16 @@ if (enableHangfire)
 
     appLogger.LogInformation("✅ Trial lifecycle jobs configured: trial-nurture-hourly, trial-expiring-daily, trial-winback-weekly");
 
-    appLogger.LogInformation("✅ Recurring jobs configured: notification-delivery, escalation-check, sla-monitor, webhook-retry");
+    // Support Ticket SLA Monitoring Job - Runs every 15 minutes
+    RecurringJob.AddOrUpdate<GrcMvc.BackgroundJobs.SupportTicketSlaMonitorJob>(
+        "support-ticket-sla-monitor",
+        job => job.ExecuteAsync(),
+        "*/15 * * * *", // Every 15 minutes
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+
+    appLogger.LogInformation("✅ Support Ticket SLA monitoring job configured: support-ticket-sla-monitor (every 15 minutes)");
+
+    appLogger.LogInformation("✅ Recurring jobs configured: notification-delivery, escalation-check, sla-monitor, webhook-retry, support-ticket-sla-monitor");
 }
 // =============================================================================
 // 14. ENDPOINT MAPPING
@@ -1900,11 +2039,12 @@ app.Logger.LogInformation("Registering routes: MapControllers, Landing route, De
 // #endregion
 
 // Landing page route (shahin-ai.com homepage)
-// NOTE: This must be after MapControllers() so attribute routes have priority
-app.MapControllerRoute(
-    name: "landing",
-    pattern: "",
-    defaults: new { controller = "Landing", action = "Index" });
+// NOTE: Disabled - now proxied to Next.js frontend via HostRoutingMiddleware
+// The frontend at C:\Shahin-ai\Shahin-Jan-2026\grc-frontend handles all landing pages
+// app.MapControllerRoute(
+//     name: "landing",
+//     pattern: "",
+//     defaults: new { controller = "Landing", action = "Index" });
 
 // Plural route redirects (common convention aliases)
 app.MapGet("/Risks", () => Results.Redirect("/Risk"));
@@ -1970,6 +2110,11 @@ _ = Task.Run(async () =>
         var initializer = scope.ServiceProvider.GetRequiredService<ApplicationInitializer>();
         logger.LogInformation("🚀 Starting application initialization (seed data)...");
         await initializer.InitializeAsync();
+        
+        // Seed onboarding question catalog (96 questions from DB)
+        var questionSeeder = scope.ServiceProvider.GetRequiredService<GrcMvc.Data.Seeds.OnboardingQuestionSeeder>();
+        await questionSeeder.SeedAsync();
+        
         logger.LogInformation("✅ Application initialization completed");
     }
     catch (Exception ex)

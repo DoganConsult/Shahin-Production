@@ -1,12 +1,13 @@
 using System;
 using System.Threading.Tasks;
-using GrcMvc.Models.Entities;
 using GrcMvc.Models.DTOs;
+using Volo.Abp.TenantManagement;
 
 namespace GrcMvc.Services.Interfaces
 {
     /// <summary>
     /// Interface for multi-tenant provisioning and management.
+    /// Uses ABP Tenant with ExtraProperties for business fields.
     /// </summary>
     public interface ITenantService
     {
@@ -32,7 +33,6 @@ namespace GrcMvc.Services.Interfaces
 
         /// <summary>
         /// Suspend a tenant (temporary deactivation).
-        /// HIGH FIX: Missing lifecycle operation.
         /// </summary>
         Task<Tenant> SuspendTenantAsync(Guid tenantId, string suspendedBy, string? reason = null);
 

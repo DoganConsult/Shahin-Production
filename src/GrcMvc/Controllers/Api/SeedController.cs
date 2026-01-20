@@ -128,6 +128,10 @@ namespace GrcMvc.Controllers.Api
                 await EvidenceScoringSeeds.SeedSectorFrameworkIndexAsync(_context, _logger);
                 
                 // Seed GOSI 70+ sub-sector mappings to 18 main sectors
+                // Seed main sectors first (required for foreign key relationships)
+                await GrcMainSectorSeeds.SeedMainSectorsAsync(_context, _logger);
+                
+                // Then seed sub-sector mappings (links to main sectors)
                 await GosiSectorSeeds.SeedSubSectorMappingsAsync(_context, _logger);
                 
                 // Seed marketing content (testimonials, case studies, pricing)
@@ -507,6 +511,10 @@ namespace GrcMvc.Controllers.Api
             {
                 await EvidenceScoringSeeds.SeedEvidenceScoringCriteriaAsync(_context, _logger);
                 await EvidenceScoringSeeds.SeedSectorFrameworkIndexAsync(_context, _logger);
+                // Seed main sectors first (required for foreign key relationships)
+                await GrcMainSectorSeeds.SeedMainSectorsAsync(_context, _logger);
+                
+                // Then seed sub-sector mappings (links to main sectors)
                 await GosiSectorSeeds.SeedSubSectorMappingsAsync(_context, _logger);
 
                 var criteriaCount = await _context.EvidenceScoringCriteria.CountAsync();

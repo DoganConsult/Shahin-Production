@@ -1,25 +1,26 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { ArrowLeft, Check, Sparkles } from "lucide-react"
+import { useTranslations } from "next-intl"
+import { ArrowRight, Check, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { useTranslations } from 'next-intl'
-
-const benefitsConfig = [
-  "benefit_1",
-  "benefit_2",
-  "benefit_3",
-  "benefit_4",
-]
 
 export function CTA() {
-  const t = useTranslations('landing.cta')
+  const t = useTranslations("landing.cta")
+
+  const benefits = [
+    t("benefit_1"),
+    t("benefit_2"),
+    t("benefit_3"),
+    t("benefit_4"),
+  ]
+
   return (
     <section className="py-24 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800" />
-      
+
       {/* Pattern Overlay */}
       <div className="absolute inset-0 opacity-10">
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
@@ -54,7 +55,7 @@ export function CTA() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white text-sm font-medium mb-8"
           >
             <Sparkles className="w-4 h-4" />
-            {t('badge')}
+            {t("badge")}
           </motion.div>
 
           {/* Title */}
@@ -65,7 +66,7 @@ export function CTA() {
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
           >
-            {t('title')}
+            {t("title")}
           </motion.h2>
 
           {/* Description */}
@@ -76,7 +77,7 @@ export function CTA() {
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
           >
-            {t('subtitle')}
+            {t("subtitle")}
           </motion.p>
 
           {/* Benefits */}
@@ -87,12 +88,12 @@ export function CTA() {
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
           >
-            {benefitsConfig.map((benefit) => (
+            {benefits.map((benefit) => (
               <div key={benefit} className="flex items-center gap-2 text-white">
                 <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
                   <Check className="w-3 h-3" />
                 </div>
-                <span>{t(benefit)}</span>
+                <span>{benefit}</span>
               </div>
             ))}
           </motion.div>
@@ -107,20 +108,20 @@ export function CTA() {
           >
             <Link href="/trial">
               <Button
-                size="xl"
-                className="bg-white text-emerald-700 hover:bg-gray-100 shadow-xl group"
+                size="lg"
+                className="bg-white text-emerald-700 hover:bg-gray-100 shadow-xl group px-8 py-6 text-lg"
               >
-                {t('cta_primary')}
-                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                {t("cta_primary")}
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
             <Link href="/contact">
               <Button
-                size="xl"
+                size="lg"
                 variant="outline"
-                className="border-white text-white hover:bg-white/10"
+                className="border-white text-white hover:bg-white/10 px-8 py-6 text-lg"
               >
-                {t('cta_secondary')}
+                {t("cta_secondary")}
               </Button>
             </Link>
           </motion.div>

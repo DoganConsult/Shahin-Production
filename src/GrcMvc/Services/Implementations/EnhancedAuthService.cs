@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using GrcMvc.Exceptions;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
+using Volo.Abp.Identity;
 
 namespace GrcMvc.Services.Implementations;
 
@@ -13,17 +14,20 @@ namespace GrcMvc.Services.Implementations;
 public class EnhancedAuthService : IEnhancedAuthService
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly IIdentityUserAppService _identityUserAppService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<EnhancedAuthService> _logger;
     
     public EnhancedAuthService(
         SignInManager<ApplicationUser> signInManager,
+        IIdentityUserAppService identityUserAppService,
         UserManager<ApplicationUser> userManager,
         IHttpContextAccessor httpContextAccessor,
         ILogger<EnhancedAuthService> logger)
     {
         _signInManager = signInManager;
+        _identityUserAppService = identityUserAppService;
         _userManager = userManager;
         _httpContextAccessor = httpContextAccessor;
         _logger = logger;

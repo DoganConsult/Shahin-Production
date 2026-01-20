@@ -3,15 +3,20 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using GrcMvc.Models.Interfaces;
+using Volo.Abp.Domain.Entities;
 
 namespace GrcMvc.Models.Entities
 {
     /// <summary>
-    /// Base entity class with common properties and governance metadata support
+    /// Base entity class with common properties and governance metadata support.
+    /// Implements ABP's IEntity for repository compatibility.
     /// </summary>
-    public abstract class BaseEntity : IGovernedResource
+    public abstract class BaseEntity : IEntity<Guid>, IGovernedResource
     {
         public Guid Id { get; set; } = Guid.NewGuid();
+
+        public object?[] GetKeys() => new object?[] { Id };
+
         public Guid? TenantId { get; set; } // Multi-tenant support
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? ModifiedDate { get; set; }

@@ -1,35 +1,35 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Quote, Star } from "lucide-react"
-import { useTranslations } from 'next-intl'
+import { Star, Rocket } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { useLocale } from "@/components/providers/locale-provider"
 
-const testimonialsData = [
-  {
-    quote: "منصة شاهين ساعدتنا في تحقيق الامتثال الكامل مع متطلبات الهيئة الوطنية للأمن السيبراني في وقت قياسي",
-    author: "أحمد الغامدي",
-    role: "مدير أمن المعلومات",
-    company: "شركة تقنية رائدة",
-    rating: 5,
+const content = {
+  sectionLabel: { en: "Early Access", ar: "الوصول المبكر" },
+  title: { en: "Join Our Early Adopters", ar: "انضم إلى مستخدمينا الأوائل" },
+  subtitle: {
+    en: "Be part of the next generation of GRC platforms in Saudi Arabia",
+    ar: "كن جزءاً من الجيل التالي من منصات GRC في المملكة العربية السعودية"
   },
-  {
-    quote: "أفضل منصة GRC استخدمناها. واجهة سهلة ودعم فني ممتاز باللغة العربية",
-    author: "سارة المالكي",
-    role: "مديرة الامتثال",
-    company: "مؤسسة مالية كبرى",
-    rating: 5,
+  cardTitle: { en: "We're Just Getting Started!", ar: "نحن في البداية فقط!" },
+  cardDescription: {
+    en: "Shahin is a brand new platform launching in the Saudi market. Be among our first customers and help shape the future of GRC in the Kingdom.",
+    ar: "شاهين منصة جديدة تُطلق في السوق السعودي. كن من أوائل عملائنا وساهم في صياغة مستقبل GRC في المملكة."
   },
-  {
-    quote: "وفرت علينا المنصة أكثر من 70% من الوقت المستغرق في عمليات التدقيق والمتابعة",
-    author: "محمد القحطاني",
-    role: "رئيس قسم المراجعة الداخلية",
-    company: "شركة صناعية",
-    rating: 5,
+  benefits: {
+    earlyAdopter: { en: "Early Adopter Benefits", ar: "مزايا المستخدمين الأوائل" },
+    prioritySupport: { en: "Priority Support", ar: "دعم أولوي" },
+    shapeRoadmap: { en: "Shape Our Roadmap", ar: "ساهم في خارطة الطريق" }
   },
-]
+  cta: { en: "Become an Early Adopter", ar: "كن من المستخدمين الأوائل" }
+}
 
 export function Testimonials() {
-  const t = useTranslations('landing.testimonials')
+  const { locale } = useLocale()
+  const isArabic = locale === "ar"
+
   return (
     <section className="py-24 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-900/50">
       <div className="container mx-auto px-6">
@@ -41,66 +41,67 @@ export function Testimonials() {
           viewport={{ once: true }}
         >
           <span className="text-emerald-600 dark:text-emerald-400 font-semibold mb-4 block">
-            {t('sectionLabel')}
+            {isArabic ? content.sectionLabel.ar : content.sectionLabel.en}
           </span>
-          <h2 className="section-title">
-            {t('title')}
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            {isArabic ? content.title.ar : content.title.en}
           </h2>
-          <p className="section-subtitle mx-auto">
-            {t('subtitle')}
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            {isArabic ? content.subtitle.ar : content.subtitle.en}
           </p>
         </motion.div>
 
-        {/* Testimonials Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonialsData.map((testimonial, index) => (
-            <motion.div
-              key={testimonial.author}
-              className="relative p-8 rounded-2xl bg-white dark:bg-gray-800 shadow-lg border border-gray-100 dark:border-gray-700"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.2 }}
-            >
-              {/* Quote Icon */}
-              <div className="absolute -top-4 right-6">
-                <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg">
-                  <Quote className="w-5 h-5 text-white" />
-                </div>
-              </div>
+        {/* New to Market Card */}
+        <motion.div
+          className="max-w-2xl mx-auto"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <div className="relative p-12 rounded-3xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 text-center">
+            {/* Icon */}
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <Rocket className="w-10 h-10 text-white" />
+            </div>
 
-              {/* Rating */}
-              <div className="flex gap-1 mb-4 pt-2">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-amber-400 fill-current" />
-                ))}
-              </div>
+            {/* Message */}
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              {isArabic ? content.cardTitle.ar : content.cardTitle.en}
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+              {isArabic ? content.cardDescription.ar : content.cardDescription.en}
+            </p>
 
-              {/* Quote */}
-              <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-                "{testimonial.quote}"
-              </p>
-
-              {/* Author */}
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold">
-                  {testimonial.author.charAt(0)}
-                </div>
-                <div>
-                  <div className="font-semibold text-gray-900 dark:text-white">
-                    {testimonial.author}
-                  </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {testimonial.role}
-                  </div>
-                  <div className="text-xs text-emerald-600 dark:text-emerald-400">
-                    {testimonial.company}
-                  </div>
-                </div>
+            {/* Benefits */}
+            <div className="flex flex-wrap justify-center gap-4 mb-8">
+              <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-sm">
+                <Star className="w-4 h-4 text-amber-500" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {isArabic ? content.benefits.earlyAdopter.ar : content.benefits.earlyAdopter.en}
+                </span>
               </div>
-            </motion.div>
-          ))}
-        </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-sm">
+                <Star className="w-4 h-4 text-amber-500" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {isArabic ? content.benefits.prioritySupport.ar : content.benefits.prioritySupport.en}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-sm">
+                <Star className="w-4 h-4 text-amber-500" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {isArabic ? content.benefits.shapeRoadmap.ar : content.benefits.shapeRoadmap.en}
+                </span>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <Link href="/trial">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg">
+                {isArabic ? content.cta.ar : content.cta.en}
+              </Button>
+            </Link>
+          </div>
+        </motion.div>
       </div>
     </section>
   )

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using Volo.Abp.Identity;
 
 namespace GrcMvc.Services.Implementations;
 
@@ -18,15 +19,18 @@ public class RoleDelegationService : IRoleDelegationService
 {
     private readonly GrcDbContext _context;
     private readonly ILogger<RoleDelegationService> _logger;
+    private readonly IIdentityUserAppService _identityUserAppService;
     private readonly UserManager<ApplicationUser> _userManager;
 
     public RoleDelegationService(
         GrcDbContext context,
         ILogger<RoleDelegationService> logger,
+        IIdentityUserAppService identityUserAppService,
         UserManager<ApplicationUser> userManager)
     {
         _context = context;
         _logger = logger;
+        _identityUserAppService = identityUserAppService;
         _userManager = userManager;
     }
 

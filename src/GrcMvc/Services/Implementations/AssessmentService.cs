@@ -23,6 +23,7 @@ namespace GrcMvc.Services.Implementations
         private readonly PolicyEnforcementHelper _policyHelper;
         private readonly IWorkspaceContextService? _workspaceContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ITenantContextService _tenantContext;
 
         public AssessmentService(
             IUnitOfWork unitOfWork,
@@ -30,14 +31,22 @@ namespace GrcMvc.Services.Implementations
             ILogger<AssessmentService> logger,
             PolicyEnforcementHelper policyHelper,
             IHttpContextAccessor httpContextAccessor,
+            ITenantContextService tenantContext,
             IWorkspaceContextService? workspaceContext = null)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _logger = logger;
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _policyHelper = policyHelper ?? throw new ArgumentNullException(nameof(policyHelper));
-            _httpContextAccessor = httpContextAccessor;
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _tenantContext = tenantContext ?? throw new ArgumentNullException(nameof(tenantContext));
             _workspaceContext = workspaceContext;
+
+            // Validate tenant context
+            if (!_tenantContext.HasTenantContext())
+            {
+                throw new InvalidOperationException("Tenant context is required for AssessmentService operations");
+            }
         }
 
         public async Task<IEnumerable<AssessmentDto>> GetAllAsync()

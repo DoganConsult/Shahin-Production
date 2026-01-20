@@ -36,14 +36,24 @@ namespace GrcMvc.Services.Implementations
             { ".xlsx", new[] { new byte[] { 0x50, 0x4B, 0x03, 0x04 }, new byte[] { 0x50, 0x4B, 0x05, 0x06 } } }
         };
 
+        private readonly ITenantContextService _tenantContext;
+
         public FileUploadService(
             IOptions<ApplicationSettings> appSettings,
             ILogger<FileUploadService> logger,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,
+            ITenantContextService tenantContext)
         {
-            _appSettings = appSettings.Value;
-            _logger = logger;
-            _environment = environment;
+            _appSettings = appSettings?.Value ?? throw new ArgumentNullException(nameof(appSettings));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _environment = environment ?? throw new ArgumentNullException(nameof(environment));
+            _tenantContext = tenantContext ?? throw new ArgumentNullException(nameof(tenantContext));
+
+            // Validate tenant context
+            if (!_tenantContext.HasTenantContext())
+            {
+                throw new InvalidOperationException("Tenant context is required for FileUploadService operations");
+            }
 
             // Store uploads outside wwwroot for security
             _uploadPath = Path.Combine(environment.ContentRootPath, "Uploads");

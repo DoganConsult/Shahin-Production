@@ -3,10 +3,11 @@ using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Services.Interfaces.RBAC;
 using Microsoft.EntityFrameworkCore;
+using RbacIPermissionService = GrcMvc.Services.Interfaces.RBAC.IPermissionService;
 
 namespace GrcMvc.Services.Implementations.RBAC
 {
-    public class PermissionService : IPermissionService
+    public class PermissionService : RbacIPermissionService
     {
         private readonly GrcDbContext _context;
         private readonly ILogger<PermissionService> _logger;
@@ -502,12 +503,12 @@ namespace GrcMvc.Services.Implementations.RBAC
 
     public class AccessControlService : IAccessControlService
     {
-        private readonly IPermissionService _permissionService;
+        private readonly RbacIPermissionService _permissionService;
         private readonly IFeatureService _featureService;
         private readonly GrcDbContext _context;
         private readonly ILogger<AccessControlService> _logger;
 
-        public AccessControlService(IPermissionService permissionService, IFeatureService featureService,
+        public AccessControlService(RbacIPermissionService permissionService, IFeatureService featureService,
             GrcDbContext context, ILogger<AccessControlService> logger)
         {
             _permissionService = permissionService;

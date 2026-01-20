@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using GrcMvc.Abp;
 using GrcMvc.Data;
 using GrcMvc.Exceptions;
 using GrcMvc.Models.DTOs;
@@ -11,6 +12,9 @@ using GrcMvc.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Volo.Abp.Identity;
+using Volo.Abp.TenantManagement;
+using AbpTenant = Volo.Abp.TenantManagement.Tenant;
 
 namespace GrcMvc.Services.Implementations
 {
@@ -20,19 +24,21 @@ namespace GrcMvc.Services.Implementations
     public class OwnerTenantService : IOwnerTenantService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ITenantService _tenantService; // Reuse existing service
+        private readonly ITenantService _tenantService;
+        private readonly IIdentityUserAppService _identityUserAppService;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<Microsoft.AspNetCore.Identity.IdentityRole> _roleManager;
         private readonly IAppEmailSender _emailSender;
         private readonly IAuditEventService _auditService;
         private readonly ILogger<OwnerTenantService> _logger;
-        private readonly GrcDbContext _context; // Needed for TenantUser queries with filters
+        private readonly GrcDbContext _context;
 
         public OwnerTenantService(
             IUnitOfWork unitOfWork,
             ITenantService tenantService,
+            IIdentityUserAppService identityUserAppService,
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager,
+            RoleManager<Microsoft.AspNetCore.Identity.IdentityRole> roleManager,
             IAppEmailSender emailSender,
             IAuditEventService auditService,
             ILogger<OwnerTenantService> logger,
@@ -40,18 +46,19 @@ namespace GrcMvc.Services.Implementations
         {
             _unitOfWork = unitOfWork;
             _tenantService = tenantService;
+            _identityUserAppService = identityUserAppService;
             _userManager = userManager;
             _roleManager = roleManager;
             _emailSender = emailSender;
             _auditService = auditService;
             _logger = logger;
-            _context = context; // For complex queries
+            _context = context;
         }
 
         /// <summary>
         /// Create a tenant with full features (bypass payment)
         /// </summary>
-        public async Task<Tenant> CreateTenantWithFullFeaturesAsync(
+        public async Task<AbpTenant> CreateTenantWithFullFeaturesAsync(
             string organizationName,
             string adminEmail,
             string tenantSlug,
@@ -63,18 +70,16 @@ namespace GrcMvc.Services.Implementations
                 // Use existing TenantService to create tenant
                 var tenant = await _tenantService.CreateTenantAsync(organizationName, adminEmail, tenantSlug);
 
-                // Update tenant with owner-created flags
-                tenant.IsOwnerCreated = true;
-                tenant.CreatedByOwnerId = ownerId;
-                tenant.BypassPayment = true;
-                tenant.SubscriptionTier = "Enterprise";
-                tenant.CredentialExpiresAt = DateTime.UtcNow.AddDays(expirationDays);
-                tenant.Status = "Active"; // Auto-activate owner-created tenants
-                tenant.ActivatedAt = DateTime.UtcNow;
-                tenant.ActivatedBy = ownerId.ToString();
-
-                await _unitOfWork.Tenants.UpdateAsync(tenant);
-                await _unitOfWork.SaveChangesAsync();
+                // Update tenant with owner-created flags using ABP ExtraProperties
+                tenant.SetIsOwnerCreated(true);
+                tenant.SetCreatedByOwnerId(ownerId);
+                tenant.SetBypassPayment(true);
+                tenant.SetSubscriptionTier("Enterprise");
+                tenant.SetCredentialExpiresAt(DateTime.UtcNow.AddDays(expirationDays));
+                tenant.SetStatus("Active"); // Auto-activate owner-created tenants
+                tenant.SetActivatedAt(DateTime.UtcNow);
+                tenant.SetActivatedBy(ownerId.ToString());
+                tenant.SetIsActive(true);
 
                 // Log audit event
                 await _auditService.LogEventAsync(
@@ -92,7 +97,7 @@ namespace GrcMvc.Services.Implementations
                         subscriptionTier = "Enterprise",
                         expirationDays
                     }),
-                    correlationId: tenant.CorrelationId
+                    correlationId: tenant.GetCorrelationId()
                 );
 
                 _logger.LogInformation("Owner {OwnerId} created tenant {TenantId} with full features", ownerId, tenant.Id);
@@ -163,7 +168,7 @@ namespace GrcMvc.Services.Implementations
                 // Ensure Admin role exists
                 if (!await _roleManager.RoleExistsAsync("Admin"))
                 {
-                    await _roleManager.CreateAsync(new IdentityRole("Admin"));
+                    await _roleManager.CreateAsync(new Microsoft.AspNetCore.Identity.IdentityRole("Admin"));
                 }
 
                 // Assign Admin role

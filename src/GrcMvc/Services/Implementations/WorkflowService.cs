@@ -41,6 +41,7 @@ namespace GrcMvc.Services.Implementations
         private readonly IMapper _mapper;
         private readonly ILogger<WorkflowService> _logger;
         private readonly PolicyEnforcementHelper _policyHelper;
+        private readonly ITenantContextService _tenantContext;
         
         // SECURITY: Safe JSON settings - disable TypeNameHandling
         private static readonly JsonSerializerSettings SafeJsonSettings = new()
@@ -53,12 +54,20 @@ namespace GrcMvc.Services.Implementations
             IUnitOfWork unitOfWork,
             IMapper mapper,
             ILogger<WorkflowService> logger,
-            PolicyEnforcementHelper policyHelper)
+            PolicyEnforcementHelper policyHelper,
+            ITenantContextService tenantContext)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _logger = logger;
-            _policyHelper = policyHelper;
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _policyHelper = policyHelper ?? throw new ArgumentNullException(nameof(policyHelper));
+            _tenantContext = tenantContext ?? throw new ArgumentNullException(nameof(tenantContext));
+
+            // Validate tenant context
+            if (!_tenantContext.HasTenantContext())
+            {
+                throw new InvalidOperationException("Tenant context is required for WorkflowService operations");
+            }
         }
 
         public async Task<IEnumerable<WorkflowDto>> GetAllAsync()

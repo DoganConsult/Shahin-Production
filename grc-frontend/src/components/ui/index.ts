@@ -23,6 +23,10 @@ export {
   SelectSeparator,
   SimpleSelect,
 } from "./select"
+export { RoleSelect } from "./role-select"
+export { SectorSelect } from "./sector-select"
+export { CountrySelect } from "./country-select"
+export { CitySelect } from "./city-select"
 
 // Feedback Components
 export { Skeleton, SkeletonCard, SkeletonTable, SkeletonAvatar } from "./skeleton"

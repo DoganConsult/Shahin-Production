@@ -122,6 +122,11 @@ namespace GrcMvc.Models.Entities
         public string Status { get; set; } = "Active";
 
         /// <summary>
+        /// Is this platform admin active? (convenience property)
+        /// </summary>
+        public bool IsActive => Status == "Active" && !IsDeleted;
+
+        /// <summary>
         /// Reason for suspension/revocation
         /// </summary>
         public string? StatusReason { get; set; }

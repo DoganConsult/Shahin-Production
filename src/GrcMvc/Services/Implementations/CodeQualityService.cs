@@ -217,36 +217,64 @@ public class CodeQualityService : ICodeQualityService
 
     private async Task<string> CallClaudeApiAsync(string systemPrompt, string userMessage, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(_claudeApiKey))
+        // Check if Claude AI is enabled
+        var claudeEnabled = _configuration.GetValue<bool>("ClaudeAgents:Enabled", true);
+        if (!claudeEnabled)
         {
-            _logger.LogWarning("Claude API key not configured, returning mock response");
+            _logger.LogInformation("Claude AI agents disabled via configuration, returning mock response");
             return GetMockResponse();
         }
 
-        var request = new
+        // Validate API key configuration
+        if (string.IsNullOrEmpty(_claudeApiKey))
         {
-            model = _claudeModel,
-            max_tokens = 4096,
-            system = systemPrompt,
-            messages = new[]
+            _logger.LogWarning("Claude API key not configured. Set CLAUDE_API_KEY environment variable or configure ClaudeAgents:ApiKey in appsettings. Returning mock response.");
+            return GetMockResponse();
+        }
+
+        try
+        {
+            var request = new
             {
-                new { role = "user", content = userMessage }
+                model = _claudeModel,
+                max_tokens = 4096,
+                system = systemPrompt,
+                messages = new[]
+                {
+                    new { role = "user", content = userMessage }
+                }
+            };
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, _claudeApiUrl)
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
+            };
+
+            httpRequest.Headers.Add("x-api-key", _claudeApiKey);
+            httpRequest.Headers.Add("anthropic-version", "2023-06-01");
+
+            var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                _logger.LogError("Claude API request failed with status {StatusCode}: {Error}", 
+                    response.StatusCode, errorContent);
+                
+                // Return mock response on API failure (graceful degradation)
+                _logger.LogWarning("Falling back to mock response due to API error");
+                return GetMockResponse();
             }
-        };
 
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post, _claudeApiUrl)
-        {
-            Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
-        };
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            
+            if (string.IsNullOrWhiteSpace(responseContent))
+            {
+                _logger.LogWarning("Claude API returned empty response, falling back to mock");
+                return GetMockResponse();
+            }
 
-        httpRequest.Headers.Add("x-api-key", _claudeApiKey);
-        httpRequest.Headers.Add("anthropic-version", "2023-06-01");
-
-        var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
-        response.EnsureSuccessStatusCode();
-
-        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        var responseJson = JsonDocument.Parse(responseContent);
+            var responseJson = JsonDocument.Parse(responseContent);
 
         // Extract text from Claude response (safely handle empty content array)
         var contentArray = responseJson.RootElement.GetProperty("content").EnumerateArray();
@@ -259,11 +287,32 @@ public class CodeQualityService : ICodeQualityService
             return "";
         }
 
-        var content = firstContent.TryGetProperty("text", out var textElement)
-            ? textElement.GetString()
-            : null;
+            var content = firstContent.TryGetProperty("text", out var textElement)
+                ? textElement.GetString()
+                : null;
 
-        return content ?? "";
+            return content ?? "";
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Network error calling Claude API: {Message}. Falling back to mock response.", ex.Message);
+            return GetMockResponse();
+        }
+        catch (TaskCanceledException ex)
+        {
+            _logger.LogError(ex, "Claude API request timeout. Falling back to mock response.");
+            return GetMockResponse();
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to parse Claude API response. Falling back to mock response.");
+            return GetMockResponse();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error calling Claude API: {Message}. Falling back to mock response.", ex.Message);
+            return GetMockResponse();
+        }
     }
 
     private string GetMockResponse()

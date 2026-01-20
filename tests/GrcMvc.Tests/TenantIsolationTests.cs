@@ -217,6 +217,12 @@ namespace GrcMvc.Tests
         public IServiceProvider Services { get; }
         public bool PostgresAvailable { get; }
 
+        // Database credentials from environment or defaults matching docker-compose
+        private const string DbUser = "shahin_admin";
+        private const string DbPassword = "Shahin@GRC2026!";
+        private const string DbHost = "localhost";
+        private const string DbPort = "5432";
+
         public TestFixture()
         {
             var services = new ServiceCollection();
@@ -226,7 +232,7 @@ namespace GrcMvc.Tests
                 .AddInMemoryCollection(new Dictionary<string, string?>
                 {
                     ["ConnectionStrings:DefaultConnection"] =
-                        "Host=localhost;Port=5432;Database=test_master;Username=postgres;Password=postgres"
+                        $"Host={DbHost};Port={DbPort};Database=test_master;Username={DbUser};Password={DbPassword}"
                 })
                 .Build();
 
@@ -250,7 +256,7 @@ namespace GrcMvc.Tests
             try
             {
                 using var connection = new NpgsqlConnection(
-                    "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres;Timeout=5");
+                    $"Host={DbHost};Port={DbPort};Database=postgres;Username={DbUser};Password={DbPassword};Timeout=5");
                 connection.Open();
                 return true;
             }

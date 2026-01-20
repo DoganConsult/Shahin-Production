@@ -19,19 +19,28 @@ namespace GrcMvc.Services.Implementations
         private readonly ILogger<AuditService> _logger;
         private readonly PolicyEnforcementHelper _policyHelper;
         private readonly IWorkspaceContextService? _workspaceContext;
+        private readonly ITenantContextService _tenantContext;
 
         public AuditService(
             IUnitOfWork unitOfWork,
             IMapper mapper,
             ILogger<AuditService> logger,
             PolicyEnforcementHelper policyHelper,
+            ITenantContextService tenantContext,
             IWorkspaceContextService? workspaceContext = null)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _logger = logger;
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _policyHelper = policyHelper ?? throw new ArgumentNullException(nameof(policyHelper));
+            _tenantContext = tenantContext ?? throw new ArgumentNullException(nameof(tenantContext));
             _workspaceContext = workspaceContext;
+
+            // Validate tenant context
+            if (!_tenantContext.HasTenantContext())
+            {
+                throw new InvalidOperationException("Tenant context is required for AuditService operations");
+            }
         }
 
         public async Task<IEnumerable<AuditDto>> GetAllAsync()

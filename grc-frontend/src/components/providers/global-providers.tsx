@@ -1,29 +1,27 @@
 "use client"
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { SessionProvider } from "next-auth/react"
 import { useState, useEffect, type ReactNode } from "react"
 import { ThemeProvider } from "./theme-provider"
 import { ToastProvider } from "./toast-provider"
 import { ApiProvider } from "./api-provider"
+import { LocaleProvider } from "./locale-provider"
 import { CommandPalette } from "@/components/ui/command-palette"
 
 interface GlobalProvidersProps {
   children: ReactNode
-  locale?: string
 }
 
 /**
  * GlobalProviders - Centralized provider configuration
  *
  * Wraps the application with all necessary context providers:
- * - SessionProvider: Authentication state from next-auth
  * - QueryClientProvider: React Query for API data fetching
- * - ApiProvider: Centralized API client with auth headers
+ * - ApiProvider: Centralized API client with auth headers (ABP OpenID Connect)
  * - ThemeProvider: Theme switching (light/dark mode)
  * - ToastProvider: Toast notifications
  */
-export function GlobalProviders({ children, locale = "ar" }: GlobalProvidersProps) {
+export function GlobalProviders({ children }: GlobalProvidersProps) {
   // Track if we're mounted on client to avoid hydration issues
   const [isMounted, setIsMounted] = useState(false)
 
@@ -58,26 +56,28 @@ export function GlobalProviders({ children, locale = "ar" }: GlobalProvidersProp
   // SessionProvider and ApiProvider will be enabled once the component mounts on client
   if (!isMounted) {
     return (
-      <QueryClientProvider client={queryClient}>
-        <ApiProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem={false}
-            disableTransitionOnChange
-          >
-            <ToastProvider>
-              {children}
-              <CommandPalette />
-            </ToastProvider>
-          </ThemeProvider>
-        </ApiProvider>
-      </QueryClientProvider>
+      <LocaleProvider defaultLocale="ar">
+        <QueryClientProvider client={queryClient}>
+          <ApiProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              enableSystem={false}
+              disableTransitionOnChange
+            >
+              <ToastProvider>
+                {children}
+                <CommandPalette />
+              </ToastProvider>
+            </ThemeProvider>
+          </ApiProvider>
+        </QueryClientProvider>
+      </LocaleProvider>
     )
   }
 
   return (
-    <SessionProvider>
+    <LocaleProvider defaultLocale="ar">
       <QueryClientProvider client={queryClient}>
         <ApiProvider>
           <ThemeProvider
@@ -93,7 +93,7 @@ export function GlobalProviders({ children, locale = "ar" }: GlobalProvidersProp
           </ThemeProvider>
         </ApiProvider>
       </QueryClientProvider>
-    </SessionProvider>
+    </LocaleProvider>
   )
 }
 

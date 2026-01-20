@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text.Json;
+using Volo.Abp.Identity;
 
 namespace GrcMvc.Services.Implementations;
 
@@ -16,15 +17,18 @@ namespace GrcMvc.Services.Implementations;
 public class PlatformAdminService : IPlatformAdminService
 {
     private readonly GrcDbContext _context;
+    private readonly IIdentityUserAppService _identityUserAppService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<PlatformAdminService> _logger;
 
     public PlatformAdminService(
         GrcDbContext context,
+        IIdentityUserAppService identityUserAppService,
         UserManager<ApplicationUser> userManager,
         ILogger<PlatformAdminService> logger)
     {
         _context = context;
+        _identityUserAppService = identityUserAppService;
         _userManager = userManager;
         _logger = logger;
     }

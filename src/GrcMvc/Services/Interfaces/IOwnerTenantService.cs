@@ -1,12 +1,13 @@
 using System;
 using System.Threading.Tasks;
-using GrcMvc.Models.Entities;
 using GrcMvc.Models.DTOs;
+using Volo.Abp.TenantManagement;
 
 namespace GrcMvc.Services.Interfaces
 {
     /// <summary>
     /// Interface for owner tenant creation and management
+    /// Uses ABP Tenant with ExtraProperties
     /// </summary>
     public interface IOwnerTenantService
     {

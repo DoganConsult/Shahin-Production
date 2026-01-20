@@ -5,6 +5,7 @@ using GrcMvc.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Identity;
 using GrcMvc.Models.Entities;
+using Volo.Abp.Identity;
 
 namespace GrcMvc.Services.Implementations;
 
@@ -14,6 +15,7 @@ namespace GrcMvc.Services.Implementations;
 public class UserManagementFacade : IUserManagementFacade
 {
     private readonly IPlatformAdminService _legacyService;
+    private readonly IIdentityUserAppService _identityUserAppService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ISecurePasswordGenerator _securePasswordGenerator;
     private readonly IOptions<GrcFeatureOptions> _featureOptions;
@@ -22,6 +24,7 @@ public class UserManagementFacade : IUserManagementFacade
     
     public UserManagementFacade(
         IPlatformAdminService legacyService,
+        IIdentityUserAppService identityUserAppService,
         UserManager<ApplicationUser> userManager,
         ISecurePasswordGenerator securePasswordGenerator,
         IOptions<GrcFeatureOptions> featureOptions,
@@ -29,6 +32,7 @@ public class UserManagementFacade : IUserManagementFacade
         ILogger<UserManagementFacade> logger)
     {
         _legacyService = legacyService;
+        _identityUserAppService = identityUserAppService;
         _userManager = userManager;
         _securePasswordGenerator = securePasswordGenerator;
         _featureOptions = featureOptions;

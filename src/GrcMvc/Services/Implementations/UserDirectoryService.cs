@@ -4,6 +4,7 @@ using GrcMvc.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Volo.Abp.Identity;
 
 namespace GrcMvc.Services.Implementations
 {
@@ -14,8 +15,9 @@ namespace GrcMvc.Services.Implementations
     public class UserDirectoryService : IUserDirectoryService
     {
         private readonly GrcAuthDbContext _authContext;
+        private readonly IIdentityUserAppService _identityUserAppService;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<Microsoft.AspNetCore.Identity.IdentityRole> _roleManager;
         private readonly IMemoryCache _cache;
         private readonly ILogger<UserDirectoryService> _logger;
 
@@ -25,12 +27,14 @@ namespace GrcMvc.Services.Implementations
 
         public UserDirectoryService(
             GrcAuthDbContext authContext,
+            IIdentityUserAppService identityUserAppService,
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager,
+            RoleManager<Microsoft.AspNetCore.Identity.IdentityRole> roleManager,
             IMemoryCache cache,
             ILogger<UserDirectoryService> logger)
         {
             _authContext = authContext;
+            _identityUserAppService = identityUserAppService;
             _userManager = userManager;
             _roleManager = roleManager;
             _cache = cache;
@@ -131,12 +135,12 @@ namespace GrcMvc.Services.Implementations
 
         // ===== ROLE LOOKUPS =====
 
-        public async Task<IdentityRole?> GetRoleByIdAsync(string roleId)
+        public async Task<Microsoft.AspNetCore.Identity.IdentityRole?> GetRoleByIdAsync(string roleId)
         {
             if (string.IsNullOrEmpty(roleId)) return null;
 
             var cacheKey = $"{RoleCachePrefix}{roleId}";
-            if (_cache.TryGetValue(cacheKey, out IdentityRole? cached))
+            if (_cache.TryGetValue(cacheKey, out Microsoft.AspNetCore.Identity.IdentityRole? cached))
                 return cached;
 
             var role = await _roleManager.FindByIdAsync(roleId);
@@ -147,19 +151,19 @@ namespace GrcMvc.Services.Implementations
             return role;
         }
 
-        public async Task<Dictionary<string, IdentityRole>> GetRolesByIdsAsync(IEnumerable<string> roleIds)
+        public async Task<Dictionary<string, Microsoft.AspNetCore.Identity.IdentityRole>> GetRolesByIdsAsync(IEnumerable<string> roleIds)
         {
             var ids = roleIds?.Where(id => !string.IsNullOrEmpty(id)).Distinct().ToList();
             if (ids == null || !ids.Any())
-                return new Dictionary<string, IdentityRole>();
+                return new Dictionary<string, Microsoft.AspNetCore.Identity.IdentityRole>();
 
-            var result = new Dictionary<string, IdentityRole>();
+            var result = new Dictionary<string, Microsoft.AspNetCore.Identity.IdentityRole>();
             var uncachedIds = new List<string>();
 
             foreach (var id in ids)
             {
                 var cacheKey = $"{RoleCachePrefix}{id}";
-                if (_cache.TryGetValue(cacheKey, out IdentityRole? cached) && cached != null)
+                if (_cache.TryGetValue(cacheKey, out Microsoft.AspNetCore.Identity.IdentityRole? cached) && cached != null)
                 {
                     result[id] = cached;
                 }
@@ -185,13 +189,13 @@ namespace GrcMvc.Services.Implementations
             return result;
         }
 
-        public async Task<IdentityRole?> GetRoleByNameAsync(string roleName)
+        public async Task<Microsoft.AspNetCore.Identity.IdentityRole?> GetRoleByNameAsync(string roleName)
         {
             if (string.IsNullOrEmpty(roleName)) return null;
             return await _roleManager.FindByNameAsync(roleName);
         }
 
-        public async Task<List<IdentityRole>> GetAllRolesAsync()
+        public async Task<List<Microsoft.AspNetCore.Identity.IdentityRole>> GetAllRolesAsync()
         {
             return await _authContext.Roles.OrderBy(r => r.Name).ToListAsync();
         }

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using GrcMvc.Abp;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -127,7 +128,7 @@ namespace GrcMvc.Controllers
                     ownerId,
                     dto.ExpirationDays);
 
-                TempData["Success"] = $"Tenant '{tenant.OrganizationName}' created successfully with full features.";
+                TempData["Success"] = $"Tenant '{tenant.GetOrganizationName()}' created successfully with full features.";
                 return RedirectToAction("Details", new { id = tenant.Id });
             }
             catch (Exception ex)

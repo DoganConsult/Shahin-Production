@@ -1,24 +1,29 @@
 using Microsoft.Extensions.Logging;
 using GrcMvc.Services.Interfaces;
 using Volo.Abp.DependencyInjection;
+using Volo.Abp.Features;
 
 namespace GrcMvc.Abp;
 
 /// <summary>
 /// Implementation of feature checking for Shahin GRC
-/// Integrates with tenant subscription/plan system
+/// Uses ABP's IFeatureChecker internally while maintaining backward compatibility
+/// with custom methods for subscription/edition integration
 /// </summary>
 public class FeatureCheckService : IFeatureCheckService, ITransientDependency
 {
+    private readonly IFeatureChecker _abpFeatureChecker;
     private readonly ITenantContextService _tenantContext;
     private readonly ISubscriptionService _subscriptionService;
     private readonly ILogger<FeatureCheckService> _logger;
 
     public FeatureCheckService(
+        IFeatureChecker abpFeatureChecker,
         ITenantContextService tenantContext,
         ISubscriptionService subscriptionService,
         ILogger<FeatureCheckService> logger)
     {
+        _abpFeatureChecker = abpFeatureChecker;
         _tenantContext = tenantContext;
         _subscriptionService = subscriptionService;
         _logger = logger;
@@ -28,6 +33,18 @@ public class FeatureCheckService : IFeatureCheckService, ITransientDependency
     {
         try
         {
+            // First try ABP's feature checker
+            try
+            {
+                var abpResult = await _abpFeatureChecker.IsEnabledAsync(featureName);
+                return abpResult;
+            }
+            catch
+            {
+                // Fall back to edition-based features if ABP feature not defined
+            }
+
+            // Fall back to edition-based features
             var edition = await GetCurrentEditionAsync();
             var features = GetFeaturesForEdition(edition);
 

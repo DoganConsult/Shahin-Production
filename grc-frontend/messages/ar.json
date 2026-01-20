@@ -83,11 +83,11 @@
   },
   "landing": {
     "hero": {
-      "badge": "منصة الحوكمة والمخاطر والامتثال الأولى في المملكة",
-      "title": "إدارة الامتثال",
-      "ai_powered": "بذكاء اصطناعي",
-      "subtitle": "للمؤسسات السعودية",
-      "description": "منصة متكاملة لإدارة الحوكمة والمخاطر والامتثال مع دعم كامل للأطر التنظيمية السعودية ومعايير الأمن السيبراني الوطنية",
+      "badge": "منصة GRC #1 في المملكة العربية السعودية",
+      "title": "الامتثال الذكي",
+      "ai_powered": "مدعوم بـ 12 وكيل ذكاء اصطناعي",
+      "subtitle": "من السعودية إلى العالم",
+      "description": "شاهين - المنصة السعودية الأولى للحوكمة والمخاطر والامتثال. صُنعت في الرياض، مُعتمدة من NCA و SAMA، وتخدم +500 مؤسسة. وداعاً للطرق التقليدية المُرهقة.",
       "cta_primary": "ابدأ تجربتك المجانية",
       "cta_secondary": "احجز عرض توضيحي"
     },
@@ -157,9 +157,9 @@
       "subtitle": "نفخر بثقة أكثر من 500 مؤسسة سعودية في منصة شاهين"
     },
     "cta": {
-      "badge": "عرض خاص لفترة محدودة",
-      "title": "ابدأ رحلة الامتثال اليوم",
-      "subtitle": "انضم لأكثر من 500 مؤسسة سعودية تثق في منصة شاهين لإدارة الامتثال والمخاطر",
+      "badge": "عرض تجريبي مجاني - ابدأ الآن",
+      "title": "لا تدع المنافسين يسبقونك",
+      "subtitle": "انضم لـ +500 مؤسسة رائدة في السعودية اختارت شاهين. المنصة السعودية الأولى التي تفوقت على الحلول العالمية.",
       "benefit_1": "تجربة مجانية 14 يوم",
       "benefit_2": "بدون بطاقة ائتمان",
       "benefit_3": "دعم فني باللغة العربية",
@@ -273,12 +273,12 @@
     },
     "differentiators": {
       "sectionLabel": "لماذا شاهين؟",
-      "title": "ما يميزنا عن غيرنا",
-      "subtitle": "منصة شاهين مصممة خصيصاً للسوق السعودي مع تقنيات متقدمة لا تجدها في أي منصة أخرى",
+      "title": "اترك المنافسة خلفك",
+      "subtitle": "شاهين ليست مجرد منصة GRC أخرى. نحن الحل السعودي الأصيل الذي يتفوق على ServiceNow و Archer و MetricStream في السوق المحلي.",
       "aiAgents": {
-        "title": "وكلاء ذكاء اصطناعي متخصصين",
-        "description": "9 وكلاء ذكاء اصطناعي متخصصين في الامتثال والمخاطر والتدقيق يعملون على مدار الساعة",
-        "highlight": "9 AI Agents"
+        "title": "12 وكيل ذكاء اصطناعي متخصص",
+        "description": "فريق كامل من وكلاء الذكاء الاصطناعي يعمل 24/7 على الامتثال، المخاطر، التدقيق، والتقارير. لا تحتاج فريق كبير بعد الآن.",
+        "highlight": "12 AI Agents"
       },
       "regIntel": {
         "title": "استخبارات تنظيمية مباشرة",
@@ -344,10 +344,119 @@
         "maaden": "معادن"
       },
       "certifications": {
-        "iso27001": "ISO 27001",
-        "soc2": "SOC 2",
-        "ncaCertified": "NCA Certified",
-        "samaApproved": "SAMA Approved"
+        "iso27001": "متوافق مع ISO 27001",
+        "soc2": "متوافق مع SOC 2 النوع الثاني",
+        "ncaCertified": "معايير NCA",
+        "samaApproved": "إرشادات ساما"
+      }
+    },
+    "useCases": {
+      "sectionLabel": "حلول القطاعات",
+      "title": "حلول مخصصة لكل قطاع",
+      "subtitle": "شاهين توفر حلول امتثال متخصصة مصممة للمتطلبات الفريدة لكل صناعة",
+      "learnMore": "اعرف المزيد",
+      "sectors": {
+        "financial": {
+          "name": "الخدمات المالية",
+          "tagline": "البنوك، التأمين، شركات الاستثمار",
+          "description": "امتثال كامل لمتطلبات ساما و CMA و FATF مع ضوابط AML/CFT آلية ومراقبة مستمرة"
+        },
+        "healthcare": {
+          "name": "الرعاية الصحية",
+          "tagline": "المستشفيات، العيادات، المختبرات",
+          "description": "امتثال HIPAA ووزارة الصحة مع حماية بيانات المرضى وأمان الأجهزة الطبية وسلامة البيانات السريرية"
+        },
+        "government": {
+          "name": "القطاع الحكومي",
+          "tagline": "الوزارات، الهيئات، الخدمات العامة",
+          "description": "امتثال كامل لضوابط NCA ECC مع تصنيف البيانات الآمن وإدارة الهوية وضوابط أمن السحابة"
+        },
+        "industrial": {
+          "name": "القطاع الصناعي",
+          "tagline": "التصنيع، النفط والغاز، الطاقة",
+          "description": "أمن OT وحماية ICS/SCADA مع إدارة مخاطر سلسلة التوريد وامتثال أنظمة السلامة"
+        },
+        "retail": {
+          "name": "قطاع التجزئة",
+          "tagline": "التجارة الإلكترونية، المتاجر، التوزيع",
+          "description": "امتثال PCI DSS مع خصوصية بيانات العملاء وأمان التجارة الإلكترونية وضوابط معالجة المدفوعات"
+        }
+      },
+      "charts": {
+        "complianceRate": "نسبة الامتثال للضوابط",
+        "riskAssessment": "تقييم المخاطر",
+        "coverage": "التغطية"
+      },
+      "legend": {
+        "compliant": "ممتثل",
+        "inProgress": "قيد التنفيذ",
+        "pending": "معلق",
+        "likelihood": "الاحتمالية",
+        "impact": "التأثير"
+      },
+      "panels": {
+        "relatedControls": "الضوابط المرتبطة",
+        "relatedRisks": "المخاطر المرتبطة",
+        "totalRisks": "إجمالي المخاطر المحددة"
+      },
+      "severity": {
+        "critical": "حرج",
+        "high": "عالي",
+        "medium": "متوسط"
+      },
+      "metrics": {
+        "continuousMonitoring": "مراقبة مستمرة",
+        "controlsCompliant": "ضوابط ممتثلة",
+        "criticalRisks": "مخاطر حرجة"
+      },
+      "controls": {
+        "dataEncryption": "تشفير البيانات",
+        "accessControl": "التحكم بالوصول",
+        "auditLogging": "سجلات التدقيق",
+        "incidentResponse": "الاستجابة للحوادث",
+        "vendorManagement": "إدارة الموردين",
+        "patientDataProtection": "حماية بيانات المرضى",
+        "medicalDeviceSecurity": "أمان الأجهزة الطبية",
+        "clinicalDataIntegrity": "سلامة البيانات السريرية",
+        "healthRecordAccess": "الوصول للسجلات الصحية",
+        "consentManagement": "إدارة الموافقات",
+        "ncaEccControls": "ضوابط NCA ECC",
+        "dataClassification": "تصنيف البيانات",
+        "networkSecurity": "أمن الشبكات",
+        "identityManagement": "إدارة الهوية",
+        "cloudSecurity": "أمن السحابة",
+        "otSecurity": "أمن التقنية التشغيلية",
+        "scadaProtection": "حماية SCADA",
+        "supplyChainSecurity": "أمن سلسلة التوريد",
+        "safetySystems": "أنظمة السلامة",
+        "environmentalControls": "الضوابط البيئية",
+        "pciDssCompliance": "امتثال PCI DSS",
+        "customerDataPrivacy": "خصوصية بيانات العملاء",
+        "ecommerceSecurity": "أمن التجارة الإلكترونية",
+        "paymentProcessing": "معالجة المدفوعات",
+        "inventoryProtection": "حماية المخزون"
+      },
+      "risks": {
+        "cyberAttack": "هجوم سيبراني",
+        "dataBreach": "اختراق البيانات",
+        "fraudAttempts": "محاولات الاحتيال",
+        "regulatoryFines": "غرامات تنظيمية",
+        "patientDataLeak": "تسريب بيانات المرضى",
+        "ransomware": "برامج الفدية",
+        "deviceTampering": "العبث بالأجهزة",
+        "complianceViolation": "مخالفة الامتثال",
+        "nationStateAttack": "هجوم حكومي",
+        "insiderThreat": "تهديد داخلي",
+        "dataExfiltration": "تسريب البيانات",
+        "serviceDisruption": "تعطل الخدمات",
+        "otSystemBreach": "اختراق نظام OT",
+        "supplyChainAttack": "هجوم سلسلة التوريد",
+        "safetyIncident": "حادث سلامة",
+        "environmentalDamage": "ضرر بيئي",
+        "paymentFraud": "احتيال المدفوعات",
+        "customerDataTheft": "سرقة بيانات العملاء",
+        "websiteCompromise": "اختراق الموقع",
+        "vendorBreach": "اختراق الموردين"
       }
     }
   },

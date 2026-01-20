@@ -45,7 +45,7 @@ window.GrcToast = {
         // Set content
         titleEl.textContent = title;
         body.textContent = message;
-        time.textContent = '@L["Toast_Info"]';
+        time.textContent = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Toast_Info"].Value));
 
         // Set type-specific styling
         switch(type) {
@@ -86,19 +86,19 @@ window.GrcToast = {
         return bsToast;
     },
 
-    success: function(message, title = '@L["Toast_Success"]') {
+    success: function(message, title = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Toast_Success"].Value))) {
         return this.show('success', title, message);
     },
 
-    error: function(message, title = '@L["Toast_Error"]') {
+    error: function(message, title = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Toast_Error"].Value))) {
         return this.show('error', title, message, 8000);
     },
 
-    warning: function(message, title = '@L["Toast_Warning"]') {
+    warning: function(message, title = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Toast_Warning"].Value))) {
         return this.show('warning', title, message, 6000);
     },
 
-    info: function(message, title = '@L["Toast_Info"]') {
+    info: function(message, title = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Toast_Info"].Value))) {
         return this.show('info', title, message);
     }
 };
@@ -108,10 +108,10 @@ document.addEventListener('DOMContentLoaded', function() {
     GrcToast.init();
 
     // Check for flash messages from server
-    const flashSuccess = '@TempData["SuccessMessage"]';
-    const flashError = '@TempData["ErrorMessage"]';
-    const flashWarning = '@TempData["WarningMessage"]';
-    const flashInfo = '@TempData["InfoMessage"]';
+    const flashSuccess = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["SuccessMessage"]?.ToString() ?? ""));
+    const flashError = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["ErrorMessage"]?.ToString() ?? ""));
+    const flashWarning = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["WarningMessage"]?.ToString() ?? ""));
+    const flashInfo = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["InfoMessage"]?.ToString() ?? ""));
 
     if (flashSuccess && flashSuccess !== '') {
         GrcToast.success(flashSuccess);
@@ -129,16 +129,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Global AJAX error handler
 $(document).ajaxError(function(event, jqXHR, settings, thrownError) {
-    let message = '@L["Toast_OperationFailed"]';
-    
+    let message = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Toast_OperationFailed"].Value));
+
     if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
         message = jqXHR.responseJSON.message;
     } else if (jqXHR.status === 401) {
-        message = '@L["Error_401_Message"]';
+        message = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Error_401_Message"].Value));
     } else if (jqXHR.status === 403) {
-        message = '@L["Error_403_Message"]';
+        message = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Error_403_Message"].Value));
     } else if (jqXHR.status === 404) {
-        message = '@L["Error_404_Message"]';
+        message = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Error_404_Message"].Value));
     }
 
     GrcToast.error(message);
@@ -161,14 +161,14 @@ window.fetch = async function(...args) {
             } catch {
                 // Response is not JSON, show generic error
                 if (response.status >= 500) {
-                    GrcToast.error('@L["Toast_OperationFailed"]');
+                    GrcToast.error(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Toast_OperationFailed"].Value)));
                 }
             }
         }
         
         return response;
     } catch (error) {
-        GrcToast.error('@L["Toast_OperationFailed"]');
+        GrcToast.error(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Toast_OperationFailed"].Value)));
         throw error;
     }
 };

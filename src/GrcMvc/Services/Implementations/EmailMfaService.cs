@@ -1,4 +1,5 @@
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Models.DTOs;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System;
@@ -84,7 +85,7 @@ namespace GrcMvc.Services.Implementations
                 _logger.LogWarning("MFA code not found or expired for user {UserId}", userId);
                 return new MfaVerificationResult
                 {
-                    IsValid = false,
+                    Success = false,
                     ErrorMessage = "رمز التحقق منتهي الصلاحية أو غير موجود. يرجى طلب رمز جديد."
                 };
             }
@@ -96,7 +97,7 @@ namespace GrcMvc.Services.Implementations
                 _logger.LogWarning("Max MFA attempts exceeded for user {UserId}", userId);
                 return new MfaVerificationResult
                 {
-                    IsValid = false,
+                    Success = false,
                     ErrorMessage = "تم تجاوز الحد الأقصى للمحاولات. يرجى طلب رمز جديد.",
                     MaxAttemptsExceeded = true
                 };
@@ -109,7 +110,7 @@ namespace GrcMvc.Services.Implementations
                 _logger.LogInformation("MFA code verified successfully for user {UserId}", userId);
                 return new MfaVerificationResult
                 {
-                    IsValid = true
+                    Success = true
                 };
             }
             
@@ -122,8 +123,8 @@ namespace GrcMvc.Services.Implementations
             
             return new MfaVerificationResult
             {
-                IsValid = false,
-                RemainingAttempts = remainingAttempts,
+                Success = false,
+                AttemptsRemaining = remainingAttempts,
                 ErrorMessage = $"رمز التحقق غير صحيح. المحاولات المتبقية: {remainingAttempts}"
             };
         }
@@ -180,13 +181,5 @@ namespace GrcMvc.Services.Implementations
             public int Attempts { get; set; }
             public DateTime CreatedAt { get; set; }
         }
-    }
-
-    public class MfaVerificationResult
-    {
-        public bool IsValid { get; set; }
-        public string? ErrorMessage { get; set; }
-        public int RemainingAttempts { get; set; } = 3;
-        public bool MaxAttemptsExceeded { get; set; }
     }
 }

@@ -62,13 +62,12 @@ namespace GrcMvc.Controllers
         }
 
         /// <summary>
-        /// Contact support form
+        /// Contact support form - Redirects to Support ticket submission
         /// GET /Help/Contact
         /// </summary>
         public IActionResult Contact()
         {
-            ViewData["Title"] = "Contact Support";
-            return View();
+            return RedirectToAction("Submit", "Support");
         }
 
         /// <summary>

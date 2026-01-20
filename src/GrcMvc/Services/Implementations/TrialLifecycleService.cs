@@ -5,20 +5,33 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using Volo.Abp.TenantManagement;
+using Volo.Abp.Identity;
+using Volo.Abp.MultiTenancy;
+using Volo.Abp.Domain.Repositories;
+using CustomTenant = GrcMvc.Models.Entities.Tenant; // Alias to avoid conflict with ABP Tenant
 
 namespace GrcMvc.Services.Implementations
 {
     /// <summary>
     /// Trial Lifecycle Service Implementation
     /// Manages free trial from signup through conversion with team and ecosystem collaboration
+    /// 
+    /// NOTE: This service now uses ABP's ITenantAppService for tenant + admin creation
     /// </summary>
     public class TrialLifecycleService : ITrialLifecycleService
     {
         private readonly GrcDbContext _context;
         private readonly ILogger<TrialLifecycleService> _logger;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager; // Legacy (to be replaced)
         private readonly IGrcEmailService _emailService;
         private readonly IConfiguration _configuration;
+        
+        // ✅ ABP Services
+        private readonly ITenantAppService _tenantAppService;
+        private readonly IIdentityUserAppService _identityUserAppService;
+        private readonly ICurrentTenant _currentTenant;
+        private readonly IRepository<Volo.Abp.TenantManagement.Tenant, Guid> _tenantRepository;
 
         private const int DEFAULT_TRIAL_DAYS = 7;
         private const int EXTENSION_DAYS = 7;
@@ -29,13 +42,21 @@ namespace GrcMvc.Services.Implementations
             ILogger<TrialLifecycleService> logger,
             UserManager<ApplicationUser> userManager,
             IGrcEmailService emailService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ITenantAppService tenantAppService,
+            IIdentityUserAppService identityUserAppService,
+            ICurrentTenant currentTenant,
+            IRepository<Volo.Abp.TenantManagement.Tenant, Guid> tenantRepository)
         {
             _context = context;
             _logger = logger;
             _userManager = userManager;
             _emailService = emailService;
             _configuration = configuration;
+            _tenantAppService = tenantAppService;
+            _identityUserAppService = identityUserAppService;
+            _currentTenant = currentTenant;
+            _tenantRepository = tenantRepository;
         }
 
         #region Signup & Provisioning
@@ -168,75 +189,111 @@ namespace GrcMvc.Services.Implementations
                 // Generate unique tenant slug
                 var tenantSlug = GenerateSlug(signup.CompanyName ?? "company");
 
-                // Create tenant
-                var tenant = new Tenant
-                {
-                    Id = Guid.NewGuid(),
-                    OrganizationName = signup.CompanyName ?? "Company",
-                    TenantSlug = tenantSlug,
-                    Email = signup.Email,
-                    AdminEmail = signup.Email,
-                    Status = "trial",
-                    IsTrial = true,
-                    TrialStartsAt = DateTime.UtcNow,
-                    TrialEndsAt = DateTime.UtcNow.AddDays(DEFAULT_TRIAL_DAYS),
-                    OnboardingStatus = "NOT_STARTED",
-                    CreatedDate = DateTime.UtcNow,
-                    CreatedBy = "system"
-                };
+                // ✅ ABP WAY: Manual flow - Create tenant first, then admin user
+                _logger.LogInformation("Creating tenant via ABP: Organization={OrgName}, Email={Email}",
+                    signup.CompanyName, signup.Email);
 
-                _context.Tenants.Add(tenant);
-
-                // Create ApplicationUser for ASP.NET Identity authentication
-                var applicationUser = new ApplicationUser
+                TenantDto tenantDto;
+                Guid adminUserId;
+                try
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    UserName = signup.Email,
-                    Email = signup.Email,
-                    EmailConfirmed = true, // Auto-confirm for trial users
-                    FirstName = signup.FirstName ?? "",
-                    LastName = signup.LastName ?? "",
-                    IsActive = true,
-                    MustChangePassword = false,
-                    CreatedDate = DateTime.UtcNow,
-                    LastPasswordChangedAt = DateTime.UtcNow
-                };
+                    // Step 1: Create tenant
+                    tenantDto = await _tenantAppService.CreateAsync(new Volo.Abp.TenantManagement.TenantCreateDto
+                    {
+                        Name = signup.CompanyName ?? "Company"
+                    });
 
-                var createUserResult = await _userManager.CreateAsync(applicationUser, password);
-                if (!createUserResult.Succeeded)
+                    // Step 2: Switch to tenant context and create admin user
+                    using (_currentTenant.Change(tenantDto.Id))
+                    {
+                        // Step 3: Create admin user in tenant context
+                        var adminUser = await _identityUserAppService.CreateAsync(new Volo.Abp.Identity.IdentityUserCreateDto
+                        {
+                            UserName = signup.Email,
+                            Email = signup.Email,
+                            Password = password,
+                            Name = signup.FirstName ?? "",
+                            Surname = signup.LastName ?? "",
+                            RoleNames = new[] { "admin" } // ABP default admin role
+                        });
+
+                        adminUserId = adminUser.Id;
+
+                        // Step 4: Link admin to tenant (optional, ABP handles via TenantId)
+                        var abpTenant = await _tenantRepository.GetAsync(tenantDto.Id);
+                        abpTenant.ExtraProperties["AdminUserId"] = adminUserId;
+                        await _tenantRepository.UpdateAsync(abpTenant);
+                    }
+
+                    _logger.LogInformation("Tenant created via ABP: TenantId={TenantId}, AdminUserId={AdminUserId}",
+                        tenantDto.Id, adminUserId);
+                }
+                catch (Exception ex)
                 {
-                    // Rollback tenant creation
-                    _context.Tenants.Remove(tenant);
-                    var errors = string.Join(", ", createUserResult.Errors.Select(e => e.Description));
-                    _logger.LogError("Failed to create ApplicationUser for trial signup {SignupId}: {Errors}", signupId, errors);
-                    return new TrialProvisionResult { Success = false, Message = $"Failed to create user account: {errors}" };
+                    _logger.LogError(ex, "Failed to create tenant via ABP for signup {SignupId}", signupId);
+                    return new TrialProvisionResult { Success = false, Message = $"Failed to create tenant: {ex.Message}" };
                 }
 
-                // Add TenantAdmin role to the user (tenant administrator for their organization)
-                var roleResult = await _userManager.AddToRoleAsync(applicationUser, "TenantAdmin");
-                if (!roleResult.Succeeded)
+                // Map ABP tenant to custom Tenant entity for backward compatibility
+                // Note: This is a transitional approach - eventually we should migrate to ABP entities
+                var tenant = await _context.Tenants.FirstOrDefaultAsync(t => t.Id == tenantDto.Id);
+                if (tenant == null)
                 {
-                    _logger.LogWarning("Failed to add Admin role to user {Email}: {Errors}",
-                        signup.Email, string.Join(", ", roleResult.Errors.Select(e => e.Description)));
-                    // Continue - role can be added later
+                    // Create custom Tenant entity for backward compatibility
+                    tenant = new CustomTenant
+                    {
+                        Id = tenantDto.Id,
+                        OrganizationName = signup.CompanyName ?? "Company",
+                        TenantSlug = tenantSlug,
+                        Email = signup.Email,
+                        AdminEmail = signup.Email,
+                        Status = "trial",
+                        IsTrial = true,
+                        TrialStartsAt = DateTime.UtcNow,
+                        TrialEndsAt = DateTime.UtcNow.AddDays(DEFAULT_TRIAL_DAYS),
+                        OnboardingStatus = "NOT_STARTED",
+                        CreatedDate = DateTime.UtcNow,
+                        CreatedBy = "system"
+                    };
+                    _context.Tenants.Add(tenant);
+                }
+                else
+                {
+                    // Update existing tenant
+                    tenant.OrganizationName = signup.CompanyName ?? "Company";
+                    tenant.TenantSlug = tenantSlug;
+                    tenant.Email = signup.Email;
+                    tenant.AdminEmail = signup.Email;
+                    tenant.Status = "trial";
+                    tenant.IsTrial = true;
+                    tenant.TrialStartsAt = DateTime.UtcNow;
+                    tenant.TrialEndsAt = DateTime.UtcNow.AddDays(DEFAULT_TRIAL_DAYS);
+                    tenant.OnboardingStatus = "NOT_STARTED";
                 }
 
-                // Create TenantUser linking ApplicationUser to Tenant
-                var tenantUser = new TenantUser
+                // Create TenantUser link for backward compatibility
+                // Note: ABP handles user-tenant relationship automatically, but we keep TenantUser for custom logic
+                var adminUserIdString = adminUserId.ToString();
+                var existingTenantUser = await _context.TenantUsers
+                    .FirstOrDefaultAsync(tu => tu.TenantId == tenant.Id && tu.UserId == adminUserIdString);
+                
+                if (existingTenantUser == null)
                 {
-                    Id = Guid.NewGuid(),
-                    TenantId = tenant.Id,
-                    UserId = applicationUser.Id, // Use ApplicationUser.Id, NOT email
-                    RoleCode = "TenantAdmin",
-                    TitleCode = "TENANT_ADMIN",
-                    Status = "Active",
-                    InvitedAt = DateTime.UtcNow,
-                    ActivatedAt = DateTime.UtcNow,
-                    InvitedBy = "system",
-                    CreatedDate = DateTime.UtcNow
-                };
-
-                _context.TenantUsers.Add(tenantUser);
+                    var tenantUser = new TenantUser
+                    {
+                        Id = Guid.NewGuid(),
+                        TenantId = tenant.Id,
+                        UserId = adminUserIdString,
+                        RoleCode = "TenantAdmin",
+                        TitleCode = "TENANT_ADMIN",
+                        Status = "Active",
+                        InvitedAt = DateTime.UtcNow,
+                        ActivatedAt = DateTime.UtcNow,
+                        InvitedBy = "system",
+                        CreatedDate = DateTime.UtcNow
+                    };
+                    _context.TenantUsers.Add(tenantUser);
+                }
 
                 // Update signup record
                 signup.Status = "provisioned";
@@ -255,14 +312,14 @@ namespace GrcMvc.Services.Implementations
                     _logger.LogWarning(emailEx, "Failed to send welcome email for tenant {TenantId}", tenant.Id);
                 }
 
-                _logger.LogInformation("Trial provisioned: Tenant={TenantId}, User={UserId}, Email={Email}",
-                    tenant.Id, applicationUser.Id, signup.Email);
+                _logger.LogInformation("Trial provisioned via ABP: Tenant={TenantId}, AdminUser={AdminUserId}, Email={Email}",
+                    tenant.Id, adminUserId, signup.Email);
 
                 return new TrialProvisionResult
                 {
                     Success = true,
                     TenantId = tenant.Id,
-                    UserId = Guid.Parse(applicationUser.Id),
+                    UserId = adminUserId,
                     TenantSlug = tenantSlug,
                     TrialEndsAt = tenant.TrialEndsAt,
                     Message = "Trial provisioned successfully. You can now log in."
@@ -1379,7 +1436,7 @@ namespace GrcMvc.Services.Implementations
                 + "-" + Guid.NewGuid().ToString("N")[..6];
         }
 
-        private string DetermineTrialStatus(Tenant tenant, int daysRemaining)
+        private string DetermineTrialStatus(CustomTenant tenant, int daysRemaining)
         {
             if (!tenant.IsTrial || tenant.SubscriptionStartDate != default)
                 return "converted";

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using GrcMvc.Abp;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
@@ -95,18 +96,17 @@ public class RegisterController : Controller
                 slug);
 
             // Set to Trial tier for self-registration
-            tenant.SubscriptionTier = "Trial";
-            await _dbContext.SaveChangesAsync();
+            tenant.SetSubscriptionTier("Trial");
 
             _logger.LogInformation("Self-registration: Tenant {TenantId} ({Slug}) created by {Email}",
-                tenant.Id, tenant.TenantSlug, model.AdminEmail);
+                tenant.Id, tenant.Name, model.AdminEmail);
 
             // Return success view
             return View("Success", new RegistrationSuccessViewModel
             {
                 OrganizationName = model.OrganizationName,
                 AdminEmail = model.AdminEmail,
-                TenantSlug = tenant.TenantSlug
+                TenantSlug = tenant.Name
             });
         }
         catch (Exception ex)

@@ -1,3 +1,4 @@
+using GrcMvc.Abp;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -74,7 +75,7 @@ namespace GrcMvc.Controllers
                 TempData["SuccessMessage"] = "Your organization has been activated successfully! Please log in to continue.";
                 
                 // Redirect to login with tenant context
-                return RedirectToAction("Login", "Account", new { tenantSlug = tenant.TenantSlug });
+                return RedirectToAction("Login", "Account", new { tenantSlug = tenant.Name });
             }
             catch (KeyNotFoundException)
             {

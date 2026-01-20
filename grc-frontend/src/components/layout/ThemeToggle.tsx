@@ -23,40 +23,35 @@ export interface ThemeToggleProps {
   className?: string
 }
 
-export function ThemeToggle({ forceLight = true, className }: ThemeToggleProps) {
+export function ThemeToggle({ forceLight = false, className }: ThemeToggleProps) {
   const [theme, setTheme] = React.useState<"light" | "dark">("light")
   const [mounted, setMounted] = React.useState(false)
 
   React.useEffect(() => {
     setMounted(true)
 
-    // If forceLight is true, always use light mode
-    if (forceLight) {
-      setTheme("light")
-      document.documentElement.classList.remove("dark")
-      localStorage.setItem("theme", "light")
-      return
-    }
-
-    // Check localStorage first
+    // Check localStorage for saved preference
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null
 
     if (savedTheme) {
       setTheme(savedTheme)
-      document.documentElement.classList.toggle("dark", savedTheme === "dark")
+      document.documentElement.classList.remove("light", "dark")
+      document.documentElement.classList.add(savedTheme)
     } else {
-      // Default to light mode (don't check system preference)
-      // This ensures consistent light mode experience
+      // Default to light mode
       setTheme("light")
       document.documentElement.classList.remove("dark")
+      document.documentElement.classList.add("light")
+      localStorage.setItem("theme", "light")
     }
-  }, [forceLight])
+  }, [])
 
   const toggleTheme = React.useCallback(() => {
     const newTheme = theme === "light" ? "dark" : "light"
     setTheme(newTheme)
     localStorage.setItem("theme", newTheme)
-    document.documentElement.classList.toggle("dark", newTheme === "dark")
+    document.documentElement.classList.remove("light", "dark")
+    document.documentElement.classList.add(newTheme)
   }, [theme])
 
   // Prevent hydration mismatch

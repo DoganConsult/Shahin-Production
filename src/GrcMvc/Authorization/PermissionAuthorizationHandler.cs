@@ -1,18 +1,21 @@
 using GrcMvc.Services.Interfaces.RBAC;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Volo.Abp.Authorization.Permissions;
+using Volo.Abp.DependencyInjection;
 
 namespace GrcMvc.Authorization;
 
 /// <summary>
 /// Authorization handler that checks if user has the required permission.
-/// Checks in order: 1) Explicit denials, 2) Claims, 3) Database (RBAC), 4) Role-based fallback.
+/// Checks in order: 1) Explicit denials, 2) Claims, 3) ABP Permission Checker, 4) Database (RBAC fallback), 5) Role-based fallback.
 /// Supports both "Grc.Module.Action" and "Module.Action" permission formats.
 /// </summary>
-public sealed class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
+public sealed class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>, ITransientDependency
 {
     private readonly ILogger<PermissionAuthorizationHandler> _logger;
     private readonly IServiceProvider _serviceProvider;
+    private readonly IPermissionChecker _permissionChecker;
 
     // Roles that have all permissions as a fallback (only after claims and database checks)
     private static readonly string[] SuperAdminRoles = ["PlatformAdmin"];
@@ -20,10 +23,12 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
 
     public PermissionAuthorizationHandler(
         ILogger<PermissionAuthorizationHandler> logger,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider,
+        IPermissionChecker permissionChecker)
     {
         _logger = logger;
         _serviceProvider = serviceProvider;
+        _permissionChecker = permissionChecker;
     }
 
     protected override async Task HandleRequirementAsync(
@@ -55,7 +60,28 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             return;
         }
 
-        // 3. Check database via RBAC service (proper permission management)
+        // 3. Check ABP Permission Checker (primary permission management)
+        try
+        {
+            var variants = GetPermissionVariants(permission);
+            foreach (var variant in variants)
+            {
+                if (await _permissionChecker.IsGrantedAsync(variant))
+                {
+                    context.Succeed(requirement);
+                    _logger.LogDebug("Permission granted via ABP PermissionChecker. Permission={Permission}, Variant={Variant}, User={User}", 
+                        permission, variant, userName);
+                    return;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Error checking permission via ABP PermissionChecker. Permission={Permission}, User={User}", 
+                permission, userName);
+        }
+
+        // 4. Fallback: Check database via RBAC service (backward compatibility)
         if (!string.IsNullOrEmpty(userId))
         {
             var (hasPermission, isDenied) = await CheckDatabasePermissionAsync(userId, permission, context.User);
@@ -69,12 +95,12 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             if (hasPermission)
             {
                 context.Succeed(requirement);
-                _logger.LogDebug("Permission granted via RBAC database. Permission={Permission}, User={User}", permission, userName);
+                _logger.LogDebug("Permission granted via RBAC database (fallback). Permission={Permission}, User={User}", permission, userName);
                 return;
             }
         }
 
-        // 4. Role-based fallback (ONLY after claims and database checks)
+        // 5. Role-based fallback (ONLY after claims, ABP, and database checks)
         // PlatformAdmin: Full platform access
         if (SuperAdminRoles.Any(role => context.User.IsInRole(role)))
         {

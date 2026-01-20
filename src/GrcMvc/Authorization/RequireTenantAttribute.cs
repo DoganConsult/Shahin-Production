@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Data;
+using GrcMvc.Exceptions;
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -27,60 +28,77 @@ public class RequireTenantAttribute : Attribute, IAsyncAuthorizationFilter
 
         if (tenantContextService == null)
         {
-            context.Result = new UnauthorizedObjectResult("Tenant context service not available");
+            context.Result = new UnauthorizedObjectResult(new { error = "TenantContextServiceNotAvailable", message = "Tenant context service not available" });
             return;
         }
 
         if (!tenantContextService.IsAuthenticated())
         {
-            context.Result = new UnauthorizedObjectResult("User is not authenticated");
+            context.Result = new UnauthorizedObjectResult(new { error = "Unauthorized", message = "User is not authenticated" });
             return;
         }
 
-        var tenantId = tenantContextService.GetCurrentTenantId();
-        if (tenantId == Guid.Empty)
+        try
         {
-            context.Result = new BadRequestObjectResult("Tenant context is required but not set");
+            // Use ValidateAsync() which handles tenant existence and user authorization
+            await tenantContextService.ValidateAsync(context.HttpContext.RequestAborted);
+        }
+        catch (TenantRequiredException ex)
+        {
+            context.Result = new BadRequestObjectResult(new { error = "TenantRequired", message = ex.Message });
             return;
         }
-
-        // CRITICAL FIX: Verify user actually belongs to this tenant
-        // This prevents authorization bypass where any authenticated user could access any tenant
-        var userId = context.HttpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
+        catch (TenantForbiddenException ex)
         {
-            context.Result = new UnauthorizedObjectResult("User identity not found");
+            context.Result = new ObjectResult(new { error = "TenantForbidden", message = ex.Message }) { StatusCode = 403 };
             return;
         }
-
-        // Check if user has TenantId claim matching the resolved tenant
-        var tenantIdClaim = context.HttpContext.User?.FindFirstValue("TenantId");
-        if (!string.IsNullOrEmpty(tenantIdClaim) && Guid.TryParse(tenantIdClaim, out var claimTenantId))
+        catch (InvalidOperationException ex)
         {
-            if (claimTenantId == tenantId)
+            // Map InvalidOperationException to appropriate HTTP status
+            if (ex.Message.Contains("not found") || ex.Message.Contains("inactive"))
             {
-                // Claim matches - fast path, allow access
-                return;
+                context.Result = new ObjectResult(new { error = "TenantForbidden", message = ex.Message }) { StatusCode = 403 };
             }
-        }
-
-        // Fallback: Verify via database that user belongs to this tenant
-        var dbContext = context.HttpContext.RequestServices.GetService<GrcDbContext>();
-        if (dbContext == null)
-        {
-            context.Result = new StatusCodeResult(500);
+            else
+            {
+                context.Result = new BadRequestObjectResult(new { error = "TenantRequired", message = ex.Message });
+            }
             return;
         }
 
-        var userBelongsToTenant = await dbContext.TenantUsers
-            .AsNoTracking()
-            .AnyAsync(tu => tu.UserId == userId && tu.TenantId == tenantId && tu.Status == "Active" && !tu.IsDeleted);
-
-        if (!userBelongsToTenant)
+        // Additional verification: Ensure user belongs to tenant (defense in depth)
+        var tenantId = tenantContextService.GetCurrentTenantId();
+        var userId = context.HttpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        
+        if (!string.IsNullOrEmpty(userId))
         {
-            // User does not belong to this tenant - deny access
-            context.Result = new ForbidResult();
-            return;
+            // Fast path: Check claim first
+            var tenantIdClaim = context.HttpContext.User?.FindFirstValue("TenantId");
+            if (!string.IsNullOrEmpty(tenantIdClaim) && Guid.TryParse(tenantIdClaim, out var claimTenantId))
+            {
+                if (claimTenantId == tenantId)
+                {
+                    // Claim matches - fast path, allow access
+                    return;
+                }
+            }
+
+            // Fallback: Verify via database that user belongs to this tenant
+            var dbContext = context.HttpContext.RequestServices.GetService<GrcDbContext>();
+            if (dbContext != null)
+            {
+                var userBelongsToTenant = await dbContext.TenantUsers
+                    .AsNoTracking()
+                    .AnyAsync(tu => tu.UserId == userId && tu.TenantId == tenantId && tu.Status == "Active" && !tu.IsDeleted);
+
+                if (!userBelongsToTenant)
+                {
+                    // User does not belong to this tenant - deny access
+                    context.Result = new ObjectResult(new { error = "TenantForbidden", message = "User does not belong to this tenant" }) { StatusCode = 403 };
+                    return;
+                }
+            }
         }
 
         // User verified to belong to tenant, allow action to proceed

@@ -12,6 +12,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.MultiTenancy;
+using Volo.Abp.AuditLogging.EntityFrameworkCore;
+using Volo.Abp.FeatureManagement.EntityFrameworkCore;
+using Volo.Abp.Identity.EntityFrameworkCore;
+using Volo.Abp.OpenIddict.EntityFrameworkCore;
+using Volo.Abp.PermissionManagement.EntityFrameworkCore;
+using Volo.Abp.TenantManagement.EntityFrameworkCore;
+using Volo.Abp.SettingManagement.EntityFrameworkCore;
 
 namespace GrcMvc.Data
 {
@@ -79,8 +86,23 @@ namespace GrcMvc.Data
         public DbSet<OwnerTenantCreation> OwnerTenantCreations { get; set; } = null!;
         public DbSet<PlatformAdmin> PlatformAdmins { get; set; } = null!;
         public DbSet<OrganizationProfile> OrganizationProfiles { get; set; } = null!;
+        
+        // Support Ticketing System (Platform Admin)
+        public DbSet<SupportTicket> SupportTickets { get; set; } = null!;
+        public DbSet<SupportTicketComment> SupportTicketComments { get; set; } = null!;
+        public DbSet<SupportTicketAttachment> SupportTicketAttachments { get; set; } = null!;
+        public DbSet<SupportTicketHistory> SupportTicketHistories { get; set; } = null!;
         public DbSet<OnboardingWizard> OnboardingWizards { get; set; } = null!;
         public DbSet<OnboardingStepScore> OnboardingStepScores { get; set; } = null!;
+        
+        // Onboarding Question Catalog (dynamic questions from DB)
+        public DbSet<OnboardingSection> OnboardingSections { get; set; } = null!;
+        public DbSet<OnboardingQuestion> OnboardingQuestions { get; set; } = null!;
+        public DbSet<OnboardingAnswer> OnboardingAnswers { get; set; } = null!;
+        public DbSet<OnboardingSectionProgress> OnboardingSectionProgress { get; set; } = null!;
+        
+        // Reference Data for dropdown options
+        public DbSet<ReferenceData> ReferenceData { get; set; } = null!;
 
         // Teams & RACI (Role-based workflow routing)
         public DbSet<Team> Teams { get; set; } = null!;
@@ -129,6 +151,7 @@ namespace GrcMvc.Data
 
         // Audit trail
         public DbSet<AuditEvent> AuditEvents { get; set; } = null!;
+        public DbSet<AccessManagementAuditEvent> AccessManagementAuditEvents { get; set; } = null!;
 
         // Webhooks (Outbound event delivery)
         public DbSet<WebhookSubscription> WebhookSubscriptions { get; set; } = null!;
@@ -232,6 +255,10 @@ namespace GrcMvc.Data
         public DbSet<Resilience> Resiliences { get; set; } = null!;
         public DbSet<RiskResilience> RiskResiliences { get; set; } = null!;
 
+        // Access Management - Periodic Access Reviews (AM-04/AM-11)
+        public DbSet<AccessReview> AccessReviews { get; set; } = null!;
+        public DbSet<AccessReviewItem> AccessReviewItems { get; set; } = null!;
+
         // RBAC (Role-Based Access Control) DbSets
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<Feature> Features { get; set; }
@@ -262,6 +289,9 @@ namespace GrcMvc.Data
         public DbSet<SectorFrameworkIndex> SectorFrameworkIndexes { get; set; } = null!;
         public DbSet<EvidenceScoringCriteria> EvidenceScoringCriteria { get; set; } = null!;
         public DbSet<TenantEvidenceRequirement> TenantEvidenceRequirements { get; set; } = null!;
+
+        // Main GRC Sectors (18 main sectors)
+        public DbSet<GrcMainSector> GrcMainSectors { get; set; } = null!;
 
         // GOSI Sub-Sector Mappings (70+ sub-sectors → 18 main sectors)
         public DbSet<GrcSubSectorMapping> GrcSubSectorMappings { get; set; } = null!;
@@ -422,7 +452,9 @@ namespace GrcMvc.Data
         public DbSet<TriggerExecutionLog> TriggerExecutionLogs { get; set; } = null!;
 
         // Validation & Data Quality
-        public DbSet<ValidationRule> ValidationRules { get; set; } = null!;
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; } = null!;
+        // Users is an alias pointing to the same ApplicationUsers DbSet
+        public DbSet<ApplicationUser> Users => ApplicationUsers;
         public DbSet<Models.Entities.ValidationResult> ValidationResults { get; set; } = null!;
         public DbSet<DataQualityScore> DataQualityScores { get; set; } = null!;
 
@@ -458,6 +490,15 @@ namespace GrcMvc.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Configure ABP modules - these create required database tables
+            modelBuilder.ConfigureIdentity();
+            modelBuilder.ConfigurePermissionManagement();
+            modelBuilder.ConfigureAuditLogging();
+            modelBuilder.ConfigureFeatureManagement();
+            modelBuilder.ConfigureTenantManagement();
+            modelBuilder.ConfigureSettingManagement();
+            modelBuilder.ConfigureOpenIddict();
 
             // Apply global query filters for multi-tenant isolation
             ApplyGlobalQueryFilters(modelBuilder);
@@ -1883,6 +1924,53 @@ namespace GrcMvc.Data
                     .HasDatabaseName("IX_EvidenceScoringCriteria_Active");
             });
 
+            // GrcMainSector - Main GRC sectors (18 sectors)
+            modelBuilder.Entity<GrcMainSector>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.SectorCode).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.SectorNameEn).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.SectorNameAr).IsRequired().HasMaxLength(200);
+
+                // Unique constraint on sector code
+                entity.HasIndex(e => e.SectorCode)
+                    .IsUnique()
+                    .HasDatabaseName("IX_GrcMainSector_Code");
+                entity.HasIndex(e => e.IsActive)
+                    .HasDatabaseName("IX_GrcMainSector_Active");
+                entity.HasIndex(e => e.DisplayOrder)
+                    .HasDatabaseName("IX_GrcMainSector_DisplayOrder");
+            });
+
+            // GrcSubSectorMapping - Sub-sectors mapped to main sectors
+            modelBuilder.Entity<GrcSubSectorMapping>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.GosiCode).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.IsicSection).IsRequired().HasMaxLength(2);
+                entity.Property(e => e.SubSectorNameEn).IsRequired().HasMaxLength(300);
+                entity.Property(e => e.MainSectorCode).IsRequired().HasMaxLength(50);
+
+                // Indexes for fast lookups
+                entity.HasIndex(e => e.MainSectorCode)
+                    .HasDatabaseName("IX_GrcSubSectorMapping_MainSectorCode");
+                entity.HasIndex(e => e.MainSectorId)
+                    .HasDatabaseName("IX_GrcSubSectorMapping_MainSectorId");
+                entity.HasIndex(e => e.GosiCode)
+                    .IsUnique()
+                    .HasDatabaseName("IX_GrcSubSectorMapping_GosiCode");
+                entity.HasIndex(e => e.IsicSection)
+                    .HasDatabaseName("IX_GrcSubSectorMapping_IsicSection");
+                entity.HasIndex(e => e.IsActive)
+                    .HasDatabaseName("IX_GrcSubSectorMapping_Active");
+
+                // Foreign key relationship to main sector
+                entity.HasOne(e => e.MainSector)
+                    .WithMany(s => s.SubSectors)
+                    .HasForeignKey(e => e.MainSectorId)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
+
             // TenantEvidenceRequirement - Per-tenant evidence requirements (auto-generated)
             modelBuilder.Entity<TenantEvidenceRequirement>(entity =>
             {
@@ -1984,6 +2072,143 @@ namespace GrcMvc.Data
                 entity.HasIndex(e => new { e.Prefix, e.TenantCode, e.Stage, e.Year })
                     .IsUnique()
                     .HasDatabaseName("IX_SerialSequenceCounter_Unique");
+            });
+
+            // ══════════════════════════════════════════════════════════════
+            // Support Ticket System Configuration
+            // ══════════════════════════════════════════════════════════════
+
+            // SupportTicket entity
+            modelBuilder.Entity<SupportTicket>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.TicketNumber).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Subject).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.Description).IsRequired().HasColumnType("text");
+                entity.Property(e => e.Category).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Priority).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.UserEmail).HasMaxLength(255);
+
+                // Foreign keys
+                entity.HasOne(e => e.Tenant)
+                    .WithMany()
+                    .HasForeignKey(e => e.TenantId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(e => e.AssignedToUser)
+                    .WithMany()
+                    .HasForeignKey(e => e.AssignedToUserId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                // Indexes for performance
+                entity.HasIndex(e => e.TicketNumber).IsUnique().HasDatabaseName("IX_SupportTickets_TicketNumber");
+                entity.HasIndex(e => e.TenantId).HasDatabaseName("IX_SupportTickets_TenantId");
+                entity.HasIndex(e => e.UserId).HasDatabaseName("IX_SupportTickets_UserId");
+                entity.HasIndex(e => e.AssignedToUserId).HasDatabaseName("IX_SupportTickets_AssignedToUserId");
+                entity.HasIndex(e => e.Status).HasDatabaseName("IX_SupportTickets_Status");
+                entity.HasIndex(e => e.Priority).HasDatabaseName("IX_SupportTickets_Priority");
+                entity.HasIndex(e => e.Category).HasDatabaseName("IX_SupportTickets_Category");
+                entity.HasIndex(e => e.CreatedAt).HasDatabaseName("IX_SupportTickets_CreatedAt");
+                entity.HasIndex(e => e.SlaDeadline).HasDatabaseName("IX_SupportTickets_SlaDeadline");
+                entity.HasIndex(e => e.SlaBreached).HasDatabaseName("IX_SupportTickets_SlaBreached");
+
+                // Composite indexes for common queries
+                entity.HasIndex(e => new { e.TenantId, e.Status })
+                    .HasDatabaseName("IX_SupportTickets_TenantId_Status");
+                entity.HasIndex(e => new { e.TenantId, e.AssignedToUserId, e.Status })
+                    .HasDatabaseName("IX_SupportTickets_TenantId_AssignedToUserId_Status");
+                entity.HasIndex(e => new { e.AssignedToUserId, e.Status, e.Priority })
+                    .HasDatabaseName("IX_SupportTickets_AssignedToUserId_Status_Priority");
+                entity.HasIndex(e => new { e.Status, e.SlaDeadline })
+                    .HasDatabaseName("IX_SupportTickets_Status_SlaDeadline");
+                entity.HasIndex(e => new { e.TenantId, e.CreatedAt })
+                    .HasDatabaseName("IX_SupportTickets_TenantId_CreatedAt");
+            });
+
+            // SupportTicketComment entity
+            modelBuilder.Entity<SupportTicketComment>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Content).IsRequired().HasColumnType("text");
+                entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
+
+                // Foreign keys
+                entity.HasOne(e => e.Ticket)
+                    .WithMany(t => t.Comments)
+                    .HasForeignKey(e => e.TicketId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Indexes
+                entity.HasIndex(e => e.TicketId).HasDatabaseName("IX_SupportTicketComments_TicketId");
+                entity.HasIndex(e => e.UserId).HasDatabaseName("IX_SupportTicketComments_UserId");
+                entity.HasIndex(e => e.CreatedAt).HasDatabaseName("IX_SupportTicketComments_CreatedAt");
+                entity.HasIndex(e => new { e.TicketId, e.CreatedAt })
+                    .HasDatabaseName("IX_SupportTicketComments_TicketId_CreatedAt");
+            });
+
+            // SupportTicketAttachment entity
+            modelBuilder.Entity<SupportTicketAttachment>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.FileName).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.FilePath).IsRequired().HasMaxLength(1000);
+                entity.Property(e => e.ContentType).HasMaxLength(100);
+
+                // Foreign keys
+                entity.HasOne(e => e.Ticket)
+                    .WithMany(t => t.Attachments)
+                    .HasForeignKey(e => e.TicketId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.UploadedByUser)
+                    .WithMany()
+                    .HasForeignKey(e => e.UploadedByUserId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                // Indexes
+                entity.HasIndex(e => e.TicketId).HasDatabaseName("IX_SupportTicketAttachments_TicketId");
+                entity.HasIndex(e => e.UploadedByUserId).HasDatabaseName("IX_SupportTicketAttachments_UploadedByUserId");
+                entity.HasIndex(e => e.UploadedAt).HasDatabaseName("IX_SupportTicketAttachments_UploadedAt");
+            });
+
+            // SupportTicketHistory entity
+            modelBuilder.Entity<SupportTicketHistory>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Action).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.PreviousValue).HasMaxLength(500);
+                entity.Property(e => e.NewValue).HasMaxLength(500);
+                entity.Property(e => e.Notes).HasColumnType("text");
+
+                // Foreign keys
+                entity.HasOne(e => e.Ticket)
+                    .WithMany(t => t.History)
+                    .HasForeignKey(e => e.TicketId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.ChangedByUser)
+                    .WithMany()
+                    .HasForeignKey(e => e.ChangedByUserId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                // Indexes
+                entity.HasIndex(e => e.TicketId).HasDatabaseName("IX_SupportTicketHistories_TicketId");
+                entity.HasIndex(e => e.ChangedByUserId).HasDatabaseName("IX_SupportTicketHistories_ChangedByUserId");
+                entity.HasIndex(e => e.ChangedAt).HasDatabaseName("IX_SupportTicketHistories_ChangedAt");
+                entity.HasIndex(e => e.Action).HasDatabaseName("IX_SupportTicketHistories_Action");
+                entity.HasIndex(e => new { e.TicketId, e.ChangedAt })
+                    .HasDatabaseName("IX_SupportTicketHistories_TicketId_ChangedAt");
             });
         }
 

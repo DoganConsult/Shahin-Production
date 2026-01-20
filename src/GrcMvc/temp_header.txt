@@ -1,0 +1,200 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Text.Json;
+using System.Threading.Tasks;
+using GrcMvc.Constants;
+using GrcMvc.Data;
+using GrcMvc.Models.DTOs;
+using GrcMvc.Models.Entities;
+using GrcMvc.Services.Implementations;
+using GrcMvc.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
+namespace GrcMvc.Controllers
+{
+    /// <summary>
+    /// MVC Controller for the comprehensive 12-step onboarding wizard
+    /// Sections A-L covering 96 questions for complete organization recognition
+    /// </summary>
+    [Authorize]
+    [Route("[controller]")]
+    public class OnboardingWizardController : Controller
+    {
+        private readonly GrcDbContext _context;
+        private readonly ILogger<OnboardingWizardController> _logger;
+        private readonly IOnboardingProvisioningService? _provisioningService;
+        private readonly IRulesEngineService? _rulesEngine;
+        private readonly IPlanService? _planService;
+        private readonly INotificationService? _notificationService;
+        private readonly ISerialNumberService? _serialNumberService;
+        private readonly IGrcCachingService? _cachingService;
+        private readonly IWorkspaceManagementService? _workspaceService;
+        private readonly ITenantOnboardingProvisioner? _tenantProvisioner;
+        private readonly UserManager<ApplicationUser>? _userManager;
+        private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
+
+        public OnboardingWizardController(
+            GrcDbContext context,
+            ILogger<OnboardingWizardController> logger,
+            IOnboardingProvisioningService? provisioningService = null,
+            IRulesEngineService? rulesEngine = null,
+            IPlanService? planService = null,
+            INotificationService? notificationService = null,
+            ISerialNumberService? serialNumberService = null,
+            IGrcCachingService? cachingService = null,
+            IWorkspaceManagementService? workspaceService = null,
+            ITenantOnboardingProvisioner? tenantProvisioner = null,
+            UserManager<ApplicationUser>? userManager = null)
+        {
+            _context = context;
+            _logger = logger;
+            _provisioningService = provisioningService;
+            _rulesEngine = rulesEngine;
+            _planService = planService;
+            _notificationService = notificationService;
+            _serialNumberService = serialNumberService;
+            _cachingService = cachingService;
+            _workspaceService = workspaceService;
+            _tenantProvisioner = tenantProvisioner;
+            _userManager = userManager;
+        }
+
+        /// <summary>
+        /// Wizard entry point - redirects to current step or starts new wizard
+        /// </summary>
+        [HttpGet]
+        [HttpGet("Index")]
+        public async Task<IActionResult> Index(Guid? tenantId)
+        {
+            // Check authentication if tenantId is provided
+            if (tenantId.HasValue)
+            {
+                var isAuthenticated = await CheckTenantAdminAuthAsync(tenantId.Value);
+                if (!isAuthenticated)
+                {
+                    TempData["Error"] = "You must be authenticated as a tenant admin to access onboarding.";
+                    return RedirectToAction("TenantAdminLogin", "Account", new { tenantId = tenantId.Value, returnUrl = Request.Path });
+                }
+            }
+
+            var wizard = await GetOrCreateWizardAsync(tenantId);
+            return RedirectToAction(GetStepActionName(wizard.CurrentStep), new { tenantId = wizard.TenantId });
+        }
+
+        /// <summary>
+        /// Get wizard summary/progress
+        /// </summary>
+        [HttpGet("Summary/{tenantId:guid}")]
+        public async Task<IActionResult> Summary(Guid tenantId)
+        {
+            var wizard = await _context.OnboardingWizards
+                .FirstOrDefaultAsync(w => w.TenantId == tenantId);
+
+            if (wizard == null)
+                return NotFound();
+
+            var summary = BuildWizardSummary(wizard);
+            return View(summary);
+        }
+
+        /// <summary>
+        /// Get wizard status for loading/progress UX (supports overlay polling)
+        /// </summary>
+        [HttpGet("Status/{tenantId:guid}")]
+        public async Task<IActionResult> Status(Guid tenantId)
+        {
+            var wizard = await _context.OnboardingWizards
+                .AsNoTracking()
+                .FirstOrDefaultAsync(w => w.TenantId == tenantId);
+
+            if (wizard == null)
+                return NotFound();
+
+            return Json(new
+            {
+                tenantId = wizard.TenantId,
+                status = wizard.WizardStatus,
+                progressPercent = wizard.ProgressPercent,
+                currentStep = wizard.CurrentStep,
+                lastSavedAtUtc = wizard.LastStepSavedAt
+            });
+        }
+
+        // ============================================================================
+        // STEP A: Organization Identity and Tenancy
+        // ============================================================================
+
+        [HttpGet("StepA/{tenantId:guid}")]
+        public async Task<IActionResult> StepA(Guid tenantId)
+        {
+            // Check authentication
+            var isAuthenticated = await CheckTenantAdminAuthAsync(tenantId);
+            if (!isAuthenticated)
+            {
+                TempData["Error"] = "You must be authenticated as a tenant admin to access onboarding.";
+                return RedirectToAction("TenantAdminLogin", "Account", new { tenantId, returnUrl = Request.Path });
+            }
+
+            var wizard = await GetOrCreateWizardAsync(tenantId);
+
+            // If wizard is already completed, redirect to dashboard with message
+            if (wizard.WizardStatus == "Completed")
+            {
+                TempData["InfoMessage"] = "Onboarding is already complete. You can review your configuration in Organization Setup.";
+                return RedirectToAction("Index", "Dashboard");
+            }
+
+            var dto = MapToStepADto(wizard);
+            ViewData["WizardSummary"] = BuildWizardSummary(wizard);
+            
+            return View("StepA", dto);
+        }
+
+        [HttpPost("StepA/{tenantId:guid}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> StepA(Guid tenantId, StepAOrganizationIdentityDto dto)
+        {
+            var wizard = await GetOrCreateWizardAsync(tenantId);
+
+            if (!ModelState.IsValid)
+            {
+                ViewData["WizardSummary"] = BuildWizardSummary(wizard);
+                return View("StepA", dto);
+            }
+
+            // Update wizard with Step A data
+            wizard.OrganizationLegalNameEn = dto.OrganizationLegalNameEn;
+            wizard.OrganizationLegalNameAr = dto.OrganizationLegalNameAr;
+            wizard.TradeName = dto.TradeName;
+            wizard.CountryOfIncorporation = dto.CountryOfIncorporation;
+            wizard.OperatingCountriesJson = JsonSerializer.Serialize(dto.OperatingCountries);
+            wizard.PrimaryHqLocation = dto.PrimaryHqLocation;
+            wizard.DefaultTimezone = dto.DefaultTimezone;
+            wizard.PrimaryLanguage = dto.PrimaryLanguage;
+            wizard.CorporateEmailDomainsJson = JsonSerializer.Serialize(dto.CorporateEmailDomains);
+            wizard.DomainVerificationMethod = dto.DomainVerificationMethod;
+            wizard.OrganizationType = dto.OrganizationType;
+            wizard.IndustrySector = dto.IndustrySector;
+            wizard.BusinessLinesJson = JsonSerializer.Serialize(dto.BusinessLines);
+            wizard.HasDataResidencyRequirement = dto.HasDataResidencyRequirement;
+            wizard.DataResidencyCountriesJson = JsonSerializer.Serialize(dto.DataResidencyCountries);
+
+            MarkStepCompleted(wizard, "A");
+            await _context.SaveChangesAsync();
+
+            // Progressive sync to OrganizationProfile
+            await SyncOrganizationProfileAsync(wizard);
+
+            return RedirectToAction(nameof(StepB), new { tenantId });
+        }
+
+        // ============================================================================
+        // STEP B: Assurance Objective
+        // ============================================================================
+

@@ -8,6 +8,7 @@ using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
 using GrcMvc.Services.Interfaces.Workflows;
 using Microsoft.Extensions.Logging;
+using Volo.Abp.Identity;
 
 namespace GrcMvc.Services.Implementations
 {
@@ -18,17 +19,20 @@ namespace GrcMvc.Services.Implementations
     {
         private readonly GrcDbContext _context;
         private readonly IUserDirectoryService _userDirectory;
+        private readonly IIdentityUserAppService _identityUserAppService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<WorkflowAssigneeResolver> _logger;
 
         public WorkflowAssigneeResolver(
             GrcDbContext context,
             IUserDirectoryService userDirectory,
+            IIdentityUserAppService identityUserAppService,
             UserManager<ApplicationUser> userManager,
             ILogger<WorkflowAssigneeResolver> logger)
         {
             _context = context;
             _userDirectory = userDirectory;
+            _identityUserAppService = identityUserAppService;
             _userManager = userManager;
             _logger = logger;
         }

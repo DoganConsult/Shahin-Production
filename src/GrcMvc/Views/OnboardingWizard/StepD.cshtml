@@ -32,9 +32,36 @@
                         <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>In-Scope Business Units (Q27)</h5>
                     </div>
                     <div class="card-body">
+                        <div class="alert alert-info mb-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Suggestions based on your industry and regulators:</strong> Select from suggestions or add custom business units.
+                        </div>
+                        @{
+                            var suggestedBusinessUnits = ViewData["FilteredBusinessUnits"] as List<string> ?? new List<string>();
+                        }
+                        @if (suggestedBusinessUnits.Any())
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Suggested Business Units:</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach (var bu in suggestedBusinessUnits)
+                                    {
+                                        <button type="button" class="btn btn-outline-primary btn-sm bu-suggestion" data-bu="@bu">
+                                            <i class="fas fa-plus-circle me-1"></i>@bu
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        }
                         <div id="businessUnitsContainer">
                             <div class="input-group mb-2">
-                                <input type="text" class="form-control" name="InScopeBusinessUnits" placeholder="e.g., IT Operations">
+                                <input type="text" class="form-control" name="InScopeBusinessUnits" placeholder="e.g., IT Operations" list="businessUnitsList">
+                                <datalist id="businessUnitsList">
+                                    @foreach (var bu in suggestedBusinessUnits)
+                                    {
+                                        <option value="@bu">@bu</option>
+                                    }
+                                </datalist>
                                 <button type="button" class="btn btn-outline-primary add-bu"><i class="fas fa-plus"></i></button>
                             </div>
                         </div>
@@ -47,9 +74,14 @@
                         <h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>In-Scope Processes (Q29)</h5>
                     </div>
                     <div class="card-body">
+                        <div class="alert alert-info mb-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Filtered based on your Step C selections:</strong> Processes shown are relevant to your selected regulators and frameworks.
+                        </div>
                         <div class="row">
                             @{
-                                var processes = new[] {
+                                // Use filtered processes from ViewData (based on Step C selections)
+                                var processes = ViewData["FilteredProcesses"] as List<string> ?? new List<string> {
                                     "onboarding", "payments", "p2p", "change_mgmt", "incident_response",
                                     "access_management", "vendor_management", "data_backup", "disaster_recovery"
                                 };
@@ -137,15 +169,34 @@
         const tooltips = new WhyWeAskTooltips();
     </script>
     <script>
+        // Add business unit input
         document.querySelector('.add-bu').addEventListener('click', function() {
             const container = document.getElementById('businessUnitsContainer');
             const div = document.createElement('div');
             div.className = 'input-group mb-2';
-            div.innerHTML = '<input type="text" class="form-control" name="InScopeBusinessUnits" placeholder="e.g., Finance"><button type="button" class="btn btn-outline-danger remove-bu"><i class="fas fa-times"></i></button>';
+            div.innerHTML = '<input type="text" class="form-control" name="InScopeBusinessUnits" placeholder="e.g., Finance" list="businessUnitsList"><button type="button" class="btn btn-outline-danger remove-bu"><i class="fas fa-times"></i></button>';
             container.appendChild(div);
         });
+        
+        // Remove business unit input
         document.addEventListener('click', e => {
             if (e.target.closest('.remove-bu')) e.target.closest('.input-group').remove();
+        });
+        
+        // Add suggested business unit
+        document.addEventListener('click', e => {
+            if (e.target.closest('.bu-suggestion')) {
+                const buName = e.target.closest('.bu-suggestion').getAttribute('data-bu');
+                const container = document.getElementById('businessUnitsContainer');
+                const div = document.createElement('div');
+                div.className = 'input-group mb-2';
+                div.innerHTML = `<input type="text" class="form-control" name="InScopeBusinessUnits" value="${buName}" readonly><button type="button" class="btn btn-outline-danger remove-bu"><i class="fas fa-times"></i></button>`;
+                container.appendChild(div);
+                
+                // Disable the suggestion button
+                e.target.closest('.bu-suggestion').disabled = true;
+                e.target.closest('.bu-suggestion').classList.add('disabled');
+            }
         });
     </script>
 }

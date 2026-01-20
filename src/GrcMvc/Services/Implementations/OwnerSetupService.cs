@@ -4,6 +4,7 @@ using GrcMvc.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Volo.Abp.Identity;
 
 namespace GrcMvc.Services.Implementations
 {
@@ -14,19 +15,22 @@ namespace GrcMvc.Services.Implementations
     {
         private readonly GrcDbContext _context;
         private readonly GrcAuthDbContext _authContext;
+        private readonly IIdentityUserAppService _identityUserAppService;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<Microsoft.AspNetCore.Identity.IdentityRole> _roleManager;
         private readonly ILogger<OwnerSetupService> _logger;
 
         public OwnerSetupService(
             GrcDbContext context,
             GrcAuthDbContext authContext,
+            IIdentityUserAppService identityUserAppService,
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager,
+            RoleManager<Microsoft.AspNetCore.Identity.IdentityRole> roleManager,
             ILogger<OwnerSetupService> logger)
         {
             _context = context;
             _authContext = authContext;
+            _identityUserAppService = identityUserAppService;
             _userManager = userManager;
             _roleManager = roleManager;
             _logger = logger;
@@ -141,7 +145,7 @@ namespace GrcMvc.Services.Implementations
                 var superAdminRole = await _roleManager.FindByNameAsync("PlatformAdmin");
                 if (superAdminRole == null)
                 {
-                    superAdminRole = new IdentityRole("PlatformAdmin");
+                    superAdminRole = new Microsoft.AspNetCore.Identity.IdentityRole("PlatformAdmin");
                     var roleResult = await _roleManager.CreateAsync(superAdminRole);
                     if (!roleResult.Succeeded)
                     {

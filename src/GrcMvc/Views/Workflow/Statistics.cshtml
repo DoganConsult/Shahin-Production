@@ -128,7 +128,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Category Chart
             var categoryCtx = document.getElementById('categoryChart').getContext('2d');
-            var categoryData = @System.Text.Json.JsonSerializer.Serialize(Model.WorkflowsByCategory));
+            var categoryData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.WorkflowsByCategory));
 
             new Chart(categoryCtx, {
                 type: 'doughnut',
@@ -145,7 +145,7 @@
 
             // Status Chart
             var statusCtx = document.getElementById('statusChart').getContext('2d');
-            var statusData = @System.Text.Json.JsonSerializer.Serialize(Model.StatusDistribution));
+            var statusData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.StatusDistribution));
 
             new Chart(statusCtx, {
                 type: 'pie',
@@ -162,7 +162,7 @@
 
             // Priority Chart
             var priorityCtx = document.getElementById('priorityChart').getContext('2d');
-            var priorityData = @System.Text.Json.JsonSerializer.Serialize(Model.PriorityDistribution));
+            var priorityData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PriorityDistribution));
 
             new Chart(priorityCtx, {
                 type: 'bar',

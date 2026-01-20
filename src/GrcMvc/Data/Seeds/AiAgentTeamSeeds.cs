@@ -15,8 +15,8 @@ public static class AiAgentTeamSeeds
     /// </summary>
     public static async Task SeedAsync(GrcDbContext context)
     {
-        // Check if already seeded
-        if (await context.AgentDefinitions.AnyAsync())
+        // Check if already seeded - use IgnoreQueryFilters to check all including soft-deleted
+        if (await context.AgentDefinitions.IgnoreQueryFilters().AnyAsync())
         {
             return;
         }

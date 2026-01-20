@@ -41,9 +41,10 @@
     <PackageReference Include="Microsoft.IdentityModel.Abstractions" Version="8.15.0" />
     <PackageReference Include="MimeKit" Version="4.14.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="Otp.NET" Version="1.3.0" />
 
     <!-- Authentication & Authorization -->
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
+    <!-- NOTE: JWT Bearer removed - using OpenIddict for authentication -->
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
 
     <!-- Database -->
@@ -91,6 +92,16 @@
 
     <!-- API Documentation -->
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="Volo.Abp.Account.Application" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.Account.Application.Contracts" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.Account.HttpApi" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.BackgroundJobs.Domain" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.BackgroundJobs.EntityFrameworkCore" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.Application" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.Identity.Application" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.PermissionManagement.Application" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.SettingManagement.Application" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.TenantManagement.Application" Version="8.2.3" />
     <PackageReference Include="YamlDotNet" Version="15.1.4" />
 
     <!-- Application Performance Monitoring (APM) -->
@@ -101,28 +112,48 @@
     <!-- These provide enterprise multi-tenancy, audit logging, and feature management  -->
     <!-- ══════════════════════════════════════════════════════════════════════════════ -->
     <!-- Core ABP -->
-    <PackageReference Include="Volo.Abp.Core" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.AspNetCore.Mvc" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.Autofac" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.Core" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.AspNetCore.Mvc" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.Autofac" Version="8.2.3" />
     <!-- Database -->
-    <PackageReference Include="Volo.Abp.EntityFrameworkCore" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.EntityFrameworkCore.PostgreSql" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore.PostgreSql" Version="8.2.3" />
     <!-- Identity & Authentication -->
-    <PackageReference Include="Volo.Abp.Identity.Domain" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.Identity.Application.Contracts" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.PermissionManagement.Domain" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.Identity.Domain" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.Identity.Application.Contracts" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.Identity.EntityFrameworkCore" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.PermissionManagement.Domain" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.PermissionManagement.EntityFrameworkCore" Version="8.2.3" />
     <!-- Multi-Tenancy -->
-    <PackageReference Include="Volo.Abp.AspNetCore.MultiTenancy" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.TenantManagement.Domain" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.TenantManagement.Application.Contracts" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.AspNetCore.MultiTenancy" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.TenantManagement.Domain" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.TenantManagement.Application.Contracts" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.TenantManagement.EntityFrameworkCore" Version="8.2.3" />
     <!-- Features & Audit -->
-    <PackageReference Include="Volo.Abp.FeatureManagement.Domain" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.AuditLogging.Domain" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.Domain" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.EntityFrameworkCore" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.AuditLogging.Domain" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.AuditLogging.EntityFrameworkCore" Version="8.2.3" />
+    <!-- Settings Management -->
+    <PackageReference Include="Volo.Abp.SettingManagement.Domain" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.SettingManagement.EntityFrameworkCore" Version="8.2.3" />
+    <!-- Email Sending (ABP Built-in) -->
+    <PackageReference Include="Volo.Abp.Emailing" Version="8.2.3" />
+    <!-- Background Workers -->
+    <PackageReference Include="Volo.Abp.BackgroundWorkers" Version="8.2.3" />
+    <!-- Caching -->
+    <PackageReference Include="Volo.Abp.Caching" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.Caching.StackExchangeRedis" Version="8.2.3" />
+    <!-- Localization -->
+    <PackageReference Include="Volo.Abp.Localization" Version="8.2.3" />
+    <!-- Validation -->
+    <PackageReference Include="Volo.Abp.Validation" Version="8.2.3" />
     <!-- OpenIddict SSO Server (FREE - LGPL License) -->
     <PackageReference Include="OpenIddict.AspNetCore" Version="5.2.0" />
     <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="5.2.0" />
-    <PackageReference Include="Volo.Abp.OpenIddict.Domain" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.OpenIddict.AspNetCore" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.OpenIddict.Domain" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.OpenIddict.AspNetCore" Version="8.2.3" />
+    <PackageReference Include="Volo.Abp.OpenIddict.EntityFrameworkCore" Version="8.2.3" />
   </ItemGroup>
 
   <!-- Localization Resources -->

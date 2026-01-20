@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using Volo.Abp.Identity;
 
 namespace GrcMvc.Services.Implementations;
 
@@ -14,15 +15,18 @@ namespace GrcMvc.Services.Implementations;
 public class MenuService : IMenuService
 {
     private readonly GrcDbContext _context;
+    private readonly IIdentityUserAppService _identityUserAppService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<MenuService> _logger;
 
     public MenuService(
         GrcDbContext context,
+        IIdentityUserAppService identityUserAppService,
         UserManager<ApplicationUser> userManager,
         ILogger<MenuService> logger)
     {
         _context = context;
+        _identityUserAppService = identityUserAppService;
         _userManager = userManager;
         _logger = logger;
     }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using GrcMvc.Abp;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
@@ -130,11 +131,10 @@ public class PlatformTenantsController : Controller
             // Set subscription tier if specified
             if (!string.IsNullOrEmpty(model.SubscriptionTier))
             {
-                tenant.SubscriptionTier = model.SubscriptionTier;
-                await _dbContext.SaveChangesAsync();
+                tenant.SetSubscriptionTier(model.SubscriptionTier);
             }
 
-            _logger.LogInformation("Platform admin created tenant {TenantId} ({Slug})", tenant.Id, tenant.TenantSlug);
+            _logger.LogInformation("Platform admin created tenant {TenantId} ({Slug})", tenant.Id, tenant.Name);
             TempData["Success"] = $"Tenant '{model.OrganizationName}' created successfully. Activation email sent to {model.AdminEmail}.";
 
             return RedirectToAction(nameof(Details), new { id = tenant.Id });

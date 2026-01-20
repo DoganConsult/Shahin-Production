@@ -204,7 +204,7 @@
             modal.show();
         } catch (error) {
             console.error('Error loading plans:', error);
-            alert('@L["Failed to load available plans. Please try again."]');
+            alert(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Failed to load available plans. Please try again."].Value)));
         }
     }
 
@@ -222,16 +222,16 @@
                 throw new Error('Plan change failed');
             }
 
-            alert('@L["Plan changed successfully!"]');
+            alert(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Plan changed successfully!"].Value)));
             window.location.reload();
         } catch (error) {
             console.error('Error changing plan:', error);
-            alert('@L["Failed to change plan. Please try again."]');
+            alert(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Failed to change plan. Please try again."].Value)));
         }
     }
 
     async function cancelSubscription(subscriptionId) {
-        if (!confirm('@L["Are you sure you want to cancel this subscription? This action cannot be undone."]')) {
+        if (!confirm(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Are you sure you want to cancel this subscription? This action cannot be undone."].Value)))) {
             return;
         }
 
@@ -248,11 +248,11 @@
             }
 
             const result = await response.json();
-            alert('@L["Subscription cancelled successfully. Access will continue until the end of the billing period."]');
+            alert(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Subscription cancelled successfully. Access will continue until the end of the billing period."].Value)));
             window.location.reload();
         } catch (error) {
             console.error('Error cancelling subscription:', error);
-            alert('@L["Failed to cancel subscription. Please contact support."]');
+            alert(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Failed to cancel subscription. Please contact support."].Value)));
         }
     }
 </script>

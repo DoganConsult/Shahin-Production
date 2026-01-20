@@ -37,6 +37,8 @@ services:
 
   db:
     image: postgres:15-alpine
+    # Note: Alpine version is determined by postgres:15-alpine tag
+    # To use Alpine 3.21 specifically, use: postgres:15.5-alpine (or latest 15.x)
     container_name: grc-db
     env_file:
       - .env
@@ -195,6 +197,8 @@ services:
   # Redis Cache (optional)
   redis:
     image: redis:7-alpine
+    # Note: Alpine version is determined by redis:7-alpine tag
+    # To use Alpine 3.21 specifically, use: redis:7.2-alpine (or latest 7.x)
     container_name: grc-redis
     ports:
       - "${REDIS_PORT:-6379}:6379"

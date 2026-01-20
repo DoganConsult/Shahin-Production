@@ -11,6 +11,7 @@ using GrcMvc.Application.Policy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Volo.Abp.Identity;
 
 namespace GrcMvc.Services.Implementations
 {
@@ -21,6 +22,7 @@ namespace GrcMvc.Services.Implementations
     public class UserInvitationService : IUserInvitationService
     {
         private readonly GrcDbContext _context;
+        private readonly IIdentityUserAppService _identityUserAppService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailService _emailService;
         private readonly IAuditEventService _auditService;
@@ -29,6 +31,7 @@ namespace GrcMvc.Services.Implementations
 
         public UserInvitationService(
             GrcDbContext context,
+            IIdentityUserAppService identityUserAppService,
             UserManager<ApplicationUser> userManager,
             IEmailService emailService,
             IAuditEventService auditService,
@@ -36,6 +39,7 @@ namespace GrcMvc.Services.Implementations
             PolicyEnforcementHelper policyHelper)
         {
             _context = context;
+            _identityUserAppService = identityUserAppService;
             _userManager = userManager;
             _emailService = emailService;
             _auditService = auditService;

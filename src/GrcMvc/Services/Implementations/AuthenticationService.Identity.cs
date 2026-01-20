@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-using GrcMvc.Configuration;
 using GrcMvc.Constants;
 using GrcMvc.Data;
 using GrcMvc.Models.DTOs;
@@ -16,44 +16,58 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
+using Volo.Abp.Identity;
+using Volo.Abp.OpenIddict;
+using Volo.Abp.Account;
+// NOTE: JWT imports removed - using OpenIddict for token validation
 
 namespace GrcMvc.Services.Implementations
 {
     /// <summary>
-    /// CRITICAL FIX: Identity-based AuthenticationService
-    /// Replaces mock implementation with proper ASP.NET Core Identity integration
-    /// Uses UserManager, SignInManager, and proper JWT token generation
+    /// ABP-based AuthenticationService
+    /// Uses ABP OpenIddict for OAuth2/OIDC token generation
+    /// Uses ABP Identity + Account services for user management
     /// </summary>
     public class IdentityAuthenticationService : IAuthenticationService
     {
+        private readonly IAccountAppService _accountAppService;
+        private readonly IIdentityUserAppService _identityUserAppService;
+        private readonly IIdentityUserRepository _identityUserRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly GrcDbContext _context;
         private readonly ILogger<IdentityAuthenticationService> _logger;
-        private readonly JwtSettings _jwtSettings;
+        // NOTE: JwtSettings removed - using OpenIddict for authentication
         private readonly GrcAuthDbContext? _authContext;
         private readonly IAuthenticationAuditService? _authAuditService;
 
         public IdentityAuthenticationService(
+            IAccountAppService accountAppService,
+            IIdentityUserAppService identityUserAppService,
+            IIdentityUserRepository identityUserRepository,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
+            IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
             GrcDbContext context,
             ILogger<IdentityAuthenticationService> logger,
             GrcAuthDbContext? authContext = null,
             IAuthenticationAuditService? authAuditService = null)
         {
+            _accountAppService = accountAppService;
+            _identityUserAppService = identityUserAppService;
+            _identityUserRepository = identityUserRepository;
             _userManager = userManager;
             _signInManager = signInManager;
+            _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _context = context;
             _logger = logger;
             _authContext = authContext;
             _authAuditService = authAuditService;
-            _jwtSettings = configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>() 
-                ?? throw new InvalidOperationException("JWT settings are not configured");
+            // NOTE: JWT settings removed - OpenIddict handles token validation automatically
         }
 
         public async Task<AuthTokenDto?> LoginAsync(string email, string password)
@@ -65,8 +79,8 @@ namespace GrcMvc.Services.Implementations
                 return null;
             }
 
-            // CRITICAL FIX: Use proper password validation with UserManager
-            var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: false, lockoutOnFailure: true);
+            // Validate password using SignInManager
+            var result = await _signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
             
             if (!result.Succeeded)
             {
@@ -74,34 +88,28 @@ namespace GrcMvc.Services.Implementations
                 return null;
             }
 
+            // Get token from ABP OpenIddict token endpoint
+            var tokenResponse = await GetOpenIddictTokenAsync(email, password);
+            if (tokenResponse == null)
+            {
+                _logger.LogError("OpenIddict token generation failed for user {Email}. Check OpenIddict configuration.", email);
+                return null;
+            }
+
             // Update last login
             user.LastLoginDate = DateTime.UtcNow;
             await _userManager.UpdateAsync(user);
 
-            // Get roles and claims
+            // Get roles for user info
             var roles = await _userManager.GetRolesAsync(user);
             var claims = await _userManager.GetClaimsAsync(user);
 
-            // Get tenant user for tenant context
-            var tenantUser = await _context.TenantUsers
-                .Include(tu => tu.Tenant)
-                .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
-
-            // CRITICAL FIX: Generate proper JWT token with signing
-            var token = GenerateJwtToken(user, roles.ToList(), claims.ToList(), tenantUser?.TenantId);
-            var refreshToken = GenerateRefreshToken();
-
-            // Store refresh token
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-            await _userManager.UpdateAsync(user);
-
             return new AuthTokenDto
             {
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
-                RefreshToken = refreshToken,
+                AccessToken = tokenResponse.AccessToken,
+                RefreshToken = tokenResponse.RefreshToken ?? string.Empty,
                 TokenType = "Bearer",
-                ExpiresIn = (int)(token.ValidTo - DateTime.UtcNow).TotalSeconds,
+                ExpiresIn = tokenResponse.ExpiresIn,
                 User = new AuthUserDto
                 {
                     Id = user.Id,
@@ -112,6 +120,52 @@ namespace GrcMvc.Services.Implementations
                     Permissions = claims.Where(c => c.Type.StartsWith("permission.")).Select(c => c.Value).ToList()
                 }
             };
+        }
+
+        /// <summary>
+        /// Get token from ABP OpenIddict /connect/token endpoint
+        /// </summary>
+        private async Task<OpenIddictTokenResponse?> GetOpenIddictTokenAsync(string username, string password)
+        {
+            try
+            {
+                var baseUrl = _configuration["App:SelfUrl"] ?? "https://localhost:5001";
+                var clientId = _configuration["OpenIddict:ClientId"] ?? "GrcMvc_App";
+                var clientSecret = _configuration["OpenIddict:ClientSecret"] ?? "";
+                var scope = _configuration["OpenIddict:Scope"] ?? "openid profile email roles";
+
+                using var client = _httpClientFactory.CreateClient();
+                var tokenEndpoint = $"{baseUrl}/connect/token";
+
+                var content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["grant_type"] = "password",
+                    ["username"] = username,
+                    ["password"] = password,
+                    ["client_id"] = clientId,
+                    ["client_secret"] = clientSecret,
+                    ["scope"] = scope
+                });
+
+                var response = await client.PostAsync(tokenEndpoint, content);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("OpenIddict token request failed: {StatusCode} - {Error}", response.StatusCode, error);
+                    return null;
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<OpenIddictTokenResponse>(json, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting OpenIddict token");
+                return null;
+            }
         }
 
         public async Task<AuthTokenDto?> RegisterAsync(string email, string password, string fullName)
@@ -151,22 +205,23 @@ namespace GrcMvc.Services.Implementations
             // Assign default role
             await _userManager.AddToRoleAsync(user, "User");
 
-            // Generate token
+            // Get token from ABP OpenIddict
+            var tokenResponse = await GetOpenIddictTokenAsync(email, password);
+            if (tokenResponse == null)
+            {
+                _logger.LogError("OpenIddict token generation failed after registration for user {Email}", email);
+                return null;
+            }
+
             var roles = await _userManager.GetRolesAsync(user);
             var claims = await _userManager.GetClaimsAsync(user);
-            var token = GenerateJwtToken(user, roles.ToList(), claims.ToList(), null);
-            var refreshToken = GenerateRefreshToken();
-
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-            await _userManager.UpdateAsync(user);
 
             return new AuthTokenDto
             {
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
-                RefreshToken = refreshToken,
+                AccessToken = tokenResponse.AccessToken,
+                RefreshToken = tokenResponse.RefreshToken ?? string.Empty,
                 TokenType = "Bearer",
-                ExpiresIn = (int)(token.ValidTo - DateTime.UtcNow).TotalSeconds,
+                ExpiresIn = tokenResponse.ExpiresIn,
                 User = new AuthUserDto
                 {
                     Id = user.Id,
@@ -179,70 +234,30 @@ namespace GrcMvc.Services.Implementations
             };
         }
 
+        /// <summary>
+        /// NOTE: JWT token validation removed - use OpenIddict introspection endpoint instead
+        /// For OpenIddict token validation, use: POST /connect/introspect
+        /// Or rely on OpenIddict validation middleware which validates tokens automatically
+        /// </summary>
         public async Task<bool> ValidateTokenAsync(string token)
         {
-            try
-            {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(_jwtSettings.Secret);
-                
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = true,
-                    ValidIssuer = _jwtSettings.Issuer,
-                    ValidateAudience = true,
-                    ValidAudience = _jwtSettings.Audience,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
-                }, out SecurityToken validatedToken);
-
-                return validatedToken != null;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Token validation failed");
-                return false;
-            }
+            // TODO: Implement OpenIddict token introspection if needed
+            // For now, return false as JWT validation is removed
+            _logger.LogWarning("ValidateTokenAsync called - JWT validation removed. Use OpenIddict /connect/introspect endpoint instead.");
+            return await Task.FromResult(false);
         }
 
+        /// <summary>
+        /// NOTE: JWT token parsing removed - use OpenIddict userinfo endpoint instead
+        /// For OpenIddict user info, use: GET /connect/userinfo
+        /// Or rely on OpenIddict validation middleware which provides user claims automatically
+        /// </summary>
         public async Task<AuthUserDto?> GetUserFromTokenAsync(string token)
         {
-            if (!await ValidateTokenAsync(token))
-                return null;
-
-            try
-            {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var jwtToken = tokenHandler.ReadJwtToken(token);
-                var userId = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
-
-                if (string.IsNullOrEmpty(userId))
-                    return null;
-
-                var user = await _userManager.FindByIdAsync(userId);
-                if (user == null)
-                    return null;
-
-                var roles = await _userManager.GetRolesAsync(user);
-                var claims = await _userManager.GetClaimsAsync(user);
-
-                return new AuthUserDto
-                {
-                    Id = user.Id,
-                    Email = user.Email ?? string.Empty,
-                    FullName = user.FullName,
-                    Department = user.Department,
-                    Roles = roles.ToList(),
-                    Permissions = claims.Where(c => c.Type.StartsWith("permission.")).Select(c => c.Value).ToList()
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to get user from token");
-                return null;
-            }
+            // TODO: Implement OpenIddict userinfo retrieval if needed
+            // For now, return null as JWT parsing is removed
+            _logger.LogWarning("GetUserFromTokenAsync called - JWT parsing removed. Use OpenIddict /connect/userinfo endpoint instead.");
+            return await Task.FromResult<AuthUserDto?>(null);
         }
 
         public async Task<bool> LogoutAsync(string token)
@@ -272,35 +287,50 @@ namespace GrcMvc.Services.Implementations
 
         public async Task<AuthTokenDto?> RefreshTokenAsync(string refreshToken)
         {
-            // Use UserManager's underlying store instead of non-existent Users DbSet
-            var allUsers = await _userManager.Users.ToListAsync();
-            var user = allUsers.FirstOrDefault(u => u.RefreshToken == refreshToken && 
-                                         u.RefreshTokenExpiry > DateTime.UtcNow);
+            // Use OpenIddict refresh token endpoint
+            var tokenResponse = await GetOpenIddictRefreshTokenAsync(refreshToken);
+            if (tokenResponse == null)
+            {
+                _logger.LogWarning("OpenIddict refresh token failed");
+                return null;
+            }
 
+            // NOTE: JWT token parsing removed - OpenIddict tokens are validated by middleware
+            // User info is available from HttpContext.User.Claims after authentication
+            string? userId = null;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return new AuthTokenDto
+                {
+                    AccessToken = tokenResponse.AccessToken,
+                    RefreshToken = tokenResponse.RefreshToken ?? string.Empty,
+                    TokenType = "Bearer",
+                    ExpiresIn = tokenResponse.ExpiresIn
+                };
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                _logger.LogWarning("Invalid or expired refresh token");
-                return null;
+                return new AuthTokenDto
+                {
+                    AccessToken = tokenResponse.AccessToken,
+                    RefreshToken = tokenResponse.RefreshToken ?? string.Empty,
+                    TokenType = "Bearer",
+                    ExpiresIn = tokenResponse.ExpiresIn
+                };
             }
 
             var roles = await _userManager.GetRolesAsync(user);
             var claims = await _userManager.GetClaimsAsync(user);
-            var tenantUser = await _context.TenantUsers
-                .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
-
-            var newToken = GenerateJwtToken(user, roles.ToList(), claims.ToList(), tenantUser?.TenantId);
-            var newRefreshToken = GenerateRefreshToken();
-
-            user.RefreshToken = newRefreshToken;
-            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-            await _userManager.UpdateAsync(user);
 
             return new AuthTokenDto
             {
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(newToken),
-                RefreshToken = newRefreshToken,
+                AccessToken = tokenResponse.AccessToken,
+                RefreshToken = tokenResponse.RefreshToken ?? string.Empty,
                 TokenType = "Bearer",
-                ExpiresIn = (int)(newToken.ValidTo - DateTime.UtcNow).TotalSeconds,
+                ExpiresIn = tokenResponse.ExpiresIn,
                 User = new AuthUserDto
                 {
                     Id = user.Id,
@@ -311,6 +341,49 @@ namespace GrcMvc.Services.Implementations
                     Permissions = claims.Where(c => c.Type.StartsWith("permission.")).Select(c => c.Value).ToList()
                 }
             };
+        }
+
+        /// <summary>
+        /// Get new token using OpenIddict refresh_token grant
+        /// </summary>
+        private async Task<OpenIddictTokenResponse?> GetOpenIddictRefreshTokenAsync(string refreshToken)
+        {
+            try
+            {
+                var baseUrl = _configuration["App:SelfUrl"] ?? "https://localhost:5001";
+                var clientId = _configuration["OpenIddict:ClientId"] ?? "GrcMvc_App";
+                var clientSecret = _configuration["OpenIddict:ClientSecret"] ?? "";
+
+                using var client = _httpClientFactory.CreateClient();
+                var tokenEndpoint = $"{baseUrl}/connect/token";
+
+                var content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["grant_type"] = "refresh_token",
+                    ["refresh_token"] = refreshToken,
+                    ["client_id"] = clientId,
+                    ["client_secret"] = clientSecret
+                });
+
+                var response = await client.PostAsync(tokenEndpoint, content);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("OpenIddict refresh token request failed: {StatusCode} - {Error}", response.StatusCode, error);
+                    return null;
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<OpenIddictTokenResponse>(json, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error refreshing OpenIddict token");
+                return null;
+            }
         }
 
         public async Task<UserProfileDto?> GetUserProfileAsync(string userId)
@@ -505,51 +578,18 @@ namespace GrcMvc.Services.Implementations
 
             return result.Succeeded;
         }
+    }
 
-        private JwtSecurityToken GenerateJwtToken(ApplicationUser user, List<string> roles, List<Claim> claims, Guid? tenantId)
-        {
-            var jwtClaims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
-            };
-
-            // Add tenant ID if available
-            if (tenantId.HasValue)
-            {
-                jwtClaims.Add(new Claim(ClaimConstants.TenantId, tenantId.Value.ToString()));
-            }
-
-            // Add roles
-            foreach (var role in roles)
-            {
-                jwtClaims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            // Add custom claims
-            jwtClaims.AddRange(claims);
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            return new JwtSecurityToken(
-                issuer: _jwtSettings.Issuer,
-                audience: _jwtSettings.Audience,
-                claims: jwtClaims,
-                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes),
-                signingCredentials: creds
-            );
-        }
-
-        private string GenerateRefreshToken()
-        {
-            var randomNumber = new byte[32];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomNumber);
-            return Convert.ToBase64String(randomNumber);
-        }
+    /// <summary>
+    /// OpenIddict token response DTO
+    /// </summary>
+    public class OpenIddictTokenResponse
+    {
+        public string AccessToken { get; set; } = string.Empty;
+        public string? RefreshToken { get; set; }
+        public string TokenType { get; set; } = "Bearer";
+        public int ExpiresIn { get; set; }
+        public string? Scope { get; set; }
+        public string? IdToken { get; set; }
     }
 }

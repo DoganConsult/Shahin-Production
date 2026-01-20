@@ -1,4 +1,4 @@
-using GrcMvc.Services.Implementations;
+using GrcMvc.Models.DTOs;
 using System;
 using System.Threading.Tasks;
 

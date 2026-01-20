@@ -10,11 +10,13 @@ public class SecurityHeadersMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<SecurityHeadersMiddleware> _logger;
+    private readonly IConfiguration _configuration;
 
-    public SecurityHeadersMiddleware(RequestDelegate next, ILogger<SecurityHeadersMiddleware> logger)
+    public SecurityHeadersMiddleware(RequestDelegate next, ILogger<SecurityHeadersMiddleware> logger, IConfiguration configuration)
     {
         _next = next;
         _logger = logger;
+        _configuration = configuration;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -44,18 +46,37 @@ public class SecurityHeadersMiddleware
             "accelerometer=(), camera=(), geolocation=(), gyroscope=(), " +
             "magnetometer=(), microphone=(), payment=(), usb=()");
 
-        // Content Security Policy - Nonce-based (XSS protection)
-        // REMOVED: 'unsafe-inline' and 'unsafe-eval' - replaced with nonce-based CSP
-        context.Response.Headers.Append("Content-Security-Policy",
-            "default-src 'self'; " +
-            $"script-src 'self' 'nonce-{nonce}' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
-            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; " +
-            "img-src 'self' data: https:; " +
-            "connect-src 'self' https://api.anthropic.com; " +
-            "frame-ancestors 'none'; " +
-            "base-uri 'self'; " +
-            "form-action 'self'");
+        // Content Security Policy - Check if strict CSP is disabled
+        var disableStrictCsp = _configuration.GetValue<bool>("SecurityHeaders:DisableStrictCsp", false);
+
+        if (disableStrictCsp)
+        {
+            // Relaxed CSP with unsafe-inline for compatibility (use only when nonce isn't implemented in views)
+            context.Response.Headers.Append("Content-Security-Policy",
+                "default-src 'self'; " +
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
+                "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net data:; " +
+                "img-src 'self' data: https:; " +
+                "connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://api.anthropic.com wss: ws:; " +
+                "frame-ancestors 'self'; " +
+                "base-uri 'self'; " +
+                "form-action 'self'");
+        }
+        else
+        {
+            // Strict CSP with nonce-based script loading (requires nonce in all inline scripts)
+            context.Response.Headers.Append("Content-Security-Policy",
+                "default-src 'self'; " +
+                $"script-src 'self' 'nonce-{nonce}' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
+                "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; " +
+                "img-src 'self' data: https:; " +
+                "connect-src 'self' https://api.anthropic.com; " +
+                "frame-ancestors 'none'; " +
+                "base-uri 'self'; " +
+                "form-action 'self'");
+        }
 
         // Remove additional ASP.NET headers
         context.Response.Headers.Remove("X-AspNet-Version");

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GrcMvc.Abp;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -90,9 +91,9 @@ namespace GrcMvc.Controllers
                 return Ok(new
                 {
                     tenant.Id,
-                    tenant.TenantSlug,
+                    TenantSlug = tenant.Name,
                     message = "Tenant created successfully. Activation email sent.",
-                    activationUrl = $"{_configuration["App:BaseUrl"] ?? Request.Scheme + "://" + Request.Host}/auth/activate?slug={tenant.TenantSlug}&token={tenant.ActivationToken}"
+                    activationUrl = $"{_configuration["App:BaseUrl"] ?? Request.Scheme + "://" + Request.Host}/auth/activate?slug={tenant.Name}&token={tenant.GetActivationToken()}"
                 });
             }
             catch (InvalidOperationException ex)
@@ -130,7 +131,7 @@ namespace GrcMvc.Controllers
                 return Ok(new
                 {
                     tenant.Id,
-                    tenant.Status,
+                    Status = tenant.GetStatus(),
                     message = "Tenant activated successfully. Proceed to organizational profiling."
                 });
             }
@@ -547,17 +548,17 @@ namespace GrcMvc.Controllers
                 // Set ViewBag for the view
                 ViewBag.TenantSlug = tenantSlug;
                 ViewBag.TenantId = tenant.Id;
-                ViewBag.OrganizationName = tenant.OrganizationName;
-                ViewBag.IsTrial = tenant.IsTrial;
-                ViewBag.TrialEndsAt = tenant.TrialEndsAt;
-                ViewBag.TrialDaysRemaining = tenant.TrialEndsAt.HasValue
-                    ? (int)(tenant.TrialEndsAt.Value - DateTime.UtcNow).TotalDays
+                ViewBag.OrganizationName = tenant.GetOrganizationName();
+                ViewBag.IsTrial = tenant.GetIsTrial();
+                ViewBag.TrialEndsAt = tenant.GetTrialEndsAt();
+                ViewBag.TrialDaysRemaining = tenant.GetTrialEndsAt().HasValue
+                    ? (int)(tenant.GetTrialEndsAt()!.Value - DateTime.UtcNow).TotalDays
                     : 0;
 
                 // Store in TempData for subsequent steps
                 TempData["TenantId"] = tenant.Id.ToString();
                 TempData["TenantSlug"] = tenantSlug;
-                TempData["OrganizationName"] = tenant.OrganizationName;
+                TempData["OrganizationName"] = tenant.GetOrganizationName();
 
                 _logger.LogInformation("Starting onboarding for trial tenant: {TenantSlug} ({TenantId})",
                     tenantSlug, tenant.Id);
@@ -618,12 +619,12 @@ namespace GrcMvc.Controllers
                     model.AdminEmail ?? string.Empty,
                     tenantSlug);
 
-                _logger.LogInformation("Tenant created via MVC signup: {TenantId} ({Slug})", tenant.Id, tenant.TenantSlug);
+                _logger.LogInformation("Tenant created via MVC signup: {TenantId} ({Slug})", tenant.Id, tenant.Name);
 
                 // Store tenant info in TempData for next step
-                TempData["TenantSlug"] = tenant.TenantSlug;
-                TempData["OrganizationName"] = tenant.OrganizationName;
-                TempData["AdminEmail"] = tenant.AdminEmail;
+                TempData["TenantSlug"] = tenant.Name;
+                TempData["OrganizationName"] = tenant.GetOrganizationName();
+                TempData["AdminEmail"] = tenant.GetAdminEmail();
                 TempData["TenantId"] = tenant.Id.ToString();
 
                 return RedirectToAction(nameof(OrgProfile));

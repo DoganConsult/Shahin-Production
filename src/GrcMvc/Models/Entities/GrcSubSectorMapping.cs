@@ -37,24 +37,35 @@ public class GrcSubSectorMapping
     [MaxLength(300)]
     public string SubSectorNameAr { get; set; } = string.Empty;
     
-    /// <summary>
-    /// The main GRC sector code this maps to (one of 18)
-    /// </summary>
-    [Required]
-    [MaxLength(50)]
-    public string MainSectorCode { get; set; } = string.Empty;
-    
-    /// <summary>
-    /// Main sector name in English
-    /// </summary>
-    [MaxLength(200)]
-    public string MainSectorNameEn { get; set; } = string.Empty;
-    
-    /// <summary>
-    /// Main sector name in Arabic
-    /// </summary>
-    [MaxLength(200)]
-    public string MainSectorNameAr { get; set; } = string.Empty;
+        /// <summary>
+        /// The main GRC sector code this maps to (one of 18)
+        /// Foreign key to GrcMainSectors table
+        /// </summary>
+        [Required]
+        [MaxLength(50)]
+        public string MainSectorCode { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Foreign key to GrcMainSector (optional, for proper relationship)
+        /// </summary>
+        public Guid? MainSectorId { get; set; }
+
+        /// <summary>
+        /// Navigation property to main sector
+        /// </summary>
+        public virtual GrcMainSector? MainSector { get; set; }
+        
+        /// <summary>
+        /// Main sector name in English (denormalized for performance)
+        /// </summary>
+        [MaxLength(200)]
+        public string MainSectorNameEn { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Main sector name in Arabic (denormalized for performance)
+        /// </summary>
+        [MaxLength(200)]
+        public string MainSectorNameAr { get; set; } = string.Empty;
     
     /// <summary>
     /// Additional regulatory notes for this sub-sector

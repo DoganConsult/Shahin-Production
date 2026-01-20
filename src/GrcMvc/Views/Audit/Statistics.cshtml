@@ -140,7 +140,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Type Chart
             var typeCtx = document.getElementById('typeChart').getContext('2d');
-            var typeData = @System.Text.Json.JsonSerializer.Serialize(Model.AuditsByType));
+            var typeData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AuditsByType));
 
             new Chart(typeCtx, {
                 type: 'doughnut',
@@ -157,7 +157,7 @@
 
             // Status Chart
             var statusCtx = document.getElementById('statusChart').getContext('2d');
-            var statusData = @System.Text.Json.JsonSerializer.Serialize(Model.StatusDistribution));
+            var statusData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.StatusDistribution));
 
             new Chart(statusCtx, {
                 type: 'pie',

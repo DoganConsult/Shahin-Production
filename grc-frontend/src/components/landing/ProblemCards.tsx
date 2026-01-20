@@ -1,30 +1,14 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { AlertTriangle, Clock, FileX, Users } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { AlertTriangle, Clock, FileX, Users } from "lucide-react"
 
-const problemsConfig = [
-  {
-    key: "dataScatter",
-    icon: FileX,
-    color: "from-red-500 to-orange-500",
-  },
-  {
-    key: "timeWaste",
-    icon: Clock,
-    color: "from-orange-500 to-amber-500",
-  },
-  {
-    key: "complianceRisks",
-    icon: AlertTriangle,
-    color: "from-amber-500 to-yellow-500",
-  },
-  {
-    key: "skillsGap",
-    icon: Users,
-    color: "from-purple-500 to-pink-500",
-  },
+const problemData = [
+  { key: "dataScatter", icon: FileX, color: "from-red-500 to-orange-500" },
+  { key: "timeWaste", icon: Clock, color: "from-orange-500 to-amber-500" },
+  { key: "complianceRisks", icon: AlertTriangle, color: "from-amber-500 to-yellow-500" },
+  { key: "skillsGap", icon: Users, color: "from-purple-500 to-pink-500" },
 ]
 
 const containerVariants = {
@@ -42,6 +26,15 @@ const itemVariants = {
 
 export function ProblemCards() {
   const t = useTranslations("landing.problems")
+  const tCommon = useTranslations("common")
+
+  const problems = problemData.map((p) => ({
+    ...p,
+    title: t(`${p.key}.title`),
+    description: t(`${p.key}.description`),
+    stat: t(`${p.key}.stat`),
+    statLabel: t(`${p.key}.statLabel`),
+  }))
 
   return (
     <section className="py-24 bg-white dark:bg-gray-950">
@@ -72,7 +65,7 @@ export function ProblemCards() {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          {problemsConfig.map((problem) => (
+          {problems.map((problem) => (
             <motion.div
               key={problem.key}
               className="group relative bg-gray-50 dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800 hover:border-red-300 dark:hover:border-red-800 transition-all duration-300 hover:shadow-xl"
@@ -85,19 +78,19 @@ export function ProblemCards() {
 
               {/* Content */}
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                {t(`${problem.key}.title`)}
+                {problem.title}
               </h3>
               <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-6">
-                {t(`${problem.key}.description`)}
+                {problem.description}
               </p>
 
               {/* Stat */}
               <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
                 <div className={`text-3xl font-bold bg-gradient-to-r ${problem.color} bg-clip-text text-transparent`}>
-                  {t(`${problem.key}.stat`)}
+                  {problem.stat}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                  {t(`${problem.key}.statLabel`)}
+                  {problem.statLabel}
                 </div>
               </div>
             </motion.div>
@@ -113,9 +106,7 @@ export function ProblemCards() {
           transition={{ delay: 0.5 }}
         >
           <p className="text-lg text-gray-700 dark:text-gray-300">
-            {t.rich("cta", {
-              appName: (chunks) => <span className="font-bold text-emerald-600">{chunks}</span>
-            })}
+            {t("cta", { appName: tCommon("appName") })}
           </p>
         </motion.div>
       </div>

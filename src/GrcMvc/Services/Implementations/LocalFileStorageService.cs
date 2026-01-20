@@ -129,24 +129,30 @@ namespace GrcMvc.Services.Implementations
 
         /// <summary>
         /// Get the full URL for accessing a file
+        /// Golden Path Rule: Always use relative URLs to work in any environment
         /// </summary>
         public Task<string> GetFileUrlAsync(string filePath)
         {
             try
             {
+                // Always return relative URL for portability across environments
+                // This works whether accessed from localhost, staging, or production
+                var relativeUrl = $"/storage/{filePath}";
+
                 var request = _httpContextAccessor.HttpContext?.Request;
-                if (request == null)
+                if (request != null)
                 {
-                    // Fallback to configuration
-                    var baseUrl = _configuration["App:BaseUrl"] ?? "http://localhost:5000";
-                    return Task.FromResult($"{baseUrl}/storage/{filePath}");
+                    // If we have a request context and need absolute URL, build it dynamically
+                    var scheme = request.Scheme;
+                    var host = request.Host.Value;
+                    var absoluteUrl = $"{scheme}://{host}{relativeUrl}";
+                    _logger.LogDebug("Generated absolute file URL: {Url}", absoluteUrl);
+                    return Task.FromResult(absoluteUrl);
                 }
 
-                var scheme = request.Scheme;
-                var host = request.Host.Value;
-                var url = $"{scheme}://{host}/storage/{filePath}";
-
-                return Task.FromResult(url);
+                // When no request context, return relative URL (works for internal use)
+                _logger.LogDebug("Generated relative file URL: {Url}", relativeUrl);
+                return Task.FromResult(relativeUrl);
             }
             catch (Exception ex)
             {

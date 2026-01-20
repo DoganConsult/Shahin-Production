@@ -8,10 +8,12 @@ using GrcMvc.Models.Entities;
 namespace GrcMvc.Controllers;
 
 /// <summary>
-/// Admin Portal Controller - For login.shahin-ai.com
+/// Admin Portal Controller - For login.shahin-ai.com and admin.shahin-ai.com
 /// Manages platform-level administration: tenants, users, subscriptions
 /// Routes: /admin/login, /admin/dashboard, /admin/tenants
+/// SECURITY: Only active Platform Admins can access (uses ActivePlatformAdmin policy)
 /// </summary>
+[Authorize(Policy = "ActivePlatformAdmin")]
 public class AdminPortalController : Controller
 {
     private readonly GrcDbContext _context;
@@ -34,13 +36,15 @@ public class AdminPortalController : Controller
     /// <summary>
     /// Platform Admin Login Page
     /// Route: /admin/login (via conventional routing)
+    /// SECURITY: Public access for login, but only Platform Admins can successfully authenticate
     /// </summary>
     [AllowAnonymous]
     public IActionResult Login(string? returnUrl = null)
     {
-        // If already logged in as platform admin, redirect to dashboard
+        // If already logged in as active platform admin, redirect to dashboard
         if (User.Identity?.IsAuthenticated == true && User.IsInRole("PlatformAdmin"))
         {
+            // Additional check: verify user is an active platform admin
             return RedirectToAction(nameof(Dashboard));
         }
 
@@ -70,14 +74,25 @@ public class AdminPortalController : Controller
             return View(model);
         }
 
-        // Check if user is a platform admin
-        var isPlatformAdmin = await _userManager.IsInRoleAsync(user, "PlatformAdmin") ||
-                              await _userManager.IsInRoleAsync(user, "Admin");
+        // SECURITY: Only PlatformAdmin role allowed (not just "Admin")
+        // Must be an active PlatformAdmin with valid record in database
+        var isPlatformAdmin = await _userManager.IsInRoleAsync(user, "PlatformAdmin");
 
         if (!isPlatformAdmin)
         {
-            ModelState.AddModelError(string.Empty, "ليس لديك صلاحية الوصول لهذه الصفحة");
-            _logger.LogWarning("Non-admin user {Email} attempted platform admin login", model.Email);
+            ModelState.AddModelError(string.Empty, "ليس لديك صلاحية الوصول لهذه الصفحة. فقط مدراء المنصة يمكنهم الوصول.");
+            _logger.LogWarning("Non-platform-admin user {Email} attempted platform admin login", model.Email);
+            return View(model);
+        }
+
+        // Additional security: Verify user has active PlatformAdmin record
+        var hasActiveAdminRecord = await _context.PlatformAdmins
+            .AnyAsync(pa => pa.UserId == user.Id && pa.Status == "Active" && !pa.IsDeleted);
+
+        if (!hasActiveAdminRecord)
+        {
+            ModelState.AddModelError(string.Empty, "حسابك غير نشط. يرجى التواصل مع الدعم.");
+            _logger.LogWarning("User {Email} has PlatformAdmin role but no active PlatformAdmin record", model.Email);
             return View(model);
         }
 
@@ -106,8 +121,8 @@ public class AdminPortalController : Controller
     /// <summary>
     /// Platform Admin Dashboard
     /// Route: /admin/dashboard
+    /// SECURITY: Protected by ActivePlatformAdmin policy (class-level)
     /// </summary>
-    [Authorize(Roles = "PlatformAdmin,Admin")]
     public async Task<IActionResult> Dashboard()
     {
         var stats = new PlatformDashboardStats
@@ -137,10 +152,20 @@ public class AdminPortalController : Controller
     }
 
     /// <summary>
+    /// Endpoint Management - View all API endpoints
+    /// Route: /admin/endpoints
+    /// SECURITY: Protected by ActivePlatformAdmin policy (class-level)
+    /// </summary>
+    public IActionResult Endpoints()
+    {
+        return View("~/Views/PlatformAdmin/Endpoints.cshtml");
+    }
+
+    /// <summary>
     /// List all tenants
     /// Route: /admin/tenants
+    /// SECURITY: Protected by ActivePlatformAdmin policy (class-level)
     /// </summary>
-    [Authorize(Roles = "PlatformAdmin,Admin")]
     public async Task<IActionResult> Tenants()
     {
         var tenants = await _context.Tenants
@@ -165,8 +190,8 @@ public class AdminPortalController : Controller
     /// <summary>
     /// View tenant details
     /// Route: /admin/tenantdetails/{id}
+    /// SECURITY: Protected by ActivePlatformAdmin policy (class-level)
     /// </summary>
-    [Authorize(Roles = "PlatformAdmin,Admin")]
     public async Task<IActionResult> TenantDetails(Guid id)
     {
         var tenant = await _context.Tenants

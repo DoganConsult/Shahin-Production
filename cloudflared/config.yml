@@ -1,0 +1,80 @@
+# Cloudflare Tunnel Configuration - Shahin AI GRC Platform
+# ============================================
+# IMPORTANT: Windows Service Config Location
+# ============================================
+# When running as a Windows service, copy this file to:
+#   C:\Windows\System32\config\systemprofile\.cloudflared\config.yml
+#
+# For interactive/user mode:
+#   C:\Users\<username>\.cloudflared\config.yml
+#
+# ============================================
+# SECURITY WARNING
+# ============================================
+# Admin tools (Grafana, Kafka UI, Camunda, n8n, Superset, Metabase)
+# should be protected with Cloudflare Access policies.
+#
+# In Cloudflare Zero Trust Dashboard:
+# 1. Go to Access > Applications
+# 2. Add each admin hostname as a "Self-hosted" application
+# 3. Create Access Policy: Allow only your team's email domain
+# 4. Enable MFA requirement
+#
+# Recommended Access Policy:
+#   - Allow: Emails ending in @yourdomain.com
+#   - Require: One-time PIN or Identity Provider
+#   - Session Duration: 24 hours
+# ============================================
+
+ingress:
+  # ============================================
+  # MAIN APPLICATION (Public with app-level auth)
+  # ============================================
+
+  # GRC Portal (Staging - port 8080)
+  - hostname: portal.shahin-ai.com
+    service: http://localhost:8080
+
+  # ============================================
+  # MONITORING & ANALYTICS
+  # Protect these with Cloudflare Access!
+  # ============================================
+
+  # Grafana Dashboards
+  - hostname: grafana.shahin-ai.com
+    service: http://localhost:3030
+
+  # Apache Superset Analytics
+  - hostname: analytics.shahin-ai.com
+    service: http://localhost:8088
+
+  # Metabase BI
+  - hostname: metabase.shahin-ai.com
+    service: http://localhost:3033
+
+  # ============================================
+  # WORKFLOW & AUTOMATION
+  # Protect these with Cloudflare Access!
+  # ============================================
+
+  # Camunda BPM Workflow Engine
+  - hostname: workflow.shahin-ai.com
+    service: http://localhost:8085
+
+  # n8n Automation
+  - hostname: automation.shahin-ai.com
+    service: http://localhost:5678
+
+  # ============================================
+  # KAFKA MONITORING (Admin Only)
+  # Protect with Cloudflare Access!
+  # ============================================
+
+  # Kafka UI
+  - hostname: kafka.shahin-ai.com
+    service: http://localhost:9080
+
+  # ============================================
+  # CATCH-ALL (Required by Cloudflare)
+  # ============================================
+  - service: http_status:404

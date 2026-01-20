@@ -218,4 +218,87 @@ namespace GrcMvc.Models.ViewModels
         public bool RememberMe { get; set; }
         public string? MaskedEmail { get; set; }
     }
+
+    /// <summary>
+    /// ViewModel for Link Expired page
+    /// </summary>
+    public class LinkExpiredViewModel
+    {
+        public string Message { get; set; } = "The link has expired.";
+        public string ReturnUrl { get; set; } = "/";
+        public bool CanResend { get; set; } = false;
+    }
+
+    /// <summary>
+    /// ViewModel for Verification Sent page
+    /// </summary>
+    public class VerificationSentViewModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Message { get; set; } = "Verification email has been sent.";
+    }
+
+    /// <summary>
+    /// ViewModel for Verify and Set Password page
+    /// </summary>
+    public class VerifyAndSetPasswordViewModel
+    {
+        [Required]
+        public string Code { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 12)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Password")]
+        public string Password { get; set; } = string.Empty;
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm password")]
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+
+        public string Email { get; set; } = string.Empty;
+        public Guid? TenantId { get; set; }
+        public string? Token { get; set; }
+    }
+
+    /// <summary>
+    /// ViewModel for Verify Email Pending page
+    /// </summary>
+    public class VerifyEmailPendingViewModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Message { get; set; } = "Please verify your email.";
+        public Guid? TenantId { get; set; }
+    }
+
+    /// <summary>
+    /// ViewModel for Settings page
+    /// </summary>
+    public class SettingsViewModel
+    {
+        public string UserId { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public bool EmailNotifications { get; set; }
+        public string TimeZone { get; set; } = "UTC";
+        public SecuritySettingsModel SecuritySettings { get; set; } = new();
+        public AppSettingsModel AppSettings { get; set; } = new();
+    }
+
+    public class SecuritySettingsModel
+    {
+        public bool TwoFactorEnabled { get; set; }
+        public bool RequireMfa { get; set; }
+        public int SessionTimeout { get; set; } = 30;
+    }
+
+    public class AppSettingsModel
+    {
+        public string Theme { get; set; } = "light";
+        public string Language { get; set; } = "en";
+        public string DateFormat { get; set; } = "MM/dd/yyyy";
+        public bool ShowNotifications { get; set; } = true;
+        public string DefaultView { get; set; } = "dashboard";
+        public int PageSize { get; set; } = 10;
+    }
 }

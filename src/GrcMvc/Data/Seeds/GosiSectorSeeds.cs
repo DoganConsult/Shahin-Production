@@ -15,14 +15,81 @@ public static class GosiSectorSeeds
         if (await context.GrcSubSectorMappings.AnyAsync())
         {
             logger.LogInformation("GOSI sub-sector mappings already seeded");
+            
+            // Update existing mappings to link MainSectorId foreign keys
+            await UpdateMainSectorForeignKeysAsync(context, logger);
             return;
         }
 
         var mappings = GetGosiSubSectorMappings();
+        
+        // Link MainSectorId foreign keys before saving
+        await LinkMainSectorForeignKeysAsync(context, mappings, logger);
+        
         await context.GrcSubSectorMappings.AddRangeAsync(mappings);
         await context.SaveChangesAsync();
         
         logger.LogInformation("Seeded {Count} GOSI sub-sector mappings to 18 main sectors", mappings.Count);
+    }
+
+    /// <summary>
+    /// Links MainSectorId foreign keys for sub-sector mappings
+    /// </summary>
+    private static async Task LinkMainSectorForeignKeysAsync(
+        GrcDbContext context, 
+        List<GrcSubSectorMapping> mappings, 
+        ILogger logger)
+    {
+        // Get all main sectors from database
+        var mainSectors = await context.GrcMainSectors.ToListAsync();
+        var sectorCodeToId = mainSectors.ToDictionary(s => s.SectorCode, s => s.Id);
+
+        foreach (var mapping in mappings)
+        {
+            if (sectorCodeToId.TryGetValue(mapping.MainSectorCode, out var mainSectorId))
+            {
+                mapping.MainSectorId = mainSectorId;
+            }
+            else
+            {
+                logger.LogWarning("Main sector not found for code: {SectorCode}", mapping.MainSectorCode);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Updates existing sub-sector mappings to link MainSectorId foreign keys
+    /// </summary>
+    private static async Task UpdateMainSectorForeignKeysAsync(GrcDbContext context, ILogger logger)
+    {
+        var mappings = await context.GrcSubSectorMappings
+            .Where(m => m.MainSectorId == null)
+            .ToListAsync();
+
+        if (!mappings.Any())
+        {
+            logger.LogInformation("All sub-sector mappings already have MainSectorId linked");
+            return;
+        }
+
+        var mainSectors = await context.GrcMainSectors.ToListAsync();
+        var sectorCodeToId = mainSectors.ToDictionary(s => s.SectorCode, s => s.Id);
+
+        int updated = 0;
+        foreach (var mapping in mappings)
+        {
+            if (sectorCodeToId.TryGetValue(mapping.MainSectorCode, out var mainSectorId))
+            {
+                mapping.MainSectorId = mainSectorId;
+                updated++;
+            }
+        }
+
+        if (updated > 0)
+        {
+            await context.SaveChangesAsync();
+            logger.LogInformation("Updated {Count} sub-sector mappings with MainSectorId foreign keys", updated);
+        }
     }
 
     /// <summary>

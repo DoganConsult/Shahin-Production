@@ -564,11 +564,11 @@
                 if (response.ok) {
                     window.location.reload();
                 } else {
-                    alert('@L["Error_WorkspaceSwitchFailed"].Value');
+                    alert(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Error_WorkspaceSwitchFailed"].Value)));
                 }
             } catch (error) {
                 console.error('Error switching workspace:', error);
-                alert('@L["Error_WorkspaceSwitchError"].Value');
+                alert(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Error_WorkspaceSwitchError"].Value)));
             }
         }
     </script>

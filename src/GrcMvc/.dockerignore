@@ -11,6 +11,8 @@ appsettings.local.json
 bin/
 obj/
 publish/
+publish-fresh/
+publish-staging/
 
 # IDE files
 .vs/

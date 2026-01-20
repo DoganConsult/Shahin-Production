@@ -1,30 +1,24 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Play, Monitor, Shield, BarChart3, FileCheck } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { Play, Monitor, Shield, BarChart3, FileCheck } from "lucide-react"
 
-const featuresConfig = [
-  {
-    key: "complianceDashboard",
-    icon: Shield,
-  },
-  {
-    key: "riskHeatmap",
-    icon: BarChart3,
-  },
-  {
-    key: "evidenceManagement",
-    icon: FileCheck,
-  },
-  {
-    key: "interactiveReports",
-    icon: Monitor,
-  },
+const featureData = [
+  { key: "complianceDashboard", icon: Shield },
+  { key: "riskHeatmap", icon: BarChart3 },
+  { key: "evidenceManagement", icon: FileCheck },
+  { key: "interactiveReports", icon: Monitor },
 ]
 
 export function PlatformPreview() {
   const t = useTranslations("landing.platformPreview")
+
+  const features = featureData.map((f) => ({
+    ...f,
+    title: t(`${f.key}.title`),
+    description: t(`${f.key}.description`),
+  }))
 
   return (
     <section className="py-24 bg-gradient-to-b from-gray-900 to-gray-950 overflow-hidden">
@@ -94,7 +88,7 @@ export function PlatformPreview() {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Play className="w-8 h-8 text-white mr-[-4px]" fill="white" />
+                  <Play className="w-8 h-8 text-white ml-1" fill="white" />
                 </motion.button>
 
                 {/* Video Coming Soon Text */}
@@ -115,7 +109,7 @@ export function PlatformPreview() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            {featuresConfig.map((feature, index) => (
+            {features.map((feature, index) => (
               <motion.div
                 key={feature.key}
                 className="flex gap-4 p-4 rounded-xl bg-gray-800/50 border border-gray-700 hover:border-emerald-700 transition-colors"
@@ -129,10 +123,10 @@ export function PlatformPreview() {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-white mb-1">
-                    {t(`${feature.key}.title`)}
+                    {feature.title}
                   </h3>
                   <p className="text-gray-400 text-sm">
-                    {t(`${feature.key}.description`)}
+                    {feature.description}
                   </p>
                 </div>
               </motion.div>
@@ -151,7 +145,7 @@ export function PlatformPreview() {
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg shadow-emerald-500/25"
               >
                 {t("cta")}
-                <span className="text-lg">←</span>
+                <span className="text-lg">→</span>
               </a>
             </motion.div>
           </motion.div>

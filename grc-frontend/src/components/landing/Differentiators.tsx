@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { useTranslations } from "next-intl"
 import {
   Bot,
   Radar,
@@ -8,43 +9,18 @@ import {
   FileSearch,
   Code2,
   Package,
-  ArrowLeft
+  ArrowRight
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { useTranslations } from "next-intl"
 
-const differentiatorsConfig = [
-  {
-    key: "aiAgents",
-    icon: Bot,
-    gradient: "from-violet-500 to-purple-600",
-  },
-  {
-    key: "regIntel",
-    icon: Radar,
-    gradient: "from-blue-500 to-cyan-600",
-  },
-  {
-    key: "monitoring",
-    icon: ShieldCheck,
-    gradient: "from-emerald-500 to-teal-600",
-  },
-  {
-    key: "evidenceFirst",
-    icon: FileSearch,
-    gradient: "from-orange-500 to-red-600",
-  },
-  {
-    key: "complianceAsCode",
-    icon: Code2,
-    gradient: "from-pink-500 to-rose-600",
-  },
-  {
-    key: "industryPacks",
-    icon: Package,
-    gradient: "from-amber-500 to-orange-600",
-  },
+const diffData = [
+  { key: "aiAgents", icon: Bot, gradient: "from-violet-500 to-purple-600" },
+  { key: "regIntel", icon: Radar, gradient: "from-blue-500 to-cyan-600" },
+  { key: "monitoring", icon: ShieldCheck, gradient: "from-emerald-500 to-teal-600" },
+  { key: "evidenceFirst", icon: FileSearch, gradient: "from-orange-500 to-red-600" },
+  { key: "complianceAsCode", icon: Code2, gradient: "from-pink-500 to-rose-600" },
+  { key: "industryPacks", icon: Package, gradient: "from-amber-500 to-orange-600" },
 ]
 
 const containerVariants = {
@@ -62,7 +38,13 @@ const itemVariants = {
 
 export function Differentiators() {
   const t = useTranslations("landing.differentiators")
-  const tCommon = useTranslations("common")
+
+  const differentiators = diffData.map((d) => ({
+    ...d,
+    title: t(`${d.key}.title`),
+    description: t(`${d.key}.description`),
+    highlight: t(`${d.key}.highlight`),
+  }))
 
   return (
     <section className="py-24 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950">
@@ -93,7 +75,7 @@ export function Differentiators() {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          {differentiatorsConfig.map((item) => (
+          {differentiators.map((item) => (
             <motion.div
               key={item.key}
               className="group relative bg-white dark:bg-gray-900 rounded-2xl p-8 border border-gray-200 dark:border-gray-800 hover:shadow-2xl transition-all duration-500 overflow-hidden"
@@ -103,8 +85,8 @@ export function Differentiators() {
               <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
 
               {/* Highlight Badge */}
-              <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${item.gradient}`}>
-                {t(`${item.key}.highlight`)}
+              <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${item.gradient}`}>
+                {item.highlight}
               </div>
 
               {/* Icon */}
@@ -114,16 +96,16 @@ export function Differentiators() {
 
               {/* Content */}
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                {t(`${item.key}.title`)}
+                {item.title}
               </h3>
               <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                {t(`${item.key}.description`)}
+                {item.description}
               </p>
 
               {/* Hover Arrow */}
-              <div className="mt-6 flex items-center text-emerald-600 dark:text-emerald-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
+              <div className="mt-6 flex items-center text-emerald-600 dark:text-emerald-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0">
                 <span className="text-sm font-medium">{t("learnMore")}</span>
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                <ArrowRight className="w-4 h-4 ml-2" />
               </div>
             </motion.div>
           ))}
@@ -138,9 +120,9 @@ export function Differentiators() {
           transition={{ delay: 0.3 }}
         >
           <Link href="/trial">
-            <Button variant="gradient" size="xl" className="group">
+            <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-8 py-6 text-lg hover:from-emerald-600 hover:to-teal-700 group">
               {t("cta")}
-              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
         </motion.div>

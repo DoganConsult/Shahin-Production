@@ -37,6 +37,54 @@ public class CreateTenantViewModel
 }
 
 /// <summary>
+/// Create Tenant Form ViewModel
+/// </summary>
+public class CreateTenantFormViewModel
+{
+    public string OrganizationName { get; set; } = string.Empty;
+    public string TenantSlug { get; set; } = string.Empty;
+    public string TenantCode { get; set; } = string.Empty;
+    public string AdminEmail { get; set; } = string.Empty;
+    public string AdminDisplayName { get; set; } = string.Empty;
+    public string AdminFirstName { get; set; } = string.Empty;
+    public string AdminLastName { get; set; } = string.Empty;
+    public string? AdminPhone { get; set; }
+    public string? AdminJobTitle { get; set; }
+    public string? AdminDepartment { get; set; }
+    public string Industry { get; set; } = string.Empty;
+    public string EmployeeCount { get; set; } = string.Empty;
+    public string? Country { get; set; }
+    public string? State { get; set; }
+    public string? City { get; set; }
+    public string? BusinessRegistrationNumber { get; set; }
+    public string SubscriptionTier { get; set; } = "MVP";
+    public string Tier { get; set; } = "Standard";
+    public int LicenseCount { get; set; } = 10;
+    public int TrialDays { get; set; } = 7;
+    public DateTime? SubscriptionEndDate { get; set; }
+    public bool BypassPayment { get; set; }
+    public List<string> AvailableTiers { get; set; } = new() { "Trial", "Standard", "Professional", "Enterprise" };
+}
+
+/// <summary>
+/// Platform Admin Dashboard ViewModel
+/// </summary>
+public class PlatformAdminDashboardViewModel
+{
+    public int TotalTenants { get; set; }
+    public int ActiveTenants { get; set; }
+    public int PendingTenants { get; set; }
+    public int SuspendedTenants { get; set; }
+    public int TotalUsers { get; set; }
+    public int ActiveUsers { get; set; }
+    public int PlatformAdminCount { get; set; }
+    public List<Tenant> RecentTenants { get; set; } = new();
+    public List<AuditEvent> RecentActivity { get; set; } = new();
+    public List<AuditEvent> RecentAuditEvents { get; set; } = new();
+    public PlatformAdmin? Admin { get; set; }
+}
+
+/// <summary>
 /// Edit Tenant ViewModel
 /// </summary>
 public class EditTenantViewModel

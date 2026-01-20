@@ -25,6 +25,7 @@ namespace GrcMvc.Services.Implementations
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly PolicyEnforcementHelper _policyHelper;
         private readonly IWorkspaceContextService? _workspaceContext;
+        private readonly ITenantContextService _tenantContext;
 
         public RiskService(
             IUnitOfWork unitOfWork,
@@ -32,6 +33,7 @@ namespace GrcMvc.Services.Implementations
             ILogger<RiskService> logger,
             IHttpContextAccessor httpContextAccessor,
             PolicyEnforcementHelper policyHelper,
+            ITenantContextService tenantContext,
             IWorkspaceContextService? workspaceContext = null)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
@@ -39,7 +41,14 @@ namespace GrcMvc.Services.Implementations
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _policyHelper = policyHelper ?? throw new ArgumentNullException(nameof(policyHelper));
+            _tenantContext = tenantContext ?? throw new ArgumentNullException(nameof(tenantContext));
             _workspaceContext = workspaceContext;
+
+            // Validate tenant context
+            if (!_tenantContext.HasTenantContext())
+            {
+                throw new InvalidOperationException("Tenant context is required for RiskService operations");
+            }
         }
 
         public async Task<Result<RiskDto>> GetByIdAsync(Guid id)

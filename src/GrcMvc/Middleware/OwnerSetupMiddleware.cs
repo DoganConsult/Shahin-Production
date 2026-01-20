@@ -61,6 +61,9 @@ namespace GrcMvc.Middleware
                 path == "/home" ||
                 path == "/home/error" ||
                 path.StartsWith("/error") ||
+                path.StartsWith("/account/") ||  // Custom Account pages (Login, Register, Logout)
+                path.StartsWith("/trial") ||     // Trial signup flow
+                path.StartsWith("/onboarding") || // Onboarding flow
                 path.StartsWith("/landing/") ||
                 path.StartsWith("/pricing") ||
                 path.StartsWith("/features") ||

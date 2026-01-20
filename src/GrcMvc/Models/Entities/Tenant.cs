@@ -30,6 +30,11 @@ namespace GrcMvc.Models.Entities
         /// Once assigned, TenantCode should NEVER change.
         /// </summary>
         public string TenantCode { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Name of the tenant organization
+        /// </summary>
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Business reference code for this tenant.
@@ -47,6 +52,14 @@ namespace GrcMvc.Models.Entities
         public string ActivationToken { get; set; } = string.Empty;
         public DateTime? ActivatedAt { get; set; }
         public string ActivatedBy { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Trial tracking properties
+        /// </summary>
+        public DateTime? TrialEndDate { get; set; }
+        public DateTime? TrialExpiresAt { get; set; }
+        public DateTime? TrialExtendedAt { get; set; }
+        public DateTime? SubscriptionStartedAt { get; set; }
 
         public DateTime SubscriptionStartDate { get; set; } = DateTime.UtcNow;
         public DateTime? SubscriptionEndDate { get; set; }

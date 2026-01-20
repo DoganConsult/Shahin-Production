@@ -131,7 +131,7 @@ window.GrcLoading = {
         this.text = this.overlay?.querySelector('.loading-text');
     },
 
-    show: function(message = '@L["Loading"]') {
+    show: function(message = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Loading"].Value))) {
         if (!this.overlay) this.init();
         if (this.overlay) {
             if (this.text) this.text.textContent = message;

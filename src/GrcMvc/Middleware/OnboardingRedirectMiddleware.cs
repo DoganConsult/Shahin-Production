@@ -23,18 +23,22 @@ namespace GrcMvc.Middleware
 
         public async Task InvokeAsync(HttpContext context, GrcDbContext dbContext)
         {
+            // GOLDEN PATH TRACE: Middleware entry
+            var path = context.Request.Path.Value?.ToLower() ?? "";
+            var isAuthenticated = context.User.Identity?.IsAuthenticated == true;
+
             // Only check authenticated users
-            if (context.User.Identity?.IsAuthenticated != true)
+            if (!isAuthenticated)
             {
+                _logger.LogDebug("[GOLDEN_PATH] OnboardingRedirectMiddleware: User not authenticated. Path={Path}", path);
                 await _next(context);
                 return;
             }
 
-            var path = context.Request.Path.Value?.ToLower() ?? "";
-
             // Skip for routes that should always be accessible
             if (ShouldSkip(path))
             {
+                _logger.LogDebug("[GOLDEN_PATH] OnboardingRedirectMiddleware: Skipping path. Path={Path}", path);
                 await _next(context);
                 return;
             }
@@ -47,37 +51,67 @@ namespace GrcMvc.Middleware
 
                 if (!Guid.TryParse(tenantIdClaim, out var tenantId))
                 {
+                    // GOLDEN PATH TRACE: No tenant claim
+                    _logger.LogDebug(
+                        "[GOLDEN_PATH] OnboardingRedirectMiddleware: No tenant claim found. Path={Path}, User={User}",
+                        path, context.User.Identity?.Name);
                     // No tenant claim - user might be platform admin or owner
                     await _next(context);
                     return;
                 }
 
-                // Check onboarding status
+                // GOLDEN PATH TRACE: Tenant ID extracted
+                _logger.LogDebug(
+                    "[GOLDEN_PATH] OnboardingRedirectMiddleware: TenantId extracted. TenantId={TenantId}, Path={Path}",
+                    tenantId, path);
+
+                // DB CHECK: Query tenant with AsNoTracking (tests index on Id + OnboardingStatus)
+                var tenantQueryStart = DateTime.UtcNow;
                 var tenant = await dbContext.Tenants
                     .AsNoTracking()
                     .FirstOrDefaultAsync(t => t.Id == tenantId && !t.IsDeleted);
+                var tenantQueryDuration = (DateTime.UtcNow - tenantQueryStart).TotalMilliseconds;
+
+                _logger.LogInformation(
+                    "[DB_CHECK] Middleware tenant query. TenantId={TenantId}, Duration={Duration}ms, Found={Found}, OnboardingStatus={Status}",
+                    tenantId, tenantQueryDuration, tenant != null, tenant?.OnboardingStatus ?? "NULL");
 
                 if (tenant == null)
                 {
+                    // GOLDEN PATH TRACE: Tenant not found
+                    _logger.LogWarning(
+                        "[GOLDEN_PATH] OnboardingRedirectMiddleware: Tenant not found. TenantId={TenantId}, Path={Path}",
+                        tenantId, path);
                     // Tenant not found - continue to handle elsewhere
                     await _next(context);
                     return;
                 }
 
+                // GOLDEN PATH TRACE: Tenant found, checking status
+                var isCompleted = OnboardingStatus.IsCompleted(tenant.OnboardingStatus);
+                _logger.LogInformation(
+                    "[GOLDEN_PATH] OnboardingRedirectMiddleware: Tenant found. TenantId={TenantId}, Status={Status}, IsCompleted={IsCompleted}, Path={Path}",
+                    tenantId, tenant.OnboardingStatus, isCompleted, path);
+
                 // If onboarding is not completed, redirect to wizard
-                if (!OnboardingStatus.IsCompleted(tenant.OnboardingStatus))
+                if (!isCompleted)
                 {
                     _logger.LogInformation(
-                        "Redirecting user to onboarding wizard. TenantId={TenantId}, Status={Status}, Path={Path}",
+                        "[GOLDEN_PATH] ✅ MIDDLEWARE REDIRECT: User → OnboardingWizard/Index. TenantId={TenantId}, Status={Status}, Path={Path}",
                         tenantId, tenant.OnboardingStatus, path);
 
                     context.Response.Redirect($"/OnboardingWizard/Index?tenantId={tenantId}");
                     return;
                 }
+
+                // GOLDEN PATH TRACE: Onboarding completed, allowing request
+                _logger.LogDebug(
+                    "[GOLDEN_PATH] OnboardingRedirectMiddleware: Onboarding completed. Allowing request. TenantId={TenantId}, Path={Path}",
+                    tenantId, path);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in OnboardingRedirectMiddleware for path: {Path}", path);
+                _logger.LogError(ex, "[GOLDEN_PATH] ERROR in OnboardingRedirectMiddleware. Path={Path}", path);
                 // On error, continue to allow request (don't block the app)
             }
 

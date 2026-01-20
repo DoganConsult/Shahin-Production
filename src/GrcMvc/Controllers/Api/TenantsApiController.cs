@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using GrcMvc.Abp;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
 using GrcMvc.Services.Interfaces;
@@ -7,6 +8,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Volo.Abp.TenantManagement;
+using Volo.Abp.Identity;
+using Volo.Abp.MultiTenancy;
+using Volo.Abp.Domain.Repositories;
 
 using Microsoft.Extensions.Localization;
 using GrcMvc.Resources;
@@ -17,28 +22,45 @@ namespace GrcMvc.Controllers.Api
     /// POST /api/tenants - Create new tenant
     /// POST /api/auth/activate - Activate tenant
     /// GET /api/tenants/{id} - Get tenant details
+    /// 
+    /// NOTE: This controller uses ABP's ITenantAppService for tenant creation
     /// </summary>
     [Route("api/tenants")]
     [ApiController]
     public class TenantsApiController : ControllerBase
     {
         private readonly GrcDbContext _context;
-        private readonly ITenantService _tenantService;
+        private readonly ITenantService _tenantService; // Legacy service (to be replaced)
+        private readonly ITenantAppService _tenantAppService; // ABP service
+        private readonly IIdentityUserAppService _identityUserAppService; // ABP service
+        private readonly ICurrentTenant _currentTenant;
+        private readonly IRepository<Volo.Abp.TenantManagement.Tenant, Guid> _tenantRepository;
         private readonly ILogger<TenantsApiController> _logger;
 
         public TenantsApiController(
             GrcDbContext context,
             ITenantService tenantService,
+            ITenantAppService tenantAppService,
+            IIdentityUserAppService identityUserAppService,
+            ICurrentTenant currentTenant,
+            IRepository<Volo.Abp.TenantManagement.Tenant, Guid> tenantRepository,
             ILogger<TenantsApiController> logger)
         {
             _context = context;
             _tenantService = tenantService;
+            _tenantAppService = tenantAppService;
+            _identityUserAppService = identityUserAppService;
+            _currentTenant = currentTenant;
+            _tenantRepository = tenantRepository;
             _logger = logger;
         }
 
         /// <summary>
         /// Create a new tenant (signup)
         /// POST /api/tenants
+        /// 
+        /// NOTE: If AdminPassword is provided, uses ABP's ITenantAppService to create tenant + admin automatically.
+        /// Otherwise, uses legacy ITenantService (tenant only, no admin).
         /// </summary>
         [HttpPost]
         [AllowAnonymous]
@@ -52,32 +74,86 @@ namespace GrcMvc.Controllers.Api
                     return BadRequest(new { error = "OrganizationName and AdminEmail are required" });
                 }
 
-                // Auto-generate slug from organization name
-                var tenantSlug = GenerateSlug(request.OrganizationName);
-                
-                // Ensure unique slug
-                var existingSlug = await _context.Tenants.AnyAsync(t => t.TenantSlug == tenantSlug);
-                if (existingSlug)
+                // ✅ ABP WAY: If password provided, use ITenantAppService (creates tenant + admin)
+                if (!string.IsNullOrEmpty(request.AdminPassword))
                 {
-                    tenantSlug = $"{tenantSlug}-{DateTime.UtcNow:HHmmss}";
+                    if (request.AdminPassword.Length < 8)
+                    {
+                        return BadRequest(new { error = "Password must be at least 8 characters long" });
+                    }
+
+                    _logger.LogInformation("Creating tenant via ABP: Organization={OrgName}, Email={Email}",
+                        request.OrganizationName, request.AdminEmail);
+
+                    // ✅ ABP WAY: Manual flow - Create tenant first, then admin user
+                    // Step 1: Create tenant
+                    var tenantDto = await _tenantAppService.CreateAsync(new Volo.Abp.TenantManagement.TenantCreateDto
+                    {
+                        Name = request.OrganizationName
+                    });
+
+                    // Step 2: Switch to tenant context and create admin user
+                    Guid adminUserId;
+                    using (_currentTenant.Change(tenantDto.Id))
+                    {
+                        // Step 3: Create admin user in tenant context
+                        var adminUser = await _identityUserAppService.CreateAsync(new Volo.Abp.Identity.IdentityUserCreateDto
+                        {
+                            UserName = request.AdminEmail,
+                            Email = request.AdminEmail,
+                            Password = request.AdminPassword,
+                            RoleNames = new[] { "admin" } // ABP default admin role
+                        });
+
+                        adminUserId = adminUser.Id;
+
+                        // Step 4: Link admin to tenant (optional, ABP handles via TenantId)
+                        var tenant = await _tenantRepository.GetAsync(tenantDto.Id);
+                        tenant.ExtraProperties["AdminUserId"] = adminUserId;
+                        await _tenantRepository.UpdateAsync(tenant);
+                    }
+
+                    _logger.LogInformation("Tenant created via ABP: TenantId={TenantId}, AdminUserId={AdminUserId}",
+                        tenantDto.Id, adminUserId);
+
+                    return CreatedAtAction(nameof(GetTenant), new { tenantId = tenantDto.Id }, new
+                    {
+                        tenantId = tenantDto.Id,
+                        organizationName = tenantDto.Name,
+                        adminUserId = adminUserId,
+                        message = "Tenant and admin user created successfully"
+                    });
                 }
-
-                var tenant = await _tenantService.CreateTenantAsync(
-                    request.OrganizationName,
-                    request.AdminEmail,
-                    tenantSlug);
-
-                _logger.LogInformation("Tenant created: {TenantId} ({Slug})", tenant.Id, tenant.TenantSlug);
-
-                return CreatedAtAction(nameof(GetTenant), new { tenantId = tenant.Id }, new
+                else
                 {
-                    tenantId = tenant.Id,
-                    slug = tenant.TenantSlug,
-                    organizationName = tenant.OrganizationName,
-                    status = tenant.Status,
-                    activationUrl = $"/api/auth/activate?token={tenant.ActivationToken}",
-                    message = "Tenant created. Check email for activation link."
-                });
+                    // ⚠️ LEGACY WAY: Use custom ITenantService (tenant only, no admin)
+                    // Auto-generate slug from organization name
+                    var tenantSlug = GenerateSlug(request.OrganizationName);
+                    
+                    // Ensure unique slug
+                    var existingSlug = await _context.Tenants.AnyAsync(t => t.TenantSlug == tenantSlug);
+                    if (existingSlug)
+                    {
+                        tenantSlug = $"{tenantSlug}-{DateTime.UtcNow:HHmmss}";
+                    }
+
+                    var tenant = await _tenantService.CreateTenantAsync(
+                        request.OrganizationName,
+                        request.AdminEmail,
+                        tenantSlug);
+
+                    _logger.LogInformation("Tenant created (legacy): {TenantId} ({Slug})", tenant.Id, tenant.Name);
+
+                    return CreatedAtAction(nameof(GetTenant), new { tenantId = tenant.Id }, new
+                    {
+                        tenantId = tenant.Id,
+                        slug = tenant.Name,
+                        organizationName = tenant.GetOrganizationName(),
+                        status = tenant.GetStatus(),
+                        activationUrl = $"/api/auth/activate?token={tenant.GetActivationToken()}",
+                        message = "Tenant created. Check email for activation link."
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -142,9 +218,9 @@ namespace GrcMvc.Controllers.Api
                 return Ok(new
                 {
                     tenant.Id,
-                    tenant.TenantSlug,
-                    tenant.OrganizationName,
-                    tenant.Status
+                    TenantSlug = tenant.Name,
+                    OrganizationName = tenant.GetOrganizationName(),
+                    Status = tenant.GetStatus()
                 });
             }
             catch (Exception ex)
@@ -333,6 +409,11 @@ namespace GrcMvc.Controllers.Api
     {
         public string OrganizationName { get; set; } = string.Empty;
         public string AdminEmail { get; set; } = string.Empty;
+        /// <summary>
+        /// Optional: If provided, uses ABP's ITenantAppService to create tenant + admin automatically.
+        /// If not provided, uses legacy ITenantService (tenant only, no admin).
+        /// </summary>
+        public string? AdminPassword { get; set; }
         // TenantSlug is auto-generated from OrganizationName - not required from user
     }
 

@@ -8,18 +8,22 @@ using GrcMvc.Data;
 using GrcMvc.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Volo.Abp.Auditing;
 
 namespace GrcMvc.Services.Implementations
 {
     /// <summary>
-    /// Service for audit event logging (append-only immutable event trail).
-    /// Different from the existing AuditService which manages audit entities.
+    /// Service for GRC-specific audit event logging (append-only immutable event trail).
+    /// Works alongside ABP's automatic request auditing.
+    /// - ABP handles automatic request auditing (IAuditingManager)
+    /// - This service handles GRC-specific business audit events
     /// </summary>
     public class AuditEventService : IAuditEventService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly GrcDbContext _context;
         private readonly ILogger<AuditEventService> _logger;
+        private readonly IAuditingManager _abpAuditingManager;
 
         // Platform tenant ID for cross-tenant audit events
         private static readonly Guid PlatformTenantId = Guid.Empty;
@@ -27,15 +31,18 @@ namespace GrcMvc.Services.Implementations
         public AuditEventService(
             IUnitOfWork unitOfWork,
             GrcDbContext context,
-            ILogger<AuditEventService> logger)
+            ILogger<AuditEventService> logger,
+            IAuditingManager abpAuditingManager)
         {
             _unitOfWork = unitOfWork;
             _context = context;
             _logger = logger;
+            _abpAuditingManager = abpAuditingManager;
         }
 
         /// <summary>
         /// Log an audit event (immutable append-only).
+        /// Also adds extra properties to ABP's current audit scope if available.
         /// </summary>
         public async Task LogEventAsync(
             Guid tenantId,
@@ -49,6 +56,16 @@ namespace GrcMvc.Services.Implementations
         {
             try
             {
+                // Add extra properties to ABP's current audit scope (if in a request)
+                var currentAuditLog = _abpAuditingManager.Current?.Log;
+                if (currentAuditLog != null)
+                {
+                    currentAuditLog.ExtraProperties["GrcEventType"] = eventType;
+                    currentAuditLog.ExtraProperties["GrcEntityType"] = affectedEntityType;
+                    currentAuditLog.ExtraProperties["GrcEntityId"] = affectedEntityId;
+                    currentAuditLog.ExtraProperties["GrcAction"] = action;
+                }
+
                 var auditEvent = new AuditEvent
                 {
                     Id = Guid.NewGuid(),

@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { useTranslations } from "next-intl"
 import {
   Shield,
   FileCheck,
@@ -15,69 +16,20 @@ import {
   GitBranch,
   Gauge
 } from "lucide-react"
-import { useTranslations } from 'next-intl'
 
-const featuresConfig = [
-  {
-    key: "compliance",
-    icon: Shield,
-    gradient: "from-emerald-500 to-teal-600",
-  },
-  {
-    key: "risks",
-    icon: BarChart3,
-    gradient: "from-blue-500 to-cyan-600",
-  },
-  {
-    key: "audits",
-    icon: FileCheck,
-    gradient: "from-purple-500 to-pink-600",
-  },
-  {
-    key: "workflow",
-    icon: Workflow,
-    gradient: "from-orange-500 to-red-600",
-  },
-  {
-    key: "policies",
-    icon: FileText,
-    gradient: "from-indigo-500 to-purple-600",
-  },
-  {
-    key: "vendors",
-    icon: Users,
-    gradient: "from-teal-500 to-green-600",
-  },
-  {
-    key: "notifications",
-    icon: Bell,
-    gradient: "from-amber-500 to-orange-600",
-  },
-  {
-    key: "actionPlans",
-    icon: Target,
-    gradient: "from-rose-500 to-pink-600",
-  },
-  {
-    key: "frameworks",
-    icon: Layers,
-    gradient: "from-cyan-500 to-blue-600",
-  },
-  {
-    key: "security",
-    icon: Lock,
-    gradient: "from-gray-600 to-gray-800",
-  },
-  {
-    key: "integration",
-    icon: GitBranch,
-    gradient: "from-violet-500 to-purple-600",
-  },
-  {
-    key: "dashboards",
-    icon: Gauge,
-    gradient: "from-emerald-600 to-teal-700",
-  },
+const featureData = [
+  { key: "compliance", icon: Shield, gradient: "from-emerald-500 to-teal-600" },
+  { key: "risks", icon: BarChart3, gradient: "from-blue-500 to-cyan-600" },
+  { key: "audits", icon: FileCheck, gradient: "from-purple-500 to-pink-600" },
+  { key: "workflow", icon: Workflow, gradient: "from-orange-500 to-red-600" },
+  { key: "policies", icon: FileText, gradient: "from-indigo-500 to-purple-600" },
+  { key: "vendors", icon: Users, gradient: "from-teal-500 to-green-600" },
+  { key: "notifications", icon: Bell, gradient: "from-amber-500 to-orange-600" },
+  { key: "actionPlans", icon: Target, gradient: "from-rose-500 to-pink-600" },
+  { key: "frameworks", icon: Layers, gradient: "from-cyan-500 to-blue-600" },
+  { key: "security", icon: Lock, gradient: "from-gray-600 to-gray-800" },
+  { key: "integration", icon: GitBranch, gradient: "from-violet-500 to-purple-600" },
+  { key: "dashboards", icon: Gauge, gradient: "from-emerald-600 to-teal-700" },
 ]
 
 const containerVariants = {
@@ -94,10 +46,16 @@ const itemVariants = {
 }
 
 export function Features() {
-  const t = useTranslations('landing.features')
+  const t = useTranslations("landing.features")
+
+  const features = featureData.map((f) => ({
+    ...f,
+    title: t(`${f.key}.title`),
+    description: t(`${f.key}.description`),
+  }))
 
   return (
-    <section className="py-24 bg-gray-50 dark:bg-gray-900/50">
+    <section id="features" className="py-24 bg-gray-50 dark:bg-gray-900/50">
       <div className="container mx-auto px-6">
         {/* Section Header */}
         <motion.div
@@ -107,13 +65,13 @@ export function Features() {
           viewport={{ once: true }}
         >
           <span className="text-emerald-600 dark:text-emerald-400 font-semibold mb-4 block">
-            {t('sectionLabel')}
+            {t("sectionLabel")}
           </span>
-          <h2 className="section-title">
-            {t('title')}
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            {t("title")}
           </h2>
-          <p className="section-subtitle mx-auto">
-            {t('subtitle')}
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            {t("subtitle")}
           </p>
         </motion.div>
 
@@ -125,10 +83,10 @@ export function Features() {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          {featuresConfig.map((feature, index) => (
+          {features.map((feature) => (
             <motion.div
               key={feature.key}
-              className="feature-card group"
+              className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 group"
               variants={itemVariants}
             >
               {/* Icon */}
@@ -140,15 +98,15 @@ export function Features() {
 
               {/* Content */}
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                {t(`${feature.key}.title`)}
+                {feature.title}
               </h3>
               <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-                {t(`${feature.key}.description`)}
+                {feature.description}
               </p>
 
               {/* Hover Arrow */}
               <div className="mt-4 text-emerald-600 dark:text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="text-sm font-medium">{t('learnMore')} ←</span>
+                <span className="text-sm font-medium">{t("learnMore")} →</span>
               </div>
             </motion.div>
           ))}

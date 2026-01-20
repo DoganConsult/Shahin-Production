@@ -7,6 +7,7 @@ using GrcMvc.Application.Permissions;
 using GrcMvc.Authorization;
 using GrcMvc.Data;
 using GrcMvc.Models.Entities;
+using GrcMvc.Models.ViewModels;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System.Linq;
@@ -26,25 +27,31 @@ namespace GrcMvc.Controllers
     {
         private readonly ITenantService _tenantService;
         private readonly IUserManagementFacade _userManagementFacade;
+        private readonly IUserInvitationService _userInvitationService;
         private readonly IAuditEventService _auditEventService;
         private readonly GrcDbContext _dbContext;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<TenantAdminController> _logger;
+        private readonly ISupportTicketService? _ticketService;
 
         public TenantAdminController(
             ITenantService tenantService,
             IUserManagementFacade userManagementFacade,
+            IUserInvitationService userInvitationService,
             IAuditEventService auditEventService,
             GrcDbContext dbContext,
             UserManager<ApplicationUser> userManager,
-            ILogger<TenantAdminController> logger)
+            ILogger<TenantAdminController> logger,
+            ISupportTicketService? ticketService = null)
         {
             _tenantService = tenantService;
             _userManagementFacade = userManagementFacade;
+            _userInvitationService = userInvitationService;
             _auditEventService = auditEventService;
             _dbContext = dbContext;
             _userManager = userManager;
             _logger = logger;
+            _ticketService = ticketService;
         }
 
         /// <summary>
@@ -363,7 +370,7 @@ namespace GrcMvc.Controllers
         }
 
         /// <summary>
-        /// Invite a new user to the tenant
+        /// Invite a new user to the tenant - GET (show form)
         /// </summary>
         [HttpGet("users/invite")]
         [Authorize(GrcPermissions.Admin.Users)]
@@ -374,7 +381,73 @@ namespace GrcMvc.Controllers
 
             ViewBag.TenantSlug = tenantSlug;
             ViewBag.Tenant = tenant;
-            return View();
+            ViewBag.Roles = await _dbContext.Set<GrcMvc.Models.Entities.Catalogs.RoleCatalog>()
+                .Where(r => r.IsActive && !r.IsDeleted)
+                .OrderBy(r => r.DisplayOrder)
+                .ToListAsync();
+            ViewBag.Titles = await _dbContext.Set<GrcMvc.Models.Entities.Catalogs.TitleCatalog>()
+                .Where(t => t.IsActive && !t.IsDeleted)
+                .OrderBy(t => t.DisplayOrder)
+                .ToListAsync();
+            return View(new InviteUserViewModel());
+        }
+
+        /// <summary>
+        /// Invite a new user to the tenant - POST (send invitation)
+        /// </summary>
+        [HttpPost("users/invite")]
+        [ValidateAntiForgeryToken]
+        [Authorize(GrcPermissions.Admin.Users)]
+        public async Task<IActionResult> InviteUser(string tenantSlug, InviteUserViewModel model)
+        {
+            var tenant = await GetTenantBySlugAsync(tenantSlug);
+            if (tenant == null) return NotFound("Tenant not found");
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.TenantSlug = tenantSlug;
+                ViewBag.Tenant = tenant;
+                ViewBag.Roles = await _dbContext.Set<GrcMvc.Models.Entities.Catalogs.RoleCatalog>()
+                    .Where(r => r.IsActive && !r.IsDeleted).OrderBy(r => r.DisplayOrder).ToListAsync();
+                ViewBag.Titles = await _dbContext.Set<GrcMvc.Models.Entities.Catalogs.TitleCatalog>()
+                    .Where(t => t.IsActive && !t.IsDeleted).OrderBy(t => t.DisplayOrder).ToListAsync();
+                return View(model);
+            }
+
+            try
+            {
+                var invitedBy = User.Identity?.Name ?? "Admin";
+                var nameParts = model.FullName.Split(' ', 2);
+                var firstName = nameParts[0];
+                var lastName = nameParts.Length > 1 ? nameParts[1] : "";
+
+                var tenantUser = await _userInvitationService.InviteUserAsync(
+                    tenant.Id,
+                    model.Email,
+                    firstName,
+                    lastName,
+                    model.RoleCode,
+                    model.TitleCode ?? "",
+                    invitedBy);
+
+                TempData["Success"] = $"Invitation sent to {model.Email}";
+                _logger.LogInformation("User invited to tenant {TenantId}: {Email} by {InvitedBy}", 
+                    tenant.Id, model.Email, invitedBy);
+
+                return RedirectToAction(nameof(Users), new { tenantSlug });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error inviting user to tenant {TenantSlug}", tenantSlug);
+                ModelState.AddModelError("", ex.Message);
+                ViewBag.TenantSlug = tenantSlug;
+                ViewBag.Tenant = tenant;
+                ViewBag.Roles = await _dbContext.Set<GrcMvc.Models.Entities.Catalogs.RoleCatalog>()
+                    .Where(r => r.IsActive && !r.IsDeleted).OrderBy(r => r.DisplayOrder).ToListAsync();
+                ViewBag.Titles = await _dbContext.Set<GrcMvc.Models.Entities.Catalogs.TitleCatalog>()
+                    .Where(t => t.IsActive && !t.IsDeleted).OrderBy(t => t.DisplayOrder).ToListAsync();
+                return View(model);
+            }
         }
 
         /// <summary>
@@ -436,6 +509,185 @@ namespace GrcMvc.Controllers
 
             return await _dbContext.TenantUsers
                 .AnyAsync(tu => tu.UserId == userId && tu.TenantId == tenantId && tu.Status == "Active" && !tu.IsDeleted);
+        }
+
+        /// <summary>
+        /// Support Tickets - List tickets for this tenant (assigned to tenant admin)
+        /// </summary>
+        [HttpGet("tickets")]
+        public async Task<IActionResult> Tickets(string tenantSlug, string? status = null, int page = 1)
+        {
+            if (_ticketService == null)
+            {
+                TempData["Error"] = "Support ticket service not available";
+                return RedirectToAction("Index", new { tenantSlug });
+            }
+
+            var tenant = await GetTenantBySlugAsync(tenantSlug);
+            if (tenant == null) return NotFound("Tenant not found");
+
+            var userId = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            var filter = new TicketFilterDto
+            {
+                TenantId = tenant.Id,
+                AssignedToUserId = userId, // Only show tickets assigned to this tenant admin
+                Status = status,
+                Page = page,
+                PageSize = 20
+            };
+
+            var tickets = await _ticketService.GetTicketsAsync(filter);
+            var stats = await _ticketService.GetStatisticsAsync(new TicketStatisticsFilterDto { TenantId = tenant.Id });
+
+            ViewBag.TenantSlug = tenantSlug;
+            ViewBag.Tenant = tenant;
+            ViewBag.Stats = stats;
+            ViewBag.StatusFilter = status;
+            ViewBag.Page = page;
+
+            return View(tickets);
+        }
+
+        /// <summary>
+        /// Support Ticket Details - View and manage a single ticket
+        /// </summary>
+        [HttpGet("tickets/{id}")]
+        public async Task<IActionResult> TicketDetails(string tenantSlug, Guid id)
+        {
+            if (_ticketService == null)
+            {
+                TempData["Error"] = "Support ticket service not available";
+                return RedirectToAction("Tickets", new { tenantSlug });
+            }
+
+            var tenant = await GetTenantBySlugAsync(tenantSlug);
+            if (tenant == null) return NotFound("Tenant not found");
+
+            var ticket = await _ticketService.GetTicketByIdAsync(id);
+            if (ticket == null || ticket.TenantId != tenant.Id)
+            {
+                return NotFound("Ticket not found");
+            }
+
+            ViewBag.TenantSlug = tenantSlug;
+            ViewBag.Tenant = tenant;
+            ViewBag.CanEscalate = ticket.AssignedToUserId == User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            return View(ticket);
+        }
+
+        /// <summary>
+        /// Update ticket status (tenant admin only)
+        /// </summary>
+        [HttpPost("tickets/{id}/status")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateTicketStatus(string tenantSlug, Guid id, string status, string? notes = null)
+        {
+            if (_ticketService == null)
+            {
+                TempData["Error"] = "Support ticket service not available";
+                return RedirectToAction("TicketDetails", new { tenantSlug, id });
+            }
+
+            var tenant = await GetTenantBySlugAsync(tenantSlug);
+            if (tenant == null) return NotFound("Tenant not found");
+
+            var ticket = await _ticketService.GetTicketByIdAsync(id);
+            if (ticket == null || ticket.TenantId != tenant.Id)
+            {
+                return NotFound("Ticket not found");
+            }
+
+            var userId = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (ticket.AssignedToUserId != userId)
+            {
+                TempData["Error"] = "You can only update tickets assigned to you";
+                return RedirectToAction("TicketDetails", new { tenantSlug, id });
+            }
+
+            await _ticketService.UpdateTicketStatusAsync(id, status, notes, userId);
+            TempData["Success"] = "Ticket status updated successfully";
+
+            return RedirectToAction("TicketDetails", new { tenantSlug, id });
+        }
+
+        /// <summary>
+        /// Add comment to ticket (tenant admin only)
+        /// </summary>
+        [HttpPost("tickets/{id}/comment")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment(string tenantSlug, Guid id, string content, bool isInternal = false)
+        {
+            if (_ticketService == null)
+            {
+                TempData["Error"] = "Support ticket service not available";
+                return RedirectToAction("TicketDetails", new { tenantSlug, id });
+            }
+
+            var tenant = await GetTenantBySlugAsync(tenantSlug);
+            if (tenant == null) return NotFound("Tenant not found");
+
+            var ticket = await _ticketService.GetTicketByIdAsync(id);
+            if (ticket == null || ticket.TenantId != tenant.Id)
+            {
+                return NotFound("Ticket not found");
+            }
+
+            var userId = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                TempData["Error"] = "User not authenticated";
+                return RedirectToAction("TicketDetails", new { tenantSlug, id });
+            }
+
+            await _ticketService.AddCommentAsync(id, content, userId, isInternal);
+            TempData["Success"] = "Comment added successfully";
+
+            return RedirectToAction("TicketDetails", new { tenantSlug, id });
+        }
+
+        /// <summary>
+        /// Escalate ticket to platform admin (tenant admin only)
+        /// </summary>
+        [HttpPost("tickets/{id}/escalate")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EscalateToPlatformAdmin(string tenantSlug, Guid id, string? escalationNotes = null)
+        {
+            if (_ticketService == null)
+            {
+                TempData["Error"] = "Support ticket service not available";
+                return RedirectToAction("TicketDetails", new { tenantSlug, id });
+            }
+
+            var tenant = await GetTenantBySlugAsync(tenantSlug);
+            if (tenant == null) return NotFound("Tenant not found");
+
+            var ticket = await _ticketService.GetTicketByIdAsync(id);
+            if (ticket == null || ticket.TenantId != tenant.Id)
+            {
+                return NotFound("Ticket not found");
+            }
+
+            var userId = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (ticket.AssignedToUserId != userId)
+            {
+                TempData["Error"] = "You can only escalate tickets assigned to you";
+                return RedirectToAction("TicketDetails", new { tenantSlug, id });
+            }
+
+            try
+            {
+                await _ticketService.EscalateToPlatformAdminAsync(id, escalationNotes, userId);
+                TempData["Success"] = "Ticket escalated to platform admin successfully";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error escalating ticket {TicketId}", id);
+                TempData["Error"] = "Failed to escalate ticket. Please try again.";
+            }
+
+            return RedirectToAction("TicketDetails", new { tenantSlug, id });
         }
     }
 }

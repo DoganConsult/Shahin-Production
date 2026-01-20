@@ -1,0 +1,223 @@
+# Optional Tooling Services - Shahin AI GRC Platform
+# Usage: docker compose -f docker-compose.yml -f docker-compose.tooling.yml up -d
+# Or use profiles: docker compose --profile tooling --profile observability up -d
+
+services:
+  # ============================================
+  # ADMIN & UI TOOLS (profile: tooling)
+  # ============================================
+
+  # pgAdmin - PostgreSQL Administration UI
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: grc-pgadmin
+    profiles:
+      - tooling
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL:-admin@shahin-ai.com}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD:-admin}
+      - PGADMIN_CONFIG_SERVER_MODE=False
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - grc-network
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # RedisInsight - Redis Administration UI
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    container_name: grc-redisinsight
+    profiles:
+      - tooling
+    ports:
+      - "${REDISINSIGHT_PORT:-8001}:8001"
+    volumes:
+      - redisinsight_data:/db
+    networks:
+      - grc-network
+    depends_on:
+      - redis
+
+  # Mailpit - Email Testing (captures SMTP, provides web UI)
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: grc-mailpit
+    profiles:
+      - tooling
+    ports:
+      - "${MAILPIT_HTTP_PORT:-8025}:8025"   # Web UI
+      - "${MAILPIT_SMTP_PORT:-1025}:1025"   # SMTP
+    environment:
+      - MP_MAX_MESSAGES=500
+      - MP_DATA_FILE=/data/mailpit.db
+    volumes:
+      - mailpit_data:/data
+    networks:
+      - grc-network
+
+  # Adminer - Lightweight Database Admin (alternative to pgAdmin)
+  adminer:
+    image: adminer:4.8.1
+    container_name: grc-adminer
+    profiles:
+      - tooling
+    ports:
+      - "${ADMINER_PORT:-8081}:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=db
+      - ADMINER_DESIGN=nette
+    networks:
+      - grc-network
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ============================================
+  # OBSERVABILITY STACK (profile: observability)
+  # ============================================
+
+  # Prometheus - Metrics Collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: grc-prometheus
+    profiles:
+      - observability
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - grc-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Loki - Log Aggregation
+  loki:
+    image: grafana/loki:latest
+    container_name: grc-loki
+    profiles:
+      - observability
+    ports:
+      - "${LOKI_PORT:-3100}:3100"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - grc-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Promtail - Log Shipping Agent
+  promtail:
+    image: grafana/promtail:latest
+    container_name: grc-promtail
+    profiles:
+      - observability
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - grc-network
+    depends_on:
+      - loki
+
+  # Tempo - Distributed Tracing
+  tempo:
+    image: grafana/tempo:latest
+    container_name: grc-tempo
+    profiles:
+      - observability
+    ports:
+      - "${TEMPO_PORT:-3200}:3200"      # Tempo API
+      - "${TEMPO_OTLP_PORT:-4317}:4317" # OTLP gRPC
+      - "${TEMPO_OTLP_HTTP:-4318}:4318" # OTLP HTTP
+    volumes:
+      - ./tempo/tempo-config.yml:/etc/tempo/tempo.yaml:ro
+      - tempo_data:/tmp/tempo
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
+    networks:
+      - grc-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3200/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================
+  # KAFKA EXTRAS (profile: kafka-extras)
+  # ============================================
+
+  # Schema Registry - For Avro/Protobuf schemas
+  # NOTE: Using 8082 to avoid collision with Adminer (8081)
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.6.1
+    container_name: grc-schema-registry
+    profiles:
+      - kafka-extras
+    ports:
+      - "${SCHEMA_REGISTRY_PORT:-8082}:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka:29092"
+      # Single-broker dev environment
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: "1"
+    networks:
+      - grc-network
+    depends_on:
+      - kafka
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/subjects"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  # Kafdrop - Lightweight Kafka UI (alternative to kafka-ui)
+  kafdrop:
+    image: obsidiandynamics/kafdrop:latest
+    container_name: grc-kafdrop
+    profiles:
+      - kafka-extras
+    ports:
+      - "${KAFDROP_PORT:-9001}:9000"
+    environment:
+      - KAFKA_BROKERCONNECT=kafka:29092
+      - JVM_OPTS=-Xms32M -Xmx64M
+      - SERVER_SERVLET_CONTEXTPATH=/
+    networks:
+      - grc-network
+    depends_on:
+      - kafka
+
+volumes:
+  pgadmin_data:
+  redisinsight_data:
+  mailpit_data:
+  prometheus_data:
+  loki_data:
+  tempo_data:

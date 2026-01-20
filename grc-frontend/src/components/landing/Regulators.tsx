@@ -1,16 +1,15 @@
 "use client"
 
 import { motion } from "framer-motion"
-import Image from "next/image"
-import { useTranslations } from 'next-intl'
+import { useTranslations } from "next-intl"
 
-const regulatorsConfig = [
-  { key: "nca", name: "NCA", logo: "/images/regulators/nca.png" },
-  { key: "sama", name: "SAMA", logo: "/images/regulators/sama.png" },
-  { key: "cma", name: "CMA", logo: "/images/regulators/cma.png" },
-  { key: "citc", name: "CITC", logo: "/images/regulators/citc.png" },
-  { key: "sdaia", name: "SDAIA", logo: "/images/regulators/sdaia.png" },
-  { key: "pdpl", name: "PDPL", logo: "/images/regulators/pdpl.png" },
+const regulators = [
+  { name: "NCA", fullName: "National Cybersecurity Authority" },
+  { name: "SAMA", fullName: "Saudi Arabian Monetary Authority" },
+  { name: "CMA", fullName: "Capital Market Authority" },
+  { name: "CITC", fullName: "Communications & IT Commission" },
+  { name: "SDAIA", fullName: "Saudi Data & AI Authority" },
+  { name: "PDPL", fullName: "Personal Data Protection Law" },
 ]
 
 const frameworks = [
@@ -27,10 +26,10 @@ const frameworks = [
 ]
 
 export function Regulators() {
-  const t = useTranslations('landing.regulators')
-  const tFrameworks = useTranslations('frameworks')
+  const t = useTranslations("landing.regulators")
+
   return (
-    <section className="py-24 bg-white dark:bg-gray-900">
+    <section id="regulators" className="py-24 bg-white dark:bg-gray-900">
       <div className="container mx-auto px-6">
         {/* Section Header */}
         <motion.div
@@ -40,13 +39,13 @@ export function Regulators() {
           viewport={{ once: true }}
         >
           <span className="text-emerald-600 dark:text-emerald-400 font-semibold mb-4 block">
-            {t('sectionLabel')}
+            {t("sectionLabel")}
           </span>
-          <h2 className="section-title">
-            {t('title')}
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            {t("title")}
           </h2>
-          <p className="section-subtitle mx-auto">
-            {t('subtitle')}
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            {t("subtitle")}
           </p>
         </motion.div>
 
@@ -58,7 +57,7 @@ export function Regulators() {
           viewport={{ once: true }}
           transition={{ staggerChildren: 0.1 }}
         >
-          {regulatorsConfig.map((reg, index) => (
+          {regulators.map((reg, index) => (
             <motion.div
               key={reg.name}
               className="flex flex-col items-center p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50
@@ -78,7 +77,7 @@ export function Regulators() {
                 {reg.name}
               </span>
               <span className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                {tFrameworks(reg.key)}
+                {reg.fullName}
               </span>
             </motion.div>
           ))}
@@ -94,7 +93,7 @@ export function Regulators() {
           {frameworks.map((framework, index) => (
             <motion.span
               key={framework}
-              className="px-4 py-2 rounded-full bg-emerald-50 dark:bg-emerald-900/20 
+              className="px-4 py-2 rounded-full bg-emerald-50 dark:bg-emerald-900/20
                          text-emerald-700 dark:text-emerald-400 text-sm font-medium
                          border border-emerald-200 dark:border-emerald-800
                          hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors cursor-default"

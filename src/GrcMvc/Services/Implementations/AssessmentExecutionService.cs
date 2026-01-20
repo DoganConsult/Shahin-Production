@@ -18,15 +18,24 @@ namespace GrcMvc.Services.Implementations
         private readonly GrcDbContext _context;
         private readonly IFileUploadService _fileUploadService;
         private readonly ILogger<AssessmentExecutionService> _logger;
+        private readonly ITenantContextService _tenantContext;
 
         public AssessmentExecutionService(
             GrcDbContext context,
             IFileUploadService fileUploadService,
-            ILogger<AssessmentExecutionService> logger)
+            ILogger<AssessmentExecutionService> logger,
+            ITenantContextService tenantContext)
         {
-            _context = context;
-            _fileUploadService = fileUploadService;
-            _logger = logger;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _fileUploadService = fileUploadService ?? throw new ArgumentNullException(nameof(fileUploadService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _tenantContext = tenantContext ?? throw new ArgumentNullException(nameof(tenantContext));
+
+            // Validate tenant context
+            if (!_tenantContext.HasTenantContext())
+            {
+                throw new InvalidOperationException("Tenant context is required for AssessmentExecutionService operations");
+            }
         }
 
         public async Task<AssessmentExecutionViewModel?> GetExecutionViewModelAsync(Guid assessmentId, string languageCode = "en")

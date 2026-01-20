@@ -9,9 +9,7 @@ using GrcMvc.Services.Interfaces;
 using GrcMvc.Services;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+// JWT imports removed - using OpenIddict for authentication
 using System.Security.Claims;
 using System;
 using System.Linq;
@@ -37,7 +35,6 @@ namespace GrcMvc.Controllers
         private readonly Data.GrcAuthDbContext? _authContext; // CRITICAL: Auth database context for PasswordHistory
         private readonly IPasswordHistoryService? _passwordHistoryService; // SECURITY: Password reuse prevention
         private readonly ISessionManagementService? _sessionManagementService; // SECURITY: Concurrent session limiting
-        private readonly ICaptchaService? _captchaService; // SECURITY: Bot protection
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -53,8 +50,7 @@ namespace GrcMvc.Controllers
             IAuthenticationAuditService? authAuditService = null, // CRITICAL: Authentication audit service
             Data.GrcAuthDbContext? authContext = null, // CRITICAL: Auth database context
             IPasswordHistoryService? passwordHistoryService = null, // SECURITY: Password reuse prevention
-            ISessionManagementService? sessionManagementService = null, // SECURITY: Concurrent session limiting
-            ICaptchaService? captchaService = null) // SECURITY: Bot protection
+            ISessionManagementService? sessionManagementService = null) // SECURITY: Concurrent session limiting
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -70,7 +66,6 @@ namespace GrcMvc.Controllers
             _authContext = authContext;
             _passwordHistoryService = passwordHistoryService;
             _sessionManagementService = sessionManagementService;
-            _captchaService = captchaService;
         }
 
         // GET: Account/Login
@@ -78,7 +73,7 @@ namespace GrcMvc.Controllers
         public IActionResult Login(string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
-            return View();
+            return View(new LoginViewModel());
         }
 
         // POST: Account/Login
@@ -90,6 +85,11 @@ namespace GrcMvc.Controllers
         {
             ViewData["ReturnUrl"] = returnUrl;
 
+            // GOLDEN PATH TRACE: Login form submission received
+            _logger.LogInformation(
+                "[GOLDEN_PATH] Login form submitted. Email={Email}, ReturnUrl={ReturnUrl}, ModelStateValid={IsValid}",
+                model?.Email, returnUrl, ModelState.IsValid);
+
             if (ModelState.IsValid)
             {
                 var result = await _signInManager.PasswordSignInAsync(
@@ -97,6 +97,11 @@ namespace GrcMvc.Controllers
                     model.Password,
                     model.RememberMe,
                     lockoutOnFailure: true);
+
+                // GOLDEN PATH TRACE: Sign-in result
+                _logger.LogInformation(
+                    "[GOLDEN_PATH] SignIn result. Email={Email}, Succeeded={Succeeded}, IsLockedOut={IsLockedOut}, RequiresTwoFactor={RequiresTwoFactor}",
+                    model.Email, result.Succeeded, result.IsLockedOut, result.RequiresTwoFactor);
 
                 if (result.Succeeded)
                 {
@@ -107,7 +112,7 @@ namespace GrcMvc.Controllers
                         var loginIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
                         var loginUserAgent = HttpContext.Request.Headers["User-Agent"].ToString();
                         _logger.LogInformation(
-                            "User {Email} (ID: {UserId}) logged in successfully from IP {IpAddress}, UserAgent: {UserAgent}",
+                            "[GOLDEN_PATH] User {Email} (ID: {UserId}) logged in successfully from IP {IpAddress}, UserAgent: {UserAgent}",
                             model.Email, user.Id, loginIpAddress, loginUserAgent);
 
                         // CRITICAL FIX: Comprehensive authentication audit logging
@@ -376,20 +381,54 @@ namespace GrcMvc.Controllers
         /// </summary>
         private async Task<IActionResult> ProcessPostLoginAsync(ApplicationUser user, bool rememberMe)
         {
+            // GOLDEN PATH TRACE: ProcessPostLoginAsync entry
+            _logger.LogInformation(
+                "[GOLDEN_PATH] ProcessPostLoginAsync started. UserId={UserId}, Email={Email}",
+                user.Id, user.Email);
+
             // Update last login date
             user.LastLoginDate = DateTime.UtcNow;
             await _userManager.UpdateAsync(user);
 
-            // Get tenant user record
+            // DB CHECK: Test database connection
+            var dbCanConnect = false;
+            try
+            {
+                dbCanConnect = await _context.Database.CanConnectAsync();
+                _logger.LogInformation(
+                    "[DB_CHECK] Database connection test. CanConnect={CanConnect}, UserId={UserId}",
+                    dbCanConnect, user.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[DB_CHECK] Database connection failed. UserId={UserId}", user.Id);
+            }
+
+            // DB CHECK: Query TenantUser with Include (tests relationship + index)
+            var queryStartTime = DateTime.UtcNow;
             var tenantUser = await _context.TenantUsers
                 .Include(tu => tu.Tenant)
                 .FirstOrDefaultAsync(tu => tu.UserId == user.Id && !tu.IsDeleted);
+            var queryDuration = (DateTime.UtcNow - queryStartTime).TotalMilliseconds;
+
+            _logger.LogInformation(
+                "[DB_CHECK] TenantUser query executed. UserId={UserId}, Duration={Duration}ms, Found={Found}, TenantId={TenantId}, HasTenantNav={HasTenantNav}",
+                user.Id, queryDuration, tenantUser != null, tenantUser?.TenantId, tenantUser?.Tenant != null);
 
             if (tenantUser?.TenantId == null)
             {
+                // GOLDEN PATH TRACE: No tenant found
+                _logger.LogWarning(
+                    "[GOLDEN_PATH] No tenant found for user {Email}. Redirecting to LoginRedirect.",
+                    user.Email);
                 // No tenant - go to dashboard (or appropriate default)
                 return RedirectToAction(nameof(LoginRedirect));
             }
+
+            // GOLDEN PATH TRACE: Tenant found
+            _logger.LogInformation(
+                "[GOLDEN_PATH] TenantUser found. TenantId={TenantId}, RoleCode={RoleCode}",
+                tenantUser.TenantId, tenantUser.RoleCode);
 
             // Add TenantId claim if tenant exists
             var existingClaims = await _userManager.GetClaimsAsync(user);
@@ -402,7 +441,7 @@ namespace GrcMvc.Controllers
                     new Claim(ClaimConstants.TenantId, tenantUser.TenantId.ToString())
                 };
                 await _userManager.AddClaimsAsync(user, claims);
-                _logger.LogDebug("Added TenantId claim for user {Email}", user.Email);
+                _logger.LogDebug("[GOLDEN_PATH] Added TenantId claim for user {Email}", user.Email);
             }
 
             // MEDIUM PRIORITY FIX: Regenerate session ID on authentication to prevent session fixation
@@ -412,36 +451,61 @@ namespace GrcMvc.Controllers
             // Re-sign in to include claims in cookie
             await _signInManager.SignInAsync(user, rememberMe);
 
-            // Get tenant
+            // DB CHECK: Get tenant (test relationship navigation vs direct query)
+            var tenantQueryStart = DateTime.UtcNow;
             var tenant = tenantUser.Tenant ?? 
                 await _context.Tenants.FirstOrDefaultAsync(t => t.Id == tenantUser.TenantId);
+            var tenantQueryDuration = (DateTime.UtcNow - tenantQueryStart).TotalMilliseconds;
+
+            _logger.LogInformation(
+                "[DB_CHECK] Tenant query executed. TenantId={TenantId}, Duration={Duration}ms, Found={Found}, Source={Source}",
+                tenantUser.TenantId, tenantQueryDuration, tenant != null, 
+                tenantUser.Tenant != null ? "Navigation" : "DirectQuery");
             
             if (tenant == null)
             {
+                _logger.LogWarning(
+                    "[GOLDEN_PATH] Tenant entity not found. TenantId={TenantId}. Redirecting to LoginRedirect.",
+                    tenantUser.TenantId);
                 return RedirectToAction(nameof(LoginRedirect));
             }
 
-            _logger.LogInformation("User {Email} - TenantId: {TenantId}, OnboardingStatus: {Status}, Role: {Role}", 
-                user.Email, tenant.Id, tenant.OnboardingStatus, tenantUser.RoleCode);
+            // GOLDEN PATH TRACE: Tenant entity retrieved
+            _logger.LogInformation(
+                "[GOLDEN_PATH] Tenant entity retrieved. TenantId={TenantId}, OnboardingStatus={Status}, Role={Role}",
+                tenant.Id, tenant.OnboardingStatus, tenantUser.RoleCode);
 
             // Check if user is admin (using standardized helper)
             bool isAdmin = RoleConstants.IsTenantAdmin(tenantUser.RoleCode);
+            bool isCompleted = OnboardingStatus.IsCompleted(tenant.OnboardingStatus);
+
+            // GOLDEN PATH TRACE: Onboarding status check
+            _logger.LogInformation(
+                "[GOLDEN_PATH] Onboarding check. IsAdmin={IsAdmin}, IsCompleted={IsCompleted}, Status={Status}",
+                isAdmin, isCompleted, tenant.OnboardingStatus);
 
             // For admin users: prioritize onboarding redirect if incomplete
-            if (isAdmin && !OnboardingStatus.IsCompleted(tenant.OnboardingStatus))
+            if (isAdmin && !isCompleted)
             {
-                _logger.LogInformation("Admin user {Email} - Direct redirect to onboarding (TenantId: {TenantId})", 
-                    user.Email, tenant.Id);
+                _logger.LogInformation(
+                    "[GOLDEN_PATH] ✅ REDIRECT DECISION: Admin user {Email} → OnboardingWizard/Index (TenantId: {TenantId}, Status: {Status})",
+                    user.Email, tenant.Id, tenant.OnboardingStatus);
                 return RedirectToAction("Index", "OnboardingWizard", new { tenantId = tenant.Id });
             }
 
             // For all users: check onboarding status
-            if (!OnboardingStatus.IsCompleted(tenant.OnboardingStatus))
+            if (!isCompleted)
             {
-                _logger.LogInformation("Redirecting user {Email} to onboarding wizard (status: {Status})", 
-                    user.Email, tenant.OnboardingStatus);
+                _logger.LogInformation(
+                    "[GOLDEN_PATH] ✅ REDIRECT DECISION: User {Email} → OnboardingWizard/Index (TenantId: {TenantId}, Status: {Status})",
+                    user.Email, tenant.Id, tenant.OnboardingStatus);
                 return RedirectToAction("Index", "OnboardingWizard", new { tenantId = tenant.Id });
             }
+
+            // GOLDEN PATH TRACE: Onboarding completed, proceeding to dashboard
+            _logger.LogInformation(
+                "[GOLDEN_PATH] ✅ Onboarding completed. User {Email} → LoginRedirect (TenantId: {TenantId})",
+                user.Email, tenant.Id);
 
             // All checks passed - go to role-based dashboard
             return RedirectToAction(nameof(LoginRedirect));
@@ -576,10 +640,11 @@ namespace GrcMvc.Controllers
                         var userName = $"{model.FirstName} {model.LastName}".Trim();
                         if (string.IsNullOrEmpty(userName)) userName = model.Email.Split('@')[0];
                         
+                        var defaultLoginUrl = _configuration["App:BaseUrl"] ?? _configuration["App:SelfUrl"] ?? "https://portal.shahin-ai.com";
                         await _grcEmailService.SendWelcomeEmailAsync(
                             model.Email,
                             userName,
-                            loginUrl ?? "https://portal.shahin-ai.com",
+                            loginUrl ?? defaultLoginUrl,
                             "Shahin AI GRC",
                             isArabic: true);
                         _logger.LogInformation("Welcome email sent to {Email}", model.Email);
@@ -1231,57 +1296,11 @@ namespace GrcMvc.Controllers
             return View();
         }
 
-        // API endpoint for JWT token generation (for API access)
-        [HttpPost]
-        [AllowAnonymous]
-        [Route("api/account/token")]
-        public async Task<IActionResult> GenerateToken([FromBody] LoginViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
-            {
-                return Unauthorized(new { message = "Invalid credentials" });
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var claims = new[]
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id?.ToString() ?? string.Empty),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Name, user.UserName ?? string.Empty)
-            }.Union(roles.Select(role => new Claim(ClaimTypes.Role, role)));
-
-            var jwtSecret = _configuration["JwtSettings:Secret"];
-            if (string.IsNullOrEmpty(jwtSecret))
-            {
-                _logger.LogError("JWT Secret is not configured");
-                return StatusCode(500, new { message = "Server configuration error" });
-            }
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["JwtSettings:Issuer"],
-                audience: _configuration["JwtSettings:Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(Convert.ToDouble(
-                    _configuration["JwtSettings:ExpirationInHours"] ?? "24")),
-                signingCredentials: creds
-            );
-
-            return Ok(new
-            {
-                token = new JwtSecurityTokenHandler().WriteToken(token),
-                expiration = token.ValidTo
-            });
-        }
+        // NOTE: JWT token generation endpoint removed - use OpenIddict /connect/token endpoint instead
+        // For API authentication, use OpenIddict OAuth2 flows:
+        // - Authorization Code Flow: /connect/authorize → /connect/token
+        // - Client Credentials Flow: POST /connect/token (grant_type=client_credentials)
+        // - Password Flow (legacy): POST /connect/token (grant_type=password)
 
         // GET: Account/Profile
         [Authorize]
@@ -1569,6 +1588,131 @@ namespace GrcMvc.Controllers
             {
                 _logger.LogError(ex, "Error during tenant ID lookup for email: {Email}", model.Email);
                 ModelState.AddModelError("", "An error occurred. Please try again later.");
+                return View(model);
+            }
+        }
+
+        /// <summary>
+        /// Accept Invitation - GET (show set password form)
+        /// </summary>
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("accept-invitation")]
+        public async Task<IActionResult> AcceptInvitation(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+            {
+                ViewBag.Error = "Invalid invitation link.";
+                return View(new AcceptInvitationViewModel());
+            }
+
+            // Find the tenant user by invitation token
+            var tenantUser = await _context.TenantUsers
+                .Include(tu => tu.Tenant)
+                .Include(tu => tu.User)
+                .FirstOrDefaultAsync(tu => tu.InvitationToken == token && !tu.IsDeleted);
+
+            if (tenantUser == null)
+            {
+                ViewBag.Error = "Invalid or expired invitation link.";
+                return View(new AcceptInvitationViewModel { Token = token });
+            }
+
+            // Check if invitation expired
+            if (tenantUser.InvitationExpiresAt.HasValue && tenantUser.InvitationExpiresAt.Value < DateTime.UtcNow)
+            {
+                ViewBag.Expired = true;
+                return View(new AcceptInvitationViewModel { Token = token });
+            }
+
+            // Check if already activated
+            if (tenantUser.Status == "Active")
+            {
+                ViewBag.Success = true;
+                return View(new AcceptInvitationViewModel { Token = token });
+            }
+
+            return View(new AcceptInvitationViewModel
+            {
+                Token = token,
+                Email = tenantUser.User?.Email,
+                OrganizationName = tenantUser.Tenant?.OrganizationName
+            });
+        }
+
+        /// <summary>
+        /// Accept Invitation - POST (set password and activate)
+        /// </summary>
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        [Route("accept-invitation")]
+        public async Task<IActionResult> AcceptInvitation(AcceptInvitationViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                // Find the tenant user by invitation token
+                var tenantUser = await _context.TenantUsers
+                    .Include(tu => tu.User)
+                    .FirstOrDefaultAsync(tu => tu.InvitationToken == model.Token && !tu.IsDeleted);
+
+                if (tenantUser == null)
+                {
+                    ViewBag.Error = "Invalid invitation link.";
+                    return View(model);
+                }
+
+                // Check if invitation expired
+                if (tenantUser.InvitationExpiresAt.HasValue && tenantUser.InvitationExpiresAt.Value < DateTime.UtcNow)
+                {
+                    ViewBag.Expired = true;
+                    return View(model);
+                }
+
+                var user = tenantUser.User;
+                if (user == null)
+                {
+                    ViewBag.Error = "User account not found.";
+                    return View(model);
+                }
+
+                // Set password
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await _userManager.ResetPasswordAsync(user, token, model.Password);
+
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                    return View(model);
+                }
+
+                // Activate user and tenant user
+                user.EmailConfirmed = true;
+                user.IsActive = true;
+                await _userManager.UpdateAsync(user);
+
+                tenantUser.Status = "Active";
+                tenantUser.ActivatedAt = DateTime.UtcNow;
+                tenantUser.ModifiedDate = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("User {UserId} accepted invitation for tenant {TenantId}", user.Id, tenantUser.TenantId);
+
+                ViewBag.Success = true;
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error accepting invitation");
+                ViewBag.Error = "An error occurred. Please try again.";
                 return View(model);
             }
         }

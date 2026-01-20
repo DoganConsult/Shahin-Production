@@ -138,16 +138,7 @@ namespace GrcMvc.Exceptions
 
     #region Tenant Exceptions
 
-    /// <summary>
-    /// Thrown when tenant context is required but not available.
-    /// </summary>
-    public class TenantRequiredException : GrcException
-    {
-        public TenantRequiredException(string message = "Tenant context is required for this operation")
-            : base(message, GrcErrorCodes.TenantRequired, 400)
-        {
-        }
-    }
+    // TenantRequiredException moved to TenantExceptions.cs to avoid duplicate definition
 
     /// <summary>
     /// Thrown when operation violates tenant boundaries.

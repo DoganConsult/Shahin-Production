@@ -1,9 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import { motion } from "framer-motion"
-import { Mail, Phone, MapPin, Linkedin, Twitter } from "lucide-react"
+import Image from "next/image"
 import { useTranslations } from "next-intl"
+import { Mail, Phone, MapPin, Linkedin, Twitter } from "lucide-react"
 
 export function Footer() {
   const t = useTranslations("footer")
@@ -11,43 +11,43 @@ export function Footer() {
 
   const footerSections = [
     {
-      key: "product",
+      title: t("product.title"),
       links: [
-        { key: "features", href: "/features" },
-        { key: "pricing", href: "/pricing" },
-        { key: "integrations", href: "/integrations" },
-        { key: "security", href: "/security" },
-        { key: "roadmap", href: "/roadmap" },
+        { label: t("product.features"), href: "/features" },
+        { label: t("product.pricing"), href: "/pricing" },
+        { label: t("product.integrations"), href: "/integrations" },
+        { label: t("product.security"), href: "/security" },
+        { label: t("product.roadmap"), href: "/roadmap" },
       ],
     },
     {
-      key: "solutions",
+      title: t("solutions.title"),
       links: [
-        { key: "enterprise", href: "/enterprise" },
-        { key: "business", href: "/business" },
-        { key: "financial", href: "/financial" },
-        { key: "healthcare", href: "/healthcare" },
-        { key: "government", href: "/government" },
+        { label: t("solutions.enterprise"), href: "/enterprise" },
+        { label: t("solutions.business"), href: "/business" },
+        { label: t("solutions.financial"), href: "/financial" },
+        { label: t("solutions.healthcare"), href: "/healthcare" },
+        { label: t("solutions.government"), href: "/government" },
       ],
     },
     {
-      key: "resources",
+      title: t("resources.title"),
       links: [
-        { key: "blog", href: "/blog" },
-        { key: "help", href: "/help" },
-        { key: "docs", href: "/docs" },
-        { key: "webinars", href: "/webinars" },
-        { key: "caseStudies", href: "/case-studies" },
+        { label: t("resources.blog"), href: "/blog" },
+        { label: t("resources.help"), href: "/help" },
+        { label: t("resources.docs"), href: "/docs" },
+        { label: t("resources.webinars"), href: "/webinars" },
+        { label: t("resources.caseStudies"), href: "/case-studies" },
       ],
     },
     {
-      key: "company",
+      title: t("company.title"),
       links: [
-        { key: "about", href: "/about" },
-        { key: "careers", href: "/careers" },
-        { key: "contact", href: "/contact" },
-        { key: "partners", href: "/partners" },
-        { key: "news", href: "/news" },
+        { label: t("company.about"), href: "/about" },
+        { label: t("company.careers"), href: "/careers" },
+        { label: t("company.contact"), href: "/contact" },
+        { label: t("company.partners"), href: "/partners" },
+        { label: t("company.news"), href: "/news" },
       ],
     },
   ]
@@ -60,12 +60,16 @@ export function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-2xl">ش</span>
-              </div>
+              <Image
+                src="/logo.png"
+                alt="Shahin"
+                width={48}
+                height={48}
+                className="w-12 h-12 rounded-xl shadow-lg"
+              />
               <div>
                 <span className="text-2xl font-bold block">{tCommon("appName")}</span>
-                <span className="text-sm text-gray-400">{tCommon("appNameFull")}</span>
+                <span className="text-sm text-gray-400">{tCommon("tagline")}</span>
               </div>
             </Link>
             <p className="text-gray-400 mb-6 max-w-sm">
@@ -101,16 +105,16 @@ export function Footer() {
 
           {/* Links Columns */}
           {footerSections.map((section) => (
-            <div key={section.key}>
-              <h4 className="font-semibold text-white mb-4">{t(`${section.key}.title`)}</h4>
+            <div key={section.title}>
+              <h4 className="font-semibold text-white mb-4">{section.title}</h4>
               <ul className="space-y-3">
                 {section.links.map((link) => (
-                  <li key={link.key}>
+                  <li key={link.href}>
                     <Link
                       href={link.href}
                       className="text-gray-400 hover:text-emerald-400 transition-colors text-sm"
                     >
-                      {t(`${section.key}.${link.key}`)}
+                      {link.label}
                     </Link>
                   </li>
                 ))}

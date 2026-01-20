@@ -4,6 +4,9 @@ const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Docker standalone output
+  output: 'standalone',
+
   // Image optimization
   images: {
     domains: ['localhost', 'shahin-ai.com', 'portal.shahin-ai.com'],

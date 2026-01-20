@@ -1,35 +1,15 @@
 "use client"
 
 import { motion, useInView } from "framer-motion"
+import { useTranslations } from "next-intl"
 import { useRef, useEffect, useState } from "react"
 import { Building2, Shield, FileCheck, Bot } from "lucide-react"
-import { useTranslations } from 'next-intl'
 
-const statsConfig = [
-  {
-    key: "regulators",
-    icon: Building2,
-    value: 120,
-    suffix: "+",
-  },
-  {
-    key: "frameworks_count",
-    icon: Shield,
-    value: 240,
-    suffix: "+",
-  },
-  {
-    key: "controls",
-    icon: FileCheck,
-    value: 57000,
-    suffix: "+",
-  },
-  {
-    key: "ai_agents",
-    icon: Bot,
-    value: 9,
-    suffix: "",
-  },
+const statData = [
+  { key: "regulators", icon: Building2, value: 120, suffix: "+" },
+  { key: "frameworks_count", icon: Shield, value: 240, suffix: "+" },
+  { key: "controls", icon: FileCheck, value: 57000, suffix: "+" },
+  { key: "ai_agents", icon: Bot, value: 9, suffix: "" },
 ]
 
 function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
@@ -58,14 +38,20 @@ function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
 
   return (
     <span ref={ref}>
-      {count.toLocaleString("ar-SA")}
+      {count.toLocaleString()}
       {suffix}
     </span>
   )
 }
 
 export function Stats() {
-  const t = useTranslations('landing.statsSec')
+  const t = useTranslations("landing.statsSec")
+
+  const stats = statData.map((s) => ({
+    ...s,
+    label: t(`${s.key}.label`),
+    description: t(`${s.key}.description`),
+  }))
 
   return (
     <section className="py-20 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600">
@@ -77,7 +63,7 @@ export function Stats() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          {statsConfig.map((stat, index) => (
+          {stats.map((stat, index) => (
             <motion.div
               key={stat.key}
               className="text-center"
@@ -98,12 +84,12 @@ export function Stats() {
 
               {/* Label */}
               <div className="text-lg font-semibold text-white/90 mb-1">
-                {t(`${stat.key}.label`)}
+                {stat.label}
               </div>
 
               {/* Description */}
               <div className="text-sm text-white/70">
-                {t(`${stat.key}.description`)}
+                {stat.description}
               </div>
             </motion.div>
           ))}

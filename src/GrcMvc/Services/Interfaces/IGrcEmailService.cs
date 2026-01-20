@@ -61,5 +61,30 @@ namespace GrcMvc.Services.Interfaces
         /// Send generic templated email
         /// </summary>
         Task SendTemplatedEmailAsync(string toEmail, string templateName, object model, bool isArabic = true);
+
+        /// <summary>
+        /// Send onboarding activation email after tenant creation
+        /// </summary>
+        Task SendOnboardingActivationEmailAsync(string toEmail, string organizationName, string activationLink, string tenantSlug, bool isArabic = true);
+
+        /// <summary>
+        /// Send team member invitation email from onboarding Section H
+        /// </summary>
+        Task SendTeamInvitationEmailAsync(string toEmail, string firstName, string inviterName, string organizationName, string invitationLink, string roleName, bool isArabic = true);
+
+        /// <summary>
+        /// Send abandonment recovery email for incomplete onboarding
+        /// </summary>
+        Task SendOnboardingAbandonmentRecoveryEmailAsync(string toEmail, string firstName, string organizationName, string resumeLink, int daysIncomplete, bool isArabic = true);
+
+        /// <summary>
+        /// Send progress reminder email for stalled onboarding
+        /// </summary>
+        Task SendOnboardingProgressReminderEmailAsync(string toEmail, string firstName, string organizationName, string resumeLink, int currentStep, int totalSteps, int daysSinceLastActivity, bool isArabic = true);
+
+        /// <summary>
+        /// Send welcome email after onboarding completion
+        /// </summary>
+        Task SendOnboardingWelcomeEmailAsync(string toEmail, string firstName, string organizationName, string dashboardLink, bool isArabic = true);
     }
 }

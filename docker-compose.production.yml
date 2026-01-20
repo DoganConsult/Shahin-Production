@@ -3,27 +3,15 @@
 
 services:
   grcmvc-prod:
-    build:
-      context: .
-      dockerfile: src/GrcMvc/Dockerfile
+    image: drdogan/shahin-grc:latest
     container_name: shahin-grc-production
     ports:
-      - "80:80"
-      - "443:443"
+      - "127.0.0.1:8080:8080"  # Only accessible via localhost, Nginx will proxy
     env_file:
       - .env.production
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__DefaultConnection=${CONNECTION_STRING}
-      - ConnectionStrings__HangfireConnection=${CONNECTION_STRING}
-      - JwtSettings__Secret=${JWT_SECRET}
-      - JwtSettings__Issuer=${JWT_ISSUER}
-      - JwtSettings__Audience=${JWT_AUDIENCE}
-      - AllowedHosts=${ALLOWED_HOSTS}
-      - ClaudeAgents__ApiKey=${CLAUDE_API_KEY}
-      - CopilotAgent__ClientSecret=${COPILOT_CLIENT_SECRET}
-      - MicrosoftGraph__ClientSecret=${AZURE_CLIENT_SECRET}
+      - ASPNETCORE_URLS=http://+:8080
     depends_on:
       db-prod:
         condition: service_healthy
@@ -31,7 +19,7 @@ services:
       - grc-prod-network
     restart: always
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -40,12 +28,13 @@ services:
   db-prod:
     image: postgres:15-alpine
     container_name: shahin-grc-db-prod
+    env_file:
+      - .env.production
     environment:
-      - POSTGRES_USER=${DB_USER:-shahin_prod}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME:-shahin_grc_prod}
-    ports:
-      - "5433:5432"
+      - POSTGRES_USER=shahin_admin
+      - POSTGRES_PASSWORD=Shahin@GRC2026!
+      - POSTGRES_DB=shahin_grc
+    # No external ports exposed - database only accessible within Docker network
     volumes:
       - grc_prod_db_data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
@@ -53,7 +42,7 @@ services:
       - grc-prod-network
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-shahin_prod} -d ${DB_NAME:-shahin_grc_prod}"]
+      test: ["CMD-SHELL", "pg_isready -U shahin_admin -d shahin_grc"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -61,8 +50,7 @@ services:
   redis-prod:
     image: redis:7-alpine
     container_name: shahin-grc-redis-prod
-    ports:
-      - "6380:6379"
+    # No external ports exposed - Redis only accessible within Docker network
     volumes:
       - grc_prod_redis_data:/data
     networks:

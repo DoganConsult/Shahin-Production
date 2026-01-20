@@ -30,8 +30,16 @@ namespace GrcMvc.Models.Entities
         
         public string InvitationToken { get; set; } = string.Empty;
         public DateTime? InvitedAt { get; set; }
+        public DateTime? InvitationExpiresAt { get; set; }
         public DateTime? ActivatedAt { get; set; }
         public string InvitedBy { get; set; } = string.Empty;
+        
+        // User details (denormalized for performance)
+        public string Email { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty; // Simplified role name
+        public DateTime? LastLoginAt { get; set; }
         
         /// <summary>
         /// Owner-generated account tracking

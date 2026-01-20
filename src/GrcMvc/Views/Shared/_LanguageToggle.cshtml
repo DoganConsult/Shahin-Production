@@ -38,7 +38,7 @@
         }
 
         // Show notification
-        const message = lang === 'ar' ? '@L["Shared_Lang_SwitchedToArabic"]' : '@L["Shared_Lang_SwitchedToEnglish"]';
+        const message = lang === 'ar' ? @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Shared_Lang_SwitchedToArabic"].Value)) : @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L["Shared_Lang_SwitchedToEnglish"].Value));
         showLanguageNotification(message);
     }
 
