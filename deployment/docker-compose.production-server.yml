@@ -1,0 +1,298 @@
+# ══════════════════════════════════════════════════════════════
+# Shahin AI - Production Deployment for Server 212.147.229.36
+# UUID: 007d5050-ade4-432d-b2bb-abc85c74a3b2
+# Template: Ubuntu Server 24.04 LTS (Noble Numbat)
+# ══════════════════════════════════════════════════════════════
+# Total: 8 Containers (5 Core + 3 LLM Models)
+# ══════════════════════════════════════════════════════════════
+
+version: '3.8'
+
+services:
+  # ════════════════════════════════════════════════════════════
+  # 1. Landing Page - Frontend (Next.js)
+  # ════════════════════════════════════════════════════════════
+  landing:
+    build:
+      context: ../../grc-frontend
+      dockerfile: Dockerfile
+    image: ${DOCKERHUB_USER:-drdogan}/shahin-landing:latest
+    container_name: shahin-landing-prod
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - NEXT_PUBLIC_API_URL=http://212.147.229.36:5000
+    networks:
+      - shahin-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "com.shahin.service=landing"
+      - "com.shahin.server=212.147.229.36"
+
+  # ════════════════════════════════════════════════════════════
+  # 2. GRC Portal - Backend (ASP.NET Core)
+  # ════════════════════════════════════════════════════════════
+  portal:
+    build:
+      context: ../../src/GrcMvc
+      dockerfile: Dockerfile.production
+    image: ${DOCKERHUB_USER:-drdogan}/shahin-portal:latest
+    container_name: shahin-portal-prod
+    restart: unless-stopped
+    user: root
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${DB_NAME:-shahin_grc};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD}
+      - ConnectionStrings__GrcAuthDb=Host=postgres;Port=5432;Database=${DB_NAME:-shahin_grc};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD}
+      - ConnectionStrings__HangfireConnection=Host=postgres;Port=5432;Database=${DB_NAME:-shahin_grc};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD}
+      - JwtSettings__Secret=${JWT_SECRET}
+      - JwtSettings__Issuer=http://212.147.229.36:5000
+      - JwtSettings__Audience=http://212.147.229.36:5000
+      - AllowedHosts=*
+      - ClaudeAgents__ApiKey=${CLAUDE_API_KEY}
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
+      - LlmSettings__OllamaBaseUrl=http://ollama:11434
+      - SmtpSettings__Server=${SMTP_SERVER}
+      - SmtpSettings__Port=${SMTP_PORT:-587}
+      - SmtpSettings__Username=${SMTP_USERNAME}
+      - SmtpSettings__Password=${SMTP_PASSWORD}
+      - GRC_ADMIN_PASSWORD=${GRC_ADMIN_PASSWORD}
+      - GRC_MANAGER_PASSWORD=${GRC_MANAGER_PASSWORD}
+      - GRC_PLATFORM_ADMIN_PASSWORD=${GRC_PLATFORM_ADMIN_PASSWORD}
+      - ConnectionStrings__Redis=redis:6379,password=${REDIS_PASSWORD}
+      - Redis__ConnectionString=redis:6379,password=${REDIS_PASSWORD}
+      - Redis__Enabled=true
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - portal-data:/app/data
+      - portal-logs:/app/logs
+    networks:
+      - shahin-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "com.shahin.service=portal"
+      - "com.shahin.server=212.147.229.36"
+
+  # ════════════════════════════════════════════════════════════
+  # 3. PostgreSQL Database
+  # ════════════════════════════════════════════════════════════
+  postgres:
+    image: postgres:16-alpine
+    container_name: shahin-postgres-prod
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER:-shahin_admin}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME:-shahin_grc}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8 --locale=en_US.UTF-8
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d:ro
+    networks:
+      - shahin-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-shahin_admin} -d ${DB_NAME:-shahin_grc}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "com.shahin.service=postgres"
+      - "com.shahin.server=212.147.229.36"
+
+  # ════════════════════════════════════════════════════════════
+  # 4. Redis Cache
+  # ════════════════════════════════════════════════════════════
+  redis:
+    image: redis:7-alpine
+    container_name: shahin-redis-prod
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+    volumes:
+      - redis-data:/data
+    networks:
+      - shahin-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "com.shahin.service=redis"
+      - "com.shahin.server=212.147.229.36"
+
+  # ════════════════════════════════════════════════════════════
+  # 5. Nginx Reverse Proxy
+  # ════════════════════════════════════════════════════════════
+  nginx:
+    image: nginx:alpine
+    container_name: shahin-nginx-prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - nginx-logs:/var/log/nginx
+    networks:
+      - shahin-network
+    depends_on:
+      - landing
+      - portal
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    labels:
+      - "com.shahin.service=nginx"
+      - "com.shahin.server=212.147.229.36"
+
+  # ════════════════════════════════════════════════════════════
+  # 6. Ollama - LLM Server (Base Container)
+  # ════════════════════════════════════════════════════════════
+  ollama:
+    image: ollama/ollama:latest
+    container_name: shahin-ollama-prod
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - shahin-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    labels:
+      - "com.shahin.service=ollama"
+      - "com.shahin.server=212.147.229.36"
+
+  # ════════════════════════════════════════════════════════════
+  # 7. LLM Model 1 - Llama 3 (Default Basic Model)
+  # ════════════════════════════════════════════════════════════
+  llm-model-1:
+    image: ollama/ollama:latest
+    container_name: shahin-llm-llama3-prod
+    restart: unless-stopped
+    command: >
+      sh -c "
+        ollama serve &
+        sleep 10 &&
+        ollama pull llama3:8b &&
+        wait
+      "
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - shahin-network
+    depends_on:
+      - ollama
+    profiles:
+      - llm-models
+    labels:
+      - "com.shahin.service=llm-model-1"
+      - "com.shahin.model=llama3:8b"
+
+  # ════════════════════════════════════════════════════════════
+  # 8. LLM Model 2 - Mistral (Alternative Model)
+  # ════════════════════════════════════════════════════════════
+  llm-model-2:
+    image: ollama/ollama:latest
+    container_name: shahin-llm-mistral-prod
+    restart: unless-stopped
+    command: >
+      sh -c "
+        ollama serve &
+        sleep 10 &&
+        ollama pull mistral:7b &&
+        wait
+      "
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - shahin-network
+    depends_on:
+      - ollama
+    profiles:
+      - llm-models
+    labels:
+      - "com.shahin.service=llm-model-2"
+      - "com.shahin.model=mistral:7b"
+
+  # ════════════════════════════════════════════════════════════
+  # 9. LLM Model 3 - Phi-3 (Lightweight Model)
+  # ════════════════════════════════════════════════════════════
+  llm-model-3:
+    image: ollama/ollama:latest
+    container_name: shahin-llm-phi3-prod
+    restart: unless-stopped
+    command: >
+      sh -c "
+        ollama serve &
+        sleep 10 &&
+        ollama pull phi3:mini &&
+        wait
+      "
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - shahin-network
+    depends_on:
+      - ollama
+    profiles:
+      - llm-models
+    labels:
+      - "com.shahin.service=llm-model-3"
+      - "com.shahin.model=phi3:mini"
+
+networks:
+  shahin-network:
+    name: shahin-network-prod
+    driver: bridge
+
+volumes:
+  postgres-data:
+    name: shahin-postgres-data-prod
+  redis-data:
+    name: shahin-redis-data-prod
+  portal-data:
+    name: shahin-portal-data-prod
+  portal-logs:
+    name: shahin-portal-logs-prod
+  nginx-logs:
+    name: shahin-nginx-logs-prod
+  ollama-data:
+    name: shahin-ollama-data-prod
