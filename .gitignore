@@ -56,6 +56,13 @@ cookies.txt
 tmpclaude-*
 nul
 
+# SSH keys (NEVER commit private keys)
+shahin_grc_key
+shahin_grc_key_new
+*.pem
+id_rsa
+id_ed25519
+
 # Sensitive documentation with secrets
 COMPLETE-PRODUCTION-CONFIG.md
 TESTING-ENVIRONMENT-SETUP.md
