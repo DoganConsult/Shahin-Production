@@ -117,7 +117,9 @@
       "Bash($env:UPCLOUD_SSH_HOST = \"95.111.222.132\")",
       "Bash(echo:*)",
       "Bash(del \"C:\\\\Shahin-ai\\\\Shahin-Jan-2026\\\\grc-frontend\\\\src\\\\hooks\\\\usePermissions.ts\")",
-      "Bash(npm run start:*)"
+      "Bash(npm run start:*)",
+      "Bash(ssh:*)",
+      "Bash(docker push:*)"
     ]
   }
 }
