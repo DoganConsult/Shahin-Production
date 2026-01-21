@@ -22,9 +22,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
       # Database connections
-      - ConnectionStrings__DefaultConnection=Host=grc-db;Database=${DB_NAME:-shahin_grc};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};Port=5432
-      - ConnectionStrings__GrcAuthDb=Host=grc-db;Database=${DB_NAME:-shahin_grc};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};Port=5432
-      - ConnectionStrings__HangfireConnection=Host=grc-db;Database=${DB_NAME:-shahin_grc};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};Port=5432
+      - ConnectionStrings__DefaultConnection=Host=grc-db;Database=GrcMvcDb;Username=shahin_admin;Password=shahinadmin2026;Port=5432
+      - ConnectionStrings__GrcAuthDb=Host=grc-db;Database=GrcAuthDb;Username=shahin_admin;Password=shahinadmin2026;Port=5432
+      - ConnectionStrings__HangfireConnection=Host=grc-db;Database=GrcMvcDb;Username=shahin_admin;Password=shahinadmin2026;Port=5432
       - ConnectionStrings__Redis=grc-redis:6379
       # JWT
       - JwtSettings__Secret=${JWT_SECRET}
@@ -96,9 +96,9 @@ services:
     image: postgres:15-alpine
     container_name: shahin-grc-db
     environment:
-      - POSTGRES_USER=${DB_USER:-shahin_admin}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME:-shahin_grc}
+      - POSTGRES_USER=shahin_admin
+      - POSTGRES_PASSWORD=shahinadmin2026
+      - POSTGRES_DB=GrcMvcDb
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
@@ -108,7 +108,7 @@ services:
       - grc-prod-network
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-shahin_admin} -d ${DB_NAME:-shahin_grc}"]
+      test: ["CMD-SHELL", "pg_isready -U shahin_admin -d GrcMvcDb"]
       interval: 10s
       timeout: 5s
       retries: 5
