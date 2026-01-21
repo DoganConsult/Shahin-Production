@@ -29,27 +29,3 @@ jobs:
           file: ./src/GrcMvc/Dockerfile.production
           tags: "${{ vars.DOCKER_USER }}/grc-backend:latest"
           outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
-
-  frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ vars.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_PAT }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver: cloud
-          endpoint: "drdogan/dogancloudbuilder1"
-      - name: Build and push Frontend
-        uses: docker/build-push-action@v6
-        with:
-          context: ./grc-frontend
-          file: ./grc-frontend/Dockerfile.production
-          tags: "${{ vars.DOCKER_USER }}/grc-frontend:latest"
-          outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
-# Docker Cloud Build Trigger - Wed, Jan 21, 2026  7:59:56 AM

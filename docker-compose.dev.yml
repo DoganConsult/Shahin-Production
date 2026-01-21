@@ -16,42 +16,33 @@ services:
     container_name: grc-app
     restart: unless-stopped
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:80
-      # Database
-      ConnectionStrings__DefaultConnection: Host=db;Database=GrcMvcDb;Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD:-Shahin@GRC2026!};Port=5432
-      ConnectionStrings__GrcAuthDb: Host=db;Database=GrcMvcDb;Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD:-Shahin@GRC2026!};Port=5432
-      ConnectionStrings__HangfireConnection: Host=db;Database=GrcMvcDb;Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD:-Shahin@GRC2026!};Port=5432
-      ConnectionStrings__Redis: redis:6379
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: ${ASPNETCORE_URLS:-http://+:80}
+      # Database (Docker-internal: uses service names db, redis)
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=${DB_NAME:-GrcMvcDb};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};"
+      ConnectionStrings__GrcAuthDb: "Host=db;Port=5432;Database=GrcAuthDb;Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};"
+      ConnectionStrings__HangfireConnection: "Host=db;Port=5432;Database=${DB_NAME:-GrcMvcDb};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};"
+      ConnectionStrings__Redis: "redis:6379"
+      Redis__ConnectionString: "redis:6379"
       # JWT Settings
-      JwtSettings__Secret: ${JWT_SECRET:-shahin-ai-grc-jwt-secret-key-minimum-32-characters-long-2026}
-      JwtSettings__Issuer: http://localhost:5010
-      JwtSettings__Audience: http://localhost:5010
-      JwtSettings__ExpirationInMinutes: 60
-      # OpenIddict
-      AuthServer__Authority: http://localhost:5010/
+      JwtSettings__Secret: ${JWT_SECRET}
+      JwtSettings__Issuer: "http://localhost:${APP_PORT:-5010}"
+      JwtSettings__Audience: "http://localhost:${APP_PORT:-5010}"
+      # OpenIddict / AuthServer
+      AuthServer__Authority: "http://localhost:${APP_PORT:-5010}/"
       AuthServer__RequireHttpsMetadata: "false"
-      # App URLs
-      App__SelfUrl: http://localhost:5010
-      App__ClientUrl: http://localhost:5010
-      App__CorsOrigins: http://localhost:5010,http://localhost:3000,http://localhost:3003
+      # App URLs (external-facing for tokens/redirects)
+      App__SelfUrl: "http://localhost:${APP_PORT:-5010}"
+      App__ClientUrl: "http://localhost:${APP_PORT:-5010}"
+      App__CorsOrigins: "http://localhost:${APP_PORT:-5010}"
       # Claude AI
       ClaudeAgents__Enabled: ${CLAUDE_ENABLED:-true}
       CLAUDE_API_KEY: ${CLAUDE_API_KEY:-}
       CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-sonnet-4-20250514}
       # Hangfire
-      HANGFIRE_DASHBOARD_ENABLED: "true"
-      # Feature Flags
-      Features__OnboardingEnabled: "true"
-      Features__AIAgentsEnabled: "true"
-      Features__AnalyticsEnabled: "true"
-      Features__MultiTenancyEnabled: "true"
-      MultiTenancy__IsEnabled: "true"
+      HANGFIRE_DASHBOARD_ENABLED: ${HANGFIRE_DASHBOARD_ENABLED:-true}
       # Security
-      ALLOWED_HOSTS: "*"
-      Security__AllowPublicRegistration: "true"
-      # Logging
-      Serilog__MinimumLevel: Information
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-*}
     ports:
       - "${APP_PORT:-5010}:80"
     volumes:
@@ -71,34 +62,6 @@ services:
     networks:
       - grc-network
 
-  # Frontend Next.js Application
-  frontend:
-    build:
-      context: ./grc-frontend
-      dockerfile: Dockerfile
-    container_name: grc-frontend
-    restart: unless-stopped
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:5010
-      NEXT_PUBLIC_OIDC_AUTHORITY: http://localhost:5010
-      NEXT_PUBLIC_OIDC_CLIENT_ID: grc-web
-      NEXT_PUBLIC_APP_NAME: Shahin GRC
-      NEXTAUTH_URL: http://localhost:3003
-      NEXTAUTH_SECRET: nextauth-secret-key-development-2026
-    ports:
-      - "${FRONTEND_PORT:-3003}:3000"
-    depends_on:
-      grcmvc:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
-    networks:
-      - grc-network
-
   # ═══════════════════════════════════════════════════════════════════════════════
   # DATABASE SERVICES
   # ═══════════════════════════════════════════════════════════════════════════════
@@ -109,7 +72,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-shahin_admin}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-Shahin@GRC2026!}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-shahinadmin2026}
       POSTGRES_DB: ${DB_NAME:-GrcMvcDb}
       POSTGRES_MULTIPLE_DATABASES: GrcMvcDb,GrcAuthDb,metabase
     ports:

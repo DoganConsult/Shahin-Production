@@ -17,7 +17,6 @@
 - **Pooling**: Enabled (Min: 5, Max: 50 per tenant)
 - **Timeout**: 30 seconds
 - **Multi-format support**:
-  - `DATABASE_URL` (Railway, Heroku, Render)
   - `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
   - `ConnectionStrings__DefaultConnection`
   - Fallback: `localhost:5432` (development)

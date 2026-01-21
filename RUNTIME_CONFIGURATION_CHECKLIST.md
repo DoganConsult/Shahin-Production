@@ -14,10 +14,7 @@
 # Option 1: Standard format
 ConnectionStrings__DefaultConnection="Host=localhost;Database=grc_main;Username=grc_user;Password=YOUR_PASSWORD;Port=5432"
 
-# Option 2: Railway format (auto-converted)
-DATABASE_URL="postgresql://user:password@host:port/dbname"
-
-# Option 3: Individual components
+# Option 2: Individual components
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=grc_main
@@ -247,7 +244,7 @@ redis-cli ping
 InvalidOperationException: The following critical environment variables are missing in Production: CONNECTION_STRING or DB_PASSWORD
 ```
 
-**Fix:** Set `ConnectionStrings__DefaultConnection` or `DATABASE_URL`
+**Fix:** Set `ConnectionStrings__DefaultConnection` or `DB_HOST+DB_PASSWORD`
 
 ---
 

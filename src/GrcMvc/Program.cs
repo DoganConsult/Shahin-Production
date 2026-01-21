@@ -81,61 +81,64 @@ builder.Services.Configure<Volo.Abp.SettingManagement.SettingManagementOptions>(
 });
 
 // ══════════════════════════════════════════════════════════════
-// Load Environment Variables from .env file (Production Security)
-// Priority: .env.local (local dev) > .env (Docker/production)
+// Load Environment Variables from .env file (Development only)
+// In Production, environment variables should be set externally
+// Priority: .env.local (host-run backend) > .env (Docker)
 // ══════════════════════════════════════════════════════════════
-var envLocalFile = Path.Combine(Directory.GetCurrentDirectory(), ".env.local");
-if (!File.Exists(envLocalFile))
+if (builder.Environment.IsDevelopment())
 {
-    envLocalFile = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env.local");
-}
-
-var envFile = Path.Combine(Directory.GetCurrentDirectory(), ".env");
-if (!File.Exists(envFile))
-{
-    envFile = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
-}
-if (!File.Exists(envFile))
-{
-    envFile = "/home/dogan/grc-system/.env";
-}
-
-// Load .env.local first (local development - uses localhost)
-if (File.Exists(envLocalFile))
-{
-    foreach (var line in File.ReadAllLines(envLocalFile))
+    var envLocalFile = Path.Combine(Directory.GetCurrentDirectory(), ".env.local");
+    if (!File.Exists(envLocalFile))
     {
-        if (string.IsNullOrWhiteSpace(line) || line.TrimStart().StartsWith("#"))
-            continue;
-
-        var parts = line.Split('=', 2);
-        if (parts.Length == 2)
-        {
-            var envKey = parts[0].Trim();
-            var envValue = parts[1].Trim();
-            Environment.SetEnvironmentVariable(envKey, envValue);
-        }
+        envLocalFile = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env.local");
     }
-    Console.WriteLine($"[ENV] Loaded LOCAL environment variables from: {envLocalFile}");
-}
-// Fallback to .env (Docker/production - uses 'db' hostname)
-else if (File.Exists(envFile))
-{
-    foreach (var line in File.ReadAllLines(envFile))
+
+    var envFile = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+    if (!File.Exists(envFile))
     {
-        if (string.IsNullOrWhiteSpace(line) || line.TrimStart().StartsWith("#"))
-            continue;
-
-        var parts = line.Split('=', 2);
-        if (parts.Length == 2)
-        {
-            var envKey = parts[0].Trim();
-            var envValue = parts[1].Trim();
-            Environment.SetEnvironmentVariable(envKey, envValue);
-        }
+        envFile = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
     }
-    Console.WriteLine($"[ENV] Loaded environment variables from: {envFile}");
+
+    // Load .env.local first (host-run backend - uses localhost)
+    if (File.Exists(envLocalFile))
+    {
+        foreach (var line in File.ReadAllLines(envLocalFile))
+        {
+            if (string.IsNullOrWhiteSpace(line) || line.TrimStart().StartsWith("#"))
+                continue;
+
+            var parts = line.Split('=', 2);
+            if (parts.Length == 2)
+            {
+                var envKey = parts[0].Trim();
+                var envValue = parts[1].Trim();
+                Environment.SetEnvironmentVariable(envKey, envValue);
+            }
+        }
+        Console.WriteLine($"[ENV] Loaded LOCAL environment variables from: {envLocalFile}");
+    }
+    // Fallback to .env (Docker development - uses 'db' hostname)
+    else if (File.Exists(envFile))
+    {
+        foreach (var line in File.ReadAllLines(envFile))
+        {
+            if (string.IsNullOrWhiteSpace(line) || line.TrimStart().StartsWith("#"))
+                continue;
+
+            var parts = line.Split('=', 2);
+            if (parts.Length == 2)
+            {
+                var envKey = parts[0].Trim();
+                var envValue = parts[1].Trim();
+                Environment.SetEnvironmentVariable(envKey, envValue);
+            }
+        }
+        Console.WriteLine($"[ENV] Loaded environment variables from: {envFile}");
+    }
 }
+
+// Add environment variables to configuration (supports ConnectionStrings__* format)
+builder.Configuration.AddEnvironmentVariables();
 
 // Load appsettings.Local.json ONLY in Development environment for local development overrides
 // NEVER load in Production - it contains localhost connection strings
@@ -160,53 +163,12 @@ if (builder.Environment.IsDevelopment())
 //
 // We support multiple formats for flexibility:
 // - Standard: ConnectionStrings__DefaultConnection (Docker Compose)
-// - Platform: DATABASE_URL (Railway, Heroku, Render, etc.)
 // - Individual: DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
 // - Fallback: appsettings.json defaults (development only)
 
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Helper function to parse DATABASE_URL (postgresql://user:pass@host:port/db)
-static string? ParseDatabaseUrl(string? databaseUrl)
-{
-    if (string.IsNullOrWhiteSpace(databaseUrl))
-        return null;
-
-    try
-    {
-        // Support both postgresql:// and postgres://
-        if (!databaseUrl.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase) &&
-            !databaseUrl.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase))
-            return null;
-
-        var uri = new Uri(databaseUrl);
-        var userInfo = uri.UserInfo.Split(':');
-        var username = Uri.UnescapeDataString(userInfo[0]);
-        var password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "";
-        var host = uri.Host;
-        var port = uri.Port > 0 ? uri.Port.ToString() : "5432";
-        var database = uri.AbsolutePath.TrimStart('/');
-
-        return $"Host={host};Database={database};Username={username};Password={password};Port={port}";
-    }
-    catch
-    {
-        return null;
-    }
-}
-
-// Priority 1: Try DATABASE_URL (common in Railway, Heroku, Render, etc.)
-if (string.IsNullOrWhiteSpace(connectionString))
-{
-    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-    connectionString = ParseDatabaseUrl(databaseUrl);
-    if (!string.IsNullOrWhiteSpace(connectionString))
-    {
-        builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
-    }
-}
-
-// Priority 2: Try building from individual DB_* variables
+// Priority 1: Try building from individual DB_* variables
 if (string.IsNullOrWhiteSpace(connectionString))
 {
     var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
@@ -248,14 +210,13 @@ if (builder.Environment.IsProduction())
 
     // Critical variables for production
     if (string.IsNullOrWhiteSpace(connectionString))
-        missingVars.Add("DATABASE_URL, ConnectionStrings__DefaultConnection, or DB_HOST+DB_PASSWORD");
+        missingVars.Add("ConnectionStrings__DefaultConnection or DB_HOST+DB_PASSWORD");
 
     if (missingVars.Count > 0)
     {
         throw new InvalidOperationException(
             $"The following critical environment variables are missing in Production: {string.Join(", ", missingVars)}. " +
-            "Set them before starting the application. " +
-            "Platforms like Railway/Heroku typically provide DATABASE_URL automatically.");
+            "Set them before starting the application.");
     }
 
     // Log warnings for optional but recommended variables
@@ -618,10 +579,9 @@ if (string.IsNullOrWhiteSpace(connectionString))
     throw new InvalidOperationException(
         "Database connection string 'DefaultConnection' not found. " +
         "Please set it via one of the following methods:\n" +
-        "1. Environment variable: DATABASE_URL (postgresql://user:pass@host:port/db)\n" +
-        "2. Environment variable: ConnectionStrings__DefaultConnection\n" +
-        "3. Environment variables: DB_HOST, DB_NAME, DB_USER, DB_PASSWORD\n" +
-        "4. appsettings.{Environment}.json: ConnectionStrings.DefaultConnection\n\n" +
+        "1. Environment variable: ConnectionStrings__DefaultConnection\n" +
+        "2. Environment variables: DB_HOST, DB_NAME, DB_USER, DB_PASSWORD\n" +
+        "3. appsettings.{Environment}.json: ConnectionStrings.DefaultConnection\n\n" +
         "For local development, ensure PostgreSQL is running and set DB_PASSWORD environment variable.");
 }
 
@@ -1084,6 +1044,10 @@ builder.Services.AddHttpClient(); // Default HttpClient for services like Diagno
 builder.Services.AddHttpClient("Email");
 builder.Services.AddHttpClient("Stripe");
 builder.Services.AddHttpClient("SSO");
+builder.Services.AddHttpClient("status-check", client =>
+{
+    client.DefaultRequestHeaders.Add("User-Agent", "GrcStatusChecker/1.0");
+});
 builder.Services.AddScoped<GrcMvc.Services.Integrations.IEmailIntegrationService, GrcMvc.Services.Integrations.EmailIntegrationService>();
 builder.Services.AddScoped<GrcMvc.Services.Integrations.IPaymentIntegrationService, GrcMvc.Services.Integrations.StripePaymentService>();
 builder.Services.AddScoped<GrcMvc.Services.Integrations.ISSOIntegrationService, GrcMvc.Services.Integrations.SSOIntegrationService>();

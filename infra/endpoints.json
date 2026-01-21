@@ -1,0 +1,128 @@
+{
+  "services": [
+    {
+      "id": "backend",
+      "group": "Application Services",
+      "name": "Backend API (MVC)",
+      "checkType": "http",
+      "internalBaseUrl": "http://grcmvc:80",
+      "externalBaseUrl": "http://localhost:5010",
+      "healthPath": "/health/live",
+      "timeoutMs": 4000
+    },
+    {
+      "id": "postgres",
+      "group": "Database & Cache",
+      "name": "PostgreSQL",
+      "checkType": "tcp",
+      "internalHost": "db",
+      "internalPort": 5432,
+      "externalHost": "localhost",
+      "externalPort": 5432,
+      "timeoutMs": 2000
+    },
+    {
+      "id": "redis",
+      "group": "Database & Cache",
+      "name": "Redis",
+      "checkType": "tcp",
+      "internalHost": "redis",
+      "internalPort": 6379,
+      "externalHost": "localhost",
+      "externalPort": 6379,
+      "timeoutMs": 2000
+    },
+    {
+      "id": "zookeeper",
+      "group": "Message Queue (Kafka)",
+      "name": "Zookeeper",
+      "checkType": "tcp",
+      "internalHost": "zookeeper",
+      "internalPort": 2181,
+      "externalHost": "localhost",
+      "externalPort": 2181,
+      "timeoutMs": 2000
+    },
+    {
+      "id": "kafka",
+      "group": "Message Queue (Kafka)",
+      "name": "Kafka",
+      "checkType": "tcp",
+      "internalHost": "kafka",
+      "internalPort": 29092,
+      "externalHost": "localhost",
+      "externalPort": 9092,
+      "timeoutMs": 2000
+    },
+    {
+      "id": "kafka-ui",
+      "group": "Message Queue (Kafka)",
+      "name": "Kafka UI",
+      "checkType": "http",
+      "internalBaseUrl": "http://kafka-ui:8080",
+      "externalBaseUrl": "http://localhost:9080",
+      "healthPath": "/",
+      "timeoutMs": 4000
+    },
+    {
+      "id": "camunda",
+      "group": "Workflow Engine",
+      "name": "Camunda BPM",
+      "checkType": "http",
+      "internalBaseUrl": "http://camunda:8080",
+      "externalBaseUrl": "http://localhost:8085",
+      "healthPath": "/camunda/app/welcome/",
+      "timeoutMs": 5000
+    },
+    {
+      "id": "n8n",
+      "group": "Workflow Engine",
+      "name": "n8n Automation",
+      "checkType": "http",
+      "internalBaseUrl": "http://n8n:5678",
+      "externalBaseUrl": "http://localhost:5678",
+      "healthPath": "/",
+      "timeoutMs": 5000
+    },
+    {
+      "id": "clickhouse-http",
+      "group": "Analytics & BI Stack",
+      "name": "ClickHouse (HTTP)",
+      "checkType": "http",
+      "internalBaseUrl": "http://clickhouse:8123",
+      "externalBaseUrl": "http://localhost:8123",
+      "healthPath": "/ping",
+      "timeoutMs": 4000
+    },
+    {
+      "id": "grafana",
+      "group": "Analytics & BI Stack",
+      "name": "Grafana",
+      "checkType": "http",
+      "internalBaseUrl": "http://grafana:3000",
+      "externalBaseUrl": "http://localhost:3030",
+      "healthPath": "/api/health",
+      "timeoutMs": 4000
+    },
+    {
+      "id": "superset",
+      "group": "Analytics & BI Stack",
+      "name": "Superset",
+      "checkType": "http",
+      "internalBaseUrl": "http://superset:8088",
+      "externalBaseUrl": "http://localhost:8088",
+      "healthPath": "/health",
+      "timeoutMs": 5000
+    },
+    {
+      "id": "metabase",
+      "group": "Analytics & BI Stack",
+      "name": "Metabase",
+      "checkType": "http",
+      "internalBaseUrl": "http://metabase:3000",
+      "externalBaseUrl": "http://localhost:3033",
+      "healthPath": "/api/health",
+      "timeoutMs": 5000
+    }
+  ]
+}

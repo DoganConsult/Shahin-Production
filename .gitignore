@@ -168,6 +168,7 @@ _Pvt_Extensions
 # Environment files - NEVER commit these!
 .env
 .env.local
+.env.*.local
 .env.production
 .env.staging
 *.env

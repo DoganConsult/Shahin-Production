@@ -15,8 +15,11 @@ RUN apk add --no-cache \
     tzdata \
     curl
 
-# Set timezone
+# Set timezone and enable globalization (for Arabic/multi-language support)
 ENV TZ=UTC
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+ENV LC_ALL=en_US.UTF-8
+ENV LANG=en_US.UTF-8
 
 # Stage 2: Build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build

@@ -13,19 +13,20 @@ using System.Text.Json;
 namespace GrcMvc.Controllers
 {
     /// <summary>
-    /// MVC Controller for guided onboarding UI
+    /// MVC Controller for guided onboarding UI - REDIRECTS TO WIZARD
+    /// The simple onboarding views have been removed; use OnboardingWizard instead
     /// </summary>
     [Authorize]
     [Route("[controller]")]
     public class OnboardingUiController : Controller
     {
         /// <summary>
-        /// Guided onboarding welcome page with microcopy
+        /// Redirects to OnboardingWizard StepA (comprehensive 12-step wizard)
         /// </summary>
         [HttpGet("guided")]
         public IActionResult GuidedWelcome()
         {
-            return View("GuidedWelcome");
+            return RedirectToAction("StepA", "OnboardingWizard");
         }
     }
 
@@ -488,8 +489,8 @@ namespace GrcMvc.Controllers
     }
 
     /// <summary>
-    /// MVC Controller for onboarding pages (views)
-    /// Note: Most actions are public (trial/registration flow), specific actions require auth
+    /// MVC Controller for onboarding pages - REDIRECTS TO WIZARD
+    /// Simple onboarding views have been removed; all routes redirect to OnboardingWizard
     /// </summary>
     [Route("[controller]")]
     public class OnboardingController : Controller
@@ -509,14 +510,14 @@ namespace GrcMvc.Controllers
         }
 
         /// <summary>
-        /// MVC Route: Display onboarding index page
+        /// Redirect to OnboardingWizard StepA
         /// </summary>
         [HttpGet]
         [HttpGet("Index")]
-        [AllowAnonymous] // Allow access for trial users before they complete onboarding
+        [AllowAnonymous]
         public IActionResult Index()
         {
-            return View(nameof(Index));
+            return RedirectToAction("StepA", "OnboardingWizard");
         }
 
         /// <summary>
@@ -524,13 +525,13 @@ namespace GrcMvc.Controllers
         /// Called after trial registration - receives tenantSlug from redirect
         /// </summary>
         [HttpGet("Start/{tenantSlug}")]
-        [AllowAnonymous] // Trial users just registered and signed in
+        [AllowAnonymous]
         public async Task<IActionResult> Start(string tenantSlug)
         {
             if (string.IsNullOrWhiteSpace(tenantSlug))
             {
                 _logger.LogWarning("Start called with empty tenantSlug");
-                return RedirectToAction("Index");
+                return RedirectToAction("StepA", "OnboardingWizard");
             }
 
             try
@@ -542,18 +543,8 @@ namespace GrcMvc.Controllers
                 {
                     _logger.LogWarning("Tenant not found for slug: {TenantSlug}", tenantSlug);
                     TempData["ErrorMessage"] = "Organization not found. Please try again.";
-                    return RedirectToAction("Index");
+                    return RedirectToAction("StepA", "OnboardingWizard");
                 }
-
-                // Set ViewBag for the view
-                ViewBag.TenantSlug = tenantSlug;
-                ViewBag.TenantId = tenant.Id;
-                ViewBag.OrganizationName = tenant.GetOrganizationName();
-                ViewBag.IsTrial = tenant.GetIsTrial();
-                ViewBag.TrialEndsAt = tenant.GetTrialEndsAt();
-                ViewBag.TrialDaysRemaining = tenant.GetTrialEndsAt().HasValue
-                    ? (int)(tenant.GetTrialEndsAt()!.Value - DateTime.UtcNow).TotalDays
-                    : 0;
 
                 // Store in TempData for subsequent steps
                 TempData["TenantId"] = tenant.Id.ToString();
@@ -563,332 +554,116 @@ namespace GrcMvc.Controllers
                 _logger.LogInformation("Starting onboarding for trial tenant: {TenantSlug} ({TenantId})",
                     tenantSlug, tenant.Id);
 
-                // Reuse existing Index view which shows the 12-step wizard
-                return View("Index");
+                // Redirect to OnboardingWizard
+                return RedirectToAction("StepA", "OnboardingWizard");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error starting onboarding for tenant: {TenantSlug}", tenantSlug);
                 TempData["ErrorMessage"] = "An error occurred. Please try again.";
-                return RedirectToAction("Index");
+                return RedirectToAction("StepA", "OnboardingWizard");
             }
         }
 
         /// <summary>
-        /// MVC Route: Display signup page
+        /// Redirect to OnboardingWizard StepA (signup is part of wizard)
         /// </summary>
         [HttpGet("Signup")]
-        [AllowAnonymous] // Must be public for new organization registration
+        [AllowAnonymous]
         public IActionResult Signup()
         {
-            return View(new CreateTenantDto());
+            return RedirectToAction("StepA", "OnboardingWizard");
         }
 
         /// <summary>
-        /// MVC Route: Process signup form and redirect to OrgProfile
-        /// Creates the tenant in the database immediately.
+        /// Redirect POST signup to wizard
         /// </summary>
         [HttpPost("Signup")]
-        [AllowAnonymous] // Must be public for new organization registration
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Signup(CreateTenantDto model)
+        public IActionResult SignupPost()
         {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            try
-            {
-                // Generate tenant slug if not provided
-                var tenantSlug = model.TenantSlug ?? model.OrganizationName?.ToLower()
-                    .Replace(" ", "-")
-                    .Replace("_", "-")
-                    .Replace(".", "-")
-                    .Trim('-');
-
-                if (string.IsNullOrWhiteSpace(tenantSlug))
-                {
-                    ModelState.AddModelError(nameof(model.TenantSlug), "Tenant slug is required.");
-                    return View(model);
-                }
-
-                // CRITICAL: Actually create the tenant in the database
-                var tenant = await _tenantService.CreateTenantAsync(
-                    model.OrganizationName ?? string.Empty,
-                    model.AdminEmail ?? string.Empty,
-                    tenantSlug);
-
-                _logger.LogInformation("Tenant created via MVC signup: {TenantId} ({Slug})", tenant.Id, tenant.Name);
-
-                // Store tenant info in TempData for next step
-                TempData["TenantSlug"] = tenant.Name;
-                TempData["OrganizationName"] = tenant.GetOrganizationName();
-                TempData["AdminEmail"] = tenant.GetAdminEmail();
-                TempData["TenantId"] = tenant.Id.ToString();
-
-                return RedirectToAction(nameof(OrgProfile));
-            }
-            catch (InvalidOperationException ex)
-            {
-                // Handle duplicate slug or other validation errors
-                ModelState.AddModelError("", "An error occurred processing your request.");
-                _logger.LogWarning(ex, "Failed to create tenant: {Message}", ex.Message);
-                return View(model);
-            }
-            catch (Exception ex)
-            {
-                // Handle unexpected errors
-                ModelState.AddModelError("", "An error occurred while creating your account. Please try again.");
-                _logger.LogError(ex, "Error creating tenant during signup");
-                return View(model);
-            }
+            return RedirectToAction("StepA", "OnboardingWizard");
         }
 
         /// <summary>
-        /// MVC Route: Display organization profile page
+        /// Redirect to OnboardingWizard (OrgProfile is covered in wizard steps)
         /// </summary>
         [HttpGet("OrgProfile")]
         [HttpGet("org-profile")]
         public IActionResult OrgProfile()
         {
-            var tenantIdStr = TempData["TenantId"]?.ToString();
-            var tenantId = string.IsNullOrEmpty(tenantIdStr) ? Guid.Empty : Guid.Parse(tenantIdStr);
-            TempData.Keep("TenantId");
-            TempData.Keep("TenantSlug");
-            TempData.Keep("OrganizationName");
-
-            return View(new OrganizationProfileDto { TenantId = tenantId });
+            return RedirectToAction("StepB", "OnboardingWizard");
         }
 
         /// <summary>
-        /// MVC Route: Process organization profile and redirect to ReviewScope
-        /// Persists profile to database and triggers scope derivation.
+        /// Redirect POST to wizard
         /// </summary>
         [HttpPost("OrgProfile")]
         [HttpPost("SaveOrgProfile")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveOrgProfile(OrganizationProfileDto model)
+        public IActionResult SaveOrgProfile()
         {
-            if (!ModelState.IsValid)
-            {
-                return View(nameof(OrgProfile), model);
-            }
-
-            try
-            {
-                // Get user ID for audit trail
-                var userId = User?.FindFirst("sub")?.Value
-                          ?? User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
-                          ?? "ANONYMOUS";
-
-                // Build questionnaire dictionary from form data
-                var questionnaire = new Dictionary<string, string>
-                {
-                    { "OrganizationType", model.OrganizationType ?? "" },
-                    { "Sector", model.Sector ?? "" },
-                    { "Country", model.Country ?? "" },
-                    { "HostingModel", model.HostingModel ?? "" },
-                    { "DataTypes", model.DataTypes ?? "" },
-                    { "Size", model.Size ?? "" },
-                    { "Maturity", model.Maturity ?? "" },
-                    { "Vendors", model.Vendors ?? "" }
-                };
-
-                // PERSIST TO DATABASE (this is what was missing!)
-                await _onboardingService.SaveOrganizationProfileAsync(
-                    tenantId: model.TenantId,
-                    orgType: model.OrganizationType ?? "",
-                    sector: model.Sector ?? "",
-                    country: model.Country ?? "SA",
-                    dataTypes: model.DataTypes ?? "",
-                    hostingModel: model.HostingModel ?? "",
-                    organizationSize: model.Size ?? "",
-                    complianceMaturity: model.Maturity ?? "",
-                    vendors: model.Vendors ?? "",
-                    questionnaire: questionnaire,
-                    userId: userId);
-
-                _logger.LogInformation("Organization profile saved for tenant {TenantId}", model.TenantId);
-
-                // Store TenantId for next step
-                TempData["TenantId"] = model.TenantId.ToString();
-                TempData.Keep("TenantSlug");
-                TempData.Keep("OrganizationName");
-
-                return RedirectToAction(nameof(ReviewScope));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error saving organization profile for tenant {TenantId}", model.TenantId);
-                ModelState.AddModelError("", "Failed to save organization profile. Please try again.");
-                return View(nameof(OrgProfile), model);
-            }
+            return RedirectToAction("StepB", "OnboardingWizard");
         }
 
         /// <summary>
-        /// MVC Route: Display scope review page
-        /// Triggers Rules Engine to derive applicable baselines/packages/templates.
+        /// Redirect to OnboardingWizard (scope review is in wizard)
         /// </summary>
         [HttpGet("ReviewScope")]
         [HttpGet("review-scope")]
-        public async Task<IActionResult> ReviewScope()
+        public IActionResult ReviewScope()
         {
-            var tenantIdStr = TempData["TenantId"]?.ToString();
-            TempData.Keep("TenantId");
-            TempData.Keep("TenantSlug");
-            TempData.Keep("OrganizationName");
-
-            // Validate TenantId
-            if (string.IsNullOrEmpty(tenantIdStr) || !Guid.TryParse(tenantIdStr, out var tenantId))
-            {
-                _logger.LogWarning("ReviewScope: TenantId not found in TempData");
-                TempData["ErrorMessage"] = "Session expired. Please start the onboarding process again.";
-                return RedirectToAction(nameof(Signup));
-            }
-
-            try
-            {
-                // Get user ID for audit trail
-                var userId = User?.FindFirst("sub")?.Value
-                          ?? User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
-                          ?? "SYSTEM";
-
-                // STEP 1: Trigger Rules Engine to derive scope
-                var executionLog = await _onboardingService.CompleteOnboardingAsync(tenantId, userId);
-                _logger.LogInformation("Scope derived for tenant {TenantId}. ExecutionLog: {LogId}, Status: {Status}",
-                    tenantId, executionLog?.Id, executionLog?.Status);
-
-                // STEP 2: Fetch the derived scope from database
-                var scope = await _onboardingService.GetDerivedScopeAsync(tenantId);
-
-                // STEP 3: Return view with actual derived data
-                return View(scope);
-            }
-            catch (InvalidOperationException ex) when (ex.Message.Contains("No active ruleset") || ex.Message.Contains("Organization profile not found"))
-            {
-                _logger.LogWarning(ex, "Scope derivation prerequisite missing for tenant {TenantId}", tenantId);
-
-                // Fallback to defaults if no ruleset exists or profile missing
-                var fallbackScope = new OnboardingScopeDto
-                {
-                    TenantId = tenantId,
-                    ApplicableBaselines = new List<BaselineDto>
-                    {
-                        new BaselineDto { BaselineCode = "NCA-ECC", ReasonJson = "Default baseline (rules engine unavailable)" },
-                        new BaselineDto { BaselineCode = "PDPL", ReasonJson = "Default data protection baseline" }
-                    },
-                    ApplicablePackages = new List<PackageDto>(),
-                    ApplicableTemplates = new List<TemplateDto>()
-                };
-
-                TempData["WarningMessage"] = "Using default scope. Rules engine configuration pending.";
-                return View(fallbackScope);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deriving scope for tenant {TenantId}", tenantId);
-                TempData["ErrorMessage"] = "Failed to derive compliance scope. Please try again.";
-                return RedirectToAction(nameof(OrgProfile));
-            }
+            return RedirectToAction("StepK", "OnboardingWizard");
         }
 
         /// <summary>
-        /// MVC Route: Process scope acceptance and redirect to CreatePlan
+        /// Redirect to wizard completion
         /// </summary>
         [HttpPost("CompleteOnboarding")]
         [ValidateAntiForgeryToken]
         public IActionResult CompleteOnboarding()
         {
-            TempData.Keep("TenantId");
-            TempData.Keep("TenantSlug");
-            TempData.Keep("OrganizationName");
-
-            return RedirectToAction(nameof(CreatePlan));
+            return RedirectToAction("Complete", "OnboardingWizard");
         }
 
         /// <summary>
-        /// MVC Route: Display plan creation page
+        /// Redirect to OnboardingWizard (plan creation is in wizard)
         /// </summary>
         [HttpGet("CreatePlan")]
         [HttpGet("create-plan")]
         public IActionResult CreatePlan()
         {
-            var tenantIdStr = TempData["TenantId"]?.ToString();
-            var tenantId = string.IsNullOrEmpty(tenantIdStr) ? Guid.Empty : Guid.Parse(tenantIdStr);
-            TempData.Keep("TenantId");
-            TempData.Keep("TenantSlug");
-
-            return View(new CreatePlanDto { TenantId = tenantId });
+            return RedirectToAction("StepL", "OnboardingWizard");
         }
 
         /// <summary>
-        /// MVC Route: Process plan creation and redirect to dashboard
+        /// Redirect POST to wizard completion
         /// </summary>
         [HttpPost("CreatePlan")]
         [ValidateAntiForgeryToken]
-        public IActionResult CreatePlan(CreatePlanDto model)
+        public IActionResult CreatePlanPost()
         {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            // Plan created - redirect to dashboard
-            TempData["SuccessMessage"] = "Onboarding complete! Your first assessment plan has been created.";
-            return RedirectToAction("Index", "Dashboard");
+            return RedirectToAction("Complete", "OnboardingWizard");
         }
 
         /// <summary>
-        /// MVC Route: Display activation page
+        /// Redirect to OnboardingWizard
         /// </summary>
         [HttpGet("Activate")]
         public IActionResult Activate()
         {
-            return View();
+            return RedirectToAction("StepA", "OnboardingWizard");
         }
 
         /// <summary>
-        /// MVC Route: Process activation and redirect to OrgProfile
+        /// Redirect POST activation to wizard
         /// </summary>
         [HttpPost("Activate")]
         [ValidateAntiForgeryToken]
-        public IActionResult Activate(string tenantSlug, string activationToken)
+        public IActionResult ActivatePost()
         {
-            if (string.IsNullOrEmpty(tenantSlug) || string.IsNullOrEmpty(activationToken))
-            {
-                ModelState.AddModelError("", "Invalid activation link.");
-                return View();
-            }
-
-            TempData["TenantSlug"] = tenantSlug;
-            TempData["Activated"] = true;
-
-            return RedirectToAction(nameof(OrgProfile));
-        }
-
-        private const string DebugLogPath = @"c:\Shahin-ai\.cursor\debug.log";
-        private void SafeDebugLog(string hypothesisId, string location, string message, object data)
-        {
-            try
-            {
-                var payload = new
-                {
-                    sessionId = "debug-session",
-                    runId = "run1",
-                    hypothesisId,
-                    location,
-                    message,
-                    data,
-                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                };
-                var line = JsonSerializer.Serialize(payload);
-                System.IO.File.AppendAllText(DebugLogPath, line + Environment.NewLine);
-            }
-            catch
-            {
-                // swallow logging errors to avoid impacting flow
-            }
+            return RedirectToAction("StepA", "OnboardingWizard");
         }
     }
 
