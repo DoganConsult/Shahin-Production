@@ -1,72 +1,63 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+# ═══════════════════════════════════════════════════════════════════════════════
+# SHAHIN AI GRC PLATFORM - DOCKERFILE
+# Multi-stage build for ASP.NET Core 8.0 MVC Application
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Stage 1: Base runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# Install required packages
+RUN apk add --no-cache \
+    icu-libs \
+    tzdata \
+    curl
+
+# Set timezone
+ENV TZ=UTC
+
+# Stage 2: Build stage
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 WORKDIR /src
 
-# Copy project files
-COPY ["src/GrcMvc/GrcMvc.csproj", "GrcMvc/"]
-RUN dotnet restore "GrcMvc/GrcMvc.csproj"
+# Copy csproj and restore dependencies
+COPY ["GrcMvc.csproj", "./"]
+RUN dotnet restore "GrcMvc.csproj"
 
-# Copy all source code
-COPY src/GrcMvc/ GrcMvc/
-
-# ============================================================
-# MANDATORY QUALITY CHECK - Build will fail if validation fails
-# ============================================================
-WORKDIR "/src/GrcMvc"
-
-# Build the project (includes compile-time validation)
+# Copy everything else and build
+COPY . .
 RUN dotnet build "GrcMvc.csproj" -c Release -o /app/build
 
-# Validate all Shahin modules are present (MANDATORY)
-RUN echo "Running mandatory quality checks..." && \
-    MISSING=0 && \
-    for controller in OnboardingController ControlsController EvidenceController \
-                      RiskIndicatorsController ExceptionsController VaultController \
-                      WorkflowUIController ShahinAIIntegrationController; do \
-        if [ ! -f "Controllers/${controller}.cs" ]; then \
-            echo "ERROR: Missing ${controller}.cs"; \
-            MISSING=$((MISSING + 1)); \
-        fi; \
-    done && \
-    if [ $MISSING -gt 0 ]; then \
-        echo "BUILD FAILED: $MISSING Shahin module(s) missing"; \
-        exit 1; \
-    fi && \
-    echo "Quality check passed: All Shahin modules present"
-
-# Validate critical views exist (MANDATORY)
-RUN echo "Validating views..." && \
-    MISSING=0 && \
-    if [ ! -f "Views/Shared/_Layout.cshtml" ]; then \
-        echo "ERROR: Missing _Layout.cshtml"; \
-        MISSING=$((MISSING + 1)); \
-    fi && \
-    if [ ! -f "Views/_ViewStart.cshtml" ]; then \
-        echo "ERROR: Missing _ViewStart.cshtml"; \
-        MISSING=$((MISSING + 1)); \
-    fi && \
-    if [ $MISSING -gt 0 ]; then \
-        echo "BUILD FAILED: Critical views missing"; \
-        exit 1; \
-    fi && \
-    echo "View validation passed"
-
+# Stage 3: Publish stage
 FROM build AS publish
 RUN dotnet publish "GrcMvc.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
+# Stage 4: Final runtime image
 FROM base AS final
 WORKDIR /app
+
+# Create non-root user for security
+RUN addgroup -g 1000 appgroup && \
+    adduser -u 1000 -G appgroup -D appuser
+
+# Copy published application
 COPY --from=publish /app/publish .
 
-# Create non-root user for security (Debian-based commands for aspnet image)
-RUN groupadd -g 1000 appuser && \
-    useradd -m -u 1000 -g appuser appuser && \
-    chown -R appuser:appuser /app
+# Copy static files and resources
+COPY wwwroot ./wwwroot
+COPY Resources ./Resources
 
+# Set ownership
+RUN chown -R appuser:appgroup /app
+
+# Switch to non-root user
 USER appuser
 
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:80/health/live || exit 1
+
+# Entry point
 ENTRYPOINT ["dotnet", "GrcMvc.dll"]
