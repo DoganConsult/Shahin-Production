@@ -76,3 +76,8 @@ grc-deploy-20260118-022325.zip
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# .NET Build outputs
+**/bin/
+**/obj/
+**/publish/
