@@ -15,6 +15,9 @@
             <a asp-action="Create" class="btn btn-primary">
                 <i class="bi bi-plus-circle"></i> @L["NewEvidence"]
             </a>
+            <button type="button" class="btn btn-success" data-bs-toggle="collapse" data-bs-target="#aiUploaderSection">
+                <i class="bi bi-cloud-upload"></i> @L["QuickUpload"]
+            </button>
             <a asp-action="Expiring" class="btn btn-warning">
                 <i class="bi bi-clock-history"></i> @L["ExpiringSoon"]
             </a>
@@ -39,6 +42,19 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
+
+    <!-- AI-Powered Evidence Uploader (Collapsible) -->
+    <div class="collapse mb-4" id="aiUploaderSection">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-robot me-2"></i>@L["AIEvidenceUploader"]</h5>
+                <span class="badge bg-light text-success">@L["AIAutoTagging"]</span>
+            </div>
+            <div class="card-body">
+                @await Component.InvokeAsync("EvidenceUploader")
+            </div>
+        </div>
+    </div>
 
     <div class="card">
         <div class="card-body">

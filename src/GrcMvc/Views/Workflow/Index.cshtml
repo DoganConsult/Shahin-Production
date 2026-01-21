@@ -13,6 +13,9 @@
             <a asp-action="Create" class="btn btn-primary">
                 <i class="bi bi-plus-circle"></i> New Workflow
             </a>
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#workflowDesignerModal">
+                <i class="bi bi-bezier2"></i> Visual Designer
+            </button>
             <a asp-action="Overdue" class="btn btn-warning">
                 <i class="bi bi-exclamation-circle"></i> Overdue
             </a>
@@ -142,6 +145,23 @@
         };
     }
 }
+
+<!-- Workflow Designer Modal -->
+<div class="modal fade" id="workflowDesignerModal" tabindex="-1" aria-labelledby="workflowDesignerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="workflowDesignerModalLabel">
+                    <i class="bi bi-bezier2 me-2"></i>Visual Workflow Designer
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                @await Component.InvokeAsync("WorkflowDesigner")
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>

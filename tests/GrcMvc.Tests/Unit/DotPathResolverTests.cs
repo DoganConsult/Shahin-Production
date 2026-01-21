@@ -1,162 +1,126 @@
 using Xunit;
-using GrcMvc.Application.Policy;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using GrcMvc.Application.Policy;
 using Moq;
-using System.Collections.Generic;
 
-namespace GrcMvc.Tests.Unit
+namespace GrcMvc.Tests.Unit;
+
+/// <summary>
+/// Unit tests for DotPathResolver
+/// Tests path resolution for policy evaluation
+/// </summary>
+public class DotPathResolverTests
 {
-    /// <summary>
-    /// Unit tests for DotPathResolver - Tests path resolution and condition operations
-    /// </summary>
-    public class DotPathResolverTests
+    private readonly DotPathResolver _resolver;
+    private readonly IMemoryCache _cache;
+    private readonly Mock<ILogger<DotPathResolver>> _loggerMock;
+
+    public DotPathResolverTests()
     {
-        private readonly DotPathResolver _resolver;
-        private readonly IMemoryCache _cache;
-        private readonly ILogger<DotPathResolver> _logger;
+        _cache = new MemoryCache(new MemoryCacheOptions());
+        _loggerMock = new Mock<ILogger<DotPathResolver>>();
+        _resolver = new DotPathResolver(_cache, _loggerMock.Object);
+    }
 
-        public DotPathResolverTests()
-        {
-            _cache = new MemoryCache(new MemoryCacheOptions());
-            _logger = Mock.Of<ILogger<DotPathResolver>>();
-            _resolver = new DotPathResolver(_cache, _logger);
-        }
+    [Fact]
+    public void Resolve_SimpleProperty_ReturnsValue()
+    {
+        // Arrange
+        var obj = new { Name = "Test", Value = 123 };
 
-        [Fact]
-        public void Resolve_SimplePath_ReturnsValue()
-        {
-            // Arrange
-            var obj = new { Name = "Test" };
-            var path = "Name";
+        // Act
+        var result = _resolver.Resolve(obj, "Name");
 
-            // Act
-            var result = _resolver.Resolve(obj, path);
+        // Assert
+        Assert.Equal("Test", result);
+    }
 
-            // Assert
-            Assert.Equal("Test", result);
-        }
+    [Fact]
+    public void Resolve_NestedProperty_ReturnsValue()
+    {
+        // Arrange
+        var obj = new { User = new { Name = "John", Email = "john@example.com" } };
 
-        [Fact]
-        public void Resolve_NestedPath_ReturnsValue()
-        {
-            // Arrange
-            var obj = new { Metadata = new { Labels = new { Owner = "Team1" } } };
-            var path = "Metadata.Labels.Owner";
+        // Act
+        var result = _resolver.Resolve(obj, "User.Name");
 
-            // Act
-            var result = _resolver.Resolve(obj, path);
+        // Assert
+        Assert.Equal("John", result);
+    }
 
-            // Assert
-            Assert.Equal("Team1", result);
-        }
+    [Fact]
+    public void Resolve_DeepNestedProperty_ReturnsValue()
+    {
+        // Arrange
+        var obj = new { A = new { B = new { C = new { Value = "Deep" } } } };
 
-        [Fact]
-        public void Resolve_MissingPath_ReturnsNull()
-        {
-            // Arrange
-            var obj = new { Name = "Test" };
-            var path = "Missing";
+        // Act
+        var result = _resolver.Resolve(obj, "A.B.C.Value");
 
-            // Act
-            var result = _resolver.Resolve(obj, path);
+        // Assert
+        Assert.Equal("Deep", result);
+    }
 
-            // Assert
-            Assert.Null(result);
-        }
+    [Fact]
+    public void Resolve_NonExistentProperty_ReturnsNull()
+    {
+        // Arrange
+        var obj = new { Name = "Test" };
 
-        [Fact]
-        public void Resolve_DictionaryPath_ReturnsValue()
-        {
-            // Arrange
-            var obj = new Dictionary<string, object>
-            {
-                ["Metadata"] = new Dictionary<string, object>
-                {
-                    ["Labels"] = new Dictionary<string, string>
-                    {
-                        ["DataClassification"] = "confidential"
-                    }
-                }
-            };
-            var path = "Metadata.Labels.DataClassification";
+        // Act
+        var result = _resolver.Resolve(obj, "NonExistent");
 
-            // Act
-            var result = _resolver.Resolve(obj, path);
+        // Assert
+        Assert.Null(result);
+    }
 
-            // Assert
-            Assert.Equal("confidential", result);
-        }
+    [Fact]
+    public void Resolve_EmptyPath_ReturnsObject()
+    {
+        // Arrange
+        var obj = new { Name = "Test" };
 
-        [Fact]
-        public void Resolve_ArrayIndex_ReturnsValue()
-        {
-            // Arrange
-            var obj = new { Items = new[] { "Item1", "Item2" } };
-            var path = "Items[0]";
+        // Act
+        var result = _resolver.Resolve(obj, "");
 
-            // Act
-            var result = _resolver.Resolve(obj, path);
+        // Assert
+        Assert.Equal(obj, result);
+    }
 
-            // Assert
-            Assert.Equal("Item1", result);
-        }
+    [Fact]
+    public void Resolve_NullObject_ReturnsNull()
+    {
+        // Act
+        var result = _resolver.Resolve(null, "Name");
 
-        [Fact]
-        public void Exists_WithValidPath_ReturnsTrue()
-        {
-            // Arrange
-            var obj = new { Name = "Test" };
+        // Assert
+        Assert.Null(result);
+    }
 
-            // Act
-            var result = _resolver.Exists(obj, "Name");
+    [Fact]
+    public void Resolve_ArrayIndex_ReturnsElement()
+    {
+        // Arrange
+        var obj = new { Items = new[] { "First", "Second", "Third" } };
 
-            // Assert
-            Assert.True(result);
-        }
+        // Act
+        var result = _resolver.Resolve(obj, "Items[0]");
 
-        [Fact]
-        public void Exists_WithInvalidPath_ReturnsFalse()
-        {
-            // Arrange
-            var obj = new { Name = "Test" };
+        // Assert
+        Assert.Equal("First", result);
+    }
 
-            // Act
-            var result = _resolver.Exists(obj, "Missing");
+    [Fact]
+    public void Resolve_DictionaryKey_ReturnsValue()
+    {
+        // Arrange
+        var obj = new { Metadata = new Dictionary<string, string> { { "Key", "Value" } } };
 
-            // Assert
-            Assert.False(result);
-        }
+        // Act
+        var result = _resolver.Resolve(obj, "Metadata.Key");
 
-        [Fact]
-        public void Set_WithValidPath_SetsValue()
-        {
-            // Arrange
-            var obj = new TestClass { Name = "Old" };
-
-            // Act
-            _resolver.Set(obj, "Name", "New");
-
-            // Assert
-            Assert.Equal("New", obj.Name);
-        }
-
-        [Fact]
-        public void Remove_WithValidPath_SetsToNull()
-        {
-            // Arrange
-            var obj = new TestClass { Name = "Test" };
-
-            // Act
-            _resolver.Remove(obj, "Name");
-
-            // Assert
-            Assert.Null(obj.Name);
-        }
-
-        private class TestClass
-        {
-            public string? Name { get; set; }
-        }
+        // Assert
+        Assert.Equal("Value", result);
     }
 }

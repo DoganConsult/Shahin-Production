@@ -18,9 +18,14 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">User Management</h1>
-        <a href="@Url.Action("InviteUser", new { tenantSlug })" class="btn btn-primary">
-            <i class="bi bi-person-plus"></i> Invite User
-        </a>
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#orgChartModal">
+                <i class="bi bi-diagram-3"></i> Org Chart
+            </button>
+            <a href="@Url.Action("InviteUser", new { tenantSlug })" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> Invite User
+            </a>
+        </div>
     </div>
 
     <!-- Filters -->
@@ -133,6 +138,29 @@
         </div>
         <div class="card-footer text-muted">
             Showing @Model.Count users
+        </div>
+    </div>
+</div>
+
+<!-- Org Chart Modal -->
+<div class="modal fade" id="orgChartModal" tabindex="-1" aria-labelledby="orgChartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="orgChartModalLabel">
+                    <i class="bi bi-diagram-3 me-2"></i>Organization Chart
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0" style="min-height: 500px;">
+                @await Component.InvokeAsync("OrgChart")
+            </div>
+            <div class="modal-footer">
+                <small class="text-muted me-auto">
+                    <i class="bi bi-info-circle"></i> Drag nodes to reorganize. Click to view details.
+                </small>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>

@@ -33,7 +33,7 @@ namespace GrcMvc.ViewComponents
             ViewBag.ShowDownload = showDownload;
             ViewBag.DownloadUrl = downloadUrl;
             ViewBag.Localizer = _localizer;
-            
+
             return View();
         }
     }

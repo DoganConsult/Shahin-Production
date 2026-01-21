@@ -42,10 +42,23 @@
     <PackageReference Include="MimeKit" Version="4.14.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Otp.NET" Version="1.3.0" />
+    <PackageReference Include="Stripe.net" Version="45.0.0" />
+    <PackageReference Include="ITfoxtec.Identity.Saml2" Version="4.10.1" />
+    <PackageReference Include="ITfoxtec.Identity.Saml2.MvcCore" Version="4.10.1" />
+    <PackageReference Include="Novell.Directory.Ldap" Version="2.2.1" />
+    <PackageReference Include="Twilio" Version="6.3.0" />
+    <!-- Cloud Storage Providers -->
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.400.50" />
+    <PackageReference Include="Google.Cloud.Storage.V1" Version="4.7.0" />
 
     <!-- Authentication & Authorization -->
     <!-- NOTE: JWT Bearer removed - using OpenIddict for authentication -->
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="8.0.4" />
+    <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.4" />
 
     <!-- Database -->
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.8" />

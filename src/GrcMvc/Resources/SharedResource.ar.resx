@@ -3492,4 +3492,130 @@
   <data name="Api_Error_TaskNotFoundOrNotCompleted" xml:space="preserve">
     <value>المهمة غير موجودة أو لا يمكن إكمالها</value>
   </data>
+
+  <!-- Widget Localization Keys -->
+  <data name="Dashboard_RealTimeKPIs" xml:space="preserve">
+    <value>مؤشرات الأداء الرئيسية الفورية</value>
+  </data>
+  <data name="Dashboard_PredictiveInsights" xml:space="preserve">
+    <value>رؤى تنبؤية</value>
+  </data>
+  <data name="PredictiveAnalytics" xml:space="preserve">
+    <value>التحليلات التنبؤية</value>
+  </data>
+  <data name="AIEvidenceUploader" xml:space="preserve">
+    <value>رافع الأدلة بالذكاء الاصطناعي</value>
+  </data>
+  <data name="AIAutoTagging" xml:space="preserve">
+    <value>الوسم التلقائي بالذكاء الاصطناعي</value>
+  </data>
+  <data name="AssessmentFormBuilder" xml:space="preserve">
+    <value>منشئ نماذج التقييم</value>
+  </data>
+  <data name="FormBuilder" xml:space="preserve">
+    <value>منشئ النماذج</value>
+  </data>
+  <data name="Audit_ScheduleTimeline" xml:space="preserve">
+    <value>الجدول الزمني للمراجعة</value>
+  </data>
+  <data name="Day" xml:space="preserve">
+    <value>يوم</value>
+  </data>
+  <data name="Week" xml:space="preserve">
+    <value>أسبوع</value>
+  </data>
+  <data name="Month" xml:space="preserve">
+    <value>شهر</value>
+  </data>
+  <data name="GlobalSearch" xml:space="preserve">
+    <value>البحث الشامل</value>
+  </data>
+  <data name="SearchResults" xml:space="preserve">
+    <value>نتائج البحث</value>
+  </data>
+  <data name="AI_Copilot" xml:space="preserve">
+    <value>مساعد الذكاء الاصطناعي</value>
+  </data>
+  <data name="WorkflowDesigner" xml:space="preserve">
+    <value>مصمم سير العمل</value>
+  </data>
+  <data name="ApprovalFlow" xml:space="preserve">
+    <value>مسار الموافقة</value>
+  </data>
+  <data name="RiskHeatmap" xml:space="preserve">
+    <value>خريطة حرارة المخاطر</value>
+  </data>
+  <data name="PermissionMatrix" xml:space="preserve">
+    <value>مصفوفة الصلاحيات</value>
+  </data>
+  <data name="OrgChart" xml:space="preserve">
+    <value>الهيكل التنظيمي</value>
+  </data>
+  <data name="AIReportBuilder" xml:space="preserve">
+    <value>منشئ التقارير بالذكاء الاصطناعي</value>
+  </data>
+  <data name="KpiDashboard" xml:space="preserve">
+    <value>لوحة مؤشرات الأداء</value>
+  </data>
+  <data name="GanttScheduler" xml:space="preserve">
+    <value>جدولة جانت</value>
+  </data>
+  <data name="Analytics" xml:space="preserve">
+    <value>التحليلات</value>
+  </data>
+  <data name="Compliance_Score" xml:space="preserve">
+    <value>نتيجة الامتثال</value>
+  </data>
+  <data name="Open_Risks" xml:space="preserve">
+    <value>المخاطر المفتوحة</value>
+  </data>
+  <data name="Critical_Risks" xml:space="preserve">
+    <value>المخاطر الحرجة</value>
+  </data>
+  <data name="Pending_Assessments" xml:space="preserve">
+    <value>التقييمات المعلقة</value>
+  </data>
+  <data name="Overdue_Actions" xml:space="preserve">
+    <value>الإجراءات المتأخرة</value>
+  </data>
+  <data name="Active_Audits" xml:space="preserve">
+    <value>المراجعات النشطة</value>
+  </data>
+  <data name="Open_Findings" xml:space="preserve">
+    <value>النتائج المفتوحة</value>
+  </data>
+  <data name="Evidence_Collected" xml:space="preserve">
+    <value>الأدلة المجمعة</value>
+  </data>
+  <data name="Expiring_Soon" xml:space="preserve">
+    <value>تنتهي قريباً</value>
+  </data>
+  <data name="Pending_Approvals" xml:space="preserve">
+    <value>الموافقات المعلقة</value>
+  </data>
+  <data name="AI_Powered" xml:space="preserve">
+    <value>مدعوم بالذكاء الاصطناعي</value>
+  </data>
+  <data name="Generate_Report" xml:space="preserve">
+    <value>إنشاء تقرير</value>
+  </data>
+  <data name="Select_Report_Type" xml:space="preserve">
+    <value>اختر نوع التقرير</value>
+  </data>
+  <data name="Describe_Requirements" xml:space="preserve">
+    <value>صف متطلبات التقرير</value>
+  </data>
+  <data name="Generating" xml:space="preserve">
+    <value>جاري الإنشاء...</value>
+  </data>
+  <data name="SearchPlaceholder" xml:space="preserve">
+    <value>ابحث عن المخاطر، الضوابط، التقييمات...</value>
+  </data>
+  <data name="NoResultsFound" xml:space="preserve">
+    <value>لم يتم العثور على نتائج</value>
+  </data>
+  <data name="TypeToSearch" xml:space="preserve">
+    <value>اكتب للبحث...</value>
+  </data>
+
 </root>

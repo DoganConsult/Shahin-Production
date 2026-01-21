@@ -77,16 +77,16 @@ public record PaymentResultOutputDto
 /// </summary>
 public record PaymentWebhookEventDto
 {
-    public string EventType { get; init; } = string.Empty;
-    public string EventId { get; init; } = string.Empty;
-    public string? PaymentIntentId { get; init; }
-    public string? SubscriptionId { get; init; }
-    public string? CustomerId { get; init; }
-    public Guid? TenantId { get; init; }
-    public decimal? Amount { get; init; }
-    public string? Status { get; init; }
-    public DateTime EventTime { get; init; }
-    public Dictionary<string, object>? Data { get; init; }
+    public string EventType { get; set; } = string.Empty;
+    public string EventId { get; set; } = string.Empty;
+    public string? PaymentIntentId { get; set; }
+    public string? SubscriptionId { get; set; }
+    public string? CustomerId { get; set; }
+    public Guid? TenantId { get; set; }
+    public decimal? Amount { get; set; }
+    public string? Status { get; set; }
+    public DateTime EventTime { get; set; }
+    public Dictionary<string, object>? Data { get; set; }
 }
 
 /// <summary>

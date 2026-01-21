@@ -1,0 +1,86 @@
+@model GrcMvc.ViewComponents.OrgChartModel
+
+<div class="org-chart-container">
+    @if (Model.ShowSodConflicts && Model.SodConflicts.Any())
+    {
+        <div class="alert alert-warning mb-3">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>@Model.SodConflicts.Count SoD Conflict(s) Detected</strong>
+            <button class="btn btn-sm btn-outline-warning ms-2" data-bs-toggle="collapse" data-bs-target="#sod-conflicts">
+                View Details
+            </button>
+        </div>
+        <div class="collapse mb-3" id="sod-conflicts">
+            <div class="card card-body">
+                @foreach (var conflict in Model.SodConflicts)
+                {
+                    <div class="d-flex align-items-center justify-content-between mb-2 p-2 bg-red-50 rounded">
+                        <div>
+                            <strong>@conflict.UserName</strong>
+                            <div class="small text-muted">Conflicting: @string.Join(", ", conflict.ConflictingRoles)</div>
+                        </div>
+                        <span class="badge bg-@(conflict.Severity == "High" ? "danger" : conflict.Severity == "Medium" ? "warning" : "secondary")">
+                            @conflict.Severity
+                        </span>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <div id="org-chart-diagram" style="width: 100%; height: 600px; background: #f8fafc;"></div>
+</div>
+
+<script src="https://unpkg.com/gojs@3.0.0/release/go.js"></script>
+
+<script>
+function initOrgChart() {
+    const $ = go.GraphObject.make;
+
+    var diagram = $(go.Diagram, 'org-chart-diagram', {
+        'undoManager.isEnabled': true,
+        layout: $(go.TreeLayout, {
+            treeStyle: go.TreeLayout.StyleLastParents,
+            arrangement: go.TreeLayout.ArrangementHorizontal,
+            angle: 90,
+            layerSpacing: 40,
+            alternateAngle: 90,
+            alternateLayerSpacing: 40
+        })
+    });
+
+    diagram.nodeTemplate = $(go.Node, 'Auto',
+        $(go.Shape, 'RoundedRectangle', {
+            fill: 'white',
+            stroke: '#10b981',
+            strokeWidth: 2
+        }, new go.Binding('stroke', 'hasSodConflict', (c) => c ? '#ef4444' : '#10b981')),
+        $(go.Panel, 'Vertical', { margin: 8 },
+            $(go.TextBlock, { font: 'bold 12px sans-serif' }, new go.Binding('text', 'name')),
+            $(go.TextBlock, { font: '10px sans-serif', stroke: '#64748b' }, new go.Binding('text', 'title')),
+            $(go.TextBlock, { font: '9px sans-serif', stroke: '#94a3b8' }, new go.Binding('text', 'department'))
+        )
+    );
+
+    diagram.linkTemplate = $(go.Link,
+        { routing: go.Link.Orthogonal, corner: 5 },
+        $(go.Shape, { stroke: '#94a3b8', strokeWidth: 1 })
+    );
+
+    // Load data
+    var nodeData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Nodes.Select(n => new { key = n.Id, name = n.Name, title = n.Title, department = n.Department, parent = n.ParentId, hasSodConflict = n.HasSodConflict })));
+
+    diagram.model = new go.TreeModel(nodeData.length > 0 ? nodeData : [
+        { key: 1, name: 'CEO', title: 'Chief Executive Officer', department: 'Executive', hasSodConflict: false },
+        { key: 2, parent: 1, name: 'CTO', title: 'Chief Technology Officer', department: 'Technology', hasSodConflict: false },
+        { key: 3, parent: 1, name: 'CFO', title: 'Chief Financial Officer', department: 'Finance', hasSodConflict: false },
+        { key: 4, parent: 1, name: 'CISO', title: 'Chief Information Security Officer', department: 'Security', hasSodConflict: true }
+    ]);
+}
+
+document.addEventListener('DOMContentLoaded', initOrgChart);
+</script>
+
+<style>
+.bg-red-50 { background-color: #fef2f2; }
+</style>

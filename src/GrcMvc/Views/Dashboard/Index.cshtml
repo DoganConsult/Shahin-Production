@@ -95,7 +95,7 @@
                 </div>
             </div>
 
-            <!-- Risk Heat Map -->
+            <!-- Dynamic Risk Heat Map -->
             <div class="dash-panel">
                 <div class="panel-header">
                     <h5 class="panel-title">
@@ -104,58 +104,7 @@
                     </h5>
                 </div>
                 <div class="panel-body">
-                    <div class="risk-heatmap">
-                        <div class="heatmap-label"></div>
-                        <div class="heatmap-label">@L["RiskLevel_Rare"]</div>
-                        <div class="heatmap-label">@L["RiskLevel_Unlikely"]</div>
-                        <div class="heatmap-label">@L["RiskLevel_Possible"]</div>
-                        <div class="heatmap-label">@L["RiskLevel_Likely"]</div>
-                        <div class="heatmap-label">@L["RiskLevel_AlmostCertain"]</div>
-                        <div class="heatmap-label" style="font-weight:600;">@L["RiskLevel_Catastrophic"]</div>
-                        <div class="heatmap-cell medium">3</div>
-                        <div class="heatmap-cell high">0</div>
-                        <div class="heatmap-cell critical">1</div>
-                        <div class="heatmap-cell critical">0</div>
-                        <div class="heatmap-cell critical">0</div>
-                        <div class="heatmap-label">@L["ImpactLevel_Major"]</div>
-                        <div class="heatmap-cell low">2</div>
-                        <div class="heatmap-cell medium">4</div>
-                        <div class="heatmap-cell high">2</div>
-                        <div class="heatmap-cell critical">1</div>
-                        <div class="heatmap-cell critical">0</div>
-                        <div class="heatmap-label">@L["ImpactLevel_Moderate"]</div>
-                        <div class="heatmap-cell low">5</div>
-                        <div class="heatmap-cell low">8</div>
-                        <div class="heatmap-cell medium">6</div>
-                        <div class="heatmap-cell high">3</div>
-                        <div class="heatmap-cell high">1</div>
-                        <div class="heatmap-label">@L["ImpactLevel_Minor"]</div>
-                        <div class="heatmap-cell low">12</div>
-                        <div class="heatmap-cell low">9</div>
-                        <div class="heatmap-cell low">4</div>
-                        <div class="heatmap-cell medium">2</div>
-                        <div class="heatmap-cell medium">1</div>
-                        <div class="heatmap-label">@L["ImpactLevel_Insignificant"]</div>
-                        <div class="heatmap-cell low">15</div>
-                        <div class="heatmap-cell low">10</div>
-                        <div class="heatmap-cell low">7</div>
-                        <div class="heatmap-cell low">3</div>
-                        <div class="heatmap-cell medium">2</div>
-                    </div>
-                    <div style="display:flex;justify-content:center;gap:24px;padding-top:16px;border-top:1px solid var(--dash-border);margin-top:16px;">
-                        <span style="display:flex;align-items:center;gap:8px;font-size:0.75rem;color:var(--dash-text-secondary);">
-                            <span style="width:14px;height:14px;border-radius:3px;background:rgba(16,185,129,0.6);"></span> @L["RiskLevel_Low"]
-                        </span>
-                        <span style="display:flex;align-items:center;gap:8px;font-size:0.75rem;color:var(--dash-text-secondary);">
-                            <span style="width:14px;height:14px;border-radius:3px;background:rgba(245,158,11,0.6);"></span> @L["RiskLevel_Medium"]
-                        </span>
-                        <span style="display:flex;align-items:center;gap:8px;font-size:0.75rem;color:var(--dash-text-secondary);">
-                            <span style="width:14px;height:14px;border-radius:3px;background:rgba(239,68,68,0.6);"></span> @L["RiskLevel_High"]
-                        </span>
-                        <span style="display:flex;align-items:center;gap:8px;font-size:0.75rem;color:var(--dash-text-secondary);">
-                            <span style="width:14px;height:14px;border-radius:3px;background:rgba(220,38,38,0.9);"></span> @L["RiskLevel_Critical"]
-                        </span>
-                    </div>
+                    @await Component.InvokeAsync("RiskHeatmap")
                 </div>
             </div>
         </div>
@@ -362,6 +311,32 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <!-- Real-Time KPI Dashboard -->
+    <div class="dash-panel mt-4">
+        <div class="panel-header">
+            <h5 class="panel-title">
+                <span class="panel-title-icon green"><i class="bi bi-graph-up-arrow"></i></span>
+                @L["Dashboard_RealTimeKPIs"]
+            </h5>
+        </div>
+        <div class="panel-body">
+            @await Component.InvokeAsync("KpiDashboard")
+        </div>
+    </div>
+
+    <!-- Predictive Analytics -->
+    <div class="dash-panel mt-4">
+        <div class="panel-header">
+            <h5 class="panel-title">
+                <span class="panel-title-icon purple"><i class="bi bi-lightbulb"></i></span>
+                @L["Dashboard_PredictiveInsights"]
+            </h5>
+        </div>
+        <div class="panel-body">
+            @await Component.InvokeAsync("PredictiveAnalytics")
         </div>
     </div>
 </div>

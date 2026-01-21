@@ -4049,4 +4049,129 @@
     <value>More</value>
   </data>
 
+  <!-- Widget Localization Keys -->
+  <data name="Dashboard_RealTimeKPIs" xml:space="preserve">
+    <value>Real-Time KPIs</value>
+  </data>
+  <data name="Dashboard_PredictiveInsights" xml:space="preserve">
+    <value>Predictive Insights</value>
+  </data>
+  <data name="PredictiveAnalytics" xml:space="preserve">
+    <value>Predictive Analytics</value>
+  </data>
+  <data name="AIEvidenceUploader" xml:space="preserve">
+    <value>AI Evidence Uploader</value>
+  </data>
+  <data name="AIAutoTagging" xml:space="preserve">
+    <value>AI Auto-Tagging</value>
+  </data>
+  <data name="AssessmentFormBuilder" xml:space="preserve">
+    <value>Assessment Form Builder</value>
+  </data>
+  <data name="FormBuilder" xml:space="preserve">
+    <value>Form Builder</value>
+  </data>
+  <data name="Audit_ScheduleTimeline" xml:space="preserve">
+    <value>Audit Schedule Timeline</value>
+  </data>
+  <data name="Day" xml:space="preserve">
+    <value>Day</value>
+  </data>
+  <data name="Week" xml:space="preserve">
+    <value>Week</value>
+  </data>
+  <data name="Month" xml:space="preserve">
+    <value>Month</value>
+  </data>
+  <data name="GlobalSearch" xml:space="preserve">
+    <value>Global Search</value>
+  </data>
+  <data name="SearchResults" xml:space="preserve">
+    <value>Search Results</value>
+  </data>
+  <data name="AI_Copilot" xml:space="preserve">
+    <value>AI Copilot</value>
+  </data>
+  <data name="WorkflowDesigner" xml:space="preserve">
+    <value>Workflow Designer</value>
+  </data>
+  <data name="ApprovalFlow" xml:space="preserve">
+    <value>Approval Flow</value>
+  </data>
+  <data name="RiskHeatmap" xml:space="preserve">
+    <value>Risk Heatmap</value>
+  </data>
+  <data name="PermissionMatrix" xml:space="preserve">
+    <value>Permission Matrix</value>
+  </data>
+  <data name="OrgChart" xml:space="preserve">
+    <value>Organization Chart</value>
+  </data>
+  <data name="AIReportBuilder" xml:space="preserve">
+    <value>AI Report Builder</value>
+  </data>
+  <data name="KpiDashboard" xml:space="preserve">
+    <value>KPI Dashboard</value>
+  </data>
+  <data name="GanttScheduler" xml:space="preserve">
+    <value>Gantt Scheduler</value>
+  </data>
+  <data name="Analytics" xml:space="preserve">
+    <value>Analytics</value>
+  </data>
+  <data name="Compliance_Score" xml:space="preserve">
+    <value>Compliance Score</value>
+  </data>
+  <data name="Open_Risks" xml:space="preserve">
+    <value>Open Risks</value>
+  </data>
+  <data name="Critical_Risks" xml:space="preserve">
+    <value>Critical Risks</value>
+  </data>
+  <data name="Pending_Assessments" xml:space="preserve">
+    <value>Pending Assessments</value>
+  </data>
+  <data name="Overdue_Actions" xml:space="preserve">
+    <value>Overdue Actions</value>
+  </data>
+  <data name="Active_Audits" xml:space="preserve">
+    <value>Active Audits</value>
+  </data>
+  <data name="Open_Findings" xml:space="preserve">
+    <value>Open Findings</value>
+  </data>
+  <data name="Evidence_Collected" xml:space="preserve">
+    <value>Evidence Collected</value>
+  </data>
+  <data name="Expiring_Soon" xml:space="preserve">
+    <value>Expiring Soon</value>
+  </data>
+  <data name="Pending_Approvals" xml:space="preserve">
+    <value>Pending Approvals</value>
+  </data>
+  <data name="AI_Powered" xml:space="preserve">
+    <value>AI Powered</value>
+  </data>
+  <data name="Generate_Report" xml:space="preserve">
+    <value>Generate Report</value>
+  </data>
+  <data name="Select_Report_Type" xml:space="preserve">
+    <value>Select Report Type</value>
+  </data>
+  <data name="Describe_Requirements" xml:space="preserve">
+    <value>Describe your report requirements</value>
+  </data>
+  <data name="Generating" xml:space="preserve">
+    <value>Generating...</value>
+  </data>
+  <data name="SearchPlaceholder" xml:space="preserve">
+    <value>Search risks, controls, assessments...</value>
+  </data>
+  <data name="NoResultsFound" xml:space="preserve">
+    <value>No results found</value>
+  </data>
+  <data name="TypeToSearch" xml:space="preserve">
+    <value>Type to search...</value>
+  </data>
+
 </root>

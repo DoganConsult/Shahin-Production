@@ -634,27 +634,61 @@ namespace GrcMvc.Services.Implementations
 
             await _unitOfWork.SaveChangesAsync();
 
-            // Trigger scope derivation
+            // Trigger scope derivation - critical operation that must succeed
+            bool scopeDerivationSucceeded = true;
+            string? scopeDerivationError = null;
             try
             {
                 await _rulesEngine.DeriveAndPersistScopeAsync(tenantId, userId);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Scope derivation failed for tenant {TenantId}, but wizard completed", tenantId);
+                scopeDerivationSucceeded = false;
+                scopeDerivationError = ex.Message;
+                _logger.LogError(ex, "Critical: Scope derivation failed for tenant {TenantId}. Wizard completed but GRC scope not derived.", tenantId);
+
+                // Record the error in the wizard for troubleshooting
+                wizard.ValidationErrorsJson = JsonSerializer.Serialize(new
+                {
+                    ScopeDerivationFailed = true,
+                    Error = "Failed to derive compliance scope. Please contact support.",
+                    Details = ex.Message,
+                    Timestamp = DateTime.UtcNow
+                }, _jsonOptions);
+                await _unitOfWork.SaveChangesAsync();
             }
 
             var scope = await GetDerivedScopeAsync(tenantId);
 
             await _auditService.LogEventAsync(
                 tenantId: tenantId,
-                eventType: "OnboardingWizardCompleted",
+                eventType: scopeDerivationSucceeded ? "OnboardingWizardCompleted" : "OnboardingWizardCompletedWithErrors",
                 affectedEntityType: "OnboardingWizard",
                 affectedEntityId: wizard.Id.ToString(),
                 action: "Complete",
                 actor: userId,
-                payloadJson: JsonSerializer.Serialize(new { wizard.Id, CompletedSections = validation.CompletedSections })
+                payloadJson: JsonSerializer.Serialize(new
+                {
+                    wizard.Id,
+                    CompletedSections = validation.CompletedSections,
+                    ScopeDerivationSucceeded = scopeDerivationSucceeded,
+                    ScopeDerivationError = scopeDerivationError
+                })
             );
+
+            // Return appropriate result based on scope derivation success
+            if (!scopeDerivationSucceeded)
+            {
+                return new WizardCompletionResult
+                {
+                    Success = false, // Mark as failed - scope derivation is critical
+                    TenantId = tenantId,
+                    Message = "Wizard data saved but scope derivation failed. Please contact support.",
+                    DerivedScope = scope,
+                    Errors = new List<string> { $"Scope derivation error: {scopeDerivationError}" },
+                    CompletedAt = wizard.CompletedAt ?? DateTime.UtcNow
+                };
+            }
 
             return new WizardCompletionResult
             {
@@ -733,10 +767,16 @@ namespace GrcMvc.Services.Implementations
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(wizard.CompletedSectionsJson))
+                    return new List<string>();
+
                 return JsonSerializer.Deserialize<List<string>>(wizard.CompletedSectionsJson, _jsonOptions) ?? new List<string>();
             }
-            catch
+            catch (JsonException ex)
             {
+                _logger.LogWarning(ex,
+                    "Failed to deserialize CompletedSectionsJson for wizard {WizardId}, tenant {TenantId}. Returning empty list.",
+                    wizard.Id, wizard.TenantId);
                 return new List<string>();
             }
         }
@@ -901,15 +941,19 @@ namespace GrcMvc.Services.Implementations
             };
         }
 
-        private T SafeDeserialize<T>(string json) where T : new()
+        private T SafeDeserialize<T>(string json, string? fieldName = null) where T : new()
         {
             if (string.IsNullOrEmpty(json)) return new T();
             try
             {
                 return JsonSerializer.Deserialize<T>(json, _jsonOptions) ?? new T();
             }
-            catch
+            catch (JsonException ex)
             {
+                _logger.LogWarning(ex,
+                    "Failed to deserialize JSON{FieldInfo}. Content length: {Length}. Returning default value.",
+                    string.IsNullOrEmpty(fieldName) ? "" : $" for field '{fieldName}'",
+                    json?.Length ?? 0);
                 return new T();
             }
         }

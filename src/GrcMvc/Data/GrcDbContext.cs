@@ -408,6 +408,14 @@ namespace GrcMvc.Data
         public DbSet<DeadLetterEntry> DeadLetterEntries { get; set; } = null!;
         public DbSet<EventSchemaRegistry> EventSchemaRegistries { get; set; } = null!;
 
+        // Regulatory Integration (KSA Government Portals: NCA-ISR, SAMA, PDPL, CITC, MOC)
+        public DbSet<Models.Entities.RegulatoryPortalConnection> RegulatoryPortalConnections { get; set; } = null!;
+        public DbSet<Models.Entities.RegulatorySubmission> RegulatorySubmissions { get; set; } = null!;
+        public DbSet<Models.Entities.RegulatorySubmissionDocument> RegulatorySubmissionDocuments { get; set; } = null!;
+        public DbSet<Models.Entities.RegulatorySubmissionEvidence> RegulatorySubmissionEvidences { get; set; } = null!;
+        public DbSet<Models.Entities.RegulatoryDeadline> RegulatoryDeadlines { get; set; } = null!;
+        public DbSet<Models.Entities.RegulatoryAuditLog> RegulatoryAuditLogs { get; set; } = null!;
+
         // ERP Integration & Continuous Controls Monitoring (CCM)
         public DbSet<ERPSystemConfig> ERPSystemConfigs { get; set; } = null!;
         public DbSet<ERPExtractConfig> ERPExtractConfigs { get; set; } = null!;
@@ -1431,6 +1439,105 @@ namespace GrcMvc.Data
                     .WithMany()
                     .HasForeignKey(e => e.WorkflowInstanceId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure Regulatory Portal Connection
+            modelBuilder.Entity<Models.Entities.RegulatoryPortalConnection>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.PortalType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.PortalName).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.PortalNameAr).HasMaxLength(200);
+                entity.Property(e => e.BaseUrl).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.AuthType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.OrganizationId).HasMaxLength(200);
+                entity.HasIndex(e => new { e.TenantId, e.PortalType }).IsUnique();
+                entity.HasQueryFilter(e => !e.IsDeleted);
+            });
+
+            // Configure Regulatory Submission
+            modelBuilder.Entity<Models.Entities.RegulatorySubmission>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.PortalType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.SubmissionType).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.ExternalSubmissionId).HasMaxLength(200);
+                entity.Property(e => e.ConfirmationNumber).HasMaxLength(200);
+                entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.SubmittedById).HasMaxLength(100);
+                entity.Property(e => e.SubmittedByName).HasMaxLength(200);
+                entity.HasIndex(e => new { e.TenantId, e.PortalType, e.Status });
+                entity.HasIndex(e => e.ExternalSubmissionId);
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.Connection)
+                    .WithMany(c => c.Submissions)
+                    .HasForeignKey(e => e.ConnectionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure Regulatory Submission Document
+            modelBuilder.Entity<Models.Entities.RegulatorySubmissionDocument>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.FileName).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.ContentType).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.DocumentType).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.StoragePath).HasMaxLength(1000);
+                entity.Property(e => e.ExternalDocumentId).HasMaxLength(200);
+                entity.HasIndex(e => e.SubmissionId);
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.Submission)
+                    .WithMany(s => s.Documents)
+                    .HasForeignKey(e => e.SubmissionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure Regulatory Submission Evidence Link
+            modelBuilder.Entity<Models.Entities.RegulatorySubmissionEvidence>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => new { e.SubmissionId, e.EvidenceId }).IsUnique();
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.Submission)
+                    .WithMany(s => s.EvidenceLinks)
+                    .HasForeignKey(e => e.SubmissionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure Regulatory Deadline
+            modelBuilder.Entity<Models.Entities.RegulatoryDeadline>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.PortalType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.DeadlineType).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.TitleAr).HasMaxLength(500);
+                entity.Property(e => e.Priority).HasMaxLength(20);
+                entity.Property(e => e.Status).HasMaxLength(50);
+                entity.Property(e => e.AssignedToId).HasMaxLength(100);
+                entity.Property(e => e.AssignedToName).HasMaxLength(200);
+                entity.HasIndex(e => new { e.TenantId, e.PortalType, e.DeadlineDate });
+                entity.HasIndex(e => new { e.TenantId, e.Status });
+                entity.HasQueryFilter(e => !e.IsDeleted);
+            });
+
+            // Configure Regulatory Audit Log
+            modelBuilder.Entity<Models.Entities.RegulatoryAuditLog>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.PortalType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Action).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.ExternalSubmissionId).HasMaxLength(200);
+                entity.Property(e => e.Message).HasMaxLength(500);
+                entity.Property(e => e.PerformedById).IsRequired();
+                entity.Property(e => e.PerformedByName).HasMaxLength(200);
+                entity.Property(e => e.IpAddress).HasMaxLength(50);
+                entity.HasIndex(e => new { e.TenantId, e.PortalType, e.ActionTimestamp });
+                entity.HasIndex(e => e.SubmissionId);
+                entity.HasQueryFilter(e => !e.IsDeleted);
             });
         }
 

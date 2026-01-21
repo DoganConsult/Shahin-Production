@@ -1,0 +1,181 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@{
+    ViewData["Title"] = L["MaturityAssessment"];
+    Layout = "_Layout";
+    var currentScore = ViewBag.CurrentScore as GrcMvc.Services.Interfaces.GrcMaturityScoreDto;
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="CMM">@L["MaturityModel"]</a></li>
+                    <li class="breadcrumb-item active">@L["Assessment"]</li>
+                </ol>
+            </nav>
+            <h2><i class="bi bi-clipboard-check"></i> @L["MaturityAssessment"]</h2>
+            <p class="text-muted">@L["RunComprehensiveMaturityAssessment"]</p>
+        </div>
+        <div class="col text-end">
+            <a asp-action="CMM" class="btn btn-outline-secondary">
+                <i class="bi bi-bar-chart-steps"></i> @L["CMMView"]
+            </a>
+            <a asp-action="Dimensions" class="btn btn-outline-secondary">
+                <i class="bi bi-grid-3x3-gap"></i> @L["Dimensions"]
+            </a>
+        </div>
+    </div>
+
+    @if (currentScore != null)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5><i class="bi bi-info-circle"></i> @L["CurrentMaturityStatus"]</h5>
+                            <p class="mb-0">
+                                @L["YourOrganizationIsCurrentlyAt"] <strong>@L["Level"] @currentScore.OverallLevel (@currentScore.LevelName)</strong>
+                                @L["WithAnOverallScoreOf"] <strong>@currentScore.Score/100</strong>.
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <span class="display-5 text-primary">@currentScore.OverallLevel</span>
+                            <span class="text-muted fs-4">/5</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-play-circle"></i> @L["RunAssessment"]</h5>
+                </div>
+                <div class="card-body">
+                    <p>@L["MaturityAssessmentDescription"]</p>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>@L["Note"]:</strong> @L["AssessmentWillAnalyzeCurrentData"]
+                    </div>
+
+                    <h6 class="mt-4"><i class="bi bi-list-check"></i> @L["WhatWillBeAssessed"]</h6>
+                    <ul>
+                        <li><i class="bi bi-shield-shaded text-primary"></i> <strong>@L["Governance"]</strong> - @L["GovernanceAssessmentItems"]</li>
+                        <li><i class="bi bi-activity text-danger"></i> <strong>@L["RiskManagement"]</strong> - @L["RiskAssessmentItems"]</li>
+                        <li><i class="bi bi-check-circle text-success"></i> <strong>@L["Compliance"]</strong> - @L["ComplianceAssessmentItems"]</li>
+                        <li><i class="bi bi-gear text-warning"></i> <strong>@L["Operations"]</strong> - @L["OperationsAssessmentItems"]</li>
+                        <li><i class="bi bi-cpu text-info"></i> <strong>@L["Technology"]</strong> - @L["TechnologyAssessmentItems"]</li>
+                    </ul>
+
+                    <hr />
+
+                    <form asp-action="RunAssessment" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="CMM" class="btn btn-outline-secondary">
+                                <i class="bi bi-x"></i> @L["Cancel"]
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-play-fill"></i> @L["StartAssessment"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Set Baseline Section -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-flag"></i> @L["SetBaseline"]</h5>
+                </div>
+                <div class="card-body">
+                    <p>@L["SetBaselineDescription"]</p>
+
+                    @if (TempData["BaselineLevel"] != null)
+                    {
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle"></i>
+                            @L["CurrentBaseline"]: @L["Level"] @TempData["BaselineLevel"] (@TempData["BaselineScore"]/100)
+                            <br />
+                            <small class="text-muted">@L["SetOn"]: @TempData["BaselineDate"]</small>
+                        </div>
+                    }
+
+                    <form asp-action="SetBaseline" method="post" class="mt-3">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="bi bi-flag-fill"></i> @L["SetCurrentAsBaseline"]
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- CMM Levels Reference -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-ladder"></i> @L["CMMReferenceGuide"]</h6>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <span class="badge bg-success me-2">5</span>
+                            <strong>@L["Optimizing"]</strong>
+                            <br /><small class="text-muted">@L["ContinuousImprovementCulture"]</small>
+                        </li>
+                        <li class="list-group-item">
+                            <span class="badge bg-info me-2">4</span>
+                            <strong>@L["Managed"]</strong>
+                            <br /><small class="text-muted">@L["QuantitativelyManagedProcesses"]</small>
+                        </li>
+                        <li class="list-group-item">
+                            <span class="badge bg-primary me-2">3</span>
+                            <strong>@L["Defined"]</strong>
+                            <br /><small class="text-muted">@L["StandardizedProcesses"]</small>
+                        </li>
+                        <li class="list-group-item">
+                            <span class="badge bg-warning text-dark me-2">2</span>
+                            <strong>@L["Repeatable"]</strong>
+                            <br /><small class="text-muted">@L["BasicProjectManagement"]</small>
+                        </li>
+                        <li class="list-group-item">
+                            <span class="badge bg-danger me-2">1</span>
+                            <strong>@L["Initial"]</strong>
+                            <br /><small class="text-muted">@L["AdHocAndChaotic"]</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="card shadow-sm mt-3 bg-light">
+                <div class="card-body">
+                    <h6><i class="bi bi-lightbulb text-warning"></i> @L["Tips"]</h6>
+                    <ul class="small mb-0">
+                        <li class="mb-2">@L["RegularAssessmentsTip"]</li>
+                        <li class="mb-2">@L["BaselineComparisonTip"]</li>
+                        <li>@L["ImprovementRoadmapTip"]</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Recent Assessments -->
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-clock-history"></i> @L["RecentHistory"]</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-0">@L["AssessmentHistoryNotAvailable"]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

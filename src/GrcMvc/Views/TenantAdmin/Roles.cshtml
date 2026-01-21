@@ -67,6 +67,19 @@
         }
     </div>
 
+    <!-- Permission Matrix -->
+    <div class="card mt-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-grid-3x3-gap text-primary me-2"></i>Permission Matrix</h5>
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="togglePermissionMatrix()">
+                <i class="bi bi-arrows-expand"></i> Toggle View
+            </button>
+        </div>
+        <div class="card-body p-0">
+            @await Component.InvokeAsync("PermissionMatrix")
+        </div>
+    </div>
+
     <div class="card mt-4">
         <div class="card-header bg-transparent">
             <h5 class="mb-0"><i class="bi bi-info-circle"></i> Role Descriptions</h5>
@@ -105,3 +118,14 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function togglePermissionMatrix() {
+            const matrix = document.querySelector('.permission-matrix-container');
+            if (matrix) {
+                matrix.classList.toggle('expanded');
+            }
+        }
+    </script>
+}

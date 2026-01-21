@@ -35,6 +35,7 @@ namespace GrcMvc.Controllers
         private readonly Data.GrcAuthDbContext? _authContext; // CRITICAL: Auth database context for PasswordHistory
         private readonly IPasswordHistoryService? _passwordHistoryService; // SECURITY: Password reuse prevention
         private readonly ISessionManagementService? _sessionManagementService; // SECURITY: Concurrent session limiting
+        private readonly IAuthenticationService? _authenticationService; // 2FA: Authentication service for MFA
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -50,7 +51,8 @@ namespace GrcMvc.Controllers
             IAuthenticationAuditService? authAuditService = null, // CRITICAL: Authentication audit service
             Data.GrcAuthDbContext? authContext = null, // CRITICAL: Auth database context
             IPasswordHistoryService? passwordHistoryService = null, // SECURITY: Password reuse prevention
-            ISessionManagementService? sessionManagementService = null) // SECURITY: Concurrent session limiting
+            ISessionManagementService? sessionManagementService = null, // SECURITY: Concurrent session limiting
+            IAuthenticationService? authenticationService = null) // 2FA: Authentication service for MFA
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -66,6 +68,7 @@ namespace GrcMvc.Controllers
             _authContext = authContext;
             _passwordHistoryService = passwordHistoryService;
             _sessionManagementService = sessionManagementService;
+            _authenticationService = authenticationService;
         }
 
         // GET: Account/Login
@@ -192,6 +195,29 @@ namespace GrcMvc.Controllers
 
                         // MEDIUM PRIORITY FIX: Regenerate session ID on authentication to prevent session fixation
                         await HttpContext.Session.CommitAsync();
+
+                        // 2FA ENFORCEMENT: Check if MFA is required
+                        var requiresMfa = user.TwoFactorEnabled || user.MfaRequired || !string.IsNullOrEmpty(user.MfaMethod);
+                        if (requiresMfa && _authenticationService != null)
+                        {
+                            _logger.LogInformation("User {Email} requires MFA verification. Method: {MfaMethod}", 
+                                model.Email, user.MfaMethod ?? "Email");
+                            
+                            // Send MFA code if not TOTP (TOTP doesn't need sending)
+                            if (user.MfaMethod != "TOTP")
+                            {
+                                var mfaMethod = user.MfaMethod ?? "Email";
+                                await _authenticationService.SendMfaCodeAsync(user.Id.ToString(), mfaMethod);
+                            }
+
+                            // Redirect to MFA verification page
+                            return RedirectToAction("Verify", "Mfa", new 
+                            { 
+                                userId = user.Id.ToString(), 
+                                mfaMethod = user.MfaMethod ?? "Email",
+                                returnUrl = returnUrl 
+                            });
+                        }
 
                         // Check if user must change password (first login or admin reset)
                         if (user.MustChangePassword)

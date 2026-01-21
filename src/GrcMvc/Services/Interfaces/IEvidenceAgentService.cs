@@ -59,6 +59,41 @@ public interface IEvidenceAgentService
     /// Check if service is available
     /// </summary>
     Task<bool> IsAvailableAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Collect evidence from integrated systems automatically
+    /// </summary>
+    Task<EvidenceCollectionResult> CollectEvidenceAsync(
+        Guid tenantId,
+        string source,
+        string evidenceType,
+        Dictionary<string, object>? parameters = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Generate an evidence pack for a specific framework or assessment
+    /// </summary>
+    Task<EvidencePackResult> GenerateEvidencePackAsync(
+        Guid tenantId,
+        string frameworkCode,
+        Guid? assessmentId = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Organize evidence by control domain and category
+    /// </summary>
+    Task<EvidenceOrganizationResult> OrganizeEvidenceAsync(
+        Guid tenantId,
+        Guid? evidenceId = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Validate evidence completeness and compliance requirements
+    /// </summary>
+    Task<EvidenceValidationResult> ValidateEvidenceAsync(
+        Guid evidenceId,
+        string? frameworkCode = null,
+        CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -219,4 +254,135 @@ public class EvidenceCategorizationResult
     public required List<string> RelatedDomains { get; set; }
     public int CategorizationConfidence { get; set; } // 0-100
     public DateTime AnalyzedAt { get; set; }
+}
+
+/// <summary>
+/// Result of evidence collection from integrated systems
+/// </summary>
+public class EvidenceCollectionResult
+{
+    public Guid TenantId { get; set; }
+    public required string Source { get; set; }
+    public required string EvidenceType { get; set; }
+    public bool Success { get; set; }
+    public int EvidenceItemsCollected { get; set; }
+    public required List<CollectedEvidenceItem> CollectedItems { get; set; }
+    public required List<string> Errors { get; set; }
+    public DateTime CollectedAt { get; set; } = DateTime.UtcNow;
+}
+
+/// <summary>
+/// Single collected evidence item
+/// </summary>
+public class CollectedEvidenceItem
+{
+    public Guid? EvidenceId { get; set; }
+    public required string Title { get; set; }
+    public required string SourceSystem { get; set; }
+    public required string FileName { get; set; }
+    public long FileSize { get; set; }
+    public required string ContentType { get; set; }
+    public DateTime CollectedAt { get; set; }
+    public required Dictionary<string, object> Metadata { get; set; }
+}
+
+/// <summary>
+/// Result of evidence pack generation
+/// </summary>
+public class EvidencePackResult
+{
+    public Guid TenantId { get; set; }
+    public required string FrameworkCode { get; set; }
+    public Guid? AssessmentId { get; set; }
+    public bool Success { get; set; }
+    public Guid? PackageId { get; set; }
+    public required string PackageName { get; set; }
+    public int TotalControls { get; set; }
+    public int ControlsWithEvidence { get; set; }
+    public decimal CoveragePercentage { get; set; }
+    public required List<EvidencePackSection> Sections { get; set; }
+    public required List<string> MissingEvidence { get; set; }
+    public DateTime GeneratedAt { get; set; } = DateTime.UtcNow;
+}
+
+/// <summary>
+/// Section of evidence pack (by control domain)
+/// </summary>
+public class EvidencePackSection
+{
+    public required string ControlDomain { get; set; }
+    public int ControlCount { get; set; }
+    public int EvidenceCount { get; set; }
+    public decimal CompletionPercentage { get; set; }
+    public required List<EvidencePackItem> Items { get; set; }
+}
+
+/// <summary>
+/// Evidence pack item
+/// </summary>
+public class EvidencePackItem
+{
+    public Guid EvidenceId { get; set; }
+    public required string Title { get; set; }
+    public required string Type { get; set; }
+    public required string ControlCode { get; set; }
+    public required string ControlName { get; set; }
+    public required string FileName { get; set; }
+    public DateTime CollectionDate { get; set; }
+    public required string Status { get; set; } // Valid, Expired, PendingReview
+}
+
+/// <summary>
+/// Result of evidence organization
+/// </summary>
+public class EvidenceOrganizationResult
+{
+    public Guid TenantId { get; set; }
+    public bool Success { get; set; }
+    public int EvidenceItemsOrganized { get; set; }
+    public int CategoriesAssigned { get; set; }
+    public int ControlLinksCreated { get; set; }
+    public required List<EvidenceByDomain> OrganizedByDomain { get; set; }
+    public required List<string> Recommendations { get; set; }
+    public DateTime OrganizedAt { get; set; } = DateTime.UtcNow;
+}
+
+/// <summary>
+/// Evidence grouped by domain
+/// </summary>
+public class EvidenceByDomain
+{
+    public required string Domain { get; set; }
+    public int EvidenceCount { get; set; }
+    public int ControlsCovered { get; set; }
+    public decimal CoveragePercentage { get; set; }
+    public required List<string> Categories { get; set; }
+}
+
+/// <summary>
+/// Result of evidence validation
+/// </summary>
+public class EvidenceValidationResult
+{
+    public Guid EvidenceId { get; set; }
+    public bool IsValid { get; set; }
+    public required string ValidationStatus { get; set; } // Valid, Invalid, PartiallyValid, RequiresReview
+    public int CompletenessScore { get; set; } // 0-100
+    public required List<ValidationFinding> Findings { get; set; }
+    public required List<string> MissingElements { get; set; }
+    public required List<string> Recommendations { get; set; }
+    public DateTime ValidatedAt { get; set; } = DateTime.UtcNow;
+}
+
+/// <summary>
+/// Validation finding detail
+/// </summary>
+public class ValidationFinding
+{
+    public required string Category { get; set; } // Completeness, Format, Currency, Relevance
+    public required string Severity { get; set; } // Critical, High, Medium, Low, Info
+    public required string Description { get; set; }
+    public required string Requirement { get; set; }
+    public bool IsPassing { get; set; }
+    public required string Recommendation { get; set; }
 }

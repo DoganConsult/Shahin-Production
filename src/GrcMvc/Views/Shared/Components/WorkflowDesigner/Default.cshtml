@@ -1,0 +1,152 @@
+@model GrcMvc.ViewComponents.WorkflowDesignerModel
+
+<div class="workflow-designer-container">
+    <div class="designer-toolbar d-flex align-items-center justify-content-between p-2 bg-slate-100 dark:bg-slate-800 rounded-lg mb-3">
+        <div class="d-flex align-items-center gap-2">
+            <input type="text" class="form-control form-control-sm" style="width: 200px;"
+                   value="@Model.WorkflowName" id="workflow-name" placeholder="Workflow Name" />
+            <span class="badge bg-secondary">@Model.WorkflowType</span>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-sm btn-outline-secondary" onclick="zoomIn()"><i class="bi bi-zoom-in"></i></button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="zoomOut()"><i class="bi bi-zoom-out"></i></button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="fitToScreen()"><i class="bi bi-arrows-fullscreen"></i></button>
+            <button class="btn btn-sm btn-outline-primary" onclick="saveWorkflow()"><i class="bi bi-save me-1"></i>Save</button>
+        </div>
+    </div>
+
+    <div class="designer-content d-flex">
+        <!-- Node Palette -->
+        <div class="node-palette p-2 bg-white dark:bg-slate-800 rounded-lg me-3" style="width: 160px;">
+            <h6 class="small fw-bold mb-2">Nodes</h6>
+            @foreach (var nodeType in Model.NodeTypes)
+            {
+                <div class="palette-node p-2 mb-2 rounded border cursor-pointer"
+                     draggable="true"
+                     data-node-type="@nodeType.Id"
+                     style="border-color: @nodeType.Color;">
+                    <i class="bi @nodeType.Icon me-2" style="color: @nodeType.Color;"></i>
+                    <span class="small">@nodeType.Name</span>
+                </div>
+            }
+        </div>
+
+        <!-- Canvas -->
+        <div class="workflow-canvas flex-grow-1 bg-white dark:bg-slate-900 rounded-lg border" style="min-height: 500px;">
+            <div id="workflow-diagram" style="width: 100%; height: 500px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- GoJS CDN -->
+<script src="https://unpkg.com/gojs@3.0.0/release/go.js"></script>
+
+<script>
+var workflowDiagram;
+
+function initWorkflowDesigner() {
+    const $ = go.GraphObject.make;
+
+    workflowDiagram = $(go.Diagram, 'workflow-diagram', {
+        'undoManager.isEnabled': true,
+        'clickCreatingTool.archetypeNodeData': { text: 'New Node', category: 'task' },
+        'linkingTool.direction': go.LinkingTool.ForwardsOnly,
+        grid: $(go.Panel, 'Grid',
+            $(go.Shape, 'LineH', { stroke: '#e2e8f0', strokeWidth: 0.5 }),
+            $(go.Shape, 'LineV', { stroke: '#e2e8f0', strokeWidth: 0.5 })
+        ),
+        'draggingTool.isGridSnapEnabled': true
+    });
+
+    // Node template
+    workflowDiagram.nodeTemplate = $(go.Node, 'Auto',
+        { locationSpot: go.Spot.Center },
+        $(go.Shape, 'RoundedRectangle', {
+            fill: 'white',
+            stroke: '#10b981',
+            strokeWidth: 2,
+            portId: '',
+            fromLinkable: true,
+            toLinkable: true,
+            cursor: 'pointer'
+        }),
+        $(go.Panel, 'Horizontal', { margin: 8 },
+            $(go.TextBlock, { margin: 8, editable: true },
+                new go.Binding('text', 'text').makeTwoWay())
+        )
+    );
+
+    // Link template
+    workflowDiagram.linkTemplate = $(go.Link,
+        { routing: go.Link.AvoidsNodes, corner: 5 },
+        $(go.Shape, { stroke: '#64748b', strokeWidth: 2 }),
+        $(go.Shape, { toArrow: 'Standard', fill: '#64748b', stroke: null })
+    );
+
+    // Load existing workflow
+    var workflowJson = @Html.Raw(string.IsNullOrEmpty(Model.WorkflowJson) ? "''" : $"'{Model.WorkflowJson}'");
+    if (workflowJson) {
+        try {
+            workflowDiagram.model = go.Model.fromJson(workflowJson);
+        } catch (e) {
+            // Start with empty diagram
+            workflowDiagram.model = new go.GraphLinksModel([
+                { key: 'start', text: 'Start', category: 'start' },
+                { key: 'end', text: 'End', category: 'end' }
+            ], []);
+        }
+    }
+
+    // Palette drag handling
+    document.querySelectorAll('.palette-node').forEach(node => {
+        node.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('nodeType', node.dataset.nodeType);
+        });
+    });
+}
+
+function saveWorkflow() {
+    const json = workflowDiagram.model.toJson();
+    const name = document.getElementById('workflow-name').value;
+
+    fetch('/api/workflow/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, definition: json, workflowId: '@Model.WorkflowId' })
+    }).then(response => {
+        if (response.ok) alert('Workflow saved!');
+    });
+}
+
+function zoomIn() { workflowDiagram.commandHandler.increaseZoom(); }
+function zoomOut() { workflowDiagram.commandHandler.decreaseZoom(); }
+function fitToScreen() { workflowDiagram.commandHandler.zoomToFit(); }
+
+document.addEventListener('DOMContentLoaded', initWorkflowDesigner);
+</script>
+
+<style>
+.palette-node {
+    transition: all 0.2s;
+}
+
+.palette-node:hover {
+    background: #f1f5f9;
+    transform: translateX(4px);
+}
+
+.dark .palette-node:hover {
+    background: #334155;
+}
+
+.workflow-canvas {
+    background-image:
+        radial-gradient(circle, #e2e8f0 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.dark .workflow-canvas {
+    background-image:
+        radial-gradient(circle, #475569 1px, transparent 1px);
+}
+</style>

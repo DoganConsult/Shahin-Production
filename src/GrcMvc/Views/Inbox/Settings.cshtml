@@ -1,0 +1,174 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@model GrcMvc.Models.Entities.UserNotificationPreference
+@{
+    ViewData["Title"] = L["NotificationSettings"];
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index">@L["Inbox"]</a></li>
+                    <li class="breadcrumb-item active">@L["Settings"]</li>
+                </ol>
+            </nav>
+            <h2><i class="bi bi-gear"></i> @L["NotificationSettings"]</h2>
+            <p class="text-muted">@L["ConfigureHowYouReceiveNotifications"]</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <form asp-action="UpdateSettings" method="post">
+                @Html.AntiForgeryToken()
+
+                <!-- Delivery Channels -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="bi bi-send"></i> @L["DeliveryChannels"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="inAppEnabled" checked disabled>
+                            <label class="form-check-label" for="inAppEnabled">
+                                <i class="bi bi-app text-primary"></i> @L["InAppNotifications"]
+                            </label>
+                            <small class="form-text text-muted d-block">@L["AlwaysEnabled"]</small>
+                        </div>
+
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="emailEnabled" name="emailEnabled"
+                                   value="true" @(Model?.EmailEnabled == true ? "checked" : "")>
+                            <label class="form-check-label" for="emailEnabled">
+                                <i class="bi bi-envelope text-info"></i> @L["EmailNotifications"]
+                            </label>
+                            <small class="form-text text-muted d-block">@L["ReceiveNotificationsByEmail"]</small>
+                        </div>
+
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="smsEnabled" name="smsEnabled"
+                                   value="true" @(Model?.SmsEnabled == true ? "checked" : "")>
+                            <label class="form-check-label" for="smsEnabled">
+                                <i class="bi bi-phone text-success"></i> @L["SMSNotifications"]
+                            </label>
+                            <small class="form-text text-muted d-block">@L["ReceiveUrgentNotificationsBySMS"]</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Types -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="bi bi-list-check"></i> @L["NotificationTypes"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">@L["SelectNotificationTypesYouWantToReceive"]</p>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="enabledTypes" value="Task" id="typeTask" checked>
+                                    <label class="form-check-label" for="typeTask">
+                                        <i class="bi bi-list-task text-primary"></i> @L["TaskAssignments"]
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="enabledTypes" value="Approval" id="typeApproval" checked>
+                                    <label class="form-check-label" for="typeApproval">
+                                        <i class="bi bi-check-circle text-success"></i> @L["ApprovalRequests"]
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="enabledTypes" value="Alert" id="typeAlert" checked>
+                                    <label class="form-check-label" for="typeAlert">
+                                        <i class="bi bi-exclamation-triangle text-warning"></i> @L["SystemAlerts"]
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="enabledTypes" value="Reminder" id="typeReminder" checked>
+                                    <label class="form-check-label" for="typeReminder">
+                                        <i class="bi bi-clock text-info"></i> @L["Reminders"]
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="enabledTypes" value="Compliance" id="typeCompliance" checked>
+                                    <label class="form-check-label" for="typeCompliance">
+                                        <i class="bi bi-shield-check text-success"></i> @L["ComplianceUpdates"]
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="enabledTypes" value="Risk" id="typeRisk" checked>
+                                    <label class="form-check-label" for="typeRisk">
+                                        <i class="bi bi-activity text-danger"></i> @L["RiskAlerts"]
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> @L["BackToInbox"]
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> @L["SaveSettings"]
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm bg-light">
+                <div class="card-body">
+                    <h6><i class="bi bi-lightbulb text-warning"></i> @L["Tips"]</h6>
+                    <ul class="small mb-0">
+                        <li class="mb-2">@L["EmailNotificationsTip"]</li>
+                        <li class="mb-2">@L["SMSNotificationsTip"]</li>
+                        <li>@L["CriticalNotificationsAlwaysSent"]</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-info-circle"></i> @L["CurrentStatus"]</h6>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0 small">
+                        <dt class="col-6">@L["Email"]:</dt>
+                        <dd class="col-6">
+                            @if (Model?.EmailEnabled == true)
+                            {
+                                <span class="badge bg-success">@L["Enabled"]</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@L["Disabled"]</span>
+                            }
+                        </dd>
+                        <dt class="col-6">@L["SMS"]:</dt>
+                        <dd class="col-6">
+                            @if (Model?.SmsEnabled == true)
+                            {
+                                <span class="badge bg-success">@L["Enabled"]</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@L["Disabled"]</span>
+                            }
+                        </dd>
+                        <dt class="col-6">@L["InApp"]:</dt>
+                        <dd class="col-6"><span class="badge bg-success">@L["Enabled"]</span></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

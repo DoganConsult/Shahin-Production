@@ -78,6 +78,26 @@ namespace GrcMvc.Models.Entities
             return Math.Max(0, (int)(maxAgeDays - daysSinceChange));
         }
 
+        /// <summary>
+        /// Two-Factor Authentication Method: "Email", "TOTP", "SMS", or null if disabled
+        /// </summary>
+        public string? MfaMethod { get; set; }
+
+        /// <summary>
+        /// TOTP Secret Key (for authenticator apps) - encrypted in database
+        /// </summary>
+        public string? TotpSecretKey { get; set; }
+
+        /// <summary>
+        /// Phone number for SMS 2FA
+        /// </summary>
+        public string? MfaPhoneNumber { get; set; }
+
+        /// <summary>
+        /// Whether 2FA is required for this user (admin can enforce)
+        /// </summary>
+        public bool MfaRequired { get; set; } = false;
+
         // Alias properties for backward compatibility
         [NotMapped]
         public DateTime CreatedAt

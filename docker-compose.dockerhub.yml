@@ -19,11 +19,12 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ASPNETCORE_URLS: http://+:80
-      # Database
-      ConnectionStrings__DefaultConnection: Host=db;Database=${DB_NAME:-GrcMvcDb};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD:-Shahin@GRC2026!};Port=5432
-      ConnectionStrings__GrcAuthDb: Host=db;Database=${DB_NAME:-GrcMvcDb};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD:-Shahin@GRC2026!};Port=5432
-      ConnectionStrings__HangfireConnection: Host=db;Database=${DB_NAME:-GrcMvcDb};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD:-Shahin@GRC2026!};Port=5432
-      ConnectionStrings__Redis: redis:6379
+      # Connection Strings (internal Docker network)
+      ConnectionStrings__DefaultConnection: "Host=${DB_HOST:-db};Port=5432;Database=${DB_NAME:-GrcMvcDb};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};"
+      ConnectionStrings__GrcAuthDb: "Host=${DB_HOST:-db};Port=5432;Database=${DB_AUTH_NAME:-GrcAuthDb};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};"
+      ConnectionStrings__HangfireConnection: "Host=${DB_HOST:-db};Port=5432;Database=${DB_NAME:-GrcMvcDb};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};"
+      ConnectionStrings__Redis: "${REDIS_HOST:-redis}:6379"
+      Redis__ConnectionString: "${REDIS_HOST:-redis}:6379"
       # JWT Settings
       JwtSettings__Secret: ${JWT_SECRET:-shahin-ai-grc-jwt-secret-key-minimum-32-characters-long-2026}
       JwtSettings__Issuer: ${JWT_ISSUER:-http://localhost:5010}
@@ -285,7 +286,8 @@ services:
     restart: unless-stopped
     environment:
       SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:-superset-secret-key-development-2026}
-      DATABASE_URL: postgresql://${DB_USER:-shahin_admin}:${DB_PASSWORD:-Shahin@GRC2026!}@db:5432/superset
+      # Note: DB_PASSWORD must NOT contain @ or ! (or must be URL-encoded)
+      DATABASE_URL: postgresql://${DB_USER:-shahin_admin}:${DB_PASSWORD}@${DB_HOST:-db}:5432/superset
     ports:
       - "${SUPERSET_PORT:-8088}:8088"
     volumes:

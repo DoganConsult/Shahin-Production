@@ -196,6 +196,32 @@ PRODUCTION_CREDENTIALS_SUMMARY.md
 AI_SERVICES_ARCHITECTURE.md
 QUICK_REFERENCE_CARD.md
 
-# Publish folders
+# Publish folders (any location)
 [Pp]ublish/
+**/[Pp]ublish/
 src/GrcMvc/[Pp]ublish/
+
+# Build output folders (ensure these are ignored everywhere)
+**/[Bb]in/
+**/[Oo]bj/
+
+# IDE and editor folders
+.vscode/
+*.code-workspace
+
+# Windows system files
+desktop.ini
+Thumbs.db
+ehthumbs.db
+
+# Claude AI plans and sessions (local only)
+.claude/plans/
+.claude/sessions/
+
+# Temporary test files
+nul
+src/nul
+
+# Infrastructure credentials
+infra/*.env
+infra/secrets/

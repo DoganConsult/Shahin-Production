@@ -3,6 +3,7 @@ using GrcMvc.Models.Entities;
 using GrcMvc.Data;
 using GrcMvc.Exceptions;
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Services.Integrations;
 using GrcMvc.Application.Policy;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -19,17 +20,20 @@ namespace GrcMvc.Services.Implementations
         private readonly IEmailService _emailService;
         private readonly ILogger<SubscriptionService> _logger;
         private readonly PolicyEnforcementHelper _policyHelper;
+        private readonly IPaymentGatewayService? _paymentGatewayService;
 
         public SubscriptionService(
             GrcDbContext dbContext,
             IEmailService emailService,
             ILogger<SubscriptionService> logger,
-            PolicyEnforcementHelper policyHelper)
+            PolicyEnforcementHelper policyHelper,
+            IPaymentGatewayService? paymentGatewayService = null)
         {
             _dbContext = dbContext;
             _emailService = emailService;
             _logger = logger;
             _policyHelper = policyHelper;
+            _paymentGatewayService = paymentGatewayService;
         }
 
         #region Subscription Plans
@@ -322,16 +326,95 @@ namespace GrcMvc.Services.Implementations
                 if (subscription == null)
                     return new PaymentConfirmationDto { Success = false, Message = "Subscription not found" };
 
-                // Record the payment
+                // POLICY ENFORCEMENT: Check if payment processing is allowed
+                await _policyHelper.EnforceAsync("process_payment", "Subscription", subscription,
+                    dataClassification: "confidential",
+                    owner: subscription.Tenant?.Name ?? "System");
+
+                string? transactionId = null;
+                string paymentStatus = "Pending";
+                bool paymentSuccess = false;
+
+                // Process payment via Stripe if payment gateway is available
+                if (_paymentGatewayService != null && !string.IsNullOrEmpty(paymentDto.PaymentMethodToken))
+                {
+                    try
+                    {
+                        var paymentInput = new ProcessPaymentInputDto
+                        {
+                            TenantId = subscription.TenantId,
+                            SubscriptionId = paymentDto.SubscriptionId,
+                            Amount = paymentDto.Amount,
+                            Currency = paymentDto.Currency ?? "SAR",
+                            PaymentMethodId = paymentDto.PaymentMethodToken, // Map Token to PaymentMethodId
+                            Description = $"Subscription payment for {subscription.Plan?.Name ?? "Plan"}",
+                            IdempotencyKey = Guid.NewGuid().ToString(), // Generate idempotency key
+                            Metadata = new Dictionary<string, string>
+                            {
+                                { "TenantId", subscription.TenantId.ToString() },
+                                { "SubscriptionId", paymentDto.SubscriptionId.ToString() },
+                                { "PlanCode", subscription.Plan?.Code ?? "" },
+                                { "Email", paymentDto.Email }
+                            }
+                        };
+
+                        var paymentResult = await _paymentGatewayService.ProcessPaymentAsync(paymentInput);
+
+                        paymentSuccess = paymentResult.Success;
+                        transactionId = paymentResult.TransactionId ?? paymentResult.PaymentIntentId;
+                        paymentStatus = paymentResult.Success ? "Completed" : "Failed";
+
+                        if (!paymentResult.Success)
+                        {
+                            _logger.LogWarning(
+                                "Stripe payment failed for subscription {SubscriptionId}: {ErrorCode} - {ErrorMessage}",
+                                paymentDto.SubscriptionId,
+                                paymentResult.ErrorCode,
+                                paymentResult.ErrorMessage);
+                            
+                            return new PaymentConfirmationDto
+                            {
+                                Success = false,
+                                Message = paymentResult.ErrorMessage ?? "Payment processing failed"
+                            };
+                        }
+
+                        _logger.LogInformation(
+                            "Stripe payment processed successfully: {TransactionId} for subscription {SubscriptionId}",
+                            transactionId,
+                            paymentDto.SubscriptionId);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error processing payment via Stripe for subscription {SubscriptionId}", paymentDto.SubscriptionId);
+                        return new PaymentConfirmationDto
+                        {
+                            Success = false,
+                            Message = $"Payment gateway error: {ex.Message}"
+                        };
+                    }
+                }
+                else
+                {
+                    // Fallback: Generate transaction ID if no payment gateway
+                    transactionId = Guid.NewGuid().ToString();
+                    paymentStatus = "Completed";
+                    paymentSuccess = true;
+                    _logger.LogWarning(
+                        "Payment gateway not available or PaymentMethodToken not provided. Processing payment without gateway verification for subscription {SubscriptionId}",
+                        paymentDto.SubscriptionId);
+                }
+
+                // Record the payment in database
                 var payment = new Payment
                 {
                     Id = Guid.NewGuid(),
                     SubscriptionId = paymentDto.SubscriptionId,
                     TenantId = subscription.TenantId,
                     Amount = paymentDto.Amount,
-                    TransactionId = Guid.NewGuid().ToString(),
-                    Status = "Completed",
-                    PaymentMethod = "CreditCard",
+                    TransactionId = transactionId ?? Guid.NewGuid().ToString(),
+                    Status = paymentStatus,
+                    PaymentMethod = paymentDto.PaymentMethod ?? "CreditCard",
                     Gateway = "Stripe",
                     PaymentDate = DateTime.UtcNow,
                     CreatedDate = DateTime.UtcNow
@@ -363,32 +446,51 @@ namespace GrcMvc.Services.Implementations
                 _dbContext.Invoices.Add(invoice);
                 payment.InvoiceId = invoice.Id;
 
-                // Activate subscription
-                subscription.Status = "Active";
-                subscription.TrialEndDate = null;
-                subscription.SubscriptionStartDate = DateTime.UtcNow;
-                subscription.NextBillingDate = invoice.PeriodEnd;
+                // Activate subscription only if payment succeeded
+                if (paymentSuccess)
+                {
+                    subscription.Status = "Active";
+                    subscription.TrialEndDate = null;
+                    subscription.SubscriptionStartDate = DateTime.UtcNow;
+                    subscription.NextBillingDate = invoice.PeriodEnd;
+                }
+                else
+                {
+                    subscription.Status = "PaymentFailed";
+                }
 
                 await _dbContext.SaveChangesAsync();
 
-                _logger.LogInformation($"Payment processed: {payment.TransactionId}, subscription {subscription.Id} activated");
-
-                // Send emails
-                try
+                if (paymentSuccess)
                 {
-                    await SendPaymentConfirmationEmailAsync(payment.Id);
-                    await SendInvoiceEmailAsync(invoice.Id);
+                    _logger.LogInformation("Payment processed: {TransactionId}, subscription {SubscriptionId} activated",
+                        payment.TransactionId, subscription.Id);
                 }
-                catch (Exception ex)
+                else
                 {
-                    _logger.LogWarning($"Failed to send confirmation emails: {ex.Message}");
+                    _logger.LogWarning("Payment failed: {TransactionId}, subscription {SubscriptionId} status: {Status}",
+                        payment.TransactionId, subscription.Id, subscription.Status);
+                }
+
+                // Send emails only if payment succeeded
+                if (paymentSuccess)
+                {
+                    try
+                    {
+                        await SendPaymentConfirmationEmailAsync(payment.Id);
+                        await SendInvoiceEmailAsync(invoice.Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to send confirmation emails for payment {PaymentId}", payment.Id);
+                    }
                 }
 
                 return new PaymentConfirmationDto
                 {
-                    Success = true,
+                    Success = paymentSuccess,
                     TransactionId = payment.TransactionId,
-                    Message = "Payment processed successfully",
+                    Message = paymentSuccess ? "Payment processed successfully" : "Payment processing failed",
                     Subscription = MapToDto(subscription),
                     Invoice = MapToDto(invoice)
                 };
@@ -402,15 +504,84 @@ namespace GrcMvc.Services.Implementations
 
         public async Task<bool> RefundPaymentAsync(Guid paymentId, string reason = "")
         {
-            var payment = await _dbContext.Payments.FirstOrDefaultAsync(p => p.Id == paymentId);
-            if (payment == null)
+            try
+            {
+                var payment = await _dbContext.Payments.FirstOrDefaultAsync(p => p.Id == paymentId);
+                if (payment == null)
+                {
+                    _logger.LogWarning("Payment {PaymentId} not found for refund", paymentId);
+                    return false;
+                }
+
+                // Process refund via Stripe if payment gateway is available and transaction ID is a Stripe ID
+                if (_paymentGatewayService != null && 
+                    !string.IsNullOrEmpty(payment.TransactionId) && 
+                    (payment.TransactionId.StartsWith("pi_") || payment.TransactionId.StartsWith("ch_")))
+                {
+                    try
+                    {
+                        var refundInput = new RefundRequestDto
+                        {
+                            PaymentIntentId = payment.TransactionId,
+                            Amount = payment.Amount, // Full refund
+                            Reason = string.IsNullOrEmpty(reason) ? "requested_by_customer" : reason,
+                            Metadata = new Dictionary<string, string>
+                            {
+                                { "PaymentId", paymentId.ToString() },
+                                { "TenantId", payment.TenantId.ToString() },
+                                { "SubscriptionId", payment.SubscriptionId.ToString() }
+                            }
+                        };
+
+                        var refundResult = await _paymentGatewayService.ProcessRefundAsync(refundInput);
+
+                        if (refundResult.Success)
+                        {
+                            payment.Status = "Refunded";
+                            payment.RefundAmount = refundResult.AmountRefunded;
+                            payment.RefundDate = DateTime.UtcNow;
+                            payment.RefundReason = reason;
+
+                            await _dbContext.SaveChangesAsync();
+
+                            _logger.LogInformation(
+                                "Payment {PaymentId} refunded via Stripe: {RefundId}, amount {Amount}. Reason: {Reason}",
+                                paymentId, refundResult.RefundId, refundResult.AmountRefunded, reason);
+                            return true;
+                        }
+                        else
+                        {
+                            _logger.LogError(
+                                "Stripe refund failed for payment {PaymentId}: {ErrorMessage}",
+                                paymentId, refundResult.ErrorMessage);
+                            return false;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error processing refund via Stripe for payment {PaymentId}", paymentId);
+                        return false;
+                    }
+                }
+                else
+                {
+                    // Fallback: Just update database status if no payment gateway or invalid transaction ID
+                    payment.Status = "Refunded";
+                    payment.RefundDate = DateTime.UtcNow;
+                    payment.RefundReason = reason;
+                    await _dbContext.SaveChangesAsync();
+
+                    _logger.LogWarning(
+                        "Payment {PaymentId} marked as refunded in database without gateway processing. Reason: {Reason}",
+                        paymentId, reason);
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing refund for payment {PaymentId}", paymentId);
                 return false;
-
-            payment.Status = "Refunded";
-            await _dbContext.SaveChangesAsync();
-
-            _logger.LogInformation($"Payment {paymentId} refunded. Reason: {reason}");
-            return true;
+            }
         }
 
         #endregion

@@ -19,11 +19,12 @@ services:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ASPNETCORE_URLS: ${ASPNETCORE_URLS:-http://+:80}
       # Database (Docker-internal: uses service names db, redis)
-      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=${DB_NAME:-GrcMvcDb};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};"
-      ConnectionStrings__GrcAuthDb: "Host=db;Port=5432;Database=GrcAuthDb;Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};"
-      ConnectionStrings__HangfireConnection: "Host=db;Port=5432;Database=${DB_NAME:-GrcMvcDb};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};"
-      ConnectionStrings__Redis: "redis:6379"
-      Redis__ConnectionString: "redis:6379"
+      # Connection Strings (internal Docker network)
+      ConnectionStrings__DefaultConnection: "Host=${DB_HOST:-db};Port=5432;Database=${DB_NAME:-GrcMvcDb};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};"
+      ConnectionStrings__GrcAuthDb: "Host=${DB_HOST:-db};Port=5432;Database=${DB_AUTH_NAME:-GrcAuthDb};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};"
+      ConnectionStrings__HangfireConnection: "Host=${DB_HOST:-db};Port=5432;Database=${DB_NAME:-GrcMvcDb};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};"
+      ConnectionStrings__Redis: "${REDIS_HOST:-redis}:6379"
+      Redis__ConnectionString: "${REDIS_HOST:-redis}:6379"
       # JWT Settings
       JwtSettings__Secret: ${JWT_SECRET}
       JwtSettings__Issuer: "http://localhost:${APP_PORT:-5010}"
@@ -282,7 +283,8 @@ services:
       SUPERSET_ADMIN_USER: ${SUPERSET_ADMIN_USER:-admin}
       SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:-SupersetAdmin@2026!}
       SUPERSET_ADMIN_EMAIL: ${SUPERSET_ADMIN_EMAIL:-admin@shahin-ai.com}
-      DATABASE_URL: postgresql://${DB_USER:-shahin_admin}:${DB_PASSWORD:-Shahin@GRC2026!}@db:5432/superset
+      # Note: DB_PASSWORD must NOT contain @ or ! (or must be URL-encoded)
+      DATABASE_URL: postgresql://${DB_USER:-shahin_admin}:${DB_PASSWORD}@${DB_HOST:-db}:5432/superset
     ports:
       - "${SUPERSET_PORT:-8088}:8088"
     volumes:

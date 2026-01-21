@@ -367,7 +367,14 @@ namespace GrcMvc.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                await _policyHelper.EnforceDeleteAsync("Resilience", id);
+                var resilience = await _resilienceService.GetResilienceByIdAsync(tenantId, id);
+                if (resilience != null)
+                {
+                    await _policyHelper.EnforceDeleteAsync("Resilience", resilience, 
+                        dataClassification: resilience.DataClassification, 
+                        owner: resilience.Owner);
+                }
+
                 var result = await _resilienceService.DeleteResilienceAsync(tenantId, id);
 
                 if (result)

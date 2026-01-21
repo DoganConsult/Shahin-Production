@@ -162,5 +162,44 @@ namespace GrcMvc.Controllers
             }
             return RedirectToAction(nameof(Details), new { id });
         }
+
+        [Authorize(GrcPermissions.Audits.Manage)]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var audit = await _auditService.GetByIdAsync(id);
+            if (audit == null) return NotFound();
+            return View(audit);
+        }
+
+        [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken, Authorize(GrcPermissions.Audits.Manage)]
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        {
+            try
+            {
+                var audit = await _auditService.GetByIdAsync(id);
+                if (audit != null)
+                {
+                    await _policyHelper.EnforceDeleteAsync("Audit", audit, 
+                        dataClassification: audit.DataClassification, 
+                        owner: audit.Owner);
+                }
+
+                await _auditService.DeleteAsync(id);
+                TempData["Success"] = "Audit deleted successfully";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (PolicyViolationException pex)
+            {
+                _logger.LogWarning(pex, "Policy violation deleting audit {AuditId}", id);
+                TempData["Error"] = "A policy violation occurred. Please review the requirements.";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting audit {AuditId}", id);
+                TempData["Error"] = "Error deleting audit. Please try again.";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+        }
     }
 }

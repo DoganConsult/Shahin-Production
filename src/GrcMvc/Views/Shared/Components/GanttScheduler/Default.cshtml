@@ -1,0 +1,94 @@
+@model GrcMvc.ViewComponents.GanttSchedulerModel
+
+<div class="gantt-scheduler-container">
+    <div class="gantt-toolbar d-flex justify-content-between align-items-center mb-3 p-2 bg-slate-100 dark:bg-slate-800 rounded">
+        <div class="btn-group">
+            <button class="btn btn-sm btn-outline-secondary active" data-view="day">Day</button>
+            <button class="btn btn-sm btn-outline-secondary" data-view="week">Week</button>
+            <button class="btn btn-sm btn-outline-secondary" data-view="month">Month</button>
+            <button class="btn btn-sm btn-outline-secondary" data-view="quarter">Quarter</button>
+        </div>
+        <div>
+            <button class="btn btn-sm btn-outline-secondary" onclick="scrollToToday()">
+                <i class="bi bi-calendar-event me-1"></i>Today
+            </button>
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+                <i class="bi bi-plus me-1"></i>Add Task
+            </button>
+        </div>
+    </div>
+
+    <div id="gantt-chart" style="width: 100%; height: 500px;"></div>
+</div>
+
+<!-- Syncfusion Gantt Alternative: Custom Implementation -->
+<script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
+<link rel="stylesheet" href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css">
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    gantt.config.date_format = "%Y-%m-%d %H:%i";
+    gantt.config.scale_height = 50;
+    gantt.config.row_height = 40;
+    gantt.config.bar_height = 24;
+
+    gantt.config.columns = [
+        { name: "text", label: "Task", width: 200, tree: true },
+        { name: "start_date", label: "Start", align: "center", width: 90 },
+        { name: "duration", label: "Days", align: "center", width: 50 },
+        { name: "progress", label: "%", align: "center", width: 50, template: function(obj) { return Math.round(obj.progress * 100) + "%"; } }
+    ];
+
+    gantt.templates.task_class = function(start, end, task) {
+        if (task.progress >= 1) return "gantt-complete";
+        if (new Date() > end) return "gantt-overdue";
+        return "";
+    };
+
+    gantt.init("gantt-chart");
+
+    // Load tasks
+    var tasks = {
+        data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Tasks.Select(t => new {
+            id = t.Id,
+            text = t.Name,
+            start_date = t.StartDate.ToString("yyyy-MM-dd"),
+            end_date = t.EndDate.ToString("yyyy-MM-dd"),
+            progress = t.Progress / 100.0,
+            parent = t.ParentId
+        }))),
+        links: []
+    };
+
+    if (tasks.data.length === 0) {
+        tasks.data = [
+            { id: 1, text: "Audit Planning", start_date: "@DateTime.Today.ToString("yyyy-MM-dd")", duration: 5, progress: 0.4 },
+            { id: 2, text: "Risk Assessment", start_date: "@DateTime.Today.AddDays(5).ToString("yyyy-MM-dd")", duration: 10, progress: 0.2, parent: 1 },
+            { id: 3, text: "Control Testing", start_date: "@DateTime.Today.AddDays(15).ToString("yyyy-MM-dd")", duration: 7, progress: 0 }
+        ];
+    }
+
+    gantt.parse(tasks);
+});
+
+function scrollToToday() {
+    gantt.showDate(new Date());
+}
+
+document.querySelectorAll('[data-view]').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('[data-view]').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const view = this.dataset.view;
+        gantt.config.scale_unit = view === 'day' ? 'day' : view === 'week' ? 'week' : 'month';
+        gantt.render();
+    });
+});
+</script>
+
+<style>
+.gantt-complete .gantt_task_progress { background: #10b981; }
+.gantt-overdue .gantt_task_line { background: #ef4444; }
+.gantt_task_line { background: #3b82f6; }
+.gantt_task_progress { background: #10b981; }
+</style>

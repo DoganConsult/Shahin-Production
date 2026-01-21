@@ -1,0 +1,145 @@
+@model GrcMvc.ViewComponents.RiskHeatmapViewModel
+@{
+    var cellData = Model.Cells ?? new List<GrcMvc.ViewComponents.RiskHeatmapCell>();
+}
+
+<div class="risk-heatmap-container">
+    <div id="risk-heatmap" class="w-full" style="height: 400px;"></div>
+    <div class="text-center mt-2 text-sm text-slate-500">
+        Click any cell to view risks • Total: @Model.TotalRisks risks
+    </div>
+</div>
+
+<!-- ECharts CDN -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+
+<script>
+(function() {
+    var chartDom = document.getElementById('risk-heatmap');
+    if (!chartDom) return;
+
+    var chart = echarts.init(chartDom, null, { renderer: 'canvas' });
+
+    // Transform data for heatmap
+    var rawData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(cellData.Select(c => new { x = c.Impact - 1, y = c.Probability - 1, value = c.Count })));
+
+    // Create 5x5 matrix with default values
+    var heatmapData = [];
+    for (var y = 0; y < 5; y++) {
+        for (var x = 0; x < 5; x++) {
+            var cell = rawData.find(d => d.x === x && d.y === y);
+            heatmapData.push([x, y, cell ? cell.value : 0]);
+        }
+    }
+
+    var option = {
+        tooltip: {
+            position: 'top',
+            formatter: function(params) {
+                var probability = ['Rare', 'Unlikely', 'Possible', 'Likely', 'Almost Certain'][params.data[1]];
+                var impact = ['Very Low', 'Low', 'Medium', 'High', 'Critical'][params.data[0]];
+                var count = params.data[2];
+                return `<strong>${count} Risk${count !== 1 ? 's' : ''}</strong><br/>
+                        Probability: ${probability}<br/>
+                        Impact: ${impact}<br/>
+                        <em>Click to view details</em>`;
+            }
+        },
+        grid: {
+            top: '10%',
+            left: '15%',
+            right: '10%',
+            bottom: '20%'
+        },
+        xAxis: {
+            type: 'category',
+            data: ['Very Low', 'Low', 'Medium', 'High', 'Critical'],
+            name: 'Impact',
+            nameLocation: 'center',
+            nameGap: 35,
+            nameTextStyle: { fontWeight: 'bold', fontSize: 12 },
+            splitArea: { show: true },
+            axisLabel: { fontSize: 10, interval: 0 }
+        },
+        yAxis: {
+            type: 'category',
+            data: ['Rare', 'Unlikely', 'Possible', 'Likely', 'Almost Certain'],
+            name: 'Probability',
+            nameLocation: 'center',
+            nameGap: 80,
+            nameTextStyle: { fontWeight: 'bold', fontSize: 12 },
+            splitArea: { show: true },
+            axisLabel: { fontSize: 10 }
+        },
+        visualMap: {
+            min: 0,
+            max: 10,
+            calculable: true,
+            orient: 'horizontal',
+            left: 'center',
+            bottom: '0%',
+            itemWidth: 15,
+            itemHeight: 100,
+            text: ['High', 'Low'],
+            textStyle: { fontSize: 10 },
+            inRange: {
+                color: ['#dcfce7', '#86efac', '#fde047', '#fb923c', '#ef4444']
+            }
+        },
+        series: [{
+            name: 'Risk Count',
+            type: 'heatmap',
+            data: heatmapData,
+            label: {
+                show: true,
+                formatter: function(params) {
+                    return params.data[2] > 0 ? params.data[2] : '';
+                },
+                fontSize: 14,
+                fontWeight: 'bold'
+            },
+            emphasis: {
+                itemStyle: {
+                    shadowBlur: 10,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)',
+                    borderColor: '#000',
+                    borderWidth: 2
+                }
+            },
+            itemStyle: {
+                borderColor: '#fff',
+                borderWidth: 2,
+                borderRadius: 4
+            }
+        }]
+    };
+
+    chart.setOption(option);
+
+    // Click handler - navigate to filtered risk list
+    chart.on('click', function(params) {
+        if (params.data && params.data[2] > 0) {
+            var probability = params.data[1] + 1;
+            var impact = params.data[0] + 1;
+            window.location.href = '/Risk/Index?probability=' + probability + '&impact=' + impact;
+        }
+    });
+
+    // Responsive resize
+    window.addEventListener('resize', function() {
+        chart.resize();
+    });
+})();
+</script>
+
+<style>
+.risk-heatmap-container {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1rem;
+}
+
+.dark .risk-heatmap-container {
+    background: #1e293b;
+}
+</style>

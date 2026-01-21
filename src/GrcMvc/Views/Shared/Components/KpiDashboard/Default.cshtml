@@ -1,0 +1,130 @@
+@model GrcMvc.ViewComponents.KpiDashboardModel
+
+<div class="kpi-dashboard-container">
+    <div class="row g-3">
+        @foreach (var kpi in Model.Kpis)
+        {
+            <div class="col-md-3 col-sm-6">
+                <div class="kpi-card p-3 rounded-lg bg-white dark:bg-slate-800 shadow-sm" data-kpi-id="@kpi.Id">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div>
+                            <div class="kpi-value fs-2 fw-bold text-@kpi.Color">
+                                @kpi.Value.ToString("N0")@kpi.Unit
+                            </div>
+                            <div class="kpi-name text-muted small">@kpi.Name</div>
+                        </div>
+                        <div class="kpi-icon p-2 rounded bg-@kpi.Color bg-opacity-10">
+                            <i class="bi @kpi.Icon text-@kpi.Color fs-4"></i>
+                        </div>
+                    </div>
+                    @if (kpi.ChangePercent.HasValue)
+                    {
+                        <div class="kpi-change mt-2 small">
+                            @if (kpi.ChangePercent > 0)
+                            {
+                                <span class="text-success"><i class="bi bi-arrow-up"></i> @kpi.ChangePercent%</span>
+                            }
+                            else if (kpi.ChangePercent < 0)
+                            {
+                                <span class="text-danger"><i class="bi bi-arrow-down"></i> @Math.Abs(kpi.ChangePercent.Value)%</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted"><i class="bi bi-dash"></i> No change</span>
+                            }
+                            <span class="text-muted ms-1">vs last period</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="text-center mt-2">
+        <small class="text-muted">
+            <i class="bi bi-clock me-1"></i>
+            Last updated: <span id="kpi-last-updated">@Model.LastUpdated.ToString("HH:mm:ss")</span>
+            <span class="live-indicator ms-2">
+                <span class="live-dot"></span> Live
+            </span>
+        </small>
+    </div>
+</div>
+
+<style>
+.kpi-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.kpi-value {
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+.text-red { color: #ef4444; }
+.text-blue { color: #3b82f6; }
+.text-green { color: #10b981; }
+.text-yellow { color: #f59e0b; }
+
+.bg-red { background-color: #ef4444; }
+.bg-blue { background-color: #3b82f6; }
+.bg-green { background-color: #10b981; }
+.bg-yellow { background-color: #f59e0b; }
+
+.live-indicator {
+    display: inline-flex;
+    align-items: center;
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    margin-right: 4px;
+    animation: livePulse 1.5s infinite;
+}
+
+@@keyframes livePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+.kpi-value.updating {
+    animation: fadeUpdate 0.3s;
+}
+
+@@keyframes fadeUpdate {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+</style>
+
+<script>
+// SignalR real-time updates (when hub is available)
+(function() {
+    if (typeof signalR !== 'undefined') {
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl('/hubs/kpi')
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on('KpiUpdate', (kpiId, newValue) => {
+            const card = document.querySelector(`[data-kpi-id="${kpiId}"]`);
+            if (card) {
+                const valueEl = card.querySelector('.kpi-value');
+                valueEl.classList.add('updating');
+                valueEl.textContent = newValue;
+                setTimeout(() => valueEl.classList.remove('updating'), 300);
+            }
+            document.getElementById('kpi-last-updated').textContent = new Date().toLocaleTimeString();
+        });
+
+        connection.start().catch(err => console.log('KPI Hub connection error:', err));
+    }
+})();
+</script>

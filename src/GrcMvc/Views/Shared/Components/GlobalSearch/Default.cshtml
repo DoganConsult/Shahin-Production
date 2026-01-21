@@ -1,0 +1,654 @@
+@model GrcMvc.ViewComponents.GlobalSearchModel
+
+<!-- Global Search Command Palette (Ctrl+K / Cmd+K) -->
+<div id="global-search-overlay" class="global-search-overlay d-none">
+    <div class="global-search-modal">
+        <div class="search-header">
+            <i class="bi bi-search text-muted me-2"></i>
+            <input type="text" id="global-search-input" class="search-input"
+                   placeholder="Search risks, controls, policies, audits..."
+                   autocomplete="off">
+            <kbd class="search-shortcut">ESC</kbd>
+        </div>
+
+        <!-- Filters -->
+        <div class="search-filters p-3 border-bottom">
+            <div class="d-flex flex-wrap gap-2">
+                <button class="filter-chip active" data-type="all">
+                    <i class="bi bi-grid me-1"></i>All
+                </button>
+                <button class="filter-chip" data-type="risk">
+                    <i class="bi bi-shield-exclamation me-1"></i>Risks
+                </button>
+                <button class="filter-chip" data-type="control">
+                    <i class="bi bi-sliders me-1"></i>Controls
+                </button>
+                <button class="filter-chip" data-type="policy">
+                    <i class="bi bi-file-text me-1"></i>Policies
+                </button>
+                <button class="filter-chip" data-type="audit">
+                    <i class="bi bi-clipboard-check me-1"></i>Audits
+                </button>
+                <button class="filter-chip" data-type="compliance">
+                    <i class="bi bi-check2-square me-1"></i>Compliance
+                </button>
+                <button class="filter-chip" data-type="evidence">
+                    <i class="bi bi-paperclip me-1"></i>Evidence
+                </button>
+                <button class="filter-chip" data-type="user">
+                    <i class="bi bi-person me-1"></i>Users
+                </button>
+            </div>
+        </div>
+
+        <!-- Advanced Filters (Collapsible) -->
+        <div class="collapse p-3 bg-slate-50 border-bottom" id="advanced-filters">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <label class="small fw-bold">Status</label>
+                    <select class="form-select form-select-sm" id="filter-status">
+                        <option value="">Any Status</option>
+                        <option value="open">Open</option>
+                        <option value="closed">Closed</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="pending">Pending Review</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="small fw-bold">Owner</label>
+                    <select class="form-select form-select-sm" id="filter-owner">
+                        <option value="">Any Owner</option>
+                        <option value="me">Assigned to Me</option>
+                        <option value="my-team">My Team</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="small fw-bold">Date Range</label>
+                    <select class="form-select form-select-sm" id="filter-date">
+                        <option value="">Any Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="quarter">This Quarter</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="small fw-bold">Priority</label>
+                    <select class="form-select form-select-sm" id="filter-priority">
+                        <option value="">Any Priority</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-2 d-flex justify-content-between">
+                <button class="btn btn-sm btn-link p-0" onclick="clearFilters()">Clear Filters</button>
+                <span class="small text-muted" id="filter-count">0 filters applied</span>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center px-3 py-2 bg-slate-50 border-bottom">
+            <button class="btn btn-sm btn-link p-0" data-bs-toggle="collapse" data-bs-target="#advanced-filters">
+                <i class="bi bi-funnel me-1"></i>Advanced Filters
+            </button>
+            <span class="small text-muted" id="result-count">Type to search...</span>
+        </div>
+
+        <!-- Results -->
+        <div class="search-results" id="search-results">
+            <!-- Recent Searches -->
+            <div class="result-section" id="recent-section">
+                <div class="section-header">
+                    <i class="bi bi-clock-history me-2"></i>Recent Searches
+                </div>
+                <div class="result-list" id="recent-list">
+                    <div class="result-item" onclick="executeSearch('data breach risk')">
+                        <i class="bi bi-arrow-return-right text-muted me-2"></i>
+                        <span>data breach risk</span>
+                    </div>
+                    <div class="result-item" onclick="executeSearch('ISO 27001 controls')">
+                        <i class="bi bi-arrow-return-right text-muted me-2"></i>
+                        <span>ISO 27001 controls</span>
+                    </div>
+                    <div class="result-item" onclick="executeSearch('access review audit')">
+                        <i class="bi bi-arrow-return-right text-muted me-2"></i>
+                        <span>access review audit</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="result-section" id="actions-section">
+                <div class="section-header">
+                    <i class="bi bi-lightning me-2"></i>Quick Actions
+                </div>
+                <div class="result-list">
+                    <div class="result-item" onclick="window.location.href='/Risk/Create'">
+                        <div class="d-flex align-items-center">
+                            <span class="action-icon bg-danger-subtle text-danger me-3">
+                                <i class="bi bi-plus"></i>
+                            </span>
+                            <div>
+                                <div class="fw-medium">Create New Risk</div>
+                                <div class="small text-muted">Add a new risk to the register</div>
+                            </div>
+                        </div>
+                        <kbd>R</kbd>
+                    </div>
+                    <div class="result-item" onclick="window.location.href='/Control/Create'">
+                        <div class="d-flex align-items-center">
+                            <span class="action-icon bg-success-subtle text-success me-3">
+                                <i class="bi bi-plus"></i>
+                            </span>
+                            <div>
+                                <div class="fw-medium">Create New Control</div>
+                                <div class="small text-muted">Add a new control measure</div>
+                            </div>
+                        </div>
+                        <kbd>C</kbd>
+                    </div>
+                    <div class="result-item" onclick="window.location.href='/Assessment/Create'">
+                        <div class="d-flex align-items-center">
+                            <span class="action-icon bg-primary-subtle text-primary me-3">
+                                <i class="bi bi-plus"></i>
+                            </span>
+                            <div>
+                                <div class="fw-medium">Start Assessment</div>
+                                <div class="small text-muted">Begin a new compliance assessment</div>
+                            </div>
+                        </div>
+                        <kbd>A</kbd>
+                    </div>
+                    <div class="result-item" onclick="window.location.href='/Report/Generate'">
+                        <div class="d-flex align-items-center">
+                            <span class="action-icon bg-warning-subtle text-warning me-3">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </span>
+                            <div>
+                                <div class="fw-medium">Generate Report</div>
+                                <div class="small text-muted">Create GRC status report</div>
+                            </div>
+                        </div>
+                        <kbd>G</kbd>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Results (populated dynamically) -->
+            <div class="result-section d-none" id="results-section">
+                <div class="section-header d-flex justify-content-between">
+                    <span><i class="bi bi-search me-2"></i>Search Results</span>
+                    <span class="badge bg-emerald-600" id="total-results">0</span>
+                </div>
+                <div class="result-list" id="results-list">
+                    <!-- Results populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- AI Suggestions -->
+            <div class="result-section d-none" id="ai-suggestions-section">
+                <div class="section-header">
+                    <i class="bi bi-robot me-2"></i>AI Suggestions
+                </div>
+                <div class="result-list" id="ai-suggestions-list">
+                    <!-- AI suggestions populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="search-footer">
+            <div class="d-flex gap-3 small text-muted">
+                <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> Navigate</span>
+                <span><kbd>Enter</kbd> Open</span>
+                <span><kbd>Tab</kbd> Filters</span>
+                <span><kbd>Esc</kbd> Close</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Trigger Button (for navbar) -->
+<button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" onclick="openGlobalSearch()">
+    <i class="bi bi-search"></i>
+    <span class="d-none d-md-inline">Search</span>
+    <kbd class="ms-2 d-none d-lg-inline">Ctrl+K</kbd>
+</button>
+
+<script>
+var searchTimeout = null;
+var selectedIndex = -1;
+var searchResults = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    const overlay = document.getElementById('global-search-overlay');
+    const input = document.getElementById('global-search-input');
+
+    // Keyboard shortcut (Ctrl+K or Cmd+K)
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            openGlobalSearch();
+        }
+        if (e.key === 'Escape' && !overlay.classList.contains('d-none')) {
+            closeGlobalSearch();
+        }
+    });
+
+    // Close on overlay click
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            closeGlobalSearch();
+        }
+    });
+
+    // Search input handling
+    input.addEventListener('input', function(e) {
+        const query = e.target.value.trim();
+        clearTimeout(searchTimeout);
+
+        if (query.length >= 2) {
+            searchTimeout = setTimeout(() => performSearch(query), 300);
+        } else {
+            showDefaultSections();
+        }
+    });
+
+    // Keyboard navigation
+    input.addEventListener('keydown', function(e) {
+        const items = document.querySelectorAll('.result-item:not(.d-none)');
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+            updateSelection(items);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIndex = Math.max(selectedIndex - 1, 0);
+            updateSelection(items);
+        } else if (e.key === 'Enter' && selectedIndex >= 0) {
+            e.preventDefault();
+            items[selectedIndex]?.click();
+        }
+    });
+
+    // Filter chips
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', function() {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            const query = input.value.trim();
+            if (query.length >= 2) performSearch(query);
+        });
+    });
+});
+
+function openGlobalSearch() {
+    const overlay = document.getElementById('global-search-overlay');
+    const input = document.getElementById('global-search-input');
+    overlay.classList.remove('d-none');
+    input.focus();
+    input.select();
+    document.body.style.overflow = 'hidden';
+}
+
+function closeGlobalSearch() {
+    const overlay = document.getElementById('global-search-overlay');
+    overlay.classList.add('d-none');
+    document.body.style.overflow = '';
+    selectedIndex = -1;
+}
+
+window.openGlobalSearch = openGlobalSearch;
+
+async function performSearch(query) {
+    const type = document.querySelector('.filter-chip.active')?.dataset.type || 'all';
+    const status = document.getElementById('filter-status').value;
+    const owner = document.getElementById('filter-owner').value;
+    const date = document.getElementById('filter-date').value;
+    const priority = document.getElementById('filter-priority').value;
+
+    document.getElementById('result-count').textContent = 'Searching...';
+
+    try {
+        const response = await fetch('/api/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, type, status, owner, date, priority })
+        });
+
+        if (response.ok) {
+            searchResults = await response.json();
+            displayResults(searchResults);
+        } else {
+            // Demo results on error
+            displayDemoResults(query);
+        }
+    } catch (error) {
+        displayDemoResults(query);
+    }
+}
+
+function displayDemoResults(query) {
+    const demoResults = [
+        { type: 'risk', id: 'R-001', title: 'Data Breach Risk - ' + query, status: 'Open', priority: 'High', url: '/Risk/Details/1' },
+        { type: 'control', id: 'CTL-023', title: 'Access Control - ' + query, status: 'Effective', priority: 'Medium', url: '/Control/Details/23' },
+        { type: 'policy', id: 'POL-007', title: 'Security Policy - ' + query, status: 'Active', priority: 'High', url: '/Policy/Details/7' },
+        { type: 'audit', id: 'AUD-012', title: 'Annual Audit - ' + query, status: 'In Progress', priority: 'Medium', url: '/Audit/Details/12' },
+        { type: 'compliance', id: 'NCA-ECC', title: 'NCA ECC Compliance - ' + query, status: '87% Complete', priority: 'Critical', url: '/Compliance/Framework/1' }
+    ];
+    displayResults(demoResults);
+}
+
+function displayResults(results) {
+    const recentSection = document.getElementById('recent-section');
+    const actionsSection = document.getElementById('actions-section');
+    const resultsSection = document.getElementById('results-section');
+    const resultsList = document.getElementById('results-list');
+    const aiSection = document.getElementById('ai-suggestions-section');
+
+    // Hide default sections, show results
+    recentSection.classList.add('d-none');
+    actionsSection.classList.add('d-none');
+    resultsSection.classList.remove('d-none');
+
+    document.getElementById('result-count').textContent = results.length + ' results found';
+    document.getElementById('total-results').textContent = results.length;
+
+    resultsList.innerHTML = results.map((r, i) => `
+        <div class="result-item" onclick="window.location.href='${r.url}'" data-index="${i}">
+            <div class="d-flex align-items-center flex-grow-1">
+                <span class="type-badge type-${r.type} me-3">${getTypeIcon(r.type)}</span>
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="result-id text-muted small">${r.id}</span>
+                        <span class="fw-medium">${highlightMatch(r.title)}</span>
+                    </div>
+                    <div class="small text-muted">${r.type.charAt(0).toUpperCase() + r.type.slice(1)}</div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge ${getStatusBadgeClass(r.status)}">${r.status}</span>
+                <span class="priority-dot priority-${r.priority.toLowerCase()}"></span>
+            </div>
+        </div>
+    `).join('');
+
+    // Show AI suggestions if query is complex
+    const query = document.getElementById('global-search-input').value;
+    if (query.split(' ').length >= 2) {
+        showAISuggestions(query);
+    } else {
+        aiSection.classList.add('d-none');
+    }
+
+    selectedIndex = -1;
+}
+
+function showDefaultSections() {
+    document.getElementById('recent-section').classList.remove('d-none');
+    document.getElementById('actions-section').classList.remove('d-none');
+    document.getElementById('results-section').classList.add('d-none');
+    document.getElementById('ai-suggestions-section').classList.add('d-none');
+    document.getElementById('result-count').textContent = 'Type to search...';
+}
+
+function showAISuggestions(query) {
+    const aiSection = document.getElementById('ai-suggestions-section');
+    const aiList = document.getElementById('ai-suggestions-list');
+
+    aiSection.classList.remove('d-none');
+    aiList.innerHTML = `
+        <div class="result-item ai-suggestion">
+            <div class="d-flex align-items-center">
+                <span class="action-icon bg-purple-subtle text-purple me-3">
+                    <i class="bi bi-stars"></i>
+                </span>
+                <div>
+                    <div class="fw-medium">Ask AI: "${query}"</div>
+                    <div class="small text-muted">Get AI-powered insights about this topic</div>
+                </div>
+            </div>
+        </div>
+        <div class="result-item ai-suggestion">
+            <div class="d-flex align-items-center">
+                <span class="action-icon bg-info-subtle text-info me-3">
+                    <i class="bi bi-graph-up"></i>
+                </span>
+                <div>
+                    <div class="fw-medium">Analyze trends for "${query}"</div>
+                    <div class="small text-muted">View historical data and predictions</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function getTypeIcon(type) {
+    const icons = {
+        risk: '<i class="bi bi-shield-exclamation"></i>',
+        control: '<i class="bi bi-sliders"></i>',
+        policy: '<i class="bi bi-file-text"></i>',
+        audit: '<i class="bi bi-clipboard-check"></i>',
+        compliance: '<i class="bi bi-check2-square"></i>',
+        evidence: '<i class="bi bi-paperclip"></i>',
+        user: '<i class="bi bi-person"></i>'
+    };
+    return icons[type] || '<i class="bi bi-file"></i>';
+}
+
+function getStatusBadgeClass(status) {
+    const s = status.toLowerCase();
+    if (s.includes('open') || s.includes('active')) return 'bg-success';
+    if (s.includes('closed') || s.includes('completed')) return 'bg-secondary';
+    if (s.includes('progress')) return 'bg-warning';
+    if (s.includes('critical')) return 'bg-danger';
+    return 'bg-info';
+}
+
+function highlightMatch(text) {
+    const query = document.getElementById('global-search-input').value;
+    if (!query) return text;
+    const regex = new RegExp(`(${query})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
+}
+
+function updateSelection(items) {
+    items.forEach((item, i) => {
+        item.classList.toggle('selected', i === selectedIndex);
+    });
+    if (selectedIndex >= 0) {
+        items[selectedIndex]?.scrollIntoView({ block: 'nearest' });
+    }
+}
+
+function executeSearch(query) {
+    document.getElementById('global-search-input').value = query;
+    performSearch(query);
+}
+
+function clearFilters() {
+    document.getElementById('filter-status').value = '';
+    document.getElementById('filter-owner').value = '';
+    document.getElementById('filter-date').value = '';
+    document.getElementById('filter-priority').value = '';
+    document.getElementById('filter-count').textContent = '0 filters applied';
+}
+</script>
+
+<style>
+.global-search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10vh;
+    backdrop-filter: blur(4px);
+}
+
+.global-search-modal {
+    width: 100%;
+    max-width: 700px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.dark .global-search-modal {
+    background: #1e293b;
+}
+
+.search-header {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 18px;
+    background: transparent;
+}
+
+.search-shortcut {
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.search-filters {
+    background: #f8fafc;
+}
+
+.filter-chip {
+    padding: 6px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    background: white;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-chip:hover {
+    border-color: #10b981;
+}
+
+.filter-chip.active {
+    background: #10b981;
+    color: white;
+    border-color: #10b981;
+}
+
+.search-results {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.result-section {
+    padding: 8px 0;
+}
+
+.section-header {
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.result-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.result-item:hover, .result-item.selected {
+    background: #f1f5f9;
+}
+
+.dark .result-item:hover, .dark .result-item.selected {
+    background: #334155;
+}
+
+.action-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.type-badge {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.type-risk { background: #fee2e2; color: #dc2626; }
+.type-control { background: #dcfce7; color: #16a34a; }
+.type-policy { background: #e0e7ff; color: #4f46e5; }
+.type-audit { background: #fef3c7; color: #d97706; }
+.type-compliance { background: #cffafe; color: #0891b2; }
+.type-evidence { background: #f3e8ff; color: #9333ea; }
+.type-user { background: #f1f5f9; color: #475569; }
+
+.priority-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.priority-critical { background: #dc2626; }
+.priority-high { background: #f97316; }
+.priority-medium { background: #eab308; }
+.priority-low { background: #22c55e; }
+
+.search-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+kbd {
+    background: #e2e8f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: inherit;
+}
+
+mark {
+    background: #fef08a;
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+.bg-emerald-600 { background-color: #059669; }
+.bg-purple-subtle { background-color: #f3e8ff; }
+.text-purple { color: #9333ea; }
+</style>

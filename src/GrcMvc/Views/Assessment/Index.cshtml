@@ -16,7 +16,10 @@
             <a asp-action="Create" class="btn btn-primary">
                 <i class="bi bi-plus-circle"></i> @L["Assessment_Create_New"]
             </a>
-            <a asp-action="Upcoming" class="btn btn-info">
+            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#formBuilderModal">
+                <i class="bi bi-ui-checks-grid"></i> @L["FormBuilder"]
+            </button>
+            <a asp-action="Upcoming" class="btn btn-warning">
                 <i class="bi bi-calendar-event"></i> @L["Assessment_Upcoming"]
             </a>
             <a asp-action="Statistics" class="btn btn-secondary">
@@ -140,6 +143,23 @@
         };
     }
 }
+
+<!-- Form Builder Modal -->
+<div class="modal fade" id="formBuilderModal" tabindex="-1" aria-labelledby="formBuilderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="formBuilderModalLabel">
+                    <i class="bi bi-ui-checks-grid me-2"></i>@L["AssessmentFormBuilder"]
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @await Component.InvokeAsync("FormBuilder")
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>

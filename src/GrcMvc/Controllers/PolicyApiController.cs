@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Models;
 using GrcMvc.Services.Interfaces;
+using GrcMvc.Application.Policy;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -20,10 +21,12 @@ namespace GrcMvc.Controllers
     public class PolicyApiController : ControllerBase
     {
         private readonly IPolicyService _policyService;
+        private readonly PolicyEnforcementHelper _policyHelper;
 
-        public PolicyApiController(IPolicyService policyService)
+        public PolicyApiController(IPolicyService policyService, PolicyEnforcementHelper policyHelper)
         {
             _policyService = policyService;
+            _policyHelper = policyHelper;
         }
 
         /// <summary>
@@ -144,9 +147,19 @@ namespace GrcMvc.Controllers
                 if (createPolicyDto == null)
                     return BadRequest(ApiResponse<object>.ErrorResponse("Policy data is required"));
 
+                // POLICY ENFORCEMENT
+                await _policyHelper.EnforceCreateAsync("PolicyDocument", createPolicyDto, 
+                    dataClassification: createPolicyDto.DataClassification, 
+                    owner: createPolicyDto.Owner);
+
                 var policy = await _policyService.CreateAsync(createPolicyDto);
                 return CreatedAtAction(nameof(GetPolicy), new { id = policy.Id },
                     ApiResponse<object>.SuccessResponse(policy, "Policy created successfully"));
+            }
+            catch (PolicyViolationException pex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(
+                    $"Policy violation: {pex.Message}. {pex.RemediationHint}"));
             }
             catch (Exception ex)
             {
@@ -168,11 +181,21 @@ namespace GrcMvc.Controllers
                 if (updatePolicyDto == null)
                     return BadRequest(ApiResponse<object>.ErrorResponse("Policy data is required"));
 
+                // POLICY ENFORCEMENT
+                await _policyHelper.EnforceUpdateAsync("PolicyDocument", updatePolicyDto, 
+                    dataClassification: updatePolicyDto.DataClassification, 
+                    owner: updatePolicyDto.Owner);
+
                 var policy = await _policyService.UpdateAsync(id, updatePolicyDto);
                 if (policy == null)
                     return NotFound(ApiResponse<object>.ErrorResponse("Policy not found"));
 
                 return Ok(ApiResponse<object>.SuccessResponse(policy, "Policy updated successfully"));
+            }
+            catch (PolicyViolationException pex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(
+                    $"Policy violation: {pex.Message}. {pex.RemediationHint}"));
             }
             catch (Exception ex)
             {
@@ -191,8 +214,22 @@ namespace GrcMvc.Controllers
                 if (id == Guid.Empty)
                     return BadRequest(ApiResponse<object>.ErrorResponse("Invalid policy ID"));
 
+                // POLICY ENFORCEMENT
+                var policy = await _policyService.GetByIdAsync(id);
+                if (policy != null)
+                {
+                    await _policyHelper.EnforceDeleteAsync("PolicyDocument", policy, 
+                        dataClassification: policy.DataClassification, 
+                        owner: policy.Owner);
+                }
+
                 await _policyService.DeleteAsync(id);
                 return Ok(ApiResponse<object>.SuccessResponse(null, "Policy deleted successfully"));
+            }
+            catch (PolicyViolationException pex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(
+                    $"Policy violation: {pex.Message}. {pex.RemediationHint}"));
             }
             catch (Exception ex)
             {

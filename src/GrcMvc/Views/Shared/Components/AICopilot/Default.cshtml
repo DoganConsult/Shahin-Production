@@ -1,0 +1,297 @@
+@* AI Copilot Floating Chat Component *@
+@* Shahin AI GRC Platform - Intelligent Assistant *@
+
+<div id="ai-copilot-container" class="fixed bottom-4 right-4 z-50">
+    <!-- Toggle Button -->
+    <button id="copilot-toggle"
+            class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-105"
+            title="Shahin AI Copilot">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+        </svg>
+    </button>
+
+    <!-- Chat Panel -->
+    <div id="copilot-panel"
+         class="hidden absolute bottom-16 right-0 w-96 h-[520px] bg-white dark:bg-slate-800 rounded-xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-700">
+
+        <!-- Header -->
+        <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-gradient-to-r from-emerald-600 to-emerald-700 text-white">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">🦅</span>
+                <div>
+                    <span class="font-semibold">Shahin AI Copilot</span>
+                    <div class="text-xs opacity-80">GRC Intelligence Assistant</div>
+                </div>
+            </div>
+            <button id="copilot-close" class="hover:bg-emerald-800 rounded p-1.5 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="p-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
+            <div class="flex flex-wrap gap-1">
+                <button onclick="askCopilot('What are my top 5 risks?')" class="text-xs px-2 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-full hover:bg-emerald-50 dark:hover:bg-emerald-900 transition-colors">
+                    🎯 Top Risks
+                </button>
+                <button onclick="askCopilot('Show compliance status summary')" class="text-xs px-2 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-full hover:bg-emerald-50 dark:hover:bg-emerald-900 transition-colors">
+                    ✅ Compliance
+                </button>
+                <button onclick="askCopilot('What controls need attention?')" class="text-xs px-2 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-full hover:bg-emerald-50 dark:hover:bg-emerald-900 transition-colors">
+                    🛡️ Controls
+                </button>
+                <button onclick="askCopilot('Generate executive summary')" class="text-xs px-2 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-full hover:bg-emerald-50 dark:hover:bg-emerald-900 transition-colors">
+                    📊 Summary
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="copilot-messages" class="flex-1 overflow-y-auto p-4 space-y-3">
+            <!-- Welcome Message -->
+            <div class="flex gap-2">
+                <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center flex-shrink-0">
+                    🦅
+                </div>
+                <div class="bg-slate-100 dark:bg-slate-700 p-3 rounded-lg rounded-tl-none max-w-[280px]">
+                    <p class="text-sm text-slate-700 dark:text-slate-200">
+                        Hello! I'm Shahin AI, your GRC intelligence assistant. I can help you with:
+                    </p>
+                    <ul class="text-xs text-slate-600 dark:text-slate-300 mt-2 space-y-1">
+                        <li>• Risk analysis and assessments</li>
+                        <li>• Compliance gap identification</li>
+                        <li>• Control recommendations</li>
+                        <li>• Policy review and suggestions</li>
+                        <li>• Executive summaries</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="copilot-loading" class="hidden px-4 py-2 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
+            <div class="flex items-center gap-2 text-sm text-slate-500">
+                <div class="animate-spin w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full"></div>
+                <span>Shahin is thinking...</span>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-3 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+            <div class="flex gap-2">
+                <input id="copilot-input"
+                       type="text"
+                       placeholder="Ask about risks, compliance, controls..."
+                       class="flex-1 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-slate-700 dark:text-white"
+                       autocomplete="off" />
+                <button id="copilot-send"
+                        class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="text-xs text-slate-400 mt-1 text-center">
+                Powered by Claude AI • Press Enter to send
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    #copilot-panel {
+        animation: slideUp 0.2s ease-out;
+    }
+
+    @@keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .copilot-user-message {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    }
+
+    .copilot-ai-message {
+        background: #f1f5f9;
+    }
+
+    .dark .copilot-ai-message {
+        background: #334155;
+    }
+</style>
+
+<script>
+(function() {
+    const toggle = document.getElementById('copilot-toggle');
+    const panel = document.getElementById('copilot-panel');
+    const close = document.getElementById('copilot-close');
+    const input = document.getElementById('copilot-input');
+    const send = document.getElementById('copilot-send');
+    const messages = document.getElementById('copilot-messages');
+    const loading = document.getElementById('copilot-loading');
+
+    let conversationHistory = [];
+    let isProcessing = false;
+
+    // Toggle panel
+    toggle.addEventListener('click', () => {
+        panel.classList.toggle('hidden');
+        if (!panel.classList.contains('hidden')) {
+            input.focus();
+        }
+    });
+
+    // Close panel
+    close.addEventListener('click', () => {
+        panel.classList.add('hidden');
+    });
+
+    // Send message
+    async function sendMessage() {
+        const text = input.value.trim();
+        if (!text || isProcessing) return;
+
+        isProcessing = true;
+        send.disabled = true;
+        input.disabled = true;
+
+        // Add user message to UI
+        addMessage(text, 'user');
+        input.value = '';
+
+        // Show loading
+        loading.classList.remove('hidden');
+
+        try {
+            // Call API
+            const response = await fetch('/api/copilot/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: JSON.stringify({
+                    message: text,
+                    conversationHistory: conversationHistory
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                addMessage(data.response, 'ai', data.suggestedActions);
+                conversationHistory.push({ role: 'user', content: text });
+                conversationHistory.push({ role: 'assistant', content: data.response });
+
+                // Keep history limited to last 10 messages
+                if (conversationHistory.length > 20) {
+                    conversationHistory = conversationHistory.slice(-20);
+                }
+            } else {
+                addMessage('I apologize, but I encountered an issue. Please try again or contact support if the problem persists.', 'ai');
+            }
+        } catch (error) {
+            console.error('Copilot error:', error);
+            addMessage('Unable to connect to the AI service. Please check your connection and try again.', 'ai');
+        } finally {
+            loading.classList.add('hidden');
+            isProcessing = false;
+            send.disabled = false;
+            input.disabled = false;
+            input.focus();
+        }
+    }
+
+    function addMessage(text, type, suggestedActions = null) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'flex gap-2 ' + (type === 'user' ? 'justify-end' : '');
+
+        if (type === 'user') {
+            messageDiv.innerHTML = `
+                <div class="copilot-user-message text-white p-3 rounded-lg rounded-tr-none max-w-[280px]">
+                    <p class="text-sm">${escapeHtml(text)}</p>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0 text-white text-sm font-medium">
+                    👤
+                </div>
+            `;
+        } else {
+            let actionsHtml = '';
+            if (suggestedActions && suggestedActions.length > 0) {
+                actionsHtml = `
+                    <div class="mt-2 pt-2 border-t border-slate-200 dark:border-slate-600">
+                        <p class="text-xs text-slate-500 mb-1">Suggested actions:</p>
+                        <div class="flex flex-wrap gap-1">
+                            ${suggestedActions.map(action =>
+                                `<button onclick="askCopilot('${escapeHtml(action)}')" class="text-xs px-2 py-1 bg-emerald-50 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 rounded hover:bg-emerald-100 dark:hover:bg-emerald-800 transition-colors">${escapeHtml(action)}</button>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            messageDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center flex-shrink-0">
+                    🦅
+                </div>
+                <div class="copilot-ai-message dark:text-slate-200 p-3 rounded-lg rounded-tl-none max-w-[280px]">
+                    <p class="text-sm whitespace-pre-wrap">${formatResponse(text)}</p>
+                    ${actionsHtml}
+                </div>
+            `;
+        }
+
+        messages.appendChild(messageDiv);
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function formatResponse(text) {
+        // Convert markdown-like formatting
+        return escapeHtml(text)
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/`(.*?)`/g, '<code class="bg-slate-200 dark:bg-slate-600 px-1 rounded text-xs">$1</code>')
+            .replace(/\n/g, '<br>');
+    }
+
+    // Event listeners
+    send.addEventListener('click', sendMessage);
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    // Global function for quick action buttons
+    window.askCopilot = function(question) {
+        input.value = question;
+        sendMessage();
+    };
+
+    // Keyboard shortcut to toggle (Ctrl+Shift+A)
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+            e.preventDefault();
+            toggle.click();
+        }
+    });
+})();
+</script>

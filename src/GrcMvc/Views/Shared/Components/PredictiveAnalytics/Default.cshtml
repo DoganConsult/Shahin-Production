@@ -1,0 +1,421 @@
+@model GrcMvc.ViewComponents.PredictiveAnalyticsModel
+
+<div class="predictive-analytics-container">
+    <div class="analytics-toolbar d-flex justify-content-between align-items-center mb-4 p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
+        <div class="d-flex align-items-center gap-3">
+            <select class="form-select form-select-sm" style="width: 200px;" id="prediction-type" onchange="updatePrediction()">
+                <option value="risk-trend">Risk Trend Forecast</option>
+                <option value="compliance-score">Compliance Score Prediction</option>
+                <option value="incident-likelihood">Incident Likelihood</option>
+                <option value="control-effectiveness">Control Effectiveness Trend</option>
+                <option value="audit-outcome">Audit Outcome Prediction</option>
+            </select>
+            <select class="form-select form-select-sm" style="width: 150px;" id="forecast-horizon" onchange="updatePrediction()">
+                <option value="30">Next 30 Days</option>
+                <option value="90" selected>Next Quarter</option>
+                <option value="180">Next 6 Months</option>
+                <option value="365">Next Year</option>
+            </select>
+        </div>
+        <div>
+            <button class="btn btn-sm btn-outline-secondary me-2" onclick="refreshPrediction()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <button class="btn btn-sm btn-primary" onclick="exportPrediction()">
+                <i class="bi bi-download me-1"></i>Export
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Chart -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-graph-up-arrow me-2"></i>Predictive Trend Analysis</span>
+                    <span class="badge bg-emerald-600">ML Powered</span>
+                </div>
+                <div class="card-body">
+                    <div id="prediction-chart" style="width: 100%; height: 400px;"></div>
+                </div>
+            </div>
+
+            <!-- Confidence Metrics -->
+            <div class="row mt-3">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <div class="h4 mb-1" id="confidence-score">92%</div>
+                            <div class="small text-muted">Model Confidence</div>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-emerald-600" style="width: 92%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <div class="h4 mb-1" id="data-points">2,847</div>
+                            <div class="small text-muted">Data Points Analyzed</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <div class="h4 mb-1" id="last-trained">2 days ago</div>
+                            <div class="small text-muted">Model Last Updated</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Insights Panel -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-emerald-600 text-white">
+                    <i class="bi bi-lightbulb me-2"></i>AI Insights
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="insights-list">
+                        <div class="list-group-item">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-arrow-up-circle text-danger me-2 mt-1"></i>
+                                <div>
+                                    <div class="fw-medium small">Risk Score Increasing</div>
+                                    <div class="text-muted small">Projected 15% increase in overall risk exposure over next quarter</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-exclamation-triangle text-warning me-2 mt-1"></i>
+                                <div>
+                                    <div class="fw-medium small">Compliance Gap Detected</div>
+                                    <div class="text-muted small">NCA-ECC compliance may drop below 85% threshold by March</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-shield-check text-success me-2 mt-1"></i>
+                                <div>
+                                    <div class="fw-medium small">Control Improvement</div>
+                                    <div class="text-muted small">Access control effectiveness trending upward +8%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-clock-history text-info me-2 mt-1"></i>
+                                <div>
+                                    <div class="fw-medium small">Seasonal Pattern</div>
+                                    <div class="text-muted small">Historical data suggests increased incidents in Q4</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scenario Analysis -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <i class="bi bi-diagram-3 me-2"></i>Scenario Analysis
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="small fw-bold">What-If Scenarios</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="scenario-new-control" onchange="updateScenario()">
+                            <label class="form-check-label small">Add new control (+$50K)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="scenario-vendor-risk" onchange="updateScenario()">
+                            <label class="form-check-label small">New vendor onboarding</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="scenario-regulation" onchange="updateScenario()">
+                            <label class="form-check-label small">New regulation (PDPL Phase 2)</label>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-slate-50 dark:bg-slate-700 rounded">
+                        <div class="small fw-bold mb-2">Projected Impact:</div>
+                        <div class="d-flex justify-content-between small">
+                            <span>Risk Score:</span>
+                            <span id="scenario-risk" class="fw-medium">No change</span>
+                        </div>
+                        <div class="d-flex justify-content-between small">
+                            <span>Compliance:</span>
+                            <span id="scenario-compliance" class="fw-medium">No change</span>
+                        </div>
+                        <div class="d-flex justify-content-between small">
+                            <span>Cost Impact:</span>
+                            <span id="scenario-cost" class="fw-medium">$0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Factors -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <i class="bi bi-bar-chart me-2"></i>Key Risk Factors
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span>Third-Party Risk</span>
+                            <span>35%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-danger" style="width: 35%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span>Data Privacy</span>
+                            <span>28%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-warning" style="width: 28%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span>Access Control</span>
+                            <span>20%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-info" style="width: 20%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span>Business Continuity</span>
+                            <span>17%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: 17%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script>
+var predictionChart;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initPredictionChart();
+});
+
+function initPredictionChart() {
+    predictionChart = echarts.init(document.getElementById('prediction-chart'));
+
+    // Generate dates
+    const today = new Date();
+    const dates = [];
+    const historical = [];
+    const predicted = [];
+    const upperBound = [];
+    const lowerBound = [];
+
+    // Historical data (past 90 days)
+    for (let i = -90; i <= 0; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() + i);
+        dates.push(d.toISOString().split('T')[0]);
+        historical.push(Math.round(65 + Math.random() * 20 + i * 0.1));
+        predicted.push(null);
+        upperBound.push(null);
+        lowerBound.push(null);
+    }
+
+    // Predicted data (next 90 days)
+    let lastValue = historical[historical.length - 1];
+    for (let i = 1; i <= 90; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() + i);
+        dates.push(d.toISOString().split('T')[0]);
+        historical.push(null);
+
+        const trend = 0.15; // slight upward trend
+        const noise = (Math.random() - 0.5) * 5;
+        lastValue = lastValue + trend + noise;
+        predicted.push(Math.round(lastValue));
+        upperBound.push(Math.round(lastValue + 10));
+        lowerBound.push(Math.round(lastValue - 10));
+    }
+
+    const option = {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'cross' }
+        },
+        legend: {
+            data: ['Historical', 'Predicted', 'Confidence Band'],
+            bottom: 0
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '15%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: dates,
+            axisLabel: {
+                formatter: function(value) {
+                    return value.substring(5); // Show MM-DD
+                }
+            }
+        },
+        yAxis: {
+            type: 'value',
+            name: 'Risk Score',
+            min: 50,
+            max: 100
+        },
+        series: [
+            {
+                name: 'Historical',
+                type: 'line',
+                data: historical,
+                smooth: true,
+                lineStyle: { color: '#3b82f6', width: 2 },
+                itemStyle: { color: '#3b82f6' },
+                areaStyle: { color: 'rgba(59, 130, 246, 0.1)' }
+            },
+            {
+                name: 'Predicted',
+                type: 'line',
+                data: predicted,
+                smooth: true,
+                lineStyle: { color: '#10b981', width: 2, type: 'dashed' },
+                itemStyle: { color: '#10b981' }
+            },
+            {
+                name: 'Upper Bound',
+                type: 'line',
+                data: upperBound,
+                smooth: true,
+                lineStyle: { opacity: 0 },
+                areaStyle: { color: 'rgba(16, 185, 129, 0.2)' },
+                stack: 'confidence'
+            },
+            {
+                name: 'Lower Bound',
+                type: 'line',
+                data: lowerBound,
+                smooth: true,
+                lineStyle: { opacity: 0 },
+                areaStyle: { color: 'rgba(16, 185, 129, 0.2)' },
+                stack: 'confidence'
+            }
+        ],
+        dataZoom: [
+            { type: 'inside', start: 30, end: 100 },
+            { start: 30, end: 100 }
+        ]
+    };
+
+    predictionChart.setOption(option);
+
+    // Add today marker
+    predictionChart.setOption({
+        markLine: {
+            data: [{ xAxis: today.toISOString().split('T')[0] }],
+            label: { formatter: 'Today' },
+            lineStyle: { color: '#ef4444', type: 'solid' }
+        }
+    });
+}
+
+function updatePrediction() {
+    // Refresh chart with new parameters
+    refreshPrediction();
+}
+
+function refreshPrediction() {
+    if (predictionChart) {
+        predictionChart.showLoading();
+        setTimeout(() => {
+            initPredictionChart();
+            predictionChart.hideLoading();
+        }, 500);
+    }
+}
+
+function exportPrediction() {
+    if (predictionChart) {
+        const url = predictionChart.getDataURL({
+            type: 'png',
+            pixelRatio: 2,
+            backgroundColor: '#fff'
+        });
+        const link = document.createElement('a');
+        link.download = 'predictive-analytics.png';
+        link.href = url;
+        link.click();
+    }
+}
+
+function updateScenario() {
+    const newControl = document.getElementById('scenario-new-control').checked;
+    const vendorRisk = document.getElementById('scenario-vendor-risk').checked;
+    const regulation = document.getElementById('scenario-regulation').checked;
+
+    let riskChange = 0;
+    let complianceChange = 0;
+    let costImpact = 0;
+
+    if (newControl) {
+        riskChange -= 12;
+        complianceChange += 5;
+        costImpact += 50000;
+    }
+    if (vendorRisk) {
+        riskChange += 8;
+        complianceChange -= 3;
+    }
+    if (regulation) {
+        riskChange += 5;
+        complianceChange -= 10;
+        costImpact += 25000;
+    }
+
+    document.getElementById('scenario-risk').textContent =
+        riskChange === 0 ? 'No change' :
+        (riskChange > 0 ? '+' : '') + riskChange + '%';
+    document.getElementById('scenario-risk').className =
+        'fw-medium ' + (riskChange > 0 ? 'text-danger' : riskChange < 0 ? 'text-success' : '');
+
+    document.getElementById('scenario-compliance').textContent =
+        complianceChange === 0 ? 'No change' :
+        (complianceChange > 0 ? '+' : '') + complianceChange + '%';
+    document.getElementById('scenario-compliance').className =
+        'fw-medium ' + (complianceChange > 0 ? 'text-success' : complianceChange < 0 ? 'text-danger' : '');
+
+    document.getElementById('scenario-cost').textContent =
+        costImpact === 0 ? '$0' : '$' + costImpact.toLocaleString();
+}
+
+// Resize handler
+window.addEventListener('resize', function() {
+    if (predictionChart) predictionChart.resize();
+});
+</script>
+
+<style>
+.bg-emerald-600 { background-color: #059669; }
+.text-emerald-600 { color: #059669; }
+</style>

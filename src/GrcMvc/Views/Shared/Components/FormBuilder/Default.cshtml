@@ -1,0 +1,206 @@
+@model GrcMvc.ViewComponents.FormBuilderModel
+
+<div class="form-builder-container">
+    <div class="builder-toolbar d-flex justify-content-between align-items-center p-2 bg-slate-100 dark:bg-slate-800 rounded-lg mb-3">
+        <div class="d-flex align-items-center gap-2">
+            <input type="text" class="form-control form-control-sm" style="width: 200px;"
+                   id="form-name" value="@Model.FormName" placeholder="Form Name" />
+            <span class="badge bg-emerald-500">@Model.FormType</span>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-sm btn-outline-secondary" onclick="previewForm()">
+                <i class="bi bi-eye me-1"></i>Preview
+            </button>
+            <button class="btn btn-sm btn-outline-primary" onclick="saveForm()">
+                <i class="bi bi-save me-1"></i>Save
+            </button>
+        </div>
+    </div>
+
+    <div class="builder-content d-flex gap-3">
+        <!-- Field Palette -->
+        <div class="field-palette p-3 bg-white dark:bg-slate-800 rounded-lg" style="width: 200px;">
+            <h6 class="small fw-bold mb-3">Drag fields to add</h6>
+            @foreach (var field in Model.AvailableFields)
+            {
+                <div class="palette-field p-2 mb-2 rounded border cursor-pointer"
+                     draggable="true" data-field-type="@field.Id">
+                    <i class="bi @field.Icon me-2 text-emerald-500"></i>
+                    <span class="small">@field.Name</span>
+                </div>
+            }
+        </div>
+
+        <!-- Form Canvas -->
+        <div class="form-canvas flex-grow-1 p-4 bg-white dark:bg-slate-800 rounded-lg border-2 border-dashed"
+             id="form-canvas">
+            <div class="empty-state text-center py-5 text-muted" id="empty-state">
+                <i class="bi bi-ui-checks fs-1 mb-2 d-block opacity-50"></i>
+                <p>Drag and drop fields here to build your form</p>
+            </div>
+            <div id="form-fields"></div>
+        </div>
+
+        <!-- Field Properties -->
+        <div class="field-properties p-3 bg-white dark:bg-slate-800 rounded-lg" style="width: 250px;" id="field-properties">
+            <h6 class="small fw-bold mb-3">Field Properties</h6>
+            <div class="text-muted small">Select a field to edit its properties</div>
+        </div>
+    </div>
+</div>
+
+<script>
+var formFields = [];
+var selectedFieldIndex = -1;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('form-canvas');
+    const fieldsContainer = document.getElementById('form-fields');
+    const emptyState = document.getElementById('empty-state');
+
+    // Drag from palette
+    document.querySelectorAll('.palette-field').forEach(field => {
+        field.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('fieldType', field.dataset.fieldType);
+        });
+    });
+
+    // Drop on canvas
+    canvas.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        canvas.classList.add('border-emerald-500');
+    });
+
+    canvas.addEventListener('dragleave', () => {
+        canvas.classList.remove('border-emerald-500');
+    });
+
+    canvas.addEventListener('drop', (e) => {
+        e.preventDefault();
+        canvas.classList.remove('border-emerald-500');
+        const fieldType = e.dataTransfer.getData('fieldType');
+        if (fieldType) {
+            addField(fieldType);
+        }
+    });
+
+    function addField(type) {
+        emptyState.style.display = 'none';
+        const field = {
+            type: type,
+            label: getDefaultLabel(type),
+            required: false,
+            placeholder: '',
+            options: type === 'select' || type === 'radio' || type === 'checkbox' ? ['Option 1', 'Option 2'] : []
+        };
+        formFields.push(field);
+        renderFields();
+    }
+
+    function getDefaultLabel(type) {
+        const labels = {
+            text: 'Text Field', textarea: 'Long Text', number: 'Number', select: 'Dropdown',
+            radio: 'Radio Options', checkbox: 'Checkboxes', date: 'Date', file: 'File Upload',
+            rating: 'Rating', matrix: 'Matrix', section: 'Section Header'
+        };
+        return labels[type] || 'Field';
+    }
+
+    window.renderFields = function() {
+        fieldsContainer.innerHTML = formFields.map((f, i) => `
+            <div class="form-field-item p-3 mb-2 bg-slate-50 dark:bg-slate-700 rounded ${selectedFieldIndex === i ? 'border-2 border-emerald-500' : ''}"
+                 onclick="selectField(${i})" draggable="true">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <label class="fw-medium">${f.label} ${f.required ? '<span class="text-danger">*</span>' : ''}</label>
+                        ${getFieldPreview(f)}
+                    </div>
+                    <button class="btn btn-sm btn-link text-danger" onclick="removeField(${i}, event)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    };
+
+    function getFieldPreview(field) {
+        switch (field.type) {
+            case 'text': return '<input type="text" class="form-control form-control-sm mt-1" disabled placeholder="' + (field.placeholder || 'Enter text...') + '">';
+            case 'textarea': return '<textarea class="form-control form-control-sm mt-1" disabled rows="2"></textarea>';
+            case 'select': return '<select class="form-select form-select-sm mt-1" disabled><option>Select...</option></select>';
+            case 'date': return '<input type="date" class="form-control form-control-sm mt-1" disabled>';
+            case 'number': return '<input type="number" class="form-control form-control-sm mt-1" disabled>';
+            case 'rating': return '<div class="mt-1">★★★★☆</div>';
+            case 'section': return '<hr class="mt-2">';
+            default: return '<div class="text-muted small mt-1">[' + field.type + ' field]</div>';
+        }
+    }
+
+    window.selectField = function(index) {
+        selectedFieldIndex = index;
+        renderFields();
+        showFieldProperties(formFields[index]);
+    };
+
+    window.removeField = function(index, event) {
+        event.stopPropagation();
+        formFields.splice(index, 1);
+        if (formFields.length === 0) emptyState.style.display = 'block';
+        renderFields();
+    };
+
+    function showFieldProperties(field) {
+        document.getElementById('field-properties').innerHTML = `
+            <h6 class="small fw-bold mb-3">Field Properties</h6>
+            <div class="mb-2">
+                <label class="small">Label</label>
+                <input type="text" class="form-control form-control-sm" value="${field.label}"
+                       onchange="updateField('label', this.value)">
+            </div>
+            <div class="mb-2">
+                <label class="small">Placeholder</label>
+                <input type="text" class="form-control form-control-sm" value="${field.placeholder || ''}"
+                       onchange="updateField('placeholder', this.value)">
+            </div>
+            <div class="form-check mb-2">
+                <input type="checkbox" class="form-check-input" id="required-check" ${field.required ? 'checked' : ''}
+                       onchange="updateField('required', this.checked)">
+                <label class="form-check-label small">Required</label>
+            </div>
+        `;
+    }
+
+    window.updateField = function(prop, value) {
+        if (selectedFieldIndex >= 0) {
+            formFields[selectedFieldIndex][prop] = value;
+            renderFields();
+        }
+    };
+});
+
+function saveForm() {
+    const data = {
+        formId: '@Model.FormId',
+        name: document.getElementById('form-name').value,
+        type: '@Model.FormType',
+        fields: formFields
+    };
+    fetch('/api/forms/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    }).then(r => r.ok && alert('Form saved!'));
+}
+
+function previewForm() {
+    // Open preview modal
+    alert('Preview coming soon!');
+}
+</script>
+
+<style>
+.palette-field { transition: all 0.2s; }
+.palette-field:hover { background: #f1f5f9; transform: translateX(4px); }
+.form-field-item { cursor: pointer; transition: all 0.2s; }
+.form-field-item:hover { background: #e2e8f0 !important; }
+</style>

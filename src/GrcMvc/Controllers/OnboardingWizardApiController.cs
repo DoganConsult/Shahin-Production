@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using GrcMvc.Models.DTOs;
 using GrcMvc.Services.Interfaces;
@@ -52,10 +55,19 @@ namespace GrcMvc.Controllers
                     Message = "Wizard started successfully."
                 });
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Invalid operation starting wizard for tenant {TenantId}", tenantId);
+                return BadRequest(ApiErrorResponse.Validation(ex.Message));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error starting wizard for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -70,15 +82,19 @@ namespace GrcMvc.Controllers
                 var state = await _wizardService.GetWizardStateAsync(tenantId);
                 if (state == null)
                 {
-                    return NotFound(new { error = "Wizard not found. Start a new wizard first." });
+                    return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
                 }
 
                 return Ok(state);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting wizard state for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -93,10 +109,14 @@ namespace GrcMvc.Controllers
                 var progress = await _wizardService.GetProgressAsync(tenantId);
                 return Ok(progress);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting wizard progress for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -111,14 +131,31 @@ namespace GrcMvc.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ApiErrorResponse.Validation("Validation failed", GetModelStateErrors()));
+                }
+
                 var userId = User?.FindFirst("sub")?.Value ?? "SYSTEM";
                 var result = await _wizardService.SaveSectionAAsync(tenantId, section, userId);
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ApiErrorResponse.Validation(ex.Message));
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving Section A for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -131,14 +168,31 @@ namespace GrcMvc.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ApiErrorResponse.Validation("Validation failed", GetModelStateErrors()));
+                }
+
                 var userId = User?.FindFirst("sub")?.Value ?? "SYSTEM";
                 var result = await _wizardService.SaveSectionBAsync(tenantId, section, userId);
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ApiErrorResponse.Validation(ex.Message));
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving Section B for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -151,14 +205,31 @@ namespace GrcMvc.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ApiErrorResponse.Validation("Validation failed", GetModelStateErrors()));
+                }
+
                 var userId = User?.FindFirst("sub")?.Value ?? "SYSTEM";
                 var result = await _wizardService.SaveSectionCAsync(tenantId, section, userId);
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ApiErrorResponse.Validation(ex.Message));
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving Section C for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -171,14 +242,31 @@ namespace GrcMvc.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ApiErrorResponse.Validation("Validation failed", GetModelStateErrors()));
+                }
+
                 var userId = User?.FindFirst("sub")?.Value ?? "SYSTEM";
                 var result = await _wizardService.SaveSectionDAsync(tenantId, section, userId);
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ApiErrorResponse.Validation(ex.Message));
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving Section D for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -191,14 +279,31 @@ namespace GrcMvc.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ApiErrorResponse.Validation("Validation failed", GetModelStateErrors()));
+                }
+
                 var userId = User?.FindFirst("sub")?.Value ?? "SYSTEM";
                 var result = await _wizardService.SaveSectionEAsync(tenantId, section, userId);
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ApiErrorResponse.Validation(ex.Message));
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving Section E for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -211,14 +316,31 @@ namespace GrcMvc.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ApiErrorResponse.Validation("Validation failed", GetModelStateErrors()));
+                }
+
                 var userId = User?.FindFirst("sub")?.Value ?? "SYSTEM";
                 var result = await _wizardService.SaveSectionFAsync(tenantId, section, userId);
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ApiErrorResponse.Validation(ex.Message));
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving Section F for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -231,14 +353,31 @@ namespace GrcMvc.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ApiErrorResponse.Validation("Validation failed", GetModelStateErrors()));
+                }
+
                 var userId = User?.FindFirst("sub")?.Value ?? "SYSTEM";
                 var result = await _wizardService.SaveSectionGAsync(tenantId, section, userId);
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ApiErrorResponse.Validation(ex.Message));
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving Section G for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -251,14 +390,31 @@ namespace GrcMvc.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ApiErrorResponse.Validation("Validation failed", GetModelStateErrors()));
+                }
+
                 var userId = User?.FindFirst("sub")?.Value ?? "SYSTEM";
                 var result = await _wizardService.SaveSectionHAsync(tenantId, section, userId);
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ApiErrorResponse.Validation(ex.Message));
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving Section H for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -271,14 +427,31 @@ namespace GrcMvc.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ApiErrorResponse.Validation("Validation failed", GetModelStateErrors()));
+                }
+
                 var userId = User?.FindFirst("sub")?.Value ?? "SYSTEM";
                 var result = await _wizardService.SaveSectionIAsync(tenantId, section, userId);
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ApiErrorResponse.Validation(ex.Message));
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving Section I for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -291,14 +464,31 @@ namespace GrcMvc.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ApiErrorResponse.Validation("Validation failed", GetModelStateErrors()));
+                }
+
                 var userId = User?.FindFirst("sub")?.Value ?? "SYSTEM";
                 var result = await _wizardService.SaveSectionJAsync(tenantId, section, userId);
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ApiErrorResponse.Validation(ex.Message));
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving Section J for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -311,14 +501,31 @@ namespace GrcMvc.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ApiErrorResponse.Validation("Validation failed", GetModelStateErrors()));
+                }
+
                 var userId = User?.FindFirst("sub")?.Value ?? "SYSTEM";
                 var result = await _wizardService.SaveSectionKAsync(tenantId, section, userId);
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ApiErrorResponse.Validation(ex.Message));
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving Section K for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -331,14 +538,31 @@ namespace GrcMvc.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ApiErrorResponse.Validation("Validation failed", GetModelStateErrors()));
+                }
+
                 var userId = User?.FindFirst("sub")?.Value ?? "SYSTEM";
                 var result = await _wizardService.SaveSectionLAsync(tenantId, section, userId);
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ApiErrorResponse.Validation(ex.Message));
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving Section L for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -355,14 +579,31 @@ namespace GrcMvc.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ApiErrorResponse.Validation("Validation failed", GetModelStateErrors()));
+                }
+
                 var userId = User?.FindFirst("sub")?.Value ?? "SYSTEM";
                 var result = await _wizardService.SaveMinimalOnboardingAsync(tenantId, data, userId);
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ApiErrorResponse.Validation(ex.Message));
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving minimal onboarding for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -381,10 +622,18 @@ namespace GrcMvc.Controllers
                 var result = await _wizardService.ValidateWizardAsync(tenantId, minimalOnly);
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error validating wizard for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -402,15 +651,32 @@ namespace GrcMvc.Controllers
 
                 if (!result.Success)
                 {
-                    return BadRequest(result);
+                    return BadRequest(ApiErrorResponse.Validation(
+                        result.Message ?? "Wizard completion failed",
+                        result.Errors?.Any() == true
+                            ? new Dictionary<string, string[]> { { "wizard", result.Errors.ToArray() } }
+                            : null));
                 }
 
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Invalid wizard state for tenant {TenantId}", tenantId);
+                return BadRequest(ApiErrorResponse.Validation(ex.Message));
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error completing wizard for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -425,14 +691,22 @@ namespace GrcMvc.Controllers
                 var coverageResult = await _wizardService.ValidateSectionCoverageAsync(tenantId, sectionId);
                 if (coverageResult == null)
                 {
-                    return NotFound(new { error = $"Coverage validation not found for section {sectionId}" });
+                    return NotFound(ApiErrorResponse.NotFound($"Coverage validation for section {sectionId}"));
                 }
                 return Ok(coverageResult);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting section coverage for tenant {TenantId}, section {SectionId}", tenantId, sectionId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -447,10 +721,18 @@ namespace GrcMvc.Controllers
                 var allCoverage = await _wizardService.GetAllSectionsCoverageAsync(tenantId);
                 return Ok(allCoverage);
             }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting all sections coverage for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
         }
 
@@ -463,13 +745,42 @@ namespace GrcMvc.Controllers
             try
             {
                 var scope = await _wizardService.GetDerivedScopeAsync(tenantId);
+                if (scope == null)
+                {
+                    return NotFound(ApiErrorResponse.ScopeDerivationFailed("Scope not yet derived. Complete the wizard first."));
+                }
                 return Ok(scope);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, ApiErrorResponse.Unauthorized());
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(ApiErrorResponse.WizardNotFound(tenantId));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting derived scope for tenant {TenantId}", tenantId);
-                return BadRequest(new { error = "An error occurred processing your request." });
+                return StatusCode(500, ApiErrorResponse.InternalError());
             }
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        /// <summary>
+        /// Extract validation errors from ModelState.
+        /// </summary>
+        private Dictionary<string, string[]> GetModelStateErrors()
+        {
+            return ModelState
+                .Where(x => x.Value?.Errors.Count > 0)
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                );
         }
 
         #endregion

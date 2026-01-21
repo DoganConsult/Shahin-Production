@@ -40,7 +40,26 @@
         </div>
     }
 
+    <!-- Gantt Chart Scheduler -->
+    <div class="card mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-calendar-range me-2"></i>@L["Audit_ScheduleTimeline"]</h5>
+            <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-outline-primary" onclick="setGanttView('day')">@L["Day"]</button>
+                <button type="button" class="btn btn-outline-primary active" onclick="setGanttView('week')">@L["Week"]</button>
+                <button type="button" class="btn btn-outline-primary" onclick="setGanttView('month')">@L["Month"]</button>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            @await Component.InvokeAsync("GanttScheduler", new { scheduleType = "audit" })
+        </div>
+    </div>
+
+    <!-- Data Table -->
     <div class="card">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="bi bi-table me-2"></i>@L["Audit_List_Title"]</h5>
+        </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover" id="auditsTable">

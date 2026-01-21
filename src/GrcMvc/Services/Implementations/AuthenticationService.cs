@@ -31,6 +31,9 @@ namespace GrcMvc.Services.Implementations
         private readonly ILogger<AuthenticationService> _logger;
         private readonly IAuthenticationAuditService? _authAuditService;
         private readonly IHttpContextAccessor? _httpContextAccessor;
+        private readonly IEmailMfaService? _emailMfaService;
+        private readonly ITotpMfaService? _totpMfaService;
+        private readonly ISmsMfaService? _smsMfaService;
 
         public AuthenticationService(
             UserManager<ApplicationUser> userManager,
@@ -39,7 +42,10 @@ namespace GrcMvc.Services.Implementations
             IConfiguration configuration,
             ILogger<AuthenticationService> logger,
             IAuthenticationAuditService? authAuditService = null,
-            IHttpContextAccessor? httpContextAccessor = null)
+            IHttpContextAccessor? httpContextAccessor = null,
+            IEmailMfaService? emailMfaService = null,
+            ITotpMfaService? totpMfaService = null,
+            ISmsMfaService? smsMfaService = null)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -48,6 +54,9 @@ namespace GrcMvc.Services.Implementations
             _logger = logger;
             _authAuditService = authAuditService;
             _httpContextAccessor = httpContextAccessor;
+            _emailMfaService = emailMfaService;
+            _totpMfaService = totpMfaService;
+            _smsMfaService = smsMfaService;
         }
 
         private string? GetIpAddress()
@@ -86,6 +95,26 @@ namespace GrcMvc.Services.Implementations
                     return null;
                 }
 
+                // Check if 2FA is required
+                var requiresMfa = user.TwoFactorEnabled || user.MfaRequired || !string.IsNullOrEmpty(user.MfaMethod);
+                if (requiresMfa)
+                {
+                    // Return special response indicating 2FA is required
+                    // The client should then call VerifyMfaAsync
+                    return new AuthTokenDto
+                    {
+                        AccessToken = null, // No token until 2FA verified
+                        RequiresMfa = true,
+                        MfaMethod = user.MfaMethod ?? "Email", // Default to Email if not set
+                        User = new AuthUserDto
+                        {
+                            Id = user.Id,
+                            Email = user.Email ?? string.Empty,
+                            FullName = user.FullName
+                        }
+                    };
+                }
+
                 // Update last login
                 user.LastLoginDate = DateTime.UtcNow;
                 await _userManager.UpdateAsync(user);
@@ -120,6 +149,7 @@ namespace GrcMvc.Services.Implementations
                     RefreshToken = refreshToken,
                     TokenType = "Bearer",
                     ExpiresIn = 3600, // 1 hour
+                    RequiresMfa = false,
                     User = new AuthUserDto
                     {
                         Id = user.Id,
@@ -686,6 +716,429 @@ namespace GrcMvc.Services.Implementations
             return _configuration["JWT:Audience"] ?? 
                    _configuration["OpenIddict:Audience"] ?? 
                    "https://shahin-ai.com";
+        }
+
+        #endregion
+
+        #region Two-Factor Authentication
+
+        /// <summary>
+        /// Verify MFA code and complete login
+        /// </summary>
+        public async Task<AuthTokenDto?> VerifyMfaAsync(string userId, string mfaCode, string mfaMethod)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    _logger.LogWarning("MFA verification attempted for non-existent user: {UserId}", userId);
+                    return null;
+                }
+
+                bool isValid = false;
+
+                switch (mfaMethod.ToUpper())
+                {
+                    case "EMAIL":
+                        if (_emailMfaService != null)
+                        {
+                            var emailResult = await _emailMfaService.VerifyCodeAsync(userId, mfaCode);
+                            isValid = emailResult.Success;
+                        }
+                        break;
+
+                    case "TOTP":
+                        if (_totpMfaService != null && !string.IsNullOrEmpty(user.TotpSecretKey))
+                        {
+                            isValid = _totpMfaService.VerifyCode(user.TotpSecretKey, mfaCode);
+                        }
+                        break;
+
+                    case "SMS":
+                        if (_smsMfaService != null && _smsMfaService.IsEnabled)
+                        {
+                            var smsResult = await _smsMfaService.VerifyCodeAsync(userId, mfaCode);
+                            isValid = smsResult.Success;
+                        }
+                        break;
+
+                    default:
+                        _logger.LogWarning("Unknown MFA method: {MfaMethod}", mfaMethod);
+                        return null;
+                }
+
+                if (!isValid)
+                {
+                    _logger.LogWarning("MFA verification failed for user {UserId} with method {MfaMethod}", userId, mfaMethod);
+                    return null;
+                }
+
+                // MFA verified, complete login
+                var roles = await _userManager.GetRolesAsync(user);
+                var claims = await _userManager.GetClaimsAsync(user);
+                var token = GenerateJwtToken(user, roles, claims);
+
+                var refreshToken = GenerateRefreshToken();
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+                user.LastLoginDate = DateTime.UtcNow;
+                await _userManager.UpdateAsync(user);
+
+                _logger.LogInformation("MFA verified and login completed for user {UserId}", userId);
+
+                return new AuthTokenDto
+                {
+                    AccessToken = token,
+                    RefreshToken = refreshToken,
+                    TokenType = "Bearer",
+                    ExpiresIn = 3600,
+                    RequiresMfa = false,
+                    User = new AuthUserDto
+                    {
+                        Id = user.Id,
+                        Email = user.Email ?? string.Empty,
+                        FullName = user.FullName,
+                        Department = user.Department,
+                        Roles = roles.ToList(),
+                        Permissions = claims.Where(c => c.Type.StartsWith("permission.")).Select(c => c.Value).ToList()
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error verifying MFA for user {UserId}", userId);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Send MFA code to user
+        /// </summary>
+        public async Task<bool> SendMfaCodeAsync(string userId, string mfaMethod)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return false;
+                }
+
+                switch (mfaMethod.ToUpper())
+                {
+                    case "EMAIL":
+                        if (_emailMfaService != null && !string.IsNullOrEmpty(user.Email))
+                        {
+                            return await _emailMfaService.SendMfaCodeAsync(userId, user.Email, user.FullName);
+                        }
+                        break;
+
+                    case "SMS":
+                        if (_smsMfaService != null && _smsMfaService.IsEnabled && !string.IsNullOrEmpty(user.MfaPhoneNumber))
+                        {
+                            return await _smsMfaService.SendMfaCodeAsync(userId, user.MfaPhoneNumber);
+                        }
+                        break;
+
+                    default:
+                        _logger.LogWarning("Unknown or unsupported MFA method: {MfaMethod}", mfaMethod);
+                        return false;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending MFA code to user {UserId}", userId);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Setup TOTP for user (generate secret and QR code)
+        /// </summary>
+        public async Task<TotpSetupResult> SetupTotpAsync(string userId)
+        {
+            try
+            {
+                if (_totpMfaService == null)
+                {
+                    return new TotpSetupResult { Success = false };
+                }
+
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null || string.IsNullOrEmpty(user.Email))
+                {
+                    return new TotpSetupResult { Success = false };
+                }
+
+                var secretKey = _totpMfaService.GenerateSecretKey();
+                var qrCodeUri = _totpMfaService.GenerateQrCodeUri(user.Email, secretKey);
+
+                // Store secret key (should be encrypted in production)
+                user.TotpSecretKey = secretKey;
+                await _userManager.UpdateAsync(user);
+
+                _logger.LogInformation("TOTP setup completed for user {UserId}", userId);
+                return new TotpSetupResult 
+                { 
+                    Success = true,
+                    SecretKey = secretKey,
+                    QrCodeUri = qrCodeUri
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error setting up TOTP for user {UserId}", userId);
+                return new TotpSetupResult { Success = false };
+            }
+        }
+
+        /// <summary>
+        /// Enable MFA for user
+        /// </summary>
+        public async Task<bool> EnableMfaAsync(string userId, string mfaMethod, string? secretKey = null, string? phoneNumber = null)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return false;
+                }
+
+                user.MfaMethod = mfaMethod;
+                user.TwoFactorEnabled = true;
+
+                if (mfaMethod == "TOTP" && !string.IsNullOrEmpty(secretKey))
+                {
+                    user.TotpSecretKey = secretKey;
+                }
+
+                if (mfaMethod == "SMS" && !string.IsNullOrEmpty(phoneNumber))
+                {
+                    user.MfaPhoneNumber = phoneNumber;
+                }
+
+                await _userManager.UpdateAsync(user);
+                _logger.LogInformation("MFA enabled for user {UserId} with method {MfaMethod}", userId, mfaMethod);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error enabling MFA for user {UserId}", userId);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Disable MFA for a user
+        /// </summary>
+        public async Task<bool> DisableMfaAsync(string userId)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return false;
+                }
+
+                user.TwoFactorEnabled = false;
+                user.MfaMethod = null;
+                user.TotpSecretKey = null;
+                user.MfaPhoneNumber = null;
+
+                await _userManager.UpdateAsync(user);
+                _logger.LogInformation("MFA disabled for user {UserId}", userId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error disabling MFA for user {UserId}", userId);
+                return false;
+            }
+        }
+
+        #endregion
+
+        #region External Authentication (OAuth2/OIDC)
+
+        /// <summary>
+        /// Process external login from OAuth2/OIDC provider
+        /// </summary>
+        public async Task<AuthTokenDto?> ExternalLoginAsync(string provider, string providerKey, string email, string? name = null)
+        {
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(email);
+                
+                if (user == null)
+                {
+                    // Create new user from external login
+                    user = new ApplicationUser
+                    {
+                        UserName = email,
+                        Email = email,
+                        EmailConfirmed = true, // External providers verify email
+                        FullName = name ?? email,
+                        IsActive = true,
+                        CreatedDate = DateTime.UtcNow
+                    };
+
+                    var createResult = await _userManager.CreateAsync(user);
+                    if (!createResult.Succeeded)
+                    {
+                        _logger.LogError("Failed to create user from external login: {Errors}",
+                            string.Join(", ", createResult.Errors.Select(e => e.Description)));
+                        return null;
+                    }
+                }
+
+                // Check if external login already linked
+                var existingLogin = await _userManager.FindByLoginAsync(provider, providerKey);
+                if (existingLogin == null)
+                {
+                    // Link external login
+                    var loginInfo = new UserLoginInfo(provider, providerKey, provider);
+                    var addLoginResult = await _userManager.AddLoginAsync(user, loginInfo);
+                    if (!addLoginResult.Succeeded)
+                    {
+                        _logger.LogError("Failed to link external login: {Errors}",
+                            string.Join(", ", addLoginResult.Errors.Select(e => e.Description)));
+                        return null;
+                    }
+                }
+
+                // Update last login
+                user.LastLoginDate = DateTime.UtcNow;
+                await _userManager.UpdateAsync(user);
+
+                // Get roles and claims
+                var roles = await _userManager.GetRolesAsync(user);
+                var claims = await _userManager.GetClaimsAsync(user);
+
+                // Generate JWT token
+                var token = GenerateJwtToken(user, roles, claims);
+
+                // Store refresh token
+                var refreshToken = GenerateRefreshToken();
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+                await _userManager.UpdateAsync(user);
+
+                _logger.LogInformation("External login successful for provider: {Provider}, Email: {Email}", provider, email);
+
+                return new AuthTokenDto
+                {
+                    AccessToken = token,
+                    RefreshToken = refreshToken,
+                    TokenType = "Bearer",
+                    ExpiresIn = 3600,
+                    User = new AuthUserDto
+                    {
+                        Id = user.Id,
+                        Email = user.Email ?? string.Empty,
+                        FullName = user.FullName
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing external login for provider: {Provider}", provider);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Link external login provider to existing user
+        /// </summary>
+        public async Task<bool> LinkExternalLoginAsync(string userId, string provider, string providerKey)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return false;
+                }
+
+                var loginInfo = new UserLoginInfo(provider, providerKey, provider);
+                var result = await _userManager.AddLoginAsync(user, loginInfo);
+                
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("External login linked for user {UserId}, provider: {Provider}", userId, provider);
+                }
+                
+                return result.Succeeded;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error linking external login for user {UserId}, provider: {Provider}", userId, provider);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Unlink external login provider from user
+        /// </summary>
+        public async Task<bool> UnlinkExternalLoginAsync(string userId, string provider)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return false;
+                }
+
+                var logins = await _userManager.GetLoginsAsync(user);
+                var loginToRemove = logins.FirstOrDefault(l => l.LoginProvider == provider);
+                
+                if (loginToRemove == null)
+                {
+                    return false;
+                }
+
+                var result = await _userManager.RemoveLoginAsync(user, loginToRemove.LoginProvider, loginToRemove.ProviderKey);
+                
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("External login unlinked for user {UserId}, provider: {Provider}", userId, provider);
+                }
+                
+                return result.Succeeded;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error unlinking external login for user {UserId}, provider: {Provider}", userId, provider);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Get list of linked external login providers for user
+        /// </summary>
+        public async Task<List<string>> GetLinkedProvidersAsync(string userId)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return new List<string>();
+                }
+
+                var logins = await _userManager.GetLoginsAsync(user);
+                return logins.Select(l => l.LoginProvider).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting linked providers for user {UserId}", userId);
+                return new List<string>();
+            }
         }
 
         #endregion

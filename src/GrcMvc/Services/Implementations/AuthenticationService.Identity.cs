@@ -578,6 +578,73 @@ namespace GrcMvc.Services.Implementations
 
             return result.Succeeded;
         }
+
+        #region Two-Factor Authentication (Stub Implementation)
+
+        public async Task<AuthTokenDto?> VerifyMfaAsync(string userId, string mfaCode, string mfaMethod)
+        {
+            // Stub implementation - delegate to main AuthenticationService if needed
+            _logger.LogWarning("MFA verification not implemented in IdentityAuthenticationService - use AuthenticationService instead");
+            return await Task.FromResult<AuthTokenDto?>(null);
+        }
+
+        public async Task<bool> SendMfaCodeAsync(string userId, string mfaMethod)
+        {
+            // Stub implementation
+            _logger.LogWarning("SendMfaCodeAsync not implemented in IdentityAuthenticationService - use AuthenticationService instead");
+            return await Task.FromResult(false);
+        }
+
+        public async Task<TotpSetupResult> SetupTotpAsync(string userId)
+        {
+            // Stub implementation
+            _logger.LogWarning("SetupTotpAsync not implemented in IdentityAuthenticationService - use AuthenticationService instead");
+            return await Task.FromResult(new TotpSetupResult { Success = false });
+        }
+
+        public async Task<bool> EnableMfaAsync(string userId, string mfaMethod, string? secretKey = null, string? phoneNumber = null)
+        {
+            // Stub implementation
+            _logger.LogWarning("EnableMfaAsync not implemented in IdentityAuthenticationService - use AuthenticationService instead");
+            return await Task.FromResult(false);
+        }
+
+        public async Task<bool> DisableMfaAsync(string userId)
+        {
+            // Stub implementation
+            _logger.LogWarning("DisableMfaAsync not implemented in IdentityAuthenticationService - use AuthenticationService instead");
+            return await Task.FromResult(false);
+        }
+
+        #endregion
+
+        #region External Authentication (Stub Implementation)
+
+        public async Task<AuthTokenDto?> ExternalLoginAsync(string provider, string providerKey, string email, string? name = null)
+        {
+            _logger.LogWarning("ExternalLoginAsync not implemented in IdentityAuthenticationService - use AuthenticationService instead");
+            return await Task.FromResult<AuthTokenDto?>(null);
+        }
+
+        public async Task<bool> LinkExternalLoginAsync(string userId, string provider, string providerKey)
+        {
+            _logger.LogWarning("LinkExternalLoginAsync not implemented in IdentityAuthenticationService - use AuthenticationService instead");
+            return await Task.FromResult(false);
+        }
+
+        public async Task<bool> UnlinkExternalLoginAsync(string userId, string provider)
+        {
+            _logger.LogWarning("UnlinkExternalLoginAsync not implemented in IdentityAuthenticationService - use AuthenticationService instead");
+            return await Task.FromResult(false);
+        }
+
+        public async Task<List<string>> GetLinkedProvidersAsync(string userId)
+        {
+            _logger.LogWarning("GetLinkedProvidersAsync not implemented in IdentityAuthenticationService - use AuthenticationService instead");
+            return await Task.FromResult(new List<string>());
+        }
+
+        #endregion
     }
 
     /// <summary>

@@ -183,5 +183,44 @@ namespace GrcMvc.Controllers
             if (policyDto == null) return NotFound();
             return Ok(policyDto);
         }
+
+        [Authorize(GrcPermissions.Policies.Manage)]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var policy = await _policyService.GetByIdAsync(id);
+            if (policy == null) return NotFound();
+            return View(policy);
+        }
+
+        [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken, Authorize(GrcPermissions.Policies.Manage)]
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        {
+            try
+            {
+                var policy = await _policyService.GetByIdAsync(id);
+                if (policy != null)
+                {
+                    await _policyHelper.EnforceDeleteAsync("PolicyDocument", policy, 
+                        dataClassification: policy.DataClassification, 
+                        owner: policy.Owner);
+                }
+
+                await _policyService.DeleteAsync(id);
+                TempData["Success"] = "Policy deleted successfully";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (PolicyViolationException pex)
+            {
+                _logger.LogWarning(pex, "Policy violation deleting policy {PolicyId}", id);
+                TempData["Error"] = "A policy violation occurred. Please review the requirements.";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting policy {PolicyId}", id);
+                TempData["Error"] = "Error deleting policy. Please try again.";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+        }
     }
 }

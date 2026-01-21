@@ -1,0 +1,155 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@model GrcMvc.Models.Workflows.WorkflowNotification
+@{
+    ViewData["Title"] = L["NotificationDetails"];
+    Layout = "_Layout";
+
+    var typeIcon = Model.NotificationType switch
+    {
+        "Task" => "bi-list-task text-primary",
+        "TaskAssigned" => "bi-list-task text-primary",
+        "Approval" => "bi-check-circle text-success",
+        "ApprovalPending" => "bi-check-circle text-success",
+        "Alert" => "bi-exclamation-triangle text-warning",
+        "Reminder" => "bi-clock text-info",
+        "TaskDue" => "bi-clock text-warning",
+        "TaskOverdue" => "bi-exclamation-triangle text-danger",
+        "Escalation" => "bi-arrow-up-circle text-danger",
+        _ => "bi-bell text-secondary"
+    };
+
+    var priorityBadge = Model.Priority switch
+    {
+        "Critical" => "bg-danger",
+        "High" => "bg-warning text-dark",
+        "Normal" => "bg-secondary",
+        "Low" => "bg-info",
+        _ => "bg-secondary"
+    };
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index">@L["Inbox"]</a></li>
+                    <li class="breadcrumb-item active">@L["NotificationDetails"]</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="bi @typeIcon fs-4 me-2"></i>
+                        <span class="badge @priorityBadge">@Model.Priority</span>
+                        @if (!string.IsNullOrEmpty(Model.NotificationType))
+                        {
+                            <span class="badge bg-secondary ms-2">@Model.NotificationType</span>
+                        }
+                    </div>
+                    <small class="text-muted">
+                        <i class="bi bi-clock"></i> @Model.CreatedAt.ToString("MMMM dd, yyyy HH:mm")
+                    </small>
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title mb-3">@Model.Subject</h4>
+                    <div class="card-text">
+                        @if (!string.IsNullOrEmpty(Model.Body))
+                        {
+                            <p class="lead">@Model.Body</p>
+                        }
+                        else if (!string.IsNullOrEmpty(Model.Message))
+                        {
+                            <p class="lead">@Model.Message</p>
+                        }
+                        else
+                        {
+                            <p class="text-muted">@L["NoContent"]</p>
+                        }
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> @L["BackToInbox"]
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-info-circle"></i> @L["Details"]</h6>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">@L["Type"]:</dt>
+                        <dd class="col-sm-7">@(Model.NotificationType ?? "General")</dd>
+
+                        <dt class="col-sm-5">@L["Priority"]:</dt>
+                        <dd class="col-sm-7"><span class="badge @priorityBadge">@Model.Priority</span></dd>
+
+                        <dt class="col-sm-5">@L["Status"]:</dt>
+                        <dd class="col-sm-7">
+                            @if (Model.IsRead)
+                            {
+                                <span class="badge bg-success">@L["Read"]</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-primary">@L["Unread"]</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-5">@L["Created"]:</dt>
+                        <dd class="col-sm-7">@Model.CreatedAt.ToString("MMM dd, yyyy")</dd>
+
+                        <dt class="col-sm-5">@L["Time"]:</dt>
+                        <dd class="col-sm-7">@Model.CreatedAt.ToString("HH:mm:ss")</dd>
+
+                        @if (Model.SentAt.HasValue)
+                        {
+                            <dt class="col-sm-5">@L["SentAt"]:</dt>
+                            <dd class="col-sm-7">@Model.SentAt.Value.ToString("MMM dd, yyyy HH:mm")</dd>
+                        }
+
+                        @if (Model.DeliveredAt.HasValue)
+                        {
+                            <dt class="col-sm-5">@L["Delivered"]:</dt>
+                            <dd class="col-sm-7">@Model.DeliveredAt.Value.ToString("MMM dd, yyyy HH:mm")</dd>
+                        }
+
+                        <dt class="col-sm-5">@L["Channel"]:</dt>
+                        <dd class="col-sm-7">
+                            @if (Model.RequiresEmail)
+                            {
+                                <i class="bi bi-envelope text-primary" title="Email"></i>
+                            }
+                            <i class="bi bi-app text-info ms-1" title="In-App"></i>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            @if (Model.WorkflowInstanceId != Guid.Empty)
+            {
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0"><i class="bi bi-diagram-3"></i> @L["RelatedWorkflow"]</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="small text-muted mb-0">
+                            @L["WorkflowInstance"]: @Model.WorkflowInstanceId
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

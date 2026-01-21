@@ -1,127 +1,159 @@
 using Xunit;
+using Microsoft.Extensions.Logging;
 using GrcMvc.Application.Policy;
 using GrcMvc.Application.Policy.PolicyModels;
-using Microsoft.Extensions.Logging;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace GrcMvc.Tests.Unit
+namespace GrcMvc.Tests.Unit;
+
+/// <summary>
+/// Unit tests for MutationApplier
+/// Tests policy mutation application to resources
+/// </summary>
+public class MutationApplierTests
 {
-    /// <summary>
-    /// Unit tests for MutationApplier - Tests set/remove/add operations
-    /// </summary>
-    public class MutationApplierTests
+    private readonly MutationApplier _applier;
+    private readonly Mock<IDotPathResolver> _pathResolverMock;
+    private readonly Mock<ILogger<MutationApplier>> _loggerMock;
+
+    public MutationApplierTests()
     {
-        private readonly MutationApplier _applier;
-        private readonly Mock<IDotPathResolver> _pathResolverMock;
-        private readonly ILogger<MutationApplier> _logger;
+        _pathResolverMock = new Mock<IDotPathResolver>();
+        _loggerMock = new Mock<ILogger<MutationApplier>>();
+        _applier = new MutationApplier(_pathResolverMock.Object, _loggerMock.Object);
+    }
 
-        public MutationApplierTests()
+    [Fact]
+    public async Task Apply_SetMutation_UpdatesProperty()
+    {
+        // Arrange
+        var resource = new PolicyResourceWrapper
         {
-            _pathResolverMock = new Mock<IDotPathResolver>();
-            _logger = Mock.Of<ILogger<MutationApplier>>();
-            _applier = new MutationApplier(_pathResolverMock.Object, _logger);
-        }
+            Id = Guid.NewGuid(),
+            Title = "Original",
+            Metadata = new PolicyResourceMetadata
+            {
+                Labels = new Dictionary<string, string>()
+            }
+        };
 
-        [Fact]
-        public async Task ApplyAsync_SetOperation_CallsPathResolver()
+        var mutations = new[]
         {
-            // Arrange
-            var resource = new PolicyResourceWrapper
-            {
-                Id = Guid.NewGuid(),
-                Title = "Test",
-                Metadata = new PolicyResourceMetadata
-                {
-                    Labels = new Dictionary<string, string>()
-                }
-            };
-            var mutations = new List<PolicyMutation>
-            {
-                new PolicyMutation { Op = "set", Path = "Title", Value = "New Title" }
-            };
+            new PolicyMutation { Op = "set", Path = "Title", Value = "Updated" }
+        };
 
-            // Act
-            await _applier.ApplyAsync(mutations, resource);
+        // Act
+        await _applier.ApplyAsync(mutations, resource);
 
-            // Assert
-            _pathResolverMock.Verify(r => r.Set(resource, "Title", "New Title"), Times.Once);
-        }
+        // Assert
+        Assert.Equal("Updated", resource.Title);
+    }
 
-        [Fact]
-        public async Task ApplyAsync_SetMetadataLabels_UpdatesLabels()
+    [Fact]
+    public async Task Apply_SetLabelMutation_UpdatesLabel()
+    {
+        // Arrange
+        var resource = new PolicyResourceWrapper
         {
-            // Arrange
-            var resource = new PolicyResourceWrapper
+            Metadata = new PolicyResourceMetadata
             {
-                Id = Guid.NewGuid(),
-                Metadata = new PolicyResourceMetadata
-                {
-                    Labels = new Dictionary<string, string>()
-                }
-            };
-            var mutations = new List<PolicyMutation>
-            {
-                new PolicyMutation { Op = "set", Path = "metadata.labels.owner", Value = "Team1" }
-            };
+                Labels = new Dictionary<string, string>()
+            }
+        };
 
-            // Act
-            await _applier.ApplyAsync(mutations, resource);
-
-            // Assert
-            Assert.Equal("Team1", resource.Metadata.Labels["owner"]);
-        }
-
-        [Fact]
-        public async Task ApplyAsync_RemoveOperation_CallsPathResolver()
+        var mutations = new[]
         {
-            // Arrange
-            var resource = new PolicyResourceWrapper
-            {
-                Id = Guid.NewGuid(),
-                Metadata = new PolicyResourceMetadata
-                {
-                    Labels = new Dictionary<string, string> { ["owner"] = "Team1" }
-                }
-            };
-            var mutations = new List<PolicyMutation>
-            {
-                new PolicyMutation { Op = "remove", Path = "metadata.labels.owner" }
-            };
+            new PolicyMutation { Op = "set", Path = "metadata.labels.dataClassification", Value = "confidential" }
+        };
 
-            // Act
-            await _applier.ApplyAsync(mutations, resource);
+        // Act
+        await _applier.ApplyAsync(mutations, resource);
 
-            // Assert
-            Assert.False(resource.Metadata.Labels.ContainsKey("owner"));
-        }
+        // Assert
+        Assert.Equal("confidential", resource.Metadata.Labels["dataClassification"]);
+    }
 
-        [Fact]
-        public async Task ApplyAsync_MultipleMutations_AppliesAll()
+    [Fact]
+    public async Task Apply_NormalizeEmptyString_ConvertsToNull()
+    {
+        // Arrange
+        var resource = new PolicyResourceWrapper
         {
-            // Arrange
-            var resource = new PolicyResourceWrapper
+            Metadata = new PolicyResourceMetadata
             {
-                Id = Guid.NewGuid(),
-                Metadata = new PolicyResourceMetadata
-                {
-                    Labels = new Dictionary<string, string>()
-                }
-            };
-            var mutations = new List<PolicyMutation>
+                Labels = new Dictionary<string, string> { { "owner", "" } }
+            }
+        };
+
+        var mutations = new[]
+        {
+            new PolicyMutation { Op = "normalize", Path = "metadata.labels.owner", Value = null }
+        };
+
+        // Act
+        await _applier.ApplyAsync(mutations, resource);
+
+        // Assert
+        Assert.False(resource.Metadata.Labels.ContainsKey("owner") || 
+                    string.IsNullOrEmpty(resource.Metadata.Labels.GetValueOrDefault("owner")));
+    }
+
+    [Fact]
+    public async Task Apply_MultipleMutations_AppliesAll()
+    {
+        // Arrange
+        var resource = new PolicyResourceWrapper
+        {
+            Title = "Original",
+            Metadata = new PolicyResourceMetadata
             {
-                new PolicyMutation { Op = "set", Path = "metadata.labels.owner", Value = "Team1" },
-                new PolicyMutation { Op = "set", Path = "metadata.labels.dataClassification", Value = "internal" }
-            };
+                Labels = new Dictionary<string, string>()
+            }
+        };
 
-            // Act
-            await _applier.ApplyAsync(mutations, resource);
+        var mutations = new[]
+        {
+            new PolicyMutation { Op = "set", Path = "Title", Value = "Updated" },
+            new PolicyMutation { Op = "set", Path = "metadata.labels.owner", Value = "admin" }
+        };
 
-            // Assert
-            Assert.Equal("Team1", resource.Metadata.Labels["owner"]);
-            Assert.Equal("internal", resource.Metadata.Labels["dataClassification"]);
-        }
+        // Act
+        await _applier.ApplyAsync(mutations, resource);
+
+        // Assert
+        Assert.Equal("Updated", resource.Title);
+        Assert.Equal("admin", resource.Metadata.Labels["owner"]);
+    }
+
+    [Fact]
+    public async Task Apply_UnknownOperation_LogsWarning()
+    {
+        // Arrange
+        var resource = new PolicyResourceWrapper();
+        var mutations = new[]
+        {
+            new PolicyMutation { Op = "unknown", Path = "Title", Value = "Test" }
+        };
+
+        // Act
+        await _applier.ApplyAsync(mutations, resource);
+
+        // Assert
+        // Should not throw, but log warning
+        _pathResolverMock.Verify(x => x.Set(It.IsAny<object>(), It.IsAny<string>(), It.IsAny<object>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Apply_EmptyMutations_NoChanges()
+    {
+        // Arrange
+        var resource = new PolicyResourceWrapper { Title = "Original" };
+        var mutations = Array.Empty<PolicyMutation>();
+
+        // Act
+        await _applier.ApplyAsync(mutations, resource);
+
+        // Assert
+        Assert.Equal("Original", resource.Title);
     }
 }

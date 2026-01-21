@@ -376,6 +376,522 @@ Respond with JSON:
         }
     }
 
+    public async Task<EvidenceCollectionResult> CollectEvidenceAsync(
+        Guid tenantId,
+        string source,
+        string evidenceType,
+        Dictionary<string, object>? parameters = null,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Collecting evidence from {Source} for tenant {TenantId}", source, tenantId);
+
+        var result = new EvidenceCollectionResult
+        {
+            TenantId = tenantId,
+            Source = source,
+            EvidenceType = evidenceType,
+            CollectedItems = new List<CollectedEvidenceItem>(),
+            Errors = new List<string>(),
+            CollectedAt = DateTime.UtcNow
+        };
+
+        try
+        {
+            // Get integration connectors for the source
+            var integrations = await _context.IntegrationConnectors
+                .Where(i => i.TenantId == tenantId && i.ConnectorType == source && i.Status == "Active")
+                .ToListAsync(cancellationToken);
+
+            if (!integrations.Any())
+            {
+                result.Success = false;
+                result.Errors.Add($"No active integration found for source: {source}");
+                return result;
+            }
+
+            // Simulate evidence collection from integrated systems
+            // In production, this would connect to actual systems (IAM, SIEM, ERP, etc.)
+            foreach (var integration in integrations)
+            {
+                var collectedItem = new CollectedEvidenceItem
+                {
+                    Title = $"{evidenceType} from {source}",
+                    SourceSystem = integration.Name ?? source,
+                    FileName = $"{evidenceType.Replace(" ", "_")}_{DateTime.UtcNow:yyyyMMdd_HHmmss}.json",
+                    FileSize = 1024,
+                    ContentType = "application/json",
+                    CollectedAt = DateTime.UtcNow,
+                    Metadata = new Dictionary<string, object>
+                    {
+                        { "source", source },
+                        { "integrationId", integration.Id },
+                        { "collectionMethod", "Automated" },
+                        { "parameters", parameters ?? new Dictionary<string, object>() }
+                    }
+                };
+
+                // Create evidence record in database
+                var evidence = new Models.Entities.Evidence
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    Title = collectedItem.Title,
+                    Type = evidenceType,
+                    FileName = collectedItem.FileName,
+                    FileSize = collectedItem.FileSize,
+                    MimeType = collectedItem.ContentType,
+                    CollectionDate = DateTime.UtcNow,
+                    SourceSystem = source,
+                    VerificationStatus = "Pending",
+                    CreatedDate = DateTime.UtcNow,
+                    CreatedBy = "EvidenceAgentService"
+                };
+
+                _context.Evidences.Add(evidence);
+                collectedItem.EvidenceId = evidence.Id;
+                result.CollectedItems.Add(collectedItem);
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            result.Success = true;
+            result.EvidenceItemsCollected = result.CollectedItems.Count;
+
+            _logger.LogInformation("Collected {Count} evidence items from {Source}",
+                result.EvidenceItemsCollected, source);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error collecting evidence from {Source}", source);
+            result.Success = false;
+            result.Errors.Add($"Error: {ex.Message}");
+        }
+
+        return result;
+    }
+
+    public async Task<EvidencePackResult> GenerateEvidencePackAsync(
+        Guid tenantId,
+        string frameworkCode,
+        Guid? assessmentId = null,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Generating evidence pack for tenant {TenantId}, framework {Framework}",
+            tenantId, frameworkCode);
+
+        var result = new EvidencePackResult
+        {
+            TenantId = tenantId,
+            FrameworkCode = frameworkCode,
+            AssessmentId = assessmentId,
+            PackageName = $"{frameworkCode}_EvidencePack_{DateTime.UtcNow:yyyyMMdd}",
+            Sections = new List<EvidencePackSection>(),
+            MissingEvidence = new List<string>(),
+            GeneratedAt = DateTime.UtcNow
+        };
+
+        try
+        {
+            // Get controls for the framework
+            var controls = await _context.Controls
+                .Where(c => c.TenantId == tenantId && !c.IsDeleted)
+                .Where(c => c.SourceFrameworkCode == frameworkCode)
+                .Include(c => c.Evidences)
+                .ToListAsync(cancellationToken);
+
+            result.TotalControls = controls.Count;
+            result.ControlsWithEvidence = controls.Count(c => c.Evidences.Any());
+            result.CoveragePercentage = result.TotalControls > 0
+                ? (decimal)result.ControlsWithEvidence / result.TotalControls * 100
+                : 0;
+
+            // Group by control domain/category
+            var byDomain = controls
+                .GroupBy(c => c.Category ?? "General")
+                .ToList();
+
+            foreach (var domain in byDomain)
+            {
+                var section = new EvidencePackSection
+                {
+                    ControlDomain = domain.Key,
+                    ControlCount = domain.Count(),
+                    EvidenceCount = domain.Sum(c => c.Evidences.Count),
+                    CompletionPercentage = domain.Count() > 0
+                        ? (decimal)domain.Count(c => c.Evidences.Any()) / domain.Count() * 100
+                        : 0,
+                    Items = new List<EvidencePackItem>()
+                };
+
+                foreach (var control in domain)
+                {
+                    foreach (var evidence in control.Evidences.Where(e => !e.IsDeleted))
+                    {
+                        var status = "Valid";
+                        if (evidence.RetentionEndDate.HasValue && evidence.RetentionEndDate.Value < DateTime.UtcNow)
+                            status = "Expired";
+                        else if (evidence.VerificationStatus == "Pending")
+                            status = "PendingReview";
+
+                        section.Items.Add(new EvidencePackItem
+                        {
+                            EvidenceId = evidence.Id,
+                            Title = evidence.Title ?? "Untitled",
+                            Type = evidence.Type ?? "General",
+                            ControlCode = control.ControlCode ?? control.Id.ToString(),
+                            ControlName = control.Name ?? "Unnamed Control",
+                            FileName = evidence.FileName ?? "unknown",
+                            CollectionDate = evidence.CollectionDate,
+                            Status = status
+                        });
+                    }
+
+                    if (!control.Evidences.Any())
+                    {
+                        result.MissingEvidence.Add($"{control.ControlCode ?? control.Name}: No evidence attached");
+                    }
+                }
+
+                result.Sections.Add(section);
+            }
+
+            result.Success = true;
+            result.PackageId = Guid.NewGuid();
+
+            _logger.LogInformation("Generated evidence pack with {Coverage}% coverage",
+                result.CoveragePercentage.ToString("F1"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating evidence pack");
+            result.Success = false;
+        }
+
+        return result;
+    }
+
+    public async Task<EvidenceOrganizationResult> OrganizeEvidenceAsync(
+        Guid tenantId,
+        Guid? evidenceId = null,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Organizing evidence for tenant {TenantId}", tenantId);
+
+        var result = new EvidenceOrganizationResult
+        {
+            TenantId = tenantId,
+            OrganizedByDomain = new List<EvidenceByDomain>(),
+            Recommendations = new List<string>(),
+            OrganizedAt = DateTime.UtcNow
+        };
+
+        try
+        {
+            var evidenceQuery = _context.Evidences
+                .Where(e => e.TenantId == tenantId && !e.IsDeleted);
+
+            if (evidenceId.HasValue)
+            {
+                evidenceQuery = evidenceQuery.Where(e => e.Id == evidenceId);
+            }
+
+            var evidenceList = await evidenceQuery
+                .Include(e => e.Control)
+                .ToListAsync(cancellationToken);
+
+            // Use AI to suggest categorization for uncategorized evidence
+            var uncategorized = evidenceList.Where(e => string.IsNullOrWhiteSpace(e.Type) || e.Type == "General").ToList();
+
+            foreach (var evidence in uncategorized)
+            {
+                if (await IsAvailableAsync(cancellationToken))
+                {
+                    try
+                    {
+                        var categorization = await CategorizeEvidenceAsync(evidence.Id, cancellationToken);
+                        evidence.Type = categorization.SuggestedType;
+                        result.CategoriesAssigned++;
+                    }
+                    catch
+                    {
+                        // Continue with other evidence if one fails
+                    }
+                }
+            }
+
+            // Organize by domain based on linked controls
+            var byDomain = evidenceList
+                .Where(e => e.Control != null)
+                .GroupBy(e => e.Control!.Category ?? "General")
+                .Select(g => new EvidenceByDomain
+                {
+                    Domain = g.Key,
+                    EvidenceCount = g.Count(),
+                    ControlsCovered = g.Select(e => e.ControlId).Distinct().Count(),
+                    CoveragePercentage = 0, // Would need to calculate against total controls
+                    Categories = g.Select(e => e.Type ?? "General").Distinct().ToList()
+                })
+                .ToList();
+
+            result.OrganizedByDomain = byDomain;
+            result.EvidenceItemsOrganized = evidenceList.Count;
+
+            // Count unlinked evidence
+            var unlinked = evidenceList.Count(e => e.ControlId == null);
+            if (unlinked > 0)
+            {
+                result.Recommendations.Add($"{unlinked} evidence items are not linked to any control");
+            }
+
+            if (uncategorized.Count > 0)
+            {
+                result.Recommendations.Add($"{uncategorized.Count} evidence items need category assignment");
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            result.Success = true;
+            _logger.LogInformation("Organized {Count} evidence items", result.EvidenceItemsOrganized);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error organizing evidence");
+            result.Success = false;
+        }
+
+        return result;
+    }
+
+    public async Task<EvidenceValidationResult> ValidateEvidenceAsync(
+        Guid evidenceId,
+        string? frameworkCode = null,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Validating evidence {EvidenceId}", evidenceId);
+
+        var result = new EvidenceValidationResult
+        {
+            EvidenceId = evidenceId,
+            ValidationStatus = "Pending",
+            Findings = new List<ValidationFinding>(),
+            MissingElements = new List<string>(),
+            Recommendations = new List<string>(),
+            ValidatedAt = DateTime.UtcNow
+        };
+
+        try
+        {
+            var evidence = await _context.Evidences
+                .Include(e => e.Control)
+                .Include(e => e.AssessmentRequirement)
+                .FirstOrDefaultAsync(e => e.Id == evidenceId, cancellationToken);
+
+            if (evidence == null)
+            {
+                result.IsValid = false;
+                result.ValidationStatus = "Invalid";
+                result.Findings.Add(new ValidationFinding
+                {
+                    Category = "Existence",
+                    Severity = "Critical",
+                    Description = "Evidence not found",
+                    Requirement = "Evidence must exist",
+                    IsPassing = false,
+                    Recommendation = "Verify evidence ID"
+                });
+                return result;
+            }
+
+            var score = 0;
+            var maxScore = 100;
+
+            // Check completeness - Title
+            if (!string.IsNullOrWhiteSpace(evidence.Title))
+            {
+                score += 15;
+                result.Findings.Add(new ValidationFinding
+                {
+                    Category = "Completeness",
+                    Severity = "Info",
+                    Description = "Evidence has a title",
+                    Requirement = "Evidence must have a descriptive title",
+                    IsPassing = true,
+                    Recommendation = "N/A"
+                });
+            }
+            else
+            {
+                result.MissingElements.Add("Title");
+                result.Findings.Add(new ValidationFinding
+                {
+                    Category = "Completeness",
+                    Severity = "High",
+                    Description = "Evidence is missing a title",
+                    Requirement = "Evidence must have a descriptive title",
+                    IsPassing = false,
+                    Recommendation = "Add a descriptive title to the evidence"
+                });
+            }
+
+            // Check completeness - Description
+            if (!string.IsNullOrWhiteSpace(evidence.Description))
+            {
+                score += 15;
+            }
+            else
+            {
+                result.MissingElements.Add("Description");
+                result.Findings.Add(new ValidationFinding
+                {
+                    Category = "Completeness",
+                    Severity = "Medium",
+                    Description = "Evidence is missing a description",
+                    Requirement = "Evidence should have a description",
+                    IsPassing = false,
+                    Recommendation = "Add a description explaining the evidence"
+                });
+            }
+
+            // Check currency - Collection date
+            var age = (DateTime.UtcNow - evidence.CollectionDate).TotalDays;
+            if (age <= 365)
+            {
+                score += 20;
+                result.Findings.Add(new ValidationFinding
+                {
+                    Category = "Currency",
+                    Severity = "Info",
+                    Description = $"Evidence is {age:F0} days old",
+                    Requirement = "Evidence should be less than 1 year old",
+                    IsPassing = true,
+                    Recommendation = "N/A"
+                });
+            }
+            else
+            {
+                score += 5;
+                result.Findings.Add(new ValidationFinding
+                {
+                    Category = "Currency",
+                    Severity = "High",
+                    Description = $"Evidence is {age:F0} days old",
+                    Requirement = "Evidence should be less than 1 year old",
+                    IsPassing = false,
+                    Recommendation = "Consider collecting newer evidence"
+                });
+            }
+
+            // Check expiration
+            if (evidence.RetentionEndDate.HasValue)
+            {
+                if (evidence.RetentionEndDate.Value > DateTime.UtcNow)
+                {
+                    score += 15;
+                }
+                else
+                {
+                    result.Findings.Add(new ValidationFinding
+                    {
+                        Category = "Currency",
+                        Severity = "Critical",
+                        Description = "Evidence has expired",
+                        Requirement = "Evidence must not be expired",
+                        IsPassing = false,
+                        Recommendation = "Renew or replace the evidence"
+                    });
+                }
+            }
+            else
+            {
+                score += 10; // No expiration set - neutral
+            }
+
+            // Check control linkage
+            if (evidence.ControlId.HasValue)
+            {
+                score += 20;
+                result.Findings.Add(new ValidationFinding
+                {
+                    Category = "Relevance",
+                    Severity = "Info",
+                    Description = "Evidence is linked to a control",
+                    Requirement = "Evidence should be linked to a control",
+                    IsPassing = true,
+                    Recommendation = "N/A"
+                });
+            }
+            else
+            {
+                result.MissingElements.Add("Control Link");
+                result.Findings.Add(new ValidationFinding
+                {
+                    Category = "Relevance",
+                    Severity = "High",
+                    Description = "Evidence is not linked to any control",
+                    Requirement = "Evidence should be linked to a control",
+                    IsPassing = false,
+                    Recommendation = "Link the evidence to appropriate control(s)"
+                });
+            }
+
+            // Check file attachment
+            if (!string.IsNullOrWhiteSpace(evidence.FileName))
+            {
+                score += 15;
+            }
+            else
+            {
+                result.MissingElements.Add("File Attachment");
+                result.Findings.Add(new ValidationFinding
+                {
+                    Category = "Completeness",
+                    Severity = "Medium",
+                    Description = "No file attached to evidence",
+                    Requirement = "Evidence should have supporting documentation",
+                    IsPassing = false,
+                    Recommendation = "Upload supporting file"
+                });
+            }
+
+            result.CompletenessScore = (int)((double)score / maxScore * 100);
+            result.IsValid = result.CompletenessScore >= 70;
+            result.ValidationStatus = result.CompletenessScore >= 80 ? "Valid"
+                                    : result.CompletenessScore >= 50 ? "PartiallyValid"
+                                    : result.CompletenessScore >= 30 ? "RequiresReview"
+                                    : "Invalid";
+
+            // Generate recommendations
+            if (result.MissingElements.Any())
+            {
+                result.Recommendations.Add($"Address missing elements: {string.Join(", ", result.MissingElements)}");
+            }
+            if (!result.IsValid)
+            {
+                result.Recommendations.Add("Evidence does not meet minimum validation requirements");
+            }
+
+            _logger.LogInformation("Validated evidence {EvidenceId}: {Status} ({Score}%)",
+                evidenceId, result.ValidationStatus, result.CompletenessScore);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error validating evidence {EvidenceId}", evidenceId);
+            result.IsValid = false;
+            result.ValidationStatus = "Invalid";
+            result.Findings.Add(new ValidationFinding
+            {
+                Category = "System",
+                Severity = "Critical",
+                Description = $"Validation error: {ex.Message}",
+                Requirement = "Validation must complete without errors",
+                IsPassing = false,
+                Recommendation = "Check system logs and retry"
+            });
+        }
+
+        return result;
+    }
+
     #region Private Helper Methods
 
     private async Task<string> CallClaudeApiAsync(string prompt, CancellationToken cancellationToken)

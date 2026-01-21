@@ -1,0 +1,130 @@
+@model GrcMvc.ViewComponents.ApprovalFlowModel
+
+<div class="approval-flow-container">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h6 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>Approval Flow</h6>
+        <span class="badge bg-@GetStatusColor(Model.Status)">@Model.Status</span>
+    </div>
+
+    @if (Model.Steps.Any())
+    {
+        <div class="approval-steps">
+            @foreach (var step in Model.Steps)
+            {
+                <div class="approval-step d-flex align-items-center mb-2 @(step.StepIndex <= Model.CurrentStepIndex ? "completed" : "")">
+                    <div class="step-indicator @GetStepClass(step.Status)">
+                        @if (step.Status == "Approved")
+                        {
+                            <i class="bi bi-check-lg"></i>
+                        }
+                        else if (step.Status == "Rejected")
+                        {
+                            <i class="bi bi-x-lg"></i>
+                        }
+                        else if (step.StepIndex == Model.CurrentStepIndex)
+                        {
+                            <i class="bi bi-hourglass-split"></i>
+                        }
+                        else
+                        {
+                            <span>@(step.StepIndex + 1)</span>
+                        }
+                    </div>
+                    <div class="step-content flex-grow-1 ms-3">
+                        <div class="step-name fw-medium">@step.StepName</div>
+                        <div class="step-approver text-muted small">@step.ApproverName</div>
+                        @if (step.CompletedAt.HasValue)
+                        {
+                            <div class="step-date text-muted small">@step.CompletedAt.Value.ToString("MMM dd, yyyy HH:mm")</div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center text-muted py-3">
+            <i class="bi bi-diagram-3 fs-2 mb-2 d-block opacity-50"></i>
+            <span>No approval workflow configured</span>
+        </div>
+    }
+</div>
+
+<style>
+.approval-flow-container {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.dark .approval-flow-container {
+    background: #1e293b;
+}
+
+.step-indicator {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: #e2e8f0;
+    color: #64748b;
+}
+
+.step-indicator.approved {
+    background: #10b981;
+    color: white;
+}
+
+.step-indicator.rejected {
+    background: #ef4444;
+    color: white;
+}
+
+.step-indicator.pending {
+    background: #f59e0b;
+    color: white;
+    animation: pulse 1.5s infinite;
+}
+
+@@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.approval-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 32px;
+    width: 2px;
+    height: calc(100% - 16px);
+    background: #e2e8f0;
+}
+
+.approval-step {
+    position: relative;
+}
+</style>
+
+@functions {
+    string GetStatusColor(string status) => status switch
+    {
+        "Approved" => "success",
+        "Rejected" => "danger",
+        "Pending" => "warning",
+        _ => "secondary"
+    };
+
+    string GetStepClass(string status) => status switch
+    {
+        "Approved" => "approved",
+        "Rejected" => "rejected",
+        "Pending" => "pending",
+        _ => ""
+    };
+}

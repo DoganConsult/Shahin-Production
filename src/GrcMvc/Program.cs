@@ -733,6 +733,65 @@ builder.Services.AddAuthentication(options =>
     // OpenIddict validation is registered by ABP module (GrcMvcAbpModule)
     // API controllers use: [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
     // Or rely on default policy configured below
+})
+// OAuth2 / OIDC External Providers
+.AddGoogle(options =>
+{
+    var clientId = builder.Configuration["OAuth2:Google:ClientId"] ?? Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
+    var clientSecret = builder.Configuration["OAuth2:Google:ClientSecret"] ?? Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET");
+    
+    if (!string.IsNullOrEmpty(clientId) && !string.IsNullOrEmpty(clientSecret))
+    {
+        options.ClientId = clientId;
+        options.ClientSecret = clientSecret;
+        options.CallbackPath = "/signin-google";
+        options.SaveTokens = true;
+    }
+})
+.AddMicrosoftAccount(options =>
+{
+    var clientId = builder.Configuration["OAuth2:Microsoft:ClientId"] ?? Environment.GetEnvironmentVariable("MICROSOFT_CLIENT_ID");
+    var clientSecret = builder.Configuration["OAuth2:Microsoft:ClientSecret"] ?? Environment.GetEnvironmentVariable("MICROSOFT_CLIENT_SECRET");
+    
+    if (!string.IsNullOrEmpty(clientId) && !string.IsNullOrEmpty(clientSecret))
+    {
+        options.ClientId = clientId;
+        options.ClientSecret = clientSecret;
+        options.CallbackPath = "/signin-microsoft";
+        options.SaveTokens = true;
+    }
+})
+.AddGitHub(options =>
+{
+    var clientId = builder.Configuration["OAuth2:GitHub:ClientId"] ?? Environment.GetEnvironmentVariable("GITHUB_CLIENT_ID");
+    var clientSecret = builder.Configuration["OAuth2:GitHub:ClientSecret"] ?? Environment.GetEnvironmentVariable("GITHUB_CLIENT_SECRET");
+    
+    if (!string.IsNullOrEmpty(clientId) && !string.IsNullOrEmpty(clientSecret))
+    {
+        options.ClientId = clientId;
+        options.ClientSecret = clientSecret;
+        options.CallbackPath = "/signin-github";
+        options.SaveTokens = true;
+        // Request user email scope
+        options.Scope.Add("user:email");
+    }
+})
+.AddOpenIdConnect("GenericOIDC", options =>
+{
+    var enabled = builder.Configuration.GetValue<bool>("OAuth2:GenericOIDC:Enabled", false);
+    if (enabled)
+    {
+        options.Authority = builder.Configuration["OAuth2:GenericOIDC:Authority"];
+        options.ClientId = builder.Configuration["OAuth2:GenericOIDC:ClientId"];
+        options.ClientSecret = builder.Configuration["OAuth2:GenericOIDC:ClientSecret"];
+        options.CallbackPath = builder.Configuration["OAuth2:GenericOIDC:CallbackPath"] ?? "/signin-oidc";
+        options.ResponseType = "code";
+        options.SaveTokens = true;
+        options.GetClaimsFromUserInfoEndpoint = true;
+        options.Scope.Add("openid");
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
+    }
 });
 
 // Add authorization policies
@@ -848,6 +907,8 @@ builder.Services.AddScoped<IAuditEventService, AuditEventService>();
 
 // Onboarding Reference Data and AI Recommendation Services
 builder.Services.AddScoped<IOnboardingReferenceDataService, OnboardingReferenceDataService>();
+builder.Services.Configure<GrcMvc.Configuration.OnboardingAIOptions>(
+    builder.Configuration.GetSection(GrcMvc.Configuration.OnboardingAIOptions.SectionName));
 builder.Services.AddScoped<IOnboardingAIRecommendationService, OnboardingAIRecommendationService>();
 
 // Onboarding Coverage Services - Coverage validation and field registry
@@ -860,6 +921,9 @@ builder.Services.AddScoped<IOwnerDashboardService, OwnerDashboardService>();
 
 // Dashboard Metrics Service - real-time metrics for Platform and Tenant dashboards
 builder.Services.AddScoped<IDashboardMetricsService, DashboardMetricsService>();
+
+// KPI Notification Service - broadcasts real-time KPI updates via SignalR
+builder.Services.AddScoped<GrcMvc.Hubs.IKpiNotificationService, GrcMvc.Hubs.KpiNotificationService>();
 
 // Post-Login Routing Service for role-based redirection
 builder.Services.AddScoped<IPostLoginRoutingService, PostLoginRoutingService>();
@@ -1050,6 +1114,9 @@ builder.Services.AddHttpClient("status-check", client =>
 });
 builder.Services.AddScoped<GrcMvc.Services.Integrations.IEmailIntegrationService, GrcMvc.Services.Integrations.EmailIntegrationService>();
 builder.Services.AddScoped<GrcMvc.Services.Integrations.IPaymentIntegrationService, GrcMvc.Services.Integrations.StripePaymentService>();
+// Stripe Payment Gateway Services
+builder.Services.AddScoped<GrcMvc.Services.Integrations.IPaymentGatewayService, GrcMvc.Services.Integrations.StripePaymentGatewayService>();
+builder.Services.AddScoped<GrcMvc.Services.Integrations.IPaymentWebhookHandler, GrcMvc.Services.Integrations.StripeWebhookHandler>();
 builder.Services.AddScoped<GrcMvc.Services.Integrations.ISSOIntegrationService, GrcMvc.Services.Integrations.SSOIntegrationService>();
 builder.Services.AddScoped<GrcMvc.Services.Integrations.IEvidenceAutomationService, GrcMvc.Services.Integrations.EvidenceAutomationService>();
 
@@ -1059,7 +1126,19 @@ builder.Services.AddScoped<IEvidenceService, EvidenceService>();
 // Enhanced Report Services with PDF/Excel generation
 // Use ABP's ICurrentUser via adapter (replaces custom CurrentUserService)
 builder.Services.AddScoped<ICurrentUserService, GrcMvc.Services.Adapters.AbpCurrentUserAdapter>();
-builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+// File Storage Services - Cloud providers with fallback to local
+builder.Services.AddScoped<LocalFileStorageService>();
+builder.Services.AddScoped<AzureBlobStorageService>();
+builder.Services.AddScoped<S3StorageService>();
+builder.Services.AddScoped<GoogleCloudStorageService>();
+builder.Services.AddScoped<CloudStorageServiceFactory>();
+
+// Register primary storage service (factory selects based on configuration)
+builder.Services.AddScoped<IFileStorageService>(sp =>
+{
+    var factory = sp.GetRequiredService<CloudStorageServiceFactory>();
+    return factory.GetStorageService();
+});
 builder.Services.AddScoped<IReportGenerator, ReportGeneratorService>();
 builder.Services.AddScoped<IReportService, EnhancedReportServiceFixed>();
 builder.Services.AddScoped<IDocumentGenerationService, DocumentGenerationService>(); // Document generation for templates
@@ -1087,6 +1166,9 @@ builder.Services.AddScoped<IAttestationService, AttestationService>();
 // Government Integration Service - التكامل الحكومي (Nafath, Absher, Etimad, etc.)
 builder.Services.AddScoped<IGovernmentIntegrationService, GovernmentIntegrationService>();
 
+// Regulatory Integration Service - التكامل التنظيمي (NCA-ISR, SAMA, PDPL, CITC, MOC)
+builder.Services.AddScoped<IRegulatoryIntegrationService, RegulatoryIntegrationService>();
+
 // GRC Process Orchestrator - منسق عمليات الحوكمة والمخاطر والامتثال
 // Complete lifecycle: Assessment → Compliance → Resilience → Excellence
 builder.Services.AddScoped<IGrcProcessOrchestrator, GrcProcessOrchestrator>();
@@ -1103,6 +1185,17 @@ builder.Services.AddScoped<IMenuService, MenuService>();
 // ✅ FIXED: AuthenticationService now uses ASP.NET Core Identity with database persistence
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>(); // Production-ready Identity implementation
 // Alternative: builder.Services.AddScoped<IAuthenticationService, IdentityAuthenticationService>(); // ABP-based (also available)
+
+// Two-Factor Authentication Services
+builder.Services.AddScoped<ITotpMfaService, TotpMfaService>();
+builder.Services.AddScoped<ISmsMfaService, SmsMfaService>();
+// EmailMfaService already registered above
+
+// SAML 2.0 Service
+builder.Services.AddScoped<ISamlService, SamlService>();
+
+// LDAP / Active Directory Service
+builder.Services.AddScoped<ILdapService, LdapService>();
 
 // Endpoint Management Service
 builder.Services.AddScoped<GrcMvc.Services.Interfaces.IEndpointDiscoveryService, GrcMvc.Services.Implementations.EndpointDiscoveryService>();
@@ -1530,6 +1623,7 @@ builder.Services.AddScoped<IClaudeAgentService, ClaudeAgentService>();
 builder.Services.AddScoped<ISecurityAgentService, SecurityAgentService>();
 builder.Services.AddScoped<IEvidenceAgentService, EvidenceAgentService>();
 builder.Services.AddScoped<IIntegrationAgentService, IntegrationAgentService>();
+builder.Services.AddScoped<IWorkflowAgentService, WorkflowAgentService>();
 builder.Services.AddScoped<IUnifiedAiService, UnifiedAiService>();
 builder.Services.Configure<ClaudeApiSettings>(builder.Configuration.GetSection(ClaudeApiSettings.SectionName));
 
@@ -1942,7 +2036,9 @@ var signalREnabledForHub = app.Configuration.GetValue<bool>("SignalR:Enabled", t
 if (signalREnabledForHub)
 {
     app.MapHub<GrcMvc.Hubs.DashboardHub>("/hubs/dashboard");
+    app.MapHub<GrcMvc.Hubs.KpiHub>("/hubs/kpi");
     appLogger.LogInformation("✅ SignalR Dashboard Hub mapped to /hubs/dashboard");
+    appLogger.LogInformation("✅ SignalR KPI Hub mapped to /hubs/kpi");
 }
 
 // Platform Admin routes (login.shahin-ai.com) - MUST BE BEFORE OTHER ROUTES

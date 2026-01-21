@@ -556,11 +556,15 @@ namespace GrcMvc.Models.DTOs
 
     public class AuthTokenDto
     {
-        public string AccessToken { get; set; } = string.Empty;
-        public string RefreshToken { get; set; } = string.Empty;
+        public string? AccessToken { get; set; }
+        public string? RefreshToken { get; set; }
         public string TokenType { get; set; } = "Bearer";
         public int ExpiresIn { get; set; } = 3600;
-        public AuthUserDto User { get; set; } = new();
+        public AuthUserDto? User { get; set; }
+        
+        // Two-Factor Authentication properties
+        public bool RequiresMfa { get; set; }
+        public string? MfaMethod { get; set; } // "Email", "TOTP", "SMS"
     }
 
     public class AuthUserDto

@@ -52,14 +52,14 @@ namespace GrcMvc.ViewComponents
                 var isRtl = currentCulture == "ar";
 
                 model.CurrentWorkspaceId = _workspaceContext.GetCurrentWorkspaceId();
-                
+
                 if (model.CurrentWorkspaceId != Guid.Empty)
                 {
                     var workspace = await _workspaceService.GetWorkspaceAsync(model.CurrentWorkspaceId);
                     if (workspace != null)
                     {
-                        model.CurrentWorkspaceName = isRtl && !string.IsNullOrEmpty(workspace.NameAr) 
-                            ? workspace.NameAr 
+                        model.CurrentWorkspaceName = isRtl && !string.IsNullOrEmpty(workspace.NameAr)
+                            ? workspace.NameAr
                             : workspace.Name;
                     }
                 }

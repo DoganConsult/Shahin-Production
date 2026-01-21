@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using GrcMvc.Models.Entities;
+using DataAnnotationsValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace GrcMvc.Models.DTOs
 {
@@ -40,8 +42,9 @@ namespace GrcMvc.Models.DTOs
 
     /// <summary>
     /// Step A: Organization Identity and Tenancy (Questions 1-13)
+    /// Implements IValidatableObject for cross-field validation.
     /// </summary>
-    public class StepAOrganizationIdentityDto
+    public class StepAOrganizationIdentityDto : IValidatableObject
     {
         [Required(ErrorMessage = "Organization legal name (English) is required")]
         [MaxLength(255)]
@@ -79,6 +82,52 @@ namespace GrcMvc.Models.DTOs
 
         public bool HasDataResidencyRequirement { get; set; } = false;
         public List<string> DataResidencyCountries { get; set; } = new();
+
+        /// <summary>
+        /// Cross-field validation for data residency requirements.
+        /// </summary>
+        public IEnumerable<DataAnnotationsValidationResult> Validate(ValidationContext validationContext)
+        {
+            // Validate data residency: if requirement is set, countries must be specified
+            if (HasDataResidencyRequirement &&
+                (DataResidencyCountries == null || !DataResidencyCountries.Any()))
+            {
+                yield return new DataAnnotationsValidationResult(
+                    "Data residency countries must be specified when data residency requirement is enabled",
+                    new[] { nameof(DataResidencyCountries) });
+            }
+
+            // Validate corporate email domains: at least one required
+            if (CorporateEmailDomains == null || !CorporateEmailDomains.Any(d => !string.IsNullOrWhiteSpace(d)))
+            {
+                yield return new DataAnnotationsValidationResult(
+                    "At least one corporate email domain is required",
+                    new[] { nameof(CorporateEmailDomains) });
+            }
+
+            // Validate email domain format
+            if (CorporateEmailDomains != null)
+            {
+                foreach (var domain in CorporateEmailDomains.Where(d => !string.IsNullOrWhiteSpace(d)))
+                {
+                    if (!IsValidDomain(domain))
+                    {
+                        yield return new DataAnnotationsValidationResult(
+                            $"Invalid email domain format: {domain}",
+                            new[] { nameof(CorporateEmailDomains) });
+                    }
+                }
+            }
+        }
+
+        private static bool IsValidDomain(string domain)
+        {
+            if (string.IsNullOrWhiteSpace(domain)) return false;
+            // Basic domain validation: alphanumeric with dots and hyphens
+            return System.Text.RegularExpressions.Regex.IsMatch(
+                domain,
+                @"^[a-zA-Z0-9][a-zA-Z0-9\-\.]*\.[a-zA-Z]{2,}$");
+        }
     }
 
     /// <summary>
@@ -100,8 +149,9 @@ namespace GrcMvc.Models.DTOs
 
     /// <summary>
     /// Step C: Regulatory and Framework Applicability (Questions 19-25)
+    /// Implements IValidatableObject for framework validation based on regulator selection.
     /// </summary>
-    public class StepCRegulatoryApplicabilityDto
+    public class StepCRegulatoryApplicabilityDto : IValidatableObject
     {
         public List<RegulatorEntry> PrimaryRegulators { get; set; } = new();
         public List<RegulatorEntry> SecondaryRegulators { get; set; } = new();
@@ -110,6 +160,79 @@ namespace GrcMvc.Models.DTOs
         public List<string> InternalPolicies { get; set; } = new(); // ISMS, IT policies, risk policies
         public List<CertificationEntry> CertificationsHeld { get; set; } = new(); // ISO, SOC reports
         public string AuditScopeType { get; set; } = "enterprise"; // enterprise, business_unit, system, process, vendor
+
+        // Context from previous steps (set by controller/service for cross-step validation)
+        public string OrganizationType { get; set; } = string.Empty;
+        public bool HasPaymentCardData { get; set; } = false;
+
+        /// <summary>
+        /// Cross-field validation for regulatory framework requirements.
+        /// </summary>
+        public IEnumerable<DataAnnotationsValidationResult> Validate(ValidationContext validationContext)
+        {
+            var allFrameworks = (MandatoryFrameworks ?? new List<string>())
+                .Concat(OptionalFrameworks ?? new List<string>())
+                .Select(f => f?.ToUpperInvariant())
+                .ToList();
+
+            // Government organizations must have NCA-ECC framework
+            if (OrganizationType?.Equals("government", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                if (!allFrameworks.Any(f => f?.Contains("NCA") == true || f?.Contains("ECC") == true))
+                {
+                    yield return new DataAnnotationsValidationResult(
+                        "Government organizations must include NCA-ECC framework",
+                        new[] { nameof(MandatoryFrameworks) });
+                }
+            }
+
+            // Regulated financial institutions must have SAMA-CSF framework
+            if (OrganizationType?.Equals("regulated_fi", StringComparison.OrdinalIgnoreCase) == true ||
+                OrganizationType?.Equals("banking", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                if (!allFrameworks.Any(f => f?.Contains("SAMA") == true || f?.Contains("CSF") == true))
+                {
+                    yield return new DataAnnotationsValidationResult(
+                        "Regulated financial institutions must include SAMA-CSF framework",
+                        new[] { nameof(MandatoryFrameworks) });
+                }
+            }
+
+            // Payment card data requires PCI-DSS framework
+            if (HasPaymentCardData)
+            {
+                if (!allFrameworks.Any(f => f?.Contains("PCI") == true || f?.Contains("DSS") == true))
+                {
+                    yield return new DataAnnotationsValidationResult(
+                        "Organizations processing payment card data must include PCI-DSS framework",
+                        new[] { nameof(MandatoryFrameworks) });
+                }
+            }
+
+            // SAMA regulator requires SAMA-CSF framework
+            if (PrimaryRegulators?.Any(r =>
+                r.RegulatorCode?.Equals("SAMA", StringComparison.OrdinalIgnoreCase) == true) == true)
+            {
+                if (!allFrameworks.Any(f => f?.Contains("SAMA") == true))
+                {
+                    yield return new DataAnnotationsValidationResult(
+                        "SAMA-regulated entities must include SAMA-CSF framework",
+                        new[] { nameof(MandatoryFrameworks) });
+                }
+            }
+
+            // NCA regulator requires NCA-ECC framework
+            if (PrimaryRegulators?.Any(r =>
+                r.RegulatorCode?.Equals("NCA", StringComparison.OrdinalIgnoreCase) == true) == true)
+            {
+                if (!allFrameworks.Any(f => f?.Contains("NCA") == true || f?.Contains("ECC") == true))
+                {
+                    yield return new DataAnnotationsValidationResult(
+                        "NCA-regulated entities must include NCA-ECC framework",
+                        new[] { nameof(MandatoryFrameworks) });
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -130,8 +253,9 @@ namespace GrcMvc.Models.DTOs
 
     /// <summary>
     /// Step E: Data and Risk Profile (Questions 35-40)
+    /// Implements IValidatableObject for data-related cross-field validation.
     /// </summary>
-    public class StepEDataRiskProfileDto
+    public class StepEDataRiskProfileDto : IValidatableObject
     {
         [Required(ErrorMessage = "At least one data type must be selected")]
         public List<string> DataTypesProcessed { get; set; } = new(); // PII, PCI, PHI, confidential, classified
@@ -150,6 +274,62 @@ namespace GrcMvc.Models.DTOs
 
         public bool HasThirdPartyDataProcessing { get; set; } = false;
         public List<VendorEntry> ThirdPartyDataProcessors { get; set; } = new();
+
+        /// <summary>
+        /// Cross-field validation for data and risk profile.
+        /// </summary>
+        public IEnumerable<DataAnnotationsValidationResult> Validate(ValidationContext validationContext)
+        {
+            // Payment card data locations required when PCI data is processed
+            if (HasPaymentCardData &&
+                (PaymentCardDataLocations == null || !PaymentCardDataLocations.Any(l => !string.IsNullOrWhiteSpace(l))))
+            {
+                yield return new DataAnnotationsValidationResult(
+                    "Payment card data locations must be specified when payment card data is processed",
+                    new[] { nameof(PaymentCardDataLocations) });
+            }
+
+            // Cross-border transfer countries required when transfers are enabled
+            if (HasCrossBorderDataTransfers &&
+                (CrossBorderTransferCountries == null || !CrossBorderTransferCountries.Any(c => !string.IsNullOrWhiteSpace(c))))
+            {
+                yield return new DataAnnotationsValidationResult(
+                    "Cross-border transfer countries must be specified when cross-border transfers are enabled",
+                    new[] { nameof(CrossBorderTransferCountries) });
+            }
+
+            // Internet-facing systems list required when flag is set
+            if (HasInternetFacingSystems &&
+                (InternetFacingSystems == null || !InternetFacingSystems.Any(s => !string.IsNullOrWhiteSpace(s))))
+            {
+                yield return new DataAnnotationsValidationResult(
+                    "Internet-facing systems must be specified when internet-facing systems flag is enabled",
+                    new[] { nameof(InternetFacingSystems) });
+            }
+
+            // Third-party data processors list required when flag is set
+            if (HasThirdPartyDataProcessing &&
+                (ThirdPartyDataProcessors == null || !ThirdPartyDataProcessors.Any()))
+            {
+                yield return new DataAnnotationsValidationResult(
+                    "Third-party data processors must be specified when third-party processing is enabled",
+                    new[] { nameof(ThirdPartyDataProcessors) });
+            }
+
+            // Data types validation: if PCI is selected, HasPaymentCardData should be true
+            if (DataTypesProcessed?.Any(dt =>
+                dt?.ToUpperInvariant().Contains("PCI") == true ||
+                dt?.ToUpperInvariant().Contains("PAYMENT") == true ||
+                dt?.ToUpperInvariant().Contains("CARD") == true) == true)
+            {
+                if (!HasPaymentCardData)
+                {
+                    yield return new DataAnnotationsValidationResult(
+                        "HasPaymentCardData must be enabled when PCI or payment card data type is selected",
+                        new[] { nameof(HasPaymentCardData) });
+                }
+            }
+        }
     }
 
     /// <summary>

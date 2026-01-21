@@ -61,6 +61,21 @@ namespace GrcMvc.Models.Entities
         /// </summary>
         public string? PaymentDetails { get; set; }
 
+        /// <summary>
+        /// Refund amount (if refunded)
+        /// </summary>
+        public decimal? RefundAmount { get; set; }
+
+        /// <summary>
+        /// Refund date (if refunded)
+        /// </summary>
+        public DateTime? RefundDate { get; set; }
+
+        /// <summary>
+        /// Refund reason
+        /// </summary>
+        public string? RefundReason { get; set; }
+
         // Navigation properties
         public virtual Subscription Subscription { get; set; } = null!;
         public virtual Tenant Tenant { get; set; } = null!;

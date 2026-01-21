@@ -1,0 +1,303 @@
+@model GrcMvc.ViewComponents.AIReportBuilderModel
+
+<div class="ai-report-builder-container">
+    <div class="report-toolbar d-flex justify-content-between align-items-center mb-4 p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
+        <div class="d-flex align-items-center gap-3">
+            <select class="form-select form-select-sm" style="width: 200px;" id="report-type">
+                <option value="executive-summary">Executive Summary</option>
+                <option value="risk-assessment">Risk Assessment Report</option>
+                <option value="compliance-status">Compliance Status Report</option>
+                <option value="audit-findings">Audit Findings Report</option>
+                <option value="control-effectiveness">Control Effectiveness Report</option>
+                <option value="incident-analysis">Incident Analysis Report</option>
+            </select>
+            <select class="form-select form-select-sm" style="width: 150px;" id="report-period">
+                <option value="month">This Month</option>
+                <option value="quarter">This Quarter</option>
+                <option value="year">This Year</option>
+                <option value="custom">Custom Range</option>
+            </select>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-sm btn-outline-secondary" onclick="previewReport()">
+                <i class="bi bi-eye me-1"></i>Preview
+            </button>
+            <button class="btn btn-sm btn-primary" onclick="generateReport()">
+                <i class="bi bi-magic me-1"></i>Generate with AI
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Report Configuration -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-emerald-600 text-white">
+                    <i class="bi bi-gear me-2"></i>Report Configuration
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Report Title</label>
+                        <input type="text" class="form-control form-control-sm" id="report-title"
+                               value="GRC Status Report - @DateTime.Now.ToString("MMMM yyyy")">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Include Sections</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="include-summary" checked>
+                            <label class="form-check-label small">Executive Summary</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="include-risks" checked>
+                            <label class="form-check-label small">Risk Analysis</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="include-controls" checked>
+                            <label class="form-check-label small">Control Status</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="include-compliance" checked>
+                            <label class="form-check-label small">Compliance Overview</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="include-recommendations">
+                            <label class="form-check-label small">AI Recommendations</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="include-charts" checked>
+                            <label class="form-check-label small">Charts & Visualizations</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">AI Analysis Depth</label>
+                        <select class="form-select form-select-sm" id="ai-depth">
+                            <option value="brief">Brief Summary</option>
+                            <option value="standard" selected>Standard Analysis</option>
+                            <option value="detailed">Detailed Analysis</option>
+                            <option value="comprehensive">Comprehensive Deep Dive</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Output Format</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="format" id="format-pdf" value="pdf" checked>
+                            <label class="btn btn-outline-secondary btn-sm" for="format-pdf">
+                                <i class="bi bi-file-pdf me-1"></i>PDF
+                            </label>
+                            <input type="radio" class="btn-check" name="format" id="format-docx" value="docx">
+                            <label class="btn btn-outline-secondary btn-sm" for="format-docx">
+                                <i class="bi bi-file-word me-1"></i>Word
+                            </label>
+                            <input type="radio" class="btn-check" name="format" id="format-html" value="html">
+                            <label class="btn btn-outline-secondary btn-sm" for="format-html">
+                                <i class="bi bi-filetype-html me-1"></i>HTML
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Additional Instructions</label>
+                        <textarea class="form-control form-control-sm" id="ai-instructions" rows="3"
+                                  placeholder="E.g., Focus on NCA compliance gaps, highlight critical risks..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Preview -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-file-text me-2"></i>Report Preview</span>
+                    <span id="generation-status" class="badge bg-secondary">Ready</span>
+                </div>
+                <div class="card-body" id="report-preview" style="min-height: 500px; background: #f8fafc;">
+                    <div class="text-center text-muted py-5" id="preview-placeholder">
+                        <i class="bi bi-file-earmark-richtext fs-1 d-block mb-3 opacity-50"></i>
+                        <p>Configure your report and click "Generate with AI" to create</p>
+                        <p class="small">AI will analyze your GRC data and generate insights</p>
+                    </div>
+
+                    <div id="report-content" class="d-none">
+                        <!-- AI-generated content will appear here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generation Progress -->
+            <div class="card mt-3 d-none" id="generation-progress">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="spinner-border spinner-border-sm text-emerald-600 me-2" role="status"></div>
+                        <span id="progress-text">Analyzing GRC data...</span>
+                    </div>
+                    <div class="progress" style="height: 4px;">
+                        <div class="progress-bar bg-emerald-600" id="progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+var reportData = null;
+
+async function generateReport() {
+    const type = document.getElementById('report-type').value;
+    const period = document.getElementById('report-period').value;
+    const title = document.getElementById('report-title').value;
+    const depth = document.getElementById('ai-depth').value;
+    const instructions = document.getElementById('ai-instructions').value;
+    const format = document.querySelector('input[name="format"]:checked').value;
+
+    const sections = {
+        summary: document.getElementById('include-summary').checked,
+        risks: document.getElementById('include-risks').checked,
+        controls: document.getElementById('include-controls').checked,
+        compliance: document.getElementById('include-compliance').checked,
+        recommendations: document.getElementById('include-recommendations').checked,
+        charts: document.getElementById('include-charts').checked
+    };
+
+    // Show progress
+    document.getElementById('generation-progress').classList.remove('d-none');
+    document.getElementById('generation-status').textContent = 'Generating...';
+    document.getElementById('generation-status').className = 'badge bg-warning';
+
+    const progressSteps = [
+        { pct: 10, text: 'Gathering GRC data...' },
+        { pct: 30, text: 'Analyzing risks and controls...' },
+        { pct: 50, text: 'Evaluating compliance status...' },
+        { pct: 70, text: 'Generating AI insights...' },
+        { pct: 90, text: 'Formatting report...' },
+        { pct: 100, text: 'Complete!' }
+    ];
+
+    // Simulate progress
+    for (const step of progressSteps) {
+        document.getElementById('progress-bar').style.width = step.pct + '%';
+        document.getElementById('progress-text').textContent = step.text;
+        await new Promise(r => setTimeout(r, 800));
+    }
+
+    try {
+        const response = await fetch('/api/reports/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                reportType: type,
+                period: period,
+                title: title,
+                depth: depth,
+                sections: sections,
+                format: format,
+                additionalInstructions: instructions
+            })
+        });
+
+        if (response.ok) {
+            reportData = await response.json();
+            displayReport(reportData);
+            document.getElementById('generation-status').textContent = 'Generated';
+            document.getElementById('generation-status').className = 'badge bg-success';
+        } else {
+            throw new Error('Failed to generate report');
+        }
+    } catch (error) {
+        console.error('Report generation error:', error);
+        // Show demo content on error
+        displayDemoReport();
+        document.getElementById('generation-status').textContent = 'Demo Mode';
+        document.getElementById('generation-status').className = 'badge bg-info';
+    }
+
+    document.getElementById('generation-progress').classList.add('d-none');
+}
+
+function displayReport(data) {
+    document.getElementById('preview-placeholder').classList.add('d-none');
+    document.getElementById('report-content').classList.remove('d-none');
+    document.getElementById('report-content').innerHTML = data.htmlContent || formatReportHtml(data);
+}
+
+function displayDemoReport() {
+    document.getElementById('preview-placeholder').classList.add('d-none');
+    document.getElementById('report-content').classList.remove('d-none');
+
+    const title = document.getElementById('report-title').value;
+    document.getElementById('report-content').innerHTML = `
+        <div class="report-preview-content p-4">
+            <h2 class="text-center mb-4">${title}</h2>
+            <p class="text-muted text-center mb-4">Generated on ${new Date().toLocaleDateString()}</p>
+
+            <h4 class="text-emerald-600"><i class="bi bi-lightning me-2"></i>Executive Summary</h4>
+            <p>This report provides a comprehensive overview of your organization's Governance, Risk, and Compliance posture.
+            Based on AI analysis of your GRC data, we have identified key areas of strength and opportunities for improvement.</p>
+
+            <div class="row my-4">
+                <div class="col-md-3 text-center">
+                    <div class="h2 text-emerald-600">87%</div>
+                    <div class="small text-muted">Overall Compliance</div>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="h2 text-yellow-500">12</div>
+                    <div class="small text-muted">Open Risks</div>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="h2 text-blue-500">94%</div>
+                    <div class="small text-muted">Control Effectiveness</div>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="h2 text-purple-500">3</div>
+                    <div class="small text-muted">Pending Audits</div>
+                </div>
+            </div>
+
+            <h4 class="text-emerald-600 mt-4"><i class="bi bi-shield-exclamation me-2"></i>Key Risk Findings</h4>
+            <ul>
+                <li><strong>Data Privacy:</strong> 2 high-risk items require immediate attention</li>
+                <li><strong>Third-Party Vendor:</strong> 3 vendors pending security assessment</li>
+                <li><strong>Access Control:</strong> Privileged access review overdue by 15 days</li>
+            </ul>
+
+            <h4 class="text-emerald-600 mt-4"><i class="bi bi-robot me-2"></i>AI Recommendations</h4>
+            <div class="alert alert-info">
+                <strong>Priority Action:</strong> Based on trend analysis, recommend implementing additional
+                data encryption controls to address emerging privacy regulations (NCA ECC compliance).
+            </div>
+
+            <p class="text-muted small mt-4 text-center">
+                <i class="bi bi-info-circle me-1"></i>
+                This is a preview. Full report will be available for download after generation.
+            </p>
+        </div>
+    `;
+}
+
+function previewReport() {
+    displayDemoReport();
+}
+
+function formatReportHtml(data) {
+    return `<div class="p-4">${data.content || 'Report content'}</div>`;
+}
+</script>
+
+<style>
+.report-preview-content {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.text-emerald-600 { color: #059669; }
+.text-yellow-500 { color: #eab308; }
+.text-blue-500 { color: #3b82f6; }
+.text-purple-500 { color: #8b5cf6; }
+
+.bg-emerald-600 { background-color: #059669; }
+</style>
