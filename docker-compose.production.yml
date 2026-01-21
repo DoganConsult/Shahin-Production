@@ -1,0 +1,151 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# SHAHIN AI GRC - Production Docker Compose
+# ══════════════════════════════════════════════════════════════════════════════
+# Services: Backend API, Frontend (Next.js), PostgreSQL, Redis
+# Usage: docker-compose -f docker-compose.production.yml up -d
+# ══════════════════════════════════════════════════════════════════════════════
+
+services:
+  # ============================================================================
+  # Backend API (.NET 8)
+  # ============================================================================
+  grc-app:
+    build:
+      context: .
+      dockerfile: src/GrcMvc/Dockerfile
+    container_name: shahin-grc-app
+    ports:
+      - "${APP_PORT:-5000}:80"
+    env_file:
+      - .env.production
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      # Database connections
+      - ConnectionStrings__DefaultConnection=Host=grc-db;Database=${DB_NAME:-shahin_grc};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};Port=5432
+      - ConnectionStrings__GrcAuthDb=Host=grc-db;Database=${DB_NAME:-shahin_grc};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};Port=5432
+      - ConnectionStrings__HangfireConnection=Host=grc-db;Database=${DB_NAME:-shahin_grc};Username=${DB_USER:-shahin_admin};Password=${DB_PASSWORD};Port=5432
+      - ConnectionStrings__Redis=grc-redis:6379
+      # JWT
+      - JwtSettings__Secret=${JWT_SECRET}
+      - JwtSettings__Issuer=${JWT_ISSUER:-https://portal.shahin-ai.com}
+      - JwtSettings__Audience=${JWT_AUDIENCE:-https://portal.shahin-ai.com}
+      # Security
+      - AllowedHosts=${ALLOWED_HOSTS:-*}
+      # AI Agents
+      - ClaudeAgents__ApiKey=${CLAUDE_API_KEY}
+      - ClaudeAgents__Enabled=${CLAUDE_ENABLED:-true}
+      - ClaudeAgents__Model=${CLAUDE_MODEL:-claude-sonnet-4-20250514}
+      # Azure/Microsoft (if configured)
+      - CopilotAgent__ClientSecret=${COPILOT_CLIENT_SECRET:-}
+      - MicrosoftGraph__ClientSecret=${AZURE_CLIENT_SECRET:-}
+    depends_on:
+      grc-db:
+        condition: service_healthy
+      grc-redis:
+        condition: service_healthy
+    networks:
+      - grc-prod-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================================================
+  # Frontend (Next.js)
+  # ============================================================================
+  grc-frontend:
+    build:
+      context: ./grc-frontend
+      dockerfile: Dockerfile
+    container_name: shahin-grc-frontend
+    ports:
+      - "${FRONTEND_PORT:-3003}:3000"
+    environment:
+      - NODE_ENV=production
+      # Internal backend URL (container-to-container)
+      - BACKEND_INTERNAL_URL=http://grc-app:80
+      # Public URLs (browser-accessible)
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:5000}
+      - NEXT_PUBLIC_OIDC_AUTHORITY=${NEXT_PUBLIC_OIDC_AUTHORITY:-http://localhost:5000}
+      - NEXT_PUBLIC_OIDC_CLIENT_ID=${NEXT_PUBLIC_OIDC_CLIENT_ID:-grc-web}
+      - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME:-Shahin GRC}
+      # NextAuth (if used)
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3003}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-}
+    depends_on:
+      grc-app:
+        condition: service_healthy
+    networks:
+      - grc-prod-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ============================================================================
+  # PostgreSQL Database
+  # ============================================================================
+  grc-db:
+    image: postgres:15-alpine
+    container_name: shahin-grc-db
+    environment:
+      - POSTGRES_USER=${DB_USER:-shahin_admin}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME:-shahin_grc}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - grc_prod_db_data:/var/lib/postgresql/data
+      - ./scripts/init-db-production.sh:/docker-entrypoint-initdb.d/01-init.sh:ro
+    networks:
+      - grc-prod-network
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-shahin_admin} -d ${DB_NAME:-shahin_grc}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # Redis Cache
+  # ============================================================================
+  grc-redis:
+    image: redis:7-alpine
+    container_name: shahin-grc-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - grc_prod_redis_data:/data
+    networks:
+      - grc-prod-network
+    restart: always
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Networks
+# ══════════════════════════════════════════════════════════════════════════════
+networks:
+  grc-prod-network:
+    name: shahin-grc-production
+    driver: bridge
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Volumes
+# ══════════════════════════════════════════════════════════════════════════════
+volumes:
+  grc_prod_db_data:
+    name: shahin_grc_prod_db
+  grc_prod_redis_data:
+    name: shahin_grc_prod_redis

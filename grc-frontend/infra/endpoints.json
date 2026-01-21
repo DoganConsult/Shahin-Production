@@ -1,0 +1,51 @@
+{
+  "refreshSeconds": 15,
+  "services": [
+    {
+      "key": "grc-app",
+      "name": "Backend API",
+      "group": "Application",
+      "checkType": "http",
+      "internalUrl": "http://grc-app:80",
+      "externalUrl": "http://localhost:5000",
+      "healthPath": "/health/live",
+      "warnAfterMs": 800,
+      "failAfterMs": 3000
+    },
+    {
+      "key": "grc-db",
+      "name": "PostgreSQL",
+      "group": "Database & Cache",
+      "checkType": "tcp",
+      "internalHost": "grc-db",
+      "internalPort": 5432,
+      "externalHost": "localhost",
+      "externalPort": 5432,
+      "warnAfterMs": 300,
+      "failAfterMs": 1500
+    },
+    {
+      "key": "grc-redis",
+      "name": "Redis Cache",
+      "group": "Database & Cache",
+      "checkType": "tcp",
+      "internalHost": "grc-redis",
+      "internalPort": 6379,
+      "externalHost": "localhost",
+      "externalPort": 6379,
+      "warnAfterMs": 200,
+      "failAfterMs": 1000
+    },
+    {
+      "key": "grc-frontend",
+      "name": "Frontend (Next.js)",
+      "group": "Application",
+      "checkType": "http",
+      "internalUrl": "http://grc-frontend:3000",
+      "externalUrl": "http://localhost:3003",
+      "healthPath": "/",
+      "warnAfterMs": 500,
+      "failAfterMs": 2000
+    }
+  ]
+}
