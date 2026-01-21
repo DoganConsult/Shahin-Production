@@ -81,3 +81,8 @@ grc-deploy-20260118-022325.zip
 **/bin/
 **/obj/
 **/publish/
+
+# Production env files with secrets
+.env.production
+.env.staging  
+deployment/.env.production
