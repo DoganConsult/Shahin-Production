@@ -1,0 +1,176 @@
+@model List<GrcMvc.Models.Entities.Catalogs.TitleCatalog>
+@{
+    ViewData["Title"] = "Organization Titles";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "RoleProfile")">Role Profile</a></li>
+                    <li class="breadcrumb-item active">Titles</li>
+                </ol>
+            </nav>
+            <h1 class="h2 mb-1 mt-2"><i class="fas fa-id-badge text-success me-2"></i>Organization Titles</h1>
+            <p class="text-muted">Job titles mapped to system roles - customizable per organization</p>
+        </div>
+        <div>
+            <span class="badge bg-success fs-6">@Model.Count Titles</span>
+        </div>
+    </div>
+
+    <!-- Filter by Role -->
+    <div class="mb-4">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-secondary active" onclick="filterTitles('all')">All</button>
+            @{
+                var roles = Model.Where(t => t.RoleCatalog != null).Select(t => t.RoleCatalog!.RoleCode).Distinct().OrderBy(r => r);
+            }
+            @foreach (var roleCode in roles.Take(8))
+            {
+                <button type="button" class="btn btn-outline-secondary" onclick="filterTitles('@roleCode')">@roleCode</button>
+            }
+        </div>
+    </div>
+
+    <!-- Titles Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>All Titles</h5>
+                </div>
+                <div class="col-auto">
+                    <input type="text" class="form-control form-control-sm" placeholder="Search titles..." id="titleSearch" onkeyup="searchTitles()">
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="titlesTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 80px;">#</th>
+                            <th>Title Code</th>
+                            <th>Title Name</th>
+                            <th>Mapped Role</th>
+                            <th>Seniority</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ var index = 1; }
+                        @foreach (var title in Model)
+                        {
+                            <tr class="title-row" data-role="@(title.RoleCatalog?.RoleCode ?? "")">
+                                <td><span class="badge bg-light text-dark">@index</span></td>
+                                <td><code class="text-primary">@title.TitleCode</code></td>
+                                <td>
+                                    <strong>@title.TitleName</strong>
+                                    @if (!string.IsNullOrEmpty(title.Description))
+                                    {
+                                        <br><small class="text-muted">@title.Description.Substring(0, Math.Min(50, title.Description.Length))...</small>
+                                    }
+                                </td>
+                                <td>
+                                    @if (title.RoleCatalog != null)
+                                    {
+                                        <span class="badge bg-primary">@title.RoleCatalog.RoleCode</span>
+                                        <small class="d-block text-muted">@title.RoleCatalog.RoleName</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Not Mapped</span>
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        var seniority = GetSeniority(title.TitleCode);
+                                    }
+                                    <span class="badge @GetSeniorityBadge(seniority)">@seniority</span>
+                                </td>
+                                <td>
+                                    @if (title.IsActive)
+                                    {
+                                        <span class="badge bg-success"><i class="fas fa-check me-1"></i>Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger"><i class="fas fa-times me-1"></i>Inactive</span>
+                                    }
+                                </td>
+                            </tr>
+                            index++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center py-5">
+            <i class="fas fa-info-circle fa-3x mb-3"></i>
+            <h4>No Titles Defined</h4>
+            <p class="mb-0">Organization titles will be auto-generated during catalog seeding.</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+    function filterTitles(roleCode) {
+        const rows = document.querySelectorAll('.title-row');
+        const buttons = document.querySelectorAll('.btn-group .btn');
+        
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        rows.forEach(row => {
+            if (roleCode === 'all' || row.dataset.role === roleCode) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function searchTitles() {
+        const searchText = document.getElementById('titleSearch').value.toLowerCase();
+        const rows = document.querySelectorAll('.title-row');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchText) ? '' : 'none';
+        });
+    }
+</script>
+}
+
+@functions {
+    string GetSeniority(string titleCode)
+    {
+        if (titleCode.StartsWith("SR_") || titleCode.Contains("_SR") || titleCode.EndsWith("_SENIOR"))
+            return "Senior";
+        if (titleCode.StartsWith("JR_") || titleCode.Contains("_JR") || titleCode.EndsWith("_JUNIOR"))
+            return "Junior";
+        if (titleCode.Contains("HEAD") || titleCode.Contains("CHIEF") || titleCode.StartsWith("C"))
+            return "Executive";
+        if (titleCode.Contains("MGR") || titleCode.Contains("MANAGER"))
+            return "Manager";
+        return "Standard";
+    }
+
+    string GetSeniorityBadge(string seniority) => seniority switch
+    {
+        "Executive" => "bg-danger",
+        "Senior" => "bg-warning text-dark",
+        "Manager" => "bg-info",
+        "Standard" => "bg-secondary",
+        "Junior" => "bg-light text-dark",
+        _ => "bg-secondary"
+    };
+}

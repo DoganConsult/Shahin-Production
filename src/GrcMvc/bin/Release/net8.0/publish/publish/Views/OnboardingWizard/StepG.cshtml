@@ -1,0 +1,168 @@
+@model StepGControlOwnershipDto
+@using GrcMvc.Models.DTOs
+@{
+    ViewData["Title"] = "Control Ownership - Onboarding Wizard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var summary = ViewData["WizardSummary"] as WizardSummaryDto;
+    var tenantId = summary?.TenantId ?? Guid.Empty;
+}
+
+<div class="d-flex">
+    @await Html.PartialAsync("_WizardSidebar", summary)
+
+    <div class="flex-grow-1 p-4">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-users-cog text-primary me-2"></i>
+                        Step G: Control Ownership Model
+                    </h2>
+                    <p class="text-muted mb-0">نموذج ملكية الضوابط | Questions 54-60 • Who owns what?</p>
+                </div>
+                <span class="badge bg-primary fs-6">Step 7 of 12</span>
+            </div>
+
+            <form asp-action="StepG" asp-route-tenantId="@tenantId" method="post">
+                @Html.AntiForgeryToken()
+
+                <!-- Control Ownership Approach -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>Control Ownership Approach (Q54)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100 @(Model.ControlOwnershipApproach == "centralized" ? "border-primary bg-light" : "")">
+                                    <div class="card-body text-center">
+                                        <input type="radio" name="ControlOwnershipApproach" value="centralized" 
+                                               id="own_central" class="btn-check" @(Model.ControlOwnershipApproach == "centralized" ? "checked" : "")>
+                                        <label class="d-block" for="own_central">
+                                            <i class="fas fa-building fa-2x text-primary mb-2"></i>
+                                            <h6>Centralized</h6>
+                                            <small class="text-muted">Single team owns all controls</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100 @(Model.ControlOwnershipApproach == "federated" ? "border-primary bg-light" : "")">
+                                    <div class="card-body text-center">
+                                        <input type="radio" name="ControlOwnershipApproach" value="federated" 
+                                               id="own_fed" class="btn-check" @(Model.ControlOwnershipApproach == "federated" ? "checked" : "")>
+                                        <label class="d-block" for="own_fed">
+                                            <i class="fas fa-network-wired fa-2x text-info mb-2"></i>
+                                            <h6>Federated</h6>
+                                            <small class="text-muted">Each BU owns their controls</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100 @(Model.ControlOwnershipApproach == "hybrid" ? "border-primary bg-light" : "")">
+                                    <div class="card-body text-center">
+                                        <input type="radio" name="ControlOwnershipApproach" value="hybrid" 
+                                               id="own_hybrid" class="btn-check" @(Model.ControlOwnershipApproach == "hybrid" ? "checked" : "")>
+                                        <label class="d-block" for="own_hybrid">
+                                            <i class="fas fa-project-diagram fa-2x text-success mb-2"></i>
+                                            <h6>Hybrid</h6>
+                                            <small class="text-muted">Central + BU ownership</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Approval Roles -->
+                <div class="card mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-user-check me-2"></i>Approval Roles (Q56-58)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="ExceptionApproverRole" class="form-label">Exception Approver</label>
+                                <input asp-for="ExceptionApproverRole" class="form-control" placeholder="e.g., CISO">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="RegulatoryInterpretationApproverRole" class="form-label">Regulatory Interpretation Approver</label>
+                                <input asp-for="RegulatoryInterpretationApproverRole" class="form-control" placeholder="e.g., Compliance Head">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="ControlEffectivenessSignoffRole" class="form-label">Control Effectiveness Sign-off</label>
+                                <input asp-for="ControlEffectivenessSignoffRole" class="form-control" placeholder="e.g., Risk Manager">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Governance -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-gavel me-2"></i>Governance (Q59-60)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="InternalAuditStakeholder" class="form-label">Internal Audit Stakeholder</label>
+                                <input asp-for="InternalAuditStakeholder" class="form-control" placeholder="Name / Role">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RiskCommitteeCadence" class="form-label">Risk Committee Cadence</label>
+                                <select asp-for="RiskCommitteeCadence" class="form-select">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                    <option value="biannual">Bi-Annual</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="@Url.Action("StepF", new { tenantId })" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Back
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        Continue to Step H <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
+    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
+    <script>
+        // Initialize Motivation System
+        const motivation = new WizardMotivation({
+            stepNumber: 7,
+            totalSteps: 12,
+            tenantId: '@tenantId',
+            stepName: 'StepG'
+        });
+
+        // Initialize Live Preview Panel
+        const livePreview = new LivePreviewPanel({
+            stepName: 'StepG'
+        });
+
+        // Initialize Why We Ask Tooltips
+        const tooltips = new WhyWeAskTooltips();
+    </script>
+    <script>
+        document.querySelectorAll('input[name="ControlOwnershipApproach"]').forEach(r => {
+            r.addEventListener('change', function() {
+                document.querySelectorAll('input[name="ControlOwnershipApproach"]').forEach(x => {
+                    x.closest('.card').classList.remove('border-primary', 'bg-light');
+                });
+                this.closest('.card').classList.add('border-primary', 'bg-light');
+            });
+        });
+    </script>
+}

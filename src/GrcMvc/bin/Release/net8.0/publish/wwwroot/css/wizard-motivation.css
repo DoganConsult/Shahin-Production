@@ -1,0 +1,654 @@
+/**
+ * Wizard Motivation & Smart Guidance Styles
+ * Gamification, celebrations, tooltips, and dynamic guidance
+ */
+
+/* ============================================================================
+   Celebration Overlay
+   ============================================================================ */
+.celebration-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.celebration-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.celebration-content {
+    text-align: center;
+    color: white;
+    animation: celebrationBounce 0.5s ease;
+}
+
+.celebration-icon {
+    font-size: 5rem;
+    color: #10B981;
+    margin-bottom: 1.5rem;
+    animation: iconPulse 0.5s ease-in-out;
+}
+
+.celebration-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #10B981, #3B82F6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.celebration-message {
+    font-size: 1.25rem;
+    color: #94A3B8;
+    margin-bottom: 1.5rem;
+}
+
+.celebration-unlocks {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.unlock-title {
+    color: #10B981;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.unlock-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.unlock-item {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: #E2E8F0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.unlock-item i {
+    color: #10B981;
+}
+
+@keyframes celebrationBounce {
+    0% { transform: scale(0.5); opacity: 0; }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes iconPulse {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* ============================================================================
+   Particles
+   ============================================================================ */
+.particles-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10001;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    top: -20px;
+    animation: particleFall linear forwards;
+}
+
+@keyframes particleFall {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* ============================================================================
+   Smart Tip Container
+   ============================================================================ */
+.smart-tip-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1050;
+    opacity: 0;
+    transform: translateY(20px);
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.smart-tip-container.show {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+}
+
+.smart-tip {
+    background: linear-gradient(135deg, #1E293B, #334155);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    max-width: 350px;
+    overflow: hidden;
+}
+
+.smart-tip-header {
+    background: rgba(16, 185, 129, 0.15);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #10B981;
+    font-weight: 600;
+}
+
+.smart-tip-header i:first-child {
+    font-size: 1.25rem;
+}
+
+.smart-tip-header span {
+    flex: 1;
+}
+
+.smart-tip-close {
+    background: none;
+    border: none;
+    color: #94A3B8;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.2s;
+}
+
+.smart-tip-close:hover {
+    color: #fff;
+}
+
+.smart-tip-content {
+    padding: 16px;
+    color: #E2E8F0;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* ============================================================================
+   Live Preview Panel
+   ============================================================================ */
+.live-preview-panel {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 280px;
+    background: linear-gradient(180deg, #1E293B, #0F172A);
+    border-left: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 16px 0 0 16px;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);
+    z-index: 100;
+    transition: transform 0.3s ease;
+}
+
+.live-preview-panel.collapsed {
+    transform: translateY(-50%) translateX(240px);
+}
+
+.preview-header {
+    background: rgba(16, 185, 129, 0.15);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #10B981;
+    font-weight: 600;
+    border-radius: 16px 0 0 0;
+    border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.preview-header i:first-child {
+    font-size: 1.1rem;
+}
+
+.preview-header span {
+    flex: 1;
+}
+
+.preview-toggle {
+    background: none;
+    border: none;
+    color: #94A3B8;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: all 0.2s;
+}
+
+.preview-toggle:hover {
+    color: #fff;
+}
+
+.preview-body {
+    padding: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.preview-section {
+    margin-bottom: 20px;
+}
+
+.preview-section:last-child {
+    margin-bottom: 0;
+}
+
+.preview-section h6 {
+    color: #94A3B8;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.preview-section h6 i {
+    color: #10B981;
+}
+
+.preview-outputs,
+.preview-impact {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.preview-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(16, 185, 129, 0.08);
+    border-radius: 8px;
+    color: #E2E8F0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.preview-item i {
+    color: #10B981;
+    margin-top: 2px;
+}
+
+.preview-item.warning i {
+    color: #F59E0B;
+}
+
+.preview-item.info i {
+    color: #3B82F6;
+}
+
+/* ============================================================================
+   Next Best Action Panel
+   ============================================================================ */
+.nba-panel {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.nba-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #10B981;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    padding: 0 4px;
+}
+
+.nba-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nba-action {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: rgba(16, 185, 129, 0.08);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.nba-action:hover {
+    background: rgba(16, 185, 129, 0.15);
+    transform: translateX(4px);
+}
+
+.nba-action-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(16, 185, 129, 0.2);
+    border-radius: 8px;
+    color: #10B981;
+}
+
+.nba-action-icon.high {
+    background: rgba(239, 68, 68, 0.2);
+    color: #EF4444;
+}
+
+.nba-action-content {
+    flex: 1;
+}
+
+.nba-action-title {
+    color: #E2E8F0;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.nba-action-time {
+    color: #64748B;
+    font-size: 0.75rem;
+    margin-top: 2px;
+}
+
+/* ============================================================================
+   Why We Ask Tooltips
+   ============================================================================ */
+.why-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin-left: 6px;
+    color: #64748B;
+    cursor: help;
+    transition: color 0.2s;
+}
+
+.why-icon:hover {
+    color: #10B981;
+}
+
+.why-icon i {
+    font-size: 0.85rem;
+}
+
+/* Bootstrap tooltip override for wizard */
+.tooltip-inner {
+    max-width: 280px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #1E293B, #334155);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    text-align: left;
+    line-height: 1.5;
+}
+
+.tooltip.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: rgba(16, 185, 129, 0.3);
+}
+
+/* ============================================================================
+   Field Success Indicator
+   ============================================================================ */
+.field-success-indicator {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.field-success-indicator.show {
+    opacity: 1;
+}
+
+.field-success-indicator i {
+    font-size: 0.9rem;
+}
+
+/* Make parent relative for positioning */
+.mb-3 {
+    position: relative;
+}
+
+/* ============================================================================
+   Card Complete Celebration
+   ============================================================================ */
+.card-complete-badge {
+    margin-left: auto;
+    background: rgba(16, 185, 129, 0.2);
+    color: #10B981;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+}
+
+.card-complete-badge.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.card-complete-badge i {
+    margin-right: 4px;
+}
+
+.card-complete-pulse {
+    animation: cardPulse 0.6s ease;
+}
+
+@keyframes cardPulse {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* ============================================================================
+   Progress Enhancements
+   ============================================================================ */
+.progress-milestone {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+}
+
+.milestone-marker {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #334155;
+    transition: all 0.3s ease;
+}
+
+.milestone-marker.completed {
+    background: #10B981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.milestone-marker.current {
+    background: #3B82F6;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+    transform: scale(1.2);
+}
+
+/* ============================================================================
+   Time Estimation Badge
+   ============================================================================ */
+.time-estimate-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #F59E0B;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.time-estimate-badge i {
+    font-size: 0.85rem;
+}
+
+/* ============================================================================
+   Step Transition Animations
+   ============================================================================ */
+.wizard-main-content {
+    animation: contentFadeIn 0.4s ease;
+}
+
+@keyframes contentFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ============================================================================
+   Responsive Adjustments
+   ============================================================================ */
+@media (max-width: 1200px) {
+    .live-preview-panel {
+        width: 250px;
+    }
+
+    .live-preview-panel.collapsed {
+        transform: translateY(-50%) translateX(210px);
+    }
+}
+
+@media (max-width: 992px) {
+    .live-preview-panel {
+        display: none;
+    }
+
+    .smart-tip-container {
+        right: 16px;
+        bottom: 80px;
+        left: 16px;
+    }
+
+    .smart-tip {
+        max-width: none;
+    }
+}
+
+/* ============================================================================
+   Light Theme Adjustments
+   ============================================================================ */
+body:not(.dark-mode) .celebration-overlay {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+body:not(.dark-mode) .celebration-content {
+    color: #1E293B;
+}
+
+body:not(.dark-mode) .celebration-message {
+    color: #64748B;
+}
+
+body:not(.dark-mode) .celebration-unlocks {
+    background: rgba(16, 185, 129, 0.05);
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+body:not(.dark-mode) .unlock-item {
+    background: rgba(16, 185, 129, 0.1);
+    color: #334155;
+}
+
+body:not(.dark-mode) .smart-tip {
+    background: linear-gradient(135deg, #FFFFFF, #F8FAFC);
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+body:not(.dark-mode) .smart-tip-content {
+    color: #334155;
+}
+
+body:not(.dark-mode) .live-preview-panel {
+    background: linear-gradient(180deg, #FFFFFF, #F8FAFC);
+    border-left-color: rgba(16, 185, 129, 0.2);
+}
+
+body:not(.dark-mode) .preview-item {
+    background: rgba(16, 185, 129, 0.05);
+    color: #334155;
+}
+
+body:not(.dark-mode) .nba-action {
+    background: rgba(16, 185, 129, 0.05);
+}
+
+body:not(.dark-mode) .nba-action:hover {
+    background: rgba(16, 185, 129, 0.1);
+}
+
+body:not(.dark-mode) .nba-action-title {
+    color: #334155;
+}
+
+body:not(.dark-mode) .tooltip-inner {
+    background: linear-gradient(135deg, #FFFFFF, #F8FAFC);
+    border-color: rgba(16, 185, 129, 0.2);
+    color: #334155;
+}

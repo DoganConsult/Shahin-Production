@@ -1,0 +1,40 @@
+@using GrcMvc.Models.DTOs
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> Localizer
+
+<span class="badge bg-@GetStatusColor(Status)">@GetLocalizedStatus(Status)</span>
+
+@code {
+    [Parameter]
+    public string Status { get; set; } = "Pending";
+
+    private string GetStatusColor(string status)
+    {
+        return status switch
+        {
+            "Approved" or "Completed" or "Active" => "success",
+            "Rejected" or "Failed" or "Cancelled" => "danger",
+            "Pending" or "In Progress" => "warning",
+            "Delegated" or "On Hold" => "info",
+            _ => "secondary"
+        };
+    }
+
+    private string GetLocalizedStatus(string status)
+    {
+        return status switch
+        {
+            "Approved" => Localizer["Status_Approved"],
+            "Completed" => Localizer["Status_Completed"],
+            "Active" => Localizer["Status_Active"],
+            "Rejected" => Localizer["Status_Rejected"],
+            "Failed" => Localizer["Status_Failed"],
+            "Cancelled" => Localizer["Status_Cancelled"],
+            "Pending" => Localizer["Status_Pending"],
+            "In Progress" => Localizer["Status_InProgress"],
+            "Delegated" => Localizer["Status_Delegated"],
+            "On Hold" => Localizer["Status_OnHold"],
+            _ => Status
+        };
+    }
+}

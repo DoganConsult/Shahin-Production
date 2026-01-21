@@ -1,0 +1,92 @@
+@*
+    Language Toggle Component
+    Allows users to switch between English and Arabic
+*@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using GrcMvc.Resources
+@inject IHtmlLocalizer<SharedResource> L
+
+<div class="language-toggle">
+    <button class="lang-option active" data-lang="en" onclick="switchLanguage('en')">
+        English
+    </button>
+    <button class="lang-option" data-lang="ar" onclick="switchLanguage('ar')">
+        العربية
+    </button>
+</div>
+
+<script>
+    function switchLanguage(lang) {
+        // Update active state
+        document.querySelectorAll('.lang-option').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+
+        // Save preference
+        localStorage.setItem('preferredLanguage', lang);
+
+        // Apply language changes
+        if (lang === 'ar') {
+            document.documentElement.setAttribute('lang', 'ar');
+            document.documentElement.setAttribute('dir', 'rtl');
+            applyArabicText();
+        } else {
+            document.documentElement.setAttribute('lang', 'en');
+            document.documentElement.setAttribute('dir', 'ltr');
+            applyEnglishText();
+        }
+
+        // Show notification
+        const message = lang === 'ar' ? '@L["Shared_Lang_SwitchedToArabic"]' : '@L["Shared_Lang_SwitchedToEnglish"]';
+        showLanguageNotification(message);
+    }
+
+    function applyArabicText() {
+        // Update translatable elements
+        document.querySelectorAll('[data-i18n-ar]').forEach(el => {
+            el.textContent = el.getAttribute('data-i18n-ar');
+        });
+
+        // Update placeholders
+        document.querySelectorAll('[data-placeholder-ar]').forEach(el => {
+            el.placeholder = el.getAttribute('data-placeholder-ar');
+        });
+    }
+
+    function applyEnglishText() {
+        // Update translatable elements
+        document.querySelectorAll('[data-i18n-en]').forEach(el => {
+            el.textContent = el.getAttribute('data-i18n-en');
+        });
+
+        // Update placeholders
+        document.querySelectorAll('[data-placeholder-en]').forEach(el => {
+            el.placeholder = el.getAttribute('data-placeholder-en');
+        });
+    }
+
+    function showLanguageNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'alert alert-info alert-dismissible fade show';
+        notification.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 1051;';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Initialize language on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedLang = localStorage.getItem('preferredLanguage') || 'en';
+        if (savedLang === 'ar') {
+            switchLanguage('ar');
+        }
+    });
+</script>

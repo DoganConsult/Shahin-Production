@@ -1,0 +1,482 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@{
+    ViewData["Title"] = L["Dashboard_CommandCenter"].Value + " - " + L["Dashboard"].Value;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+}
+
+<div class="enterprise-dashboard">
+    <!-- Command Header -->
+    <div class="command-header">
+        <div class="command-title">
+            <div class="command-title-icon"><i class="bi bi-grid-3x3-gap-fill"></i></div>
+            <div>
+                <h1>@L["Dashboard_CommandCenter"]</h1>
+                <p>@L["Dashboard_IntegratedGrcSystem"]</p>
+            </div>
+        </div>
+        <div class="command-actions" style="display: flex; gap: 12px; align-items: center;">
+            <div class="command-status">
+                <span class="status-pulse"></span>
+                <span>@L["Dashboard_AllSystemsOperational"]</span>
+            </div>
+            <div class="command-time" id="liveTime">--:--:--</div>
+        </div>
+    </div>
+
+    <!-- KPI Cards Row -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <div class="kpi-icon"><i class="bi bi-shield-check"></i></div>
+                <div class="kpi-trend up"><i class="bi bi-arrow-up"></i> 12%</div>
+            </div>
+            <div class="kpi-value" id="complianceScore">--</div>
+            <div class="kpi-label">@L["Dashboard_ComplianceRate"]</div>
+        </div>
+        <div class="kpi-card warning">
+            <div class="kpi-header">
+                <div class="kpi-icon"><i class="bi bi-exclamation-triangle"></i></div>
+                <div class="kpi-trend down"><i class="bi bi-arrow-down"></i> 3%</div>
+            </div>
+            <div class="kpi-value" id="activeRisks">--</div>
+            <div class="kpi-label">@L["Dashboard_ActiveRisks"]</div>
+        </div>
+        <div class="kpi-card info">
+            <div class="kpi-header">
+                <div class="kpi-icon"><i class="bi bi-clipboard-check"></i></div>
+                <div class="kpi-trend up"><i class="bi bi-arrow-up"></i> 8%</div>
+            </div>
+            <div class="kpi-value" id="controlsCount">--</div>
+            <div class="kpi-label">@L["Dashboard_EffectiveControls"]</div>
+        </div>
+        <div class="kpi-card danger">
+            <div class="kpi-header">
+                <div class="kpi-icon"><i class="bi bi-clock-history"></i></div>
+            </div>
+            <div class="kpi-value" id="pendingTasks">--</div>
+            <div class="kpi-label">@L["Dashboard_PendingTasks"]</div>
+        </div>
+        <div class="kpi-card purple">
+            <div class="kpi-header">
+                <div class="kpi-icon"><i class="bi bi-file-earmark-check"></i></div>
+                <div class="kpi-trend up"><i class="bi bi-arrow-up"></i> 15%</div>
+            </div>
+            <div class="kpi-value" id="evidenceCount">--</div>
+            <div class="kpi-label">@L["Dashboard_UploadedEvidence"]</div>
+        </div>
+    </div>
+
+    <!-- Onboarding Progress Widget (if not completed) -->
+    @if (ViewBag.OnboardingIncomplete == true)
+    {
+        @await Html.PartialAsync("_OnboardingProgressWidget_Professional")
+    }
+
+    <!-- Main Dashboard Grid -->
+    <div class="dashboard-grid">
+        <!-- Left: Charts -->
+        <div>
+            <!-- Compliance Trend Chart -->
+            <div class="dash-panel" style="margin-bottom: 24px;">
+                <div class="panel-header">
+                    <h5 class="panel-title">
+                        <span class="panel-title-icon green"><i class="bi bi-graph-up"></i></span>
+                        @L["Dashboard_ComplianceTrend"]
+                    </h5>
+                </div>
+                <div class="panel-body">
+                    <div class="chart-container"><canvas id="complianceTrendChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Risk Heat Map -->
+            <div class="dash-panel">
+                <div class="panel-header">
+                    <h5 class="panel-title">
+                        <span class="panel-title-icon red"><i class="bi bi-grid-3x3"></i></span>
+                        @L["Dashboard_RiskHeatMap"]
+                    </h5>
+                </div>
+                <div class="panel-body">
+                    <div class="risk-heatmap">
+                        <div class="heatmap-label"></div>
+                        <div class="heatmap-label">@L["RiskLevel_Rare"]</div>
+                        <div class="heatmap-label">@L["RiskLevel_Unlikely"]</div>
+                        <div class="heatmap-label">@L["RiskLevel_Possible"]</div>
+                        <div class="heatmap-label">@L["RiskLevel_Likely"]</div>
+                        <div class="heatmap-label">@L["RiskLevel_AlmostCertain"]</div>
+                        <div class="heatmap-label" style="font-weight:600;">@L["RiskLevel_Catastrophic"]</div>
+                        <div class="heatmap-cell medium">3</div>
+                        <div class="heatmap-cell high">0</div>
+                        <div class="heatmap-cell critical">1</div>
+                        <div class="heatmap-cell critical">0</div>
+                        <div class="heatmap-cell critical">0</div>
+                        <div class="heatmap-label">@L["ImpactLevel_Major"]</div>
+                        <div class="heatmap-cell low">2</div>
+                        <div class="heatmap-cell medium">4</div>
+                        <div class="heatmap-cell high">2</div>
+                        <div class="heatmap-cell critical">1</div>
+                        <div class="heatmap-cell critical">0</div>
+                        <div class="heatmap-label">@L["ImpactLevel_Moderate"]</div>
+                        <div class="heatmap-cell low">5</div>
+                        <div class="heatmap-cell low">8</div>
+                        <div class="heatmap-cell medium">6</div>
+                        <div class="heatmap-cell high">3</div>
+                        <div class="heatmap-cell high">1</div>
+                        <div class="heatmap-label">@L["ImpactLevel_Minor"]</div>
+                        <div class="heatmap-cell low">12</div>
+                        <div class="heatmap-cell low">9</div>
+                        <div class="heatmap-cell low">4</div>
+                        <div class="heatmap-cell medium">2</div>
+                        <div class="heatmap-cell medium">1</div>
+                        <div class="heatmap-label">@L["ImpactLevel_Insignificant"]</div>
+                        <div class="heatmap-cell low">15</div>
+                        <div class="heatmap-cell low">10</div>
+                        <div class="heatmap-cell low">7</div>
+                        <div class="heatmap-cell low">3</div>
+                        <div class="heatmap-cell medium">2</div>
+                    </div>
+                    <div style="display:flex;justify-content:center;gap:24px;padding-top:16px;border-top:1px solid var(--dash-border);margin-top:16px;">
+                        <span style="display:flex;align-items:center;gap:8px;font-size:0.75rem;color:var(--dash-text-secondary);">
+                            <span style="width:14px;height:14px;border-radius:3px;background:rgba(16,185,129,0.6);"></span> @L["RiskLevel_Low"]
+                        </span>
+                        <span style="display:flex;align-items:center;gap:8px;font-size:0.75rem;color:var(--dash-text-secondary);">
+                            <span style="width:14px;height:14px;border-radius:3px;background:rgba(245,158,11,0.6);"></span> @L["RiskLevel_Medium"]
+                        </span>
+                        <span style="display:flex;align-items:center;gap:8px;font-size:0.75rem;color:var(--dash-text-secondary);">
+                            <span style="width:14px;height:14px;border-radius:3px;background:rgba(239,68,68,0.6);"></span> @L["RiskLevel_High"]
+                        </span>
+                        <span style="display:flex;align-items:center;gap:8px;font-size:0.75rem;color:var(--dash-text-secondary);">
+                            <span style="width:14px;height:14px;border-radius:3px;background:rgba(220,38,38,0.9);"></span> @L["RiskLevel_Critical"]
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Panels -->
+        <div>
+            <!-- Compliance Gauge -->
+            <div class="dash-panel" style="margin-bottom: 24px;">
+                <div class="panel-header">
+                    <h5 class="panel-title">
+                        <span class="panel-title-icon green"><i class="bi bi-speedometer2"></i></span>
+                        @L["Dashboard_OverallComplianceIndicator"]
+                    </h5>
+                </div>
+                <div class="panel-body">
+                    <div class="gauge-container">
+                        <div style="position:relative;width:180px;height:90px;">
+                            <svg viewBox="0 0 180 90" style="width:100%;height:100%;">
+                                <path d="M 10 90 A 80 80 0 0 1 170 90" fill="none" stroke="#242b3d" stroke-width="16" stroke-linecap="round"/>
+                                <path id="gaugeArc" d="M 10 90 A 80 80 0 0 1 170 90" fill="none" stroke="url(#gaugeGradient)" stroke-width="16" stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="70"/>
+                                <defs>
+                                    <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#10b981"/>
+                                        <stop offset="50%" stop-color="#f59e0b"/>
+                                        <stop offset="100%" stop-color="#ef4444"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);text-align:center;">
+                                <div style="font-size:2rem;font-weight:700;color:var(--dash-text-primary);" id="gaugeValue">72%</div>
+                                <div style="font-size:0.7rem;color:var(--dash-text-tertiary);text-transform:uppercase;">@L["Dashboard_ComplianceRateLabel"]</div>
+                            </div>
+                        </div>
+                        <div class="gauge-legend">
+                            <div class="gauge-legend-item"><span class="gauge-legend-dot compliant"></span><span>@L["ComplianceStatus_Compliant"] (65%)</span></div>
+                            <div class="gauge-legend-item"><span class="gauge-legend-dot partial"></span><span>@L["ComplianceStatus_Partial"] (20%)</span></div>
+                            <div class="gauge-legend-item"><span class="gauge-legend-dot non-compliant"></span><span>@L["ComplianceStatus_NonCompliant"] (15%)</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="dash-panel" style="margin-bottom: 24px;">
+                <div class="panel-header">
+                    <h5 class="panel-title">
+                        <span class="panel-title-icon purple"><i class="bi bi-robot"></i></span>
+                        @L["Dashboard_ShahinAIInsights"]
+                    </h5>
+                </div>
+                <div class="panel-body">
+                    <div class="ai-insight-card">
+                        <div class="ai-badge"><i class="bi bi-stars"></i> @L["AI_SmartAnalysis"]</div>
+                        <div class="ai-insight-title">@L["AI_OpportunityToImprove"]</div>
+                        <div class="ai-insight-text">@L["AI_OpportunityToImproveText"]</div>
+                        <div class="ai-confidence">
+                            <span>@L["AI_AnalysisConfidence"]</span>
+                            <div class="ai-confidence-bar"><div class="ai-confidence-fill" style="width:92%;"></div></div>
+                            <span>92%</span>
+                        </div>
+                    </div>
+                    <div class="ai-insight-card">
+                        <div class="ai-badge"><i class="bi bi-exclamation-diamond"></i> @L["AI_EarlyWarning"]</div>
+                        <div class="ai-insight-title">@L["AI_RenewalDateComing"]</div>
+                        <div class="ai-insight-text">@L["AI_RenewalDateComingText"]</div>
+                        <div class="ai-confidence">
+                            <span>@L["Priority"]</span>
+                            <div class="ai-confidence-bar"><div class="ai-confidence-fill" style="width:85%;"></div></div>
+                            <span>@L["High"]</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Framework Progress -->
+            <div class="dash-panel">
+                <div class="panel-header">
+                    <h5 class="panel-title">
+                        <span class="panel-title-icon blue"><i class="bi bi-layers"></i></span>
+                        @L["Dashboard_RegulatoryFrameworkProgress"]
+                    </h5>
+                </div>
+                <div class="panel-body">
+                    <div class="progress-item">
+                        <div class="progress-header"><span class="progress-label">NCA-ECC</span><span class="progress-value">78%</span></div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill green" style="width:78%;"></div></div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-header"><span class="progress-label">SAMA-CSF</span><span class="progress-value">65%</span></div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill blue" style="width:65%;"></div></div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-header"><span class="progress-label">PDPL</span><span class="progress-value">82%</span></div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill green" style="width:82%;"></div></div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-header"><span class="progress-label">ISO 27001</span><span class="progress-value">55%</span></div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill orange" style="width:55%;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Grid -->
+    <div class="dashboard-grid-wide">
+        <!-- Activity Feed -->
+        <div class="dash-panel">
+            <div class="panel-header">
+                <h5 class="panel-title"><span class="panel-title-icon blue"><i class="bi bi-activity"></i></span> @L["Dashboard_RecentActivity"]</h5>
+                <a href="/AuditLogs" style="font-size:0.8rem;color:var(--dash-accent-secondary);text-decoration:none;">@L["ViewAll"]</a>
+            </div>
+            <div class="panel-body-flush">
+                <div class="activity-feed">
+                    <div class="activity-item">
+                        <div class="activity-icon success"><i class="bi bi-check-circle"></i></div>
+                        <div class="activity-content">
+                            <div class="activity-title">@L["Activity_EvidenceApproved"]</div>
+                            <div class="activity-meta">@L["By"] Ahmed Mohammed - @L["Department"]</div>
+                        </div>
+                        <div class="activity-time">5 @L["Minutes"] @L["Ago"]</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon warning"><i class="bi bi-exclamation-circle"></i></div>
+                        <div class="activity-content">
+                            <div class="activity-title">@L["Activity_NewRiskRegistered"]</div>
+                            <div class="activity-meta">@L["By"] Sara Ali - @L["RiskManagement"]</div>
+                        </div>
+                        <div class="activity-time">15 @L["Minutes"] @L["Ago"]</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon info"><i class="bi bi-file-earmark-plus"></i></div>
+                        <div class="activity-content">
+                            <div class="activity-title">@L["Activity_PolicyUploaded"]</div>
+                            <div class="activity-meta">@L["By"] Khalid Al-Otaibi - IT @L["Department"]</div>
+                        </div>
+                        <div class="activity-time">32 @L["Minutes"] @L["Ago"]</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon success"><i class="bi bi-shield-check"></i></div>
+                        <div class="activity-content">
+                            <div class="activity-title">@L["Activity_AssessmentCompleted"]</div>
+                            <div class="activity-meta">@L["By"] Fatima Al-Zahrani - @L["Nav_Compliance"]</div>
+                        </div>
+                        <div class="activity-time">1 @L["Hour"] @L["Ago"]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Critical Alerts -->
+        <div class="dash-panel">
+            <div class="panel-header">
+                <h5 class="panel-title"><span class="panel-title-icon red"><i class="bi bi-bell-fill"></i></span> @L["Dashboard_CriticalAlerts"]</h5>
+                <span class="dash-badge dash-badge-danger">4 @L["New"]</span>
+            </div>
+            <div class="panel-body-flush">
+                <div class="alert-item critical">
+                    <div class="alert-icon" style="background:rgba(239,68,68,0.15);color:var(--dash-accent-danger);"><i class="bi bi-shield-x"></i></div>
+                    <div class="alert-content">
+                        <div class="alert-title">@L["Alert_CriticalControlNotApplied"]</div>
+                        <div class="alert-desc">NCA-ECC-2-2-1: @L["Alert_CriticalControlNotAppliedDesc"]</div>
+                    </div>
+                </div>
+                <div class="alert-item critical">
+                    <div class="alert-icon" style="background:rgba(239,68,68,0.15);color:var(--dash-accent-danger);"><i class="bi bi-calendar-x"></i></div>
+                    <div class="alert-content">
+                        <div class="alert-title">@L["Alert_ComplianceDeadlineMissed"]</div>
+                        <div class="alert-desc">@L["Alert_ComplianceDeadlineMissedDesc"]</div>
+                    </div>
+                </div>
+                <div class="alert-item warning">
+                    <div class="alert-icon" style="background:rgba(245,158,11,0.15);color:var(--dash-accent-warning);"><i class="bi bi-clock"></i></div>
+                    <div class="alert-content">
+                        <div class="alert-title">@L["Alert_TaskExpiringSoon"]</div>
+                        <div class="alert-desc">@L["Alert_TaskExpiringSoonDesc"]</div>
+                    </div>
+                </div>
+                <div class="alert-item warning">
+                    <div class="alert-icon" style="background:rgba(245,158,11,0.15);color:var(--dash-accent-warning);"><i class="bi bi-file-earmark-x"></i></div>
+                    <div class="alert-content">
+                        <div class="alert-title">@L["Alert_EvidenceExpired"]</div>
+                        <div class="alert-desc">@L["Alert_EvidenceExpiredDesc"]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Tasks -->
+        <div class="dash-panel">
+            <div class="panel-header">
+                <h5 class="panel-title"><span class="panel-title-icon orange"><i class="bi bi-list-task"></i></span> @L["Dashboard_PendingTasksTitle"]</h5>
+                <a href="/Inbox" style="font-size:0.8rem;color:var(--dash-accent-secondary);text-decoration:none;">@L["ViewAll"]</a>
+            </div>
+            <div class="panel-body-flush">
+                <table class="dash-table">
+                    <thead><tr><th>@L["Task"]</th><th>@L["Priority"]</th><th>@L["DueDate"]</th></tr></thead>
+                    <tbody>
+                        <tr><td>@L["Task_ReviewAccessControls"]</td><td><span class="dash-badge dash-badge-danger">@L["Priority_Urgent"]</span></td><td>@L["Today"]</td></tr>
+                        <tr><td>@L["Task_UpdateInformationSecurityPolicy"]</td><td><span class="dash-badge dash-badge-warning">@L["Priority_Medium"]</span></td><td>@L["Tomorrow"]</td></tr>
+                        <tr><td>@L["Task_ApproveTrainingGuide"]</td><td><span class="dash-badge dash-badge-info">@L["Priority_Normal"]</span></td><td>@L["Days"] 3 @L["Ago"]</td></tr>
+                        <tr><td>@L["Task_ReviewMonthlyRiskReport"]</td><td><span class="dash-badge dash-badge-warning">@L["Priority_Medium"]</span></td><td>@L["Days"] 5 @L["Ago"]</td></tr>
+                        <tr><td>@L["Task_AssessNewExternalVendor"]</td><td><span class="dash-badge dash-badge-info">@L["Priority_Normal"]</span></td><td>@L["Week"] @L["Ago"]</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+// Initialize localization data
+window.initLocalization({
+    'Month_January': '@L["Month_January"]',
+    'Month_February': '@L["Month_February"]',
+    'Month_March': '@L["Month_March"]',
+    'Month_April': '@L["Month_April"]',
+    'Month_May': '@L["Month_May"]',
+    'Month_June': '@L["Month_June"]',
+    'Month_July': '@L["Month_July"]',
+    'Month_August': '@L["Month_August"]',
+    'Month_September': '@L["Month_September"]',
+    'Month_October': '@L["Month_October"]',
+    'Month_November': '@L["Month_November"]',
+    'Month_December': '@L["Month_December"]',
+    'Chart_ComplianceRate': '@L["Chart_ComplianceRate"]',
+    'Chart_Target': '@L["Chart_Target"]'
+});
+
+// Live Time
+function updateTime() {
+    const now = new Date();
+    const culture = window.getCulture ? window.getCulture() : 'ar';
+    const locale = culture === 'ar' ? 'ar-SA' : 'en-US';
+    document.getElementById('liveTime').textContent = now.toLocaleTimeString(locale, { hour12: false });
+}
+updateTime();
+setInterval(updateTime, 1000);
+
+// Chart
+const ctx = document.getElementById('complianceTrendChart');
+if (ctx) {
+    const monthLabels = [
+        window.L('Month_January'), window.L('Month_February'), window.L('Month_March'),
+        window.L('Month_April'), window.L('Month_May'), window.L('Month_June'),
+        window.L('Month_July'), window.L('Month_August'), window.L('Month_September'),
+        window.L('Month_October'), window.L('Month_November'), window.L('Month_December')
+    ];
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: monthLabels,
+            datasets: [{
+                label: window.L('Chart_ComplianceRate'),
+                data: [45, 52, 58, 60, 62, 65, 68, 70, 72, 75, 78, 82],
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#10b981'
+            }, {
+                label: window.L('Chart_Target'),
+                data: [70, 70, 70, 75, 75, 75, 80, 80, 80, 85, 85, 85],
+                borderColor: '#3b82f6',
+                borderDash: [5, 5],
+                fill: false,
+                tension: 0,
+                pointRadius: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true, position: 'top', align: 'end', labels: { color: '#9ca3af', usePointStyle: true } }
+            },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#6b7280' } },
+                y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#6b7280', callback: v => v + '%' } }
+            }
+        }
+    });
+}
+
+// Load Data
+async function loadDashboardData() {
+    try {
+        const response = await fetch('/api/dashboard/summary');
+        if (!response.ok) return setDefaults();
+        const result = await response.json();
+        if (result.success && result.data) {
+            const stats = result.data.stats || {};
+            document.getElementById('complianceScore').textContent = (stats.complianceScore || 72) + '%';
+            document.getElementById('activeRisks').textContent = stats.activeRisks || 24;
+            document.getElementById('controlsCount').textContent = stats.controls || 156;
+            document.getElementById('pendingTasks').textContent = stats.pendingTasks || 12;
+            document.getElementById('evidenceCount').textContent = stats.evidence || 89;
+            updateGauge(stats.complianceScore || 72);
+        } else setDefaults();
+    } catch (e) { setDefaults(); }
+}
+
+function setDefaults() {
+    document.getElementById('complianceScore').textContent = '72%';
+    document.getElementById('activeRisks').textContent = '24';
+    document.getElementById('controlsCount').textContent = '156';
+    document.getElementById('pendingTasks').textContent = '12';
+    document.getElementById('evidenceCount').textContent = '89';
+    updateGauge(72);
+}
+
+function updateGauge(value) {
+    const arc = document.getElementById('gaugeArc');
+    if (arc) arc.style.strokeDashoffset = 251 - (value / 100 * 251);
+    const v = document.getElementById('gaugeValue');
+    if (v) v.textContent = value + '%';
+}
+
+document.addEventListener('DOMContentLoaded', loadDashboardData);
+</script>
+}

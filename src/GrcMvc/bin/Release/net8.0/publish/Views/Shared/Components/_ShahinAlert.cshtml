@@ -1,0 +1,41 @@
+@*
+    SHAHIN AI GRC - Alert Component
+    Usage: <partial name="Components/_ShahinAlert" model='new { Type = "success", Title = "Success!", Message = "Operation completed successfully.", ShowIcon = true }' />
+*@
+@{
+    dynamic model = ViewData.Model ?? new { };
+    var type = model?.Type ?? "info"; // success, warning, error, info
+    var title = model?.Title ?? "";
+    var message = model?.Message ?? "";
+    var showIcon = model?.ShowIcon ?? true;
+    var cssClass = model?.CssClass ?? "";
+
+    var alertClass = $"shahin-alert shahin-alert-{type}";
+    if (!string.IsNullOrEmpty(cssClass)) {
+        alertClass += $" {cssClass}";
+    }
+
+    var iconName = type switch {
+        "success" => "check-circle-fill",
+        "warning" => "exclamation-triangle-fill",
+        "error" => "x-circle-fill",
+        "info" => "info-circle-fill",
+        _ => "info-circle-fill"
+    };
+}
+
+<div class="@alertClass" role="alert">
+    @if (showIcon) {
+        <div class="shahin-alert-icon">
+            <i class="bi bi-@iconName"></i>
+        </div>
+    }
+    <div class="shahin-alert-content">
+        @if (!string.IsNullOrEmpty(title)) {
+            <div class="shahin-alert-title">@title</div>
+        }
+        @if (!string.IsNullOrEmpty(message)) {
+            <div class="shahin-alert-description">@message</div>
+        }
+    </div>
+</div>

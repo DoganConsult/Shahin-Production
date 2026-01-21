@@ -1,0 +1,115 @@
+@model IEnumerable<GrcMvc.Models.DTOs.AuditDto>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@{
+    ViewData["Title"] = L["Audit_Upcoming_Title"].Value;
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-calendar-event"></i> @L["Audit_Upcoming_Title"]</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> @L["BackToList"]
+            </a>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> @L["Audit_Create_New"]
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-calendar-check display-1 text-muted"></i>
+                    <h4 class="mt-3 text-muted">@L["Audit_NoUpcoming"]</h4>
+                    <p>@L["Audit_AllCaughtUp"]</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover" id="upcomingTable">
+                        <thead>
+                            <tr>
+                                <th>@L["Audit_StartDate"]</th>
+                                <th>@L["Audit_Name"]</th>
+                                <th>@L["Audit_Type"]</th>
+                                <th>@L["Audit_Status"]</th>
+                                <th>@L["Audit_LeadAuditor"]</th>
+                                <th>@L["Audit_DaysUntilStart"]</th>
+                                <th>@L["Actions"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                var daysLeft = (item.PlannedStartDate - DateTime.UtcNow).Days;
+                                var urgencyClass = daysLeft < 3 ? "text-danger fw-bold" : (daysLeft < 7 ? "text-warning" : "");
+
+                                <tr>
+                                    <td>@item.PlannedStartDate.ToShortDateString()</td>
+                                    <td>
+                                        <a asp-action="Details" asp-route-id="@item.Id">@item.Name</a>
+                                        <br />
+                                        <small class="text-muted">@item.AuditNumber</small>
+                                    </td>
+                                    <td>@item.Type</td>
+                                    <td>
+                                        <span class="badge @GetStatusBadgeClass(item.Status)">
+                                            @item.Status
+                                        </span>
+                                    </td>
+                                    <td>@item.LeadAuditor</td>
+                                    <td class="@urgencyClass">
+                                        @if (daysLeft < 0)
+                                        {
+                                            <span>@L["Audit_Started"]</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@L["Audit_InDays", daysLeft]</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i> @L["Update"]
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "completed" => "bg-success",
+            "inprogress" or "in progress" => "bg-primary",
+            "planned" => "bg-info",
+            "delayed" or "overdue" => "bg-danger",
+            "cancelled" => "bg-secondary",
+            _ => "bg-secondary"
+        };
+    }
+}

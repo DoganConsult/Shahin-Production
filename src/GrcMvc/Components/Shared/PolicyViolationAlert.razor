@@ -1,0 +1,87 @@
+@using System.Linq
+@using Microsoft.AspNetCore.Components
+@using GrcMvc.Application.Policy
+
+@inherits ComponentBase
+
+@if (Violation is not null)
+{
+    <div class="alert alert-@GetSeverityClass() alert-dismissible fade show" role="alert">
+        <div class="d-flex align-items-start">
+            <i class="fas fa-@GetSeverityIcon() me-2 mt-1"></i>
+            <div class="flex-grow-1">
+                <h5 class="alert-heading mb-2">@GetSeverityTitle()</h5>
+                <p class="mb-2">@Violation.Message</p>
+
+                @if (!string.IsNullOrWhiteSpace(Violation.RemediationHint))
+                {
+                    <div class="mt-3">
+                        <strong>How to fix:</strong>
+                        <p class="mb-0">@Violation.RemediationHint</p>
+                    </div>
+                }
+
+                @if (Violation.FailedConditions?.Any() == true)
+                {
+                    <div class="mt-3">
+                        <strong>Issues found:</strong>
+                        <ul class="mb-0 mt-2">
+                            @foreach (var condition in Violation.FailedConditions)
+                            {
+                                <li>@condition</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                @if (CanAutoFix)
+                {
+                    <div class="mt-3">
+                        <button class="btn btn-sm btn-primary" @onclick="HandleAutoFix">
+                            Auto-fix this issue
+                        </button>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public PolicyViolationInfo? Violation { get; set; }
+    [Parameter] public bool CanAutoFix { get; set; }
+    [Parameter] public EventCallback OnAutoFix { get; set; }
+
+    private string GetSeverityClass() =>
+        Violation?.Severity?.ToLowerInvariant() switch
+        {
+            "critical" => "danger",
+            "high" => "warning",
+            "medium" => "warning",
+            "low" => "info",
+            _ => "warning"
+        };
+
+    private string GetSeverityIcon() =>
+        Violation?.Severity?.ToLowerInvariant() switch
+        {
+            "critical" => "exclamation-triangle",
+            "high" => "exclamation-circle",
+            "medium" => "info-circle",
+            "low" => "lightbulb",
+            _ => "info-circle"
+        };
+
+    private string GetSeverityTitle() =>
+        Violation?.Severity?.ToLowerInvariant() switch
+        {
+            "critical" => "Policy Violation (Critical)",
+            "high" => "Policy Violation (High Priority)",
+            "medium" => "Policy Requirement",
+            "low" => "Policy Suggestion",
+            _ => "Policy Violation"
+        };
+
+    private Task HandleAutoFix() => OnAutoFix.InvokeAsync();
+}

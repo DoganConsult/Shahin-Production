@@ -1,0 +1,164 @@
+@model dynamic
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@Model.Subject</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            background-color: #ffc107;
+            color: #333;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            margin: -30px -30px 20px -30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .approval-box {
+            background-color: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .approval-box h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .details {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .details dt {
+            font-weight: bold;
+            color: #555;
+            display: inline-block;
+            width: 150px;
+        }
+        .details dd {
+            display: inline-block;
+            margin-left: 0;
+            margin-bottom: 10px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px 10px 0;
+            font-weight: bold;
+        }
+        .btn-approve {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-reject {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-view {
+            background-color: #0066cc;
+            color: white;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #666;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⏳ Approval Required</h1>
+        </div>
+
+        <p>Hello @(Model.RecipientName ?? "there"),</p>
+
+        <p>An item is waiting for your approval. Please review and take action.</p>
+
+        <div class="approval-box">
+            <h3>🔔 Your Approval is Required</h3>
+            <p>Please review the following item and make your decision.</p>
+        </div>
+
+        <dl class="details">
+            @if (Model.WorkflowType != null)
+            {
+                <dt>Type:</dt>
+                <dd>@Model.WorkflowType</dd><br/>
+            }
+
+            @if (Model.WorkflowId != null)
+            {
+                <dt>Reference:</dt>
+                <dd>Workflow #@Model.WorkflowId</dd><br/>
+            }
+
+            @if (Model.WorkflowStatus != null)
+            {
+                <dt>Current Status:</dt>
+                <dd>@Model.WorkflowStatus</dd><br/>
+            }
+
+            <dt>Priority:</dt>
+            <dd>@Model.Priority</dd><br/>
+
+            <dt>Submitted:</dt>
+            <dd>@Model.CreatedAt</dd>
+        </dl>
+
+        <div class="message">
+            <p><strong>Details:</strong></p>
+            <p>@Model.Body</p>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Action Required:</strong> Please review this request at your earliest convenience.
+        </div>
+
+        <p style="text-align: center;">
+            <a href="@(Model.ApproveUrl ?? "#")" class="btn btn-approve">✓ Approve</a>
+            <a href="@(Model.RejectUrl ?? "#")" class="btn btn-reject">✗ Reject</a>
+            <a href="@(Model.ViewUrl ?? "#")" class="btn btn-view">View Details</a>
+        </p>
+
+        <div class="footer">
+            <p>This is an automated notification from the GRC System.</p>
+            <p>Please do not reply to this email. Use the links above to take action.</p>
+            <p>Sent: @Model.CreatedAt</p>
+            <p>© @DateTime.UtcNow.Year GRC Management System. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

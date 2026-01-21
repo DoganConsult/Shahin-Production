@@ -1,0 +1,136 @@
+@model List<GrcMvc.Models.Entities.Catalogs.RoleCatalog>
+@{
+    ViewData["Title"] = "System Roles";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "RoleProfile")">Role Profile</a></li>
+                    <li class="breadcrumb-item active">Roles</li>
+                </ol>
+            </nav>
+            <h1 class="h2 mb-1 mt-2"><i class="fas fa-user-tag text-primary me-2"></i>System Roles</h1>
+            <p class="text-muted">Predefined system roles for GRC operations</p>
+        </div>
+        <div>
+            <span class="badge bg-info fs-6">@Model.Count Roles</span>
+        </div>
+    </div>
+
+    <!-- Role Cards -->
+    <div class="row">
+        @foreach (var role in Model)
+        {
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-gradient text-white d-flex justify-content-between align-items-center" 
+                         style="background: linear-gradient(135deg, @GetRoleColor(role.RoleCode) 0%, @GetRoleColorDark(role.RoleCode) 100%);">
+                        <div>
+                            <i class="@GetRoleIcon(role.RoleCode) me-2"></i>
+                            <strong>@role.RoleCode</strong>
+                        </div>
+                        <span class="badge bg-light text-dark">Level @role.ApprovalLevel</span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@role.RoleName</h5>
+                        
+                        <p class="card-text small text-muted">@role.Description</p>
+
+                        <h6 class="mt-3"><i class="fas fa-layer-group me-2"></i>Details</h6>
+                        <ul class="list-unstyled small">
+                            <li><i class="fas fa-building text-secondary me-2"></i>Layer: @role.Layer</li>
+                            <li><i class="fas fa-sitemap text-secondary me-2"></i>Department: @role.Department</li>
+                        </ul>
+
+                        <h6 class="mt-3"><i class="fas fa-check-circle me-2"></i>Capabilities</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            @if (role.CanApprove)
+                            {
+                                <span class="badge bg-success">Approve</span>
+                            }
+                            @if (role.CanReject)
+                            {
+                                <span class="badge bg-danger">Reject</span>
+                            }
+                            @if (role.CanEscalate)
+                            {
+                                <span class="badge bg-warning text-dark">Escalate</span>
+                            }
+                            @if (role.CanReassign)
+                            {
+                                <span class="badge bg-info">Reassign</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light">
+                        <small class="text-muted">
+                            <i class="fas fa-sort-numeric-up me-1"></i>Display Order: @role.DisplayOrder
+                            @if (role.IsActive)
+                            {
+                                <span class="ms-3"><i class="fas fa-check-circle text-success me-1"></i>Active</span>
+                            }
+                        </small>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center py-5">
+            <i class="fas fa-info-circle fa-3x mb-3"></i>
+            <h4>No Roles Defined</h4>
+            <p class="mb-0">System roles will be seeded during application initialization.</p>
+        </div>
+    }
+</div>
+
+@functions {
+    string GetRoleColor(string roleCode) => roleCode switch
+    {
+        "CRO" => "#dc3545",
+        "CISO" => "#6f42c1",
+        "CCO" => "#0d6efd",
+        "DPO" => "#198754",
+        "CAE" => "#fd7e14",
+        "GRC_MGR" => "#20c997",
+        "RISK_MGR" => "#e83e8c",
+        "CTRL_OWN" => "#17a2b8",
+        "EVID_COLL" => "#6c757d",
+        _ => "#6c757d"
+    };
+
+    string GetRoleColorDark(string roleCode) => roleCode switch
+    {
+        "CRO" => "#a71d2a",
+        "CISO" => "#59359a",
+        "CCO" => "#0b5ed7",
+        "DPO" => "#146c43",
+        "CAE" => "#c96a11",
+        "GRC_MGR" => "#1aa179",
+        "RISK_MGR" => "#c5316c",
+        "CTRL_OWN" => "#138496",
+        "EVID_COLL" => "#545b62",
+        _ => "#545b62"
+    };
+
+    string GetRoleIcon(string roleCode) => roleCode switch
+    {
+        "CRO" => "fas fa-shield-alt",
+        "CISO" => "fas fa-lock",
+        "CCO" => "fas fa-balance-scale",
+        "DPO" => "fas fa-user-shield",
+        "CAE" => "fas fa-search",
+        "GRC_MGR" => "fas fa-cogs",
+        "RISK_MGR" => "fas fa-exclamation-triangle",
+        "CTRL_OWN" => "fas fa-clipboard-check",
+        "EVID_COLL" => "fas fa-file-alt",
+        "VIEWER" => "fas fa-eye",
+        _ => "fas fa-user"
+    };
+}

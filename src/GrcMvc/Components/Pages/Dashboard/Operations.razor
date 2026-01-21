@@ -1,0 +1,549 @@
+@page "/dashboard/operations"
+@using GrcMvc.Data
+@using GrcMvc.Models.Entities
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Authorization
+@inject GrcDbContext DbContext
+@inject IHttpContextAccessor HttpContextAccessor
+@attribute [Authorize(Roles = "PlatformAdmin,TenantAdmin,ComplianceManager,WorkflowManager")]
+
+@{
+    var dir = "rtl";
+}
+
+<PageTitle>لوحة العمليات | Operations Dashboard</PageTitle>
+
+<div dir="@dir" class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6"><i class="bi bi-gear-wide-connected me-2"></i>لوحة العمليات</h1>
+                <p class="text-muted mb-0">متابعة سير العمل، المهام المتأخرة، وفجوات الأدلة</p>
+            </div>
+            <div class="text-end">
+                <small class="text-muted">آخر تحديث: @DateTime.UtcNow.ToString("HH:mm")</small>
+                <button class="btn btn-sm btn-outline-primary ms-2" @onclick="RefreshData">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Strip -->
+    <div class="row mb-4 g-3">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-white-50">إجمالي المهام المفتوحة</h6>
+                            <h2 class="mb-0">@totalOpenTasks</h2>
+                        </div>
+                        <i class="bi bi-list-task fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-white-50">المهام المتأخرة</h6>
+                            <h2 class="mb-0">@overdueTasks</h2>
+                        </div>
+                        <i class="bi bi-exclamation-triangle fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="opacity-75">انتهاكات SLA</h6>
+                            <h2 class="mb-0">@slaBreaches</h2>
+                        </div>
+                        <i class="bi bi-alarm fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-white-50">فجوات الأدلة</h6>
+                            <h2 class="mb-0">@evidenceGaps</h2>
+                        </div>
+                        <i class="bi bi-file-earmark-x fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Work Queue by Status -->
+        <div class="col-lg-8">
+            <div class="card h-100">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-kanban me-2"></i>قائمة العمل حسب الحالة</h5>
+                    <a href="/workflow/inbox" class="btn btn-sm btn-outline-primary">عرض الكل</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>المهمة</th>
+                                    <th>الحالة</th>
+                                    <th>المسؤول</th>
+                                    <th>تاريخ الاستحقاق</th>
+                                    <th>الأولوية</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (workQueue.Any())
+                                {
+                                    @foreach (var item in workQueue.Take(10))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a href="/workflow/task/@item.Id">@item.Title</a>
+                                            </td>
+                                            <td>
+                                                <span class="badge @GetStatusBadge(item.Status)">@GetStatusArabic(item.Status)</span>
+                                            </td>
+                                            <td>@item.AssignedTo</td>
+                                            <td>
+                                                @if (item.DueDate.HasValue)
+                                                {
+                                                    <span class="@(item.DueDate < DateTime.UtcNow ? "text-danger" : "")">
+                                                        @item.DueDate.Value.ToString("yyyy-MM-dd")
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge @GetPriorityBadge(item.Priority)">@item.Priority</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-4">لا توجد مهام حالياً</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Owner Workload -->
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-people me-2"></i>حمل العمل حسب المسؤول</h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var owner in ownerWorkloads.Take(5))
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@owner.OwnerName</strong>
+                                    <br>
+                                    <small class="text-muted">@owner.Role</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge @GetWorkloadBadge(owner.WorkloadLevel) fs-6">@owner.OpenTasks</span>
+                                    @if (owner.OverdueTasks > 0)
+                                    {
+                                        <br>
+                                        <small class="text-danger">@owner.OverdueTasks متأخرة</small>
+                                    }
+                                </div>
+                            </li>
+                        }
+                        @if (!ownerWorkloads.Any())
+                        {
+                            <li class="list-group-item text-center text-muted">لا توجد بيانات</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- SLA Breaches -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-alarm-fill me-2"></i>انتهاكات اتفاقية مستوى الخدمة</h5>
+                    <span class="badge bg-white text-danger">@slaBreachesList.Count</span>
+                </div>
+                <div class="card-body p-0">
+                    @if (slaBreachesList.Any())
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var breach in slaBreachesList.Take(5))
+                            {
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <strong>@breach.Title</strong>
+                                            <br>
+                                            <small class="text-muted">@breach.BreachType - @breach.Owner</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="text-danger fw-bold">+@breach.HoursOverdue ساعة</span>
+                                            <br>
+                                            <small>@breach.BreachDate.ToString("MM/dd HH:mm")</small>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-success">
+                            <i class="bi bi-check-circle fs-1"></i>
+                            <p class="mb-0">لا توجد انتهاكات</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Evidence Gaps -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-file-earmark-x me-2"></i>فجوات الأدلة</h5>
+                    <a href="/evidence/gaps" class="btn btn-sm btn-outline-dark">إدارة</a>
+                </div>
+                <div class="card-body p-0">
+                    @if (evidenceGapsList.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>الضابط</th>
+                                        <th>الفجوة</th>
+                                        <th>المسؤول</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var gap in evidenceGapsList.Take(5))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <small>@gap.ControlNumber</small>
+                                                <br>
+                                                <span class="text-truncate d-inline-block" style="max-width: 200px;">@gap.ControlTitle</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-danger">@gap.GapCount / @gap.RequiredEvidence</span>
+                                            </td>
+                                            <td><small>@gap.Owner</small></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-success">
+                            <i class="bi bi-check-circle fs-1"></i>
+                            <p class="mb-0">جميع الأدلة مكتملة</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Changes Feed -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-activity me-2"></i>آخر التغييرات</h5>
+                    <a href="/audit/logs" class="btn btn-sm btn-outline-primary">سجل التدقيق</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>النوع</th>
+                                    <th>الكيان</th>
+                                    <th>الإجراء</th>
+                                    <th>بواسطة</th>
+                                    <th>التاريخ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var change in recentChanges.Take(10))
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-secondary">@change.EntityType</span></td>
+                                        <td>@change.EntityName</td>
+                                        <td>
+                                            <span class="badge @GetActionBadge(change.Action)">@change.Action</span>
+                                        </td>
+                                        <td>@change.ChangedBy</td>
+                                        <td><small>@change.ChangedAt.ToString("MM/dd HH:mm")</small></td>
+                                    </tr>
+                                }
+                                @if (!recentChanges.Any())
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-3">لا توجد تغييرات حديثة</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int totalOpenTasks = 0;
+    private int overdueTasks = 0;
+    private int slaBreaches = 0;
+    private int evidenceGaps = 0;
+
+    private List<WorkQueueItem> workQueue = new();
+    private List<OwnerWorkload> ownerWorkloads = new();
+    private List<SlaBreachItem> slaBreachesList = new();
+    private List<EvidenceGapItem> evidenceGapsList = new();
+    private List<ChangeLogItem> recentChanges = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task RefreshData()
+    {
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private async Task LoadData()
+    {
+        var tenant = await DbContext.Tenants.FirstOrDefaultAsync(t => !t.IsDeleted);
+        var tenantId = tenant?.Id ?? Guid.Empty;
+
+        // Load workflow tasks
+        var tasks = await DbContext.WorkflowTasks
+            .Include(t => t.WorkflowInstance)
+            .Where(t => t.WorkflowInstance.TenantId == tenantId && !t.IsDeleted && t.Status != "Completed" && t.Status != "Cancelled")
+            .OrderBy(t => t.DueDate)
+            .ToListAsync();
+
+        totalOpenTasks = tasks.Count;
+        overdueTasks = tasks.Count(t => t.DueDate < DateTime.UtcNow);
+
+        workQueue = tasks.Select(t => new WorkQueueItem
+        {
+            Id = t.Id,
+            Title = t.TaskName,
+            Status = t.Status,
+            AssignedTo = t.AssignedToUserName ?? "غير محدد",
+            DueDate = t.DueDate,
+            Priority = t.DueDate < DateTime.UtcNow ? "Critical" : t.DueDate < DateTime.UtcNow.AddDays(3) ? "High" : "Normal"
+        }).ToList();
+
+        // Owner workloads
+        ownerWorkloads = tasks
+            .GroupBy(t => t.AssignedToUserName ?? "Unassigned")
+            .Select(g => new OwnerWorkload
+            {
+                OwnerId = g.Key,
+                OwnerName = g.Key,
+                Role = "مسؤول",
+                TotalTasks = g.Count(),
+                OpenTasks = g.Count(t => t.Status != "Completed"),
+                OverdueTasks = g.Count(t => t.DueDate < DateTime.UtcNow),
+                WorkloadLevel = g.Count() > 10 ? "Critical" : g.Count() > 5 ? "Heavy" : "Normal"
+            })
+            .OrderByDescending(o => o.OpenTasks)
+            .ToList();
+
+        // SLA breaches (tasks overdue more than 24 hours)
+        slaBreachesList = tasks
+            .Where(t => t.DueDate < DateTime.UtcNow.AddHours(-24))
+            .Select(t => new SlaBreachItem
+            {
+                Id = t.Id,
+                Title = t.TaskName,
+                BreachType = "Response",
+                BreachDate = t.DueDate ?? DateTime.UtcNow,
+                HoursOverdue = (int)(DateTime.UtcNow - (t.DueDate ?? DateTime.UtcNow)).TotalHours,
+                Owner = t.AssignedToUserName ?? "غير محدد"
+            })
+            .OrderByDescending(b => b.HoursOverdue)
+            .ToList();
+
+        slaBreaches = slaBreachesList.Count;
+
+        // Evidence gaps
+        var controls = await DbContext.Controls
+            .Where(c => c.TenantId == tenantId && !c.IsDeleted)
+            .ToListAsync();
+
+        var evidences = await DbContext.Evidences
+            .Where(e => e.TenantId == tenantId && !e.IsDeleted)
+            .ToListAsync();
+
+        evidenceGapsList = controls
+            .Select(c => new EvidenceGapItem
+            {
+                ControlId = c.Id,
+                ControlNumber = c.ControlCode ?? c.Id.ToString().Substring(0, 8),
+                ControlTitle = c.Name,
+                Domain = c.Category ?? "عام",
+                RequiredEvidence = 1,
+                CurrentEvidence = evidences.Count(e => e.ControlId == c.Id),
+                Owner = c.Owner ?? "غير محدد"
+            })
+            .Where(e => e.CurrentEvidence < e.RequiredEvidence)
+            .Select(e => { e.GapCount = e.RequiredEvidence - e.CurrentEvidence; return e; })
+            .OrderByDescending(e => e.GapCount)
+            .ToList();
+
+        evidenceGaps = evidenceGapsList.Count;
+
+        // Recent changes from audit log
+        var auditEvents = await DbContext.AuditEvents
+            .Where(a => a.TenantId == tenantId)
+            .OrderByDescending(a => a.CreatedAt)
+            .Take(20)
+            .ToListAsync();
+
+        recentChanges = auditEvents.Select(a => new ChangeLogItem
+        {
+            Id = a.Id,
+            EntityType = a.AffectedEntityType ?? "System",
+            EntityName = a.AffectedEntityId ?? "",
+            Action = a.Action ?? "Activity",
+            ChangedBy = a.Actor ?? "System",
+            ChangedAt = a.EventTimestamp
+        }).ToList();
+    }
+
+    private string GetStatusBadge(string status) => status switch
+    {
+        "Pending" => "bg-secondary",
+        "InProgress" => "bg-primary",
+        "Blocked" => "bg-danger",
+        "Overdue" => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    private string GetStatusArabic(string status) => status switch
+    {
+        "Pending" => "معلق",
+        "InProgress" => "قيد التنفيذ",
+        "Blocked" => "محظور",
+        "Overdue" => "متأخر",
+        "Completed" => "مكتمل",
+        _ => status
+    };
+
+    private string GetPriorityBadge(string priority) => priority switch
+    {
+        "Critical" => "bg-danger",
+        "High" => "bg-warning text-dark",
+        "Normal" => "bg-info",
+        _ => "bg-secondary"
+    };
+
+    private string GetWorkloadBadge(string level) => level switch
+    {
+        "Critical" => "bg-danger",
+        "Heavy" => "bg-warning text-dark",
+        "Normal" => "bg-success",
+        "Light" => "bg-info",
+        _ => "bg-secondary"
+    };
+
+    private string GetActionBadge(string action) => action switch
+    {
+        "Created" => "bg-success",
+        "Updated" => "bg-info",
+        "Deleted" => "bg-danger",
+        "StatusChanged" => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
+
+    // DTOs
+    private class WorkQueueItem
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = "";
+        public string Status { get; set; } = "";
+        public string AssignedTo { get; set; } = "";
+        public DateTime? DueDate { get; set; }
+        public string Priority { get; set; } = "";
+    }
+
+    private class OwnerWorkload
+    {
+        public string OwnerId { get; set; } = "";
+        public string OwnerName { get; set; } = "";
+        public string Role { get; set; } = "";
+        public int TotalTasks { get; set; }
+        public int OpenTasks { get; set; }
+        public int OverdueTasks { get; set; }
+        public string WorkloadLevel { get; set; } = "";
+    }
+
+    private class SlaBreachItem
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = "";
+        public string BreachType { get; set; } = "";
+        public DateTime BreachDate { get; set; }
+        public int HoursOverdue { get; set; }
+        public string Owner { get; set; } = "";
+    }
+
+    private class EvidenceGapItem
+    {
+        public Guid ControlId { get; set; }
+        public string ControlNumber { get; set; } = "";
+        public string ControlTitle { get; set; } = "";
+        public string Domain { get; set; } = "";
+        public int RequiredEvidence { get; set; }
+        public int CurrentEvidence { get; set; }
+        public int GapCount { get; set; }
+        public string Owner { get; set; } = "";
+    }
+
+    private class ChangeLogItem
+    {
+        public Guid Id { get; set; }
+        public string EntityType { get; set; } = "";
+        public string EntityName { get; set; } = "";
+        public string Action { get; set; } = "";
+        public string ChangedBy { get; set; } = "";
+        public DateTime ChangedAt { get; set; }
+    }
+}

@@ -1,0 +1,270 @@
+@{
+    ViewData["Title"] = "Control Mapping - Shahin MAP";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3">
+                <i class="fas fa-project-diagram text-primary"></i> Control Mapping
+                <small class="text-muted fs-6">Requirement → Objective → Control</small>
+            </h1>
+            <p class="text-muted">Map regulatory requirements to control objectives and controls</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createMappingModal">
+                <i class="fas fa-plus"></i> Create Mapping
+            </button>
+        </div>
+    </div>
+
+    <!-- Mapping Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <h4 class="text-primary">288</h4>
+                    <small class="text-muted">Total Requirements</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h4 class="text-success">245</h4>
+                    <small class="text-muted">Mapped (85%)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h4 class="text-warning">43</h4>
+                    <small class="text-muted">Unmapped</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h4 class="text-info">156</h4>
+                    <small class="text-muted">Controls</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visual Mapping View -->
+    <div class="row">
+        <!-- Requirements Column -->
+        <div class="col-md-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-file-alt"></i> Requirements
+                    <span class="badge bg-white text-primary float-end">288</span>
+                </div>
+                <div class="card-body p-0" style="max-height: 500px; overflow-y: auto;">
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item list-group-item-action active" onclick="selectRequirement('ECC-1.1.1')">
+                            <div class="d-flex justify-content-between">
+                                <strong>ECC-1.1.1</strong>
+                                <span class="badge bg-success">Mapped</span>
+                            </div>
+                            <small class="text-truncate d-block">Cybersecurity strategy aligned with business objectives</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="selectRequirement('ECC-1.1.2')">
+                            <div class="d-flex justify-content-between">
+                                <strong>ECC-1.1.2</strong>
+                                <span class="badge bg-success">Mapped</span>
+                            </div>
+                            <small class="text-truncate d-block">Cybersecurity governance structure</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="selectRequirement('ECC-1.2.1')">
+                            <div class="d-flex justify-content-between">
+                                <strong>ECC-1.2.1</strong>
+                                <span class="badge bg-warning text-dark">Partial</span>
+                            </div>
+                            <small class="text-truncate d-block">Cybersecurity policies and procedures</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="selectRequirement('ECC-2.1.1')">
+                            <div class="d-flex justify-content-between">
+                                <strong>ECC-2.1.1</strong>
+                                <span class="badge bg-secondary">Unmapped</span>
+                            </div>
+                            <small class="text-truncate d-block">Asset inventory and classification</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="selectRequirement('SAMA-1.1')">
+                            <div class="d-flex justify-content-between">
+                                <strong>SAMA-1.1</strong>
+                                <span class="badge bg-success">Mapped</span>
+                            </div>
+                            <small class="text-truncate d-block">Board-approved cybersecurity program</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Objectives Column -->
+        <div class="col-md-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-bullseye"></i> Control Objectives
+                    <span class="badge bg-white text-info float-end">48</span>
+                </div>
+                <div class="card-body p-0" style="max-height: 500px; overflow-y: auto;">
+                    <div class="list-group list-group-flush" id="objectivesList">
+                        <a href="#" class="list-group-item list-group-item-action active">
+                            <strong>OBJ-GOV-01</strong>
+                            <small class="d-block">Establish cybersecurity governance framework</small>
+                            <span class="badge bg-primary mt-1">3 controls</span>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <strong>OBJ-GOV-02</strong>
+                            <small class="d-block">Define roles and responsibilities</small>
+                            <span class="badge bg-primary mt-1">2 controls</span>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <strong>OBJ-POL-01</strong>
+                            <small class="d-block">Develop security policies</small>
+                            <span class="badge bg-primary mt-1">4 controls</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls Column -->
+        <div class="col-md-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-shield-alt"></i> Controls
+                    <span class="badge bg-white text-success float-end">156</span>
+                </div>
+                <div class="card-body p-0" style="max-height: 500px; overflow-y: auto;">
+                    <div class="list-group list-group-flush" id="controlsList">
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between">
+                                <strong>CTL-GOV-001</strong>
+                                <span class="badge bg-success">Compliant</span>
+                            </div>
+                            <small class="d-block">Cybersecurity strategy document</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between">
+                                <strong>CTL-GOV-002</strong>
+                                <span class="badge bg-success">Compliant</span>
+                            </div>
+                            <small class="d-block">Governance committee charter</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between">
+                                <strong>CTL-GOV-003</strong>
+                                <span class="badge bg-warning text-dark">Partial</span>
+                            </div>
+                            <small class="d-block">RACI matrix for security roles</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mapping Details -->
+    <div class="card shadow mt-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="fas fa-link"></i> Selected Mapping Details</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <h6 class="text-muted">Requirement</h6>
+                    <p class="mb-0"><strong>ECC-1.1.1:</strong> Cybersecurity strategy aligned with business objectives</p>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="text-muted">Objective</h6>
+                    <p class="mb-0"><strong>OBJ-GOV-01:</strong> Establish cybersecurity governance framework</p>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="text-muted">Controls</h6>
+                    <ul class="mb-0 ps-3">
+                        <li>CTL-GOV-001: Cybersecurity strategy document</li>
+                        <li>CTL-GOV-002: Governance committee charter</li>
+                        <li>CTL-GOV-003: RACI matrix for security roles</li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-end gap-2">
+                <button class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-unlink"></i> Remove Mapping
+                </button>
+                <button class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-edit"></i> Edit Mapping
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Mapping Modal -->
+<div class="modal fade" id="createMappingModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-link"></i> Create Mapping</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Requirement <span class="text-danger">*</span></label>
+                        <select class="form-select">
+                            <option>Select requirement...</option>
+                            <option>ECC-1.1.1 - Cybersecurity strategy</option>
+                            <option>ECC-1.1.2 - Governance structure</option>
+                            <option>SAMA-1.1 - Board-approved program</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Control Objective <span class="text-danger">*</span></label>
+                        <select class="form-select">
+                            <option>Select or create objective...</option>
+                            <option>OBJ-GOV-01 - Establish governance</option>
+                            <option>OBJ-GOV-02 - Define roles</option>
+                            <option value="new">+ Create new objective</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Controls <span class="text-danger">*</span></label>
+                        <select class="form-select" multiple size="5">
+                            <option>CTL-GOV-001 - Strategy document</option>
+                            <option>CTL-GOV-002 - Committee charter</option>
+                            <option>CTL-GOV-003 - RACI matrix</option>
+                            <option>CTL-POL-001 - Security policy</option>
+                        </select>
+                        <small class="text-muted">Hold Ctrl/Cmd to select multiple</small>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Mapping Rationale</label>
+                        <textarea class="form-control" rows="2" placeholder="Why these controls satisfy this requirement..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Create Mapping
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function selectRequirement(reqId) {
+        // Load objectives and controls for this requirement
+    }
+</script>

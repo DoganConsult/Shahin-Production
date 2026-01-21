@@ -1,0 +1,121 @@
+@model GrcMvc.Controllers.RoleProfileDashboard
+@{
+    ViewData["Title"] = "Role Profile Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-1"><i class="fas fa-user-shield text-primary me-2"></i>Role Profile Management</h1>
+            <p class="text-muted">Manage roles, titles, and user assignments</p>
+        </div>
+        <a href="@Url.Action("MyProfile")" class="btn btn-outline-primary">
+            <i class="fas fa-user me-2"></i>My Profile
+        </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <div class="h2 mb-0 text-primary">@Model.TotalRoles</div>
+                    <small class="text-muted">Roles</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <div class="h2 mb-0 text-success">@Model.TotalTitles</div>
+                    <small class="text-muted">Titles</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <div class="h2 mb-0 text-info">@Model.TotalUsers</div>
+                    <small class="text-muted">Users</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Roles -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-user-tag me-2"></i>Roles</span>
+                    <a href="@Url.Action("Roles")" class="btn btn-sm btn-light">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Name</th>
+                                    <th>Level</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var role in Model.Roles.Take(10))
+                                {
+                                    <tr>
+                                        <td><code>@role.RoleCode</code></td>
+                                        <td>@role.RoleName</td>
+                                        <td><span class="badge bg-info">@role.DisplayOrder</span></td>
+                                    </tr>
+                                }
+                                @if (!Model.Roles.Any())
+                                {
+                                    <tr><td colspan="3" class="text-center text-muted py-3">No roles defined</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Titles -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-id-badge me-2"></i>Titles</span>
+                    <a href="@Url.Action("Titles")" class="btn btn-sm btn-light">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Title</th>
+                                    <th>Role</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var title in Model.Titles.Take(10))
+                                {
+                                    <tr>
+                                        <td><code>@title.TitleCode</code></td>
+                                        <td>@title.TitleName</td>
+                                        <td><span class="badge bg-secondary">@title.RoleCatalog?.RoleCode</span></td>
+                                    </tr>
+                                }
+                                @if (!Model.Titles.Any())
+                                {
+                                    <tr><td colspan="3" class="text-center text-muted py-3">No titles defined</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

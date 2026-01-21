@@ -1,0 +1,250 @@
+@using GrcMvc.Models.DTOs
+@using System.Net.Http.Json
+@using System.Text.Json
+@inject HttpClient Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
+
+<div dir="@dir">
+    <h3 class="mb-4">Your Compliance Scope</h3>
+    
+    <div class="alert alert-success" role="alert">
+        <i class="bi bi-check-circle"></i>
+        <strong>Your compliance scope has been derived!</strong> Based on your organization profile, here are the applicable frameworks and packages.
+    </div>
+
+    @if (IsLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Analyzing your organization and deriving scope...</p>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-circle"></i> @ErrorMessage
+        </div>
+    }
+    else if (Scope != null)
+    {
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">@Scope.ApplicableFrameworks.Count</h5>
+                        <p class="card-text">Compliance Frameworks</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title text-info">@Scope.RecommendedPackages.Count</h5>
+                        <p class="card-text">Control Packages</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title text-warning">@Scope.ApplicableTemplates.Count</h5>
+                        <p class="card-text">Assessment Templates</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title text-secondary">@Scope.AuditPackages.Count</h5>
+                        <p class="card-text">Audit Packages</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h5 class="mb-3">
+                    <i class="bi bi-shield-check text-primary"></i> Applicable Frameworks
+                </h5>
+                <div class="list-group">
+                    @foreach (var framework in Scope.ApplicableFrameworks)
+                    {
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">@framework</h6>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">Required</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <h5 class="mb-3">
+                    <i class="bi bi-diagram-3 text-info"></i> Recommended Packages
+                </h5>
+                <div class="list-group">
+                    @foreach (var package in Scope.RecommendedPackages)
+                    {
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">@package</h6>
+                                </div>
+                                <span class="badge bg-info rounded-pill">Recommended</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h5 class="mb-3">
+                    <i class="bi bi-file-earmark-check text-warning"></i> Assessment Templates
+                </h5>
+                <div class="list-group">
+                    @foreach (var template in Scope.ApplicableTemplates.Take(5))
+                    {
+                        <div class="list-group-item">
+                            <h6 class="mb-0">@template</h6>
+                        </div>
+                    }
+                    @if (Scope.ApplicableTemplates.Count > 5)
+                    {
+                        <div class="list-group-item text-muted">
+                            +@(Scope.ApplicableTemplates.Count - 5) more templates
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <h5 class="mb-3">
+                    <i class="bi bi-journal-check text-secondary"></i> Audit Packages
+                </h5>
+                <div class="list-group">
+                    @foreach (var audit in Scope.AuditPackages.Take(5))
+                    {
+                        <div class="list-group-item">
+                            <h6 class="mb-0">@audit</h6>
+                        </div>
+                    }
+                    @if (Scope.AuditPackages.Count > 5)
+                    {
+                        <div class="list-group-item text-muted">
+                            +@(Scope.AuditPackages.Count - 5) more packages
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="d-flex gap-2 mt-5">
+        <button type="button" class="btn btn-outline-secondary" @onclick="() => OnBack.InvokeAsync()" disabled="@IsLoading">
+            <i class="bi bi-arrow-left"></i> Back
+        </button>
+        <button type="button" class="btn btn-primary" @onclick="() => OnNext.InvokeAsync(null)" disabled="@IsLoading">
+            @if (IsLoading)
+            {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                <span>Loading...</span>
+            }
+            else
+            {
+                <span><i class="bi bi-arrow-right"></i> Complete Onboarding</span>
+            }
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Guid TenantId { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid?> OnNext { get; set; }
+
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+
+    private OnboardingScopeDto? Scope;
+    private bool IsLoading = true;
+    private string ErrorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadComplianceScope();
+    }
+
+    private async Task LoadComplianceScope()
+    {
+        IsLoading = true;
+        ErrorMessage = string.Empty;
+
+        try
+        {
+            var response = await Http.GetAsync($"/api/onboarding/derived-scope/{TenantId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                Scope = JsonSerializer.Deserialize<OnboardingScopeDto>(json);
+            }
+            else
+            {
+                // Mock data if API fails (for demo purposes)
+                Scope = new OnboardingScopeDto
+                {
+                    TenantId = TenantId,
+                    ApplicableFrameworks = new List<string> { "ISO 27001", "SOC 2 Type II", "NIST CSF" },
+                    RecommendedPackages = new List<string> { "Information Security", "Access Control", "Incident Management" },
+                    ApplicableTemplatesList = new List<string> 
+                    { 
+                        "Risk Assessment Template",
+                        "Control Assessment Template",
+                        "Policy Template",
+                        "Procedure Template",
+                        "Evidence Collection Template"
+                    },
+                    AuditPackages = new List<string> 
+                    { 
+                        "Annual Compliance Audit",
+                        "Internal Control Assessment",
+                        "Third-party Risk Assessment"
+                    }
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error loading scope: {ex.Message}";
+            // Use mock data on error
+            Scope = new OnboardingScopeDto
+            {
+                TenantId = TenantId,
+                ApplicableFrameworks = new List<string> { "ISO 27001", "SOC 2 Type II" },
+                RecommendedPackages = new List<string> { "Information Security", "Access Control" },
+                ApplicableTemplatesList = new List<string> { "Risk Assessment", "Control Assessment" },
+                AuditPackages = new List<string> { "Annual Audit" }
+            };
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+}

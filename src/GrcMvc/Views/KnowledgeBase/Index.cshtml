@@ -1,0 +1,121 @@
+@model GrcMvc.Controllers.KnowledgeBaseViewModel
+@{
+    ViewData["Title"] = "Knowledge Base";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <h1 class="h2 mb-2">
+                <i class="fas fa-book-open text-primary me-2"></i>
+                Knowledge Base
+            </h1>
+            <p class="text-muted">Guides, documentation, and best practices for your GRC journey</p>
+        </div>
+        <div class="col-lg-4">
+            <form asp-action="Search" method="get">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="q" placeholder="Search knowledge base...">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="row mb-4">
+        @foreach (var link in Model.QuickLinks)
+        {
+            <div class="col-lg-3 col-md-6 mb-3">
+                <a href="@link.Url" class="card border-0 shadow-sm h-100 text-decoration-none text-dark">
+                    <div class="card-body text-center py-4">
+                        <i class="@link.Icon fa-2x text-primary mb-3"></i>
+                        <h6 class="mb-0">@link.Title</h6>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+
+    <!-- Categories -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3"><i class="fas fa-folder-open me-2"></i>Browse by Category</h4>
+        </div>
+        @foreach (var category in Model.Categories)
+        {
+            <div class="col-lg-4 col-md-6 mb-4">
+                <a href="@category.Link" class="card border-0 shadow-sm h-100 text-decoration-none">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start">
+                            <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                                <i class="@category.Icon text-primary fa-lg"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title text-dark mb-1">@category.Name</h5>
+                                <h6 class="text-muted mb-2" dir="rtl">@category.NameAr</h6>
+                                <p class="card-text text-muted small mb-2">@category.Description</p>
+                                <span class="badge bg-light text-dark">@category.ArticleCount articles</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+
+    <!-- Recent Articles -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Recent Articles</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Read Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var article in Model.RecentArticles)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="#" class="text-decoration-none">@article.Title</a>
+                                        </td>
+                                        <td><span class="badge bg-secondary">@article.Category</span></td>
+                                        <td><i class="fas fa-clock me-1"></i>@article.ReadTime min</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white border-0">
+                <div class="card-body text-center py-4">
+                    <h4><i class="fas fa-headset me-2"></i>Need More Help?</h4>
+                    <p class="mb-3">Our support team is ready to assist you</p>
+                    <a href="/Help/Contact" class="btn btn-light">
+                        <i class="fas fa-envelope me-2"></i>Contact Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

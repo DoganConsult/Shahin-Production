@@ -1,0 +1,100 @@
+@using GrcMvc.Services
+@inject IAppInfoService AppInfo
+@{
+    ViewData["Title"] = "إدارة الضوابط الداخلية | " + AppInfo.Name;
+    Layout = "_LandingLayout";
+}
+
+<section class="controls-hero">
+    <div class="container">
+        <div class="section-header fade-up">
+            <div class="section-badge"><i class="bi bi-shield-check"></i><span>الضوابط الداخلية</span></div>
+            <h1 class="section-title">إدارة <span class="highlight">الضوابط الداخلية</span></h1>
+            <p class="section-subtitle">صمم، وثّق، واختبر ضوابطك الداخلية. 13,500+ ضابط جاهز للاستخدام.</p>
+            <div class="hero-cta">
+                <a href="/Onboarding" class="btn btn-primary btn-lg"><i class="bi bi-rocket-takeoff-fill"></i> ابدأ التجربة</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="stats-section">
+    <div class="container">
+        <div class="stats-grid fade-up">
+            <div class="stat-card"><div class="stat-value">13,500+</div><div class="stat-label">ضابط جاهز</div></div>
+            <div class="stat-card"><div class="stat-value">163</div><div class="stat-label">إطار تنظيمي</div></div>
+            <div class="stat-card"><div class="stat-value">تلقائي</div><div class="stat-label">ربط بالمخاطر</div></div>
+            <div class="stat-card"><div class="stat-value">10</div><div class="stat-label">أنواع اختبارات</div></div>
+        </div>
+    </div>
+</section>
+
+<section class="lifecycle-section">
+    <div class="container">
+        <h2 class="section-title fade-up">دورة حياة الضابط</h2>
+        <div class="lifecycle-grid fade-up">
+            <div class="lifecycle-stage"><div class="stage-icon"><i class="bi bi-pencil-square"></i></div><h3>التصميم</h3><p>صمم ضوابط جديدة أو اختر من المكتبة</p></div>
+            <div class="lifecycle-stage"><div class="stage-icon"><i class="bi bi-file-text"></i></div><h3>التوثيق</h3><p>وثّق الإجراءات والمسؤوليات</p></div>
+            <div class="lifecycle-stage"><div class="stage-icon"><i class="bi bi-gear"></i></div><h3>التنفيذ</h3><p>نفّذ وتابع الالتزام</p></div>
+            <div class="lifecycle-stage"><div class="stage-icon"><i class="bi bi-check2-circle"></i></div><h3>الاختبار</h3><p>اختبر الفعالية دورياً</p></div>
+            <div class="lifecycle-stage"><div class="stage-icon"><i class="bi bi-graph-up"></i></div><h3>المراقبة</h3><p>راقب وحسّن باستمرار</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="features-section">
+    <div class="container">
+        <h2 class="section-title fade-up">مميزات إدارة الضوابط</h2>
+        <div class="features-grid fade-up">
+            <div class="feature-card"><i class="bi bi-journal-bookmark-fill"></i><h3>سجل الضوابط</h3><p>سجل مركزي مع تصنيف ذكي</p></div>
+            <div class="feature-card"><i class="bi bi-clipboard-check"></i><h3>اختبار التصميم</h3><p>تحقق من صحة التصميم</p></div>
+            <div class="feature-card"><i class="bi bi-play-circle"></i><h3>اختبار التشغيل</h3><p>تحقق من الفعالية الفعلية</p></div>
+            <div class="feature-card"><i class="bi bi-diagram-3"></i><h3>ربط بالمخاطر</h3><p>اربط كل ضابط بالمخاطر</p></div>
+            <div class="feature-card"><i class="bi bi-people"></i><h3>مصفوفة RACI</h3><p>حدد المسؤوليات بوضوح</p></div>
+            <div class="feature-card"><i class="bi bi-file-pdf"></i><h3>تقارير جاهزة</h3><p>تقارير للإدارة والمدققين</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-box fade-up">
+            <h2>ابنِ منظومة ضوابط قوية</h2>
+            <p>13,500+ ضابط جاهز للاستخدام</p>
+            <a href="/Onboarding" class="btn btn-primary btn-lg"><i class="bi bi-rocket-takeoff-fill"></i> ابدأ الآن</a>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+<style>
+    .controls-hero { padding: 8rem 0 4rem; text-align: center; }
+    .highlight { background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-cta { display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; }
+    .section-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; color: var(--primary); margin-bottom: 1.5rem; }
+    .stats-section { padding: 2rem 0 4rem; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+    .stat-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px; padding: 2rem; text-align: center; }
+    .stat-value { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat-label { color: rgba(248, 250, 252, 0.6); font-size: 0.9rem; margin-top: 0.5rem; }
+    .lifecycle-section { padding: 4rem 0; background: rgba(16, 185, 129, 0.02); }
+    .lifecycle-grid { display: flex; gap: 1.5rem; margin-top: 3rem; flex-wrap: wrap; justify-content: center; }
+    .lifecycle-stage { flex: 1; min-width: 160px; max-width: 200px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.5rem; text-align: center; }
+    .stage-icon { width: 50px; height: 50px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(59, 130, 246, 0.2)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.25rem; color: var(--primary); }
+    .lifecycle-stage h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+    .lifecycle-stage p { color: rgba(248, 250, 252, 0.6); font-size: 0.8rem; line-height: 1.5; }
+    .features-section { padding: 4rem 0; }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem; }
+    .feature-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px; padding: 2rem; text-align: center; transition: all 0.3s ease; }
+    .feature-card:hover { transform: translateY(-5px); border-color: rgba(16, 185, 129, 0.3); }
+    .feature-card i { font-size: 2rem; color: var(--primary); margin-bottom: 1rem; }
+    .feature-card h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+    .feature-card p { color: rgba(248, 250, 252, 0.6); font-size: 0.85rem; }
+    .cta-section { padding: 4rem 0; }
+    .cta-box { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1)); border: 1px solid var(--glass-border); border-radius: 24px; padding: 4rem; text-align: center; }
+    .cta-box h2 { font-size: 2rem; margin-bottom: 1rem; }
+    .cta-box p { color: rgba(248, 250, 252, 0.7); margin-bottom: 2rem; }
+    @@media (max-width: 1024px) { .stats-grid, .features-grid { grid-template-columns: repeat(2, 1fr); } }
+    @@media (max-width: 768px) { .stats-grid, .features-grid { grid-template-columns: 1fr; } .cta-box { padding: 2rem; } }
+</style>
+}

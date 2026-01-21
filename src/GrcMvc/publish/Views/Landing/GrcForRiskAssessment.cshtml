@@ -1,0 +1,593 @@
+@using GrcMvc.Services
+@inject IAppInfoService AppInfo
+@{
+    ViewData["Title"] = "تقييم المخاطر الذكي - إدارة المخاطر المؤسسية | " + AppInfo.Name;
+    ViewData["Description"] = "أدوات متقدمة لتقييم وإدارة المخاطر: سجل المخاطر، تحليل التأثير، خرائط المخاطر الحرارية، وخطط المعالجة.";
+    Layout = "_LandingLayout";
+}
+
+<section class="risk-hero">
+    <div class="container">
+        <div class="section-header fade-up">
+            <div class="section-badge">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>تقييم المخاطر</span>
+            </div>
+            <h1 class="section-title">تقييم المخاطر <span class="highlight">الذكي والشامل</span></h1>
+            <p class="section-subtitle">
+                حدد، قيّم، وعالج المخاطر بمنهجية علمية. شاهين يوفر أدوات متقدمة
+                لإدارة المخاطر المؤسسية تتوافق مع ISO 31000 وCOSO ERM.
+            </p>
+            <div class="hero-cta">
+                <a href="/Onboarding" class="btn btn-primary btn-lg">
+                    <i class="bi bi-rocket-takeoff-fill"></i>
+                    ابدأ تقييم المخاطر
+                </a>
+                <a href="/contact" class="btn btn-outline btn-lg">
+                    <i class="bi bi-calendar-check"></i>
+                    احجز عرض توضيحي
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Risk Heatmap Preview -->
+<section class="heatmap-section">
+    <div class="container">
+        <div class="heatmap-container fade-up">
+            <h3>خريطة المخاطر الحرارية</h3>
+            <div class="heatmap-grid">
+                <div class="heatmap-y-axis">
+                    <span>كارثي</span>
+                    <span>كبير</span>
+                    <span>متوسط</span>
+                    <span>طفيف</span>
+                    <span>ضئيل</span>
+                </div>
+                <div class="heatmap-matrix">
+                    <!-- Row 5 (Catastrophic) -->
+                    <div class="heatmap-cell medium">2</div>
+                    <div class="heatmap-cell high">1</div>
+                    <div class="heatmap-cell critical">3</div>
+                    <div class="heatmap-cell critical">2</div>
+                    <div class="heatmap-cell critical">1</div>
+                    <!-- Row 4 (Major) -->
+                    <div class="heatmap-cell low">1</div>
+                    <div class="heatmap-cell medium">2</div>
+                    <div class="heatmap-cell high">4</div>
+                    <div class="heatmap-cell critical">2</div>
+                    <div class="heatmap-cell critical">1</div>
+                    <!-- Row 3 (Moderate) -->
+                    <div class="heatmap-cell low">3</div>
+                    <div class="heatmap-cell medium">5</div>
+                    <div class="heatmap-cell medium">3</div>
+                    <div class="heatmap-cell high">2</div>
+                    <div class="heatmap-cell critical">1</div>
+                    <!-- Row 2 (Minor) -->
+                    <div class="heatmap-cell low">4</div>
+                    <div class="heatmap-cell low">2</div>
+                    <div class="heatmap-cell medium">2</div>
+                    <div class="heatmap-cell medium">1</div>
+                    <div class="heatmap-cell high">0</div>
+                    <!-- Row 1 (Insignificant) -->
+                    <div class="heatmap-cell low">6</div>
+                    <div class="heatmap-cell low">3</div>
+                    <div class="heatmap-cell low">1</div>
+                    <div class="heatmap-cell medium">0</div>
+                    <div class="heatmap-cell medium">0</div>
+                </div>
+                <div class="heatmap-x-axis">
+                    <span>نادر</span>
+                    <span>غير مرجح</span>
+                    <span>ممكن</span>
+                    <span>مرجح</span>
+                    <span>شبه مؤكد</span>
+                </div>
+            </div>
+            <div class="heatmap-legend">
+                <div class="legend-item"><span class="legend-color low"></span> منخفض</div>
+                <div class="legend-item"><span class="legend-color medium"></span> متوسط</div>
+                <div class="legend-item"><span class="legend-color high"></span> عالي</div>
+                <div class="legend-item"><span class="legend-color critical"></span> حرج</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Risk Assessment Process -->
+<section class="process-section">
+    <div class="container">
+        <h2 class="section-title fade-up">منهجية تقييم المخاطر</h2>
+
+        <div class="process-steps fade-up">
+            <div class="process-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>التحديد</h3>
+                    <p>حدد المخاطر المحتملة من مصادر متعددة: الأصول، العمليات، الضوابط، والمعايير.</p>
+                    <ul>
+                        <li>قوالب مخاطر جاهزة</li>
+                        <li>استيراد من أطر معتمدة</li>
+                        <li>إدخال يدوي مرن</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="process-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>التحليل</h3>
+                    <p>قيّم كل خطر من حيث الاحتمالية والتأثير باستخدام معايير محددة.</p>
+                    <ul>
+                        <li>مقاييس 5×5 قابلة للتخصيص</li>
+                        <li>تحليل نوعي وكمي</li>
+                        <li>ربط بالأصول والعمليات</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="process-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>التقييم</h3>
+                    <p>رتّب المخاطر حسب الأولوية وحدد مستوى القبول والحاجة للمعالجة.</p>
+                    <ul>
+                        <li>حساب تلقائي للدرجة</li>
+                        <li>خريطة حرارية تفاعلية</li>
+                        <li>مقارنة مع شهية المخاطر</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="process-step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>المعالجة</h3>
+                    <p>اختر استراتيجية المعالجة المناسبة وتابع تنفيذ خطط العمل.</p>
+                    <ul>
+                        <li>تجنب، نقل، تخفيف، قبول</li>
+                        <li>خطط عمل مع مسؤولين</li>
+                        <li>تتبع التقدم والفعالية</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="process-step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <h3>المراقبة</h3>
+                    <p>راقب المخاطر باستمرار وأعد التقييم عند التغيير.</p>
+                    <ul>
+                        <li>مؤشرات المخاطر الرئيسية (KRIs)</li>
+                        <li>تنبيهات العتبات</li>
+                        <li>مراجعات دورية</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="features-section">
+    <div class="container">
+        <h2 class="section-title fade-up">مميزات إدارة المخاطر</h2>
+
+        <div class="features-grid fade-up">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-journal-bookmark-fill"></i>
+                </div>
+                <h3>سجل المخاطر الشامل</h3>
+                <p>سجل مركزي لجميع المخاطر مع تصنيف وتبويب ذكي وتاريخ كامل للتغييرات.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <h3>تحليل الاتجاهات</h3>
+                <p>تتبع تطور المخاطر عبر الزمن واكتشف الأنماط والاتجاهات الناشئة.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-diagram-3-fill"></i>
+                </div>
+                <h3>ربط بالضوابط</h3>
+                <p>اربط كل خطر بالضوابط المخففة وقيّم فعالية كل ضابط.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <h3>مسؤولية واضحة</h3>
+                <p>حدد مالك الخطر والمسؤولين عن المعالجة مع تتبع المساءلة.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-bell-fill"></i>
+                </div>
+                <h3>تنبيهات ذكية</h3>
+                <p>إشعارات عند تجاوز العتبات أو اقتراب مواعيد المراجعة.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-file-earmark-pdf-fill"></i>
+                </div>
+                <h3>تقارير تنفيذية</h3>
+                <p>تقارير جاهزة للجنة المخاطر والإدارة العليا ومجلس الإدارة.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Frameworks -->
+<section class="frameworks-section">
+    <div class="container">
+        <h2 class="section-title fade-up">متوافق مع المعايير الدولية</h2>
+
+        <div class="frameworks-grid fade-up">
+            <div class="framework-card">
+                <div class="framework-logo">ISO 31000</div>
+                <p>إدارة المخاطر - المبادئ والإرشادات</p>
+            </div>
+            <div class="framework-card">
+                <div class="framework-logo">COSO ERM</div>
+                <p>إطار إدارة المخاطر المؤسسية</p>
+            </div>
+            <div class="framework-card">
+                <div class="framework-logo">NCA-RMF</div>
+                <p>إطار إدارة المخاطر السيبرانية</p>
+            </div>
+            <div class="framework-card">
+                <div class="framework-logo">SAMA</div>
+                <p>إطار إدارة المخاطر للقطاع المالي</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-box fade-up">
+            <h2>ابدأ بتقييم مخاطرك اليوم</h2>
+            <p>7 أيام تجربة مجانية مع دعم كامل لإعداد سجل المخاطر</p>
+            <div class="cta-buttons">
+                <a href="/Onboarding" class="btn btn-primary btn-lg">
+                    <i class="bi bi-rocket-takeoff-fill"></i>
+                    ابدأ التجربة المجانية
+                </a>
+                <a href="/grc-for-risk-ciso" class="btn btn-outline btn-lg">
+                    <i class="bi bi-shield-check"></i>
+                    شاهين لـ CISO
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+<style>
+    .risk-hero {
+        padding: 8rem 0 4rem;
+        text-align: center;
+    }
+
+    .risk-hero h1 .highlight {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-cta {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .heatmap-section {
+        padding: 4rem 0;
+    }
+
+    .heatmap-container {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .heatmap-container h3 {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .heatmap-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.5rem;
+    }
+
+    .heatmap-y-axis {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        font-size: 0.75rem;
+        color: rgba(248, 250, 252, 0.6);
+        padding-left: 0.5rem;
+        text-align: left;
+    }
+
+    .heatmap-matrix {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 4px;
+    }
+
+    .heatmap-cell {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .heatmap-cell.low { background: rgba(16, 185, 129, 0.3); color: #10b981; }
+    .heatmap-cell.medium { background: rgba(251, 191, 36, 0.3); color: #fbbf24; }
+    .heatmap-cell.high { background: rgba(249, 115, 22, 0.3); color: #f97316; }
+    .heatmap-cell.critical { background: rgba(239, 68, 68, 0.3); color: #ef4444; }
+
+    .heatmap-x-axis {
+        grid-column: 2;
+        display: flex;
+        justify-content: space-around;
+        font-size: 0.75rem;
+        color: rgba(248, 250, 252, 0.6);
+        padding-top: 0.5rem;
+    }
+
+    .heatmap-legend {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 1.5rem;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .legend-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+    }
+
+    .legend-color.low { background: rgba(16, 185, 129, 0.5); }
+    .legend-color.medium { background: rgba(251, 191, 36, 0.5); }
+    .legend-color.high { background: rgba(249, 115, 22, 0.5); }
+    .legend-color.critical { background: rgba(239, 68, 68, 0.5); }
+
+    .process-section {
+        padding: 4rem 0;
+        background: rgba(16, 185, 129, 0.02);
+    }
+
+    .process-steps {
+        display: flex;
+        gap: 1rem;
+        margin-top: 3rem;
+        overflow-x: auto;
+        padding-bottom: 1rem;
+    }
+
+    .process-step {
+        flex: 1;
+        min-width: 200px;
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        position: relative;
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+    }
+
+    .step-content h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .step-content > p {
+        color: rgba(248, 250, 252, 0.6);
+        font-size: 0.85rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .step-content ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .step-content li {
+        font-size: 0.8rem;
+        color: rgba(248, 250, 252, 0.7);
+        padding: 0.25rem 0;
+        padding-right: 1rem;
+        position: relative;
+    }
+
+    .step-content li::before {
+        content: "•";
+        position: absolute;
+        right: 0;
+        color: var(--primary);
+    }
+
+    .features-section {
+        padding: 4rem 0;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .feature-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(59, 130, 246, 0.2));
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+        color: var(--primary);
+    }
+
+    .feature-card h3 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .feature-card p {
+        color: rgba(248, 250, 252, 0.6);
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+
+    .frameworks-section {
+        padding: 4rem 0;
+        background: rgba(16, 185, 129, 0.02);
+    }
+
+    .frameworks-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .framework-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .framework-logo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.75rem;
+    }
+
+    .framework-card p {
+        color: rgba(248, 250, 252, 0.6);
+        font-size: 0.85rem;
+    }
+
+    .cta-section {
+        padding: 4rem 0;
+    }
+
+    .cta-box {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1));
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 4rem;
+        text-align: center;
+    }
+
+    .cta-box h2 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .cta-box > p {
+        color: rgba(248, 250, 252, 0.7);
+        margin-bottom: 2rem;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    @@media (max-width: 1024px) {
+        .features-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .frameworks-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .features-grid,
+        .frameworks-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .heatmap-x-axis span,
+        .heatmap-y-axis span {
+            font-size: 0.65rem;
+        }
+
+        .cta-box {
+            padding: 2rem;
+        }
+    }
+</style>
+}

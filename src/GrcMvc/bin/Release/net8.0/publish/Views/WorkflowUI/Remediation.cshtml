@@ -1,0 +1,283 @@
+@{
+    ViewData["Title"] = "Remediation Workflows";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3">
+                <i class="fas fa-tools text-warning me-2"></i>Remediation Workflows
+            </h1>
+            <p class="text-muted">Track and manage remediation activities for findings and gaps</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-primary" onclick="createNewRemediation()">
+                <i class="fas fa-plus"></i> New Remediation
+            </button>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <h3 id="overdueCount">0</h3><small>Overdue</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body text-center">
+                    <h3 id="inProgressCount">0</h3><small>In Progress</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3 id="pendingVerificationCount">0</h3><small>Pending Verification</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3 id="closedCount">0</h3><small>Closed</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Remediations Table -->
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Active Remediations</h5>
+            <div>
+                <select class="form-select form-select-sm d-inline-block w-auto" id="priorityFilter" onchange="loadRemediationData()">
+                    <option value="">All Priorities</option>
+                    <option value="Critical">Critical</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Remediation ID</th>
+                            <th>Finding</th>
+                            <th>Source</th>
+                            <th>Owner</th>
+                            <th>Due Date</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="remediationsTableBody">
+                        <tr>
+                            <td colspan="9" class="text-center">
+                                <i class="fas fa-spinner fa-spin"></i> Loading remediations...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Progress Modal -->
+<div class="modal fade" id="updateProgressModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Remediation Progress</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateProgressForm">
+                    <input type="hidden" id="remediationId">
+                    <div class="mb-3">
+                        <label class="form-label">Progress (%)</label>
+                        <input type="range" class="form-range" id="progressSlider" min="0" max="100" step="10" value="0">
+                        <div class="text-center"><span id="progressValue">0</span>%</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" id="remediationStatus">
+                            <option value="InProgress">In Progress</option>
+                            <option value="PendingVerification">Pending Verification</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Update Notes</label>
+                        <textarea class="form-control" id="updateNotes" rows="3" placeholder="Describe the progress made..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitProgressUpdate()">
+                    <i class="fas fa-save"></i> Save Progress
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    async function loadRemediationData() {
+        try {
+            const response = await fetch('/api/workflows/remediation');
+            if (!response.ok) throw new Error('Failed to load remediations');
+            
+            const data = await response.json();
+            
+            // Update KPI cards
+            document.getElementById('overdueCount').textContent = data.stats?.overdue || 0;
+            document.getElementById('inProgressCount').textContent = data.stats?.inProgress || 0;
+            document.getElementById('pendingVerificationCount').textContent = data.stats?.pendingVerification || 0;
+            document.getElementById('closedCount').textContent = data.stats?.closed || 0;
+            
+            // Update table
+            const tbody = document.getElementById('remediationsTableBody');
+            const filter = document.getElementById('priorityFilter').value;
+            let remediations = data.remediations || [];
+            
+            if (filter) {
+                remediations = remediations.filter(r => r.priority === filter);
+            }
+            
+            if (remediations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No remediations found</td></tr>';
+            } else {
+                tbody.innerHTML = remediations.map(r => `
+                    <tr>
+                        <td>${r.remediationId}</td>
+                        <td>${truncate(r.finding, 40)}</td>
+                        <td>${r.source}</td>
+                        <td>${r.owner}</td>
+                        <td class="${r.isOverdue ? 'text-danger fw-bold' : ''}">${formatDate(r.dueDate)}</td>
+                        <td>${getPriorityBadge(r.priority)}</td>
+                        <td>${getStatusBadge(r.status, r.isOverdue)}</td>
+                        <td>
+                            <div class="progress" style="height:20px;width:100px;">
+                                <div class="progress-bar ${getProgressColor(r.progress, r.isOverdue)}" 
+                                     style="width:${r.progress}%">${r.progress}%</div>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="updateProgress('${r.id}', ${r.progress})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <a href="/ActionPlans/Details/${r.id}" class="btn btn-sm btn-outline-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            
+        } catch (error) {
+            console.error('Error loading remediation data:', error);
+            document.getElementById('remediationsTableBody').innerHTML = 
+                '<tr><td colspan="9" class="text-center text-danger">Error loading data</td></tr>';
+        }
+    }
+    
+    function getPriorityBadge(priority) {
+        const badges = {
+            'Critical': 'bg-danger',
+            'High': 'bg-warning text-dark',
+            'Medium': 'bg-info',
+            'Low': 'bg-success'
+        };
+        return `<span class="badge ${badges[priority] || 'bg-secondary'}">${priority}</span>`;
+    }
+    
+    function getStatusBadge(status, isOverdue) {
+        if (isOverdue) return '<span class="badge bg-danger">Overdue</span>';
+        const badges = {
+            'InProgress': 'bg-info',
+            'PendingVerification': 'bg-warning',
+            'Completed': 'bg-success',
+            'Active': 'bg-info'
+        };
+        return `<span class="badge ${badges[status] || 'bg-secondary'}">${status}</span>`;
+    }
+    
+    function getProgressColor(progress, isOverdue) {
+        if (isOverdue) return 'bg-danger';
+        if (progress >= 80) return 'bg-success';
+        if (progress >= 50) return 'bg-info';
+        return 'bg-warning';
+    }
+    
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    
+    function truncate(str, len) {
+        if (!str) return '';
+        return str.length > len ? str.substring(0, len) + '...' : str;
+    }
+    
+    function createNewRemediation() {
+        window.location.href = '/ActionPlans/Create';
+    }
+    
+    function updateProgress(id, currentProgress) {
+        document.getElementById('remediationId').value = id;
+        document.getElementById('progressSlider').value = currentProgress;
+        document.getElementById('progressValue').textContent = currentProgress;
+        new bootstrap.Modal(document.getElementById('updateProgressModal')).show();
+    }
+    
+    // Progress slider update
+    document.getElementById('progressSlider')?.addEventListener('input', function() {
+        document.getElementById('progressValue').textContent = this.value;
+    });
+    
+    async function submitProgressUpdate() {
+        const id = document.getElementById('remediationId').value;
+        const progress = document.getElementById('progressSlider').value;
+        const status = document.getElementById('remediationStatus').value;
+        const notes = document.getElementById('updateNotes').value;
+        
+        try {
+            const response = await fetch(`/api/action-plans/${id}/progress`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    completionPercentage: parseInt(progress), 
+                    status, 
+                    notes 
+                })
+            });
+            
+            if (response.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('updateProgressModal')).hide();
+                loadRemediationData();
+                alert('Progress updated successfully');
+            }
+        } catch (error) {
+            console.error('Error updating progress:', error);
+            alert('Error updating progress');
+        }
+    }
+    
+    // Load data on page load
+    document.addEventListener('DOMContentLoaded', loadRemediationData);
+</script>
+}

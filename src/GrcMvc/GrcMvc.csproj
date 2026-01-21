@@ -1,0 +1,142 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Suppress non-critical warnings:
+         CS8618: Non-nullable property uninitialized (handled by constructors/defaults)
+         CS1998: Async without await (placeholder implementations)
+         CS0108: Member hides inherited (intentional overrides)
+         CS8619: Nullability mismatch in anonymous types
+         CS7022: Multiple entry points
+         CS0105: Duplicate using directives
+         CS0168: Variable declared but never used (exception handlers - global middleware handles all errors)
+    -->
+    <NoWarn>$(NoWarn);8600;8601;8602;8603;8604;8613;8618;8619;8629;8632;1929;1998;0108;0618;7022;0105;0168</NoWarn>
+    <CopyRefAssembliesToPublishDirectory>true</CopyRefAssembliesToPublishDirectory>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <!-- Keep physical .cshtml files for runtime compilation (don't precompile into DLL) -->
+    <RazorCompileOnPublish>false</RazorCompileOnPublish>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Core Dependencies -->
+    <!-- AutoMapper 13.0+ has built-in DI support, separate Extensions package no longer needed -->
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Azure.Identity" Version="1.17.1" />
+    <PackageReference Include="ClosedXML" Version="0.102.2" />
+    <PackageReference Include="Confluent.Kafka" Version="2.3.0" />
+    <PackageReference Include="CsvHelper" Version="31.0.0" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <PackageReference Include="Hangfire.Core" Version="1.8.14" />
+    <PackageReference Include="HtmlSanitizer" Version="9.0.873" />
+    <PackageReference Include="MailKit" Version="4.14.1" />
+    <PackageReference Include="MassTransit" Version="8.1.3" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Graph" Version="5.100.0" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.78.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Abstractions" Version="8.15.0" />
+    <PackageReference Include="MimeKit" Version="4.14.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+
+    <!-- Authentication & Authorization -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
+
+    <!-- Database -->
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+
+    <!-- Health Checks -->
+    <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="8.0.2" />
+    <PackageReference Include="AspNetCore.HealthChecks.Hangfire" Version="8.0.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="QuestPDF" Version="2024.3.10" />
+
+    <!-- Logging - Serilog -->
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.0" />
+
+    <!-- Rate Limiting -->
+    <PackageReference Include="System.Threading.RateLimiting" Version="8.0.0" />
+
+    <!-- Data Protection -->
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.Extensions" Version="8.0.0" />
+
+    <!-- Razor Runtime Compilation -->
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.8" />
+
+    <!-- Hangfire (Background Jobs) -->
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.14" />
+    <PackageReference Include="Hangfire.PostgreSql" Version="1.20.9" />
+
+    <!-- Polly (Resilience) -->
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.0.1" />
+    <PackageReference Include="Polly" Version="8.2.1" />
+
+    <!-- Razor Templating -->
+    <PackageReference Include="RazorLight" Version="2.3.1" />
+
+    <!-- API Documentation -->
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="YamlDotNet" Version="15.1.4" />
+
+    <!-- Application Performance Monitoring (APM) -->
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
+
+    <!-- ══════════════════════════════════════════════════════════════════════════════ -->
+    <!-- ABP Framework 8.2 - FREE Open Source Packages (No License Required)            -->
+    <!-- These provide enterprise multi-tenancy, audit logging, and feature management  -->
+    <!-- ══════════════════════════════════════════════════════════════════════════════ -->
+    <!-- Core ABP -->
+    <PackageReference Include="Volo.Abp.Core" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.AspNetCore.Mvc" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.Autofac" Version="8.2.2" />
+    <!-- Database -->
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore.PostgreSql" Version="8.2.2" />
+    <!-- Identity & Authentication -->
+    <PackageReference Include="Volo.Abp.Identity.Domain" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.Identity.Application.Contracts" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.PermissionManagement.Domain" Version="8.2.2" />
+    <!-- Multi-Tenancy -->
+    <PackageReference Include="Volo.Abp.AspNetCore.MultiTenancy" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.TenantManagement.Domain" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.TenantManagement.Application.Contracts" Version="8.2.2" />
+    <!-- Features & Audit -->
+    <PackageReference Include="Volo.Abp.FeatureManagement.Domain" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.AuditLogging.Domain" Version="8.2.2" />
+    <!-- OpenIddict SSO Server (FREE - LGPL License) -->
+    <PackageReference Include="OpenIddict.AspNetCore" Version="5.2.0" />
+    <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="5.2.0" />
+    <PackageReference Include="Volo.Abp.OpenIddict.Domain" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.OpenIddict.AspNetCore" Version="8.2.2" />
+  </ItemGroup>
+
+  <!-- Localization Resources -->
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\SharedResource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SharedResource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\SharedResource.en.resx">
+      <DependentUpon>SharedResource.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\SharedResource.ar.resx">
+      <DependentUpon>SharedResource.resx</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

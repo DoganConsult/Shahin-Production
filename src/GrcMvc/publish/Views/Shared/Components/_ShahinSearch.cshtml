@@ -1,0 +1,309 @@
+@*
+    SHAHIN AI GRC - Search Bar Component
+    Usage: <partial name="Components/_ShahinSearch" model='new {
+        Id = "globalSearch",
+        Placeholder = "Search risks, policies, controls...",
+        Size = "md",
+        ShowIcon = true,
+        ShowClear = true,
+        Autocomplete = true
+    }' />
+*@
+@{
+    dynamic model = ViewData.Model ?? new { };
+    var id = model?.Id ?? "shahinSearch" + Guid.NewGuid().ToString("N").Substring(0, 8);
+    var name = model?.Name ?? "q";
+    var placeholder = model?.Placeholder ?? "Search...";
+    var size = model?.Size ?? "md"; // sm, md, lg
+    var value = model?.Value ?? "";
+    var showIcon = model?.ShowIcon ?? true;
+    var showClear = model?.ShowClear ?? true;
+    var autocomplete = model?.Autocomplete ?? false;
+    var action = model?.Action ?? "";
+    var method = model?.Method ?? "get";
+
+    var sizeClass = size switch
+    {
+        "sm" => "shahin-search-sm",
+        "lg" => "shahin-search-lg",
+        _ => ""
+    };
+}
+
+<div class="shahin-search @sizeClass" id="@id">
+    <form action="@action" method="@method" class="shahin-search-form">
+        @if (showIcon)
+        {
+            <i class="bi bi-search shahin-search-icon"></i>
+        }
+
+        <input type="text"
+               name="@name"
+               id="@(id)-input"
+               class="shahin-search-input"
+               placeholder="@placeholder"
+               value="@value"
+               autocomplete="@(autocomplete ? "on" : "off")"
+               aria-label="Search" />
+
+        @if (showClear)
+        {
+            <button type="button"
+                    class="shahin-search-clear"
+                    id="@(id)-clear"
+                    aria-label="Clear search"
+                    style="display: none;">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        }
+
+        <button type="submit" class="shahin-search-submit" aria-label="Search">
+            <i class="bi bi-arrow-right"></i>
+        </button>
+    </form>
+
+    @if (autocomplete)
+    {
+        <div class="shahin-search-suggestions" id="@(id)-suggestions" style="display: none;"></div>
+    }
+</div>
+
+<style>
+    .shahin-search {
+        position: relative;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .shahin-search-form {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background-color: var(--shahin-white);
+        border: 2px solid var(--shahin-gray-300);
+        border-radius: var(--shahin-radius-full);
+        padding: var(--shahin-space-2) var(--shahin-space-4);
+        transition: all var(--shahin-transition-base);
+    }
+
+    .shahin-search-form:focus-within {
+        border-color: var(--shahin-primary);
+        box-shadow: 0 0 0 4px var(--shahin-primary-light);
+    }
+
+    .shahin-search-icon {
+        color: var(--shahin-gray-500);
+        font-size: var(--shahin-font-size-lg);
+        margin-right: var(--shahin-space-3);
+        flex-shrink: 0;
+    }
+
+    .shahin-search-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        font-size: var(--shahin-font-size-base);
+        color: var(--shahin-gray-900);
+        background: transparent;
+        padding: var(--shahin-space-1) 0;
+    }
+
+    .shahin-search-input::placeholder {
+        color: var(--shahin-gray-400);
+    }
+
+    .shahin-search-clear,
+    .shahin-search-submit {
+        background: none;
+        border: none;
+        padding: var(--shahin-space-2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--shahin-gray-500);
+        border-radius: 50%;
+        transition: all var(--shahin-transition-fast);
+        margin-left: var(--shahin-space-2);
+        flex-shrink: 0;
+    }
+
+    .shahin-search-clear:hover,
+    .shahin-search-submit:hover {
+        background-color: var(--shahin-gray-100);
+        color: var(--shahin-gray-700);
+    }
+
+    .shahin-search-submit {
+        background-color: var(--shahin-primary);
+        color: var(--shahin-white);
+    }
+
+    .shahin-search-submit:hover {
+        background-color: var(--shahin-primary-hover);
+    }
+
+    /* Sizes */
+    .shahin-search-sm .shahin-search-form {
+        padding: var(--shahin-space-1) var(--shahin-space-3);
+    }
+
+    .shahin-search-sm .shahin-search-input {
+        font-size: var(--shahin-font-size-sm);
+    }
+
+    .shahin-search-sm .shahin-search-icon {
+        font-size: var(--shahin-font-size-base);
+        margin-right: var(--shahin-space-2);
+    }
+
+    .shahin-search-lg .shahin-search-form {
+        padding: var(--shahin-space-3) var(--shahin-space-5);
+    }
+
+    .shahin-search-lg .shahin-search-input {
+        font-size: var(--shahin-font-size-lg);
+    }
+
+    .shahin-search-lg .shahin-search-icon {
+        font-size: var(--shahin-font-size-xl);
+    }
+
+    /* Autocomplete Suggestions */
+    .shahin-search-suggestions {
+        position: absolute;
+        top: calc(100% + var(--shahin-space-2));
+        left: 0;
+        right: 0;
+        background-color: var(--shahin-white);
+        border: 1px solid var(--shahin-gray-200);
+        border-radius: var(--shahin-radius-base);
+        box-shadow: var(--shahin-shadow-xl);
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: var(--shahin-z-dropdown);
+    }
+
+    .shahin-search-suggestion {
+        padding: var(--shahin-space-3) var(--shahin-space-4);
+        cursor: pointer;
+        transition: background-color var(--shahin-transition-fast);
+        border-bottom: 1px solid var(--shahin-gray-100);
+    }
+
+    .shahin-search-suggestion:last-child {
+        border-bottom: none;
+    }
+
+    .shahin-search-suggestion:hover,
+    .shahin-search-suggestion.active {
+        background-color: var(--shahin-primary-light);
+    }
+
+    .shahin-search-suggestion-title {
+        font-size: var(--shahin-font-size-sm);
+        font-weight: var(--shahin-font-weight-medium);
+        color: var(--shahin-gray-900);
+        margin-bottom: var(--shahin-space-1);
+    }
+
+    .shahin-search-suggestion-description {
+        font-size: var(--shahin-font-size-xs);
+        color: var(--shahin-gray-600);
+    }
+
+    .shahin-search-no-results {
+        padding: var(--shahin-space-4);
+        text-align: center;
+        color: var(--shahin-gray-600);
+        font-size: var(--shahin-font-size-sm);
+    }
+
+    /* RTL Support */
+    [dir="rtl"] .shahin-search-icon {
+        margin-right: 0;
+        margin-left: var(--shahin-space-3);
+    }
+
+    [dir="rtl"] .shahin-search-clear,
+    [dir="rtl"] .shahin-search-submit {
+        margin-left: 0;
+        margin-right: var(--shahin-space-2);
+    }
+
+    /* Keyboard Shortcut */
+    .shahin-search-shortcut {
+        position: absolute;
+        right: var(--shahin-space-4);
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: var(--shahin-font-size-xs);
+        color: var(--shahin-gray-400);
+        padding: var(--shahin-space-1) var(--shahin-space-2);
+        background-color: var(--shahin-gray-100);
+        border-radius: var(--shahin-radius-sm);
+        border: 1px solid var(--shahin-gray-300);
+    }
+
+    [dir="rtl"] .shahin-search-shortcut {
+        right: auto;
+        left: var(--shahin-space-4);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        (function() {
+            var container = document.getElementById('@id');
+            if (!container) return;
+
+            var input = document.getElementById('@(id)-input');
+            var clearBtn = document.getElementById('@(id)-clear');
+            var suggestionsContainer = document.getElementById('@(id)-suggestions');
+
+            // Show/hide clear button
+            function updateClearButton() {
+                if (clearBtn) {
+                    clearBtn.style.display = input.value ? 'flex' : 'none';
+                }
+            }
+
+            input.addEventListener('input', function() {
+                updateClearButton();
+
+                // Trigger autocomplete if enabled
+                @if (autocomplete)
+                {
+                    @:if (this.value.length >= 2) {
+                    @:    // Trigger search event for parent to handle
+                    @:    var event = new CustomEvent('search', { detail: { query: this.value } });
+                    @:    container.dispatchEvent(event);
+                    @:} else if (suggestionsContainer) {
+                    @:    suggestionsContainer.style.display = 'none';
+                    @:}
+                }
+            });
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    input.value = '';
+                    input.focus();
+                    updateClearButton();
+                    if (suggestionsContainer) {
+                        suggestionsContainer.style.display = 'none';
+                    }
+                });
+            }
+
+            // Keyboard shortcut (Ctrl+K or Cmd+K)
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    input.focus();
+                }
+            });
+
+            updateClearButton();
+        })();
+    </script>
+}

@@ -1,0 +1,103 @@
+@model dynamic
+@{
+    var userName = Model.UserName as string ?? "المستخدم";
+    var userEmail = Model.UserEmail as string ?? "";
+    var loginUrl = Model.LoginUrl as string ?? "https://portal.shahin-ai.com";
+    var organizationName = Model.OrganizationName as string ?? "Shahin AI";
+    var isArabic = Model.IsArabic ?? true;
+}
+
+<!DOCTYPE html>
+<html dir="@(isArabic ? "rtl" : "ltr")" lang="@(isArabic ? "ar" : "en")">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@(isArabic ? "مرحباً بك" : "Welcome")</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td style="padding: 40px 0;">
+                <table role="presentation" style="width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #0066cc 0%, #004499 100%); padding: 40px; text-align: center; border-radius: 8px 8px 0 0;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">
+                                🎉 @(isArabic ? "مرحباً بك في" : "Welcome to")
+                            </h1>
+                            <h2 style="color: #ffffff; margin: 10px 0 0 0; font-size: 24px; font-weight: normal;">
+                                @organizationName
+                            </h2>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px 30px; text-align: @(isArabic ? "right" : "left");">
+                            <p style="color: #333; font-size: 18px; line-height: 1.6; margin: 0 0 20px 0;">
+                                @(isArabic ? $"مرحباً {userName}! 👋" : $"Hello {userName}! 👋")
+                            </p>
+                            
+                            <p style="color: #555; font-size: 14px; line-height: 1.8; margin: 0 0 20px 0;">
+                                @(isArabic 
+                                    ? "تم إنشاء حسابك بنجاح في نظام شاهين للحوكمة والمخاطر والامتثال. يمكنك الآن البدء في إدارة عمليات الامتثال والمخاطر لمؤسستك."
+                                    : "Your account has been successfully created in Shahin AI GRC System. You can now start managing your organization's compliance and risk operations.")
+                            </p>
+                            
+                            <!-- Features -->
+                            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                <h3 style="color: #333; font-size: 16px; margin: 0 0 15px 0;">
+                                    @(isArabic ? "✨ ما يمكنك فعله:" : "✨ What you can do:")
+                                </h3>
+                                <ul style="color: #555; font-size: 14px; line-height: 2; margin: 0; padding: @(isArabic ? "0 20px 0 0" : "0 0 0 20px");">
+                                    <li>@(isArabic ? "إدارة الأطر التنظيمية والضوابط" : "Manage regulatory frameworks and controls")</li>
+                                    <li>@(isArabic ? "تقييم المخاطر ومتابعتها" : "Assess and monitor risks")</li>
+                                    <li>@(isArabic ? "تتبع حالة الامتثال" : "Track compliance status")</li>
+                                    <li>@(isArabic ? "إنشاء التقارير والتحليلات" : "Generate reports and analytics")</li>
+                                    <li>@(isArabic ? "التعاون مع فريقك" : "Collaborate with your team")</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Login Button -->
+                            <table role="presentation" style="width: 100%; margin: 30px 0;">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <a href="@loginUrl" style="display: inline-block; background: linear-gradient(135deg, #0066cc 0%, #004499 100%); color: #ffffff; text-decoration: none; padding: 15px 50px; font-size: 16px; font-weight: bold; border-radius: 50px; box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);">
+                                            @(isArabic ? "تسجيل الدخول الآن" : "Login Now")
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Account Info -->
+                            <div style="border: 1px solid #e9ecef; padding: 15px; border-radius: 6px; margin-top: 20px;">
+                                <p style="color: #666; font-size: 13px; margin: 0;">
+                                    <strong>@(isArabic ? "البريد الإلكتروني:" : "Email:")</strong> @userEmail
+                                </p>
+                            </div>
+                            
+                            <p style="color: #888; font-size: 12px; line-height: 1.6; margin: 20px 0 0 0;">
+                                @(isArabic 
+                                    ? "إذا واجهت أي مشكلة، لا تتردد في التواصل مع فريق الدعم."
+                                    : "If you encounter any issues, don't hesitate to contact our support team.")
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f8f9fa; padding: 20px 30px; text-align: center; border-radius: 0 0 8px 8px;">
+                            <p style="color: #888; font-size: 12px; margin: 0;">
+                                @(isArabic ? "نظام شاهين للحوكمة والمخاطر والامتثال" : "Shahin AI GRC System")
+                            </p>
+                            <p style="color: #aaa; font-size: 10px; margin: 10px 0 0 0;">
+                                Powered by <a href="https://www.doganconsult.com" style="color: #0066cc; text-decoration: none;">Dogan Consult</a>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

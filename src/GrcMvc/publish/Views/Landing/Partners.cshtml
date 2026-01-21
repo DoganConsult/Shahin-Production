@@ -1,0 +1,387 @@
+@model GrcMvc.Controllers.PartnersViewModel
+@using GrcMvc.Services
+@using GrcMvc.Controllers
+@inject IAppInfoService AppInfo
+@{
+    ViewData["Title"] = "الشركاء - " + AppInfo.Name;
+    Layout = "_LandingLayout";
+}
+
+<section class="partners-hero">
+    <div class="container">
+        <div class="section-header fade-up">
+            <div class="section-badge">
+                <i class="bi bi-handshake"></i>
+                <span>الشراكات</span>
+            </div>
+            <h1 class="section-title">انضم إلى شبكة شركائنا</h1>
+            <p class="section-subtitle">
+                نبني شراكات استراتيجية مع الشركات الاستشارية وموزعي الحلول لتوسيع نطاق خدماتنا.
+            </p>
+        </div>
+
+        <!-- Partner Types -->
+        <div class="partner-types fade-up">
+            <div class="type-card">
+                <div class="type-icon"><i class="bi bi-building"></i></div>
+                <h3>شركاء الاستشارات</h3>
+                <p>للشركات الاستشارية التي تقدم خدمات GRC وترغب في إضافة منصة شاهين لمحفظة حلولها.</p>
+                <ul>
+                    <li><i class="bi bi-check2"></i> تدريب وشهادات معتمدة</li>
+                    <li><i class="bi bi-check2"></i> عمولات مجزية</li>
+                    <li><i class="bi bi-check2"></i> دعم تقني ومبيعات</li>
+                    <li><i class="bi bi-check2"></i> تسويق مشترك</li>
+                </ul>
+                <a href="/Landing/Contact?subject=partnership&type=consulting" class="btn btn-primary">تعرف على المزيد</a>
+            </div>
+
+            <div class="type-card featured">
+                <div class="featured-badge">الأكثر طلباً</div>
+                <div class="type-icon"><i class="bi bi-diagram-3"></i></div>
+                <h3>شركاء التكامل</h3>
+                <p>للشركات التي تريد دمج منصة شاهين مع حلولها التقنية أو بناء تكاملات مخصصة.</p>
+                <ul>
+                    <li><i class="bi bi-check2"></i> وصول كامل لـ API</li>
+                    <li><i class="bi bi-check2"></i> وثائق تقنية شاملة</li>
+                    <li><i class="bi bi-check2"></i> بيئة اختبار مخصصة</li>
+                    <li><i class="bi bi-check2"></i> دعم هندسي مباشر</li>
+                </ul>
+                <a href="/Landing/Contact?subject=partnership&type=integration" class="btn btn-primary">تعرف على المزيد</a>
+            </div>
+
+            <div class="type-card">
+                <div class="type-icon"><i class="bi bi-globe"></i></div>
+                <h3>موزعون إقليميون</h3>
+                <p>للشركات التي ترغب في توزيع وبيع منصة شاهين في منطقة جغرافية محددة.</p>
+                <ul>
+                    <li><i class="bi bi-check2"></i> حقوق توزيع حصرية</li>
+                    <li><i class="bi bi-check2"></i> أسعار خاصة للموزعين</li>
+                    <li><i class="bi bi-check2"></i> دعم تسويقي كامل</li>
+                    <li><i class="bi bi-check2"></i> تدريب الفرق المحلية</li>
+                </ul>
+                <a href="/Landing/Contact?subject=partnership&type=reseller" class="btn btn-primary">تعرف على المزيد</a>
+            </div>
+        </div>
+
+        <!-- Current Partners (Dynamic) -->
+        <div class="current-partners fade-up">
+            <h2>شركاؤنا الحاليون</h2>
+            <div class="partners-logos">
+                @if (Model?.Partners?.Any() == true)
+                {
+                    @foreach (var partner in Model.Partners.Where(p => p.IsFeatured))
+                    {
+                        <div class="partner-logo">
+                            @if (!string.IsNullOrEmpty(partner.LogoUrl))
+                            {
+                                <img src="@partner.LogoUrl" alt="@partner.Name" style="height: 40px; object-fit: contain;" />
+                            }
+                            else
+                            {
+                                <span>@(partner.NameAr ?? partner.Name)</span>
+                            }
+                            <p>
+                                @switch(partner.Type)
+                                {
+                                    case "Technology": <text>شريك التقنية</text> break;
+                                    case "Consulting": <text>شريك الاستشارات</text> break;
+                                    case "Integration": <text>شريك التكامل</text> break;
+                                    case "Reseller": <text>موزع معتمد</text> break;
+                                    default: @partner.Type break;
+                                }
+                            </p>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <!-- Fallback static partners -->
+                    <div class="partner-logo"><span>Anthropic</span><p>شريك التقنية</p></div>
+                    <div class="partner-logo"><span>Microsoft Azure</span><p>شريك البنية التحتية</p></div>
+                    <div class="partner-logo"><span>AWS</span><p>شريك البنية التحتية</p></div>
+                    <div class="partner-logo"><span>Dogan Consult</span><p>شريك التطوير</p></div>
+                }
+            </div>
+        </div>
+
+        <!-- Trust Badges -->
+        @if (Model?.TrustBadges?.Any() == true)
+        {
+            <div class="trust-badges-section fade-up" style="margin-bottom: 4rem;">
+                <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 2rem;">شهادات واعتمادات</h2>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    @foreach (var badge in Model.TrustBadges.Take(6))
+                    {
+                        <div class="badge-card" style="background: var(--glass); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1rem 1.5rem; text-align: center;">
+                            @if (!string.IsNullOrEmpty(badge.ImageUrl))
+                            {
+                                <img src="@badge.ImageUrl" alt="@badge.Name" style="height: 32px; object-fit: contain; margin-bottom: 0.5rem;" />
+                            }
+                            else
+                            {
+                                <i class="bi bi-patch-check-fill text-success" style="font-size: 1.5rem;"></i>
+                            }
+                            <p style="font-size: 0.85rem; color: rgba(248, 250, 252, 0.7); margin: 0;">@(badge.NameAr ?? badge.Name)</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Benefits -->
+        <div class="partner-benefits fade-up">
+            <h2>مزايا الشراكة</h2>
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon"><i class="bi bi-trophy"></i></div>
+                    <div class="benefit-content">
+                        <h4>منتج رائد</h4>
+                        <p>تمثيل منصة GRC متقدمة مصممة للسوق العربي</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon"><i class="bi bi-graph-up"></i></div>
+                    <div class="benefit-content">
+                        <h4>عوائد مجزية</h4>
+                        <p>هيكل عمولات تنافسي وحوافز أداء</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon"><i class="bi bi-mortarboard"></i></div>
+                    <div class="benefit-content">
+                        <h4>تدريب شامل</h4>
+                        <p>برامج تدريبية وشهادات معتمدة لفريقك</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon"><i class="bi bi-headset"></i></div>
+                    <div class="benefit-content">
+                        <h4>دعم مخصص</h4>
+                        <p>مدير حساب مخصص ودعم تقني متقدم</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="partners-cta fade-up">
+            <h2>هل أنت مستعد للشراكة؟</h2>
+            <p>تواصل معنا لمناقشة فرص الشراكة</p>
+            <a href="/Landing/Contact?subject=partnership" class="btn btn-primary btn-lg">
+                <i class="bi bi-chat-dots"></i>
+                تحدث مع فريق الشراكات
+            </a>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+<style>
+    .partners-hero {
+        padding: 8rem 0 4rem;
+    }
+
+    .partner-types {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .type-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 2.5rem;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .type-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .type-card.featured {
+        border-color: var(--primary);
+        background: rgba(16, 185, 129, 0.05);
+    }
+
+    .featured-badge {
+        position: absolute;
+        top: -12px;
+        right: 20px;
+        background: var(--gradient-1);
+        color: white;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .type-icon {
+        width: 70px;
+        height: 70px;
+        background: var(--gradient-1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        margin-bottom: 1.5rem;
+    }
+
+    .type-card h3 {
+        font-size: 1.35rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .type-card > p {
+        color: rgba(248, 250, 252, 0.7);
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.7;
+    }
+
+    .type-card ul {
+        list-style: none;
+        margin-bottom: 2rem;
+    }
+
+    .type-card li {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+    }
+
+    .type-card li i {
+        color: var(--primary);
+    }
+
+    .type-card .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .current-partners {
+        margin-bottom: 4rem;
+    }
+
+    .current-partners h2 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .partners-logos {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .partner-logo {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 2rem 3rem;
+        text-align: center;
+    }
+
+    .partner-logo span {
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .partner-logo p {
+        color: rgba(248, 250, 252, 0.5);
+        font-size: 0.85rem;
+    }
+
+    .partner-benefits h2 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 4rem;
+    }
+
+    .benefit-item {
+        display: flex;
+        gap: 1.25rem;
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+    }
+
+    .benefit-item .benefit-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(16, 185, 129, 0.15);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+
+    .benefit-content h4 {
+        font-size: 1.05rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .benefit-content p {
+        color: rgba(248, 250, 252, 0.6);
+        font-size: 0.9rem;
+    }
+
+    .partners-cta {
+        text-align: center;
+        background: linear-gradient(180deg, rgba(16, 185, 129, 0.1), transparent);
+        border-radius: 24px;
+        padding: 4rem;
+    }
+
+    .partners-cta h2 {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .partners-cta p {
+        color: rgba(248, 250, 252, 0.6);
+        margin-bottom: 1.5rem;
+    }
+
+    @@media (max-width: 1024px) {
+        .partner-types,
+        .benefits-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .partners-logos {
+            flex-direction: column;
+        }
+
+        .partner-logo {
+            width: 100%;
+            max-width: 300px;
+        }
+    }
+</style>
+}

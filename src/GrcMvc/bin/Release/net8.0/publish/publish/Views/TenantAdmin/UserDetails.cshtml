@@ -1,0 +1,220 @@
+@model GrcMvc.Models.ViewModels.TenantUserDetailsViewModel
+@{
+    ViewData["Title"] = Model.TenantUser.User?.Email;
+    Layout = "_Layout";
+    var tenantSlug = ViewBag.TenantSlug as string;
+    var tenant = ViewBag.Tenant as GrcMvc.Models.Entities.Tenant;
+    var roles = ViewBag.Roles as List<GrcMvc.Models.Entities.Catalogs.RoleCatalog>;
+    var titles = ViewBag.Titles as List<GrcMvc.Models.Entities.Catalogs.TitleCatalog>;
+}
+
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", new { tenantSlug })">@tenant?.OrganizationName</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Users", new { tenantSlug })">Users</a></li>
+            <li class="breadcrumb-item active">@Model.TenantUser.User?.Email</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="h3 mb-1">@Model.TenantUser.User?.FullName</h1>
+            <p class="text-muted mb-0">
+                @Model.TenantUser.User?.Email
+                <span class="badge bg-@(Model.TenantUser.Status == "Active" ? "success" : Model.TenantUser.Status == "Pending" ? "warning" : "danger") ms-2">
+                    @Model.TenantUser.Status
+                </span>
+            </p>
+        </div>
+        <div class="btn-group">
+            @if (Model.TenantUser.Status == "Active")
+            {
+                <form asp-action="DeactivateUser" asp-route-tenantSlug="@tenantSlug" asp-route-userId="@Model.TenantUser.UserId" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-outline-warning" onclick="return confirm('Deactivate this user?')">
+                        <i class="bi bi-pause-circle"></i> Deactivate
+                    </button>
+                </form>
+            }
+            else if (Model.TenantUser.Status == "Inactive")
+            {
+                <form asp-action="ActivateUser" asp-route-tenantSlug="@tenantSlug" asp-route-userId="@Model.TenantUser.UserId" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-outline-success">
+                        <i class="bi bi-play-circle"></i> Activate
+                    </button>
+                </form>
+            }
+            <form asp-action="RemoveUser" asp-route-tenantSlug="@tenantSlug" asp-route-userId="@Model.TenantUser.UserId" method="post" class="ms-2">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Remove this user from the tenant?')">
+                    <i class="bi bi-person-x"></i> Remove
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- User Info -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="bi bi-person"></i> User Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-5">Full Name</dt>
+                        <dd class="col-7">@Model.TenantUser.User?.FullName</dd>
+
+                        <dt class="col-5">Email</dt>
+                        <dd class="col-7">@Model.TenantUser.User?.Email</dd>
+
+                        <dt class="col-5">Joined</dt>
+                        <dd class="col-7">@Model.TenantUser.CreatedAt.ToString("MMM dd, yyyy")</dd>
+
+                        <dt class="col-5">Last Login</dt>
+                        <dd class="col-7">@(Model.TenantUser.User?.LastLoginAt?.ToString("MMM dd, yyyy HH:mm") ?? "Never")</dd>
+
+                        <dt class="col-5">System Roles</dt>
+                        <dd class="col-7">
+                            @foreach (var role in Model.SystemRoles)
+                            {
+                                <span class="badge bg-dark">@role</span>
+                            }
+                            @if (!Model.SystemRoles.Any())
+                            {
+                                <span class="text-muted">None</span>
+                            }
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Role & Title -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="bi bi-shield"></i> Role & Title</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="UpdateUser" asp-route-tenantSlug="@tenantSlug" asp-route-userId="@Model.TenantUser.UserId" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <select name="roleCode" class="form-select">
+                                @if (roles != null)
+                                {
+                                    @foreach (var role in roles)
+                                    {
+                                        <option value="@role.RoleCode" selected="@(Model.TenantUser.RoleCode == role.RoleCode)">@role.RoleName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <select name="titleCode" class="form-select">
+                                <option value="">No title</option>
+                                @if (titles != null)
+                                {
+                                    @foreach (var title in titles)
+                                    {
+                                        <option value="@title.TitleCode" selected="@(Model.TenantUser.TitleCode == title.TitleCode)">@title.TitleName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check"></i> Update
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Info -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Status Details</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-5">Status</dt>
+                        <dd class="col-7">
+                            <span class="badge bg-@(Model.TenantUser.Status == "Active" ? "success" : Model.TenantUser.Status == "Pending" ? "warning" : "danger")">
+                                @Model.TenantUser.Status
+                            </span>
+                        </dd>
+
+                        @if (Model.TenantUser.InvitedAt.HasValue)
+                        {
+                            <dt class="col-5">Invited</dt>
+                            <dd class="col-7">@Model.TenantUser.InvitedAt.Value.ToString("MMM dd, yyyy")</dd>
+                        }
+
+                        @if (Model.TenantUser.ActivatedAt.HasValue)
+                        {
+                            <dt class="col-5">Activated</dt>
+                            <dd class="col-7">@Model.TenantUser.ActivatedAt.Value.ToString("MMM dd, yyyy")</dd>
+                        }
+
+                        <dt class="col-5">Password Change</dt>
+                        <dd class="col-7">@(Model.TenantUser.MustChangePasswordOnFirstLogin ? "Required" : "Not required")</dd>
+                    </dl>
+
+                    @if (Model.TenantUser.Status == "Pending")
+                    {
+                        <hr>
+                        <form asp-action="ResendInvite" asp-route-tenantSlug="@tenantSlug" asp-route-userId="@Model.TenantUser.UserId" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-info btn-sm">
+                                <i class="bi bi-envelope"></i> Resend Invitation
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card mt-4">
+        <div class="card-header bg-transparent">
+            <h5 class="mb-0"><i class="bi bi-activity"></i> Recent Activity</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                <table class="table table-hover table-sm mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Event</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var evt in Model.RecentActivity)
+                        {
+                            <tr>
+                                <td><small>@evt.EventTimestamp.ToString("yyyy-MM-dd HH:mm")</small></td>
+                                <td><span class="badge bg-secondary">@evt.EventType</span></td>
+                                <td><small>@evt.Action</small></td>
+                                <td><small class="text-muted">@(evt.Description ?? evt.AffectedEntityType)</small></td>
+                            </tr>
+                        }
+                        @if (!Model.RecentActivity.Any())
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">No activity recorded</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

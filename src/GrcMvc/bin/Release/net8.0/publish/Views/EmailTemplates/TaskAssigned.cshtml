@@ -1,0 +1,135 @@
+@model dynamic
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@Model.Subject</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            background-color: #0066cc;
+            color: white;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            margin: -30px -30px 20px -30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .task-info {
+            background-color: #f8f9fa;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .task-info h3 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+        .priority-high {
+            border-left-color: #dc3545;
+        }
+        .priority-critical {
+            border-left-color: #ff0000;
+            background-color: #fff5f5;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #0066cc;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px 10px 0;
+        }
+        .btn:hover {
+            background-color: #0052a3;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #666;
+        }
+        .details {
+            margin: 20px 0;
+        }
+        .details dt {
+            font-weight: bold;
+            color: #555;
+        }
+        .details dd {
+            margin-left: 0;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Task Assigned</h1>
+        </div>
+        
+        <p>Hello @(Model.RecipientName ?? "there"),</p>
+        
+        <p>A new task has been assigned to you and requires your attention.</p>
+        
+        <div class="task-info @(Model.Priority == "High" ? "priority-high" : Model.Priority == "Critical" ? "priority-critical" : "")">
+            <h3>Task Details</h3>
+            <dl class="details">
+                <dt>Task Type:</dt>
+                <dd>@Model.NotificationType</dd>
+                
+                <dt>Priority:</dt>
+                <dd>@Model.Priority</dd>
+                
+                @if (Model.WorkflowId != null)
+                {
+                    <dt>Workflow ID:</dt>
+                    <dd>#@Model.WorkflowId</dd>
+                }
+                
+                @if (Model.DueDate != null)
+                {
+                    <dt>Due Date:</dt>
+                    <dd>@Model.DueDate</dd>
+                }
+            </dl>
+        </div>
+        
+        <div class="message">
+            <p><strong>Message:</strong></p>
+            <p>@Model.Body</p>
+        </div>
+        
+        <p>
+            <a href="@(Model.ActionUrl ?? "#")" class="btn">View Task</a>
+            <a href="@(Model.DashboardUrl ?? "#")" class="btn" style="background-color: #28a745;">Go to Dashboard</a>
+        </p>
+        
+        <div class="footer">
+            <p>This is an automated notification from the GRC System.</p>
+            <p>Sent: @Model.CreatedAt</p>
+            <p>© @DateTime.UtcNow.Year GRC Management System. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

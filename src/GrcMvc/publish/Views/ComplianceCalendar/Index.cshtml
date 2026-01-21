@@ -1,0 +1,330 @@
+@{
+    ViewData["Title"] = "تقويم الامتثال";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                        تقويم الامتثال
+                    </h2>
+                    <p class="text-muted mb-0">إدارة المواعيد النهائية والتدقيقات والأحداث المهمة</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newEventModal">
+                        <i class="fas fa-plus me-1"></i> إضافة حدث
+                    </button>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-secondary active">شهري</button>
+                        <button class="btn btn-outline-secondary">أسبوعي</button>
+                        <button class="btn btn-outline-secondary">قائمة</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar - Upcoming Events -->
+        <div class="col-md-3 mb-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h6 class="mb-0"><i class="fas fa-clock me-2 text-warning"></i>الأحداث القادمة</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item border-start border-danger border-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1 small">تدقيق NCA ECC</h6>
+                                    <small class="text-muted">موعد نهائي</small>
+                                </div>
+                                <span class="badge bg-danger">غداً</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item border-start border-warning border-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1 small">مراجعة سياسة PDPL</h6>
+                                    <small class="text-muted">مراجعة دورية</small>
+                                </div>
+                                <span class="badge bg-warning text-dark">3 أيام</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item border-start border-primary border-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1 small">اجتماع لجنة الامتثال</h6>
+                                    <small class="text-muted">اجتماع</small>
+                                </div>
+                                <span class="badge bg-primary">5 أيام</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item border-start border-success border-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1 small">تقديم تقرير SAMA</h6>
+                                    <small class="text-muted">تقرير</small>
+                                </div>
+                                <span class="badge bg-success">أسبوع</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h6 class="mb-0"><i class="fas fa-tags me-2"></i>تصنيف الأحداث</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-danger me-2">&nbsp;</span>
+                        <small>مواعيد نهائية</small>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-warning me-2">&nbsp;</span>
+                        <small>مراجعات دورية</small>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-primary me-2">&nbsp;</span>
+                        <small>اجتماعات</small>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-success me-2">&nbsp;</span>
+                        <small>تقارير</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-info me-2">&nbsp;</span>
+                        <small>تدقيقات</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar -->
+        <div class="col-md-9">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-chevron-right"></i></button>
+                        <h5 class="mb-0">يناير 2026</h5>
+                        <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-chevron-left"></i></button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-bordered mb-0">
+                        <thead class="bg-light">
+                            <tr class="text-center">
+                                <th class="py-2">الأحد</th>
+                                <th class="py-2">الإثنين</th>
+                                <th class="py-2">الثلاثاء</th>
+                                <th class="py-2">الأربعاء</th>
+                                <th class="py-2">الخميس</th>
+                                <th class="py-2 text-success">الجمعة</th>
+                                <th class="py-2 text-success">السبت</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Week 1 -->
+                            <tr>
+                                <td class="text-muted" style="height: 100px; vertical-align: top;">
+                                    <span class="small">29</span>
+                                </td>
+                                <td class="text-muted" style="height: 100px; vertical-align: top;">
+                                    <span class="small">30</span>
+                                </td>
+                                <td class="text-muted" style="height: 100px; vertical-align: top;">
+                                    <span class="small">31</span>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">1</span>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">2</span>
+                                </td>
+                                <td class="bg-light" style="height: 100px; vertical-align: top;">
+                                    <span class="small">3</span>
+                                </td>
+                                <td class="bg-light" style="height: 100px; vertical-align: top;">
+                                    <span class="small">4</span>
+                                </td>
+                            </tr>
+                            <!-- Week 2 -->
+                            <tr>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small fw-bold text-primary">5</span>
+                                    <div class="bg-primary text-white rounded px-1 mt-1 small" style="font-size: 10px;">اجتماع لجنة الامتثال</div>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small fw-bold bg-primary text-white rounded-circle px-2">6</span>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">7</span>
+                                    <div class="bg-danger text-white rounded px-1 mt-1 small" style="font-size: 10px;">تدقيق NCA ECC</div>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">8</span>
+                                    <div class="bg-warning text-dark rounded px-1 mt-1 small" style="font-size: 10px;">مراجعة PDPL</div>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">9</span>
+                                </td>
+                                <td class="bg-light" style="height: 100px; vertical-align: top;">
+                                    <span class="small">10</span>
+                                </td>
+                                <td class="bg-light" style="height: 100px; vertical-align: top;">
+                                    <span class="small">11</span>
+                                </td>
+                            </tr>
+                            <!-- Week 3 -->
+                            <tr>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">12</span>
+                                    <div class="bg-success text-white rounded px-1 mt-1 small" style="font-size: 10px;">تقرير SAMA</div>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">13</span>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">14</span>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">15</span>
+                                    <div class="bg-info text-white rounded px-1 mt-1 small" style="font-size: 10px;">تدقيق داخلي</div>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">16</span>
+                                </td>
+                                <td class="bg-light" style="height: 100px; vertical-align: top;">
+                                    <span class="small">17</span>
+                                </td>
+                                <td class="bg-light" style="height: 100px; vertical-align: top;">
+                                    <span class="small">18</span>
+                                </td>
+                            </tr>
+                            <!-- Week 4 -->
+                            <tr>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">19</span>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">20</span>
+                                    <div class="bg-primary text-white rounded px-1 mt-1 small" style="font-size: 10px;">ورشة عمل</div>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">21</span>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">22</span>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">23</span>
+                                </td>
+                                <td class="bg-light" style="height: 100px; vertical-align: top;">
+                                    <span class="small">24</span>
+                                </td>
+                                <td class="bg-light" style="height: 100px; vertical-align: top;">
+                                    <span class="small">25</span>
+                                </td>
+                            </tr>
+                            <!-- Week 5 -->
+                            <tr>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">26</span>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">27</span>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">28</span>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">29</span>
+                                </td>
+                                <td style="height: 100px; vertical-align: top;">
+                                    <span class="small">30</span>
+                                    <div class="bg-danger text-white rounded px-1 mt-1 small" style="font-size: 10px;">موعد نهائي</div>
+                                </td>
+                                <td class="bg-light" style="height: 100px; vertical-align: top;">
+                                    <span class="small">31</span>
+                                </td>
+                                <td class="bg-light text-muted" style="height: 100px; vertical-align: top;">
+                                    <span class="small">1</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Event Modal -->
+<div class="modal fade" id="newEventModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>إضافة حدث جديد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">عنوان الحدث</label>
+                        <input type="text" class="form-control" placeholder="أدخل عنوان الحدث">
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">التاريخ</label>
+                            <input type="date" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">الوقت</label>
+                            <input type="time" class="form-control">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">نوع الحدث</label>
+                        <select class="form-select">
+                            <option value="deadline">موعد نهائي</option>
+                            <option value="review">مراجعة دورية</option>
+                            <option value="meeting">اجتماع</option>
+                            <option value="report">تقرير</option>
+                            <option value="audit">تدقيق</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">الإطار المرتبط</label>
+                        <select class="form-select">
+                            <option value="">بدون إطار</option>
+                            <option value="ecc">NCA ECC</option>
+                            <option value="sama">SAMA CSF</option>
+                            <option value="pdpl">PDPL</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ملاحظات</label>
+                        <textarea class="form-control" rows="2" placeholder="ملاحظات إضافية"></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="reminderCheck">
+                        <label class="form-check-label" for="reminderCheck">
+                            إرسال تذكير قبل الحدث
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary">حفظ الحدث</button>
+            </div>
+        </div>
+    </div>
+</div>

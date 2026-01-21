@@ -1,0 +1,101 @@
+@model IEnumerable<GrcMvc.Models.DTOs.AuditFindingDto>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@{
+    ViewData["Title"] = L["Audit_Findings_Title"].Value;
+    Layout = "_Layout";
+    Guid? auditId = ViewBag.AuditId;
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-list-check"></i> @L["Audit_Findings_Title"]</h2>
+            @if (auditId.HasValue)
+            {
+                 <h5 class="text-muted">@L["Audit_ForAuditId", auditId]</h5>
+            }
+        </div>
+        <div class="col text-end">
+            @if (auditId.HasValue)
+            {
+                <a asp-action="Details" asp-route-id="@auditId" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> @L["Audit_BackToAudit"]
+                </a>
+            }
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-list"></i> @L["Audit_AllAudits"]
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-check-circle display-1 text-success"></i>
+                    <h4 class="mt-3 text-success">@L["Audit_NoFindings"]</h4>
+                    <p class="text-muted">@L["Audit_NoFindingsMessage"]</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover" id="findingsTable">
+                        <thead>
+                            <tr>
+                                <th>@L["Audit_FindingNumber"]</th>
+                                <th>@L["Audit_FindingTitle"]</th>
+                                <th>@L["Audit_Severity"]</th>
+                                <th>@L["Audit_Status"]</th>
+                                <th>@L["Description"]</th>
+                                <th>@L["Actions"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.FindingNumber</td>
+                                    <td>@item.Title</td>
+                                    <td>
+                                        <span class="badge @GetSeverityClass(item.Severity)">
+                                            @item.Severity
+                                        </span>
+                                    </td>
+                                    <td>@item.Status</td>
+                                    <td>
+                                        <span class="d-inline-block text-truncate" style="max-width: 300px;">
+                                            @item.Description
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <!-- Actions for finding - assumes separate controller or modal later -->
+                                        <button class="btn btn-sm btn-outline-info" disabled title="@L["Audit_DetailsComingSoon"]">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetSeverityClass(string severity)
+    {
+        return severity?.ToLower() switch
+        {
+            "critical" => "bg-danger",
+            "high" => "bg-warning",
+            "medium" => "bg-info",
+            "low" => "bg-success",
+            _ => "bg-secondary"
+        };
+    }
+}

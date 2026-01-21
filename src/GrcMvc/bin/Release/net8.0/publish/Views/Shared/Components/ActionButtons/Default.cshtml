@@ -1,0 +1,42 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using GrcMvc.Resources
+@inject IHtmlLocalizer<SharedResource> L
+@{
+    var controller = ViewBag.Controller as string;
+    var id = (int)ViewBag.Id;
+    var showEdit = (bool)(ViewBag.ShowEdit ?? true);
+    var showDetails = (bool)(ViewBag.ShowDetails ?? true);
+    var showDelete = (bool)(ViewBag.ShowDelete ?? true);
+    var showDownload = (bool)(ViewBag.ShowDownload ?? false);
+    var downloadUrl = ViewBag.DownloadUrl as string;
+}
+
+<div class="btn-group btn-group-sm" role="group">
+    @if (showDownload && !string.IsNullOrEmpty(downloadUrl))
+    {
+        <a href="@downloadUrl" target="_blank" class="btn btn-outline-secondary" title="@L["Download"]">
+            <i class="bi bi-download"></i>
+        </a>
+    }
+    @if (showEdit)
+    {
+        <a asp-controller="@controller" asp-action="Edit" asp-route-id="@id"
+           class="btn btn-outline-primary" title="@L["Edit"]">
+            <i class="bi bi-pencil"></i>
+        </a>
+    }
+    @if (showDetails)
+    {
+        <a asp-controller="@controller" asp-action="Details" asp-route-id="@id"
+           class="btn btn-outline-info" title="@L["Details"]">
+            <i class="bi bi-eye"></i>
+        </a>
+    }
+    @if (showDelete)
+    {
+        <a asp-controller="@controller" asp-action="Delete" asp-route-id="@id"
+           class="btn btn-outline-danger" title="@L["Delete"]">
+            <i class="bi bi-trash"></i>
+        </a>
+    }
+</div>

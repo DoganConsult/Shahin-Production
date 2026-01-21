@@ -1,0 +1,139 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@model GrcMvc.Models.DTOs.ExcellenceInitiativeDto
+@{
+    ViewData["Title"] = "Create Excellence Initiative";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-plus-circle"></i> Create Excellence Initiative</h2>
+            <p class="text-muted">Define a new excellence or continuous improvement program</p>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label class="form-label">Initiative Name <span class="text-danger">*</span></label>
+                            <input type="text" name="Name" class="form-control" required
+                                   placeholder="e.g., ISO 27001 Certification Program" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="Description" class="form-control" rows="4"
+                                      placeholder="Describe the initiative objectives, scope, and expected outcomes"></textarea>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Type <span class="text-danger">*</span></label>
+                                <select name="Type" class="form-select" required>
+                                    <option value="">Select Type</option>
+                                    <option value="Certification">Certification Program</option>
+                                    <option value="Process">Process Improvement</option>
+                                    <option value="Technology">Technology Enhancement</option>
+                                    <option value="Training">Training & Development</option>
+                                    <option value="Governance">Governance Framework</option>
+                                    <option value="Compliance">Compliance Program</option>
+                                    <option value="Quality">Quality Management</option>
+                                    <option value="Innovation">Innovation Initiative</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Category <span class="text-danger">*</span></label>
+                                <select name="Category" class="form-select" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Strategic">Strategic</option>
+                                    <option value="Operational">Operational</option>
+                                    <option value="Technical">Technical</option>
+                                    <option value="People">People & Culture</option>
+                                    <option value="Process">Process</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Owner <span class="text-danger">*</span></label>
+                                <input type="text" name="Owner" class="form-control" required
+                                       placeholder="Responsible person or team" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Target Completion Date</label>
+                                <input type="date" name="TargetDate" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Status <span class="text-danger">*</span></label>
+                                <select name="Status" class="form-select" required>
+                                    <option value="Planned" selected>Planned</option>
+                                    <option value="InProgress">In Progress</option>
+                                    <option value="OnHold">On Hold</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Initial Progress (%)</label>
+                                <input type="number" name="Progress" class="form-control"
+                                       min="0" max="100" value="0" />
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Create Initiative
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5><i class="bi bi-lightbulb"></i> Excellence Types</h5>
+                    <ul class="small mb-4">
+                        <li><strong>Certification:</strong> ISO, SOC, regulatory certifications</li>
+                        <li><strong>Process:</strong> Workflow optimization, automation</li>
+                        <li><strong>Technology:</strong> Tool upgrades, integrations</li>
+                        <li><strong>Training:</strong> Skill development, awareness</li>
+                        <li><strong>Governance:</strong> Framework implementation</li>
+                        <li><strong>Compliance:</strong> Regulatory alignment</li>
+                        <li><strong>Quality:</strong> QMS improvements</li>
+                        <li><strong>Innovation:</strong> New approaches, solutions</li>
+                    </ul>
+                    <hr />
+                    <h6><i class="bi bi-star"></i> Best Practices</h6>
+                    <ul class="small text-muted">
+                        <li>Define clear success metrics</li>
+                        <li>Assign accountable owners</li>
+                        <li>Set realistic timelines</li>
+                        <li>Align with organizational goals</li>
+                        <li>Regular progress reviews</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

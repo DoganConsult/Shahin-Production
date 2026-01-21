@@ -1,0 +1,28 @@
+@if (!string.IsNullOrEmpty(Message))
+{
+    <div class="alert alert-@Severity alert-dismissible fade show" role="alert">
+        @if (!string.IsNullOrEmpty(Title))
+        {
+            <h6 class="alert-heading">@Title</h6>
+        }
+        <div>@Message</div>
+        @if (ShowDismiss)
+        {
+            <button type="button" class="btn-close" @onclick="Dismiss" aria-label="Close"></button>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public string? Message { get; set; }
+    [Parameter] public string Severity { get; set; } = "danger"; // danger, warning, info, success
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public bool ShowDismiss { get; set; } = true;
+    [Parameter] public EventCallback OnDismiss { get; set; }
+
+    private async Task Dismiss()
+    {
+        Message = null;
+        await OnDismiss.InvokeAsync();
+    }
+}

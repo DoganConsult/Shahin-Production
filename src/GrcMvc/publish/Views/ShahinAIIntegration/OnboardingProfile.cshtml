@@ -1,0 +1,159 @@
+@{
+    ViewData["Title"] = "AI-Powered Onboarding Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3">
+                <i class="fas fa-robot text-primary me-2"></i>
+                AI-Powered Onboarding Profile
+            </h1>
+            <p class="text-muted">Shahin AI analyzes your organization profile to recommend optimal compliance configurations</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-primary" onclick="runAnalysis()">
+                <i class="fas fa-magic me-2"></i>Run AI Analysis
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Organization Summary -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-building me-2"></i>Organization Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Organization Name</label>
+                            <p class="fw-bold" id="orgName">Shahin AI Technologies</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Industry Sector</label>
+                            <p id="sector">Technology</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Organization Type</label>
+                            <p id="orgType">Enterprise</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Country</label>
+                            <p id="country">Saudi Arabia</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Recommendations -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>AI Recommendations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-robot me-2"></i>
+                        <strong>Shahin AI Analysis:</strong> Based on your organization profile, here are our recommendations:
+                    </div>
+
+                    <div class="list-group">
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1"><i class="fas fa-check-circle text-success me-2"></i>NCA ECC Compliance</h6>
+                                    <small class="text-muted">Required for all Saudi organizations in technology sector</small>
+                                </div>
+                                <span class="badge bg-danger">Mandatory</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1"><i class="fas fa-check-circle text-success me-2"></i>PDPL Compliance</h6>
+                                    <small class="text-muted">Personal data protection law compliance</small>
+                                </div>
+                                <span class="badge bg-danger">Mandatory</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1"><i class="fas fa-star text-warning me-2"></i>ISO 27001 Certification</h6>
+                                    <small class="text-muted">Recommended for enterprise organizations</small>
+                                </div>
+                                <span class="badge bg-info">Recommended</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Derived Scope -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>Derived Compliance Scope</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="h2 text-primary">2</div>
+                            <small class="text-muted">Baselines</small>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="h2 text-success">3</div>
+                            <small class="text-muted">Packages</small>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="h2 text-info">156</div>
+                            <small class="text-muted">Controls</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Analysis Status -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Analysis Status</h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <span class="badge bg-success fs-5">Complete</span>
+                    </div>
+                    <p class="text-muted small">Last analyzed: Jan 6, 2026</p>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="@Url.Action("Assessments", "ShahinAIIntegration")" class="list-group-item list-group-item-action">
+                        <i class="fas fa-clipboard-check text-primary me-2"></i> View Assessments
+                    </a>
+                    <a href="@Url.Action("Workflows", "ShahinAIIntegration")" class="list-group-item list-group-item-action">
+                        <i class="fas fa-project-diagram text-success me-2"></i> View Workflows
+                    </a>
+                    <a href="@Url.Action("Index", "ShahinAIIntegration")" class="list-group-item list-group-item-action">
+                        <i class="fas fa-arrow-left text-secondary me-2"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function runAnalysis() {
+        alert('AI Analysis started. This will analyze your organization profile and update recommendations.');
+    }
+</script>
+}

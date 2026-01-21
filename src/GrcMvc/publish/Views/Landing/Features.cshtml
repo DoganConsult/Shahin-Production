@@ -1,0 +1,344 @@
+@model GrcMvc.Controllers.FeaturesViewModel
+@using GrcMvc.Services
+@inject IAppInfoService AppInfo
+@{
+    ViewData["Title"] = "المميزات - " + AppInfo.Name;
+    Layout = "_LandingLayout";
+}
+
+<section class="features-hero">
+    <div class="container">
+        <div class="section-header fade-up">
+            <div class="section-badge">
+                <i class="bi bi-stars"></i>
+                <span>المميزات</span>
+            </div>
+            <h1 class="section-title">كل ما تحتاجه لإدارة الحوكمة والمخاطر والامتثال</h1>
+            <p class="section-subtitle">
+                منصة متكاملة تجمع كل أدوات GRC في مكان واحد، مع ذكاء اصطناعي يساعدك على اتخاذ القرارات الصحيحة.
+            </p>
+        </div>
+
+        <!-- Main Features -->
+        <div class="main-features fade-up">
+            <div class="feature-highlight">
+                <div class="feature-icon"><i class="bi bi-cpu"></i></div>
+                <div class="feature-content">
+                    <h3>اشتقاق النطاق الذكي</h3>
+                    <p>أجب على 96 سؤالاً فقط، والذكاء الاصطناعي يحدد لك الجهات التنظيمية والضوابط التي تنطبق على مؤسستك من بين أكثر من 13,500 ضابط.</p>
+                </div>
+            </div>
+            <div class="feature-highlight">
+                <div class="feature-icon accent"><i class="bi bi-shield-check"></i></div>
+                <div class="feature-content">
+                    <h3>جاهز للامتثال السعودي</h3>
+                    <p>محمّل مسبقاً بجميع الأُطر التنظيمية السعودية: NCA، SAMA، PDPL، CITC، وزارة الصحة، هيئة السوق المالية، والمزيد.</p>
+                </div>
+            </div>
+            <div class="feature-highlight">
+                <div class="feature-icon success"><i class="bi bi-robot"></i></div>
+                <div class="feature-content">
+                    <h3>مساعد ذكي 24/7</h3>
+                    <p>اسأل أي سؤال عن المتطلبات التنظيمية، واحصل على إجابة فورية مدعومة بالذكاء الاصطناعي.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature Categories -->
+        <div class="feature-categories fade-up">
+            @foreach (var category in Model.Categories)
+            {
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-icon"><i class="@category.Icon"></i></div>
+                        <h3>@category.Name</h3>
+                    </div>
+                    <ul class="category-features">
+                        @foreach (var feature in category.Features)
+                        {
+                            <li>
+                                <i class="bi bi-check2"></i>
+                                <span>@feature</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+
+        <!-- All Features Grid -->
+        <div class="all-features fade-up">
+            <h2>جميع المميزات</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <i class="bi bi-building"></i>
+                    <h4>إدارة الحوكمة</h4>
+                    <p>هياكل الحوكمة، السياسات، اللجان، والتفويضات</p>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <h4>إدارة المخاطر</h4>
+                    <p>سجل المخاطر، التقييم، المعالجة، والمراقبة</p>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-clipboard-check"></i>
+                    <h4>إدارة الامتثال</h4>
+                    <p>ربط الأُطر، تقييم الضوابط، وتحليل الفجوات</p>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-search"></i>
+                    <h4>إدارة التدقيق</h4>
+                    <p>التخطيط، التنفيذ، المتابعة، والتقارير</p>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-file-earmark-check"></i>
+                    <h4>إدارة الأدلة</h4>
+                    <p>جمع آلي، تصنيف، وإدارة دورة الحياة</p>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-diagram-3"></i>
+                    <h4>سير العمل الآلي</h4>
+                    <p>7 سير عمل جاهز مع إمكانية التخصيص</p>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-people"></i>
+                    <h4>إدارة الفرق</h4>
+                    <p>الأدوار، الصلاحيات، ومصفوفة RACI</p>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-graph-up"></i>
+                    <h4>التقارير والتحليلات</h4>
+                    <p>لوحات تحكم تنفيذية وتقارير مخصصة</p>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-calendar-event"></i>
+                    <h4>تقويم الامتثال</h4>
+                    <p>المواعيد النهائية والتذكيرات الآلية</p>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-plug"></i>
+                    <h4>التكاملات</h4>
+                    <p>API مفتوح وتكامل مع الأنظمة الخارجية</p>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-shield-lock"></i>
+                    <h4>الأمان</h4>
+                    <p>تشفير، عزل البيانات، ومسار تدقيق كامل</p>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-globe"></i>
+                    <h4>دعم متعدد اللغات</h4>
+                    <p>العربية والإنجليزية مع دعم RTL كامل</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="features-cta fade-up">
+            <h2>جرّب جميع المميزات مجاناً</h2>
+            <p>7 أيام تجربة كاملة بدون قيود</p>
+            <a href="/owner/Account/Register" class="btn btn-primary btn-lg">
+                <i class="bi bi-rocket-takeoff"></i>
+                ابدأ الآن
+            </a>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+<style>
+    .features-hero {
+        padding: 8rem 0 4rem;
+    }
+
+    .main-features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 4rem;
+    }
+
+    .feature-highlight {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .feature-highlight:hover {
+        transform: translateY(-5px);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--gradient-1);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        margin: 0 auto 1.5rem;
+    }
+
+    .feature-icon.accent {
+        background: var(--gradient-2);
+    }
+
+    .feature-icon.success {
+        background: var(--gradient-3);
+    }
+
+    .feature-content h3 {
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin-bottom: 0.75rem;
+    }
+
+    .feature-content p {
+        color: rgba(248, 250, 252, 0.6);
+        font-size: 0.95rem;
+        line-height: 1.7;
+    }
+
+    .feature-categories {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 4rem;
+    }
+
+    .category-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2rem;
+    }
+
+    .category-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .category-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(16, 185, 129, 0.15);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--primary);
+    }
+
+    .category-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .category-features {
+        list-style: none;
+    }
+
+    .category-features li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.9rem;
+        color: rgba(248, 250, 252, 0.8);
+    }
+
+    .category-features li i {
+        color: var(--primary);
+        flex-shrink: 0;
+        margin-top: 0.15rem;
+    }
+
+    .all-features h2 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 4rem;
+    }
+
+    .feature-item {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .feature-item:hover {
+        transform: translateY(-3px);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .feature-item i {
+        font-size: 2rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .feature-item h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .feature-item p {
+        color: rgba(248, 250, 252, 0.5);
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+
+    .features-cta {
+        text-align: center;
+        background: linear-gradient(180deg, rgba(16, 185, 129, 0.1), transparent);
+        border-radius: 24px;
+        padding: 4rem;
+    }
+
+    .features-cta h2 {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .features-cta p {
+        color: rgba(248, 250, 252, 0.6);
+        margin-bottom: 1.5rem;
+    }
+
+    @@media (max-width: 1024px) {
+        .main-features,
+        .feature-categories {
+            grid-template-columns: 1fr;
+        }
+        .features-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+}

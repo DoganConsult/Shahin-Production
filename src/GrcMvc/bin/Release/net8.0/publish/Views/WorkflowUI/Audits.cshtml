@@ -1,0 +1,373 @@
+@{
+    ViewData["Title"] = "Audits";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-2">
+                <i class="fas fa-search"></i> Audit Management
+            </h1>
+            <p class="text-muted">Plan, execute, and report on compliance audits</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newAuditModal">
+                <i class="fas fa-plus"></i> New Audit
+            </button>
+        </div>
+    </div>
+
+    <!-- Audit Status Overview -->
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card border-primary text-center">
+                <div class="card-body">
+                    <h5 class="text-muted">Planning</h5>
+                    <h3 class="text-primary" id="planning">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card border-info text-center">
+                <div class="card-body">
+                    <h5 class="text-muted">Fieldwork</h5>
+                    <h3 class="text-info" id="fieldwork">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card border-warning text-center">
+                <div class="card-body">
+                    <h5 class="text-muted">Draft Report</h5>
+                    <h3 class="text-warning" id="draftReport">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card border-danger text-center">
+                <div class="card-body">
+                    <h5 class="text-muted">Final Report</h5>
+                    <h3 class="text-danger" id="finalReport">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card border-success text-center">
+                <div class="card-body">
+                    <h5 class="text-muted">Completed</h5>
+                    <h3 class="text-success" id="completed">0</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Process Timeline -->
+    <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">Audit Process Flow</h5>
+        </div>
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-2 text-center">
+                    <div class="badge bg-primary p-3 fs-5">Initiate</div>
+                </div>
+                <div class="col-md-1 text-center"><i class="fas fa-arrow-right text-muted fa-2x"></i></div>
+                <div class="col-md-2 text-center">
+                    <div class="badge bg-primary p-3 fs-5">Plan</div>
+                </div>
+                <div class="col-md-1 text-center"><i class="fas fa-arrow-right text-muted fa-2x"></i></div>
+                <div class="col-md-2 text-center">
+                    <div class="badge bg-primary p-3 fs-5">Fieldwork</div>
+                </div>
+                <div class="col-md-1 text-center"><i class="fas fa-arrow-right text-muted fa-2x"></i></div>
+                <div class="col-md-2 text-center">
+                    <div class="badge bg-primary p-3 fs-5">Report</div>
+                </div>
+                <div class="col-md-1 text-center"><i class="fas fa-arrow-right text-muted fa-2x"></i></div>
+                <div class="col-md-2 text-center">
+                    <div class="badge bg-success p-3 fs-5">Follow-up</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Audits Table -->
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">All Audits</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Audit ID</th>
+                            <th>Type</th>
+                            <th>Scope</th>
+                            <th>Auditor(s)</th>
+                            <th>Status</th>
+                            <th>Start Date</th>
+                            <th>Target End</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditsTableBody">
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">
+                                <i class="fas fa-spinner fa-spin"></i> Loading audits...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Findings -->
+    <div class="card mt-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Recent Findings</h5>
+        </div>
+        <div class="card-body">
+            <div id="findingsContainer">
+                <p class="text-muted">No findings recorded yet</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Audit Modal -->
+<div class="modal fade" id="newAuditModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Audit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newAuditForm">
+                    <div class="mb-3">
+                        <label class="form-label">Audit Type</label>
+                        <select class="form-select" id="auditType" required>
+                            <option value="">Select type...</option>
+                            <option value="Internal">Internal Audit</option>
+                            <option value="External">External Audit</option>
+                            <option value="Compliance">Compliance Audit</option>
+                            <option value="Operational">Operational Audit</option>
+                            <option value="IT">IT Audit</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Scope</label>
+                        <textarea class="form-control" id="scope" rows="3" required placeholder="Define audit scope..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Audit Period Start</label>
+                        <input type="date" class="form-control" id="startDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Audit Period End</label>
+                        <input type="date" class="form-control" id="endDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Lead Auditor</label>
+                        <select class="form-select" id="leadAuditor" required>
+                            <option value="">Select auditor...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Team Members</label>
+                        <input type="text" class="form-control" id="teamMembers" placeholder="List auditors (comma separated)">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="createNewAudit()">
+                    <i class="fas fa-check"></i> Create Audit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Audit Detail Modal -->
+<div class="modal fade" id="auditDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Audit Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="auditDetailContent">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="updateAuditStatus()">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentAuditId = null;
+
+        async function createNewAudit() {
+            const auditType = document.getElementById('auditType').value;
+            const scope = document.getElementById('scope').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (!auditType || !scope || !startDate || !endDate) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/workflows/audit/initiate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({
+                        auditId: 0 // New audit
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Audit created successfully');
+                    document.getElementById('newAuditForm').reset();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('newAuditModal'));
+                    modal.hide();
+                    loadAudits();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error creating audit');
+            }
+        }
+
+        async function loadAudits() {
+            try {
+                const response = await fetch('/api/workflows/list/audit');
+                const data = await response.json();
+
+                // Update status counts
+                const stats = {
+                    planning: data.workflows?.filter(w => w.status === 'PlanningPhase').length || 0,
+                    fieldwork: data.workflows?.filter(w => w.status === 'FieldworkInProgress').length || 0,
+                    draftReport: data.workflows?.filter(w => w.status === 'DraftReportIssued').length || 0,
+                    finalReport: data.workflows?.filter(w => w.status === 'FinalReportIssued').length || 0,
+                    completed: data.workflows?.filter(w => w.status === 'Completed').length || 0
+                };
+
+                document.getElementById('planning').textContent = stats.planning;
+                document.getElementById('fieldwork').textContent = stats.fieldwork;
+                document.getElementById('draftReport').textContent = stats.draftReport;
+                document.getElementById('finalReport').textContent = stats.finalReport;
+                document.getElementById('completed').textContent = stats.completed;
+
+                // Update table
+                const tbody = document.getElementById('auditsTableBody');
+                if (data.workflows && data.workflows.length > 0) {
+                    tbody.innerHTML = data.workflows.map(w => `
+                        <tr>
+                            <td><strong>${w.id}</strong></td>
+                            <td>${w.auditType || 'N/A'}</td>
+                            <td><small>${w.scope?.substring(0, 30) || 'N/A'}...</small></td>
+                            <td>${w.auditorName || 'Unassigned'}</td>
+                            <td>${getAuditStatusBadge(w.status)}</td>
+                            <td>${new Date(w.startDate).toLocaleDateString()}</td>
+                            <td>${new Date(w.endDate).toLocaleDateString()}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info" onclick="viewAuditDetail(${w.id})">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <div class="btn-group btn-group-sm ms-2">
+                                    <button class="btn btn-outline-success btn-sm" title="Start Fieldwork">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                    <button class="btn btn-outline-warning btn-sm" title="Add Finding">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-sm" title="Submit Report">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No audits scheduled</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading audits:', error);
+            }
+        }
+
+        function getAuditStatusBadge(status) {
+            const badges = {
+                'PlanningPhase': '<span class="badge bg-primary">Planning</span>',
+                'FieldworkInProgress': '<span class="badge bg-info">Fieldwork</span>',
+                'DraftReportIssued': '<span class="badge bg-warning">Draft Report</span>',
+                'FinalReportIssued': '<span class="badge bg-danger">Final Report</span>',
+                'Completed': '<span class="badge bg-success">Completed</span>',
+                'FollowupPhase': '<span class="badge bg-secondary">Follow-up</span>'
+            };
+            return badges[status] || `<span class="badge bg-secondary">${status}</span>`;
+        }
+
+        function viewAuditDetail(auditId) {
+            currentAuditId = auditId;
+            
+            fetch(`/api/workflows/audit/${auditId}/status`)
+                .then(r => r.json())
+                .then(data => {
+                    const content = document.getElementById('auditDetailContent');
+                    content.innerHTML = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Audit Information</h6>
+                                <p><strong>Type:</strong> ${data.auditType}</p>
+                                <p><strong>Status:</strong> ${getAuditStatusBadge(data.status)}</p>
+                                <p><strong>Lead Auditor:</strong> ${data.auditorName}</p>
+                                <p><strong>Period:</strong> ${new Date(data.startDate).toLocaleDateString()} - ${new Date(data.endDate).toLocaleDateString()}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Scope</h6>
+                                <p>${data.scope}</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div>
+                            <h6>Findings (${data.findings?.length || 0})</h6>
+                            ${data.findings && data.findings.length > 0 ? `
+                                <ul class="list-group">
+                                    ${data.findings.map(f => `
+                                        <li class="list-group-item">
+                                            <strong>${f.title}</strong>
+                                            <p class="text-muted small mb-0">${f.description}</p>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            ` : '<p class="text-muted">No findings recorded yet</p>'}
+                        </div>
+                    `;
+                });
+            
+            const modal = new bootstrap.Modal(document.getElementById('auditDetailModal'));
+            modal.show();
+        }
+
+        function updateAuditStatus() {
+            // Implementation for updating audit status
+            alert('Audit status updated');
+        }
+
+        // Load audits on page load
+        document.addEventListener('DOMContentLoaded', loadAudits);
+    </script>
+}

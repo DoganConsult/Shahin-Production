@@ -1,0 +1,40 @@
+@using Microsoft.AspNetCore.Localization
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    // Get culture with proper null checks and fallback
+    string currentCulture = "ar"; // Default to Arabic
+    bool isRtl = true; // Default to RTL
+    string dir = "rtl"; // Default direction
+    
+    try
+    {
+        var httpContext = HttpContextAccessor.HttpContext;
+        if (httpContext != null)
+        {
+            var requestCulture = httpContext.Features.Get<IRequestCultureFeature>();
+            if (requestCulture?.RequestCulture?.UICulture != null)
+            {
+                currentCulture = requestCulture.RequestCulture.UICulture.Name;
+                isRtl = currentCulture == "ar";
+                dir = isRtl ? "rtl" : "ltr";
+            }
+        }
+    }
+    catch
+    {
+        // If anything fails, use defaults (Arabic/RTL)
+        currentCulture = "ar";
+        isRtl = true;
+        dir = "rtl";
+    }
+}
+
+<div dir="@dir" lang="@currentCulture">
+    @Body
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? Body { get; set; }
+}

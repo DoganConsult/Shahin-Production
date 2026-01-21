@@ -1,0 +1,170 @@
+@model GrcMvc.Controllers.EvidenceGuideViewModel
+@{
+    ViewData["Title"] = "Evidence Collection Guide";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/KnowledgeBase">Knowledge Base</a></li>
+                    <li class="breadcrumb-item active">Evidence Collection</li>
+                </ol>
+            </nav>
+            <h1 class="h2 mb-2">
+                <i class="fas fa-file-alt text-primary me-2"></i>
+                Evidence Collection Guide
+            </h1>
+            <p class="text-muted">Best practices for collecting, naming, and submitting compliance evidence.</p>
+        </div>
+    </div>
+
+    <!-- Evidence Types -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-folder me-2"></i>Types of Evidence</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Evidence Type</th>
+                                    <th>Examples</th>
+                                    <th>Collection Frequency</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var type in Model.EvidenceTypes)
+                                {
+                                    <tr>
+                                        <td>
+                                            <i class="fas fa-file-alt text-primary me-2"></i>
+                                            <strong>@type.Name</strong>
+                                        </td>
+                                        <td>
+                                            @foreach (var example in type.Examples)
+                                            {
+                                                <span class="badge bg-light text-dark me-1">@example</span>
+                                            }
+                                        </td>
+                                        <td><span class="badge bg-info">@type.Frequency</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collection Process -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Collection Process</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @foreach (var step in Model.CollectionProcess)
+                        {
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100 border">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <span class="badge rounded-pill bg-success fs-5 px-3 py-2 me-3">@step.Order</span>
+                                            <h6 class="mb-0">@step.Title</h6>
+                                        </div>
+                                        <p class="text-muted small mb-0">@step.Description</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quality Criteria -->
+    <div class="row mb-5">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-check-double me-2"></i>Quality Criteria</h5>
+                </div>
+                <div class="card-body">
+                    @foreach (var criterion in Model.QualityCriteria)
+                    {
+                        <div class="d-flex mb-3">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-check-circle text-success fa-lg"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1">@criterion.Criterion</h6>
+                                <p class="text-muted small mb-0">@criterion.Description</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Common Mistakes to Avoid</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        @foreach (var mistake in Model.CommonMistakes)
+                        {
+                            <li class="mb-3">
+                                <i class="fas fa-times-circle text-danger me-2"></i>
+                                @mistake
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Naming Convention -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="fas fa-tag me-2"></i>Naming Convention</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <strong>Standard Format:</strong> 
+                        <code class="fs-5">{TenantId}-{ControlId}-{Date}-{Sequence}.{ext}</code>
+                    </div>
+                    <h6>Examples:</h6>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <code>TENANT001-NCA-ECC-1-1-20260115-001.pdf</code>
+                            <span class="text-muted ms-2">- Policy document for NCA-ECC 1-1</span>
+                        </li>
+                        <li class="list-group-item">
+                            <code>TENANT001-SAMA-CSF-COT-1-20260115-001.png</code>
+                            <span class="text-muted ms-2">- Screenshot for SAMA-CSF COT-1</span>
+                        </li>
+                        <li class="list-group-item">
+                            <code>TENANT001-PDPL-8-20260115-001.xlsx</code>
+                            <span class="text-muted ms-2">- Export report for PDPL-8</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,161 @@
+@model GrcMvc.Models.DTOs.AssessmentStatisticsDto
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@{
+    ViewData["Title"] = L["Assessment_Statistics_Title"].Value;
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-bar-chart"></i> @L["Assessment_Statistics_Title"]</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> @L["BackToList"]
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Key Metrics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">@L["Assessment_TotalAssessments"]</h5>
+                    <p class="card-text display-4">@Model.TotalAssessments</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">@L["Assessment_Completed"]</h5>
+                    <p class="card-text display-4">@Model.CompletedAssessments</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">@L["Assessment_InProgress"]</h5>
+                    <p class="card-text display-4">@Model.InProgressAssessments</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">@L["Assessment_Overdue"]</h5>
+                    <p class="card-text display-4">@Model.OverdueAssessments</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">@L["Assessment_AverageScoresAndCompletion"]</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-6">
+                            <h6>@L["Assessment_AverageScore"]</h6>
+                            <div class="display-4 text-info">@Model.AverageScore.ToString("F1")%</div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>@L["Assessment_CompletionRate"]</h6>
+                            <div class="display-4 text-success">@Model.CompletionRate.ToString("F1")%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">@L["Assessment_PendingAssessments"]</h5>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <div class="display-4 text-secondary">@Model.PendingAssessments</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">@L["Assessment_AssessmentsByType"]</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="typeChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">@L["Assessment_StatusDistribution"]</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script nonce="@ViewData["CSPNonce"]">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Type Chart - Using safe JSON serialization
+            var typeCtx = document.getElementById('typeChart').getContext('2d');
+            var typeData = @System.Text.Json.JsonSerializer.Serialize(Model.AssessmentsByType);
+
+            new Chart(typeCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(typeData),
+                    datasets: [{
+                        data: Object.values(typeData),
+                        backgroundColor: [
+                            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'
+                        ]
+                    }]
+                }
+            });
+
+            // Status Chart - Using safe JSON serialization
+            var statusCtx = document.getElementById('statusChart').getContext('2d');
+            var statusData = @System.Text.Json.JsonSerializer.Serialize(Model.StatusDistribution);
+
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusData),
+                    datasets: [{
+                        data: Object.values(statusData),
+                        backgroundColor: [
+                            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'
+                        ]
+                    }]
+                }
+            });
+        });
+    </script>
+}

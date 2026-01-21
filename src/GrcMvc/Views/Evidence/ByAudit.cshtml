@@ -1,0 +1,114 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@model IEnumerable<GrcMvc.Models.DTOs.EvidenceDto>
+@{
+    ViewData["Title"] = L["Evidence_ByAudit_Title"].Value;
+    Layout = "_Layout";
+    Guid? auditId = ViewBag.AuditId;
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-folder-check"></i> @L["Evidence_ByAudit_Title"]</h2>
+            @if (auditId.HasValue)
+            {
+                <h5 class="text-muted">@L["Evidence_ForAuditId"]: @auditId</h5>
+            }
+        </div>
+        <div class="col text-end">
+            @if (auditId.HasValue)
+            {
+                <a asp-controller="Audit" asp-action="Details" asp-route-id="@auditId" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> @L["Evidence_BackToAudit"]
+                </a>
+            }
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-list"></i> @L["Evidence_AllEvidence"]
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-folder-x display-1 text-muted"></i>
+                    <h4 class="mt-3 text-muted">@L["Evidence_NoEvidenceForAudit"]</h4>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover" id="auditEvidenceTable">
+                        <thead>
+                            <tr>
+                                <th>@L["Name"]</th>
+                                <th>@L["Type"]</th>
+                                <th>@L["Evidence_Classification"]</th>
+                                <th>@L["Status"]</th>
+                                <th>@L["Actions"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <a asp-action="Details" asp-route-id="@item.Id">@item.Name</a>
+                                    </td>
+                                    <td>@item.EvidenceType</td>
+                                    <td>
+                                        <span class="badge @GetClassificationClass(item.DataClassification)">
+                                            @item.DataClassification
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge @GetStatusBadgeClass(item.Status)">
+                                            @item.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a asp-action="Details" asp-route-id="@item.Id"
+                                               class="btn btn-outline-info" title="@L["Details"]">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "active" or "valid" => "bg-success",
+            "expired" => "bg-danger",
+            "pending" => "bg-warning",
+            "archived" => "bg-secondary",
+            _ => "bg-info"
+        };
+    }
+
+    private string GetClassificationClass(string classification)
+    {
+        return classification?.ToLower() switch
+        {
+            "public" => "bg-success",
+            "internal" => "bg-info",
+            "confidential" => "bg-warning text-dark",
+            "restricted" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

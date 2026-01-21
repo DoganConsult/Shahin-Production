@@ -1,0 +1,201 @@
+@model StepKBaselineOverlaysDto
+@using GrcMvc.Models.DTOs
+@{
+    ViewData["Title"] = "Baseline & Overlays - Onboarding Wizard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var summary = ViewData["WizardSummary"] as WizardSummaryDto;
+    var tenantId = summary?.TenantId ?? Guid.Empty;
+    var autoDerivedOverlays = ViewData["AutoDerivedOverlays"] as List<OverlaySelection> ?? new List<OverlaySelection>();
+}
+
+<div class="d-flex">
+    @await Html.PartialAsync("_WizardSidebar", summary)
+
+    <div class="flex-grow-1 p-4">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-layer-group text-primary me-2"></i>
+                        Step K: Baseline & Overlays Selection
+                    </h2>
+                    <p class="text-muted mb-0">اختيار الأساس والطبقات | Questions 88-90 • Make applicability automatic</p>
+                </div>
+                <span class="badge bg-primary fs-6">Step 11 of 12</span>
+            </div>
+
+            <form asp-action="StepK" asp-route-tenantId="@tenantId" method="post">
+                @Html.AntiForgeryToken()
+
+                <!-- Default Baseline -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-check-square me-2"></i>Default Baseline (Q88)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="adoptBaseline" asp-for="AdoptDefaultBaseline">
+                            <label class="form-check-label" for="adoptBaseline">
+                                <strong>Adopt default baseline control set</strong>
+                            </label>
+                            <small class="text-muted d-block">
+                                Includes industry-standard controls mapped to your regulatory requirements
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auto-Derived Overlays -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-magic me-2"></i>Auto-Derived Overlays (Q89)</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">
+                            Based on your profile, these overlays are automatically recommended:
+                        </p>
+                        
+                        @if (autoDerivedOverlays.Any())
+                        {
+                            <div class="row">
+                                @foreach (var overlay in autoDerivedOverlays)
+                                {
+                                    var typeColor = overlay.OverlayType switch {
+                                        "jurisdiction" => "primary",
+                                        "sector" => "success",
+                                        "data" => "danger",
+                                        "technology" => "info",
+                                        _ => "secondary"
+                                    };
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card border-@typeColor">
+                                            <div class="card-body">
+                                                <div class="form-check">
+                                                    <input type="checkbox" class="form-check-input" 
+                                                           name="SelectedOverlays" value="@overlay.OverlayCode" 
+                                                           id="overlay_@overlay.OverlayCode" checked>
+                                                    <label class="form-check-label" for="overlay_@overlay.OverlayCode">
+                                                        <span class="badge bg-@typeColor mb-1">@overlay.OverlayType</span>
+                                                        <h6 class="mb-1">@overlay.OverlayName</h6>
+                                                        <small class="text-muted">@overlay.Reason</small>
+                                                        @if (overlay.IsAutoSelected)
+                                                        {
+                                                            <span class="badge bg-light text-dark ms-2">
+                                                                <i class="fas fa-robot"></i> Auto-selected
+                                                            </span>
+                                                        }
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                No overlays auto-derived. Complete previous steps to enable auto-selection.
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Additional Overlays -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Additional Overlays</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @{
+                                var additionalOverlays = new[] {
+                                    ("OT", "OT/ICS", "Operational Technology controls"),
+                                    ("CLOUD_NATIVE", "Cloud-Native", "Container & serverless controls"),
+                                    ("MOBILE", "Mobile Apps", "Mobile application security"),
+                                    ("API", "API Security", "API gateway controls")
+                                };
+                            }
+                            @foreach (var (code, name, desc) in additionalOverlays)
+                            {
+                                <div class="col-md-3 mb-2">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" 
+                                               name="AdditionalOverlays" value="@code" id="add_@code">
+                                        <label class="form-check-label" for="add_@code">
+                                            <strong>@name</strong>
+                                            <small class="text-muted d-block">@desc</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Client-Specific Controls -->
+                <div class="card mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-file-import me-2"></i>Client-Specific Controls (Q90)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="hasClientControls" asp-for="HasClientSpecificControls">
+                            <label class="form-check-label" for="hasClientControls">
+                                <strong>Import client-specific control requirements</strong>
+                            </label>
+                            <small class="text-muted d-block">
+                                Upload custom controls from contracts or client requirements
+                            </small>
+                        </div>
+                        
+                        <div id="clientControlsUpload" style="display: @(Model.HasClientSpecificControls ? "block" : "none");">
+                            <div class="alert alert-secondary">
+                                <i class="fas fa-upload me-2"></i>
+                                You can upload client-specific controls after completing the wizard.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="@Url.Action("StepJ", new { tenantId })" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Back
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        Continue to Step L <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
+    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
+    <script>
+        // Initialize Motivation System
+        const motivation = new WizardMotivation({
+            stepNumber: 11,
+            totalSteps: 12,
+            tenantId: '@tenantId',
+            stepName: 'StepK'
+        });
+
+        // Initialize Live Preview Panel
+        const livePreview = new LivePreviewPanel({
+            stepName: 'StepK'
+        });
+
+        // Initialize Why We Ask Tooltips
+        const tooltips = new WhyWeAskTooltips();
+    </script>
+    <script>
+        document.getElementById('hasClientControls').addEventListener('change', function() {
+            document.getElementById('clientControlsUpload').style.display = this.checked ? 'block' : 'none';
+        });
+    </script>
+}

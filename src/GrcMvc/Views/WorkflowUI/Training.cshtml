@@ -1,0 +1,135 @@
+@{
+    ViewData["Title"] = "Training Workflows";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3">
+                <i class="fas fa-graduation-cap text-success me-2"></i>Training Workflows
+            </h1>
+            <p class="text-muted">Manage security awareness and compliance training workflows</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-primary">
+                <i class="fas fa-plus"></i> Assign Training
+            </button>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3>156</h3><small>Total Assigned</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3>45</h3><small>In Progress</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3>98</h3><small>Completed</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <h3>13</h3><small>Overdue</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Training Assignments</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Training</th>
+                                    <th>Assignee</th>
+                                    <th>Due Date</th>
+                                    <th>Progress</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Security Awareness 2026</td>
+                                    <td>All Employees</td>
+                                    <td>Jan 31, 2026</td>
+                                    <td>
+                                        <div class="progress" style="height:20px;width:100px;">
+                                            <div class="progress-bar bg-success" style="width:75%">75%</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-info">In Progress</span></td>
+                                </tr>
+                                <tr>
+                                    <td>PDPL Compliance</td>
+                                    <td>Data Handlers</td>
+                                    <td>Feb 15, 2026</td>
+                                    <td>
+                                        <div class="progress" style="height:20px;width:100px;">
+                                            <div class="progress-bar bg-info" style="width:30%">30%</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-info">In Progress</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Phishing Awareness</td>
+                                    <td>IT Department</td>
+                                    <td>Jan 5, 2026</td>
+                                    <td>
+                                        <div class="progress" style="height:20px;width:100px;">
+                                            <div class="progress-bar bg-danger" style="width:60%">60%</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-danger">Overdue</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Completion Rate</h6>
+                </div>
+                <div class="card-body text-center">
+                    <h1 class="display-4 text-success">63%</h1>
+                    <p class="text-muted">Overall Completion</p>
+                </div>
+            </div>
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-bell me-2"></i>Reminders</h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="fas fa-envelope text-primary me-2"></i> Send Reminders
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-export text-success me-2"></i> Export Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,174 @@
+@page "/approvals"
+@using GrcMvc.Models.DTOs
+@using GrcMvc.Services.Interfaces
+@using GrcMvc.Services.Interfaces.Workflows
+@inject IApprovalWorkflowService ApprovalService
+@inject NavigationManager NavManager
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
+
+<PageTitle>@(currentCulture == "ar" ? "الموافقات" : "Approvals")</PageTitle>
+
+<div dir="@dir" class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">Approval Requests</h1>
+            <small class="text-muted">@(approvals?.Count ?? 0) pending approvals</small>
+        </div>
+        <div class="col-auto">
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-secondary"
+                    @onclick="FilterAll">All</button>
+                <button type="button" class="btn btn-outline-secondary"
+                    @onclick="FilterPending">Pending</button>
+                <button type="button" class="btn btn-outline-secondary"
+                    @onclick="FilterApproved">Approved</button>
+                <button type="button" class="btn btn-outline-secondary"
+                    @onclick="FilterRejected">Rejected</button>
+            </div>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="alert alert-info">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Loading approvals...
+        </div>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    else if (filteredApprovals == null || filteredApprovals.Count == 0)
+    {
+        <div class="alert alert-info">No approvals found.</div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var approval in filteredApprovals)
+            {
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100 shadow-sm border-@(approval.Priority == "Critical" ? "danger" : "secondary")">
+                        <div class="card-header bg-light">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <span class="badge bg-@GetPriorityColor(approval.Priority)">@approval.Priority</span>
+                                    <span class="badge bg-@GetStatusColor(approval.Status)"
+                                        style="margin-left: 5px;">@approval.Status</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">@approval.WorkflowName</h5>
+                            <p class="card-text text-muted small">@approval.ApprovalType</p>
+                            <hr />
+                            <small>
+                                <p class="mb-2"><strong>From:</strong> @approval.SubmittedByName</p>
+                                <p class="mb-2"><strong>Assigned To:</strong> @approval.AssignedToName</p>
+                                <p class="mb-0">
+                                    <strong>Level:</strong> @approval.ApprovalLevel
+                                    @if (approval.DaysRemaining < 0)
+                                    {
+                                        <span class="badge bg-danger">@Math.Abs(approval.DaysRemaining) days overdue</span>
+                                    }
+                                    else if (approval.DaysRemaining == 0)
+                                    {
+                                        <span class="badge bg-warning">Due today</span>
+                                    }
+                                </p>
+                            </small>
+                        </div>
+                        <div class="card-footer">
+                            @if (approval.Status == "Pending")
+                            {
+                                <a href="/approvals/@approval.Id/review" class="btn btn-sm btn-primary w-100">
+                                    Review & Approve
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="/approvals/@approval.Id" class="btn btn-sm btn-outline-primary w-100">
+                                    View Details
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<ApprovalDto>? approvals;
+    private string? FilterStatus;
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    private List<ApprovalDto>? filteredApprovals
+    {
+        get
+        {
+            if (approvals == null) return null;
+            if (string.IsNullOrEmpty(FilterStatus))
+                return approvals;
+            return approvals.Where(a => a.Status == FilterStatus).ToList();
+        }
+    }
+
+    private void SetFilter(string? status) => FilterStatus = status;
+    private void FilterAll() => FilterStatus = null;
+    private void FilterPending() => FilterStatus = "Pending";
+    private void FilterApproved() => FilterStatus = "Approved";
+    private void FilterRejected() => FilterStatus = "Rejected";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var tenantId = Guid.Parse("550e8400-e29b-41d4-a716-446655440000");
+
+            // Load approvals from service
+            approvals = new List<ApprovalDto>();
+
+            isLoading = false;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading approvals: {ex.Message}";
+            approvals = new List<ApprovalDto>();
+            isLoading = false;
+        }
+    }
+
+    private string GetStatusColor(string status)
+    {
+        return status switch
+        {
+            "Approved" => "success",
+            "Rejected" => "danger",
+            "Pending" => "warning",
+            "Delegated" => "info",
+            _ => "secondary"
+        };
+    }
+
+    private string GetPriorityColor(string priority)
+    {
+        return priority switch
+        {
+            "Critical" => "danger",
+            "High" => "warning",
+            "Medium" => "info",
+            "Low" => "secondary",
+            _ => "light"
+        };
+    }
+}

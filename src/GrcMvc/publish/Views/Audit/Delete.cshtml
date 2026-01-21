@@ -1,0 +1,54 @@
+@model GrcMvc.Models.DTOs.AuditDto
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@{
+    ViewData["Title"] = L["Audit_Delete_Title"].Value;
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-danger shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> @L["Audit_DeleteConfirmation"]</h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-danger">@L["Audit_DeleteConfirmMessage"]</h5>
+                    <p class="card-text">@L["Audit_DeleteWarning", Model.Name, Model.AuditNumber]</p>
+
+                    <dl class="row mt-4">
+                        <dt class="col-sm-4">@L["Audit_Number"]</dt>
+                        <dd class="col-sm-8">@Model.AuditNumber</dd>
+
+                        <dt class="col-sm-4">@L["Audit_Name"]</dt>
+                        <dd class="col-sm-8">@Model.Name</dd>
+
+                        <dt class="col-sm-4">@L["Audit_Type"]</dt>
+                        <dd class="col-sm-8">@Model.Type</dd>
+
+                        <dt class="col-sm-4">@L["Audit_Status"]</dt>
+                        <dd class="col-sm-8">@Model.Status</dd>
+
+                        <dt class="col-sm-4">@L["Audit_LeadAuditor"]</dt>
+                        <dd class="col-sm-8">@Model.LeadAuditor</dd>
+                    </dl>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-circle"></i> @L["Audit_DeleteFindingsWarning", Model.FindingsCount]
+                    </div>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a asp-action="Index" class="btn btn-secondary me-md-2">@L["Cancel"]</a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> @L["DeleteAudit"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

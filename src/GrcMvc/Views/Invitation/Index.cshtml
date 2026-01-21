@@ -1,0 +1,62 @@
+@{
+    ViewData["Title"] = "User Invitations";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var users = ViewBag.Users as List<GrcMvc.Models.Entities.ApplicationUser> ?? new List<GrcMvc.Models.Entities.ApplicationUser>();
+    var pendingInvites = ViewBag.PendingInvites as List<object> ?? new List<object>();
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-1"><i class="fas fa-user-plus text-primary me-2"></i>User Invitations</h1>
+            <p class="text-muted">Invite team members and assign roles</p>
+        </div>
+        <a href="@Url.Action("Invite")" class="btn btn-primary"><i class="fas fa-envelope me-2"></i>Send Invitation</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-users me-2"></i>Team Members (@users.Count)
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr><th>Name</th><th>Email</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in users.Take(20))
+                                {
+                                    <tr>
+                                        <td>@user.FullName</td>
+                                        <td>@user.Email</td>
+                                        <td><span class="badge bg-success">Active</span></td>
+                                    </tr>
+                                }
+                                @if (!users.Any())
+                                {
+                                    <tr><td colspan="3" class="text-center text-muted py-3">No users</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <i class="fas fa-clock me-2"></i>Pending Invitations
+                </div>
+                <ul class="list-group list-group-flush">
+                    @if (!pendingInvites.Any())
+                    {
+                        <li class="list-group-item text-center text-muted">No pending invitations</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

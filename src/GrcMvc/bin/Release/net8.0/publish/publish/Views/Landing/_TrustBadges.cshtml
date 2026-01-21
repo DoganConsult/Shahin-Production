@@ -1,0 +1,49 @@
+@model IEnumerable<TrustBadgeItem>
+@using GrcMvc.Controllers
+@{
+    var badges = Model?.ToList() ?? new List<TrustBadgeItem>();
+}
+
+@if (badges.Any())
+{
+    <section class="trust-badges-section py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="text-center mb-4">
+                        <p class="text-muted small text-uppercase fw-semibold mb-0">
+                            <i class="bi bi-shield-check me-2"></i>
+                            @(ViewBag.IsArabic == true ? "أُطر الامتثال المدعومة" : "Supported Compliance Frameworks")
+                        </p>
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-center gap-4 align-items-center">
+                        @foreach (var badge in badges)
+                        {
+                            <div class="badge-item text-center" title="@(ViewBag.IsArabic == true ? badge.DescriptionAr : badge.Description)">
+                                @if (!string.IsNullOrEmpty(badge.ImageUrl))
+                                {
+                                    <img src="@badge.ImageUrl" alt="@badge.Name" class="badge-logo" style="height: 48px; max-width: 100px; object-fit: contain;" />
+                                }
+                                else
+                                {
+                                    <div class="badge-fallback d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
+                                         style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);">
+                                        <i class="bi bi-patch-check-fill text-success"></i>
+                                        <span class="small fw-semibold">@(ViewBag.IsArabic == true ? badge.NameAr ?? badge.Name : badge.Name)</span>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(badge.VerificationUrl))
+                                {
+                                    <a href="@badge.VerificationUrl" target="_blank" rel="noopener"
+                                       class="d-block small text-muted text-decoration-none mt-1">
+                                        <i class="bi bi-box-arrow-up-right"></i> @(ViewBag.IsArabic == true ? "تحقق" : "Verify")
+                                    </a>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}

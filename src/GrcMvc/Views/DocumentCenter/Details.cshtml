@@ -1,0 +1,262 @@
+@model GrcMvc.Models.Entities.DocumentTemplate
+@{
+    ViewData["Title"] = Model.TitleAr ?? Model.TitleEn;
+    Layout = "_Layout";
+    
+    var categoryIcon = Model.Category switch {
+        "Policy" => "fa-file-alt",
+        "Procedure" => "fa-list-ol",
+        "Form" => "fa-wpforms",
+        "Checklist" => "fa-tasks",
+        "Report" => "fa-chart-bar",
+        "Agreement" => "fa-handshake",
+        "Certificate" => "fa-certificate",
+        "Guide" => "fa-book",
+        _ => "fa-file"
+    };
+    
+    var formatIcon = Model.FileFormat switch {
+        "docx" => "fa-file-word text-primary",
+        "xlsx" => "fa-file-excel text-success",
+        "pdf" => "fa-file-pdf text-danger",
+        _ => "fa-file"
+    };
+    
+    var sections = !string.IsNullOrEmpty(Model.SectionsJson) 
+        ? System.Text.Json.JsonSerializer.Deserialize<List<string>>(Model.SectionsJson) 
+        : new List<string>();
+    
+    var fields = !string.IsNullOrEmpty(Model.FieldsJson)
+        ? System.Text.Json.JsonSerializer.Deserialize<List<string>>(Model.FieldsJson)
+        : new List<string>();
+}
+
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/DocumentCenter">مركز المستندات</a></li>
+            <li class="breadcrumb-item"><a href="/DocumentCenter?category=@Model.Category">@Model.Category</a></li>
+            <li class="breadcrumb-item active">@Model.Code</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex align-items-center">
+                        <div class="template-icon me-3">
+                            <i class="fas @categoryIcon fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-1">@(Model.TitleAr ?? Model.TitleEn)</h4>
+                            @if (Model.TitleAr != null)
+                            {
+                                <p class="text-muted mb-0">@Model.TitleEn</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Description -->
+                    <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>الوصف | Description</h5>
+                    <p class="text-muted">@(Model.DescriptionAr ?? Model.DescriptionEn ?? "No description available")</p>
+                    @if (Model.DescriptionAr != null && Model.DescriptionEn != null)
+                    {
+                        <p class="text-muted small">@Model.DescriptionEn</p>
+                    }
+                    <hr>
+
+                    <!-- Sections -->
+                    @if (sections?.Any() == true)
+                    {
+                        <h5 class="mb-3"><i class="fas fa-list me-2"></i>الأقسام | Sections</h5>
+                        <div class="row mb-4">
+                            @foreach (var sectionItem in sections)
+                            {
+                                <div class="col-md-6 mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <span>@sectionItem</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <hr>
+                    }
+
+                    <!-- Fields -->
+                    @if (fields?.Any() == true)
+                    {
+                        <h5 class="mb-3"><i class="fas fa-edit me-2"></i>الحقول | Fields to Complete</h5>
+                        <div class="row mb-4">
+                            @foreach (var field in fields)
+                            {
+                                <div class="col-md-6 mb-2">
+                                    <span class="badge bg-light text-dark">
+                                        <i class="fas fa-pen me-1"></i>@field
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                        <hr>
+                    }
+
+                    <!-- Instructions -->
+                    @if (!string.IsNullOrEmpty(Model.InstructionsAr) || !string.IsNullOrEmpty(Model.InstructionsEn))
+                    {
+                        <h5 class="mb-3"><i class="fas fa-lightbulb me-2"></i>تعليمات الاستخدام | Instructions</h5>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            @(Model.InstructionsAr ?? Model.InstructionsEn)
+                        </div>
+                        @if (Model.InstructionsAr != null && Model.InstructionsEn != null)
+                        {
+                            <p class="text-muted small">@Model.InstructionsEn</p>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Download Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-download me-2"></i>تحميل | Download</h5>
+                </div>
+                <div class="card-body text-center py-4">
+                    <i class="fas @formatIcon fa-4x mb-3"></i>
+                    <p class="text-muted">@Model.FileFormat.ToUpper() File</p>
+                    
+                    @if (Model.IsBilingual)
+                    {
+                        <div class="d-grid gap-2">
+                            <a href="/DocumentCenter/Download/@Model.Id?language=ar" class="btn btn-primary btn-lg">
+                                <i class="fas fa-download me-2"></i>تحميل بالعربية
+                            </a>
+                            <a href="/DocumentCenter/Download/@Model.Id?language=en" class="btn btn-outline-primary">
+                                <i class="fas fa-download me-2"></i>Download in English
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <a href="/DocumentCenter/Download/@Model.Id" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-download me-2"></i>تحميل | Download
+                        </a>
+                    }
+                    
+                    <p class="text-muted small mt-3 mb-0">
+                        <i class="fas fa-download me-1"></i>@Model.DownloadCount تحميل | downloads
+                    </p>
+                </div>
+            </div>
+
+            <!-- Metadata Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-info me-2"></i>معلومات | Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <tr>
+                            <td class="text-muted">الكود | Code</td>
+                            <td><code>@Model.Code</code></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">الفئة | Category</td>
+                            <td><span class="badge bg-secondary">@Model.Category</span></td>
+                        </tr>
+                        @if (!string.IsNullOrEmpty(Model.Domain))
+                        {
+                            <tr>
+                                <td class="text-muted">المجال | Domain</td>
+                                <td><span class="badge bg-primary">@Model.Domain</span></td>
+                            </tr>
+                        }
+                        <tr>
+                            <td class="text-muted">الإصدار | Version</td>
+                            <td>v@Model.Version</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">الصيغة | Format</td>
+                            <td><i class="fas @formatIcon me-1"></i>@Model.FileFormat.ToUpper()</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">ثنائي اللغة | Bilingual</td>
+                            <td>
+                                @if (Model.IsBilingual)
+                                {
+                                    <span class="text-success"><i class="fas fa-check"></i> نعم | Yes</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted"><i class="fas fa-times"></i> لا | No</span>
+                                }
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Frameworks Card -->
+            @if (!string.IsNullOrEmpty(Model.FrameworkCodes))
+            {
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>الأُطر | Frameworks</h5>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var fw in Model.FrameworkCodes.Split(','))
+                        {
+                            <span class="badge bg-light text-dark me-1 mb-1">@fw.Trim()</span>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Tags Card -->
+            @if (!string.IsNullOrEmpty(Model.Tags))
+            {
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-tags me-2"></i>الكلمات المفتاحية | Tags</h5>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var tag in Model.Tags.Split(','))
+                        {
+                            <a href="/DocumentCenter?search=@tag.Trim()" class="badge bg-info text-white me-1 mb-1 text-decoration-none">
+                                @tag.Trim()
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <a href="/DocumentCenter" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-right me-2"></i>العودة لمركز المستندات | Back to Document Center
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .template-icon {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(13, 110, 253, 0.1);
+        border-radius: 12px;
+    }
+</style>

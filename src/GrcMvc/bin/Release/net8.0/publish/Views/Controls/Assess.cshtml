@@ -1,0 +1,340 @@
+@{
+    ViewData["Title"] = "Control Assessment - GRC System";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4 mb-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Header -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <h1 class="h3">
+                        <i class="fas fa-list-check"></i> Control Assessment
+                    </h1>
+                    <p class="text-muted">Evaluate control effectiveness and compliance status</p>
+                </div>
+            </div>
+
+            <!-- Assessment Form -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Assessment Details</h5>
+                </div>
+
+                <div class="card-body">
+                    <form id="assessmentForm">
+                        <!-- Control Information (Read-only) -->
+                        <div class="alert alert-light border">
+                            <h5 class="alert-heading">Control Information</h5>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label class="form-label text-muted text-uppercase small">Control ID</label>
+                                    <p class="h6 mb-3">AC-1.1</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-muted text-uppercase small">Baseline</label>
+                                    <p class="h6 mb-3">BL_SAMA - Banking Authority</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-muted text-uppercase small">Category</label>
+                                    <p class="h6 mb-3">Access Control</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label text-muted text-uppercase small">Control Description</label>
+                                <p class="text-dark">
+                                    The organization shall establish and maintain a formal access control policy that
+                                    defines the requirements
+                                    for user access provisioning, modification, and removal across all IT systems and
+                                    data repositories.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Assessment Status -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <span class="text-danger">*</span> Assessment Status
+                            </label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="status" id="status_compliant"
+                                        value="Compliant" required>
+                                    <label class="form-check-label" for="status_compliant">
+                                        <span class="badge bg-success">Compliant</span> - Control is fully implemented
+                                        and effective
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="status" id="status_partial"
+                                        value="Partially Compliant">
+                                    <label class="form-check-label" for="status_partial">
+                                        <span class="badge bg-warning text-dark">Partial</span> - Control is partially
+                                        implemented
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="status" id="status_non"
+                                        value="Non-Compliant">
+                                    <label class="form-check-label" for="status_non">
+                                        <span class="badge bg-danger">Non-Compliant</span> - Control is not in place
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Implementation Evidence -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <span class="text-danger">*</span> Implementation Evidence
+                            </label>
+                            <textarea class="form-control" name="evidence" rows="4" required
+                                placeholder="Describe how the control is implemented, reference key documentation, system configurations, or processes..."></textarea>
+                            <small class="text-muted d-block mt-1">
+                                Be specific. Reference policies, procedures, screenshots, or system evidence.
+                            </small>
+                        </div>
+
+                        <!-- Maturity Level -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <span class="text-danger">*</span> Control Maturity Level
+                            </label>
+                            <select class="form-select" name="maturity" required>
+                                <option value="">-- Select Level --</option>
+                                <option value="Initial">Initial (Ad-hoc, informal processes)</option>
+                                <option value="Repeatable">Repeatable (Documented, partially automated)</option>
+                                <option value="Defined">Defined (Standardized, integrated processes)</option>
+                                <option value="Managed">Managed (Measured, monitored, optimized)</option>
+                                <option value="Optimized">Optimized (Continuous improvement, innovation)</option>
+                            </select>
+                        </div>
+
+                        <!-- Testing Results -->
+                        <h5 class="mb-3">Testing & Validation</h5>
+
+                        <div class="mb-4">
+                            <label class="form-label">Testing Method</label>
+                            <div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="testMethod"
+                                        value="DocumentReview" id="test_doc">
+                                    <label class="form-check-label" for="test_doc">
+                                        Document Review (policies, procedures, evidence)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="testMethod"
+                                        value="SystemTesting" id="test_sys">
+                                    <label class="form-check-label" for="test_sys">
+                                        System Testing (access logs, configurations, settings)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="testMethod" value="Interview"
+                                        id="test_int">
+                                    <label class="form-check-label" for="test_int">
+                                        Interviews (staff, management, process owners)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="testMethod" value="SampleTest"
+                                        id="test_sample">
+                                    <label class="form-check-label" for="test_sample">
+                                        Sample Testing (testing actual access, user provisioning)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Findings & Gaps -->
+                        <div class="mb-4">
+                            <label class="form-label">Findings & Gaps</label>
+                            <textarea class="form-control" name="findings" rows="4"
+                                placeholder="Describe any gaps, weaknesses, or non-compliances identified during assessment..."></textarea>
+                            <small class="text-muted d-block mt-1">
+                                Leave blank if no gaps identified.
+                            </small>
+                        </div>
+
+                        <!-- Remediation Plan (if non-compliant) -->
+                        <div id="remediationSection" style="display: none;">
+                            <h5 class="mb-3">Remediation Plan</h5>
+
+                            <div class="mb-4">
+                                <label class="form-label">Remediation Actions</label>
+                                <textarea class="form-control" name="remediationActions" rows="4"
+                                    placeholder="List specific actions to address identified gaps..."></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label">Target Completion Date</label>
+                                    <input type="date" class="form-control" name="remediationDate">
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label">Responsible Party</label>
+                                    <input type="text" class="form-control" name="responsibleParty"
+                                        placeholder="Name or role">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Assessor Information -->
+                        <h5 class="mb-3 mt-4">Assessor Information</h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">
+                                    <span class="text-danger">*</span> Assessor Name
+                                </label>
+                                <input type="text" class="form-control" name="assessorName" required>
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">
+                                    <span class="text-danger">*</span> Assessment Date
+                                </label>
+                                <input type="date" class="form-control" name="assessmentDate" required>
+                            </div>
+                        </div>
+
+                        <!-- Sign-off -->
+                        <div class="alert alert-warning">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="confirmAssessment" required>
+                                <label class="form-check-label" for="confirmAssessment">
+                                    I confirm that this assessment is accurate and complete based on available evidence
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="d-grid gap-2 d-sm-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" onclick="history.back()">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-check"></i> Submit Assessment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-lightbulb text-warning"></i> Assessment Tips
+                            </h5>
+                            <ul class="small mb-0">
+                                <li>Be objective and evidence-based</li>
+                                <li>Reference specific policies and procedures</li>
+                                <li>Include system evidence (logs, screenshots)</li>
+                                <li>Document interview findings</li>
+                                <li>Test with actual user samples when possible</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-graduation-cap text-info"></i> Maturity Levels
+                            </h5>
+                            <ul class="small mb-0">
+                                <li><strong>Initial:</strong> Process is unpredictable</li>
+                                <li><strong>Repeatable:</strong> Process is repeatable but informal</li>
+                                <li><strong>Defined:</strong> Process is documented and standardized</li>
+                                <li><strong>Managed:</strong> Process is measured and controlled</li>
+                                <li><strong>Optimized:</strong> Process is continuously improved</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show/hide remediation section based on status
+    document.querySelectorAll('input[name="status"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            const remediationSection = document.getElementById('remediationSection');
+            if (this.value === 'Non-Compliant' || this.value === 'Partially Compliant') {
+                remediationSection.style.display = 'block';
+            } else {
+                remediationSection.style.display = 'none';
+            }
+        });
+    });
+
+    // Form submission with API integration
+    document.getElementById('assessmentForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Validate form
+        if (!document.getElementById('confirmAssessment').checked) {
+            alert('Please confirm that the assessment is accurate and complete');
+            return;
+        }
+
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+        try {
+            const formData = new FormData(e.target);
+            const assessmentData = {
+                controlId: '@ViewBag.ControlId' || null,
+                status: formData.get('status'),
+                evidence: formData.get('evidence'),
+                maturityLevel: formData.get('maturity'),
+                testMethods: formData.getAll('testMethod'),
+                findings: formData.get('findings'),
+                remediationActions: formData.get('remediationActions'),
+                remediationDate: formData.get('remediationDate'),
+                responsibleParty: formData.get('responsibleParty'),
+                assessorName: formData.get('assessorName'),
+                assessmentDate: formData.get('assessmentDate')
+            };
+
+            const response = await fetch('/api/controls/assess', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(assessmentData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                alert('Assessment submitted successfully!');
+                window.location.href = `/Control/Details/${result.controlId || '@ViewBag.ControlId'}`;
+            } else {
+                const error = await response.text();
+                alert('Error submitting assessment: ' + error);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Submit Assessment';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error submitting assessment: ' + error.message);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-check"></i> Submit Assessment';
+        }
+    });
+</script>

@@ -1,0 +1,151 @@
+@model StepDScopeDefinitionDto
+@using GrcMvc.Models.DTOs
+@{
+    ViewData["Title"] = "Scope Definition - Onboarding Wizard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var summary = ViewData["WizardSummary"] as WizardSummaryDto;
+    var tenantId = summary?.TenantId ?? Guid.Empty;
+}
+
+<div class="d-flex">
+    @await Html.PartialAsync("_WizardSidebar", summary)
+
+    <div class="flex-grow-1 p-4">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-crosshairs text-primary me-2"></i>
+                        Step D: Scope Definition
+                    </h2>
+                    <p class="text-muted mb-0">تحديد النطاق | Questions 26-34 • What is "in scope"?</p>
+                </div>
+                <span class="badge bg-primary fs-6">Step 4 of 12</span>
+            </div>
+
+            <form asp-action="StepD" asp-route-tenantId="@tenantId" method="post">
+                @Html.AntiForgeryToken()
+
+                <!-- In-Scope Business Units -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>In-Scope Business Units (Q27)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="businessUnitsContainer">
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" name="InScopeBusinessUnits" placeholder="e.g., IT Operations">
+                                <button type="button" class="btn btn-outline-primary add-bu"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- In-Scope Processes -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>In-Scope Processes (Q29)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @{
+                                var processes = new[] {
+                                    "onboarding", "payments", "p2p", "change_mgmt", "incident_response",
+                                    "access_management", "vendor_management", "data_backup", "disaster_recovery"
+                                };
+                            }
+                            @foreach (var proc in processes)
+                            {
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input"
+                                               name="InScopeProcesses" value="@proc" id="proc_@proc"
+                                               @(Model.InScopeProcesses.Contains(proc) ? "checked" : "")>
+                                        <label class="form-check-label" for="proc_@proc">
+                                            @System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(proc.Replace("_", " ").ToLower())
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- In-Scope Environments -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-server me-2"></i>In-Scope Environments (Q30)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" name="InScopeEnvironments"
+                                           value="production" id="env_prod" @(Model.InScopeEnvironments == "production" ? "checked" : "")>
+                                    <label class="form-check-label" for="env_prod">Production Only</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" name="InScopeEnvironments"
+                                           value="non_production" id="env_nonprod" @(Model.InScopeEnvironments == "non_production" ? "checked" : "")>
+                                    <label class="form-check-label" for="env_nonprod">Non-Production Only</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" name="InScopeEnvironments"
+                                           value="both" id="env_both" @(Model.InScopeEnvironments == "both" ? "checked" : "")>
+                                    <label class="form-check-label" for="env_both">Both</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="@Url.Action("StepC", new { tenantId })" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Back
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        Continue to Step E <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
+    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
+    <script>
+        // Initialize Motivation System
+        const motivation = new WizardMotivation({
+            stepNumber: 4,
+            totalSteps: 12,
+            tenantId: '@tenantId',
+            stepName: 'StepD'
+        });
+
+        // Initialize Live Preview Panel
+        const livePreview = new LivePreviewPanel({
+            stepName: 'StepD'
+        });
+
+        // Initialize Why We Ask Tooltips
+        const tooltips = new WhyWeAskTooltips();
+    </script>
+    <script>
+        document.querySelector('.add-bu').addEventListener('click', function() {
+            const container = document.getElementById('businessUnitsContainer');
+            const div = document.createElement('div');
+            div.className = 'input-group mb-2';
+            div.innerHTML = '<input type="text" class="form-control" name="InScopeBusinessUnits" placeholder="e.g., Finance"><button type="button" class="btn btn-outline-danger remove-bu"><i class="fas fa-times"></i></button>';
+            container.appendChild(div);
+        });
+        document.addEventListener('click', e => {
+            if (e.target.closest('.remove-bu')) e.target.closest('.input-group').remove();
+        });
+    </script>
+}

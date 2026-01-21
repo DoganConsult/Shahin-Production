@@ -1,0 +1,56 @@
+@using GrcMvc.Models.DTOs
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> Localizer
+
+<div class="modal @ModalClass" id="@Id" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog @SizeClass" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@Localizer["Close"]"></button>
+            </div>
+            <div class="modal-body">
+                @ChildContent
+            </div>
+            @if (ShowFooter)
+            {
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Close"]</button>
+                    <button type="button" class="btn btn-primary" @onclick="OnConfirm">@(string.IsNullOrEmpty(ConfirmText) ? Localizer["Confirm"] : ConfirmText)</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Id { get; set; } = "modal";
+
+    [Parameter]
+    public string Title { get; set; } = "";
+
+    [Parameter]
+    public string Size { get; set; } = "md";
+
+    [Parameter]
+    public bool ShowFooter { get; set; } = true;
+
+    [Parameter]
+    public string ConfirmText { get; set; } = "Confirm";
+
+    [Parameter]
+    public EventCallback OnConfirm { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private string ModalClass => "modal fade";
+    
+    private string SizeClass => Size switch
+    {
+        "lg" => "modal-lg",
+        "sm" => "modal-sm",
+        _ => ""
+    };
+}

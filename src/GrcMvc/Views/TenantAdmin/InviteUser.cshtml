@@ -1,0 +1,98 @@
+@model GrcMvc.Models.ViewModels.InviteUserViewModel
+@{
+    ViewData["Title"] = "Invite User";
+    Layout = "_Layout";
+    var tenantSlug = ViewBag.TenantSlug as string;
+    var tenant = ViewBag.Tenant as GrcMvc.Models.Entities.Tenant;
+    var roles = ViewBag.Roles as List<GrcMvc.Models.Entities.Catalogs.RoleCatalog>;
+    var titles = ViewBag.Titles as List<GrcMvc.Models.Entities.Catalogs.TitleCatalog>;
+}
+
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", new { tenantSlug })">@tenant?.OrganizationName</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Users", new { tenantSlug })">Users</a></li>
+            <li class="breadcrumb-item active">Invite</li>
+        </ol>
+    </nav>
+    <h1 class="h3 mb-4">Invite User</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="InviteUser" asp-route-tenantSlug="@tenantSlug" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <h5 class="mb-3">User Details</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Email <span class="text-danger">*</span></label>
+                                <input asp-for="Email" type="email" class="form-control" required>
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                <input asp-for="FullName" class="form-control" required>
+                                <span asp-validation-for="FullName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <h5 class="mb-3">Role & Title</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Role <span class="text-danger">*</span></label>
+                                <select asp-for="RoleCode" class="form-select" required>
+                                    <option value="">Select role...</option>
+                                    @if (roles != null)
+                                    {
+                                        @foreach (var role in roles)
+                                        {
+                                            <option value="@role.RoleCode">@role.RoleName</option>
+                                        }
+                                    }
+                                </select>
+                                <small class="text-muted">Determines user permissions</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Title</label>
+                                <select asp-for="TitleCode" class="form-select">
+                                    <option value="">Select title...</option>
+                                    @if (titles != null)
+                                    {
+                                        @foreach (var title in titles)
+                                        {
+                                            <option value="@title.TitleCode">@title.TitleName</option>
+                                        }
+                                    }
+                                </select>
+                                <small class="text-muted">User's job title in the organization</small>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Send Invitation
+                            </button>
+                            <a href="@Url.Action("Users", new { tenantSlug })" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6><i class="bi bi-info-circle"></i> What happens next?</h6>
+                    <ol class="mb-0 ps-3 small">
+                        <li>User receives an invitation email</li>
+                        <li>User clicks the activation link</li>
+                        <li>User sets their password</li>
+                        <li>User gains access to the tenant</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,144 @@
+@model GrcMvc.Controllers.SubscriptionStatusViewModel
+@{
+    ViewData["Title"] = "حالة الاشتراك | Subscription Status";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            
+            <h1 class="mb-4">
+                <i class="bi bi-card-checklist me-2"></i>
+                حالة الاشتراك | Subscription Status
+            </h1>
+
+            <!-- Tenant ID -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-key me-2"></i>
+                        معرّف المنشأة | Tenant ID
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <code class="fs-5" id="tenantId">@Model.TenantId</code>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="copyTenantId()">
+                            <i class="bi bi-clipboard"></i> نسخ
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Cards -->
+            <div class="row g-4">
+                <!-- Subscription Status -->
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            @{
+                                var subIcon = Model.SubscriptionStatus switch
+                                {
+                                    "Active" => "check-circle-fill text-success",
+                                    "PendingOnboarding" => "hourglass-split text-warning",
+                                    "Trial" => "clock-history text-info",
+                                    "Suspended" => "pause-circle text-danger",
+                                    _ => "question-circle text-secondary"
+                                };
+                                var subColor = Model.SubscriptionStatus switch
+                                {
+                                    "Active" => "success",
+                                    "PendingOnboarding" => "warning",
+                                    "Trial" => "info",
+                                    "Suspended" => "danger",
+                                    _ => "secondary"
+                                };
+                            }
+                            <i class="bi bi-@subIcon fs-1 mb-3"></i>
+                            <h5>حالة الاشتراك</h5>
+                            <span class="badge bg-@subColor fs-6">@Model.SubscriptionStatus</span>
+                            <p class="text-muted mt-2 mb-0">@Model.PlanName</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Onboarding Status -->
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            @{
+                                var onbIcon = Model.OnboardingStatus switch
+                                {
+                                    "Completed" => "check-circle-fill text-success",
+                                    "InProgress" => "gear-wide-connected text-primary",
+                                    "NotStarted" => "play-circle text-secondary",
+                                    _ => "question-circle text-secondary"
+                                };
+                                var onbColor = Model.OnboardingStatus switch
+                                {
+                                    "Completed" => "success",
+                                    "InProgress" => "primary",
+                                    "NotStarted" => "secondary",
+                                    _ => "secondary"
+                                };
+                            }
+                            <i class="bi bi-@onbIcon fs-1 mb-3"></i>
+                            <h5>حالة الإعداد</h5>
+                            <span class="badge bg-@onbColor fs-6">@Model.OnboardingStatus</span>
+                            @if (Model.OnboardingStatus == "InProgress")
+                            {
+                                <p class="text-muted mt-2 mb-0">الخطوة @Model.OnboardingStep من 13</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Billing -->
+            @if (Model.NextBillingDate.HasValue)
+            {
+                <div class="card mt-4 shadow-sm">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <i class="bi bi-calendar-event text-primary fs-2"></i>
+                            </div>
+                            <div class="col">
+                                <h6 class="mb-0">تاريخ الفاتورة القادمة</h6>
+                                <strong>@Model.NextBillingDate.Value.ToString("yyyy/MM/dd")</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Actions -->
+            <div class="d-grid gap-2 mt-4">
+                @if (Model.OnboardingStatus != "Completed")
+                {
+                    <a href="@Url.Action("Index", "OnboardingWizard", new { tenantId = Model.TenantId })" 
+                       class="btn btn-primary btn-lg">
+                        <i class="bi bi-gear me-2"></i>
+                        @(Model.OnboardingStatus == "InProgress" ? "متابعة الإعداد" : "بدء الإعداد")
+                    </a>
+                }
+                else
+                {
+                    <a href="@Url.Action("Index", "Dashboard")" class="btn btn-success btn-lg">
+                        <i class="bi bi-speedometer2 me-2"></i>
+                        الذهاب للوحة التحكم
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function copyTenantId() {
+        navigator.clipboard.writeText(document.getElementById('tenantId').textContent.trim());
+    }
+</script>
+}

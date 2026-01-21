@@ -1,0 +1,3495 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Common Actions -->
+      <data name="Close" xml:space="preserve">
+    <value>إغلاق</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>تأكيد</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>حفظ</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>إنشاء</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>إضافة</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>تحديث</value>
+  </data>
+  <data name="View" xml:space="preserve">
+    <value>عرض</value>
+  </data>
+  <data name="ViewDetails" xml:space="preserve">
+    <value>عرض التفاصيل</value>
+  </data>
+  <data name="ViewAll" xml:space="preserve">
+    <value>عرض الكل</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>بحث</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>تصفية</value>
+  </data>
+  <data name="Export" xml:space="preserve">
+    <value>تصدير</value>
+  </data>
+  <data name="Import" xml:space="preserve">
+    <value>استيراد</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>تحميل</value>
+  </data>
+  <data name="Upload" xml:space="preserve">
+    <value>رفع</value>
+  </data>
+  <data name="Submit" xml:space="preserve">
+    <value>إرسال</value>
+  </data>
+  <data name="Approve" xml:space="preserve">
+    <value>اعتماد</value>
+  </data>
+  <data name="Reject" xml:space="preserve">
+    <value>رفض</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>رجوع</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>التالي</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>السابق</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>جاري التحميل...</value>
+  </data>
+  <data name="AreYouSure" xml:space="preserve">
+    <value>هل أنت متأكد؟</value>
+  </data>
+  <data name="ConfirmAction" xml:space="preserve">
+    <value>تأكيد الإجراء</value>
+  </data>
+  <data name="ConfirmDelete" xml:space="preserve">
+    <value>تأكيد الحذف</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>الإجراءات</value>
+  </data>
+  <data name="QuickActions" xml:space="preserve">
+    <value>إجراءات سريعة</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>تحديث</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>إعادة تعيين</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>تطبيق</value>
+  </data>
+  <data name="Clear" xml:space="preserve">
+    <value>مسح</value>
+  </data>
+  <data name="Nav_Home" xml:space="preserve">
+    <value>الصفحة الرئيسية</value>
+  </data>
+  <data name="Nav_Dashboard" xml:space="preserve">
+    <value>لوحة التحكم</value>
+  </data>
+  <data name="Nav_Dashboards" xml:space="preserve">
+    <value>لوحات التحكم</value>
+  </data>
+  <data name="Nav_RiskManagement" xml:space="preserve">
+    <value>إدارة المخاطر</value>
+  </data>
+  <data name="Nav_Compliance" xml:space="preserve">
+    <value>الامتثال</value>
+  </data>
+  <data name="Nav_Manage" xml:space="preserve">
+    <value>الإدارة</value>
+  </data>
+  <data name="Nav_Users" xml:space="preserve">
+    <value>المستخدمون</value>
+  </data>
+  <data name="Nav_Roles" xml:space="preserve">
+    <value>الأدوار</value>
+  </data>
+  <data name="Nav_Settings" xml:space="preserve">
+    <value>الإعدادات</value>
+  </data>
+  <data name="Nav_Workflows" xml:space="preserve">
+    <value>سير العمل</value>
+  </data>
+  <data name="Nav_Help" xml:space="preserve">
+    <value>المساعدة</value>
+  </data>
+  <data name="Nav_Admin" xml:space="preserve">
+    <value>الإدارة</value>
+  </data>
+  <data name="Nav_Administration" xml:space="preserve">
+    <value>الإدارة</value>
+  </data>
+  <data name="Nav_Profile" xml:space="preserve">
+    <value>الملف الشخصي</value>
+  </data>
+  <data name="Nav_Logout" xml:space="preserve">
+    <value>تسجيل الخروج</value>
+  </data>
+  <data name="Nav_Login" xml:space="preserve">
+    <value>تسجيل الدخول</value>
+  </data>
+  <data name="Nav_Register" xml:space="preserve">
+    <value>التسجيل</value>
+  </data>
+  <data name="Nav_Notifications" xml:space="preserve">
+    <value>الإشعارات</value>
+  </data>
+  <data name="Nav_ShahinAI" xml:space="preserve">
+    <value>شاهين AI</value>
+  </data>
+  <data name="Nav_CCM" xml:space="preserve">
+    <value>إدارة الامتثال المستمر</value>
+  </data>
+  <data name="Nav_Onboarding" xml:space="preserve">
+    <value>التهيئة</value>
+  </data>
+  <data name="Nav_AuditLogs" xml:space="preserve">
+    <value>سجلات التدقيق</value>
+  </data>
+  <data name="Nav_TenantAdmin" xml:space="preserve">
+    <value>إدارة المستأجر</value>
+  </data>
+  <data name="Nav_PlatformAdmin" xml:space="preserve">
+    <value>إدارة المنصة</value>
+  </data>
+  <data name="Nav_Subscription" xml:space="preserve">
+    <value>الاشتراك</value>
+  </data>
+  <data name="Nav_Workspaces" xml:space="preserve">
+    <value>مساحات العمل</value>
+  </data>
+  <data name="Risks" xml:space="preserve">
+    <value>المخاطر</value>
+  </data>
+  <data name="Risk" xml:space="preserve">
+    <value>المخاطرة</value>
+  </data>
+  <data name="RiskName" xml:space="preserve">
+    <value>اسم المخاطرة</value>
+  </data>
+  <data name="RiskLevel" xml:space="preserve">
+    <value>مستوى المخاطرة</value>
+  </data>
+  <data name="RiskOwner" xml:space="preserve">
+    <value>مالك المخاطرة</value>
+  </data>
+  <data name="RiskDescription" xml:space="preserve">
+    <value>وصف المخاطرة</value>
+  </data>
+  <data name="RiskCategory" xml:space="preserve">
+    <value>فئة المخاطرة</value>
+  </data>
+  <data name="RiskAssessment" xml:space="preserve">
+    <value>تقييم المخاطر</value>
+  </data>
+  <data name="RiskTreatment" xml:space="preserve">
+    <value>معالجة المخاطر</value>
+  </data>
+  <data name="TotalRisks" xml:space="preserve">
+    <value>إجمالي المخاطر</value>
+  </data>
+  <data name="HighRisks" xml:space="preserve">
+    <value>مخاطر عالية</value>
+  </data>
+  <data name="MediumRisks" xml:space="preserve">
+    <value>مخاطر متوسطة</value>
+  </data>
+  <data name="LowRisks" xml:space="preserve">
+    <value>مخاطر منخفضة</value>
+  </data>
+  <data name="RecentRisks" xml:space="preserve">
+    <value>المخاطر الأخيرة</value>
+  </data>
+  <data name="ViewAllRisks" xml:space="preserve">
+    <value>عرض جميع المخاطر</value>
+  </data>
+  <data name="CreateRisk" xml:space="preserve">
+    <value>إنشاء مخاطرة</value>
+  </data>
+  <data name="RiskRegister" xml:space="preserve">
+    <value>سجل المخاطر</value>
+  </data>
+  <data name="Controls" xml:space="preserve">
+    <value>الضوابط</value>
+  </data>
+  <data name="Control" xml:space="preserve">
+    <value>الضابط</value>
+  </data>
+  <data name="ControlName" xml:space="preserve">
+    <value>اسم الضابط</value>
+  </data>
+  <data name="ControlOwner" xml:space="preserve">
+    <value>مالك الضابط</value>
+  </data>
+  <data name="ControlStatus" xml:space="preserve">
+    <value>حالة الضابط</value>
+  </data>
+  <data name="ControlDescription" xml:space="preserve">
+    <value>وصف الضابط</value>
+  </data>
+  <data name="ActiveControls" xml:space="preserve">
+    <value>الضوابط النشطة</value>
+  </data>
+  <data name="TotalControls" xml:space="preserve">
+    <value>إجمالي الضوابط</value>
+  </data>
+  <data name="ControlEffectiveness" xml:space="preserve">
+    <value>فعالية الضابط</value>
+  </data>
+  <data name="CreateControl" xml:space="preserve">
+    <value>إنشاء ضابط</value>
+  </data>
+  <data name="AssessControl" xml:space="preserve">
+    <value>تقييم الضابط</value>
+  </data>
+  <data name="Policies" xml:space="preserve">
+    <value>السياسات</value>
+  </data>
+  <data name="Policy" xml:space="preserve">
+    <value>السياسة</value>
+  </data>
+  <data name="PolicyName" xml:space="preserve">
+    <value>اسم السياسة</value>
+  </data>
+  <data name="PolicyOwner" xml:space="preserve">
+    <value>مالك السياسة</value>
+  </data>
+  <data name="PolicyStatus" xml:space="preserve">
+    <value>حالة السياسة</value>
+  </data>
+  <data name="PolicyDescription" xml:space="preserve">
+    <value>وصف السياسة</value>
+  </data>
+  <data name="TotalPolicies" xml:space="preserve">
+    <value>إجمالي السياسات</value>
+  </data>
+  <data name="CreatePolicy" xml:space="preserve">
+    <value>إنشاء سياسة</value>
+  </data>
+  <data name="Audits" xml:space="preserve">
+    <value>التدقيقات</value>
+  </data>
+  <data name="Audit" xml:space="preserve">
+    <value>التدقيق</value>
+  </data>
+  <data name="AuditName" xml:space="preserve">
+    <value>اسم التدقيق</value>
+  </data>
+  <data name="AuditType" xml:space="preserve">
+    <value>نوع التدقيق</value>
+  </data>
+  <data name="AuditStatus" xml:space="preserve">
+    <value>حالة التدقيق</value>
+  </data>
+  <data name="AuditFindings" xml:space="preserve">
+    <value>نتائج التدقيق</value>
+  </data>
+  <data name="PendingAudits" xml:space="preserve">
+    <value>التدقيقات المعلقة</value>
+  </data>
+  <data name="UpcomingAudits" xml:space="preserve">
+    <value>التدقيقات القادمة</value>
+  </data>
+  <data name="TotalAudits" xml:space="preserve">
+    <value>إجمالي التدقيقات</value>
+  </data>
+  <data name="ViewAllAudits" xml:space="preserve">
+    <value>عرض جميع التدقيقات</value>
+  </data>
+  <data name="CreateAudit" xml:space="preserve">
+    <value>إنشاء تدقيق</value>
+  </data>
+  <data name="Auditor" xml:space="preserve">
+    <value>المدقق</value>
+  </data>
+  <data name="Assessments" xml:space="preserve">
+    <value>التقييمات</value>
+  </data>
+  <data name="Assessment" xml:space="preserve">
+    <value>التقييم</value>
+  </data>
+  <data name="AssessmentName" xml:space="preserve">
+    <value>اسم التقييم</value>
+  </data>
+  <data name="AssessmentType" xml:space="preserve">
+    <value>نوع التقييم</value>
+  </data>
+  <data name="AssessmentStatus" xml:space="preserve">
+    <value>حالة التقييم</value>
+  </data>
+  <data name="CreateAssessment" xml:space="preserve">
+    <value>إنشاء تقييم</value>
+  </data>
+  <data name="Evidence" xml:space="preserve">
+    <value>الأدلة</value>
+  </data>
+  <data name="EvidenceName" xml:space="preserve">
+    <value>اسم الدليل</value>
+  </data>
+  <data name="EvidenceType" xml:space="preserve">
+    <value>نوع الدليل</value>
+  </data>
+  <data name="EvidenceStatus" xml:space="preserve">
+    <value>حالة الدليل</value>
+  </data>
+  <data name="UploadEvidence" xml:space="preserve">
+    <value>رفع دليل</value>
+  </data>
+  <data name="TotalEvidence" xml:space="preserve">
+    <value>إجمالي الأدلة</value>
+  </data>
+  <data name="ComplianceScore" xml:space="preserve">
+    <value>درجة الامتثال</value>
+  </data>
+  <data name="ComplianceStatus" xml:space="preserve">
+    <value>حالة الامتثال</value>
+  </data>
+  <data name="ComplianceFramework" xml:space="preserve">
+    <value>إطار الامتثال</value>
+  </data>
+  <data name="ComplianceRequirements" xml:space="preserve">
+    <value>متطلبات الامتثال</value>
+  </data>
+  <data name="Frameworks" xml:space="preserve">
+    <value>الأطر التنظيمية</value>
+  </data>
+  <data name="Framework" xml:space="preserve">
+    <value>الإطار التنظيمي</value>
+  </data>
+  <data name="Regulators" xml:space="preserve">
+    <value>الجهات التنظيمية</value>
+  </data>
+  <data name="Regulator" xml:space="preserve">
+    <value>الجهة التنظيمية</value>
+  </data>
+  <data name="Reports" xml:space="preserve">
+    <value>التقارير</value>
+  </data>
+  <data name="Report" xml:space="preserve">
+    <value>التقرير</value>
+  </data>
+  <data name="GenerateReport" xml:space="preserve">
+    <value>إنشاء تقرير</value>
+  </data>
+  <data name="ReportType" xml:space="preserve">
+    <value>نوع التقرير</value>
+  </data>
+  <data name="Plans" xml:space="preserve">
+    <value>الخطط</value>
+  </data>
+  <data name="Plan" xml:space="preserve">
+    <value>الخطة</value>
+  </data>
+  <data name="PlanName" xml:space="preserve">
+    <value>اسم الخطة</value>
+  </data>
+  <data name="CreatePlan" xml:space="preserve">
+    <value>إنشاء خطة</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>الحالة</value>
+  </data>
+  <data name="Status_Approved" xml:space="preserve">
+    <value>معتمد</value>
+  </data>
+  <data name="Status_Completed" xml:space="preserve">
+    <value>مكتمل</value>
+  </data>
+  <data name="Status_Active" xml:space="preserve">
+    <value>نشط</value>
+  </data>
+  <data name="Status_Inactive" xml:space="preserve">
+    <value>غير نشط</value>
+  </data>
+  <data name="Status_Rejected" xml:space="preserve">
+    <value>مرفوض</value>
+  </data>
+  <data name="Status_Failed" xml:space="preserve">
+    <value>فشل</value>
+  </data>
+  <data name="Status_Cancelled" xml:space="preserve">
+    <value>ملغي</value>
+  </data>
+  <data name="Status_Pending" xml:space="preserve">
+    <value>قيد الانتظار</value>
+  </data>
+  <data name="Status_InProgress" xml:space="preserve">
+    <value>قيد التنفيذ</value>
+  </data>
+  <data name="Status_Delegated" xml:space="preserve">
+    <value>مفوض</value>
+  </data>
+  <data name="Status_OnHold" xml:space="preserve">
+    <value>معلق</value>
+  </data>
+  <data name="Status_Draft" xml:space="preserve">
+    <value>مسودة</value>
+  </data>
+  <data name="Status_Published" xml:space="preserve">
+    <value>منشور</value>
+  </data>
+  <data name="Status_Archived" xml:space="preserve">
+    <value>مؤرشف</value>
+  </data>
+  <data name="Status_Open" xml:space="preserve">
+    <value>مفتوح</value>
+  </data>
+  <data name="Status_Closed" xml:space="preserve">
+    <value>مغلق</value>
+  </data>
+  <data name="Status_High" xml:space="preserve">
+    <value>عالي</value>
+  </data>
+  <data name="Status_Medium" xml:space="preserve">
+    <value>متوسط</value>
+  </data>
+  <data name="Status_Low" xml:space="preserve">
+    <value>منخفض</value>
+  </data>
+  <data name="Status_Critical" xml:space="preserve">
+    <value>حرج</value>
+  </data>
+  <data name="Error_NotFound" xml:space="preserve">
+    <value>المورد غير موجود</value>
+  </data>
+  <data name="Error_Unauthorized" xml:space="preserve">
+    <value>وصول غير مصرح به</value>
+  </data>
+  <data name="Error_BadRequest" xml:space="preserve">
+    <value>طلب غير صالح</value>
+  </data>
+  <data name="Error_ValidationFailed" xml:space="preserve">
+    <value>فشل التحقق</value>
+  </data>
+  <data name="Error_ServerError" xml:space="preserve">
+    <value>حدث خطأ أثناء معالجة طلبك</value>
+  </data>
+  <data name="Error_AccessDenied" xml:space="preserve">
+    <value>تم رفض الوصول</value>
+  </data>
+  <data name="Error_SessionExpired" xml:space="preserve">
+    <value>انتهت الجلسة</value>
+  </data>
+  <data name="Error_InvalidInput" xml:space="preserve">
+    <value>إدخال غير صالح</value>
+  </data>
+  <data name="Success_Saved" xml:space="preserve">
+    <value>تم الحفظ بنجاح</value>
+  </data>
+  <data name="Success_Deleted" xml:space="preserve">
+    <value>تم الحذف بنجاح</value>
+  </data>
+  <data name="Success_Updated" xml:space="preserve">
+    <value>تم التحديث بنجاح</value>
+  </data>
+  <data name="Success_Created" xml:space="preserve">
+    <value>تم الإنشاء بنجاح</value>
+  </data>
+  <data name="Success_Submitted" xml:space="preserve">
+    <value>تم الإرسال بنجاح</value>
+  </data>
+  <data name="Success_Approved" xml:space="preserve">
+    <value>تم الاعتماد بنجاح</value>
+  </data>
+  <data name="Success_Rejected" xml:space="preserve">
+    <value>تم الرفض</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>الاسم</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>الوصف</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>العنوان</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>النوع</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>الفئة</value>
+  </data>
+  <data name="Priority" xml:space="preserve">
+    <value>الأولوية</value>
+  </data>
+  <data name="Owner" xml:space="preserve">
+    <value>المالك</value>
+  </data>
+  <data name="AssignedTo" xml:space="preserve">
+    <value>مُسند إلى</value>
+  </data>
+  <data name="CreatedBy" xml:space="preserve">
+    <value>أنشئ بواسطة</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>تاريخ الإنشاء</value>
+  </data>
+  <data name="UpdatedAt" xml:space="preserve">
+    <value>تاريخ التحديث</value>
+  </data>
+  <data name="DueDate" xml:space="preserve">
+    <value>تاريخ الاستحقاق</value>
+  </data>
+  <data name="StartDate" xml:space="preserve">
+    <value>تاريخ البدء</value>
+  </data>
+  <data name="EndDate" xml:space="preserve">
+    <value>تاريخ الانتهاء</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>التاريخ</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>ملاحظات</value>
+  </data>
+  <data name="Comments" xml:space="preserve">
+    <value>التعليقات</value>
+  </data>
+  <data name="Attachments" xml:space="preserve">
+    <value>المرفقات</value>
+  </data>
+  <data name="Tags" xml:space="preserve">
+    <value>الوسوم</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>الإصدار</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>البريد الإلكتروني</value>
+  </data>
+  <data name="Phone" xml:space="preserve">
+    <value>الهاتف</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>العنوان</value>
+  </data>
+  <data name="Department" xml:space="preserve">
+    <value>القسم</value>
+  </data>
+  <data name="Organization" xml:space="preserve">
+    <value>المنظمة</value>
+  </data>
+  <data name="Tenant" xml:space="preserve">
+    <value>المستأجر</value>
+  </data>
+  <data name="Workspace" xml:space="preserve">
+    <value>مساحة العمل</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>المستخدم</value>
+  </data>
+  <data name="Role" xml:space="preserve">
+    <value>الدور</value>
+  </data>
+  <data name="Permission" xml:space="preserve">
+    <value>الصلاحية</value>
+  </data>
+  <data name="Permissions" xml:space="preserve">
+    <value>الصلاحيات</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>لوحة التحكم</value>
+  </data>
+  <data name="Welcome" xml:space="preserve">
+    <value>مرحباً</value>
+  </data>
+  <data name="WelcomeMessage" xml:space="preserve">
+    <value>مرحباً بك في نظام الحوكمة والمخاطر والامتثال</value>
+  </data>
+  <data name="Overview" xml:space="preserve">
+    <value>نظرة عامة</value>
+  </data>
+  <data name="Statistics" xml:space="preserve">
+    <value>الإحصائيات</value>
+  </data>
+  <data name="RecentActivity" xml:space="preserve">
+    <value>النشاط الأخير</value>
+  </data>
+  <data name="MyTasks" xml:space="preserve">
+    <value>مهامي</value>
+  </data>
+  <data name="PendingTasks" xml:space="preserve">
+    <value>المهام المعلقة</value>
+  </data>
+  <data name="CompletedTasks" xml:space="preserve">
+    <value>المهام المكتملة</value>
+  </data>
+  <data name="OverdueTasks" xml:space="preserve">
+    <value>المهام المتأخرة</value>
+  </data>
+  <data name="Table_ID" xml:space="preserve">
+    <value>المعرف</value>
+  </data>
+  <data name="Table_Action" xml:space="preserve">
+    <value>الإجراء</value>
+  </data>
+  <data name="Table_NoRecords" xml:space="preserve">
+    <value>لا توجد سجلات</value>
+  </data>
+  <data name="Table_ShowingRecords" xml:space="preserve">
+    <value>عرض السجلات</value>
+  </data>
+  <data name="Table_Of" xml:space="preserve">
+    <value>من</value>
+  </data>
+  <data name="Table_Entries" xml:space="preserve">
+    <value>إدخالات</value>
+  </data>
+  <data name="Form_Required" xml:space="preserve">
+    <value>مطلوب</value>
+  </data>
+  <data name="Form_Optional" xml:space="preserve">
+    <value>اختياري</value>
+  </data>
+  <data name="Form_SelectOption" xml:space="preserve">
+    <value>اختر خياراً</value>
+  </data>
+  <data name="Form_SelectAll" xml:space="preserve">
+    <value>تحديد الكل</value>
+  </data>
+  <data name="Form_DeselectAll" xml:space="preserve">
+    <value>إلغاء تحديد الكل</value>
+  </data>
+  <data name="Form_EnterValue" xml:space="preserve">
+    <value>أدخل القيمة</value>
+  </data>
+  <data name="Auth_Username" xml:space="preserve">
+    <value>اسم المستخدم</value>
+  </data>
+  <data name="Auth_Password" xml:space="preserve">
+    <value>كلمة المرور</value>
+  </data>
+  <data name="Auth_ConfirmPassword" xml:space="preserve">
+    <value>تأكيد كلمة المرور</value>
+  </data>
+  <data name="Auth_RememberMe" xml:space="preserve">
+    <value>تذكرني</value>
+  </data>
+  <data name="Auth_ForgotPassword" xml:space="preserve">
+    <value>نسيت كلمة المرور؟</value>
+  </data>
+  <data name="Auth_ResetPassword" xml:space="preserve">
+    <value>إعادة تعيين كلمة المرور</value>
+  </data>
+  <data name="Auth_ChangePassword" xml:space="preserve">
+    <value>تغيير كلمة المرور</value>
+  </data>
+  <data name="Auth_LoginTitle" xml:space="preserve">
+    <value>تسجيل الدخول</value>
+  </data>
+  <data name="Auth_RegisterTitle" xml:space="preserve">
+    <value>إنشاء حساب جديد</value>
+  </data>
+  <data name="Auth_LogoutConfirm" xml:space="preserve">
+    <value>هل أنت متأكد من تسجيل الخروج؟</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>اللغة</value>
+  </data>
+  <data name="Language_Arabic" xml:space="preserve">
+    <value>العربية</value>
+  </data>
+  <data name="Language_English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="SwitchLanguage" xml:space="preserve">
+    <value>تغيير اللغة</value>
+  </data>
+  <data name="Pagination_First" xml:space="preserve">
+    <value>الأول</value>
+  </data>
+  <data name="Pagination_Last" xml:space="preserve">
+    <value>الأخير</value>
+  </data>
+  <data name="Pagination_Page" xml:space="preserve">
+    <value>صفحة</value>
+  </data>
+  <data name="Pagination_PerPage" xml:space="preserve">
+    <value>لكل صفحة</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>نعم</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>لا</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>الكل</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>لا شيء</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>أخرى</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>الإجمالي</value>
+  </data>
+  <data name="Count" xml:space="preserve">
+    <value>العدد</value>
+  </data>
+  <data name="Percentage" xml:space="preserve">
+    <value>النسبة المئوية</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>التفاصيل</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>الملخص</value>
+  </data>
+  <data name="Information" xml:space="preserve">
+    <value>معلومات</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>تحذير</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>خطأ</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>نجاح</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>اختيار</value>
+  </data>
+  <data name="Selected" xml:space="preserve">
+    <value>محدد</value>
+  </data>
+  <data name="Nav_StartFreeTrial" xml:space="preserve">
+    <value>ابدأ التجربة المجانية</value>
+  </data>
+  <data name="ActiveWorkflows" xml:space="preserve">
+    <value>سير العمل النشط</value>
+  </data>
+  <data name="AllWorkflows" xml:space="preserve">
+    <value>جميع سير العمل</value>
+  </data>
+  <data name="Analytics" xml:space="preserve">
+    <value>التحليلات</value>
+  </data>
+  <data name="APPLY_Scope" xml:space="preserve">
+    <value>تطبيق - النطاق</value>
+  </data>
+  <data name="AssessmentTemplates" xml:space="preserve">
+    <value>قوالب التقييم</value>
+  </data>
+  <data name="AuditPackages" xml:space="preserve">
+    <value>حزم المراجعة</value>
+  </data>
+  <data name="AuditStatistics" xml:space="preserve">
+    <value>إحصائيات المراجعة</value>
+  </data>
+  <data name="CatalogAdmin" xml:space="preserve">
+    <value>إدارة الفهارس</value>
+  </data>
+  <data name="CCMTests" xml:space="preserve">
+    <value>اختبارات الامتثال المستمر</value>
+  </data>
+  <data name="ContactSupport" xml:space="preserve">
+    <value>تواصل مع الدعم</value>
+  </data>
+  <data name="ControlMatrix" xml:space="preserve">
+    <value>مصفوفة الضوابط</value>
+  </data>
+  <data name="DocumentFlow" xml:space="preserve">
+    <value>تدفق المستندات</value>
+  </data>
+  <data name="Error_WorkspaceSwitchError" xml:space="preserve">
+    <value>خطأ في تبديل مساحة العمل</value>
+  </data>
+  <data name="Error_WorkspaceSwitchFailed" xml:space="preserve">
+    <value>فشل تبديل مساحة العمل</value>
+  </data>
+  <data name="EvidenceLifecycle" xml:space="preserve">
+    <value>دورة حياة الأدلة</value>
+  </data>
+  <data name="EvidenceStatistics" xml:space="preserve">
+    <value>إحصائيات الأدلة</value>
+  </data>
+  <data name="Exceptions" xml:space="preserve">
+    <value>الاستثناءات</value>
+  </data>
+  <data name="ExecutiveDashboard" xml:space="preserve">
+    <value>لوحة التحكم التنفيذية</value>
+  </data>
+  <data name="FAQ" xml:space="preserve">
+    <value>الأسئلة الشائعة</value>
+  </data>
+  <data name="FIX_Remediation" xml:space="preserve">
+    <value>إصلاح - المعالجة</value>
+  </data>
+  <data name="GettingStarted" xml:space="preserve">
+    <value>البدء</value>
+  </data>
+  <data name="Glossary" xml:space="preserve">
+    <value>المصطلحات</value>
+  </data>
+  <data name="HelpCenter" xml:space="preserve">
+    <value>مركز المساعدة</value>
+  </data>
+  <data name="Inbox" xml:space="preserve">
+    <value>صندوق الوارد</value>
+  </data>
+  <data name="IntegratedFlow" xml:space="preserve">
+    <value>التدفق المتكامل</value>
+  </data>
+  <data name="Invitations" xml:space="preserve">
+    <value>الدعوات</value>
+  </data>
+  <data name="KRIDashboard" xml:space="preserve">
+    <value>لوحة مؤشرات المخاطر</value>
+  </data>
+  <data name="MainDashboard" xml:space="preserve">
+    <value>لوحة التحكم الرئيسية</value>
+  </data>
+  <data name="MAP_ControlLibrary" xml:space="preserve">
+    <value>خريطة - مكتبة الضوابط</value>
+  </data>
+  <data name="MyProfile" xml:space="preserve">
+    <value>ملفي الشخصي</value>
+  </data>
+  <data name="PolicyStatistics" xml:space="preserve">
+    <value>إحصائيات السياسات</value>
+  </data>
+  <data name="PROVE_Evidence" xml:space="preserve">
+    <value>إثبات - الأدلة</value>
+  </data>
+  <data name="RiskReports" xml:space="preserve">
+    <value>تقارير المخاطر</value>
+  </data>
+  <data name="RoleDelegation" xml:space="preserve">
+    <value>تفويض الصلاحيات</value>
+  </data>
+  <data name="RoleProfiles" xml:space="preserve">
+    <value>ملفات الأدوار</value>
+  </data>
+  <data name="TenantAdmin" xml:space="preserve">
+    <value>إدارة المستأجر</value>
+  </data>
+  <data name="VAULT_Repository" xml:space="preserve">
+    <value>الخزنة - المستودع</value>
+  </data>
+  <data name="WATCH_Monitoring" xml:space="preserve">
+    <value>مراقبة - الرصد</value>
+  </data>
+  <data name="WebhookLogs" xml:space="preserve">
+    <value>سجلات الويب هوك</value>
+  </data>
+  <data name="AppName" xml:space="preserve">
+    <value>نظام الحوكمة والمخاطر والامتثال</value>
+  </data>
+  <data name="AppNameShort" xml:space="preserve">
+    <value>GRC</value>
+  </data>
+  <data name="Copyright" xml:space="preserve">
+    <value>جميع الحقوق محفوظة</value>
+  </data>
+  <data name="Error_PageTitle" xml:space="preserve">
+    <value>خطأ</value>
+  </data>
+  <data name="Error_Oops" xml:space="preserve">
+    <value>عذراً!</value>
+  </data>
+  <data name="Error_404_Title" xml:space="preserve">
+    <value>الصفحة غير موجودة</value>
+  </data>
+  <data name="Error_404_Message" xml:space="preserve">
+    <value>الصفحة التي تبحث عنها غير موجودة أو تم نقلها.</value>
+  </data>
+  <data name="Error_403_Title" xml:space="preserve">
+    <value>الوصول مرفوض</value>
+  </data>
+  <data name="Error_403_Message" xml:space="preserve">
+    <value>ليس لديك صلاحية للوصول إلى هذا المورد. تواصل مع المسؤول إذا كنت تعتقد أن هذا خطأ.</value>
+  </data>
+  <data name="Error_401_Title" xml:space="preserve">
+    <value>يلزم تسجيل الدخول</value>
+  </data>
+  <data name="Error_401_Message" xml:space="preserve">
+    <value>يرجى تسجيل الدخول للوصول إلى هذه الصفحة.</value>
+  </data>
+  <data name="Error_500_Title" xml:space="preserve">
+    <value>حدث خطأ ما</value>
+  </data>
+  <data name="Error_500_Message" xml:space="preserve">
+    <value>واجهنا خطأً غير متوقع. تم إبلاغ فريقنا ويعمل على حله.</value>
+  </data>
+  <data name="Error_GoHome" xml:space="preserve">
+    <value>الذهاب للصفحة الرئيسية</value>
+  </data>
+  <data name="Error_GoBack" xml:space="preserve">
+    <value>العودة</value>
+  </data>
+  <data name="Error_NeedHelp" xml:space="preserve">
+    <value>تحتاج مساعدة؟</value>
+  </data>
+  <data name="Error_Help_CheckUrl" xml:space="preserve">
+    <value>تأكد من صحة الرابط</value>
+  </data>
+  <data name="Error_Help_ClearCache" xml:space="preserve">
+    <value>امسح ذاكرة التخزين المؤقت للمتصفح</value>
+  </data>
+  <data name="Error_Help_TryAgain" xml:space="preserve">
+    <value>حاول مرة أخرى بعد قليل</value>
+  </data>
+  <data name="Error_Help_ViewGuide" xml:space="preserve">
+    <value>اطلع على دليل المساعدة</value>
+  </data>
+  <data name="Error_ReferenceId" xml:space="preserve">
+    <value>الرقم المرجعي</value>
+  </data>
+  <data name="Error_StillNeedHelp" xml:space="preserve">
+    <value>لا تزال بحاجة للمساعدة؟ تواصل معنا على</value>
+  </data>
+  <data name="Toast_Success" xml:space="preserve">
+    <value>نجاح</value>
+  </data>
+  <data name="Toast_Error" xml:space="preserve">
+    <value>خطأ</value>
+  </data>
+  <data name="Toast_Warning" xml:space="preserve">
+    <value>تحذير</value>
+  </data>
+  <data name="Toast_Info" xml:space="preserve">
+    <value>معلومة</value>
+  </data>
+  <data name="Toast_SaveSuccess" xml:space="preserve">
+    <value>تم حفظ التغييرات بنجاح</value>
+  </data>
+  <data name="Toast_DeleteSuccess" xml:space="preserve">
+    <value>تم حذف العنصر بنجاح</value>
+  </data>
+  <data name="Toast_CreateSuccess" xml:space="preserve">
+    <value>تم إنشاء العنصر بنجاح</value>
+  </data>
+  <data name="Toast_UpdateSuccess" xml:space="preserve">
+    <value>تم تحديث العنصر بنجاح</value>
+  </data>
+  <data name="Toast_OperationFailed" xml:space="preserve">
+    <value>فشلت العملية. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Validation_Required" xml:space="preserve">
+    <value>هذا الحقل مطلوب</value>
+  </data>
+  <data name="Validation_InvalidEmail" xml:space="preserve">
+    <value>يرجى إدخال بريد إلكتروني صحيح</value>
+  </data>
+  <data name="Validation_InvalidPhone" xml:space="preserve">
+    <value>يرجى إدخال رقم هاتف صحيح</value>
+  </data>
+  <data name="Validation_MinLength" xml:space="preserve">
+    <value>الحد الأدنى {0} أحرف مطلوبة</value>
+  </data>
+  <data name="Validation_MaxLength" xml:space="preserve">
+    <value>الحد الأقصى {0} أحرف مسموح</value>
+  </data>
+  <data name="Validation_PasswordMismatch" xml:space="preserve">
+    <value>كلمات المرور غير متطابقة</value>
+  </data>
+  <data name="Validation_InvalidFormat" xml:space="preserve">
+    <value>تنسيق غير صحيح</value>
+  </data>
+  <data name="Processing" xml:space="preserve">
+    <value>جاري المعالجة...</value>
+  </data>
+  <data name="Saving" xml:space="preserve">
+    <value>جاري الحفظ...</value>
+  </data>
+  <data name="PleaseWait" xml:space="preserve">
+    <value>يرجى الانتظار...</value>
+  </data>
+  <data name="Dashboard_CommandCenter" xml:space="preserve">
+    <value>مركز القيادة</value>
+  </data>
+  <data name="Dashboard_IntegratedGrcSystem" xml:space="preserve">
+    <value>نظام الحوكمة والمخاطر والامتثال المتكامل</value>
+  </data>
+  <data name="Dashboard_AllSystemsOperational" xml:space="preserve">
+    <value>جميع الأنظمة تعمل</value>
+  </data>
+  <data name="Dashboard_ComplianceRate" xml:space="preserve">
+    <value>نسبة الامتثال</value>
+  </data>
+  <data name="Dashboard_ActiveRisks" xml:space="preserve">
+    <value>المخاطر النشطة</value>
+  </data>
+  <data name="Dashboard_EffectiveControls" xml:space="preserve">
+    <value>الضوابط الفعّالة</value>
+  </data>
+  <data name="Dashboard_PendingTasks" xml:space="preserve">
+    <value>مهام معلقة</value>
+  </data>
+  <data name="Dashboard_UploadedEvidence" xml:space="preserve">
+    <value>الأدلة المرفوعة</value>
+  </data>
+  <data name="Dashboard_ComplianceTrend" xml:space="preserve">
+    <value>اتجاه الامتثال - آخر 12 شهر</value>
+  </data>
+  <data name="Dashboard_RiskHeatMap" xml:space="preserve">
+    <value>خريطة المخاطر الحرارية</value>
+  </data>
+  <data name="RiskLevel_Rare" xml:space="preserve">
+    <value>نادر</value>
+  </data>
+  <data name="RiskLevel_Unlikely" xml:space="preserve">
+    <value>ضعيف</value>
+  </data>
+  <data name="RiskLevel_Possible" xml:space="preserve">
+    <value>متوسط</value>
+  </data>
+  <data name="RiskLevel_Likely" xml:space="preserve">
+    <value>عالي</value>
+  </data>
+  <data name="RiskLevel_AlmostCertain" xml:space="preserve">
+    <value>مؤكد</value>
+  </data>
+  <data name="RiskLevel_Catastrophic" xml:space="preserve">
+    <value>كارثي</value>
+  </data>
+  <data name="ImpactLevel_Major" xml:space="preserve">
+    <value>رئيسي</value>
+  </data>
+  <data name="ImpactLevel_Moderate" xml:space="preserve">
+    <value>متوسط</value>
+  </data>
+  <data name="ImpactLevel_Minor" xml:space="preserve">
+    <value>طفيف</value>
+  </data>
+  <data name="ImpactLevel_Insignificant" xml:space="preserve">
+    <value>ضئيل</value>
+  </data>
+  <data name="RiskLevel_Low" xml:space="preserve">
+    <value>منخفض</value>
+  </data>
+  <data name="RiskLevel_Medium" xml:space="preserve">
+    <value>متوسط</value>
+  </data>
+  <data name="RiskLevel_High" xml:space="preserve">
+    <value>عالي</value>
+  </data>
+  <data name="RiskLevel_Critical" xml:space="preserve">
+    <value>حرج</value>
+  </data>
+  <data name="Dashboard_OverallComplianceIndicator" xml:space="preserve">
+    <value>مؤشر الامتثال الكلي</value>
+  </data>
+  <data name="Dashboard_ComplianceRateLabel" xml:space="preserve">
+    <value>نسبة الامتثال</value>
+  </data>
+  <data name="ComplianceStatus_Compliant" xml:space="preserve">
+    <value>ممتثل</value>
+  </data>
+  <data name="ComplianceStatus_Partial" xml:space="preserve">
+    <value>جزئي</value>
+  </data>
+  <data name="ComplianceStatus_NonCompliant" xml:space="preserve">
+    <value>غير ممتثل</value>
+  </data>
+  <data name="Dashboard_ShahinAIInsights" xml:space="preserve">
+    <value>رؤى شاهين الذكية</value>
+  </data>
+  <data name="AI_SmartAnalysis" xml:space="preserve">
+    <value>تحليل ذكي</value>
+  </data>
+  <data name="AI_EarlyWarning" xml:space="preserve">
+    <value>تنبيه مبكر</value>
+  </data>
+  <data name="AI_AnalysisConfidence" xml:space="preserve">
+    <value>ثقة التحليل</value>
+  </data>
+  <data name="Dashboard_RegulatoryFrameworkProgress" xml:space="preserve">
+    <value>تقدم الأطر التنظيمية</value>
+  </data>
+  <data name="Dashboard_RecentActivity" xml:space="preserve">
+    <value>النشاط الأخير</value>
+  </data>
+  <data name="Dashboard_CriticalAlerts" xml:space="preserve">
+    <value>التنبيهات الحرجة</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>جديدة</value>
+  </data>
+  <data name="Dashboard_PendingTasksTitle" xml:space="preserve">
+    <value>المهام المعلقة</value>
+  </data>
+  <data name="Task" xml:space="preserve">
+    <value>المهمة</value>
+  </data>
+  <data name="Priority_Urgent" xml:space="preserve">
+    <value>عاجل</value>
+  </data>
+  <data name="Priority_Medium" xml:space="preserve">
+    <value>متوسط</value>
+  </data>
+  <data name="Priority_Normal" xml:space="preserve">
+    <value>عادي</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>اليوم</value>
+  </data>
+  <data name="Tomorrow" xml:space="preserve">
+    <value>غداً</value>
+  </data>
+  <data name="Days" xml:space="preserve">
+    <value>أيام</value>
+  </data>
+  <data name="Week" xml:space="preserve">
+    <value>أسبوع</value>
+  </data>
+  <data name="Ago" xml:space="preserve">
+    <value>منذ</value>
+  </data>
+  <data name="Minutes" xml:space="preserve">
+    <value>دقائق</value>
+  </data>
+  <data name="Hour" xml:space="preserve">
+    <value>ساعة</value>
+  </data>
+  <data name="By" xml:space="preserve">
+    <value>بواسطة</value>
+  </data>
+  <data name="NoDataAvailable" xml:space="preserve">
+    <value>لا توجد بيانات متاحة</value>
+  </data>
+  <data name="LoadingData" xml:space="preserve">
+    <value>جاري تحميل البيانات...</value>
+  </data>
+  <data name="NewRisk" xml:space="preserve">
+    <value>مخاطرة جديدة</value>
+  </data>
+  <data name="NewControl" xml:space="preserve">
+    <value>ضابط جديد</value>
+  </data>
+  <data name="NewAssessment" xml:space="preserve">
+    <value>تقييم جديد</value>
+  </data>
+  <data name="WelcomeToGrc" xml:space="preserve">
+    <value>مرحباً بك في نظام إدارة الحوكمة والمخاطر والامتثال</value>
+  </data>
+  <data name="GrcPlatformDescription" xml:space="preserve">
+    <value>منصة شاملة لإدارة الحوكمة والمخاطر والامتثال</value>
+  </data>
+  <data name="PleaseLoginMessage" xml:space="preserve">
+    <value>يرجى تسجيل الدخول للوصول إلى لوحة التحكم وإدارة أنشطة الحوكمة والمخاطر والامتثال في مؤسستك.</value>
+  </data>
+  <data name="RiskManagement" xml:space="preserve">
+    <value>إدارة المخاطر</value>
+  </data>
+  <data name="RiskManagementDescription" xml:space="preserve">
+    <value>تحديد وتقييم وتخفيف المخاطر في مؤسستك باستخدام أدوات إدارة المخاطر الشاملة.</value>
+  </data>
+  <data name="ComplianceTracking" xml:space="preserve">
+    <value>تتبع الامتثال</value>
+  </data>
+  <data name="ComplianceTrackingDescription" xml:space="preserve">
+    <value>ضمان الامتثال للمتطلبات التنظيمية والسياسات الداخلية من خلال التتبع الآلي وإعداد التقارير.</value>
+  </data>
+  <data name="PerformanceAnalytics" xml:space="preserve">
+    <value>تحليلات الأداء</value>
+  </data>
+  <data name="PerformanceAnalyticsDescription" xml:space="preserve">
+    <value>راقب أداء الحوكمة والمخاطر والامتثال باستخدام لوحات المعلومات في الوقت الفعلي والتحليلات الشاملة.</value>
+  </data>
+  <data name="WantToExplore" xml:space="preserve">
+    <value>هل تريد استكشاف المنصة أولاً؟</value>
+  </data>
+  <data name="TryDemo" xml:space="preserve">
+    <value>جرب العرض التوضيحي (مستأجر POC)</value>
+  </data>
+  <data name="DemoDescription" xml:space="preserve">
+    <value>منظمة شاهين AI التجريبية المكونة مسبقاً</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>المستوى</value>
+  </data>
+  <data name="AuditTitle" xml:space="preserve">
+    <value>عنوان التدقيق</value>
+  </data>
+  <data name="Internal" xml:space="preserve">
+    <value>داخلي</value>
+  </data>
+  <data name="External" xml:space="preserve">
+    <value>خارجي</value>
+  </data>
+  <data name="Mitigated" xml:space="preserve">
+    <value>تم التخفيف</value>
+  </data>
+  <data name="RiskMatrix" xml:space="preserve">
+    <value>مصفوفة المخاطر</value>
+  </data>
+  <data name="EvidenceManagement" xml:space="preserve">
+    <value>إدارة الأدلة</value>
+  </data>
+  <data name="NewEvidence" xml:space="preserve">
+    <value>دليل جديد</value>
+  </data>
+  <data name="ExpiringSoon" xml:space="preserve">
+    <value>تنتهي قريباً</value>
+  </data>
+  <data name="Probability" xml:space="preserve">
+    <value>الاحتمالية</value>
+  </data>
+  <data name="Impact" xml:space="preserve">
+    <value>التأثير</value>
+  </data>
+  <data name="RiskScore" xml:space="preserve">
+    <value>نقاط المخاطرة</value>
+  </data>
+  <data name="Collected" xml:space="preserve">
+    <value>تم الجمع</value>
+  </data>
+  <data name="Expires" xml:space="preserve">
+    <value>تنتهي</value>
+  </data>
+  <data name="Classification" xml:space="preserve">
+    <value>التصنيف</value>
+  </data>
+  <data name="NoRecordsFound" xml:space="preserve">
+    <value>لا توجد سجلات</value>
+  </data>
+  <data name="Month_January" xml:space="preserve">
+    <value>يناير</value>
+  </data>
+  <data name="Month_February" xml:space="preserve">
+    <value>فبراير</value>
+  </data>
+  <data name="Month_March" xml:space="preserve">
+    <value>مارس</value>
+  </data>
+  <data name="Month_April" xml:space="preserve">
+    <value>أبريل</value>
+  </data>
+  <data name="Month_May" xml:space="preserve">
+    <value>مايو</value>
+  </data>
+  <data name="Month_June" xml:space="preserve">
+    <value>يونيو</value>
+  </data>
+  <data name="Month_July" xml:space="preserve">
+    <value>يوليو</value>
+  </data>
+  <data name="Month_August" xml:space="preserve">
+    <value>أغسطس</value>
+  </data>
+  <data name="Month_September" xml:space="preserve">
+    <value>سبتمبر</value>
+  </data>
+  <data name="Month_October" xml:space="preserve">
+    <value>أكتوبر</value>
+  </data>
+  <data name="Month_November" xml:space="preserve">
+    <value>نوفمبر</value>
+  </data>
+  <data name="Month_December" xml:space="preserve">
+    <value>ديسمبر</value>
+  </data>
+  <data name="Chart_ComplianceRate" xml:space="preserve">
+    <value>نسبة الامتثال</value>
+  </data>
+  <data name="Chart_Target" xml:space="preserve">
+    <value>الهدف</value>
+  </data>
+  <data name="AI_OpportunityToImprove" xml:space="preserve">
+    <value>فرصة لتحسين الامتثال</value>
+  </data>
+  <data name="AI_OpportunityToImproveText" xml:space="preserve">
+    <value>تم اكتشاف 3 ضوابط متشابهة في أطر NCA-ECC و SAMA-CSF. يمكن دمج الأدلة لتقليل الجهد بنسبة 40%.</value>
+  </data>
+  <data name="AI_RenewalDateComing" xml:space="preserve">
+    <value>موعد تجديد قادم</value>
+  </data>
+  <data name="AI_RenewalDateComingText" xml:space="preserve">
+    <value>شهادة ISO 27001 تنتهي خلال 45 يوماً. يُنصح ببدء عملية التجديد الآن.</value>
+  </data>
+  <data name="AI_Confidence" xml:space="preserve">
+    <value>ثقة التحليل</value>
+  </data>
+  <data name="High" xml:space="preserve">
+    <value>عالية</value>
+  </data>
+  <data name="Activity_EvidenceApproved" xml:space="preserve">
+    <value>تم اعتماد دليل الامتثال #1247</value>
+  </data>
+  <data name="Activity_NewRiskRegistered" xml:space="preserve">
+    <value>تم تسجيل خطر جديد - تسرب البيانات</value>
+  </data>
+  <data name="Activity_PolicyUploaded" xml:space="preserve">
+    <value>تم رفع سياسة أمن المعلومات v2.1</value>
+  </data>
+  <data name="Activity_AssessmentCompleted" xml:space="preserve">
+    <value>اكتمال تقييم ضوابط NCA-ECC</value>
+  </data>
+  <data name="Alert_CriticalControlNotApplied" xml:space="preserve">
+    <value>ضابط حرج غير مطبق</value>
+  </data>
+  <data name="Alert_ComplianceDeadlineMissed" xml:space="preserve">
+    <value>تأخر في موعد الامتثال</value>
+  </data>
+  <data name="Alert_TaskExpiringSoon" xml:space="preserve">
+    <value>مهمة تنتهي قريباً</value>
+  </data>
+  <data name="Alert_EvidenceExpired" xml:space="preserve">
+    <value>دليل منتهي الصلاحية</value>
+  </data>
+  <data name="Alert_CriticalControlNotAppliedDesc" xml:space="preserve">
+    <value>إدارة الوصول المميز - يجب المعالجة خلال 48 ساعة</value>
+  </data>
+  <data name="Alert_ComplianceDeadlineMissedDesc" xml:space="preserve">
+    <value>تقييم SAMA الدوري متأخر 5 أيام عن الموعد المحدد</value>
+  </data>
+  <data name="Alert_TaskExpiringSoonDesc" xml:space="preserve">
+    <value>مراجعة سياسة الخصوصية - متبقي يومان</value>
+  </data>
+  <data name="Alert_EvidenceExpiredDesc" xml:space="preserve">
+    <value>3 أدلة تحتاج تحديث - آخر مراجعة قبل 6 أشهر</value>
+  </data>
+  <data name="Task_ReviewAccessControls" xml:space="preserve">
+    <value>مراجعة ضوابط الوصول</value>
+  </data>
+  <data name="Task_UpdateInformationSecurityPolicy" xml:space="preserve">
+    <value>تحديث سياسة أمن المعلومات</value>
+  </data>
+  <data name="Task_ApproveTrainingGuide" xml:space="preserve">
+    <value>اعتماد دليل التدريب</value>
+  </data>
+  <data name="Task_ReviewMonthlyRiskReport" xml:space="preserve">
+    <value>مراجعة تقرير المخاطر الشهري</value>
+  </data>
+  <data name="Task_AssessNewExternalVendor" xml:space="preserve">
+    <value>تقييم مورد خارجي جديد</value>
+  </data>
+  <data name="Auth_LoginToGrc" xml:space="preserve">
+    <value>تسجيل الدخول إلى نظام GRC</value>
+  </data>
+  <data name="Auth_CreateNewAccount" xml:space="preserve">
+    <value>إنشاء حساب جديد</value>
+  </data>
+  <data name="Auth_ForgotPasswordTitle" xml:space="preserve">
+    <value>نسيت كلمة المرور؟</value>
+  </data>
+  <data name="Auth_FirstName" xml:space="preserve">
+    <value>الاسم الأول</value>
+  </data>
+  <data name="Auth_LastName" xml:space="preserve">
+    <value>اسم العائلة</value>
+  </data>
+  <data name="Auth_Department" xml:space="preserve">
+    <value>القسم</value>
+  </data>
+  <data name="Auth_EmailPlaceholder" xml:space="preserve">
+    <value>email@example.com</value>
+  </data>
+  <data name="Auth_PasswordPlaceholder" xml:space="preserve">
+    <value>أدخل كلمة المرور</value>
+  </data>
+  <data name="Auth_PasswordCreatePlaceholder" xml:space="preserve">
+    <value>أنشئ كلمة مرور قوية</value>
+  </data>
+  <data name="Auth_ConfirmPasswordPlaceholder" xml:space="preserve">
+    <value>أكد كلمة المرور</value>
+  </data>
+  <data name="Auth_StrongPasswordHint" xml:space="preserve">
+    <value>يجب أن تكون كلمة المرور 6 أحرف على الأقل وتحتوي على أحرف كبيرة وصغيرة وأرقام ورموز خاصة.</value>
+  </data>
+  <data name="Auth_DontHaveAccount" xml:space="preserve">
+    <value>ليس لديك حساب؟</value>
+  </data>
+  <data name="Auth_RegisterHere" xml:space="preserve">
+    <value>سجل هنا</value>
+  </data>
+  <data name="Auth_AlreadyHaveAccount" xml:space="preserve">
+    <value>لديك حساب بالفعل؟</value>
+  </data>
+  <data name="Auth_LoginHere" xml:space="preserve">
+    <value>سجل الدخول هنا</value>
+  </data>
+  <data name="Auth_ForgotTenantId" xml:space="preserve">
+    <value>نسيت معرف المستأجر؟</value>
+  </data>
+  <data name="Auth_EnterEmailReset" xml:space="preserve">
+    <value>أدخل عنوان بريدك الإلكتروني وسنرسل لك رابط لإعادة تعيين كلمة المرور.</value>
+  </data>
+  <data name="Auth_FirstNamePlaceholder" xml:space="preserve">
+    <value>أحمد</value>
+  </data>
+  <data name="Auth_LastNamePlaceholder" xml:space="preserve">
+    <value>محمد</value>
+  </data>
+  <data name="Auth_DepartmentPlaceholder" xml:space="preserve">
+    <value>قسم تقنية المعلومات</value>
+  </data>
+  <data name="Auth_ResetPasswordSent" xml:space="preserve">
+    <value>تم إرسال رابط إعادة التعيين</value>
+  </data>
+  <data name="Auth_ResetPasswordSentTitle" xml:space="preserve">
+    <value>تم إرسال رابط إعادة التعيين</value>
+  </data>
+  <data name="Auth_ResetPasswordSentSuccess" xml:space="preserve">
+    <value>✅ تم الإرسال بنجاح!</value>
+  </data>
+  <data name="Auth_ResetPasswordSentMessage" xml:space="preserve">
+    <value>تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.</value>
+  </data>
+  <data name="Auth_CheckInbox" xml:space="preserve">
+    <value>تحقق من صندوق الوارد (Inbox)</value>
+  </data>
+  <data name="Auth_CheckSpam" xml:space="preserve">
+    <value>تحقق من مجلد البريد غير المرغوب (Spam/Junk)</value>
+  </data>
+  <data name="Auth_LinkValid24Hours" xml:space="preserve">
+    <value>الرابط صالح لمدة 24 ساعة فقط</value>
+  </data>
+  <data name="Auth_BackToLogin" xml:space="preserve">
+    <value>العودة لتسجيل الدخول</value>
+  </data>
+  <data name="Auth_EmailNotReceived" xml:space="preserve">
+    <value>لم يصل الإيميل؟</value>
+  </data>
+  <data name="Auth_WaitFewMinutes" xml:space="preserve">
+    <value>انتظر بضع دقائق ثم</value>
+  </data>
+  <data name="Auth_TryAgain" xml:space="preserve">
+    <value>حاول مرة أخرى</value>
+  </data>
+  <data name="Auth_PasswordResetSuccessful" xml:space="preserve">
+    <value>تم إعادة تعيين كلمة المرور بنجاح</value>
+  </data>
+  <data name="Auth_PasswordResetSuccessfulMessage" xml:space="preserve">
+    <value>تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.</value>
+  </data>
+  <data name="Auth_UseStrongPassword" xml:space="preserve">
+    <value>لأسباب أمنية، يرجى استخدام كلمة مرور قوية تتضمن أحرف كبيرة وأرقام ورموز خاصة.</value>
+  </data>
+  <data name="Auth_LogInToYourAccount" xml:space="preserve">
+    <value>تسجيل الدخول إلى حسابك</value>
+  </data>
+  <data name="Auth_RememberPassword" xml:space="preserve">
+    <value>تذكرت كلمة المرور؟</value>
+  </data>
+  <data name="Auth_GoToLogin" xml:space="preserve">
+    <value>انتقل إلى تسجيل الدخول</value>
+  </data>
+  <data name="Auth_ContactSupport" xml:space="preserve">
+    <value>إذا لم تطلب إعادة تعيين كلمة المرور أو لديك أي مخاوف، يرجى الاتصال بفريق الدعم.</value>
+  </data>
+  <data name="Auth_CurrentPassword" xml:space="preserve">
+    <value>كلمة المرور الحالية</value>
+  </data>
+  <data name="Auth_NewPassword" xml:space="preserve">
+    <value>كلمة المرور الجديدة</value>
+  </data>
+  <data name="Auth_PasswordMinLengthHint" xml:space="preserve">
+    <value>يجب أن تكون كلمة المرور 6 أحرف على الأقل.</value>
+  </data>
+  <data name="Auth_BackToProfile" xml:space="preserve">
+    <value>العودة إلى الملف الشخصي</value>
+  </data>
+  <data name="Auth_ForgotTenantIdTitle" xml:space="preserve">
+    <value>نسيت معرف المستأجر</value>
+  </data>
+  <data name="Auth_EnterEmailRetrieveTenantId" xml:space="preserve">
+    <value>أدخل عنوان بريدك الإلكتروني لاسترداد معرف المستأجر</value>
+  </data>
+  <data name="Auth_TenantIdFound" xml:space="preserve">
+    <value>تم العثور على معرف المستأجر!</value>
+  </data>
+  <data name="Auth_OrganizationName" xml:space="preserve">
+    <value>اسم المؤسسة:</value>
+  </data>
+  <data name="Auth_TenantIdLabel" xml:space="preserve">
+    <value>معرف المستأجر:</value>
+  </data>
+  <data name="Auth_Copy" xml:space="preserve">
+    <value>نسخ</value>
+  </data>
+  <data name="Auth_CopyTenantIdHint" xml:space="preserve">
+    <value>انسخ معرف المستأجر هذا واستخدمه لتسجيل الدخول</value>
+  </data>
+  <data name="Auth_TenantSlug" xml:space="preserve">
+    <value>معرف المستأجر المختصر:</value>
+  </data>
+  <data name="Auth_TenantIdNotFound" xml:space="preserve">
+    <value>لم يتم العثور على معرف المستأجر.</value>
+  </data>
+  <data name="Auth_TenantIdNotFoundMessage" xml:space="preserve">
+    <value>لم نتمكن من العثور على معرف مستأجر مرتبط بعنوان البريد الإلكتروني هذا، أو ليس لديك حق الوصول كمسؤول. يرجى التحقق من بريدك الإلكتروني وكلمة المرور، أو الاتصال بمسؤول النظام للحصول على المساعدة.</value>
+  </data>
+  <data name="Auth_EnterEmailTenantAdmin" xml:space="preserve">
+    <value>أدخل عنوان البريد الإلكتروني المرتبط بحساب مسؤول المستأجر</value>
+  </data>
+  <data name="Auth_EnterPasswordVerify" xml:space="preserve">
+    <value>أدخل كلمة المرور للتحقق من هويتك</value>
+  </data>
+  <data name="Auth_CredentialsTemporaryNote" xml:space="preserve">
+    <value>ملاحظة: هذه البيانات مؤقتة وقد تنتهي صلاحيتها. إذا انتهت صلاحية بيانات الاعتماد الخاصة بك، يرجى الاتصال بمالك النظام.</value>
+  </data>
+  <data name="Auth_FindTenantId" xml:space="preserve">
+    <value>البحث عن معرف المستأجر</value>
+  </data>
+  <data name="Auth_BackToTenantAdminLogin" xml:space="preserve">
+    <value>العودة إلى تسجيل دخول مسؤول المستأجر</value>
+  </data>
+  <data name="Auth_ImportantNotes" xml:space="preserve">
+    <value>ملاحظات هامة:</value>
+  </data>
+  <data name="Note" xml:space="preserve">
+    <value>ملاحظة</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>تم النسخ!</value>
+  </data>
+  <data name="Auth_ChangePasswordRequired" xml:space="preserve">
+    <value>تغيير كلمة المرور مطلوب</value>
+  </data>
+  <data name="Auth_PasswordChangeRequired" xml:space="preserve">
+    <value>تغيير كلمة المرور مطلوب</value>
+  </data>
+  <data name="Auth_MustChangePassword" xml:space="preserve">
+    <value>لأسباب أمنية، يجب عليك تغيير كلمة المرور قبل المتابعة.</value>
+  </data>
+  <data name="Auth_EnterCurrentPassword" xml:space="preserve">
+    <value>أدخل كلمة المرور الحالية</value>
+  </data>
+  <data name="Auth_EnterNewPassword" xml:space="preserve">
+    <value>أدخل كلمة مرور جديدة</value>
+  </data>
+  <data name="Auth_ConfirmNewPassword" xml:space="preserve">
+    <value>تأكيد كلمة المرور الجديدة</value>
+  </data>
+  <data name="Auth_ConfirmNewPasswordPlaceholder" xml:space="preserve">
+    <value>أكد كلمة المرور الجديدة</value>
+  </data>
+  <data name="Auth_PasswordMin8Chars" xml:space="preserve">
+    <value>8 أحرف على الأقل</value>
+  </data>
+  <data name="Auth_PasswordEncryptedSecure" xml:space="preserve">
+    <value>كلمة المرور الخاصة بك مشفرة وآمنة</value>
+  </data>
+  <data name="Auth_AccountLocked" xml:space="preserve">
+    <value>الحساب مقفل</value>
+  </data>
+  <data name="Auth_AccountLockedMessage" xml:space="preserve">
+    <value>تم قفل حسابك مؤقتاً بسبب محاولات تسجيل دخول فاشلة متعددة.</value>
+  </data>
+  <data name="Auth_TryAgainLater" xml:space="preserve">
+    <value>يرجى المحاولة مرة أخرى لاحقاً أو الاتصال بالدعم إذا كنت بحاجة إلى مساعدة فورية.</value>
+  </data>
+  <data name="Auth_GoToHome" xml:space="preserve">
+    <value>انتقل إلى الصفحة الرئيسية</value>
+  </data>
+  <data name="Auth_AccessDenied" xml:space="preserve">
+    <value>تم رفض الوصول</value>
+  </data>
+  <data name="Auth_AccessDeniedMessage" xml:space="preserve">
+    <value>ليس لديك إذن للوصول إلى هذا المورد.</value>
+  </data>
+  <data name="Auth_ContactAdministrator" xml:space="preserve">
+    <value>إذا كنت تعتقد أنه يجب أن يكون لديك حق الوصول إلى هذه الصفحة، يرجى الاتصال بمسؤول النظام.</value>
+  </data>
+  <data name="Auth_GoToDashboard" xml:space="preserve">
+    <value>انتقل إلى لوحة التحكم</value>
+  </data>
+  <data name="Auth_TwoFactorAuthentication" xml:space="preserve">
+    <value>المصادقة بخطوتين</value>
+  </data>
+  <data name="Auth_EnterAuthenticatorCode" xml:space="preserve">
+    <value>تسجيل الدخول الخاص بك محمي بتطبيق المصادقة. أدخل رمز المصادقة أدناه.</value>
+  </data>
+  <data name="Auth_TwoFactorCode" xml:space="preserve">
+    <value>رمز المصادقة</value>
+  </data>
+  <data name="Auth_RememberMachine" xml:space="preserve">
+    <value>تذكر هذا الجهاز</value>
+  </data>
+  <data name="Auth_NoAccessToAuthenticator" xml:space="preserve">
+    <value>لا يمكنك الوصول إلى جهاز المصادقة الخاص بك؟ يمكنك تسجيل الدخول برمز الاسترداد.</value>
+  </data>
+  <data name="Auth_LoginWithRecoveryCode" xml:space="preserve">
+    <value>تسجيل الدخول برمز الاسترداد</value>
+  </data>
+  <data name="Auth_RecoveryCodeLogin" xml:space="preserve">
+    <value>تسجيل الدخول برمز الاسترداد</value>
+  </data>
+  <data name="Auth_RecoveryCodeLoginMessage" xml:space="preserve">
+    <value>لقد طلبت تسجيل الدخول برمز استرداد. لن يتم تذكر هذا تسجيل الدخول حتى تقدم رمز تطبيق المصادقة عند تسجيل الدخول أو تعطيل المصادقة بخطوتين وتسجيل الدخول مرة أخرى.</value>
+  </data>
+  <data name="Auth_RecoveryCode" xml:space="preserve">
+    <value>رمز الاسترداد</value>
+  </data>
+  <data name="Auth_VerifyMfa" xml:space="preserve">
+    <value>التحقق بخطوتين</value>
+  </data>
+  <data name="Auth_VerificationCodeSent" xml:space="preserve">
+    <value>تم إرسال رمز التحقق إلى بريدك الإلكتروني</value>
+  </data>
+  <data name="Auth_VerificationCode" xml:space="preserve">
+    <value>رمز التحقق</value>
+  </data>
+  <data name="Auth_Verify" xml:space="preserve">
+    <value>تحقق</value>
+  </data>
+  <data name="Auth_CodeValidFor" xml:space="preserve">
+    <value>الرمز صالح لمدة:</value>
+  </data>
+  <data name="Auth_ResendCode" xml:space="preserve">
+    <value>إعادة إرسال الرمز</value>
+  </data>
+  <data name="Auth_AccountProtectionPriority" xml:space="preserve">
+    <value>حماية حسابك أولويتنا</value>
+  </data>
+  <data name="Auth_Expired" xml:space="preserve">
+    <value>انتهت الصلاحية</value>
+  </data>
+  <data name="Auth_ManageProfile" xml:space="preserve">
+    <value>إدارة ملفك الشخصي</value>
+  </data>
+  <data name="Auth_EmailCannotBeChanged" xml:space="preserve">
+    <value>لا يمكن تغيير البريد الإلكتروني</value>
+  </data>
+  <data name="Auth_PhoneNumber" xml:space="preserve">
+    <value>رقم الهاتف</value>
+  </data>
+  <data name="Auth_SaveChanges" xml:space="preserve">
+    <value>حفظ التغييرات</value>
+  </data>
+  <data name="Auth_MyProfile" xml:space="preserve">
+    <value>ملفي الشخصي</value>
+  </data>
+  <data name="Auth_ViewManageAccountSettings" xml:space="preserve">
+    <value>عرض وإدارة إعدادات حسابك</value>
+  </data>
+  <data name="Auth_QuickActions" xml:space="preserve">
+    <value>إجراءات سريعة</value>
+  </data>
+  <data name="Auth_MyInbox" xml:space="preserve">
+    <value>صندوق الوارد الخاص بي</value>
+  </data>
+  <data name="Auth_MyTasks" xml:space="preserve">
+    <value>مهامي</value>
+  </data>
+  <data name="Auth_AccountSettings" xml:space="preserve">
+    <value>إعدادات الحساب</value>
+  </data>
+  <data name="Auth_AssignedProfiles" xml:space="preserve">
+    <value>الملفات الشخصية المعينة</value>
+  </data>
+  <data name="Auth_NoProfilesAssigned" xml:space="preserve">
+    <value>لم يتم تعيين ملفات شخصية بعد.</value>
+  </data>
+  <data name="Auth_Permissions" xml:space="preserve">
+    <value>الصلاحيات</value>
+  </data>
+  <data name="Auth_NoPermissionsAssigned" xml:space="preserve">
+    <value>لم يتم تعيين صلاحيات.</value>
+  </data>
+  <data name="Auth_More" xml:space="preserve">
+    <value>المزيد</value>
+  </data>
+  <data name="Auth_WorkflowRoles" xml:space="preserve">
+    <value>أدوار سير العمل</value>
+  </data>
+  <data name="Auth_NoWorkflowRolesAssigned" xml:space="preserve">
+    <value>لم يتم تعيين أدوار سير العمل.</value>
+  </data>
+  <data name="Auth_NotificationPreferences" xml:space="preserve">
+    <value>تفضيلات الإشعارات</value>
+  </data>
+  <data name="Auth_EmailNotifications" xml:space="preserve">
+    <value>إشعارات البريد الإلكتروني</value>
+  </data>
+  <data name="Auth_SmsNotifications" xml:space="preserve">
+    <value>إشعارات الرسائل النصية</value>
+  </data>
+  <data name="Auth_InAppNotifications" xml:space="preserve">
+    <value>الإشعارات داخل التطبيق</value>
+  </data>
+  <data name="Auth_Digest" xml:space="preserve">
+    <value>ملخص:</value>
+  </data>
+  <data name="Auth_Immediate" xml:space="preserve">
+    <value>فوري</value>
+  </data>
+  <data name="Auth_Daily" xml:space="preserve">
+    <value>يومي</value>
+  </data>
+  <data name="Auth_Weekly" xml:space="preserve">
+    <value>أسبوعي</value>
+  </data>
+  <data name="Auth_LoginV2Title" xml:space="preserve">
+    <value>تسجيل الدخول (V2 - أمان محسّن)</value>
+  </data>
+  <data name="Auth_LoginEnhancedSecurity" xml:space="preserve">
+    <value>تسجيل الدخول - أمان محسّن</value>
+  </data>
+  <data name="Auth_EnhancedSecurityInfo" xml:space="preserve">
+    <value>أمان محسّن: يستخدم تسجيل الدخول هذا إدارة جلسات آمنة تشفيرياً وتسجيل منظم.</value>
+  </data>
+  <data name="Auth_LoginEnhanced" xml:space="preserve">
+    <value>تسجيل الدخول (محسّن)</value>
+  </data>
+  <data name="Auth_RegisterAsNewUser" xml:space="preserve">
+    <value>التسجيل كمستخدم جديد</value>
+  </data>
+  <data name="Auth_DemoLogin" xml:space="preserve">
+    <value>تسجيل الدخول التجريبي (للتطوير فقط)</value>
+  </data>
+  <data name="Auth_V2Enhancements" xml:space="preserve">
+    <value>تحسينات V2:</value>
+  </data>
+  <data name="Auth_SessionBasedAuth" xml:space="preserve">
+    <value>المصادقة المستندة إلى الجلسة (بدون مطالبات قاعدة البيانات)</value>
+  </data>
+  <data name="Auth_StructuredLogging" xml:space="preserve">
+    <value>تسجيل منظم (بدون إدخال/إخراج ملفات)</value>
+  </data>
+  <data name="Auth_EnhancedSecurityMonitoring" xml:space="preserve">
+    <value>مراقبة أمنية محسّنة</value>
+  </data>
+  <data name="Auth_DeterministicTenantResolution" xml:space="preserve">
+    <value>حل المستأجر الحتمي</value>
+  </data>
+  <data name="Auth_SwitchToLegacyLogin" xml:space="preserve">
+    <value>التبديل إلى تسجيل الدخول القديم</value>
+  </data>
+  <data name="Auth_TenantAdminLoginTitle" xml:space="preserve">
+    <value>تسجيل دخول مسؤول المستأجر</value>
+  </data>
+  <data name="Auth_EnterTenantIdUsernamePassword" xml:space="preserve">
+    <value>أدخل معرف المستأجر واسم المستخدم وكلمة المرور للوصول إلى الإعداد</value>
+  </data>
+  <data name="Auth_TenantIdProvided" xml:space="preserve">
+    <value>تم توفير معرف المستأجر الخاص بك عند إنشاء حسابك.</value>
+  </data>
+  <data name="Auth_TenantIdPlaceholder" xml:space="preserve">
+    <value>00000000-0000-0000-0000-000000000000</value>
+  </data>
+  <data name="Auth_UsernamePlaceholder" xml:space="preserve">
+    <value>admin-tenant-slug</value>
+  </data>
+  <data name="Auth_LoginToOnboarding" xml:space="preserve">
+    <value>تسجيل الدخول إلى الإعداد</value>
+  </data>
+  <data name="Auth_BackToRegularLogin" xml:space="preserve">
+    <value>العودة إلى تسجيل الدخول العادي</value>
+  </data>
+  <data name="Auth_TenantLoginV2Title" xml:space="preserve">
+    <value>تسجيل دخول المستأجر (V2 - مطالبات مستندة إلى الجلسة)</value>
+  </data>
+  <data name="Auth_TenantLoginEnhanced" xml:space="preserve">
+    <value>تسجيل دخول المستأجر - محسّن</value>
+  </data>
+  <data name="Auth_SessionBasedTenantClaims" xml:space="preserve">
+    <value>أمان محسّن: يستخدم تسجيل الدخول هذا مطالبات مستأجر مستندة إلى الجلسة (غير محفوظة في قاعدة البيانات).</value>
+  </data>
+  <data name="Auth_Tenant" xml:space="preserve">
+    <value>المستأجر:</value>
+  </data>
+  <data name="Auth_TenantSlugLabel" xml:space="preserve">
+    <value>معرف المستأجر المختصر (اختياري)</value>
+  </data>
+  <data name="Auth_TenantSlugPlaceholder" xml:space="preserve">
+    <value>tenant-slug</value>
+  </data>
+  <data name="Auth_RoleLabel" xml:space="preserve">
+    <value>الدور (اختياري)</value>
+  </data>
+  <data name="Auth_SelectRole" xml:space="preserve">
+    <value>-- اختر الدور --</value>
+  </data>
+  <data name="Auth_LoginToTenantEnhanced" xml:space="preserve">
+    <value>تسجيل الدخول إلى المستأجر (محسّن)</value>
+  </data>
+  <data name="Auth_RegularLogin" xml:space="preserve">
+    <value>تسجيل الدخول العادي</value>
+  </data>
+  <data name="Auth_V2SessionBasedClaims" xml:space="preserve">
+    <value>مطالبات V2 المستندة إلى الجلسة:</value>
+  </data>
+  <data name="Auth_TenantContextInSession" xml:space="preserve">
+    <value>سياق المستأجر مخزن في الجلسة (وليس في قاعدة البيانات)</value>
+  </data>
+  <data name="Auth_FixesClaimsBug" xml:space="preserve">
+    <value>إصلاح خطأ: لم تعد المطالبات تُحفظ في جدول AspNetUserClaims</value>
+  </data>
+  <data name="Auth_FasterTenantSwitching" xml:space="preserve">
+    <value>تبديل مستأجر أسرع</value>
+  </data>
+  <data name="Auth_NoDatabaseOverhead" xml:space="preserve">
+    <value>لا يوجد عبء قاعدة بيانات لسياق المستأجر</value>
+  </data>
+  <data name="Auth_SwitchToLegacyTenantLogin" xml:space="preserve">
+    <value>التبديل إلى تسجيل دخول المستأجر القديم</value>
+  </data>
+  <data name="Landing_Title" xml:space="preserve">
+    <value>منصة شاهين - نظام الحوكمة والمخاطر والامتثال</value>
+  </data>
+  <data name="Landing_MetaDescription" xml:space="preserve">
+    <value>منصة شاهين - نظام متكامل لإدارة الحوكمة والمخاطر والامتثال للمملكة العربية السعودية. متوافق مع رؤية 2030 ويدعم 130+ جهة تنظيمية.</value>
+  </data>
+  <data name="Landing_HeroBadge" xml:space="preserve">
+    <value>منصة الحوكمة والمخاطر والامتثال الأولى في المملكة</value>
+  </data>
+  <data name="Landing_HeroTitle" xml:space="preserve">
+    <value>إدارة الامتثال</value>
+  </data>
+  <data name="Landing_HeroTitleAI" xml:space="preserve">
+    <value>بذكاء اصطناعي</value>
+  </data>
+  <data name="Landing_HeroTitleFor" xml:space="preserve">
+    <value>للمؤسسات السعودية</value>
+  </data>
+  <data name="Landing_HeroSubtitle" xml:space="preserve">
+    <value>منصة متكاملة لإدارة الحوكمة والمخاطر والامتثال مع دعم كامل للأطر التنظيمية السعودية ومعايير الأمن السيبراني الوطنية</value>
+  </data>
+  <data name="Landing_StartFreeTrial" xml:space="preserve">
+    <value>ابدأ تجربتك المجانية</value>
+  </data>
+  <data name="Landing_BookDemo" xml:space="preserve">
+    <value>احجز عرض توضيحي</value>
+  </data>
+  <data name="Landing_RegulatoryBodies" xml:space="preserve">
+    <value>جهة تنظيمية</value>
+  </data>
+  <data name="Landing_LocalAndInternational" xml:space="preserve">
+    <value>محلية ودولية</value>
+  </data>
+  <data name="Landing_Frameworks" xml:space="preserve">
+    <value>إطار تنظيمي</value>
+  </data>
+  <data name="Landing_CertifiedAndUpdated" xml:space="preserve">
+    <value>معتمد ومحدث</value>
+  </data>
+  <data name="Landing_Controls" xml:space="preserve">
+    <value>ضابط رقابي</value>
+  </data>
+  <data name="Landing_ReadyToApply" xml:space="preserve">
+    <value>جاهز للتطبيق</value>
+  </data>
+  <data name="Landing_AIAgents" xml:space="preserve">
+    <value>وكيل ذكاء اصطناعي</value>
+  </data>
+  <data name="Landing_Specialized" xml:space="preserve">
+    <value>متخصص</value>
+  </data>
+  <data name="Landing_Challenges" xml:space="preserve">
+    <value>التحديات</value>
+  </data>
+  <data name="Landing_DoYouFaceTheseChallenges" xml:space="preserve">
+    <value>هل تواجه هذه التحديات؟</value>
+  </data>
+  <data name="Landing_MostSaudiOrganizations" xml:space="preserve">
+    <value>معظم المؤسسات السعودية تعاني من نفس التحديات في إدارة الامتثال والمخاطر</value>
+  </data>
+  <data name="Landing_DataFragmentation" xml:space="preserve">
+    <value>تشتت البيانات</value>
+  </data>
+  <data name="Landing_DataFragmentationDesc" xml:space="preserve">
+    <value>معلومات الامتثال مبعثرة في ملفات Excel ورسائل البريد الإلكتروني والمجلدات المختلفة</value>
+  </data>
+  <data name="Landing_TimeWaste" xml:space="preserve">
+    <value>ضياع الوقت</value>
+  </data>
+  <data name="Landing_TimeWasteDesc" xml:space="preserve">
+    <value>ساعات طويلة تُهدر في جمع الأدلة يدوياً والبحث عن الوثائق للتدقيق</value>
+  </data>
+  <data name="Landing_ComplianceRisks" xml:space="preserve">
+    <value>مخاطر عدم الامتثال</value>
+  </data>
+  <data name="Landing_ComplianceRisksDesc" xml:space="preserve">
+    <value>غرامات مالية كبيرة وأضرار بالسمعة نتيجة عدم متابعة المتطلبات التنظيمية</value>
+  </data>
+  <data name="Landing_SkillsGap" xml:space="preserve">
+    <value>نقص الكفاءات</value>
+  </data>
+  <data name="Landing_SkillsGapDesc" xml:space="preserve">
+    <value>صعوبة إيجاد خبراء الامتثال المؤهلين وارتفاع تكلفة التدريب والاستقطاب</value>
+  </data>
+  <data name="Landing_ShahinSolvesAll" xml:space="preserve">
+    <value>منصة شاهين تحل كل هذه التحديات في منصة واحدة متكاملة</value>
+  </data>
+  <data name="Landing_Features" xml:space="preserve">
+    <value>المميزات</value>
+  </data>
+  <data name="Landing_EverythingYouNeed" xml:space="preserve">
+    <value>كل ما تحتاجه في منصة واحدة</value>
+  </data>
+  <data name="Landing_ComprehensivePlatform" xml:space="preserve">
+    <value>منصة شاملة لإدارة الحوكمة والمخاطر والامتثال مع أدوات متكاملة لجميع متطلبات مؤسستك</value>
+  </data>
+  <data name="Landing_ComplianceManagement" xml:space="preserve">
+    <value>إدارة الامتثال</value>
+  </data>
+  <data name="Landing_ComplianceManagementDesc" xml:space="preserve">
+    <value>متابعة شاملة للامتثال مع جميع الأطر التنظيمية السعودية والدولية</value>
+  </data>
+  <data name="Landing_RiskManagement" xml:space="preserve">
+    <value>إدارة المخاطر</value>
+  </data>
+  <data name="Landing_RiskManagementDesc" xml:space="preserve">
+    <value>تقييم وتحليل المخاطر بأساليب احترافية مع خرائط حرارية تفاعلية</value>
+  </data>
+  <data name="Landing_AuditManagement" xml:space="preserve">
+    <value>إدارة التدقيق</value>
+  </data>
+  <data name="Landing_AuditManagementDesc" xml:space="preserve">
+    <value>تخطيط وتنفيذ عمليات التدقيق الداخلي والخارجي بكفاءة</value>
+  </data>
+  <data name="Landing_WorkflowEngine" xml:space="preserve">
+    <value>محرك سير العمل</value>
+  </data>
+  <data name="Landing_WorkflowEngineDesc" xml:space="preserve">
+    <value>أتمتة العمليات والموافقات مع محرك سير عمل متقدم</value>
+  </data>
+  <data name="Landing_PolicyManagement" xml:space="preserve">
+    <value>إدارة السياسات</value>
+  </data>
+  <data name="Landing_PolicyManagementDesc" xml:space="preserve">
+    <value>إنشاء وتوزيع ومتابعة السياسات والإجراءات التنظيمية</value>
+  </data>
+  <data name="Landing_VendorManagement" xml:space="preserve">
+    <value>إدارة الموردين</value>
+  </data>
+  <data name="Landing_VendorManagementDesc" xml:space="preserve">
+    <value>تقييم ومتابعة مخاطر الأطراف الثالثة والموردين</value>
+  </data>
+  <data name="Landing_SmartAlerts" xml:space="preserve">
+    <value>التنبيهات الذكية</value>
+  </data>
+  <data name="Landing_SmartAlertsDesc" xml:space="preserve">
+    <value>إشعارات وتنبيهات آلية للمواعيد والمهام المستحقة</value>
+  </data>
+  <data name="Landing_ActionPlans" xml:space="preserve">
+    <value>خطط العمل</value>
+  </data>
+  <data name="Landing_ActionPlansDesc" xml:space="preserve">
+    <value>إدارة ومتابعة خطط المعالجة والتحسين المستمر</value>
+  </data>
+  <data name="Landing_RegulatoryFrameworks" xml:space="preserve">
+    <value>الأطر التنظيمية</value>
+  </data>
+  <data name="Landing_RegulatoryFrameworksDesc" xml:space="preserve">
+    <value>مكتبة شاملة للأطر التنظيمية السعودية والدولية</value>
+  </data>
+  <data name="Landing_AdvancedSecurity" xml:space="preserve">
+    <value>الأمان المتقدم</value>
+  </data>
+  <data name="Landing_AdvancedSecurityDesc" xml:space="preserve">
+    <value>تشفير متقدم وتحكم في الوصول متعدد المستويات</value>
+  </data>
+  <data name="Landing_Integration" xml:space="preserve">
+    <value>التكامل</value>
+  </data>
+  <data name="Landing_IntegrationDesc" xml:space="preserve">
+    <value>تكامل سهل مع الأنظمة الموجودة وأدوات الأمن السيبراني</value>
+  </data>
+  <data name="Landing_Dashboards" xml:space="preserve">
+    <value>لوحات المعلومات</value>
+  </data>
+  <data name="Landing_DashboardsDesc" xml:space="preserve">
+    <value>لوحات تحكم تفاعلية مع تقارير ورسوم بيانية متقدمة</value>
+  </data>
+  <data name="Landing_LearnMore" xml:space="preserve">
+    <value>اعرف المزيد</value>
+  </data>
+  <data name="Landing_WhyShahin" xml:space="preserve">
+    <value>لماذا شاهين؟</value>
+  </data>
+  <data name="Landing_WhatMakesUsDifferent" xml:space="preserve">
+    <value>ما يميزنا عن غيرنا</value>
+  </data>
+  <data name="Landing_ShahinDesignedForSaudi" xml:space="preserve">
+    <value>منصة شاهين مصممة خصيصاً للسوق السعودي مع تقنيات متقدمة لا تجدها في أي منصة أخرى</value>
+  </data>
+  <data name="Landing_Contact" xml:space="preserve">
+    <value>تواصل معنا</value>
+  </data>
+  <data name="Landing_ContactTitle" xml:space="preserve">
+    <value>نحب أن نسمع منك</value>
+  </data>
+  <data name="Landing_ContactSubtitle" xml:space="preserve">
+    <value>سواء كان لديك سؤال، اقتراح، أو ترغب في معرفة المزيد عن خدماتنا، فريقنا جاهز لمساعدتك.</value>
+  </data>
+  <data name="Landing_ContactMethods" xml:space="preserve">
+    <value>طرق التواصل</value>
+  </data>
+  <data name="Landing_Email" xml:space="preserve">
+    <value>البريد الإلكتروني</value>
+  </data>
+  <data name="Landing_FAQ" xml:space="preserve">
+    <value>الأسئلة المتكررة</value>
+  </data>
+  <data name="Landing_FAQTitle" xml:space="preserve">
+    <value>كيف يمكننا مساعدتك؟</value>
+  </data>
+  <data name="Landing_FAQSubtitle" xml:space="preserve">
+    <value>إجابات على أكثر الأسئلة شيوعاً حول منصة شاهين</value>
+  </data>
+  <data name="Landing_All" xml:space="preserve">
+    <value>الكل</value>
+  </data>
+  <data name="Landing_Terms" xml:space="preserve">
+    <value>الشروط والأحكام</value>
+  </data>
+  <data name="Landing_TermsTitle" xml:space="preserve">
+    <value>الشروط والأحكام</value>
+  </data>
+  <data name="Landing_TermsSubtitle" xml:space="preserve">
+    <value>اتفاقية استخدام منصة شاهين لإدارة الحوكمة والمخاطر والامتثال</value>
+  </data>
+  <data name="Landing_LastUpdated" xml:space="preserve">
+    <value>آخر تحديث:</value>
+  </data>
+  <data name="Landing_Privacy" xml:space="preserve">
+    <value>سياسة الخصوصية</value>
+  </data>
+  <data name="Landing_PrivacyTitle" xml:space="preserve">
+    <value>خصوصيتك أولويتنا</value>
+  </data>
+  <data name="Landing_PrivacySubtitle" xml:space="preserve">
+    <value>نلتزم بأعلى معايير حماية البيانات وفقاً للأنظمة السعودية والدولية</value>
+  </data>
+  <data name="Landing_PrivacyAndSecurity" xml:space="preserve">
+    <value>الخصوصية والأمان</value>
+  </data>
+  <data name="Landing_LegalAgreement" xml:space="preserve">
+    <value>الاتفاقية القانونية</value>
+  </data>
+  <data name="Risk_Create" xml:space="preserve">
+    <value>إنشاء مخاطرة</value>
+  </data>
+  <data name="Risk_CreateNew" xml:space="preserve">
+    <value>إنشاء مخاطرة جديدة</value>
+  </data>
+  <data name="Risk_Edit" xml:space="preserve">
+    <value>تعديل المخاطرة</value>
+  </data>
+  <data name="Risk_Details" xml:space="preserve">
+    <value>تفاصيل المخاطرة</value>
+  </data>
+  <data name="Risk_Delete" xml:space="preserve">
+    <value>حذف المخاطرة</value>
+  </data>
+  <data name="Risk_DeleteWarning" xml:space="preserve">
+    <value>تحذير! هل أنت متأكد من حذف هذه المخاطرة؟ لا يمكن التراجع عن هذا الإجراء.</value>
+  </data>
+  <data name="Risk_SelectCategory" xml:space="preserve">
+    <value>اختر الفئة</value>
+  </data>
+  <data name="Risk_Category_Financial" xml:space="preserve">
+    <value>مالي</value>
+  </data>
+  <data name="Risk_Category_Operational" xml:space="preserve">
+    <value>تشغيلي</value>
+  </data>
+  <data name="Risk_Category_Strategic" xml:space="preserve">
+    <value>استراتيجي</value>
+  </data>
+  <data name="Risk_Category_Compliance" xml:space="preserve">
+    <value>امتثال</value>
+  </data>
+  <data name="Risk_Category_Reputational" xml:space="preserve">
+    <value>سمعة</value>
+  </data>
+  <data name="Risk_Category_Technology" xml:space="preserve">
+    <value>تقنية</value>
+  </data>
+  <data name="Risk_Category_Security" xml:space="preserve">
+    <value>أمن</value>
+  </data>
+  <data name="Risk_Probability_VeryLow" xml:space="preserve">
+    <value>منخفض جداً (1)</value>
+  </data>
+  <data name="Risk_Probability_Low" xml:space="preserve">
+    <value>منخفض (2)</value>
+  </data>
+  <data name="Risk_Probability_Medium" xml:space="preserve">
+    <value>متوسط (3)</value>
+  </data>
+  <data name="Risk_Probability_High" xml:space="preserve">
+    <value>عالي (4)</value>
+  </data>
+  <data name="Risk_Probability_VeryHigh" xml:space="preserve">
+    <value>عالي جداً (5)</value>
+  </data>
+  <data name="Risk_Impact_Negligible" xml:space="preserve">
+    <value>ضئيل (1)</value>
+  </data>
+  <data name="Risk_Impact_Minor" xml:space="preserve">
+    <value>بسيط (2)</value>
+  </data>
+  <data name="Risk_Impact_Moderate" xml:space="preserve">
+    <value>متوسط (3)</value>
+  </data>
+  <data name="Risk_Impact_Major" xml:space="preserve">
+    <value>كبير (4)</value>
+  </data>
+  <data name="Risk_Impact_Catastrophic" xml:space="preserve">
+    <value>كارثي (5)</value>
+  </data>
+  <data name="Risk_MitigationStrategy" xml:space="preserve">
+    <value>استراتيجية التخفيف</value>
+  </data>
+  <data name="Risk_Owner" xml:space="preserve">
+    <value>المالك</value>
+  </data>
+  <data name="Risk_DueDate" xml:space="preserve">
+    <value>تاريخ الاستحقاق</value>
+  </data>
+  <data name="Risk_BackToList" xml:space="preserve">
+    <value>العودة إلى القائمة</value>
+  </data>
+  <data name="Risk_YesDelete" xml:space="preserve">
+    <value>نعم، احذف</value>
+  </data>
+  <data name="Risk_Overdue" xml:space="preserve">
+    <value>متأخر</value>
+  </data>
+  <data name="Risk_NotSet" xml:space="preserve">
+    <value>غير محدد</value>
+  </data>
+  <data name="Risk_CreatedDate" xml:space="preserve">
+    <value>تاريخ الإنشاء</value>
+  </data>
+  <data name="Risk_LastModified" xml:space="preserve">
+    <value>آخر تعديل</value>
+  </data>
+  <data name="Risk_RiskPosition" xml:space="preserve">
+    <value>موقع المخاطرة</value>
+  </data>
+  <data name="Risk_AddControl" xml:space="preserve">
+    <value>إضافة ضابط</value>
+  </data>
+  <data name="Risk_ScheduleAssessment" xml:space="preserve">
+    <value>جدولة تقييم</value>
+  </data>
+  <data name="Risk_GenerateReport" xml:space="preserve">
+    <value>إنشاء تقرير</value>
+  </data>
+  <data name="Risk_RiskId" xml:space="preserve">
+    <value>معرف المخاطرة:</value>
+  </data>
+  <data name="Risk_RiskName" xml:space="preserve">
+    <value>اسم المخاطرة:</value>
+  </data>
+  <data name="Risk_RiskOwner" xml:space="preserve">
+    <value>مالك المخاطرة:</value>
+  </data>
+  <data name="Risk_InherentRiskScore" xml:space="preserve">
+    <value>نقاط المخاطرة الفطرية:</value>
+  </data>
+  <data name="Risk_ResidualRiskScore" xml:space="preserve">
+    <value>نقاط المخاطرة المتبقية:</value>
+  </data>
+  <data name="Risk_Unknown" xml:space="preserve">
+    <value>غير معروف</value>
+  </data>
+  <data name="Risk_VeryLowRisk" xml:space="preserve">
+    <value>مخاطرة منخفضة جداً</value>
+  </data>
+  <data name="Risk_LowRisk" xml:space="preserve">
+    <value>مخاطرة منخفضة</value>
+  </data>
+  <data name="Risk_MediumRisk" xml:space="preserve">
+    <value>مخاطرة متوسطة</value>
+  </data>
+  <data name="Risk_HighRisk" xml:space="preserve">
+    <value>مخاطرة عالية</value>
+  </data>
+  <data name="Risk_CriticalRisk" xml:space="preserve">
+    <value>مخاطرة حرجة</value>
+  </data>
+  <data name="RiskAppetite_Title" xml:space="preserve">
+    <value>إعدادات الرغبة في المخاطر</value>
+  </data>
+  <data name="RiskAppetite_Create" xml:space="preserve">
+    <value>إنشاء رغبة في المخاطر</value>
+  </data>
+  <data name="RiskAppetite_Edit" xml:space="preserve">
+    <value>تعديل رغبة في المخاطر</value>
+  </data>
+  <data name="RiskAppetite_Category" xml:space="preserve">
+    <value>فئة المخاطر</value>
+  </data>
+  <data name="RiskAppetite_Name" xml:space="preserve">
+    <value>اسم الإعداد</value>
+  </data>
+  <data name="RiskAppetite_Description" xml:space="preserve">
+    <value>الوصف</value>
+  </data>
+  <data name="RiskAppetite_MinimumScore" xml:space="preserve">
+    <value>الحد الأدنى لدرجة المخاطر</value>
+  </data>
+  <data name="RiskAppetite_MaximumScore" xml:space="preserve">
+    <value>الحد الأقصى لدرجة المخاطر</value>
+  </data>
+  <data name="RiskAppetite_TargetScore" xml:space="preserve">
+    <value>درجة المخاطر المستهدفة</value>
+  </data>
+  <data name="RiskAppetite_TolerancePercentage" xml:space="preserve">
+    <value>نسبة التسامح (%)</value>
+  </data>
+  <data name="RiskAppetite_ImpactThreshold" xml:space="preserve">
+    <value>عتبة التأثير</value>
+  </data>
+  <data name="RiskAppetite_LikelihoodThreshold" xml:space="preserve">
+    <value>عتبة الاحتمالية</value>
+  </data>
+  <data name="RiskAppetite_IsActive" xml:space="preserve">
+    <value>نشط</value>
+  </data>
+  <data name="RiskAppetite_ApprovedDate" xml:space="preserve">
+    <value>تاريخ الموافقة</value>
+  </data>
+  <data name="RiskAppetite_ApprovedBy" xml:space="preserve">
+    <value>تمت الموافقة من قبل</value>
+  </data>
+  <data name="RiskAppetite_ExpiryDate" xml:space="preserve">
+    <value>تاريخ الانتهاء</value>
+  </data>
+  <data name="RiskAppetite_ReviewReminder" xml:space="preserve">
+    <value>تذكير المراجعة (أيام)</value>
+  </data>
+  <data name="RiskAppetite_Approve" xml:space="preserve">
+    <value>موافقة</value>
+  </data>
+  <data name="RiskAppetite_Delete" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="RiskAppetite_Comparison" xml:space="preserve">
+    <value>مقارنة الرغبة في المخاطر</value>
+  </data>
+  <data name="RiskAppetite_Summary" xml:space="preserve">
+    <value>ملخص الرغبة</value>
+  </data>
+  <data name="RiskAppetite_Status_UnderControlled" xml:space="preserve">
+    <value>تحت السيطرة المفرطة</value>
+  </data>
+  <data name="RiskAppetite_Status_OnTarget" xml:space="preserve">
+    <value>على الهدف</value>
+  </data>
+  <data name="RiskAppetite_Status_WithinAppetite" xml:space="preserve">
+    <value>ضمن الرغبة</value>
+  </data>
+  <data name="RiskAppetite_Status_AtTolerance" xml:space="preserve">
+    <value>عند التسامح</value>
+  </data>
+  <data name="RiskAppetite_Status_Exceeded" xml:space="preserve">
+    <value>تم التجاوز</value>
+  </data>
+  <data name="RiskAppetite_CompliancePercentage" xml:space="preserve">
+    <value>نسبة الامتثال</value>
+  </data>
+  <data name="RiskAppetite_ExpiringSoon" xml:space="preserve">
+    <value>ينتهي قريباً</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step1_Title" xml:space="preserve">
+    <value>التقييم</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step1_Desc" xml:space="preserve">
+    <value>حدد الأطر التنظيمية المطبقة على مؤسستك واحصل على تقييم فوري لوضع الامتثال الحالي</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step1_Item1" xml:space="preserve">
+    <value>تحديد نطاق الامتثال</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step1_Item2" xml:space="preserve">
+    <value>تقييم الفجوات</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step1_Item3" xml:space="preserve">
+    <value>تحديد الأولويات</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step2_Title" xml:space="preserve">
+    <value>التصميم</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step2_Desc" xml:space="preserve">
+    <value>صمم خارطة طريق الامتثال وحدد الضوابط والسياسات المطلوبة لكل إطار تنظيمي</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step2_Item1" xml:space="preserve">
+    <value>تصميم الضوابط</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step2_Item2" xml:space="preserve">
+    <value>إعداد السياسات</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step2_Item3" xml:space="preserve">
+    <value>تعيين المسؤوليات</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step3_Title" xml:space="preserve">
+    <value>التنفيذ</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step3_Desc" xml:space="preserve">
+    <value>نفذ خطة الامتثال مع جمع الأدلة وتوثيق العمليات ومتابعة التقدم بشكل مستمر</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step3_Item1" xml:space="preserve">
+    <value>جمع الأدلة</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step3_Item2" xml:space="preserve">
+    <value>تنفيذ الإجراءات</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step3_Item3" xml:space="preserve">
+    <value>توثيق العمليات</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step4_Title" xml:space="preserve">
+    <value>المراقبة</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step4_Desc" xml:space="preserve">
+    <value>راقب حالة الامتثال باستمرار مع تنبيهات ذكية وتقارير دورية وجاهزية دائمة للتدقيق</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step4_Item1" xml:space="preserve">
+    <value>مراقبة مستمرة</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step4_Item2" xml:space="preserve">
+    <value>تنبيهات استباقية</value>
+  </data>
+  <data name="Landing_Index_Timeline_Step4_Item3" xml:space="preserve">
+    <value>جاهزية التدقيق</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat1_Value" xml:space="preserve">
+    <value>2-4</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat1_Label" xml:space="preserve">
+    <value>أسابيع للتطبيق</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat2_Value" xml:space="preserve">
+    <value>80%</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat2_Label" xml:space="preserve">
+    <value>توفير في الوقت</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat3_Value" xml:space="preserve">
+    <value>99%</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat3_Label" xml:space="preserve">
+    <value>دقة التقييم</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat4_Value" xml:space="preserve">
+    <value>24/7</value>
+  </data>
+  <data name="Landing_Index_Timeline_Stat4_Label" xml:space="preserve">
+    <value>دعم فني</value>
+  </data>
+  <data name="Landing_Index_Regulators_Eyebrow" xml:space="preserve">
+    <value>الأطر التنظيمية</value>
+  </data>
+  <data name="Landing_Index_Regulators_Title" xml:space="preserve">
+    <value>دعم كامل للمتطلبات التنظيمية السعودية</value>
+  </data>
+  <data name="Landing_Index_Regulators_Subtitle" xml:space="preserve">
+    <value>متوافق مع جميع الأطر والمعايير التنظيمية الصادرة من الجهات الحكومية السعودية</value>
+  </data>
+  <data name="Landing_Index_Regulator_NCA" xml:space="preserve">
+    <value>الهيئة الوطنية للأمن السيبراني</value>
+  </data>
+  <data name="Landing_Index_Regulator_SAMA" xml:space="preserve">
+    <value>البنك المركزي السعودي</value>
+  </data>
+  <data name="Landing_Index_Regulator_CMA" xml:space="preserve">
+    <value>هيئة السوق المالية</value>
+  </data>
+  <data name="Landing_Index_Regulator_CITC" xml:space="preserve">
+    <value>هيئة الاتصالات وتقنية المعلومات</value>
+  </data>
+  <data name="Landing_Index_Regulator_SDAIA" xml:space="preserve">
+    <value>هيئة البيانات والذكاء الاصطناعي</value>
+  </data>
+  <data name="Landing_Index_Regulator_PDPL" xml:space="preserve">
+    <value>نظام حماية البيانات الشخصية</value>
+  </data>
+  <data name="Landing_Index_CTA_Title" xml:space="preserve">
+    <value>ابدأ رحلة الامتثال اليوم</value>
+  </data>
+  <data name="Landing_Index_CTA_Subtitle" xml:space="preserve">
+    <value>تجربة مجانية كاملة الميزات لمدة 7 أيام. بدون بطاقة ائتمان.</value>
+  </data>
+  <data name="Landing_Index_CTA_Button" xml:space="preserve">
+    <value>ابدأ الآن مجاناً</value>
+  </data>
+  <data name="Landing_Index_CTA_Contact" xml:space="preserve">
+    <value>تحدث مع فريقنا</value>
+  </data>
+  <data name="Landing_Index_CTA_FeaturesLabel" xml:space="preserve">
+    <value>مميزات التجربة</value>
+  </data>
+  <data name="Landing_Index_CTA_Feature1" xml:space="preserve">
+    <value>جميع الميزات متاحة</value>
+  </data>
+  <data name="Landing_Index_CTA_Feature2" xml:space="preserve">
+    <value>بدون بطاقة ائتمان</value>
+  </data>
+  <data name="Landing_Index_CTA_Feature3" xml:space="preserve">
+    <value>دعم فني خلال التجربة</value>
+  </data>
+  <data name="Landing_Index_CTA_Feature4" xml:space="preserve">
+    <value>إلغاء في أي وقت</value>
+  </data>
+  <data name="Api_Error_AgentNotFound" xml:space="preserve">
+    <value>الوكيل غير موجود</value>
+  </data>
+  <data name="Api_Error_AssetNotFound" xml:space="preserve">
+    <value>الأصل غير موجود</value>
+  </data>
+  <data name="Api_Error_AuditNotFound" xml:space="preserve">
+    <value>المراجعة غير موجودة</value>
+  </data>
+  <data name="Api_Error_BaselineNotFound" xml:space="preserve">
+    <value>خط الأساس غير موجود</value>
+  </data>
+  <data name="Api_Error_CertificationNotFound" xml:space="preserve">
+    <value>الشهادة غير موجودة</value>
+  </data>
+  <data name="Api_Error_ControlNotFound" xml:space="preserve">
+    <value>الضابط غير موجود</value>
+  </data>
+  <data name="Api_Error_EvidenceNotFound" xml:space="preserve">
+    <value>الدليل غير موجود</value>
+  </data>
+  <data name="Api_Error_EvidenceTypeNotFound" xml:space="preserve">
+    <value>نوع الدليل غير موجود</value>
+  </data>
+  <data name="Api_Error_EvidenceWorkflowNotFound" xml:space="preserve">
+    <value>سير عمل الدليل غير موجود</value>
+  </data>
+  <data name="Api_Error_ExceptionNotFound" xml:space="preserve">
+    <value>الاستثناء غير موجود</value>
+  </data>
+  <data name="Api_Error_FrameworkNotFound" xml:space="preserve">
+    <value>الإطار التنظيمي غير موجود</value>
+  </data>
+  <data name="Api_Error_GapNotFound" xml:space="preserve">
+    <value>الفجوة غير موجودة</value>
+  </data>
+  <data name="Api_Error_IncidentNotFound" xml:space="preserve">
+    <value>الحادثة غير موجودة</value>
+  </data>
+  <data name="Api_Error_MailboxNotFound" xml:space="preserve">
+    <value>صندوق البريد غير موجود</value>
+  </data>
+  <data name="Api_Error_NoRemediationPlanFound" xml:space="preserve">
+    <value>لم يتم العثور على خطة معالجة</value>
+  </data>
+  <data name="Api_Error_PackageNotFound" xml:space="preserve">
+    <value>الحزمة غير موجودة</value>
+  </data>
+  <data name="Api_Error_PlatformAdminNotFound" xml:space="preserve">
+    <value>مسؤول المنصة غير موجود</value>
+  </data>
+  <data name="Api_Error_PolicyNotFound" xml:space="preserve">
+    <value>السياسة غير موجودة</value>
+  </data>
+  <data name="Api_Error_ReportNotFound" xml:space="preserve">
+    <value>التقرير غير موجود</value>
+  </data>
+  <data name="Api_Error_ResilienceAssessmentNotFound" xml:space="preserve">
+    <value>تقييم المرونة غير موجود</value>
+  </data>
+  <data name="Api_Error_RoleNotFound" xml:space="preserve">
+    <value>الدور الوظيفي غير موجود</value>
+  </data>
+  <data name="Api_Error_RuleNotFound" xml:space="preserve">
+    <value>القاعدة غير موجودة</value>
+  </data>
+  <data name="Api_Error_RulesetNotFound" xml:space="preserve">
+    <value>مجموعة القواعد غير موجودة</value>
+  </data>
+  <data name="Api_Error_SmtpSettingsNotFound" xml:space="preserve">
+    <value>إعدادات SMTP غير موجودة</value>
+  </data>
+  <data name="Api_Error_TemplateNotFound" xml:space="preserve">
+    <value>القالب غير موجود</value>
+  </data>
+  <data name="Api_Error_TestNotFound" xml:space="preserve">
+    <value>الاختبار غير موجود</value>
+  </data>
+  <data name="Api_Error_ThreadNotFound" xml:space="preserve">
+    <value>المحادثة غير موجودة</value>
+  </data>
+  <data name="Api_Error_TitleNotFound" xml:space="preserve">
+    <value>المسمى الوظيفي غير موجود</value>
+  </data>
+  <data name="Api_Error_UserNotFound" xml:space="preserve">
+    <value>المستخدم غير موجود</value>
+  </data>
+  <data name="Api_Error_TenantNotFound" xml:space="preserve">
+    <value>المنظمة غير موجودة</value>
+  </data>
+  <data name="Api_Error_WorkflowDefinitionNotFound" xml:space="preserve">
+    <value>تعريف سير العمل غير موجود</value>
+  </data>
+  <data name="Api_Error_WorkflowNotFound" xml:space="preserve">
+    <value>سير العمل غير موجود</value>
+  </data>
+  <data name="Api_Error_WorkspaceNotFound" xml:space="preserve">
+    <value>مساحة العمل غير موجودة</value>
+  </data>
+  <data name="Api_Error_OrganizationProfileNotFound" xml:space="preserve">
+    <value>ملف المنظمة غير موجود</value>
+  </data>
+  <data name="Api_Error_OrganizationProfileNotFoundSectorRequired" xml:space="preserve">
+    <value>ملف المنظمة غير موجود. يرجى تقديم معامل القطاع.</value>
+  </data>
+  <data name="Api_Error_RegulatorNotFound" xml:space="preserve">
+    <value>الجهة التنظيمية غير موجودة</value>
+  </data>
+  <data name="Api_Error_NoSubscriptionExists" xml:space="preserve">
+    <value>لا يوجد اشتراك</value>
+  </data>
+  <data name="Api_Error_NoOwnerAssigned" xml:space="preserve">
+    <value>لم يتم تعيين مالك</value>
+  </data>
+  <data name="Api_Error_ActionRequired" xml:space="preserve">
+    <value>الإجراء مطلوب</value>
+  </data>
+  <data name="Api_Error_CodeRequired" xml:space="preserve">
+    <value>الرمز مطلوب</value>
+  </data>
+  <data name="Api_Error_EmailNewPasswordRequired" xml:space="preserve">
+    <value>البريد الإلكتروني وكلمة المرور الجديدة مطلوبان</value>
+  </data>
+  <data name="Api_Error_EmailPasswordRequired" xml:space="preserve">
+    <value>البريد الإلكتروني وكلمة المرور مطلوبان</value>
+  </data>
+  <data name="Api_Error_EmailRequired" xml:space="preserve">
+    <value>البريد الإلكتروني مطلوب</value>
+  </data>
+  <data name="Api_Error_ErrorIdRequired" xml:space="preserve">
+    <value>معرف الخطأ مطلوب</value>
+  </data>
+  <data name="Api_Error_FileMustBeCsv" xml:space="preserve">
+    <value>يجب أن يكون الملف بصيغة CSV</value>
+  </data>
+  <data name="Api_Error_FilePathRequired" xml:space="preserve">
+    <value>مسار الملف مطلوب</value>
+  </data>
+  <data name="Api_Error_UserFieldsRequired" xml:space="preserve">
+    <value>الاسم الأول والأخير والبريد الإلكتروني وكلمة المرور مطلوبة</value>
+  </data>
+  <data name="Api_Error_FrameworkCodeRequired" xml:space="preserve">
+    <value>رمز الإطار التنظيمي مطلوب</value>
+  </data>
+  <data name="Api_Error_MessageRequired" xml:space="preserve">
+    <value>الرسالة مطلوبة</value>
+  </data>
+  <data name="Api_Error_NoFileProvided" xml:space="preserve">
+    <value>لم يتم تقديم ملف</value>
+  </data>
+  <data name="Api_Error_NoFileUploaded" xml:space="preserve">
+    <value>لم يتم رفع أي ملف</value>
+  </data>
+  <data name="Api_Error_OrgNameEmailRequired" xml:space="preserve">
+    <value>اسم المنظمة والبريد الإلكتروني للمسؤول مطلوبان</value>
+  </data>
+  <data name="Api_Error_PlanNameRequired" xml:space="preserve">
+    <value>اسم الخطة مطلوب</value>
+  </data>
+  <data name="Api_Error_ProblemDescriptionRequired" xml:space="preserve">
+    <value>وصف المشكلة مطلوب</value>
+  </data>
+  <data name="Api_Error_QuestionRequired" xml:space="preserve">
+    <value>السؤال مطلوب</value>
+  </data>
+  <data name="Api_Error_ReopenReasonRequired" xml:space="preserve">
+    <value>السبب مطلوب لإعادة الفتح</value>
+  </data>
+  <data name="Api_Error_RejectionReasonRequired" xml:space="preserve">
+    <value>سبب الرفض مطلوب</value>
+  </data>
+  <data name="Api_Error_RequestBodyRequired" xml:space="preserve">
+    <value>محتوى الطلب مطلوب</value>
+  </data>
+  <data name="Api_Error_RoleCodeRequired" xml:space="preserve">
+    <value>رمز الدور الوظيفي مطلوب</value>
+  </data>
+  <data name="Api_Error_SearchQueryRequired" xml:space="preserve">
+    <value>استعلام البحث مطلوب</value>
+  </data>
+  <data name="Api_Error_TitleRequired" xml:space="preserve">
+    <value>العنوان مطلوب</value>
+  </data>
+  <data name="Api_Error_UserIdRequired" xml:space="preserve">
+    <value>معرف المستخدم مطلوب</value>
+  </data>
+  <data name="Api_Error_WorkspaceIdRequired" xml:space="preserve">
+    <value>معرف مساحة العمل مطلوب</value>
+  </data>
+  <data name="Api_Error_AuditSelectionRequired" xml:space="preserve">
+    <value>تقارير المراجعة تتطلب تحديد مراجعة محددة</value>
+  </data>
+  <data name="Api_Error_ControlSelectionRequired" xml:space="preserve">
+    <value>تقارير الضوابط تتطلب تحديد ضابط محدد</value>
+  </data>
+  <data name="Api_Error_FailedToAddMember" xml:space="preserve">
+    <value>فشل في إضافة العضو</value>
+  </data>
+  <data name="Api_Error_FailedToAnalyzeErrors" xml:space="preserve">
+    <value>فشل في تحليل الأخطاء</value>
+  </data>
+  <data name="Api_Error_FailedToAnalyzeHealth" xml:space="preserve">
+    <value>فشل في تحليل الصحة</value>
+  </data>
+  <data name="Api_Error_FailedToAnalyzeRootCause" xml:space="preserve">
+    <value>فشل في تحليل السبب الجذري</value>
+  </data>
+  <data name="Api_Error_FailedToAssignOwner" xml:space="preserve">
+    <value>فشل في تعيين المالك</value>
+  </data>
+  <data name="Api_Error_FailedToCheckPermission" xml:space="preserve">
+    <value>فشل في التحقق من الصلاحية</value>
+  </data>
+  <data name="Api_Error_FailedToCreateAsset" xml:space="preserve">
+    <value>فشل في إنشاء الأصل</value>
+  </data>
+  <data name="Api_Error_FailedToCreatePlatformAdmin" xml:space="preserve">
+    <value>فشل في إنشاء مسؤول المنصة</value>
+  </data>
+  <data name="Api_Error_FailedToCreateReport" xml:space="preserve">
+    <value>فشل في إنشاء التقرير</value>
+  </data>
+  <data name="Api_Error_FailedToCreateTenant" xml:space="preserve">
+    <value>فشل في إنشاء المنظمة</value>
+  </data>
+  <data name="Api_Error_FailedToCreateUser" xml:space="preserve">
+    <value>فشل في إنشاء المستخدم. راجع السجلات للحصول على التفاصيل.</value>
+  </data>
+  <data name="Api_Error_FailedToCreateWorkspace" xml:space="preserve">
+    <value>فشل في إنشاء مساحة العمل</value>
+  </data>
+  <data name="Api_Error_FailedToDeleteAsset" xml:space="preserve">
+    <value>فشل في حذف الأصل</value>
+  </data>
+  <data name="Api_Error_FailedToDeletePlatformAdmin" xml:space="preserve">
+    <value>فشل في حذف مسؤول المنصة</value>
+  </data>
+  <data name="Api_Error_FailedToDeleteReport" xml:space="preserve">
+    <value>فشل في حذف التقرير</value>
+  </data>
+  <data name="Api_Error_FailedToDetectPatterns" xml:space="preserve">
+    <value>فشل في اكتشاف الأنماط</value>
+  </data>
+  <data name="Api_Error_FailedToDiagnoseError" xml:space="preserve">
+    <value>فشل في تشخيص الخطأ</value>
+  </data>
+  <data name="Api_Error_FailedToDownloadReport" xml:space="preserve">
+    <value>فشل في تنزيل التقرير</value>
+  </data>
+  <data name="Api_Error_FailedToExportReport" xml:space="preserve">
+    <value>فشل في تصدير التقرير</value>
+  </data>
+  <data name="Api_Error_FailedToForcePasswordChange" xml:space="preserve">
+    <value>فشل في فرض تغيير كلمة المرور</value>
+  </data>
+  <data name="Api_Error_FailedToGenerateExecutiveSummary" xml:space="preserve">
+    <value>فشل في إنشاء الملخص التنفيذي</value>
+  </data>
+  <data name="Api_Error_FailedToGenerateReport" xml:space="preserve">
+    <value>فشل في إنشاء التقرير</value>
+  </data>
+  <data name="Api_Error_FailedToGetAlerts" xml:space="preserve">
+    <value>فشل في الحصول على التنبيهات</value>
+  </data>
+  <data name="Api_Error_FailedToGetAllowedTenants" xml:space="preserve">
+    <value>فشل في الحصول على المنظمات المسموح بها</value>
+  </data>
+  <data name="Api_Error_FailedToGetCurrentWorkspace" xml:space="preserve">
+    <value>فشل في الحصول على مساحة العمل الحالية</value>
+  </data>
+  <data name="Api_Error_FailedToGetMembers" xml:space="preserve">
+    <value>فشل في الحصول على الأعضاء</value>
+  </data>
+  <data name="Api_Error_FailedToGetMetrics" xml:space="preserve">
+    <value>فشل في الحصول على المقاييس</value>
+  </data>
+  <data name="Api_Error_FailedToGetRecommendations" xml:space="preserve">
+    <value>فشل في الحصول على التوصيات</value>
+  </data>
+  <data name="Api_Error_FailedToGetWorkspace" xml:space="preserve">
+    <value>فشل في الحصول على مساحة العمل</value>
+  </data>
+  <data name="Api_Error_FailedToImportAssets" xml:space="preserve">
+    <value>فشل في استيراد الأصول</value>
+  </data>
+  <data name="Api_Error_FailedToListWorkspaces" xml:space="preserve">
+    <value>فشل في سرد مساحات العمل</value>
+  </data>
+  <data name="Api_Error_FailedToLoadAlerts" xml:space="preserve">
+    <value>فشل في تحميل التنبيهات</value>
+  </data>
+  <data name="Api_Error_FailedToLoadApiMetrics" xml:space="preserve">
+    <value>فشل في تحميل مقاييس API</value>
+  </data>
+  <data name="Api_Error_FailedToLoadAuditReadiness" xml:space="preserve">
+    <value>فشل في تحميل جاهزية المراجعة</value>
+  </data>
+  <data name="Api_Error_FailedToLoadAuthAnomalies" xml:space="preserve">
+    <value>فشل في تحميل حالات شاذة في المصادقة</value>
+  </data>
+  <data name="Api_Error_FailedToLoadDataFreshness" xml:space="preserve">
+    <value>فشل في تحميل حداثة البيانات</value>
+  </data>
+  <data name="Api_Error_FailedToLoadDataQualityDashboard" xml:space="preserve">
+    <value>فشل في تحميل لوحة معلومات جودة البيانات</value>
+  </data>
+  <data name="Api_Error_FailedToLoadEvidenceGaps" xml:space="preserve">
+    <value>فشل في تحميل فجوات الأدلة</value>
+  </data>
+  <data name="Api_Error_FailedToLoadExecutiveDashboard" xml:space="preserve">
+    <value>فشل في تحميل اللوحة التنفيذية</value>
+  </data>
+  <data name="Api_Error_FailedToLoadIntegrationHealth" xml:space="preserve">
+    <value>فشل في تحميل صحة التكامل</value>
+  </data>
+  <data name="Api_Error_FailedToLoadMissingMappings" xml:space="preserve">
+    <value>فشل في تحميل التعيينات المفقودة</value>
+  </data>
+  <data name="Api_Error_FailedToLoadOperationsDashboard" xml:space="preserve">
+    <value>فشل في تحميل لوحة العمليات</value>
+  </data>
+  <data name="Api_Error_FailedToLoadOrphanRecords" xml:space="preserve">
+    <value>فشل في تحميل السجلات اليتيمة</value>
+  </data>
+  <data name="Api_Error_FailedToLoadOwnerWorkload" xml:space="preserve">
+    <value>فشل في تحميل عبء عمل المالك</value>
+  </data>
+  <data name="Api_Error_FailedToLoadSecurityDashboard" xml:space="preserve">
+    <value>فشل في تحميل لوحة الأمان</value>
+  </data>
+  <data name="Api_Error_FailedToLoadSlaBreaches" xml:space="preserve">
+    <value>فشل في تحميل انتهاكات اتفاقية مستوى الخدمة</value>
+  </data>
+  <data name="Api_Error_FailedToLoadTenantOverview" xml:space="preserve">
+    <value>فشل في تحميل نظرة عامة على المنظمة</value>
+  </data>
+  <data name="Api_Error_FailedToLoadTenantsSummary" xml:space="preserve">
+    <value>فشل في تحميل ملخص المنظمات</value>
+  </data>
+  <data name="Api_Error_FailedToLoadWorkQueue" xml:space="preserve">
+    <value>فشل في تحميل قائمة انتظار العمل</value>
+  </data>
+  <data name="Api_Error_FailedToMonitorConditions" xml:space="preserve">
+    <value>فشل في مراقبة الظروف</value>
+  </data>
+  <data name="Api_Error_FailedToProcessRequest" xml:space="preserve">
+    <value>فشل في معالجة الطلب</value>
+  </data>
+  <data name="Api_Error_FailedToReactivatePlatformAdmin" xml:space="preserve">
+    <value>فشل في إعادة تفعيل مسؤول المنصة</value>
+  </data>
+  <data name="Api_Error_FailedToRemoveMember" xml:space="preserve">
+    <value>فشل في إزالة العضو</value>
+  </data>
+  <data name="Api_Error_FailedToReorderRules" xml:space="preserve">
+    <value>فشل في إعادة ترتيب القواعد</value>
+  </data>
+  <data name="Api_Error_FailedToResetPassword" xml:space="preserve">
+    <value>فشل في إعادة تعيين كلمة المرور</value>
+  </data>
+  <data name="Api_Error_FailedToRestartTenantAdmin" xml:space="preserve">
+    <value>فشل في إعادة تشغيل مسؤول المنظمة</value>
+  </data>
+  <data name="Api_Error_FailedToRestartTenantAdminPermissions" xml:space="preserve">
+    <value>فشل في إعادة تشغيل مسؤول المنظمة - تحقق من الصلاحيات</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveActiveAdmins" xml:space="preserve">
+    <value>فشل في استرجاع المسؤولين النشطين</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveAsset" xml:space="preserve">
+    <value>فشل في استرجاع الأصل</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveAssetSummary" xml:space="preserve">
+    <value>فشل في استرجاع ملخص الأصول</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveAssets" xml:space="preserve">
+    <value>فشل في استرجاع الأصول</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveCounts" xml:space="preserve">
+    <value>فشل في استرجاع الأعداد</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveInScopeAssets" xml:space="preserve">
+    <value>فشل في استرجاع الأصول ضمن النطاق</value>
+  </data>
+  <data name="Api_Error_FailedToRetrievePciAssets" xml:space="preserve">
+    <value>فشل في استرجاع أصول PCI</value>
+  </data>
+  <data name="Api_Error_FailedToRetrievePiiAssets" xml:space="preserve">
+    <value>فشل في استرجاع أصول PII</value>
+  </data>
+  <data name="Api_Error_FailedToRetrievePlatformAdmin" xml:space="preserve">
+    <value>فشل في استرجاع مسؤول المنصة</value>
+  </data>
+  <data name="Api_Error_FailedToRetrievePlatformAdmins" xml:space="preserve">
+    <value>فشل في استرجاع مسؤولي المنصة</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveProfile" xml:space="preserve">
+    <value>فشل في استرجاع الملف الشخصي</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveReport" xml:space="preserve">
+    <value>فشل في استرجاع التقرير</value>
+  </data>
+  <data name="Api_Error_FailedToRetrieveUnassignedAssets" xml:space="preserve">
+    <value>فشل في استرجاع الأصول غير المعينة</value>
+  </data>
+  <data name="Api_Error_FailedToSendTestAlert" xml:space="preserve">
+    <value>فشل في إرسال تنبيه تجريبي</value>
+  </data>
+  <data name="Api_Error_FailedToSetDefaultWorkspace" xml:space="preserve">
+    <value>فشل في تعيين مساحة العمل الافتراضية</value>
+  </data>
+  <data name="Api_Error_FailedToSetNewPassword" xml:space="preserve">
+    <value>فشل في تعيين كلمة مرور جديدة</value>
+  </data>
+  <data name="Api_Error_FailedToSuspendPlatformAdmin" xml:space="preserve">
+    <value>فشل في تعليق مسؤول المنصة</value>
+  </data>
+  <data name="Api_Error_FailedToSwitchWorkspace" xml:space="preserve">
+    <value>فشل في تبديل مساحة العمل</value>
+  </data>
+  <data name="Api_Error_FailedToTriggerAudit" xml:space="preserve">
+    <value>فشل في تشغيل المراجعة</value>
+  </data>
+  <data name="Api_Error_FailedToTriggerScan" xml:space="preserve">
+    <value>فشل في تشغيل الفحص</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateAsset" xml:space="preserve">
+    <value>فشل في تحديث الأصل</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateClassification" xml:space="preserve">
+    <value>فشل في تحديث التصنيف</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateConfiguration" xml:space="preserve">
+    <value>فشل في تحديث التكوين</value>
+  </data>
+  <data name="Api_Error_FailedToUpdatePlatformAdmin" xml:space="preserve">
+    <value>فشل في تحديث مسؤول المنصة</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateReport" xml:space="preserve">
+    <value>فشل في تحديث التقرير</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateScope" xml:space="preserve">
+    <value>فشل في تحديث النطاق</value>
+  </data>
+  <data name="Api_Error_FailedToUpdateWorkspace" xml:space="preserve">
+    <value>فشل في تحديث مساحة العمل</value>
+  </data>
+  <data name="Api_Error_FailedToDeliverReport" xml:space="preserve">
+    <value>فشل في تسليم التقرير</value>
+  </data>
+  <data name="Api_Error_AnalysisFailed" xml:space="preserve">
+    <value>فشل التحليل</value>
+  </data>
+  <data name="Api_Error_ApprovingEvidence" xml:space="preserve">
+    <value>خطأ في الموافقة على الدليل</value>
+  </data>
+  <data name="Api_Error_ApprovingException" xml:space="preserve">
+    <value>خطأ في الموافقة على الاستثناء</value>
+  </data>
+  <data name="Api_Error_ApprovingPolicy" xml:space="preserve">
+    <value>خطأ في الموافقة على السياسة</value>
+  </data>
+  <data name="Api_Error_CalculatingBenchmark" xml:space="preserve">
+    <value>خطأ في حساب المعيار القياسي</value>
+  </data>
+  <data name="Api_Error_CalculatingCompliance" xml:space="preserve">
+    <value>خطأ في حساب الامتثال</value>
+  </data>
+  <data name="Api_Error_CalculatingEffectiveness" xml:space="preserve">
+    <value>خطأ في حساب الفعالية</value>
+  </data>
+  <data name="Api_Error_CalculatingExcellence" xml:space="preserve">
+    <value>خطأ في حساب التميز</value>
+  </data>
+  <data name="Api_Error_CalculatingMaturity" xml:space="preserve">
+    <value>خطأ في حساب النضج</value>
+  </data>
+  <data name="Api_Error_CalculatingReadiness" xml:space="preserve">
+    <value>خطأ في حساب الجاهزية</value>
+  </data>
+  <data name="Api_Error_CalculatingResilience" xml:space="preserve">
+    <value>خطأ في حساب المرونة</value>
+  </data>
+  <data name="Api_Error_CalculatingRiskPosture" xml:space="preserve">
+    <value>خطأ في حساب وضعية المخاطر</value>
+  </data>
+  <data name="Api_Error_ClosingGap" xml:space="preserve">
+    <value>خطأ في إغلاق الفجوة</value>
+  </data>
+  <data name="Api_Error_CreatingException" xml:space="preserve">
+    <value>خطأ في إنشاء الاستثناء</value>
+  </data>
+  <data name="Api_Error_CreatingGap" xml:space="preserve">
+    <value>خطأ في إنشاء الفجوة</value>
+  </data>
+  <data name="Api_Error_CreatingRemediationPlan" xml:space="preserve">
+    <value>خطأ في إنشاء خطة المعالجة</value>
+  </data>
+  <data name="Api_Error_ExecutingAssessment" xml:space="preserve">
+    <value>خطأ في تنفيذ التقييم</value>
+  </data>
+  <data name="Api_Error_GeneratingReport" xml:space="preserve">
+    <value>خطأ في إنشاء التقرير</value>
+  </data>
+  <data name="Api_Error_IdentifyingGaps" xml:space="preserve">
+    <value>خطأ في تحديد الفجوات</value>
+  </data>
+  <data name="Api_Error_InitializingCycle" xml:space="preserve">
+    <value>خطأ في تهيئة الدورة</value>
+  </data>
+  <data name="Api_Error_InitiatingWorkflow" xml:space="preserve">
+    <value>خطأ في بدء سير العمل</value>
+  </data>
+  <data name="Api_Error_LoadingAgingReport" xml:space="preserve">
+    <value>خطأ في تحميل تقرير التقادم</value>
+  </data>
+  <data name="Api_Error_LoadingApprovals" xml:space="preserve">
+    <value>خطأ في تحميل الموافقات</value>
+  </data>
+  <data name="Api_Error_LoadingDashboard" xml:space="preserve">
+    <value>خطأ في تحميل اللوحة</value>
+  </data>
+  <data name="Api_Error_LoadingDeadlines" xml:space="preserve">
+    <value>خطأ في تحميل المواعيد النهائية</value>
+  </data>
+  <data name="Api_Error_LoadingEvidenceData" xml:space="preserve">
+    <value>خطأ في تحميل بيانات الأدلة</value>
+  </data>
+  <data name="Api_Error_LoadingExceptionData" xml:space="preserve">
+    <value>خطأ في تحميل بيانات الاستثناءات</value>
+  </data>
+  <data name="Api_Error_LoadingGap" xml:space="preserve">
+    <value>خطأ في تحميل الفجوة</value>
+  </data>
+  <data name="Api_Error_LoadingGaps" xml:space="preserve">
+    <value>خطأ في تحميل الفجوات</value>
+  </data>
+  <data name="Api_Error_LoadingImprovementData" xml:space="preserve">
+    <value>خطأ في تحميل بيانات التحسين</value>
+  </data>
+  <data name="Api_Error_LoadingLifecycle" xml:space="preserve">
+    <value>خطأ في تحميل دورة الحياة</value>
+  </data>
+  <data name="Api_Error_LoadingMapping" xml:space="preserve">
+    <value>خطأ في تحميل التعيين</value>
+  </data>
+  <data name="Api_Error_LoadingPolicyData" xml:space="preserve">
+    <value>خطأ في تحميل بيانات السياسة</value>
+  </data>
+  <data name="Api_Error_LoadingRemediationData" xml:space="preserve">
+    <value>خطأ في تحميل بيانات المعالجة</value>
+  </data>
+  <data name="Api_Error_LoadingRemediationPlan" xml:space="preserve">
+    <value>خطأ في تحميل خطة المعالجة</value>
+  </data>
+  <data name="Api_Error_LoadingRiskData" xml:space="preserve">
+    <value>خطأ في تحميل بيانات المخاطر</value>
+  </data>
+  <data name="Api_Error_LoadingSummary" xml:space="preserve">
+    <value>خطأ في تحميل الملخص</value>
+  </data>
+  <data name="Api_Error_LoadingTestingData" xml:space="preserve">
+    <value>خطأ في تحميل بيانات الاختبار</value>
+  </data>
+  <data name="Api_Error_LoadingTrendData" xml:space="preserve">
+    <value>خطأ في تحميل بيانات الاتجاه</value>
+  </data>
+  <data name="Api_Error_RejectingException" xml:space="preserve">
+    <value>خطأ في رفض الاستثناء</value>
+  </data>
+  <data name="Api_Error_RejectingPolicy" xml:space="preserve">
+    <value>خطأ في رفض السياسة</value>
+  </data>
+  <data name="Api_Error_ReopeningGap" xml:space="preserve">
+    <value>خطأ في إعادة فتح الفجوة</value>
+  </data>
+  <data name="Api_Error_SubmittingEvidence" xml:space="preserve">
+    <value>خطأ في تقديم الدليل</value>
+  </data>
+  <data name="Api_Error_SubmittingForValidation" xml:space="preserve">
+    <value>خطأ في تقديم للتحقق</value>
+  </data>
+  <data name="Api_Error_UpdatingProgress" xml:space="preserve">
+    <value>خطأ في تحديث التقدم</value>
+  </data>
+  <data name="Api_Error_ValidatingGap" xml:space="preserve">
+    <value>خطأ في التحقق من الفجوة</value>
+  </data>
+  <data name="Api_Error_Generic" xml:space="preserve">
+    <value>حدث خطأ</value>
+  </data>
+  <data name="Api_Error_AddingNote" xml:space="preserve">
+    <value>حدث خطأ أثناء إضافة الملاحظة</value>
+  </data>
+  <data name="Api_Error_CalculatingDomainProgress" xml:space="preserve">
+    <value>حدث خطأ أثناء حساب تقدم المجال</value>
+  </data>
+  <data name="Api_Error_CalculatingProgress" xml:space="preserve">
+    <value>حدث خطأ أثناء حساب التقدم</value>
+  </data>
+  <data name="Api_Error_DeletingNote" xml:space="preserve">
+    <value>حدث خطأ أثناء حذف الملاحظة</value>
+  </data>
+  <data name="Api_Error_ExportingAssessment" xml:space="preserve">
+    <value>حدث خطأ أثناء تصدير التقييم</value>
+  </data>
+  <data name="Api_Error_FetchingStatistics" xml:space="preserve">
+    <value>حدث خطأ أثناء جلب الإحصائيات</value>
+  </data>
+  <data name="Api_Error_LoadingAssessmentData" xml:space="preserve">
+    <value>حدث خطأ أثناء تحميل بيانات التقييم</value>
+  </data>
+  <data name="Api_Error_LoadingEvidence" xml:space="preserve">
+    <value>حدث خطأ أثناء تحميل الأدلة</value>
+  </data>
+  <data name="Api_Error_LoadingNotes" xml:space="preserve">
+    <value>حدث خطأ أثناء تحميل الملاحظات</value>
+  </data>
+  <data name="Api_Error_LoadingRequirement" xml:space="preserve">
+    <value>حدث خطأ أثناء تحميل المتطلب</value>
+  </data>
+  <data name="Api_Error_LoadingRequirements" xml:space="preserve">
+    <value>حدث خطأ أثناء تحميل المتطلبات</value>
+  </data>
+  <data name="Api_Error_SendingInvitation" xml:space="preserve">
+    <value>حدث خطأ أثناء إرسال الدعوة</value>
+  </data>
+  <data name="Api_Error_UpdatingScore" xml:space="preserve">
+    <value>حدث خطأ أثناء تحديث الدرجة</value>
+  </data>
+  <data name="Api_Error_UpdatingStatus" xml:space="preserve">
+    <value>حدث خطأ أثناء تحديث الحالة</value>
+  </data>
+  <data name="Api_Error_UploadingEvidence" xml:space="preserve">
+    <value>حدث خطأ أثناء رفع الدليل</value>
+  </data>
+  <data name="Api_Error_CannotDeleteOwnerAdmin" xml:space="preserve">
+    <value>لا يمكن حذف هذا المسؤول (قد يكون بمستوى المالك)</value>
+  </data>
+  <data name="Api_Error_CannotSuspendOwnerAdmin" xml:space="preserve">
+    <value>لا يمكن تعليق هذا المسؤول (قد يكون بمستوى المالك)</value>
+  </data>
+  <data name="Api_Error_PasswordChangePermissions" xml:space="preserve">
+    <value>فشل فرض تغيير كلمة المرور - تحقق من الصلاحيات</value>
+  </data>
+  <data name="Api_Error_InvalidPermission" xml:space="preserve">
+    <value>صلاحية غير صحيحة</value>
+  </data>
+  <data name="Api_Error_NotPlatformAdmin" xml:space="preserve">
+    <value>أنت لست مسؤول المنصة</value>
+  </data>
+  <data name="Api_Error_MailboxNoGraphUserId" xml:space="preserve">
+    <value>صندوق البريد ليس لديه معرف مستخدم Graph</value>
+  </data>
+  <data name="Api_Error_CachingServiceNotConfigured" xml:space="preserve">
+    <value>خدمة التخزين المؤقت غير مكونة</value>
+  </data>
+  <data name="Api_Error_DatabaseConnectionFailed" xml:space="preserve">
+    <value>فشل الاتصال بقاعدة البيانات</value>
+  </data>
+  <data name="Api_Error_InternalError" xml:space="preserve">
+    <value>خطأ داخلي</value>
+  </data>
+  <data name="Api_Error_TenantContextRequired" xml:space="preserve">
+    <value>سياق المنظمة مطلوب</value>
+  </data>
+  <data name="Api_Error_NoTenantContext" xml:space="preserve">
+    <value>لا يوجد سياق منظمة</value>
+  </data>
+  <data name="Api_Error_NoWorkspaceContext" xml:space="preserve">
+    <value>لا يوجد سياق مساحة عمل</value>
+  </data>
+  <data name="Api_Error_WorkflowRoutingServiceUnavailable" xml:space="preserve">
+    <value>خدمة توجيه سير العمل غير متوفرة</value>
+  </data>
+  <data name="Api_Error_UnsupportedReportType" xml:space="preserve">
+    <value>نوع تقرير غير مدعوم</value>
+  </data>
+  <data name="Api_Error_InvalidReportId" xml:space="preserve">
+    <value>معرف تقرير غير صحيح</value>
+  </data>
+  <data name="Api_Error_ReportFileNotFound" xml:space="preserve">
+    <value>ملف التقرير غير موجود</value>
+  </data>
+  <data name="Api_Success_CacheOperational" xml:space="preserve">
+    <value>التخزين المؤقت يعمل بشكل صحيح</value>
+  </data>
+  <data name="Api_Success_CertificationDeleted" xml:space="preserve">
+    <value>تم حذف الشهادة</value>
+  </data>
+  <data name="Api_Success_ComplianceApprovalRecorded" xml:space="preserve">
+    <value>تم تسجيل موافقة الامتثال</value>
+  </data>
+  <data name="Api_Success_ConfigurationUpdated" xml:space="preserve">
+    <value>تم تحديث التكوين بنجاح</value>
+  </data>
+  <data name="Api_Success_ControlDeleted" xml:space="preserve">
+    <value>تم حذف الضابط بنجاح</value>
+  </data>
+  <data name="Api_Success_ControlDeployed" xml:space="preserve">
+    <value>تم نشر الضابط</value>
+  </data>
+  <data name="Api_Success_EventPublished" xml:space="preserve">
+    <value>تم نشر الحدث</value>
+  </data>
+  <data name="Api_Success_EvidenceApproved" xml:space="preserve">
+    <value>تمت الموافقة على الدليل</value>
+  </data>
+  <data name="Api_Success_EvidenceSubmitted" xml:space="preserve">
+    <value>تم تقديم الدليل</value>
+  </data>
+  <data name="Api_Success_ExceptionApproved" xml:space="preserve">
+    <value>تمت الموافقة على الاستثناء</value>
+  </data>
+  <data name="Api_Success_ExceptionRejected" xml:space="preserve">
+    <value>تم رفض الاستثناء</value>
+  </data>
+  <data name="Api_Success_ExecutiveApprovalRecorded" xml:space="preserve">
+    <value>تم تسجيل الموافقة التنفيذية</value>
+  </data>
+  <data name="Api_Success_FrameworkDeleted" xml:space="preserve">
+    <value>تم حذف الإطار التنظيمي بنجاح</value>
+  </data>
+  <data name="Api_Success_GapClosed" xml:space="preserve">
+    <value>تم إغلاق الفجوة بنجاح</value>
+  </data>
+  <data name="Api_Success_GapCreated" xml:space="preserve">
+    <value>تم إنشاء الفجوة بنجاح</value>
+  </data>
+  <data name="Api_Success_GapReopened" xml:space="preserve">
+    <value>تم إعادة فتح الفجوة</value>
+  </data>
+  <data name="Api_Success_GapSubmittedForValidation" xml:space="preserve">
+    <value>تم تقديم الفجوة للتحقق</value>
+  </data>
+  <data name="Api_Success_ImplementationApproved" xml:space="preserve">
+    <value>تمت الموافقة على التنفيذ</value>
+  </data>
+  <data name="Api_Success_InvitationAccepted" xml:space="preserve">
+    <value>تم قبول الدعوة. يمكنك الآن تسجيل الدخول.</value>
+  </data>
+  <data name="Api_Success_InvitationCancelled" xml:space="preserve">
+    <value>تم إلغاء الدعوة</value>
+  </data>
+  <data name="Api_Success_InvitationResent" xml:space="preserve">
+    <value>تم إعادة إرسال الدعوة</value>
+  </data>
+  <data name="Api_Success_LinkedToControl" xml:space="preserve">
+    <value>تم الربط بالضابط</value>
+  </data>
+  <data name="Api_Success_LinkedToRisk" xml:space="preserve">
+    <value>تم الربط بالمخاطرة</value>
+  </data>
+  <data name="Api_Success_ManagerApprovalRecorded" xml:space="preserve">
+    <value>تم تسجيل موافقة المدير</value>
+  </data>
+  <data name="Api_Success_MemberAdded" xml:space="preserve">
+    <value>تمت إضافة العضو بنجاح</value>
+  </data>
+  <data name="Api_Success_MemberRemoved" xml:space="preserve">
+    <value>تمت إزالة العضو بنجاح</value>
+  </data>
+  <data name="Api_Success_MonitoringStarted" xml:space="preserve">
+    <value>بدأت المراقبة</value>
+  </data>
+  <data name="Api_Success_MovedToImplementationPhase" xml:space="preserve">
+    <value>تم الانتقال إلى مرحلة التنفيذ</value>
+  </data>
+  <data name="Api_Success_MovedToPlanningPhase" xml:space="preserve">
+    <value>تم الانتقال إلى مرحلة التخطيط</value>
+  </data>
+  <data name="Api_Success_OrganizationProfileUpdated" xml:space="preserve">
+    <value>تم تحديث ملف المنظمة</value>
+  </data>
+  <data name="Api_Success_PasswordReset" xml:space="preserve">
+    <value>تمت إعادة تعيين كلمة المرور بنجاح</value>
+  </data>
+  <data name="Api_Success_PasswordResetSuccessfully" xml:space="preserve">
+    <value>تمت إعادة تعيين كلمة المرور بنجاح</value>
+  </data>
+  <data name="Api_Success_PolicyApproved" xml:space="preserve">
+    <value>تمت الموافقة على السياسة بنجاح</value>
+  </data>
+  <data name="Api_Success_PolicyReturnedForRevision" xml:space="preserve">
+    <value>تم إرجاع السياسة للمراجعة</value>
+  </data>
+  <data name="Api_Success_ProgressUpdated" xml:space="preserve">
+    <value>تم تحديث التقدم</value>
+  </data>
+  <data name="Api_Success_RegulatorDeleted" xml:space="preserve">
+    <value>تم حذف الجهة التنظيمية بنجاح</value>
+  </data>
+  <data name="Api_Success_RemediationPlanCreated" xml:space="preserve">
+    <value>تم إنشاء خطة المعالجة</value>
+  </data>
+  <data name="Api_Success_ReportDelivered" xml:space="preserve">
+    <value>تم تسليم التقرير</value>
+  </data>
+  <data name="Api_Success_ResilienceAssessmentCreated" xml:space="preserve">
+    <value>تم إنشاء تقييم المرونة بنجاح</value>
+  </data>
+  <data name="Api_Success_ResilienceAssessmentDeleted" xml:space="preserve">
+    <value>تم حذف تقييم المرونة بنجاح</value>
+  </data>
+  <data name="Api_Success_ResilienceAssessmentStarted" xml:space="preserve">
+    <value>تم بدء تقييم المرونة بنجاح</value>
+  </data>
+  <data name="Api_Success_ResilienceAssessmentUpdated" xml:space="preserve">
+    <value>تم تحديث تقييم المرونة بنجاح</value>
+  </data>
+  <data name="Api_Success_RevisionRequested" xml:space="preserve">
+    <value>تم طلب المراجعة</value>
+  </data>
+  <data name="Api_Success_RiskResilienceAssessmentCreated" xml:space="preserve">
+    <value>تم إنشاء تقييم مرونة المخاطر بنجاح</value>
+  </data>
+  <data name="Api_Success_RiskResilienceAssessmentStarted" xml:space="preserve">
+    <value>تم بدء تقييم مرونة المخاطر بنجاح</value>
+  </data>
+  <data name="Api_Success_ScanTriggered" xml:space="preserve">
+    <value>تم تشغيل الفحص بنجاح</value>
+  </data>
+  <data name="Api_Success_SecurityAuditTriggered" xml:space="preserve">
+    <value>تم تشغيل المراجعة الأمنية بنجاح</value>
+  </data>
+  <data name="Api_Success_SubmittedForReview" xml:space="preserve">
+    <value>تم تقديمه للمراجعة</value>
+  </data>
+  <data name="Api_Success_SubscriptionCreated" xml:space="preserve">
+    <value>تم إنشاء الاشتراك</value>
+  </data>
+  <data name="Api_Success_SubscriptionDeleted" xml:space="preserve">
+    <value>تم حذف الاشتراك</value>
+  </data>
+  <data name="Api_Success_TaskClaimed" xml:space="preserve">
+    <value>تم المطالبة بالمهمة بنجاح</value>
+  </data>
+  <data name="Api_Success_TaskCompleted" xml:space="preserve">
+    <value>تم إكمال المهمة بنجاح</value>
+  </data>
+  <data name="Api_Success_TenantAdminRestarted" xml:space="preserve">
+    <value>تم إعادة تشغيل حساب مسؤول المنظمة</value>
+  </data>
+  <data name="Api_Success_TenantCreated" xml:space="preserve">
+    <value>تم إنشاء المنظمة. تحقق من البريد الإلكتروني للحصول على رابط التفعيل.</value>
+  </data>
+  <data name="Api_Success_TenantUpdated" xml:space="preserve">
+    <value>تم تحديث المنظمة</value>
+  </data>
+  <data name="Api_Success_TestAlertSent" xml:space="preserve">
+    <value>تم إرسال تنبيه تجريبي بنجاح</value>
+  </data>
+  <data name="Api_Success_TestWebhookWorking" xml:space="preserve">
+    <value>webhook التجريبي يعمل</value>
+  </data>
+  <data name="Api_Success_WebhookProcessed" xml:space="preserve">
+    <value>تمت معالجة webhook</value>
+  </data>
+  <data name="Api_Success_WorkflowApproved" xml:space="preserve">
+    <value>تمت الموافقة على سير العمل بنجاح</value>
+  </data>
+  <data name="Api_Success_WorkflowCompleted" xml:space="preserve">
+    <value>تم إكمال سير العمل</value>
+  </data>
+  <data name="Api_Success_WorkflowCreated" xml:space="preserve">
+    <value>تم إنشاء سير العمل بنجاح</value>
+  </data>
+  <data name="Api_Success_WorkflowRejected" xml:space="preserve">
+    <value>تم رفض سير العمل بنجاح</value>
+  </data>
+  <data name="Api_Success_WorkflowStarted" xml:space="preserve">
+    <value>تم بدء سير العمل بنجاح</value>
+  </data>
+  <data name="Api_Success_WorkspaceSetAsDefault" xml:space="preserve">
+    <value>تم تعيين مساحة العمل كافتراضية</value>
+  </data>
+  <data name="Api_Success_WorkspaceSwitched" xml:space="preserve">
+    <value>تم تبديل مساحة العمل بنجاح</value>
+  </data>
+  <data name="Api_Success_WorkspaceUpdated" xml:space="preserve">
+    <value>تم تحديث مساحة العمل بنجاح</value>
+  </data>
+  <data name="Api_Success_ApprovalFinalized" xml:space="preserve">
+    <value>تم الانتهاء من الموافقة</value>
+  </data>
+  <data name="Api_Success_ImportedAssets" xml:space="preserve">
+    <value>تم استيراد {0} من الأصول بنجاح</value>
+  </data>
+  <data name="Api_Success_RegulatorsSeeded" xml:space="preserve">
+    <value>تم إنشاء 92 جهة تنظيمية بنجاح (62 سعودية، 20 دولية، 10 إقليمية)</value>
+  </data>
+  <data name="Api_Success_AdminPasswordsFixed" xml:space="preserve">
+    <value>تم إصلاح كلمات مرور المسؤولين</value>
+  </data>
+  <data name="Api_Success_AllSeedDataCreated" xml:space="preserve">
+    <value>تم إنشاء جميع البيانات الأولية بنجاح</value>
+  </data>
+  <data name="Api_Success_CatalogsSeeded" xml:space="preserve">
+    <value>تم إنشاء الكتالوجات بنجاح</value>
+  </data>
+  <data name="Api_Success_CatalogSeedingCompleted" xml:space="preserve">
+    <value>تم إكمال إنشاء الكتالوج</value>
+  </data>
+  <data name="Api_Success_DefaultProfilesSeeded" xml:space="preserve">
+    <value>تم إنشاء الملفات الشخصية الافتراضية بنجاح</value>
+  </data>
+  <data name="Api_Success_DerivationRulesSeeded" xml:space="preserve">
+    <value>تم إنشاء قواعد الاشتقاق بنجاح</value>
+  </data>
+  <data name="Api_Success_EvidenceScoringSeeded" xml:space="preserve">
+    <value>تم إنشاء تصنيف الأدلة ومؤشر القطاع وتعيينات GOSI بنجاح</value>
+  </data>
+  <data name="Api_Success_KsaFrameworkControlsSeeded" xml:space="preserve">
+    <value>تم إنشاء ضوابط الأطر السعودية بنجاح</value>
+  </data>
+  <data name="Api_Success_MailboxesAlreadySeeded" xml:space="preserve">
+    <value>تم إنشاء صناديق البريد مسبقًا</value>
+  </data>
+  <data name="Api_Success_NoDuplicatesFound" xml:space="preserve">
+    <value>لم يتم العثور على تكرارات</value>
+  </data>
+  <data name="Api_Success_PlatformAdminCreated" xml:space="preserve">
+    <value>تم إنشاء مسؤول المنصة بنجاح</value>
+  </data>
+  <data name="Api_Success_UserAlreadyExists" xml:space="preserve">
+    <value>المستخدم موجود بالفعل، تم التحقق من الدور والسجل</value>
+  </data>
+  <data name="Api_Success_UserCreated" xml:space="preserve">
+    <value>تم إنشاء المستخدم بنجاح</value>
+  </data>
+  <data name="Api_Success_UserNoTenantAssociation" xml:space="preserve">
+    <value>المستخدم ليس لديه ارتباط بمنظمة</value>
+  </data>
+  <data name="Api_Success_WorkflowDefinitionsSeeded" xml:space="preserve">
+    <value>تم إنشاء تعريفات سير العمل بنجاح</value>
+  </data>
+  <data name="Api_Success_AnalyticsRefreshCompleted" xml:space="preserve">
+    <value>تم إكمال تحديث التحليلات</value>
+  </data>
+  <data name="Api_Success_EmailSyncTriggered" xml:space="preserve">
+    <value>تم تشغيل مزامنة البريد الإلكتروني</value>
+  </data>
+  <data name="Api_Success_NotificationReceived" xml:space="preserve">
+    <value>تم استلام الإشعار</value>
+  </data>
+  <data name="Api_Success_OnboardingCompleted" xml:space="preserve">
+    <value>تم إكمال الإعداد</value>
+  </data>
+  <data name="Api_Error_WebhookProcessingFailed" xml:space="preserve">
+    <value>فشلت معالجة webhook</value>
+  </data>
+  <data name="Api_Success_PasswordChangeSet" xml:space="preserve">
+    <value>تم تعيين فرض تغيير كلمة المرور</value>
+  </data>
+  <data name="Api_Success_PlatformAdminDeleted" xml:space="preserve">
+    <value>تم حذف مسؤول المنصة</value>
+  </data>
+  <data name="Api_Success_PlatformAdminReactivated" xml:space="preserve">
+    <value>تم إعادة تفعيل مسؤول المنصة</value>
+  </data>
+  <data name="Api_Success_PlatformAdminSuspended" xml:space="preserve">
+    <value>تم تعليق مسؤول المنصة</value>
+  </data>
+  <data name="Api_Success_UserReactivated" xml:space="preserve">
+    <value>تم إعادة تفعيل المستخدم</value>
+  </data>
+  <data name="Api_Success_UserSuspended" xml:space="preserve">
+    <value>تم تعليق المستخدم</value>
+  </data>
+  <data name="Api_Error_UnableToCancelInvitation" xml:space="preserve">
+    <value>غير قادر على إلغاء الدعوة</value>
+  </data>
+  <data name="Api_Error_UnableToReactivateUser" xml:space="preserve">
+    <value>غير قادر على إعادة تفعيل المستخدم</value>
+  </data>
+  <data name="Api_Error_UnableToResendInvitation" xml:space="preserve">
+    <value>غير قادر على إعادة إرسال الدعوة. قد لا يكون المستخدم في حالة الانتظار.</value>
+  </data>
+  <data name="Api_Error_UnableToSuspendUser" xml:space="preserve">
+    <value>غير قادر على تعليق المستخدم</value>
+  </data>
+  <data name="Api_Error_NoMessagesInThread" xml:space="preserve">
+    <value>لا توجد رسائل في المحادثة</value>
+  </data>
+  <data name="Api_Error_TenantIdNotFound" xml:space="preserve">
+    <value>معرف المنظمة غير موجود</value>
+  </data>
+  <data name="Api_Error_TaskNotFoundOrNotCompleted" xml:space="preserve">
+    <value>المهمة غير موجودة أو لا يمكن إكمالها</value>
+  </data>
+</root>

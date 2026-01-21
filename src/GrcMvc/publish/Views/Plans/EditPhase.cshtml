@@ -1,0 +1,179 @@
+@model GrcMvc.Models.DTOs.PlanPhaseDto
+
+@{
+    ViewData["Title"] = "Edit Phase";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <h1>
+                <i class="bi bi-pencil"></i> Edit Phase
+            </h1>
+            <p class="text-muted">Update phase details, progress, and status</p>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">@Model.Name</h5>
+                </div>
+                <div class="card-body">
+                    <form id="phaseForm" method="post" action="@Url.Action("UpdatePhaseAsync", "Plans", new { phaseId = Model.Id })">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Phase Name *</label>
+                            <input type="text" class="form-control" id="name" value="@Model.Name" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" rows="3" name="description">@Model.Description</textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="startDate" class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="startDate" name="startDate" 
+                                       value="@Model.StartDate?.ToString("yyyy-MM-dd")">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="endDate" class="form-label">End Date</label>
+                                <input type="date" class="form-control" id="endDate" name="endDate" 
+                                       value="@Model.EndDate?.ToString("yyyy-MM-dd")">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="status" class="form-label">Status *</label>
+                                <select class="form-control" id="status" name="status" required>
+                                    <option value="NotStarted" selected="@(Model.Status == "NotStarted")">Not Started</option>
+                                    <option value="InProgress" selected="@(Model.Status == "InProgress")">In Progress</option>
+                                    <option value="Completed" selected="@(Model.Status == "Completed")">Completed</option>
+                                    <option value="OnHold" selected="@(Model.Status == "OnHold")">On Hold</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="progressPercentage" class="form-label">Progress (%)</label>
+                                <div class="d-flex gap-2">
+                                    <input type="range" class="form-range flex-grow-1" id="progressPercentage" 
+                                           name="progressPercentage" min="0" max="100" 
+                                           value="@(Model.ProgressPercentage ?? 0)">
+                                    <span id="progressValue" class="badge bg-info">@(Model.ProgressPercentage ?? 0)%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="deliverables" class="form-label">Deliverables</label>
+                            <textarea class="form-control" id="deliverables" rows="2" name="deliverables">@Model.Deliverables</textarea>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <strong>Progress:</strong> Use the slider to update phase completion percentage
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Save Changes
+                            </button>
+                            <a href="@Url.Action("Phases", new { planId = ViewBag.PlanId })" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card bg-light">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle"></i> Phase Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Current Status:</strong><br />
+                        @{
+                            var statusClass = Model.Status switch
+                            {
+                                "NotStarted" => "secondary",
+                                "InProgress" => "info",
+                                "Completed" => "success",
+                                "OnHold" => "warning",
+                                _ => "secondary"
+                            };
+                        }
+                        <span class="badge bg-@statusClass">@Model.Status</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Progress:</strong><br />
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-@statusClass" role="progressbar" 
+                                 style="width: @(Model.ProgressPercentage ?? 0)%">
+                                @(Model.ProgressPercentage ?? 0)%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Timeline:</strong><br />
+                        @if (Model.StartDate.HasValue && Model.EndDate.HasValue)
+                        {
+                            var duration = (Model.EndDate.Value - Model.StartDate.Value).Days;
+                            <p>@duration days<br />
+                            <small class="text-muted">@Model.StartDate?.ToString("MMM d") - @Model.EndDate?.ToString("MMM d, yyyy")</small></p>
+                        }
+                    </div>
+
+                    <hr />
+
+                    <h6>Tips</h6>
+                    <ul class="small">
+                        <li>Update status as work progresses</li>
+                        <li>Use progress % to track completion</li>
+                        <li>Document deliverables achieved</li>
+                        <li>Adjust dates if scope changes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('progressPercentage').addEventListener('input', function() {
+        document.getElementById('progressValue').textContent = this.value + '%';
+    });
+
+    document.getElementById('phaseForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = {
+            status: document.getElementById('status').value,
+            progressPercentage: parseInt(document.getElementById('progressPercentage').value)
+        };
+
+        try {
+            const response = await fetch('@Url.Action("UpdatePhaseAsync", "Plans", new { phaseId = Model.Id })', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                alert('Phase updated successfully');
+                window.location.href = '/Plans/Phases?planId=@ViewBag.PlanId';
+            } else {
+                alert('Error updating phase');
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    });
+</script>

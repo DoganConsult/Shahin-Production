@@ -1,0 +1,406 @@
+@{
+    ViewData["Title"] = "مركز التكامل";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-plug me-2 text-primary"></i>
+                        مركز التكامل
+                    </h2>
+                    <p class="text-muted mb-0">إدارة التكاملات مع الأنظمة الخارجية وموصلات جمع الأدلة</p>
+                </div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addIntegrationModal">
+                    <i class="fas fa-plus me-1"></i> إضافة تكامل
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">التكاملات النشطة</h6>
+                            <h3 class="mb-0 text-success">8</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-check-circle text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">بحاجة لتهيئة</h6>
+                            <h3 class="mb-0 text-warning">3</h3>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-cog text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">أخطاء الاتصال</h6>
+                            <h3 class="mb-0 text-danger">1</h3>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-exclamation-circle text-danger"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">أدلة مجمعة اليوم</h6>
+                            <h3 class="mb-0 text-primary">156</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-file-import text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Integration Categories -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <ul class="nav nav-pills mb-3">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">الكل</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">خدمات سحابية</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">هوية وصلاحيات</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">أمن المعلومات</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">إدارة التذاكر</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Integrations Grid -->
+    <div class="row">
+        <!-- AWS Integration -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-warning bg-opacity-10 rounded p-3 me-3">
+                                <i class="fab fa-aws text-warning fa-lg"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0">Amazon Web Services</h5>
+                                <small class="text-muted">خدمات سحابية</small>
+                            </div>
+                        </div>
+                        <span class="badge bg-success">متصل</span>
+                    </div>
+                    <p class="text-muted small mb-3">جمع أدلة من AWS IAM, CloudTrail, Config, و Security Hub</p>
+                    <div class="row g-2 text-center mb-3">
+                        <div class="col-4">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">آخر مزامنة</small>
+                                <strong class="small">منذ 5 دقائق</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">الأدلة</small>
+                                <strong>234</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">الحالة</small>
+                                <i class="fas fa-check-circle text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary btn-sm flex-grow-1"><i class="fas fa-sync me-1"></i>مزامنة</button>
+                        <button class="btn btn-outline-secondary btn-sm flex-grow-1"><i class="fas fa-cog me-1"></i>إعدادات</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Azure Integration -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-info bg-opacity-10 rounded p-3 me-3">
+                                <i class="fab fa-microsoft text-info fa-lg"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0">Microsoft Azure</h5>
+                                <small class="text-muted">خدمات سحابية</small>
+                            </div>
+                        </div>
+                        <span class="badge bg-success">متصل</span>
+                    </div>
+                    <p class="text-muted small mb-3">جمع أدلة من Azure AD, Security Center, و Policy</p>
+                    <div class="row g-2 text-center mb-3">
+                        <div class="col-4">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">آخر مزامنة</small>
+                                <strong class="small">منذ 10 دقائق</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">الأدلة</small>
+                                <strong>189</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">الحالة</small>
+                                <i class="fas fa-check-circle text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary btn-sm flex-grow-1"><i class="fas fa-sync me-1"></i>مزامنة</button>
+                        <button class="btn btn-outline-secondary btn-sm flex-grow-1"><i class="fas fa-cog me-1"></i>إعدادات</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ServiceNow Integration -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-success bg-opacity-10 rounded p-3 me-3">
+                                <i class="fas fa-ticket-alt text-success fa-lg"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0">ServiceNow</h5>
+                                <small class="text-muted">إدارة التذاكر</small>
+                            </div>
+                        </div>
+                        <span class="badge bg-success">متصل</span>
+                    </div>
+                    <p class="text-muted small mb-3">استيراد الحوادث والمشاكل وطلبات التغيير</p>
+                    <div class="row g-2 text-center mb-3">
+                        <div class="col-4">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">آخر مزامنة</small>
+                                <strong class="small">منذ ساعة</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">التذاكر</small>
+                                <strong>567</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">الحالة</small>
+                                <i class="fas fa-check-circle text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary btn-sm flex-grow-1"><i class="fas fa-sync me-1"></i>مزامنة</button>
+                        <button class="btn btn-outline-secondary btn-sm flex-grow-1"><i class="fas fa-cog me-1"></i>إعدادات</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Splunk Integration -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-danger bg-opacity-10 rounded p-3 me-3">
+                                <i class="fas fa-chart-bar text-danger fa-lg"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0">Splunk SIEM</h5>
+                                <small class="text-muted">أمن المعلومات</small>
+                            </div>
+                        </div>
+                        <span class="badge bg-danger">خطأ</span>
+                    </div>
+                    <p class="text-muted small mb-3">جمع سجلات الأمان والتنبيهات من Splunk Enterprise</p>
+                    <div class="alert alert-danger py-2 mb-3 small">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        فشل الاتصال: انتهت صلاحية API Token
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-danger btn-sm flex-grow-1"><i class="fas fa-wrench me-1"></i>إصلاح</button>
+                        <button class="btn btn-outline-secondary btn-sm flex-grow-1"><i class="fas fa-cog me-1"></i>إعدادات</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Okta Integration -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary bg-opacity-10 rounded p-3 me-3">
+                                <i class="fas fa-id-badge text-primary fa-lg"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0">Okta</h5>
+                                <small class="text-muted">هوية وصلاحيات</small>
+                            </div>
+                        </div>
+                        <span class="badge bg-success">متصل</span>
+                    </div>
+                    <p class="text-muted small mb-3">مزامنة المستخدمين والمجموعات وسجلات الدخول</p>
+                    <div class="row g-2 text-center mb-3">
+                        <div class="col-4">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">المستخدمين</small>
+                                <strong>1,234</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">المجموعات</small>
+                                <strong>45</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">الحالة</small>
+                                <i class="fas fa-check-circle text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary btn-sm flex-grow-1"><i class="fas fa-sync me-1"></i>مزامنة</button>
+                        <button class="btn btn-outline-secondary btn-sm flex-grow-1"><i class="fas fa-cog me-1"></i>إعدادات</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jira Integration -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-secondary bg-opacity-10 rounded p-3 me-3">
+                                <i class="fab fa-jira text-secondary fa-lg"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0">Jira</h5>
+                                <small class="text-muted">إدارة المشاريع</small>
+                            </div>
+                        </div>
+                        <span class="badge bg-warning text-dark">بحاجة لتهيئة</span>
+                    </div>
+                    <p class="text-muted small mb-3">ربط المهام والمشاريع مع خطط العمل</p>
+                    <div class="alert alert-warning py-2 mb-3 small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        يرجى إكمال إعدادات API
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-warning btn-sm flex-grow-1"><i class="fas fa-cog me-1"></i>إكمال التهيئة</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Integration Modal -->
+<div class="modal fade" id="addIntegrationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>إضافة تكامل جديد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <i class="fab fa-google fa-lg me-3 text-danger"></i>
+                        <div>
+                            <strong>Google Cloud Platform</strong>
+                            <small class="d-block text-muted">خدمات سحابية</small>
+                        </div>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <i class="fab fa-github fa-lg me-3"></i>
+                        <div>
+                            <strong>GitHub</strong>
+                            <small class="d-block text-muted">إدارة الكود</small>
+                        </div>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <i class="fas fa-shield-alt fa-lg me-3 text-primary"></i>
+                        <div>
+                            <strong>CrowdStrike</strong>
+                            <small class="d-block text-muted">EDR</small>
+                        </div>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <i class="fas fa-bug fa-lg me-3 text-warning"></i>
+                        <div>
+                            <strong>Tenable</strong>
+                            <small class="d-block text-muted">فحص الثغرات</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

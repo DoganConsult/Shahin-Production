@@ -1,0 +1,98 @@
+@model GrcMvc.Models.DTOs.CreateTeamDto
+@{
+    ViewData["Title"] = Model.Id.HasValue ? "Edit Team" : "Create Team";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-people text-primary me-2"></i>
+                        @(Model.Id.HasValue ? "Edit Team" : "Create New Team")
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="@(Model.Id.HasValue ? "EditTeam" : "CreateTeam")" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="TeamCode" class="form-label">Team Code <span class="text-danger">*</span></label>
+                                <input asp-for="TeamCode" class="form-control" placeholder="e.g., SEC-OPS">
+                                <span asp-validation-for="TeamCode" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="TeamType" class="form-label">Team Type <span class="text-danger">*</span></label>
+                                <select asp-for="TeamType" class="form-select">
+                                    <option value="Operational">Operational</option>
+                                    <option value="Governance">Governance</option>
+                                    <option value="Project">Project</option>
+                                    <option value="External">External</option>
+                                </select>
+                                <span asp-validation-for="TeamType" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Name" class="form-label">Team Name (English) <span class="text-danger">*</span></label>
+                                <input asp-for="Name" class="form-control" placeholder="e.g., Security Operations">
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="NameAr" class="form-label">Team Name (Arabic)</label>
+                                <input asp-for="NameAr" class="form-control" dir="rtl" placeholder="e.g., عمليات الأمن">
+                                <span asp-validation-for="NameAr" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Purpose" class="form-label">Purpose</label>
+                            <input asp-for="Purpose" class="form-control" placeholder="Brief description of team's purpose">
+                            <span asp-validation-for="Purpose" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Detailed description..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="BusinessUnit" class="form-label">Business Unit</label>
+                            <input asp-for="BusinessUnit" class="form-control" placeholder="e.g., IT, Finance, Compliance">
+                            <span asp-validation-for="BusinessUnit" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input asp-for="IsDefaultFallback" class="form-check-input" type="checkbox">
+                                <label asp-for="IsDefaultFallback" class="form-check-label">
+                                    <strong>Default Fallback Team</strong>
+                                    <small class="text-muted d-block">This team will receive unassigned tasks</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Teams" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg me-1"></i> @(Model.Id.HasValue ? "Update Team" : "Create Team")
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

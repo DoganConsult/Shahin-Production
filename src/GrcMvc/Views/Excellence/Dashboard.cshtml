@@ -1,0 +1,353 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@model GrcMvc.Models.ViewModels.Excellence.ExcellenceDashboardViewModel
+@{
+    ViewData["Title"] = "Excellence Dashboard";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-stars"></i> GRC Excellence Dashboard</h2>
+            <p class="text-muted">Monitor organizational excellence across maturity, benchmarking, and continuous improvement</p>
+        </div>
+        <div class="col text-end">
+            <a asp-controller="Maturity" asp-action="Index" class="btn btn-outline-primary">
+                <i class="bi bi-graph-up"></i> Maturity Assessment
+            </a>
+            <a asp-controller="Certification" asp-action="Portfolio" class="btn btn-outline-success">
+                <i class="bi bi-award"></i> Certifications
+            </a>
+        </div>
+    </div>
+
+    <!-- Excellence Score Overview -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-primary">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4>Overall Excellence Score</h4>
+                            <p class="text-muted">Composite score across all excellence dimensions</p>
+                            <div class="progress" style="height: 40px;">
+                                <div class="progress-bar bg-gradient @GetScoreClass(Model.OverallScore)"
+                                     role="progressbar" style="width: @Model.OverallScore%">
+                                    <h5 class="mb-0">@Model.OverallScore%</h5>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-6">
+                                    <small class="text-muted">Previous Quarter:</small>
+                                    <strong class="d-block">@Model.PreviousQuarterScore%</strong>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Trend:</small>
+                                    @if (Model.OverallScore > Model.PreviousQuarterScore)
+                                    {
+                                        <strong class="d-block text-success">
+                                            <i class="bi bi-arrow-up"></i> +@((Model.OverallScore - Model.PreviousQuarterScore).ToString("F1"))%
+                                        </strong>
+                                    }
+                                    else if (Model.OverallScore < Model.PreviousQuarterScore)
+                                    {
+                                        <strong class="d-block text-danger">
+                                            <i class="bi bi-arrow-down"></i> @((Model.OverallScore - Model.PreviousQuarterScore).ToString("F1"))%
+                                        </strong>
+                                    }
+                                    else
+                                    {
+                                        <strong class="d-block text-muted">
+                                            <i class="bi bi-dash"></i> No change
+                                        </strong>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h1 class="display-1 mb-0 @GetScoreTextClass(Model.OverallScore)">@GetScoreGrade(Model.OverallScore)</h1>
+                            <p class="text-muted mb-0">@GetScoreLabel(Model.OverallScore)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm bg-light h-100">
+                <div class="card-body">
+                    <h6><i class="bi bi-target"></i> Excellence Goals</h6>
+                    <ul class="small mb-0">
+                        <li>Target Score: <strong>@Model.TargetScore%</strong></li>
+                        <li>Gap to Target: <strong>@((Model.TargetScore - Model.OverallScore).ToString("F1"))%</strong></li>
+                        <li>Next Review: <strong>@Model.NextReviewDate?.ToString("MMM dd, yyyy")</strong></li>
+                        <li>Active Initiatives: <strong>@Model.ActiveInitiativesCount</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Excellence Dimensions -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="bi bi-graph-up-arrow"></i> GRC Maturity</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <h2 class="mb-0">@Model.MaturityScore%</h2>
+                        <small class="text-muted">Current Maturity Level</small>
+                    </div>
+                    <div class="progress mb-2" style="height: 20px;">
+                        <div class="progress-bar bg-primary" style="width: @Model.MaturityScore%">@Model.MaturityScore%</div>
+                    </div>
+                    <div class="d-grid">
+                        <a asp-controller="Maturity" asp-action="Dimensions" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-arrow-right"></i> View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="bi bi-award"></i> Certification Coverage</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <h2 class="mb-0">@Model.CertificationCoverage%</h2>
+                        <small class="text-muted">Industry Standards Met</small>
+                    </div>
+                    <div class="progress mb-2" style="height: 20px;">
+                        <div class="progress-bar bg-success" style="width: @Model.CertificationCoverage%">@Model.CertificationCoverage%</div>
+                    </div>
+                    <div class="d-grid">
+                        <a asp-controller="Certification" asp-action="Index" class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-arrow-right"></i> View Portfolio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="bi bi-speedometer2"></i> Performance Metrics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <h2 class="mb-0">@Model.PerformanceScore%</h2>
+                        <small class="text-muted">KPI Achievement</small>
+                    </div>
+                    <div class="progress mb-2" style="height: 20px;">
+                        <div class="progress-bar bg-info" style="width: @Model.PerformanceScore%">@Model.PerformanceScore%</div>
+                    </div>
+                    <div class="d-grid">
+                        <a asp-action="Index" class="btn btn-sm btn-outline-info">
+                            <i class="bi bi-arrow-right"></i> View Initiatives
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-bar-chart-line"></i> Excellence Trend (Last 12 Months)</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="excellenceTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-radar"></i> Excellence Dimensions Radar</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="dimensionsRadarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Initiatives -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-list-task"></i> Active Excellence Initiatives</h5>
+                    <a asp-action="Create" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-circle"></i> New Initiative
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.ActiveInitiatives?.Any() == true)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Initiative</th>
+                                        <th>Type</th>
+                                        <th>Owner</th>
+                                        <th>Progress</th>
+                                        <th>Target Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var initiative in Model.ActiveInitiatives.Take(10))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a asp-action="Details" asp-route-id="@initiative.Id">
+                                                    <strong>@initiative.Name</strong>
+                                                </a>
+                                            </td>
+                                            <td><span class="badge bg-light text-dark">@initiative.Type</span></td>
+                                            <td>@initiative.Owner</td>
+                                            <td>
+                                                <div class="progress" style="width: 100px; height: 20px;">
+                                                    <div class="progress-bar" style="width: @initiative.Progress%">@initiative.Progress%</div>
+                                                </div>
+                                            </td>
+                                            <td>@initiative.TargetDate?.ToShortDateString()</td>
+                                            <td><span class="badge @GetStatusBadge(initiative.Status)">@initiative.Status</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="bi bi-list-task display-4 text-muted opacity-25"></i>
+                            <p class="text-muted mt-3">No active excellence initiatives</p>
+                            <a asp-action="Create" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Create First Initiative
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Excellence Trend Chart
+        const trendCtx = document.getElementById('excellenceTrendChart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Excellence Score',
+                    data: @System.Text.Json.JsonSerializer.Serialize(Model.MonthlyScores ?? new List<decimal> { 65, 67, 70, 72, 75, 76, 78, 79, 80, 82, 83, 85 })),
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Dimensions Radar Chart
+        const radarCtx = document.getElementById('dimensionsRadarChart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Maturity', 'Certifications', 'Performance', 'Innovation', 'Culture'],
+                datasets: [{
+                    label: 'Current',
+                    data: [@Model.MaturityScore, @Model.CertificationCoverage, @Model.PerformanceScore, @(Model.InnovationScore ?? 75), @(Model.CultureScore ?? 80)],
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)'
+                }, {
+                    label: 'Target',
+                    data: [@Model.TargetScore, @Model.TargetScore, @Model.TargetScore, @Model.TargetScore, @Model.TargetScore],
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    borderDash: [5, 5]
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        min: 0,
+                        max: 100,
+                        ticks: { stepSize: 20 }
+                    }
+                }
+            }
+        });
+    </script>
+}
+
+@functions {
+    private string GetScoreClass(decimal score)
+    {
+        if (score >= 90) return "bg-success";
+        if (score >= 75) return "bg-info";
+        if (score >= 60) return "bg-warning";
+        return "bg-danger";
+    }
+
+    private string GetScoreTextClass(decimal score)
+    {
+        if (score >= 90) return "text-success";
+        if (score >= 75) return "text-info";
+        if (score >= 60) return "text-warning";
+        return "text-danger";
+    }
+
+    private string GetScoreGrade(decimal score)
+    {
+        if (score >= 90) return "A";
+        if (score >= 80) return "B";
+        if (score >= 70) return "C";
+        if (score >= 60) return "D";
+        return "F";
+    }
+
+    private string GetScoreLabel(decimal score)
+    {
+        if (score >= 90) return "Excellent";
+        if (score >= 75) return "Good";
+        if (score >= 60) return "Satisfactory";
+        return "Needs Improvement";
+    }
+
+    private string GetStatusBadge(string status)
+    {
+        return status switch
+        {
+            "Completed" => "bg-success",
+            "InProgress" => "bg-info",
+            "Planning" => "bg-warning text-dark",
+            "OnHold" => "bg-secondary",
+            _ => "bg-light text-dark"
+        };
+    }
+}

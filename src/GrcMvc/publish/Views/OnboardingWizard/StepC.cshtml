@@ -1,0 +1,211 @@
+@model StepCRegulatoryApplicabilityDto
+@using GrcMvc.Models.DTOs
+@{
+    ViewData["Title"] = "Regulatory Applicability - Onboarding Wizard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var summary = ViewData["WizardSummary"] as WizardSummaryDto;
+    var tenantId = summary?.TenantId ?? Guid.Empty;
+}
+
+<div class="d-flex">
+    @await Html.PartialAsync("_WizardSidebar", summary)
+
+    <div class="flex-grow-1 p-4">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-gavel text-primary me-2"></i>
+                        Step C: Regulatory & Framework Applicability
+                    </h2>
+                    <p class="text-muted mb-0">الأطر التنظيمية المطبقة | Questions 19-25</p>
+                </div>
+                <span class="badge bg-primary fs-6">Step 3 of 12</span>
+            </div>
+
+            <form asp-action="StepC" asp-route-tenantId="@tenantId" method="post">
+                @Html.AntiForgeryToken()
+
+                <!-- Primary Regulators -->
+                <div class="card mb-4">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0"><i class="fas fa-university me-2"></i>Primary Regulator(s) (Q19)</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">Select regulators that have jurisdiction over your organization:</p>
+                        <div class="row">
+                            @{
+                                var regulators = new[] {
+                                    ("NCA", "National Cybersecurity Authority", "SA"),
+                                    ("SAMA", "Saudi Central Bank", "SA"),
+                                    ("CMA", "Capital Market Authority", "SA"),
+                                    ("CST", "Communications & Space Technology Commission", "SA"),
+                                    ("SDAIA", "Saudi Data & AI Authority", "SA"),
+                                    ("CBUAE", "Central Bank of UAE", "AE"),
+                                    ("DFSA", "Dubai Financial Services Authority", "AE"),
+                                    ("ADGM", "Abu Dhabi Global Market", "AE")
+                                };
+                            }
+                            @foreach (var (code, name, country) in regulators)
+                            {
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input regulator-check" 
+                                               value="@code" id="reg_@code" data-name="@name" data-country="@country">
+                                        <label class="form-check-label" for="reg_@code">
+                                            <strong>@code</strong> - @name (@country)
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <input type="hidden" name="PrimaryRegulatorsJson" id="primaryRegulatorsJson">
+                    </div>
+                </div>
+
+                <!-- Mandatory Frameworks -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>Mandatory Frameworks (Q21)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @{
+                                var frameworks = new[] {
+                                    ("NCA-ECC", "NCA Essential Cybersecurity Controls"),
+                                    ("NCA-CSCC", "NCA Critical Systems Controls"),
+                                    ("SAMA-CSF", "SAMA Cybersecurity Framework"),
+                                    ("PDPL", "Personal Data Protection Law"),
+                                    ("PCI-DSS", "Payment Card Industry DSS"),
+                                    ("ISO27001", "ISO/IEC 27001:2022"),
+                                    ("SOC2", "SOC 2 Type II"),
+                                    ("NIST-CSF", "NIST Cybersecurity Framework")
+                                };
+                            }
+                            @foreach (var (code, name) in frameworks)
+                            {
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" 
+                                               name="MandatoryFrameworks" value="@code" id="fw_@code"
+                                               @(Model.MandatoryFrameworks.Contains(code) ? "checked" : "")>
+                                        <label class="form-check-label" for="fw_@code">
+                                            <strong>@code</strong> - @name
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Certifications -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-certificate me-2"></i>Certifications Held (Q24)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @{
+                                var certs = new[] { "ISO27001", "ISO22301", "ISO27701", "SOC1", "SOC2", "PCI-DSS", "CSA-STAR" };
+                            }
+                            @foreach (var cert in certs)
+                            {
+                                <div class="col-md-3 col-6 mb-2">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input cert-check" 
+                                               value="@cert" id="cert_@cert">
+                                        <label class="form-check-label" for="cert_@cert">@cert</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Scope -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-crosshairs me-2"></i>Audit Scope Type (Q25)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @{
+                                var scopes = new[] {
+                                    ("enterprise", "Enterprise-wide", "All business units and systems"),
+                                    ("business_unit", "Business Unit", "Specific department or division"),
+                                    ("system", "System/Application", "Specific IT system or application"),
+                                    ("process", "Process", "Specific business process"),
+                                    ("vendor", "Vendor/Third-Party", "Vendor risk assessment scope")
+                                };
+                            }
+                            @foreach (var (value, label, desc) in scopes)
+                            {
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        <input type="radio" class="form-check-input" name="AuditScopeType" 
+                                               value="@value" id="scope_@value"
+                                               @(Model.AuditScopeType == value ? "checked" : "")>
+                                        <label class="form-check-label" for="scope_@value">
+                                            <strong>@label</strong>
+                                            <small class="text-muted d-block">@desc</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="@Url.Action("StepB", new { tenantId })" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Back
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        Continue to Step D <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
+    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
+    <script>
+        // Initialize Motivation System
+        const motivation = new WizardMotivation({
+            stepNumber: 3,
+            totalSteps: 12,
+            tenantId: '@tenantId',
+            stepName: 'StepC'
+        });
+
+        // Initialize Live Preview Panel
+        const livePreview = new LivePreviewPanel({
+            stepName: 'StepC'
+        });
+
+        // Initialize Why We Ask Tooltips
+        const tooltips = new WhyWeAskTooltips();
+    </script>
+    <script>
+        // Collect regulator selections
+        document.querySelectorAll('.regulator-check').forEach(cb => {
+            cb.addEventListener('change', updateRegulators);
+        });
+        
+        function updateRegulators() {
+            const selected = [];
+            document.querySelectorAll('.regulator-check:checked').forEach(cb => {
+                selected.push({
+                    Jurisdiction: cb.dataset.country,
+                    RegulatorCode: cb.value,
+                    RegulatorName: cb.dataset.name
+                });
+            });
+            document.getElementById('primaryRegulatorsJson').value = JSON.stringify(selected);
+        }
+    </script>
+}

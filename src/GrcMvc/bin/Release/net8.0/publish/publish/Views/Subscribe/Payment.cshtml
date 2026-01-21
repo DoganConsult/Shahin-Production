@@ -1,0 +1,237 @@
+@model GrcMvc.Controllers.PaymentViewModel
+@{
+    ViewData["Title"] = "الدفع | Payment";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            
+            <!-- Progress Steps -->
+            <div class="d-flex justify-content-center mb-5">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" 
+                         style="width: 40px; height: 40px;">
+                        <i class="bi bi-check"></i>
+                    </div>
+                    <span class="mx-2 text-success">الخطة</span>
+                    <div class="border-top border-2 border-success" style="width: 60px;"></div>
+                    <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" 
+                         style="width: 40px; height: 40px;">
+                        <i class="bi bi-check"></i>
+                    </div>
+                    <span class="mx-2 text-success">الحساب</span>
+                    <div class="border-top border-2 border-primary" style="width: 60px;"></div>
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                         style="width: 40px; height: 40px;">3</div>
+                    <span class="mx-2 text-primary fw-bold">الدفع</span>
+                    <div class="border-top border-2 border-secondary" style="width: 60px;"></div>
+                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" 
+                         style="width: 40px; height: 40px;">4</div>
+                    <span class="mx-2 text-muted">التفعيل</span>
+                </div>
+            </div>
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="row">
+                <!-- Payment Form -->
+                <div class="col-lg-7">
+                    <div class="card shadow">
+                        <div class="card-header bg-primary text-white py-3">
+                            <h4 class="mb-0">
+                                <i class="bi bi-credit-card me-2"></i>
+                                معلومات الدفع | Payment Details
+                            </h4>
+                        </div>
+                        <div class="card-body p-4">
+                            <form asp-action="ProcessPayment" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="SessionId" value="@Model.SessionId" />
+
+                                <!-- Payment Methods -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">طريقة الدفع | Payment Method</label>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <input type="radio" class="btn-check" name="PaymentMethod" 
+                                                   value="CreditCard" id="pmCard" checked>
+                                            <label class="btn btn-outline-primary w-100 py-3" for="pmCard">
+                                                <i class="bi bi-credit-card-2-front fs-4 d-block mb-1"></i>
+                                                بطاقة ائتمان
+                                            </label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="radio" class="btn-check" name="PaymentMethod" 
+                                                   value="Mada" id="pmMada">
+                                            <label class="btn btn-outline-success w-100 py-3" for="pmMada">
+                                                <i class="bi bi-wallet2 fs-4 d-block mb-1"></i>
+                                                مدى
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Card Details -->
+                                <div id="cardDetails">
+                                    <div class="mb-3">
+                                        <label class="form-label">رقم البطاقة | Card Number</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-credit-card"></i></span>
+                                            <input type="text" name="CardNumber" class="form-control form-control-lg" 
+                                                   placeholder="1234 5678 9012 3456" 
+                                                   maxlength="19" required
+                                                   pattern="[0-9\s]{13,19}" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label">تاريخ الانتهاء | Expiry</label>
+                                            <input type="text" name="CardExpiry" class="form-control form-control-lg" 
+                                                   placeholder="MM/YY" maxlength="5" required />
+                                        </div>
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label">CVV</label>
+                                            <input type="text" name="CardCvv" class="form-control form-control-lg" 
+                                                   placeholder="123" maxlength="4" required />
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="form-label">اسم حامل البطاقة | Cardholder Name</label>
+                                        <input type="text" name="CardName" class="form-control form-control-lg" 
+                                               placeholder="AHMED MOHAMMED" required />
+                                    </div>
+                                </div>
+
+                                <!-- Security Notice -->
+                                <div class="alert alert-light border mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-shield-lock-fill text-success fs-3 me-3"></i>
+                                        <div>
+                                            <strong>دفع آمن ومشفر</strong>
+                                            <p class="mb-0 small text-muted">
+                                                بياناتك محمية بتشفير SSL 256-bit
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-success btn-lg" id="payBtn">
+                                        <i class="bi bi-lock-fill me-2"></i>
+                                        ادفع الآن @Model.Amount.ToString("N0") @Model.Currency
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Accepted Cards -->
+                    <div class="text-center mt-3">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" 
+                             alt="Visa" height="24" class="mx-2">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" 
+                             alt="Mastercard" height="24" class="mx-2">
+                        <img src="https://www.mada.com.sa/skin/frontend/mada/default/images/logo-mada-en.svg" 
+                             alt="Mada" height="24" class="mx-2">
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="col-lg-5">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="bi bi-receipt me-2"></i>
+                                ملخص الطلب | Order Summary
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-6">الخطة:</dt>
+                                <dd class="col-6 text-end">@Model.PlanName</dd>
+                                
+                                <dt class="col-6">الفترة:</dt>
+                                <dd class="col-6 text-end">
+                                    @(Model.BillingCycle == "Annual" ? "سنوي" : "شهري")
+                                </dd>
+                                
+                                <dt class="col-6">البريد:</dt>
+                                <dd class="col-6 text-end text-truncate">@Model.Email</dd>
+                                
+                                <dt class="col-6">الشركة:</dt>
+                                <dd class="col-6 text-end text-truncate">@Model.CompanyName</dd>
+                            </dl>
+                            
+                            <hr/>
+                            
+                            <dl class="row mb-0">
+                                <dt class="col-6">المجموع الفرعي:</dt>
+                                <dd class="col-6 text-end">@Model.Amount.ToString("N2") @Model.Currency</dd>
+                                
+                                <dt class="col-6">ضريبة القيمة المضافة (15%):</dt>
+                                <dd class="col-6 text-end">@((Model.Amount * 0.15m).ToString("N2")) @Model.Currency</dd>
+                            </dl>
+                            
+                            <hr/>
+                            
+                            <dl class="row mb-0">
+                                <dt class="col-6 fs-5">الإجمالي:</dt>
+                                <dd class="col-6 text-end fs-4 fw-bold text-primary">
+                                    @((Model.Amount * 1.15m).ToString("N2")) @Model.Currency
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Guarantee -->
+                    <div class="card mt-3 border-success">
+                        <div class="card-body text-center">
+                            <i class="bi bi-award text-success fs-1"></i>
+                            <h6 class="mt-2">ضمان استرداد الأموال</h6>
+                            <p class="small text-muted mb-0">
+                                30 يوم ضمان استرداد كامل المبلغ
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Format card number
+    document.querySelector('input[name="CardNumber"]').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+        let formatted = value.match(/.{1,4}/g)?.join(' ') || value;
+        e.target.value = formatted;
+    });
+
+    // Format expiry
+    document.querySelector('input[name="CardExpiry"]').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2, 4);
+        }
+        e.target.value = value;
+    });
+
+    // Show loading on submit
+    document.querySelector('form').addEventListener('submit', function() {
+        var btn = document.getElementById('payBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>جاري المعالجة...';
+    });
+</script>
+}

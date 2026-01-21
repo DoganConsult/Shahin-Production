@@ -1,0 +1,184 @@
+@{
+    ViewData["Title"] = "AI-Powered Workflows";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3">
+                <i class="fas fa-robot text-primary me-2"></i>
+                AI-Powered Workflows
+            </h1>
+            <p class="text-muted">Shahin AI orchestrates and optimizes your GRC workflows automatically</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-primary" onclick="createAIWorkflow()">
+                <i class="fas fa-magic me-2"></i>Create AI Workflow
+            </button>
+        </div>
+    </div>
+
+    <!-- AI Workflow Capabilities -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-gradient-primary text-white h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-center">
+                    <i class="fas fa-route fa-3x mb-3"></i>
+                    <h5>Smart Routing</h5>
+                    <p class="small">AI routes tasks to the right people based on skills and workload</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-gradient-success text-white h-100" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock fa-3x mb-3"></i>
+                    <h5>SLA Prediction</h5>
+                    <p class="small">Predicts completion times and alerts on potential delays</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-gradient-info text-white h-100" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="card-body text-center">
+                    <i class="fas fa-cogs fa-3x mb-3"></i>
+                    <h5>Auto-Actions</h5>
+                    <p class="small">Automatically performs routine tasks and escalations</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active AI Workflows -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>AI-Managed Workflows</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Workflow</th>
+                            <th>Type</th>
+                            <th>AI Actions</th>
+                            <th>Status</th>
+                            <th>Predicted Completion</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>NCA ECC Assessment Workflow</td>
+                            <td><span class="badge bg-primary">Assessment</span></td>
+                            <td>
+                                <span class="badge bg-success me-1" title="Auto-assigned"><i class="fas fa-user-check"></i></span>
+                                <span class="badge bg-info me-1" title="Evidence scored"><i class="fas fa-star"></i></span>
+                                <span class="badge bg-warning" title="Reminder sent"><i class="fas fa-bell"></i></span>
+                            </td>
+                            <td><span class="badge bg-info">In Progress</span></td>
+                            <td>Jan 15, 2026 <span class="badge bg-success">On Track</span></td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td>Evidence Review Pipeline</td>
+                            <td><span class="badge bg-success">Evidence</span></td>
+                            <td>
+                                <span class="badge bg-success me-1" title="Auto-scored"><i class="fas fa-check-double"></i></span>
+                                <span class="badge bg-info" title="Categorized"><i class="fas fa-tags"></i></span>
+                            </td>
+                            <td><span class="badge bg-success">Active</span></td>
+                            <td>Continuous</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td>Audit Finding Remediation</td>
+                            <td><span class="badge bg-danger">Remediation</span></td>
+                            <td>
+                                <span class="badge bg-warning me-1" title="Escalated"><i class="fas fa-exclamation"></i></span>
+                                <span class="badge bg-danger" title="SLA at risk"><i class="fas fa-clock"></i></span>
+                            </td>
+                            <td><span class="badge bg-warning">At Risk</span></td>
+                            <td>Jan 10, 2026 <span class="badge bg-danger">Delayed</span></td>
+                            <td><a href="#" class="btn btn-sm btn-outline-danger"><i class="fas fa-exclamation-triangle"></i></a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Workflow Stats -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h2 class="text-primary">156</h2>
+                    <p class="text-muted mb-0">AI Actions This Week</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h2 class="text-success">94%</h2>
+                    <p class="text-muted mb-0">On-Time Completion Rate</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h2 class="text-info">12</h2>
+                    <p class="text-muted mb-0">Auto-Escalations Prevented</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Activity Log -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-header">
+            <h6 class="mb-0"><i class="fas fa-history me-2"></i>Recent AI Activity</h6>
+        </div>
+        <div class="list-group list-group-flush">
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-user-check text-success me-2"></i>
+                    <span>Auto-assigned evidence review to Sara Al-Mutairi (based on expertise)</span>
+                </div>
+                <small class="text-muted">2 min ago</small>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-star text-warning me-2"></i>
+                    <span>Scored 5 evidence items with 89% average confidence</span>
+                </div>
+                <small class="text-muted">15 min ago</small>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-bell text-info me-2"></i>
+                    <span>Sent reminder to Ahmed for overdue control implementation</span>
+                </div>
+                <small class="text-muted">1 hour ago</small>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                    <span>Escalated audit finding to CISO due to SLA breach</span>
+                </div>
+                <small class="text-muted">2 hours ago</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function createAIWorkflow() {
+        alert('AI Workflow Builder will help you create intelligent, automated workflows.');
+    }
+</script>
+}

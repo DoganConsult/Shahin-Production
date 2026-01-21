@@ -1,0 +1,147 @@
+@model ErrorViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@{
+    ViewData["Title"] = L["Error_PageTitle"];
+    Layout = "_Layout";
+    
+    var statusCode = ViewData["StatusCode"] as int? ?? 500;
+    var errorMessage = ViewData["ErrorMessage"] as string;
+    var errorDetails = ViewData["ErrorDetails"] as string;
+    var correlationId = ViewData["CorrelationId"] as string ?? Model?.RequestId ?? Context.TraceIdentifier;
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-5 text-center">
+                    @switch (statusCode)
+                    {
+                        case 404:
+                            <div class="mb-4">
+                                <i class="bi bi-search display-1 text-warning"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-warning mb-3">404</h1>
+                            <h2 class="h4 mb-4">@L["Error_404_Title"]</h2>
+                            <p class="text-muted mb-4">@L["Error_404_Message"]</p>
+                            break;
+                            
+                        case 403:
+                            <div class="mb-4">
+                                <i class="bi bi-shield-lock display-1 text-danger"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-danger mb-3">403</h1>
+                            <h2 class="h4 mb-4">@L["Error_403_Title"]</h2>
+                            <p class="text-muted mb-4">@L["Error_403_Message"]</p>
+                            break;
+                            
+                        case 401:
+                            <div class="mb-4">
+                                <i class="bi bi-person-lock display-1 text-warning"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-warning mb-3">401</h1>
+                            <h2 class="h4 mb-4">@L["Error_401_Title"]</h2>
+                            <p class="text-muted mb-4">@L["Error_401_Message"]</p>
+                            break;
+                            
+                        default:
+                            <div class="mb-4">
+                                <i class="bi bi-exclamation-triangle display-1 text-danger"></i>
+                            </div>
+                            <h1 class="display-4 fw-bold text-danger mb-3">@L["Error_Oops"]</h1>
+                            <h2 class="h4 mb-4">@L["Error_500_Title"]</h2>
+                            <p class="text-muted mb-4">@L["Error_500_Message"]</p>
+                            break;
+                    }
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-light border mb-4">
+                            <i class="bi bi-info-circle me-2"></i>
+                            @errorMessage
+                        </div>
+                    }
+
+                    <!-- Helpful Actions -->
+                    <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+                        <a href="/" class="btn btn-primary">
+                            <i class="bi bi-house me-2"></i>@L["Error_GoHome"]
+                        </a>
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>@L["Error_GoBack"]
+                        </a>
+                        <a href="/Dashboard" class="btn btn-outline-primary">
+                            <i class="bi bi-speedometer2 me-2"></i>@L["Nav_Dashboard"]
+                        </a>
+                    </div>
+
+                    <!-- Quick Help Section -->
+                    <div class="card bg-light border-0 mt-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <i class="bi bi-lightbulb me-2 text-warning"></i>@L["Error_NeedHelp"]
+                            </h5>
+                            <div class="row text-start">
+                                <div class="col-md-6">
+                                    <ul class="list-unstyled small">
+                                        <li class="mb-2">
+                                            <i class="bi bi-check-circle text-success me-2"></i>
+                                            @L["Error_Help_CheckUrl"]
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="bi bi-check-circle text-success me-2"></i>
+                                            @L["Error_Help_ClearCache"]
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <ul class="list-unstyled small">
+                                        <li class="mb-2">
+                                            <i class="bi bi-check-circle text-success me-2"></i>
+                                            @L["Error_Help_TryAgain"]
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="bi bi-check-circle text-success me-2"></i>
+                                            <a href="/KnowledgeBase">@L["Error_Help_ViewGuide"]</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reference ID for Support -->
+                    @if (!string.IsNullOrEmpty(correlationId))
+                    {
+                        <div class="mt-4 pt-3 border-top">
+                            <small class="text-muted">
+                                <i class="bi bi-ticket-detailed me-1"></i>
+                                @L["Error_ReferenceId"]: <code class="user-select-all">@correlationId</code>
+                            </small>
+                        </div>
+                    }
+
+                    <!-- Contact Support -->
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            @L["Error_StillNeedHelp"] 
+                            <a href="mailto:support@shahin.ai" class="text-decoration-none">support@shahin.ai</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Log error for client-side tracking
+        console.error('Error page displayed', {
+            statusCode: @statusCode,
+            correlationId: '@correlationId',
+            url: window.location.href
+        });
+    </script>
+}

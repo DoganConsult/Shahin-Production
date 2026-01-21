@@ -1,0 +1,212 @@
+@model GrcMvc.Models.DTOs.OrgSetupDashboardDto
+@{
+    ViewData["Title"] = "Organization Setup";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-building text-primary me-2"></i>
+                Organization Setup
+            </h2>
+            <p class="text-muted mb-0">@Model.Organization.OrganizationName - Configure your GRC platform</p>
+        </div>
+        <div>
+            @if (Model.SetupProgress.OverallPercent < 100)
+            {
+                <form asp-action="ProvisionDefaults" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-magic me-1"></i> Auto-Provision Defaults
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Setup Progress -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Setup Progress</h5>
+            <div class="progress mb-3" style="height: 25px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: @Model.SetupProgress.OverallPercent%">
+                    @Model.SetupProgress.OverallPercent%
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="d-flex align-items-center">
+                        @if (Model.SetupProgress.OrganizationProfileComplete)
+                        {
+                            <i class="bi bi-check-circle-fill text-success fs-4 me-2"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-circle text-secondary fs-4 me-2"></i>
+                        }
+                        <span>Organization Profile</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex align-items-center">
+                        @if (Model.SetupProgress.TeamsConfigured)
+                        {
+                            <i class="bi bi-check-circle-fill text-success fs-4 me-2"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-circle text-secondary fs-4 me-2"></i>
+                        }
+                        <span>Teams Configured</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex align-items-center">
+                        @if (Model.SetupProgress.RACIConfigured)
+                        {
+                            <i class="bi bi-check-circle-fill text-success fs-4 me-2"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-circle text-secondary fs-4 me-2"></i>
+                        }
+                        <span>RACI Assignments</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex align-items-center">
+                        @if (Model.SetupProgress.UsersInvited)
+                        {
+                            <i class="bi bi-check-circle-fill text-success fs-4 me-2"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-circle text-secondary fs-4 me-2"></i>
+                        }
+                        <span>Users Activated</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-1 opacity-75">Teams</h6>
+                            <h2 class="card-title mb-0">@Model.Teams.TotalTeams</h2>
+                        </div>
+                        <i class="bi bi-people-fill fs-1 opacity-50"></i>
+                    </div>
+                    <small class="opacity-75">@Model.Teams.TotalMembers total members</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-1 opacity-75">Active Users</h6>
+                            <h2 class="card-title mb-0">@Model.Users.ActiveUsers</h2>
+                        </div>
+                        <i class="bi bi-person-check-fill fs-1 opacity-50"></i>
+                    </div>
+                    <small class="opacity-75">@Model.Users.TotalUsers total users</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-1 opacity-75">Sector</h6>
+                            <h2 class="card-title mb-0 fs-4">@(Model.Organization.Sector ?? "N/A")</h2>
+                        </div>
+                        <i class="bi bi-diagram-3-fill fs-1 opacity-50"></i>
+                    </div>
+                    <small class="opacity-75">@Model.Organization.Country</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-1 opacity-75">Onboarding</h6>
+                            <h2 class="card-title mb-0">@Model.Organization.OnboardingProgress%</h2>
+                        </div>
+                        <i class="bi bi-rocket-takeoff-fill fs-1 opacity-50"></i>
+                    </div>
+                    <small class="opacity-75">@Model.Organization.OnboardingStatus</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-people text-primary me-2"></i>Teams
+                    </h5>
+                    <p class="card-text text-muted">Manage your GRC teams and assign members to handle workflows.</p>
+                    <a asp-action="Teams" class="btn btn-outline-primary">
+                        <i class="bi bi-gear me-1"></i> Manage Teams
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-person-badge text-success me-2"></i>Users
+                    </h5>
+                    <p class="card-text text-muted">View and manage users in your organization.</p>
+                    <a asp-action="Users" class="btn btn-outline-success">
+                        <i class="bi bi-people me-1"></i> Manage Users
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-grid-3x3-gap text-info me-2"></i>RACI Matrix
+                    </h5>
+                    <p class="card-text text-muted">Configure responsibility assignments for control families.</p>
+                    <a asp-action="RACI" class="btn btn-outline-info">
+                        <i class="bi bi-table me-1"></i> Manage RACI
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

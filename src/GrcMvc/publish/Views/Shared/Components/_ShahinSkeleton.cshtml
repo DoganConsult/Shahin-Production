@@ -1,0 +1,122 @@
+@*
+    SHAHIN AI GRC - Skeleton Loader Component
+    Usage: <partial name="Components/_ShahinSkeleton" model='new {
+        Type = "text",
+        Lines = 3,
+        Width = "100%",
+        Height = "20px",
+        Circle = false,
+        Avatar = false
+    }' />
+*@
+@{
+    dynamic model = ViewData.Model ?? new { };
+    var type = model?.Type ?? "text"; // text, card, table, avatar, custom
+    var lines = model?.Lines ?? 1;
+    var width = model?.Width ?? "100%";
+    var height = model?.Height ?? "20px";
+    var circle = model?.Circle ?? false;
+    var avatar = model?.Avatar ?? false;
+    var cssClass = model?.CssClass ?? "";
+}
+
+@if (type == "text")
+{
+    for (int i = 0; i < lines; i++)
+    {
+        var lineWidth = i == lines - 1 ? "70%" : width;
+        <div class="shahin-skeleton shahin-skeleton-text @cssClass" style="width: @lineWidth; height: @height; margin-bottom: var(--shahin-space-2);"></div>
+    }
+}
+else if (type == "card")
+{
+    <div class="shahin-card @cssClass">
+        <div class="shahin-card-body">
+            <div class="shahin-skeleton shahin-skeleton-text" style="width: 60%; height: 24px; margin-bottom: var(--shahin-space-3);"></div>
+            <div class="shahin-skeleton shahin-skeleton-text" style="width: 100%; height: 16px; margin-bottom: var(--shahin-space-2);"></div>
+            <div class="shahin-skeleton shahin-skeleton-text" style="width: 100%; height: 16px; margin-bottom: var(--shahin-space-2);"></div>
+            <div class="shahin-skeleton shahin-skeleton-text" style="width: 80%; height: 16px;"></div>
+        </div>
+    </div>
+}
+else if (type == "table")
+{
+    <div class="shahin-table-container @cssClass">
+        <table class="shahin-table">
+            <thead>
+                <tr>
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <th><div class="shahin-skeleton shahin-skeleton-text" style="width: 80%; height: 16px;"></div></th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @for (int row = 0; row < 5; row++)
+                {
+                    <tr>
+                        @for (int col = 0; col < 5; col++)
+                        {
+                            <td><div class="shahin-skeleton shahin-skeleton-text" style="width: 90%; height: 14px;"></div></td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else if (type == "avatar" || avatar)
+{
+    <div class="shahin-skeleton @(circle ? "shahin-skeleton-circle" : "shahin-skeleton-avatar") @cssClass" style="width: @width; height: @height;"></div>
+}
+else
+{
+    <div class="shahin-skeleton @cssClass" style="width: @width; height: @height; @(circle ? "border-radius: 50%;" : "")"></div>
+}
+
+<style>
+    .shahin-skeleton {
+        background: linear-gradient(
+            90deg,
+            var(--shahin-gray-200) 0%,
+            var(--shahin-gray-100) 50%,
+            var(--shahin-gray-200) 100%
+        );
+        background-size: 200% 100%;
+        animation: shahin-skeleton-loading 1.5s ease-in-out infinite;
+        border-radius: var(--shahin-radius-base);
+    }
+
+    .shahin-skeleton-text {
+        height: 1rem;
+        width: 100%;
+    }
+
+    .shahin-skeleton-avatar {
+        border-radius: var(--shahin-radius-base);
+    }
+
+    .shahin-skeleton-circle {
+        border-radius: 50%;
+    }
+
+    @@keyframes shahin-skeleton-loading {
+        0% {
+            background-position: 200% 0;
+        }
+        100% {
+            background-position: -200% 0;
+        }
+    }
+
+    /* Dark skeleton variant */
+    .shahin-skeleton-dark {
+        background: linear-gradient(
+            90deg,
+            var(--shahin-gray-700) 0%,
+            var(--shahin-gray-600) 50%,
+            var(--shahin-gray-700) 100%
+        );
+        background-size: 200% 100%;
+    }
+</style>

@@ -1,0 +1,233 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using GrcMvc.Configuration
+@inject IHtmlLocalizer<SharedResource> L
+@model GrcMvc.Models.DTOs.RiskDto
+@{
+    ViewData["Title"] = "Risk Contextualization";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-diagram-3"></i> @L["Risk_Contextualization"]</h2>
+            <p class="text-muted">Link risks to assets, processes, and business functions</p>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Details
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Risk: @Model.Name</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="LinkToAsset" method="post">
+                        <input type="hidden" name="riskId" value="@Model.Id" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Business Assets</label>
+                            <select name="assetId" id="assetSelect" class="form-select" multiple>
+                                <option value="" disabled>-- Select Assets --</option>
+                            </select>
+                            <small class="form-text text-muted">Select business assets affected by this risk</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Business Processes</label>
+                            <select name="processId" id="processSelect" class="form-select" multiple>
+                                <option value="" disabled>-- Select Processes --</option>
+                            </select>
+                            <small class="form-text text-muted">Select business processes impacted by this risk</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Business Functions</label>
+                            <select name="functionId" id="functionSelect" class="form-select" multiple>
+                                <option value="" disabled>-- Select Functions --</option>
+                            </select>
+                            <small class="form-text text-muted">Select business functions related to this risk</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-link-45deg"></i> Link Selected Items
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Linked Assets</h6>
+                    <span class="badge bg-primary" id="assetCount">0</span>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush" id="linkedAssetsList">
+                        <li class="list-group-item text-muted">Loading...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Linked Processes</h6>
+                    <span class="badge bg-primary" id="processCount">0</span>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush" id="linkedProcessesList">
+                        <li class="list-group-item text-muted">Loading...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const riskId = '@Model.Id';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadAssets();
+        loadProcesses();
+        loadFunctions();
+        loadLinkedItems();
+    });
+
+    // Load available assets for dropdown
+    async function loadAssets() {
+        try {
+            const response = await fetch('/api/assets');
+            const data = await response.json();
+            const select = document.getElementById('assetSelect');
+            select.innerHTML = '<option value="" disabled>-- Select Assets --</option>';
+            data.forEach(asset => {
+                const option = document.createElement('option');
+                option.value = asset.id;
+                option.textContent = asset.name;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error loading assets:', error);
+        }
+    }
+
+    // Load available processes for dropdown
+    async function loadProcesses() {
+        try {
+            const response = await fetch('/api/processes');
+            const data = await response.json();
+            const select = document.getElementById('processSelect');
+            select.innerHTML = '<option value="" disabled>-- Select Processes --</option>';
+            data.forEach(process => {
+                const option = document.createElement('option');
+                option.value = process.id;
+                option.textContent = process.name;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error loading processes:', error);
+        }
+    }
+
+    // Load available functions for dropdown
+    async function loadFunctions() {
+        try {
+            const response = await fetch('/api/functions');
+            const data = await response.json();
+            const select = document.getElementById('functionSelect');
+            select.innerHTML = '<option value="" disabled>-- Select Functions --</option>';
+            data.forEach(func => {
+                const option = document.createElement('option');
+                option.value = func.id;
+                option.textContent = func.name;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error loading functions:', error);
+        }
+    }
+
+    // Load linked items for this risk
+    async function loadLinkedItems() {
+        try {
+            const response = await fetch(`/api/risks/${riskId}/context`);
+            const data = await response.json();
+
+            // Update linked assets
+            const assetsList = document.getElementById('linkedAssetsList');
+            const assets = data.assets || [];
+            document.getElementById('assetCount').textContent = assets.length;
+
+            if (assets.length === 0) {
+                assetsList.innerHTML = '<li class="list-group-item text-muted">No assets linked yet</li>';
+            } else {
+                assetsList.innerHTML = assets.map(asset => `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-server me-2"></i>${asset.name}</span>
+                        <button class="btn btn-sm btn-outline-danger" onclick="unlinkAsset('${asset.id}')">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </li>
+                `).join('');
+            }
+
+            // Update linked processes
+            const processesList = document.getElementById('linkedProcessesList');
+            const processes = data.processes || [];
+            document.getElementById('processCount').textContent = processes.length;
+
+            if (processes.length === 0) {
+                processesList.innerHTML = '<li class="list-group-item text-muted">No processes linked yet</li>';
+            } else {
+                processesList.innerHTML = processes.map(process => `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-diagram-2 me-2"></i>${process.name}</span>
+                        <button class="btn btn-sm btn-outline-danger" onclick="unlinkProcess('${process.id}')">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </li>
+                `).join('');
+            }
+        } catch (error) {
+            console.error('Error loading linked items:', error);
+            document.getElementById('linkedAssetsList').innerHTML =
+                '<li class="list-group-item text-muted">No assets linked yet</li>';
+            document.getElementById('linkedProcessesList').innerHTML =
+                '<li class="list-group-item text-muted">No processes linked yet</li>';
+        }
+    }
+
+    // Unlink asset from risk
+    async function unlinkAsset(assetId) {
+        if (!confirm('Are you sure you want to unlink this asset?')) return;
+        try {
+            await fetch(`/api/risks/${riskId}/assets/${assetId}`, { method: 'DELETE' });
+            loadLinkedItems();
+        } catch (error) {
+            console.error('Error unlinking asset:', error);
+            alert('Failed to unlink asset');
+        }
+    }
+
+    // Unlink process from risk
+    async function unlinkProcess(processId) {
+        if (!confirm('Are you sure you want to unlink this process?')) return;
+        try {
+            await fetch(`/api/risks/${riskId}/processes/${processId}`, { method: 'DELETE' });
+            loadLinkedItems();
+        } catch (error) {
+            console.error('Error unlinking process:', error);
+            alert('Failed to unlink process');
+        }
+    }
+</script>

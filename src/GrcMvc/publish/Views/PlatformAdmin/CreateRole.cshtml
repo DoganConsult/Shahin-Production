@@ -1,0 +1,160 @@
+@model GrcMvc.Models.Entities.Catalogs.RoleCatalog
+@{
+    ViewData["Title"] = "Create Role";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "PlatformAdminMvc")">Platform Admin</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Roles")">Roles</a></li>
+            <li class="breadcrumb-item active">Create Role</li>
+        </ol>
+    </nav>
+    <h1 class="h3 mb-4">Create New Role</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="CreateRole" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <h5 class="mb-3">Basic Information</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Role Code <span class="text-danger">*</span></label>
+                                <input asp-for="RoleCode" class="form-control" placeholder="e.g., COMPLIANCE_OFFICER" required 
+                                       pattern="[A-Z_]+" title="Use uppercase letters and underscores only">
+                                <small class="text-muted">Uppercase with underscores (e.g., SECURITY_LEAD)</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Role Name <span class="text-danger">*</span></label>
+                                <input asp-for="RoleName" class="form-control" placeholder="e.g., Compliance Officer" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea asp-for="Description" class="form-control" rows="2" placeholder="Role description..."></textarea>
+                            </div>
+                        </div>
+
+                        <h5 class="mb-3">Classification</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label">Layer</label>
+                                <select asp-for="Layer" class="form-select">
+                                    <option value="Executive">Executive</option>
+                                    <option value="Management">Management</option>
+                                    <option value="Operational" selected>Operational</option>
+                                    <option value="Support">Support</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Department</label>
+                                <select asp-for="Department" class="form-select">
+                                    <option value="">Select Department</option>
+                                    <option value="Compliance">Compliance</option>
+                                    <option value="Security">Security</option>
+                                    <option value="Risk">Risk Management</option>
+                                    <option value="IT">IT</option>
+                                    <option value="Legal">Legal</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="HR">Human Resources</option>
+                                    <option value="Operations">Operations</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Approval Level (0-4)</label>
+                                <select asp-for="ApprovalLevel" class="form-select">
+                                    <option value="0">0 - No Approval</option>
+                                    <option value="1">1 - Basic</option>
+                                    <option value="2">2 - Standard</option>
+                                    <option value="3">3 - Senior</option>
+                                    <option value="4">4 - Executive</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h5 class="mb-3">Workflow Permissions</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input asp-for="CanApprove" class="form-check-input" type="checkbox">
+                                    <label class="form-check-label" asp-for="CanApprove">Can Approve</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input asp-for="CanReject" class="form-check-input" type="checkbox">
+                                    <label class="form-check-label" asp-for="CanReject">Can Reject</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input asp-for="CanEscalate" class="form-check-input" type="checkbox">
+                                    <label class="form-check-label" asp-for="CanEscalate">Can Escalate</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input asp-for="CanReassign" class="form-check-input" type="checkbox">
+                                    <label class="form-check-label" asp-for="CanReassign">Can Reassign</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="mb-3">Display Settings</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Display Order</label>
+                                <input asp-for="DisplayOrder" type="number" class="form-control" value="0" min="0">
+                                <small class="text-muted">Lower numbers appear first</small>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-center">
+                                <div class="form-check mt-3">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" checked>
+                                    <label class="form-check-label" asp-for="IsActive">Active</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-lg"></i> Create Role
+                            </button>
+                            <a href="@Url.Action("Roles")" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6><i class="bi bi-info-circle"></i> Role Layers</h6>
+                    <dl class="small mb-0">
+                        <dt>Executive</dt>
+                        <dd>C-level, VPs - final approval authority</dd>
+                        <dt>Management</dt>
+                        <dd>Directors, Managers - department oversight</dd>
+                        <dt>Operational</dt>
+                        <dd>Analysts, Specialists - daily operations</dd>
+                        <dt>Support</dt>
+                        <dd>Coordinators, Assistants - support functions</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card bg-light mt-3">
+                <div class="card-body">
+                    <h6><i class="bi bi-shield-check"></i> Approval Levels</h6>
+                    <dl class="small mb-0">
+                        <dt>Level 0</dt><dd>No approval rights</dd>
+                        <dt>Level 1-2</dt><dd>Low-risk approvals</dd>
+                        <dt>Level 3-4</dt><dd>High-risk approvals</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,252 @@
+@*
+    SHAHIN AI GRC - Tags/Chips Input Component
+    Usage: <partial name="Components/_ShahinTags" model='new {
+        Id = "riskTags",
+        Name = "tags",
+        Tags = new[] { "Critical", "Security", "Compliance" },
+        Placeholder = "Add tags...",
+        MaxTags = 10,
+        AllowDuplicates = false
+    }' />
+*@
+@{
+    dynamic model = ViewData.Model ?? new { };
+    var id = model?.Id ?? "shahinTags" + Guid.NewGuid().ToString("N").Substring(0, 8);
+    var name = model?.Name ?? "tags";
+    var tags = model?.Tags as IEnumerable<string> ?? new List<string>();
+    var placeholder = model?.Placeholder ?? "Add tag...";
+    var maxTags = model?.MaxTags ?? 10;
+    var allowDuplicates = model?.AllowDuplicates ?? false;
+    var variant = model?.Variant ?? "primary"; // primary, success, warning, danger, info, neutral
+}
+
+<div class="shahin-tags-input" id="@id" data-max-tags="@maxTags" data-allow-duplicates="@(allowDuplicates ? "true" : "false")">
+    <div class="shahin-tags-container">
+        @foreach (var tag in tags)
+        {
+            <span class="shahin-tag shahin-tag-@variant" data-value="@tag">
+                <span class="shahin-tag-text">@tag</span>
+                <button type="button" class="shahin-tag-remove" aria-label="Remove tag">
+                    <i class="bi bi-x"></i>
+                </button>
+            </span>
+        }
+        <input type="text"
+               class="shahin-tags-input-field"
+               placeholder="@placeholder"
+               id="@(id)-input"
+               autocomplete="off" />
+    </div>
+    <input type="hidden" name="@name" id="@(id)-value" value="@string.Join(",", tags)" />
+</div>
+
+<style>
+    .shahin-tags-input {
+        width: 100%;
+    }
+
+    .shahin-tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--shahin-space-2);
+        padding: var(--shahin-space-3);
+        border: 1px solid var(--shahin-gray-300);
+        border-radius: var(--shahin-radius-base);
+        background-color: var(--shahin-white);
+        min-height: 45px;
+        align-items: center;
+        transition: all var(--shahin-transition-base);
+    }
+
+    .shahin-tags-container:focus-within {
+        border-color: var(--shahin-primary);
+        box-shadow: 0 0 0 3px var(--shahin-primary-light);
+    }
+
+    .shahin-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--shahin-space-1);
+        padding: var(--shahin-space-1) var(--shahin-space-3);
+        border-radius: var(--shahin-radius-full);
+        font-size: var(--shahin-font-size-sm);
+        font-weight: var(--shahin-font-weight-medium);
+        animation: shahin-tag-appear 0.2s ease-out;
+    }
+
+    .shahin-tag-primary {
+        background-color: var(--shahin-primary-light);
+        color: var(--shahin-primary-dark);
+    }
+
+    .shahin-tag-success {
+        background-color: var(--shahin-success-light);
+        color: var(--shahin-success-dark);
+    }
+
+    .shahin-tag-warning {
+        background-color: var(--shahin-warning-light);
+        color: var(--shahin-warning-dark);
+    }
+
+    .shahin-tag-danger {
+        background-color: var(--shahin-error-light);
+        color: var(--shahin-error-dark);
+    }
+
+    .shahin-tag-info {
+        background-color: var(--shahin-info-light);
+        color: var(--shahin-info-dark);
+    }
+
+    .shahin-tag-neutral {
+        background-color: var(--shahin-gray-100);
+        color: var(--shahin-gray-700);
+    }
+
+    .shahin-tag-text {
+        line-height: 1;
+    }
+
+    .shahin-tag-remove {
+        background: none;
+        border: none;
+        padding: 0;
+        width: 1rem;
+        height: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: currentColor;
+        opacity: 0.7;
+        transition: opacity var(--shahin-transition-fast);
+        border-radius: 50%;
+    }
+
+    .shahin-tag-remove:hover {
+        opacity: 1;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .shahin-tags-input-field {
+        flex: 1;
+        min-width: 150px;
+        border: none;
+        outline: none;
+        font-size: var(--shahin-font-size-sm);
+        padding: var(--shahin-space-1) 0;
+        background: transparent;
+    }
+
+    .shahin-tags-input-field::placeholder {
+        color: var(--shahin-gray-400);
+    }
+
+    @@keyframes shahin-tag-appear {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @@keyframes shahin-tag-remove {
+        to {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+    }
+
+    .shahin-tag.removing {
+        animation: shahin-tag-remove 0.2s ease-out forwards;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        (function() {
+            var container = document.getElementById('@id');
+            if (!container) return;
+
+            var inputField = document.getElementById('@(id)-input');
+            var valueInput = document.getElementById('@(id)-value');
+            var tagsContainer = container.querySelector('.shahin-tags-container');
+            var maxTags = parseInt(container.getAttribute('data-max-tags'));
+            var allowDuplicates = container.getAttribute('data-allow-duplicates') === 'true';
+
+            function getTags() {
+                return Array.from(container.querySelectorAll('.shahin-tag')).map(function(tag) {
+                    return tag.getAttribute('data-value');
+                });
+            }
+
+            function updateValue() {
+                var tags = getTags();
+                valueInput.value = tags.join(',');
+            }
+
+            function addTag(text) {
+                text = text.trim();
+                if (!text) return;
+
+                var tags = getTags();
+
+                if (tags.length >= maxTags) {
+                    alert('Maximum number of tags reached (' + maxTags + ')');
+                    return;
+                }
+
+                if (!allowDuplicates && tags.includes(text)) {
+                    return;
+                }
+
+                var tag = document.createElement('span');
+                tag.className = 'shahin-tag shahin-tag-@variant';
+                tag.setAttribute('data-value', text);
+                tag.innerHTML = '<span class="shahin-tag-text">' + text + '</span>' +
+                    '<button type="button" class="shahin-tag-remove" aria-label="Remove tag">' +
+                    '<i class="bi bi-x"></i></button>';
+
+                tag.querySelector('.shahin-tag-remove').addEventListener('click', function() {
+                    removeTag(tag);
+                });
+
+                tagsContainer.insertBefore(tag, inputField);
+                updateValue();
+                inputField.value = '';
+            }
+
+            function removeTag(tagElement) {
+                tagElement.classList.add('removing');
+                setTimeout(function() {
+                    tagElement.remove();
+                    updateValue();
+                }, 200);
+            }
+
+            // Add tag on Enter or comma
+            inputField.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    addTag(this.value);
+                } else if (e.key === 'Backspace' && !this.value) {
+                    var tags = container.querySelectorAll('.shahin-tag');
+                    if (tags.length > 0) {
+                        removeTag(tags[tags.length - 1]);
+                    }
+                }
+            });
+
+            // Initialize remove buttons
+            container.querySelectorAll('.shahin-tag-remove').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    removeTag(this.closest('.shahin-tag'));
+                });
+            });
+        })();
+    </script>
+}

@@ -1,0 +1,466 @@
+@{
+    ViewData["Title"] = "Workflow Escalations";
+}
+
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm border-left border-danger">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h2 mb-2">
+                                <i class="fas fa-exclamation-triangle text-danger me-2"></i>SLA & Escalations
+                            </h1>
+                            <p class="text-muted mb-0">Monitor overdue workflows and escalation triggers</p>
+                        </div>
+                        <span class="badge bg-danger fs-6">2 Active Escalations</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <label class="form-label">Status</label>
+            <select class="form-select" id="filterStatus">
+                <option value="">All Escalations</option>
+                <option value="Active">Active</option>
+                <option value="Pending">Pending SLA</option>
+                <option value="Resolved">Resolved</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Escalation Level</label>
+            <select class="form-select" id="filterLevel">
+                <option value="">All Levels</option>
+                <option value="1">Level 1 (24hrs)</option>
+                <option value="2">Level 2 (48hrs)</option>
+                <option value="3">Level 3 (5 days)</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Workflow</label>
+            <select class="form-select" id="filterWorkflow">
+                <option value="">All Workflows</option>
+                <option value="WF-001">WF-001: NCA Assessment</option>
+                <option value="WF-004">WF-004: Finding Remediation</option>
+                <option value="WF-005">WF-005: Policy Review</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Active Escalations -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="mb-3">Active Escalations</h5>
+        </div>
+    </div>
+
+    <!-- Escalation Card 1 -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm border-left border-danger">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-1 text-center">
+                            <div class="badge bg-danger text-white p-3 rounded-circle"
+                                style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                                <i class="fas fa-exclamation"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <h6 class="mb-1">Finding Remediation (WF-004)</h6>
+                            <p class="text-muted small mb-1">Workflow: WF-2025-0038</p>
+                            <p class="text-muted small mb-2">Initiated by: Sarah Johnson</p>
+                            <span class="badge bg-danger">Level 1 Escalation</span>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-2">
+                                <small class="text-muted">Hours Overdue</small>
+                                <p class="h5 mb-0 text-danger">24 hours</p>
+                            </div>
+                            <div>
+                                <small class="text-muted">SLA Breach</small>
+                                <p class="small mb-0"><i class="fas fa-times text-danger me-1"></i>Approval Level 1</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <p class="small mb-2">
+                                <strong>Escalated to:</strong><br>
+                                Manager (System)
+                            </p>
+                            <button class="btn btn-sm btn-outline-danger me-2" data-bs-toggle="modal"
+                                data-bs-target="#escalationModal">
+                                <i class="fas fa-eye me-1"></i>View
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary">Acknowledge</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Escalation Card 2 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm border-left border-warning">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-1 text-center">
+                            <div class="badge bg-warning text-dark p-3 rounded-circle"
+                                style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <h6 class="mb-1">Policy Review & Approval (WF-005)</h6>
+                            <p class="text-muted small mb-1">Workflow: WF-2025-0041</p>
+                            <p class="text-muted small mb-2">Initiated by: Michael Chen</p>
+                            <span class="badge bg-warning text-dark">Pending SLA Breach (12 hrs)</span>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-2">
+                                <small class="text-muted">Time Remaining</small>
+                                <p class="h5 mb-0 text-warning">12 hours</p>
+                            </div>
+                            <div>
+                                <small class="text-muted">Next Escalation</small>
+                                <p class="small mb-0"><i class="fas fa-arrow-right text-warning me-1"></i>Director</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <p class="small mb-2">
+                                <strong>Current Approver:</strong><br>
+                                Department Head
+                            </p>
+                            <button class="btn btn-sm btn-outline-warning me-2" data-bs-toggle="modal"
+                                data-bs-target="#escalationModal">
+                                <i class="fas fa-eye me-1"></i>View
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary">Escalate Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLA Configuration -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h5 class="mb-3">SLA Configuration</h5>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Workflow</th>
+                                <th>Level 1 SLA</th>
+                                <th>Level 2 SLA</th>
+                                <th>Level 3 SLA</th>
+                                <th>Auto-Escalate</th>
+                                <th>Notifications</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>WF-001: NCA Assessment</strong></td>
+                                <td>24 hours</td>
+                                <td>24 hours</td>
+                                <td>24 hours</td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td>Email, Browser</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>WF-004: Finding Remediation</strong></td>
+                                <td>24 hours</td>
+                                <td>48 hours</td>
+                                <td>5 days</td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td>Email, Browser, SMS</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>WF-005: Policy Review</strong></td>
+                                <td>24 hours</td>
+                                <td>24 hours</td>
+                                <td>24 hours</td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td>Email, Browser</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card bg-light border-0">
+                <div class="card-body text-center">
+                    <i class="fas fa-fire text-danger fa-2x mb-3"></i>
+                    <h6>Active Escalations</h6>
+                    <p class="h3 mb-0 text-danger">2</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-light border-0">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock text-warning fa-2x mb-3"></i>
+                    <h6>Pending SLA</h6>
+                    <p class="h3 mb-0 text-warning">3</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-light border-0">
+                <div class="card-body text-center">
+                    <i class="fas fa-check text-success fa-2x mb-3"></i>
+                    <h6>Resolved</h6>
+                    <p class="h3 mb-0 text-success">18</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-light border-0">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-bar text-info fa-2x mb-3"></i>
+                    <h6>Avg Resolution</h6>
+                    <p class="h3 mb-0 text-info">4.2h</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Escalation Details Modal -->
+<div class="modal fade" id="escalationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title">Escalation Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <strong>SLA Breach:</strong> This approval is 24 hours overdue
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Workflow</label>
+                        <p class="fw-bold">Finding Remediation (WF-004)</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Escalation Level</label>
+                        <p class="fw-bold">Level 1</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Hours Overdue</label>
+                        <p class="fw-bold text-danger">24 hours</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Escalated To</label>
+                        <p class="fw-bold">Manager (System)</p>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Escalation History</label>
+                    <div class="timeline">
+                        <div class="timeline-item mb-3">
+                            <small class="text-muted">2025-01-05 12:00</small>
+                            <p class="mb-0"><i class="fas fa-arrow-up text-warning me-2"></i><strong>Escalated to
+                                    Manager</strong></p>
+                        </div>
+                        <div class="timeline-item">
+                            <small class="text-muted">2025-01-04 12:00</small>
+                            <p class="mb-0"><i class="fas fa-clock text-danger me-2"></i><strong>SLA Breach - 24
+                                    hours</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Additional Notes</label>
+                    <textarea class="form-control" rows="3" placeholder="Add escalation notes..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger">Force Escalation</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            // Load escalations
+            loadEscalations();
+            loadSLAStats();
+        });
+
+        function loadEscalations() {
+            // Load from API with fallback to demo data
+            fetch('/api/escalations?status=' + $('#filterStatus').val() + '&level=' + $('#filterLevel').val())
+                .then(response => response.json())
+                .then(data => {
+                    // Update escalation count in header
+                    updateEscalationDisplay(data);
+                })
+                .catch(error => {
+                    console.error('Error loading escalations:', error);
+                    // Keep demo data visible
+                });
+        }
+
+        function loadSLAStats() {
+            // Load SLA statistics
+            fetch('/api/escalations/stats')
+                .then(response => response.json())
+                .then(data => {
+                })
+                .catch(error => {
+                    console.error('Error loading SLA stats:', error);
+                });
+        }
+
+        function updateEscalationDisplay(escalations) {
+            const activeCount = escalations.filter(e => e.status === 'Active').length;
+            document.querySelector('.badge-danger').textContent = activeCount + ' Active Escalations';
+        }
+
+        // Handle filter changes
+        $('#filterStatus, #filterLevel, #filterWorkflow').on('change', loadEscalations);
+
+        // Handle acknowledge button
+        $(document).on('click', '.btn-outline-danger', function() {
+            const escalationId = $(this).closest('.card').find('[data-escalation-id]').data('escalation-id');
+            showEscalationModal(escalationId);
+        });
+
+        // Handle escalate now button
+        $(document).on('click', function(e) {
+            if ($(e.target).closest('.btn-outline-secondary').length && $(e.target).text().includes('Escalate')) {
+                const escalationId = $(e.target).closest('.card').find('[data-escalation-id]').data('escalation-id');
+                escalateNow(escalationId);
+            }
+        });
+
+        function showEscalationModal(escalationId) {
+            // Load escalation details
+            fetch('/api/escalations/' + escalationId)
+                .then(response => response.json())
+                .then(data => {
+                    // Populate modal with escalation details
+                    $('#escalationModalTitle').text(data.workflow);
+                    $('#escalationDetails').html(`
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Initiated By:</strong> ${data.initiatedBy}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Current Approver:</strong> ${data.currentApprover}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>SLA Breach:</strong> ${data.slaBreach}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Level:</strong> ${data.level}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Timeline:</strong>
+                            <ul class="mb-0">
+                                ${data.timeline.map(t => `<li>${t.time}: ${t.event}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `);
+                    $('#escalationModal').modal('show');
+                })
+                .catch(error => {
+                    alert('Error loading escalation details: ' + error.message);
+                });
+        }
+
+        async function escalateNow(escalationId) {
+            if (!confirm('Are you sure you want to escalate this workflow now?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/escalations/' + escalationId + '/escalate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    alert('Workflow escalated successfully!');
+                    loadEscalations();
+                } else {
+                    alert('Error escalating workflow');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function acknowledgeEscalation(escalationId) {
+            try {
+                const response = await fetch('/api/escalations/' + escalationId + '/acknowledge', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    alert('Escalation acknowledged!');
+                    loadEscalations();
+                } else {
+                    alert('Error acknowledging escalation');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Handle SLA configuration edit
+        $(document).on('click', '.table .btn-outline-primary', function(e) {
+            e.preventDefault();
+            const row = $(this).closest('tr');
+            const workflow = row.find('td:first').text();
+            alert('Edit SLA for: ' + workflow);
+            // Show SLA edit modal
+        });
+    </script>
+}

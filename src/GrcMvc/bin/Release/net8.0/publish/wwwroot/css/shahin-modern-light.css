@@ -1,0 +1,1222 @@
+/*
+ * SHAHIN GRC - Premium Modern Light Theme
+ * Version: 3.0 - 2026
+ * Ultra-modern enterprise design inspired by Linear, Vercel, Stripe
+ * Clean, crisp, and professional
+ */
+
+/* =====================================================================
+   GOOGLE FONTS IMPORT - Premium Typography
+   ===================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* =====================================================================
+   DESIGN TOKENS - Premium Light Palette
+   ===================================================================== */
+
+:root {
+  /* PRIMARY BRAND - Vibrant Indigo */
+  --shahin-primary-50: #eef2ff;
+  --shahin-primary-100: #e0e7ff;
+  --shahin-primary-200: #c7d2fe;
+  --shahin-primary-300: #a5b4fc;
+  --shahin-primary-400: #818cf8;
+  --shahin-primary-500: #6366f1;
+  --shahin-primary-600: #4f46e5;
+  --shahin-primary-700: #4338ca;
+  --shahin-primary-800: #3730a3;
+  --shahin-primary-900: #312e81;
+  --shahin-primary: #4f46e5;
+  --shahin-primary-hover: #4338ca;
+  --shahin-primary-active: #3730a3;
+  --shahin-primary-light: #eef2ff;
+
+  /* ACCENT - Teal/Cyan */
+  --shahin-accent: #06b6d4;
+  --shahin-accent-light: #ecfeff;
+
+  /* SEMANTIC COLORS - Vibrant & Clear */
+  --shahin-success: #10b981;
+  --shahin-success-bg: #ecfdf5;
+  --shahin-success-border: #6ee7b7;
+
+  --shahin-warning: #f59e0b;
+  --shahin-warning-bg: #fffbeb;
+  --shahin-warning-border: #fcd34d;
+
+  --shahin-error: #ef4444;
+  --shahin-error-bg: #fef2f2;
+  --shahin-error-border: #fca5a5;
+
+  --shahin-info: #3b82f6;
+  --shahin-info-bg: #eff6ff;
+  --shahin-info-border: #93c5fd;
+
+  /* NEUTRAL PALETTE - Cool Gray */
+  --shahin-gray-25: #fcfcfd;
+  --shahin-gray-50: #fafafa;
+  --shahin-gray-100: #f4f4f5;
+  --shahin-gray-200: #e4e4e7;
+  --shahin-gray-300: #d4d4d8;
+  --shahin-gray-400: #a1a1aa;
+  --shahin-gray-500: #71717a;
+  --shahin-gray-600: #52525b;
+  --shahin-gray-700: #3f3f46;
+  --shahin-gray-800: #27272a;
+  --shahin-gray-900: #18181b;
+  --shahin-gray-950: #09090b;
+
+  /* SURFACE COLORS */
+  --shahin-surface-primary: #ffffff;
+  --shahin-surface-secondary: #fafafa;
+  --shahin-surface-tertiary: #f4f4f5;
+  --shahin-surface-elevated: #ffffff;
+
+  --shahin-bg-page: #fafafa;
+  --shahin-bg-card: #ffffff;
+  --shahin-bg-sidebar: #ffffff;
+  --shahin-bg-header: rgba(255, 255, 255, 0.85);
+  --shahin-bg-modal: #ffffff;
+  --shahin-bg-dropdown: #ffffff;
+  --shahin-bg-input: #ffffff;
+  --shahin-bg-hover: #f4f4f5;
+  --shahin-bg-selected: #eef2ff;
+  --shahin-bg-muted: #fafafa;
+
+  /* TEXT COLORS */
+  --shahin-text-primary: #18181b;
+  --shahin-text-secondary: #3f3f46;
+  --shahin-text-tertiary: #71717a;
+  --shahin-text-muted: #a1a1aa;
+  --shahin-text-disabled: #d4d4d8;
+  --shahin-text-inverse: #ffffff;
+  --shahin-text-link: #4f46e5;
+  --shahin-text-link-hover: #4338ca;
+
+  /* BORDER COLORS */
+  --shahin-border-light: #f4f4f5;
+  --shahin-border-default: #e4e4e7;
+  --shahin-border-medium: #d4d4d8;
+  --shahin-border-strong: #a1a1aa;
+  --shahin-border-focus: #4f46e5;
+  --shahin-border-error: #ef4444;
+
+  /* SHADOWS - Subtle & Premium */
+  --shahin-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shahin-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shahin-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shahin-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  --shahin-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  --shahin-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  --shahin-shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shahin-shadow-focus: 0 0 0 3px rgba(79, 70, 229, 0.2);
+  --shahin-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shahin-shadow-card-hover: 0 8px 25px rgba(0, 0, 0, 0.08);
+  --shahin-shadow-dropdown: 0 4px 25px rgba(0, 0, 0, 0.12), 0 0 1px rgba(0, 0, 0, 0.05);
+  --shahin-shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  /* TYPOGRAPHY - Modern Sans */
+  --shahin-font-sans: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --shahin-font-arabic: 'Tajawal', 'Cairo', 'Noto Sans Arabic', sans-serif;
+  --shahin-font-display: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --shahin-font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Consolas', monospace;
+
+  --shahin-text-xs: 0.75rem;
+  --shahin-text-sm: 0.8125rem;
+  --shahin-text-base: 0.9375rem;
+  --shahin-text-lg: 1.0625rem;
+  --shahin-text-xl: 1.25rem;
+  --shahin-text-2xl: 1.5rem;
+  --shahin-text-3xl: 1.875rem;
+  --shahin-text-4xl: 2.25rem;
+  --shahin-text-5xl: 3rem;
+
+  --shahin-leading-tight: 1.25;
+  --shahin-leading-snug: 1.375;
+  --shahin-leading-normal: 1.5;
+  --shahin-leading-relaxed: 1.625;
+
+  --shahin-tracking-tighter: -0.03em;
+  --shahin-tracking-tight: -0.015em;
+  --shahin-tracking-normal: 0;
+  --shahin-tracking-wide: 0.02em;
+
+  /* SPACING */
+  --shahin-space-1: 0.25rem;
+  --shahin-space-2: 0.5rem;
+  --shahin-space-3: 0.75rem;
+  --shahin-space-4: 1rem;
+  --shahin-space-5: 1.25rem;
+  --shahin-space-6: 1.5rem;
+  --shahin-space-8: 2rem;
+  --shahin-space-10: 2.5rem;
+  --shahin-space-12: 3rem;
+
+  /* BORDER RADIUS */
+  --shahin-radius-sm: 0.375rem;
+  --shahin-radius-md: 0.5rem;
+  --shahin-radius-lg: 0.75rem;
+  --shahin-radius-xl: 1rem;
+  --shahin-radius-2xl: 1.25rem;
+  --shahin-radius-full: 9999px;
+
+  /* TRANSITIONS */
+  --shahin-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --shahin-transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --shahin-transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Z-INDEX */
+  --shahin-z-dropdown: 1000;
+  --shahin-z-sticky: 1020;
+  --shahin-z-fixed: 1030;
+  --shahin-z-modal-backdrop: 1040;
+  --shahin-z-modal: 1050;
+  --shahin-z-popover: 1060;
+  --shahin-z-tooltip: 1070;
+}
+
+/* =====================================================================
+   BASE STYLES - Foundation
+   ===================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--shahin-font-sans);
+  font-size: var(--shahin-text-base);
+  font-weight: 400;
+  line-height: var(--shahin-leading-normal);
+  letter-spacing: var(--shahin-tracking-tight);
+  color: var(--shahin-text-primary);
+  background-color: var(--shahin-bg-page);
+  margin: 0;
+  padding: 0;
+}
+
+/* RTL Support */
+[dir="rtl"] body,
+html[lang="ar"] body {
+  font-family: var(--shahin-font-arabic);
+  letter-spacing: 0;
+}
+
+/* Selection */
+::selection {
+  background: var(--shahin-primary-200);
+  color: var(--shahin-primary-900);
+}
+
+/* =====================================================================
+   NAVBAR - Glassmorphism Header
+   ===================================================================== */
+
+.navbar,
+.shahin-navbar {
+  background: var(--shahin-bg-header) !important;
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--shahin-border-light) !important;
+  box-shadow: none;
+  padding: 0.5rem 0;
+  position: sticky;
+  top: 0;
+  z-index: var(--shahin-z-sticky);
+}
+
+.navbar-brand {
+  font-family: var(--shahin-font-display);
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--shahin-text-primary) !important;
+  letter-spacing: var(--shahin-tracking-tight);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: var(--shahin-transition-fast);
+}
+
+.navbar-brand:hover {
+  color: var(--shahin-primary) !important;
+}
+
+.navbar-brand img {
+  border-radius: var(--shahin-radius-md);
+}
+
+/* Nav Links */
+.navbar-nav .nav-link {
+  font-family: var(--shahin-font-sans);
+  font-size: var(--shahin-text-sm);
+  font-weight: 500;
+  color: var(--shahin-text-secondary) !important;
+  padding: 0.5rem 0.875rem !important;
+  margin: 0 0.125rem;
+  border-radius: var(--shahin-radius-md);
+  transition: var(--shahin-transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.navbar-nav .nav-link:hover {
+  color: var(--shahin-text-primary) !important;
+  background: var(--shahin-bg-hover);
+}
+
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-item.show .nav-link {
+  color: var(--shahin-primary) !important;
+  background: var(--shahin-primary-light);
+}
+
+.navbar-nav .nav-link i,
+.navbar-nav .nav-link .bi,
+.navbar-nav .nav-link .fas,
+.navbar-nav .nav-link .far {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+/* Dropdown Toggle Arrow */
+.navbar-nav .dropdown-toggle::after {
+  margin-left: 0.375rem;
+  vertical-align: 0.15em;
+  border-top-width: 0.35em;
+  border-right-width: 0.35em;
+  border-left-width: 0.35em;
+  opacity: 0.6;
+  transition: var(--shahin-transition-fast);
+}
+
+.navbar-nav .dropdown.show .dropdown-toggle::after {
+  transform: rotate(180deg);
+}
+
+/* Mobile Toggler */
+.navbar-toggler {
+  border: 1px solid var(--shahin-border-default);
+  border-radius: var(--shahin-radius-md);
+  padding: 0.375rem 0.625rem;
+}
+
+.navbar-toggler:focus {
+  box-shadow: var(--shahin-shadow-focus);
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(63, 63, 70, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* =====================================================================
+   DROPDOWN MENUS - Premium Floating Panels
+   ===================================================================== */
+
+.dropdown-menu {
+  font-family: var(--shahin-font-sans);
+  background: var(--shahin-bg-dropdown);
+  border: 1px solid var(--shahin-border-light);
+  border-radius: var(--shahin-radius-xl) !important;
+  box-shadow: var(--shahin-shadow-dropdown);
+  padding: 0.5rem;
+  margin-top: 0.5rem !important;
+  min-width: 220px;
+  animation: dropdownFadeIn var(--motion-dur-fast) var(--motion-ease-standard);
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  font-size: var(--shahin-text-sm);
+  font-weight: 450;
+  color: var(--shahin-text-secondary);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--shahin-radius-md);
+  transition: var(--shahin-transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  color: var(--shahin-text-primary);
+  background: var(--shahin-bg-hover);
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+  color: var(--shahin-primary) !important;
+  background: var(--shahin-primary-light) !important;
+}
+
+.dropdown-item i,
+.dropdown-item .bi,
+.dropdown-item .fas,
+.dropdown-item .far {
+  font-size: 0.9375rem;
+  width: 1.125rem;
+  text-align: center;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.dropdown-item:hover i,
+.dropdown-item:hover .bi,
+.dropdown-item:hover .fas,
+.dropdown-item:hover .far {
+  opacity: 1;
+}
+
+.dropdown-divider {
+  border-color: var(--shahin-border-light);
+  margin: 0.375rem 0;
+  opacity: 1;
+}
+
+.dropdown-header {
+  font-size: var(--shahin-text-xs);
+  font-weight: 600;
+  color: var(--shahin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--shahin-tracking-wide);
+  padding: 0.5rem 0.75rem 0.375rem;
+}
+
+/* =====================================================================
+   CARDS - Modern Elevated Surfaces
+   ===================================================================== */
+
+.card {
+  background: var(--shahin-bg-card);
+  border: 1px solid var(--shahin-border-light);
+  border-radius: var(--shahin-radius-xl);
+  box-shadow: var(--shahin-shadow-card);
+  transition: var(--shahin-transition-normal);
+  overflow: hidden;
+}
+
+.card:hover {
+  border-color: var(--shahin-border-default);
+  box-shadow: var(--shahin-shadow-card-hover);
+}
+
+.card-header {
+  background: transparent;
+  border-bottom: 1px solid var(--shahin-border-light);
+  padding: 1.25rem 1.5rem;
+  font-family: var(--shahin-font-display);
+  font-weight: 600;
+  font-size: var(--shahin-text-base);
+  color: var(--shahin-text-primary);
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-footer {
+  background: var(--shahin-bg-muted);
+  border-top: 1px solid var(--shahin-border-light);
+  padding: 1rem 1.5rem;
+}
+
+.card-title {
+  font-family: var(--shahin-font-display);
+  font-size: var(--shahin-text-lg);
+  font-weight: 600;
+  color: var(--shahin-text-primary);
+  margin-bottom: 0.5rem;
+  letter-spacing: var(--shahin-tracking-tight);
+}
+
+.card-subtitle {
+  font-size: var(--shahin-text-sm);
+  color: var(--shahin-text-tertiary);
+  margin-bottom: 1rem;
+}
+
+/* =====================================================================
+   BUTTONS - Premium Interactive Elements
+   ===================================================================== */
+
+.btn {
+  font-family: var(--shahin-font-sans);
+  font-size: var(--shahin-text-sm);
+  font-weight: 500;
+  line-height: 1;
+  padding: 0.625rem 1rem;
+  border-radius: var(--shahin-radius-lg);
+  border: none;
+  cursor: pointer;
+  transition: var(--shahin-transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.btn:focus,
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shahin-shadow-focus);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary Button */
+.btn-primary {
+  background: var(--shahin-primary);
+  color: var(--shahin-text-inverse);
+  border: none;
+}
+
+.btn-primary:hover {
+  background: var(--shahin-primary-hover);
+  color: var(--shahin-text-inverse);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  background: var(--shahin-primary-active);
+  transform: translateY(0);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: var(--shahin-gray-100);
+  color: var(--shahin-text-secondary);
+  border: 1px solid var(--shahin-border-default);
+}
+
+.btn-secondary:hover {
+  background: var(--shahin-gray-200);
+  color: var(--shahin-text-primary);
+}
+
+/* Success Button */
+.btn-success {
+  background: var(--shahin-success);
+  color: var(--shahin-text-inverse);
+}
+
+.btn-success:hover {
+  background: #059669;
+  color: var(--shahin-text-inverse);
+}
+
+/* Danger Button */
+.btn-danger {
+  background: var(--shahin-error);
+  color: var(--shahin-text-inverse);
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  color: var(--shahin-text-inverse);
+}
+
+/* Warning Button */
+.btn-warning {
+  background: var(--shahin-warning);
+  color: var(--shahin-text-inverse);
+}
+
+.btn-warning:hover {
+  background: #d97706;
+  color: var(--shahin-text-inverse);
+}
+
+/* Outline Buttons */
+.btn-outline-primary {
+  background: transparent;
+  color: var(--shahin-primary);
+  border: 1.5px solid var(--shahin-primary);
+}
+
+.btn-outline-primary:hover {
+  background: var(--shahin-primary);
+  color: var(--shahin-text-inverse);
+}
+
+.btn-outline-secondary {
+  background: transparent;
+  color: var(--shahin-text-secondary);
+  border: 1.5px solid var(--shahin-border-default);
+}
+
+.btn-outline-secondary:hover {
+  background: var(--shahin-bg-hover);
+  color: var(--shahin-text-primary);
+}
+
+.btn-outline-light {
+  background: transparent;
+  color: var(--shahin-text-secondary);
+  border: 1.5px solid var(--shahin-border-default);
+}
+
+.btn-outline-light:hover {
+  background: var(--shahin-bg-hover);
+  color: var(--shahin-text-primary);
+}
+
+/* Size Variants */
+.btn-sm {
+  font-size: var(--shahin-text-xs);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--shahin-radius-md);
+}
+
+.btn-lg {
+  font-size: var(--shahin-text-base);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--shahin-radius-lg);
+}
+
+/* =====================================================================
+   FORMS - Clean & Functional
+   ===================================================================== */
+
+.form-control {
+  font-family: var(--shahin-font-sans);
+  font-size: var(--shahin-text-sm);
+  color: var(--shahin-text-primary);
+  background: var(--shahin-bg-input);
+  border: 1.5px solid var(--shahin-border-default);
+  border-radius: var(--shahin-radius-lg);
+  padding: 0.625rem 0.875rem;
+  transition: var(--shahin-transition-fast);
+}
+
+.form-control:hover {
+  border-color: var(--shahin-border-medium);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--shahin-primary);
+  box-shadow: var(--shahin-shadow-focus);
+}
+
+.form-control::placeholder {
+  color: var(--shahin-text-muted);
+}
+
+.form-label {
+  font-size: var(--shahin-text-sm);
+  font-weight: 500;
+  color: var(--shahin-text-primary);
+  margin-bottom: 0.375rem;
+}
+
+.form-select {
+  font-family: var(--shahin-font-sans);
+  font-size: var(--shahin-text-sm);
+  border: 1.5px solid var(--shahin-border-default);
+  border-radius: var(--shahin-radius-lg);
+  padding: 0.625rem 2.25rem 0.625rem 0.875rem;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2371717a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-size: 1rem;
+  transition: var(--shahin-transition-fast);
+}
+
+.form-select:focus {
+  border-color: var(--shahin-primary);
+  box-shadow: var(--shahin-shadow-focus);
+}
+
+[dir="rtl"] .form-select {
+  padding: 0.625rem 0.875rem 0.625rem 2.25rem;
+  background-position: left 0.875rem center;
+}
+
+/* =====================================================================
+   TABLES - Clean Data Display
+   ===================================================================== */
+
+.table {
+  font-size: var(--shahin-text-sm);
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table thead th {
+  background: var(--shahin-bg-muted);
+  color: var(--shahin-text-tertiary);
+  font-weight: 600;
+  font-size: var(--shahin-text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--shahin-tracking-wide);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--shahin-border-default);
+}
+
+.table tbody td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--shahin-border-light);
+  color: var(--shahin-text-primary);
+  vertical-align: middle;
+}
+
+.table tbody tr:hover {
+  background: var(--shahin-bg-hover);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* =====================================================================
+   BADGES - Status Indicators
+   ===================================================================== */
+
+.badge {
+  font-family: var(--shahin-font-sans);
+  font-size: var(--shahin-text-xs);
+  font-weight: 500;
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--shahin-radius-md);
+  line-height: 1.4;
+}
+
+.bg-primary {
+  background: var(--shahin-primary-light) !important;
+  color: var(--shahin-primary) !important;
+}
+
+.bg-success {
+  background: var(--shahin-success-bg) !important;
+  color: var(--shahin-success) !important;
+}
+
+.bg-warning {
+  background: var(--shahin-warning-bg) !important;
+  color: var(--shahin-warning) !important;
+}
+
+.bg-danger {
+  background: var(--shahin-error-bg) !important;
+  color: var(--shahin-error) !important;
+}
+
+.bg-info {
+  background: var(--shahin-info-bg) !important;
+  color: var(--shahin-info) !important;
+}
+
+.bg-secondary {
+  background: var(--shahin-gray-100) !important;
+  color: var(--shahin-text-secondary) !important;
+}
+
+/* =====================================================================
+   ALERTS - Notification Banners
+   ===================================================================== */
+
+.alert {
+  font-size: var(--shahin-text-sm);
+  padding: 1rem 1.25rem;
+  border-radius: var(--shahin-radius-lg);
+  border: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.alert-success {
+  background: var(--shahin-success-bg);
+  color: var(--shahin-success);
+  border-left: 4px solid var(--shahin-success);
+}
+
+.alert-danger {
+  background: var(--shahin-error-bg);
+  color: var(--shahin-error);
+  border-left: 4px solid var(--shahin-error);
+}
+
+.alert-warning {
+  background: var(--shahin-warning-bg);
+  color: var(--shahin-warning);
+  border-left: 4px solid var(--shahin-warning);
+}
+
+.alert-info {
+  background: var(--shahin-info-bg);
+  color: var(--shahin-info);
+  border-left: 4px solid var(--shahin-info);
+}
+
+[dir="rtl"] .alert {
+  border-left: none;
+  border-right: 4px solid;
+}
+
+.alert-dismissible .btn-close {
+  padding: 1.125rem;
+}
+
+/* =====================================================================
+   MODALS - Elegant Dialogs
+   ===================================================================== */
+
+.modal-backdrop {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: var(--shahin-bg-modal);
+  border: none;
+  border-radius: var(--shahin-radius-2xl);
+  box-shadow: var(--shahin-shadow-modal);
+}
+
+.modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--shahin-border-light);
+}
+
+.modal-title {
+  font-family: var(--shahin-font-display);
+  font-size: var(--shahin-text-lg);
+  font-weight: 600;
+  color: var(--shahin-text-primary);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--shahin-border-light);
+  background: var(--shahin-bg-muted);
+}
+
+/* =====================================================================
+   FOOTER - Clean & Minimal
+   ===================================================================== */
+
+.shahin-footer {
+  background: var(--shahin-surface-primary);
+  border-color: var(--shahin-border-light) !important;
+  padding: 1rem 0;
+}
+
+.footer-text {
+  font-size: var(--shahin-text-sm);
+  color: var(--shahin-text-secondary);
+}
+
+.footer-secondary {
+  color: var(--shahin-text-tertiary);
+}
+
+.footer-link {
+  color: var(--shahin-primary);
+  text-decoration: none;
+  transition: var(--shahin-transition-fast);
+}
+
+.footer-link:hover {
+  color: var(--shahin-primary-hover);
+}
+
+/* =====================================================================
+   SEARCH INPUT - Header Search
+   ===================================================================== */
+
+.shahin-search-input {
+  font-family: var(--shahin-font-sans);
+  font-size: var(--shahin-text-sm);
+  background: var(--shahin-bg-muted) !important;
+  border: 1.5px solid var(--shahin-border-default) !important;
+  border-right: none !important;
+  border-radius: var(--shahin-radius-lg) 0 0 var(--shahin-radius-lg) !important;
+  color: var(--shahin-text-primary) !important;
+  padding: 0.5rem 0.75rem;
+}
+
+.shahin-search-input::placeholder {
+  color: var(--shahin-text-muted);
+}
+
+.shahin-search-input:focus {
+  background: var(--shahin-bg-card) !important;
+  border-color: var(--shahin-primary) !important;
+  box-shadow: none;
+  outline: none;
+}
+
+.shahin-search-btn {
+  background: var(--shahin-primary);
+  border: 1.5px solid var(--shahin-primary);
+  color: var(--shahin-text-inverse);
+  border-radius: 0 var(--shahin-radius-lg) var(--shahin-radius-lg) 0 !important;
+  padding: 0.5rem 0.75rem;
+  transition: var(--shahin-transition-fast);
+}
+
+.shahin-search-btn:hover {
+  background: var(--shahin-primary-hover);
+  border-color: var(--shahin-primary-hover);
+  color: var(--shahin-text-inverse);
+}
+
+[dir="rtl"] .shahin-search-input {
+  border-radius: 0 var(--shahin-radius-lg) var(--shahin-radius-lg) 0 !important;
+  border-right: 1.5px solid var(--shahin-border-default) !important;
+  border-left: none !important;
+}
+
+[dir="rtl"] .shahin-search-btn {
+  border-radius: var(--shahin-radius-lg) 0 0 var(--shahin-radius-lg) !important;
+}
+
+/* =====================================================================
+   USER AVATAR - Modern Style
+   ===================================================================== */
+
+.user-avatar {
+  background: linear-gradient(135deg, var(--shahin-primary) 0%, var(--shahin-primary-700) 100%) !important;
+  box-shadow: var(--shahin-shadow-sm);
+  font-weight: 600;
+}
+
+/* =====================================================================
+   SIDEBAR - Clean Navigation
+   ===================================================================== */
+
+.sidebar,
+.shahin-sidebar {
+  background: var(--shahin-bg-sidebar);
+  border-right: 1px solid var(--shahin-border-light);
+  min-height: 100vh;
+}
+
+[dir="rtl"] .sidebar,
+[dir="rtl"] .shahin-sidebar {
+  border-right: none;
+  border-left: 1px solid var(--shahin-border-light);
+}
+
+.sidebar .nav-link {
+  font-size: var(--shahin-text-sm);
+  font-weight: 500;
+  color: var(--shahin-text-secondary);
+  padding: 0.625rem 1rem;
+  margin: 0.125rem 0.5rem;
+  border-radius: var(--shahin-radius-lg);
+  transition: var(--shahin-transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sidebar .nav-link:hover {
+  color: var(--shahin-text-primary);
+  background: var(--shahin-bg-hover);
+}
+
+.sidebar .nav-link.active {
+  color: var(--shahin-primary);
+  background: var(--shahin-primary-light);
+  font-weight: 600;
+}
+
+/* =====================================================================
+   PROGRESS BARS
+   ===================================================================== */
+
+.progress {
+  height: 6px;
+  background: var(--shahin-gray-100);
+  border-radius: var(--shahin-radius-full);
+  overflow: hidden;
+}
+
+.progress-bar {
+  background: var(--shahin-primary);
+  border-radius: var(--shahin-radius-full);
+  transition: width var(--shahin-transition-slow);
+}
+
+/* =====================================================================
+   PAGINATION
+   ===================================================================== */
+
+.pagination {
+  gap: 0.25rem;
+}
+
+.page-item .page-link {
+  font-size: var(--shahin-text-sm);
+  color: var(--shahin-text-secondary);
+  background: var(--shahin-bg-card);
+  border: 1px solid var(--shahin-border-default);
+  border-radius: var(--shahin-radius-md);
+  padding: 0.5rem 0.75rem;
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--shahin-transition-fast);
+}
+
+.page-item .page-link:hover {
+  background: var(--shahin-bg-hover);
+  color: var(--shahin-text-primary);
+}
+
+.page-item.active .page-link {
+  background: var(--shahin-primary);
+  color: var(--shahin-text-inverse);
+  border-color: var(--shahin-primary);
+}
+
+/* =====================================================================
+   BREADCRUMBS
+   ===================================================================== */
+
+.breadcrumb {
+  font-size: var(--shahin-text-sm);
+  background: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+.breadcrumb-item {
+  color: var(--shahin-text-tertiary);
+}
+
+.breadcrumb-item a {
+  color: var(--shahin-text-link);
+  text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+  color: var(--shahin-text-link-hover);
+  text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+  color: var(--shahin-text-primary);
+  font-weight: 500;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+  color: var(--shahin-text-muted);
+}
+
+/* =====================================================================
+   LOADING STATES
+   ===================================================================== */
+
+.spinner-border {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-width: 2px;
+  border-color: var(--shahin-gray-200);
+  border-top-color: var(--shahin-primary);
+}
+
+/* =====================================================================
+   UTILITY OVERRIDES
+   ===================================================================== */
+
+/* Text */
+.text-primary { color: var(--shahin-text-primary) !important; }
+.text-secondary { color: var(--shahin-text-secondary) !important; }
+.text-muted { color: var(--shahin-text-muted) !important; }
+.text-success { color: var(--shahin-success) !important; }
+.text-warning { color: var(--shahin-warning) !important; }
+.text-danger { color: var(--shahin-error) !important; }
+.text-info { color: var(--shahin-info) !important; }
+
+/* Override Bootstrap dark */
+.bg-dark {
+  background: var(--shahin-bg-header) !important;
+}
+
+.navbar-dark {
+  color: var(--shahin-text-primary);
+}
+
+.text-light {
+  color: var(--shahin-text-primary) !important;
+}
+
+/* Shadow utilities */
+.shadow-sm { box-shadow: var(--shahin-shadow-sm) !important; }
+.shadow { box-shadow: var(--shahin-shadow-md) !important; }
+.shadow-lg { box-shadow: var(--shahin-shadow-lg) !important; }
+.shadow-none { box-shadow: none !important; }
+
+/* Border utilities */
+.border { border-color: var(--shahin-border-default) !important; }
+.border-top { border-top-color: var(--shahin-border-default) !important; }
+.border-bottom { border-bottom-color: var(--shahin-border-default) !important; }
+
+/* =====================================================================
+   SCROLLBAR STYLING
+   ===================================================================== */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--shahin-gray-300) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--shahin-gray-300);
+  border-radius: var(--shahin-radius-full);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--shahin-gray-400);
+}
+
+/* =====================================================================
+   FOCUS & ACCESSIBILITY
+   ===================================================================== */
+
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+.nav-link:focus-visible,
+.dropdown-item:focus-visible {
+  outline: 2px solid var(--shahin-primary);
+  outline-offset: 2px;
+}
+
+/* =====================================================================
+   RESPONSIVE ADJUSTMENTS
+   ===================================================================== */
+
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    background: var(--shahin-bg-card);
+    border-radius: var(--shahin-radius-lg);
+    box-shadow: var(--shahin-shadow-lg);
+    padding: 1rem;
+    margin-top: 0.5rem;
+    border: 1px solid var(--shahin-border-light);
+  }
+
+  .navbar-nav .nav-link {
+    padding: 0.75rem 1rem !important;
+    margin: 0.125rem 0;
+  }
+
+  .dropdown-menu {
+    border: none;
+    box-shadow: none;
+    padding-left: 1rem;
+    background: transparent;
+  }
+}
+
+@media (max-width: 767.98px) {
+  :root {
+    --shahin-text-base: 0.875rem;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+}
+
+/* =====================================================================
+   PRINT STYLES
+   ===================================================================== */
+
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .navbar,
+  .sidebar,
+  .btn,
+  .no-print {
+    display: none !important;
+  }
+
+  .card {
+    border: 1px solid #ddd;
+    box-shadow: none;
+  }
+}
+
+/* =====================================================================
+   ADDITIONAL POLISH
+   ===================================================================== */
+
+/* Main content area */
+main[role="main"] {
+  min-height: calc(100vh - 180px);
+  padding: 1rem 0;
+}
+
+/* Container improvements */
+.container-fluid {
+  max-width: 1920px;
+}
+
+/* Input group fixes */
+.input-group .form-control:focus {
+  z-index: 3;
+}
+
+/* Nav item icon consistency */
+.nav-link i:first-child,
+.dropdown-item i:first-child {
+  margin-right: 0.5rem;
+}
+
+[dir="rtl"] .nav-link i:first-child,
+[dir="rtl"] .dropdown-item i:first-child {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+/* Help dropdown menu */
+.help-menu .dropdown-menu {
+  min-width: 260px;
+}

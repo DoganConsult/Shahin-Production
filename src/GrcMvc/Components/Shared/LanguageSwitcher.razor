@@ -1,0 +1,94 @@
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.WebUtilities
+@inject IHttpContextAccessor HttpContextAccessor
+@inject NavigationManager NavigationManager
+
+@{
+    // Get culture with proper null checks and fallback
+    string currentCulture = "ar"; // Default to Arabic
+    bool isRtl = true; // Default to RTL
+    
+    try
+    {
+        var httpContext = HttpContextAccessor.HttpContext;
+        if (httpContext != null)
+        {
+            var requestCulture = httpContext.Features.Get<IRequestCultureFeature>();
+            if (requestCulture?.RequestCulture?.UICulture != null)
+            {
+                currentCulture = requestCulture.RequestCulture.UICulture.Name;
+                isRtl = currentCulture == "ar";
+            }
+        }
+    }
+    catch
+    {
+        // If anything fails, use defaults (Arabic/RTL)
+        currentCulture = "ar";
+        isRtl = true;
+    }
+}
+
+<div class="dropdown">
+    <button class="btn btn-link text-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-globe"></i>
+        @if (isRtl)
+        {
+            <text>العربية</text>
+        }
+        else
+        {
+            <text>English</text>
+        }
+    </button>
+    <ul class="dropdown-menu @(isRtl ? "dropdown-menu-start" : "dropdown-menu-end")" aria-labelledby="languageDropdown">
+        <li>
+            <a class="dropdown-item @(currentCulture == "ar" ? "active" : "")" href="@GetLanguageUrl("ar")">
+                <i class="bi bi-translate me-2"></i>العربية
+                @if (currentCulture == "ar")
+                {
+                    <i class="bi bi-check-lg float-end"></i>
+                }
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item @(currentCulture == "en" ? "active" : "")" href="@GetLanguageUrl("en")">
+                <i class="bi bi-translate me-2"></i>English
+                @if (currentCulture == "en")
+                {
+                    <i class="bi bi-check-lg float-end"></i>
+                }
+            </a>
+        </li>
+    </ul>
+</div>
+
+@code {
+    private string GetLanguageUrl(string culture)
+    {
+        try
+        {
+            var currentUrl = NavigationManager.Uri;
+            if (string.IsNullOrEmpty(currentUrl))
+            {
+                return $"/?culture={culture}&ui-culture={culture}";
+            }
+
+            var uri = new Uri(currentUrl);
+            var query = QueryHelpers.ParseQuery(uri.Query);
+            
+            query["culture"] = culture;
+            query["ui-culture"] = culture;
+            
+            var newQuery = string.Join("&", query.Select(kvp => $"{kvp.Key}={kvp.Value}"));
+            var newUrl = $"{uri.GetLeftPart(UriPartial.Path)}?{newQuery}";
+            
+            return newUrl;
+        }
+        catch
+        {
+            // Fallback to simple URL with culture parameter
+            return $"/?culture={culture}&ui-culture={culture}";
+        }
+    }
+}

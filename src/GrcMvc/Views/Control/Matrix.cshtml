@@ -1,0 +1,180 @@
+@model IEnumerable<GrcMvc.Models.DTOs.ControlDto>
+@{
+    ViewData["Title"] = "Control Matrix & Statistics";
+    Layout = "_Layout";
+    var stats = ViewBag.Statistics as GrcMvc.Models.DTOs.ControlStatisticsDto;
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-grid-3x3"></i> Control Matrix & Statistics</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    @if (stats != null)
+    {
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Controls</h5>
+                        <p class="card-text display-4">@stats.TotalControls</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Effective</h5>
+                        <p class="card-text display-4">@stats.EffectiveControls</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-danger mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Ineffective</h5>
+                        <p class="card-text display-4">@stats.IneffectiveControls</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-info mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Tested</h5>
+                        <p class="card-text display-4">@stats.TestedControls</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Performance Metrics</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-6">
+                                <h6>Average Effectiveness</h6>
+                                <div class="display-4 text-info">@stats.AverageEffectiveness.ToString("F1")%</div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Effectiveness Rate</h6>
+                                <div class="display-4 text-success">@stats.EffectivenessRate.ToString("F1")%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Controls by Type</h5>
+                    </div>
+                    <div class="card-body">
+                         <canvas id="typeChart" style="max-height: 200px;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Control Matrix Table -->
+    <div class="card">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Control Matrix</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped" id="matrixTable">
+                    <thead>
+                        <tr>
+                            <th>Control ID</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Type</th>
+                            <th>Frequency</th>
+                            <th>Owner</th>
+                            <th>Effectiveness</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td><a asp-action="Details" asp-route-id="@item.Id">@item.ControlId</a></td>
+                                <td>@item.Name</td>
+                                <td>@item.Category</td>
+                                <td>@item.Type</td>
+                                <td>@item.Frequency</td>
+                                <td>@item.Owner</td>
+                                <td>
+                                    <span class="badge @GetEffectivenessClass(item.Effectiveness)">
+                                        @item.Effectiveness%
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetEffectivenessClass(int score)
+    {
+        return score switch
+        {
+            >= 80 => "bg-success",
+            >= 50 => "bg-warning",
+            _ => "bg-danger"
+        };
+    }
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#matrixTable').DataTable({
+                "pageLength": 50,
+                "responsive": true
+            });
+
+            @if (stats != null)
+            {
+                <text>
+                var ctx = document.getElementById('typeChart').getContext('2d');
+                var typeData = @System.Text.Json.JsonSerializer.Serialize(stats.ControlsByType));
+
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(typeData),
+                        datasets: [{
+                            data: Object.values(typeData),
+                            backgroundColor: [
+                                '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'
+                            ]
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false
+                    }
+                });
+                </text>
+            }
+        });
+    </script>
+}

@@ -1,0 +1,290 @@
+@using GrcMvc.Services
+@inject IAppInfoService AppInfo
+@{
+    ViewData["Title"] = "الوظائف - " + AppInfo.Name;
+    Layout = "_LandingLayout";
+}
+
+<section class="careers-hero">
+    <div class="container">
+        <div class="section-header fade-up">
+            <div class="section-badge">
+                <i class="bi bi-briefcase"></i>
+                <span>انضم إلينا</span>
+            </div>
+            <h1 class="section-title">ساهم في بناء مستقبل الامتثال</h1>
+            <p class="section-subtitle">
+                نبحث عن مواهب استثنائية تشاركنا الشغف بتبسيط الحوكمة والمخاطر والامتثال.
+            </p>
+        </div>
+
+        <!-- Why Join Us -->
+        <div class="why-join fade-up">
+            <h2>لماذا تنضم إلى شاهين؟</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i class="bi bi-rocket-takeoff"></i></div>
+                    <h4>نمو سريع</h4>
+                    <p>شركة ناشئة في مرحلة نمو سريع مع فرص تطور مهني كبيرة</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i class="bi bi-lightbulb"></i></div>
+                    <h4>تقنيات حديثة</h4>
+                    <p>العمل مع أحدث تقنيات الذكاء الاصطناعي والحوسبة السحابية</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i class="bi bi-globe"></i></div>
+                    <h4>أثر حقيقي</h4>
+                    <p>مساهمة مباشرة في حماية مؤسسات وبيانات حقيقية</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i class="bi bi-people"></i></div>
+                    <h4>فريق متميز</h4>
+                    <p>العمل مع نخبة من الخبراء في مجالات متعددة</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i class="bi bi-house-heart"></i></div>
+                    <h4>بيئة مرنة</h4>
+                    <p>خيارات العمل عن بُعد وساعات مرنة</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i class="bi bi-graph-up-arrow"></i></div>
+                    <h4>مزايا تنافسية</h4>
+                    <p>رواتب تنافسية وحوافز مرتبطة بالأداء</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Open Positions -->
+        <div class="open-positions fade-up">
+            <h2>الوظائف المتاحة</h2>
+            <div class="positions-list">
+                <div class="position-card">
+                    <div class="position-info">
+                        <h3>مهندس برمجيات أول - Backend</h3>
+                        <div class="position-tags">
+                            <span><i class="bi bi-geo-alt"></i> الرياض / عن بُعد</span>
+                            <span><i class="bi bi-clock"></i> دوام كامل</span>
+                            <span><i class="bi bi-code-slash"></i> C# / .NET</span>
+                        </div>
+                        <p>نبحث عن مهندس برمجيات خبير لقيادة تطوير الـ Backend والمساهمة في بناء أنظمة قابلة للتوسع.</p>
+                    </div>
+                    <a href="/Landing/Contact?subject=careers&position=senior-backend" class="btn btn-primary">تقدم الآن</a>
+                </div>
+
+                <div class="position-card">
+                    <div class="position-info">
+                        <h3>مهندس AI/ML</h3>
+                        <div class="position-tags">
+                            <span><i class="bi bi-geo-alt"></i> الرياض / عن بُعد</span>
+                            <span><i class="bi bi-clock"></i> دوام كامل</span>
+                            <span><i class="bi bi-robot"></i> Python / LLMs</span>
+                        </div>
+                        <p>فرصة للعمل على تطوير نماذج الذكاء الاصطناعي وتكاملها مع منصة GRC.</p>
+                    </div>
+                    <a href="/Landing/Contact?subject=careers&position=ml-engineer" class="btn btn-primary">تقدم الآن</a>
+                </div>
+
+                <div class="position-card">
+                    <div class="position-info">
+                        <h3>مستشار GRC</h3>
+                        <div class="position-tags">
+                            <span><i class="bi bi-geo-alt"></i> الرياض</span>
+                            <span><i class="bi bi-clock"></i> دوام كامل</span>
+                            <span><i class="bi bi-shield-check"></i> 5+ سنوات خبرة</span>
+                        </div>
+                        <p>نبحث عن خبير في الحوكمة والمخاطر والامتثال لمساعدة العملاء وتطوير المحتوى.</p>
+                    </div>
+                    <a href="/Landing/Contact?subject=careers&position=grc-consultant" class="btn btn-primary">تقدم الآن</a>
+                </div>
+
+                <div class="position-card">
+                    <div class="position-info">
+                        <h3>مصمم UX/UI</h3>
+                        <div class="position-tags">
+                            <span><i class="bi bi-geo-alt"></i> الرياض / عن بُعد</span>
+                            <span><i class="bi bi-clock"></i> دوام كامل</span>
+                            <span><i class="bi bi-palette"></i> Figma / Design Systems</span>
+                        </div>
+                        <p>فرصة لتصميم تجربة مستخدم استثنائية لمنصة B2B معقدة.</p>
+                    </div>
+                    <a href="/Landing/Contact?subject=careers&position=ux-designer" class="btn btn-primary">تقدم الآن</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Don't See Your Role -->
+        <div class="general-apply fade-up">
+            <h2>لم تجد الوظيفة المناسبة؟</h2>
+            <p>أرسل سيرتك الذاتية وسنتواصل معك عند توفر فرصة مناسبة</p>
+            <a href="/Landing/Contact?subject=careers&position=general" class="btn btn-outline btn-lg">
+                <i class="bi bi-envelope"></i>
+                أرسل سيرتك الذاتية
+            </a>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+<style>
+    .careers-hero {
+        padding: 8rem 0 4rem;
+    }
+
+    .why-join {
+        margin-bottom: 4rem;
+    }
+
+    .why-join h2 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+
+    .benefit-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .benefit-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .benefit-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--gradient-1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        margin: 0 auto 1.25rem;
+    }
+
+    .benefit-card h4 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .benefit-card p {
+        color: rgba(248, 250, 252, 0.6);
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .open-positions h2 {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .positions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-bottom: 4rem;
+    }
+
+    .position-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .position-card:hover {
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .position-info h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .position-tags {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .position-tags span {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.9rem;
+        color: rgba(248, 250, 252, 0.6);
+    }
+
+    .position-tags i {
+        color: var(--primary);
+    }
+
+    .position-info > p {
+        color: rgba(248, 250, 252, 0.7);
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .general-apply {
+        text-align: center;
+        background: linear-gradient(180deg, rgba(16, 185, 129, 0.1), transparent);
+        border-radius: 24px;
+        padding: 4rem;
+    }
+
+    .general-apply h2 {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .general-apply p {
+        color: rgba(248, 250, 252, 0.6);
+        margin-bottom: 1.5rem;
+    }
+
+    @@media (max-width: 1024px) {
+        .benefits-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .position-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .position-card .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .benefits-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .position-tags {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+</style>
+}

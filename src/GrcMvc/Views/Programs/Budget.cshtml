@@ -1,0 +1,386 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@{
+    ViewData["Title"] = "Program Budget Tracking";
+    Layout = "_Layout";
+
+    var tenantId = ViewBag.TenantId as Guid?;
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-cash-stack"></i> @L["ProgramBudgetTracking"]</h2>
+            <p class="text-muted">@L["MonitorAndManageGRCProgramBudgets"]</p>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Definition" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> @L["BackToPrograms"]
+            </a>
+            <button class="btn btn-success">
+                <i class="bi bi-file-earmark-excel"></i> @L["ExportBudgetReport"]
+            </button>
+        </div>
+    </div>
+
+    <!-- Budget Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="opacity-75">@L["TotalBudget"]</h6>
+                    <h2 class="mb-0">$2.5M</h2>
+                    <small>@L["AnnualAllocation"]</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="opacity-75">@L["Spent"]</h6>
+                    <h2 class="mb-0">$1.7M</h2>
+                    <small>68% @L["ofBudget"]</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="opacity-75">@L["Committed"]</h6>
+                    <h2 class="mb-0">$0.5M</h2>
+                    <small>20% @L["ofBudget"]</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark shadow-sm">
+                <div class="card-body text-center">
+                    <h6>@L["Remaining"]</h6>
+                    <h2 class="mb-0">$0.3M</h2>
+                    <small>12% @L["available"]</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget by Program -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-wallet2"></i> @L["BudgetByProgram"]</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>@L["Program"]</th>
+                                    <th>@L["Allocated"]</th>
+                                    <th>@L["Spent"]</th>
+                                    <th>@L["Committed"]</th>
+                                    <th>@L["Remaining"]</th>
+                                    <th>@L["Utilization"]</th>
+                                    <th>@L["Variance"]</th>
+                                    <th>@L["Status"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <strong><i class="bi bi-shield-check"></i> ISO 27001 Certification</strong>
+                                    </td>
+                                    <td>$450,000</td>
+                                    <td>$320,000</td>
+                                    <td>$80,000</td>
+                                    <td>$50,000</td>
+                                    <td>
+                                        <div class="progress" style="width: 120px; height: 20px;">
+                                            <div class="progress-bar bg-success" style="width: 71%">71%</div>
+                                            <div class="progress-bar bg-info" style="width: 18%">18%</div>
+                                        </div>
+                                        <small class="text-muted">89% total</small>
+                                    </td>
+                                    <td class="text-success">-$50K</td>
+                                    <td><span class="badge bg-success">@L["OnBudget"]</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong><i class="bi bi-exclamation-triangle"></i> Risk Management</strong>
+                                    </td>
+                                    <td>$320,000</td>
+                                    <td>$210,000</td>
+                                    <td>$70,000</td>
+                                    <td>$40,000</td>
+                                    <td>
+                                        <div class="progress" style="width: 120px; height: 20px;">
+                                            <div class="progress-bar bg-success" style="width: 66%">66%</div>
+                                            <div class="progress-bar bg-info" style="width: 22%">22%</div>
+                                        </div>
+                                        <small class="text-muted">88% total</small>
+                                    </td>
+                                    <td class="text-success">-$40K</td>
+                                    <td><span class="badge bg-success">@L["OnBudget"]</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong><i class="bi bi-check-square"></i> Compliance Automation</strong>
+                                    </td>
+                                    <td>$280,000</td>
+                                    <td>$240,000</td>
+                                    <td>$60,000</td>
+                                    <td>-$20,000</td>
+                                    <td>
+                                        <div class="progress" style="width: 120px; height: 20px;">
+                                            <div class="progress-bar bg-warning" style="width: 86%">86%</div>
+                                            <div class="progress-bar bg-danger" style="width: 21%">21%</div>
+                                        </div>
+                                        <small class="text-danger">107% total</small>
+                                    </td>
+                                    <td class="text-danger">+$20K</td>
+                                    <td><span class="badge bg-danger">@L["OverBudget"]</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong><i class="bi bi-shield-lock"></i> Business Continuity</strong>
+                                    </td>
+                                    <td>$220,000</td>
+                                    <td>$165,000</td>
+                                    <td>$40,000</td>
+                                    <td>$15,000</td>
+                                    <td>
+                                        <div class="progress" style="width: 120px; height: 20px;">
+                                            <div class="progress-bar bg-success" style="width: 75%">75%</div>
+                                            <div class="progress-bar bg-info" style="width: 18%">18%</div>
+                                        </div>
+                                        <small class="text-muted">93% total</small>
+                                    </td>
+                                    <td class="text-success">-$15K</td>
+                                    <td><span class="badge bg-success">@L["OnBudget"]</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong><i class="bi bi-stars"></i> Maturity Excellence</strong>
+                                    </td>
+                                    <td>$180,000</td>
+                                    <td>$95,000</td>
+                                    <td>$50,000</td>
+                                    <td>$35,000</td>
+                                    <td>
+                                        <div class="progress" style="width: 120px; height: 20px;">
+                                            <div class="progress-bar bg-info" style="width: 53%">53%</div>
+                                            <div class="progress-bar bg-warning" style="width: 28%">28%</div>
+                                        </div>
+                                        <small class="text-muted">81% total</small>
+                                    </td>
+                                    <td class="text-success">-$35K</td>
+                                    <td><span class="badge bg-success">@L["OnBudget"]</span></td>
+                                </tr>
+                                <tr class="table-primary fw-bold">
+                                    <td>@L["Total"]</td>
+                                    <td>$1,450,000</td>
+                                    <td>$1,030,000</td>
+                                    <td>$300,000</td>
+                                    <td>$120,000</td>
+                                    <td>
+                                        <div class="progress" style="width: 120px; height: 20px;">
+                                            <div class="progress-bar bg-success" style="width: 71%">71%</div>
+                                            <div class="progress-bar bg-info" style="width: 21%">21%</div>
+                                        </div>
+                                    </td>
+                                    <td class="text-success">-$120K</td>
+                                    <td><span class="badge bg-success">@L["OnBudget"]</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-pie-chart"></i> @L["BudgetDistribution"]</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-graph-up"></i> @L["SpendingTrend"]</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="spendingChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expense Categories -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-tags"></i> @L["ExpenseCategories"]</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-primary">
+                                <div class="card-body">
+                                    <h6><i class="bi bi-people"></i> @L["Personnel"]</h6>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted">$850K</span>
+                                        <span class="badge bg-primary">59%</span>
+                                    </div>
+                                    <div class="progress mt-2" style="height: 10px;">
+                                        <div class="progress-bar bg-primary" style="width: 59%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-success">
+                                <div class="card-body">
+                                    <h6><i class="bi bi-laptop"></i> @L["Technology"]</h6>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted">$420K</span>
+                                        <span class="badge bg-success">29%</span>
+                                    </div>
+                                    <div class="progress mt-2" style="height: 10px;">
+                                        <div class="progress-bar bg-success" style="width: 29%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-info">
+                                <div class="card-body">
+                                    <h6><i class="bi bi-mortarboard"></i> @L["Training"]</h6>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted">$180K</span>
+                                        <span class="badge bg-info">12%</span>
+                                    </div>
+                                    <div class="progress mt-2" style="height: 10px;">
+                                        <div class="progress-bar bg-info" style="width: 12%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forecast -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> @L["BudgetAlerts"]</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-octagon"></i>
+                        <strong>@L["ComplianceAutomationOverBudget"]:</strong>
+                        @L["Program"] is 7% over budget. @L["RecommendReallocationOrAdditionalFunding"].
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-clock"></i>
+                        <strong>@L["Q2BudgetProjction"]:</strong>
+                        @L["AtCurrentBurnRateAllProgramsWillConsume92PercentByQ2End"].
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>@L["RecommendedAction"]:</strong>
+                        @L["ReviewComplianceAutomationSpendingAndIdentifyOptimizationOpportunities"].
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Distribution Chart
+        const distCtx = document.getElementById('distributionChart').getContext('2d');
+        new Chart(distCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['ISO 27001', 'Risk Mgmt', 'Compliance', 'BC Program', 'Maturity'],
+                datasets: [{
+                    data: [450, 320, 280, 220, 180],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 206, 86, 0.8)',
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(153, 102, 255, 0.8)',
+                        'rgba(255, 159, 64, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': $' + context.parsed.toLocaleString() + 'K';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Spending Trend Chart
+        const spendCtx = document.getElementById('spendingChart').getContext('2d');
+        new Chart(spendCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Planned',
+                    data: [120, 240, 360, 480, 600, 720, 840, 960, 1080, 1200, 1320, 1450],
+                    borderColor: 'rgb(201, 203, 207)',
+                    backgroundColor: 'rgba(201, 203, 207, 0.1)',
+                    borderDash: [5, 5],
+                    tension: 0.1
+                }, {
+                    label: 'Actual',
+                    data: [100, 220, 350, 460, 590, 710, 820, 940, 1030, null, null, null],
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value + 'K';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

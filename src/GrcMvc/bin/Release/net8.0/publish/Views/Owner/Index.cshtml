@@ -1,0 +1,1279 @@
+@{
+    ViewData["Title"] = "Owner Dashboard";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1>
+                <i class="bi bi-shield-check text-primary"></i> Owner Dashboard
+            </h1>
+            <p class="text-muted">Platform administration - Manage tenants, sectors, frameworks, and regulatory content</p>
+        </div>
+    </div>
+
+    <!-- Row 1: Tenant KPIs -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="text-muted mb-3"><i class="bi bi-building"></i> Tenant Management</h5>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card shadow-sm h-100 border-start border-primary border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1 small">Total Tenants</h6>
+                            <h2 class="mb-0 text-primary">@ViewBag.TotalTenants</h2>
+                        </div>
+                        <i class="bi bi-building text-primary opacity-50" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card shadow-sm h-100 border-start border-success border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1 small">Active Tenants</h6>
+                            <h2 class="mb-0 text-success">@ViewBag.ActiveTenants</h2>
+                        </div>
+                        <i class="bi bi-check-circle text-success opacity-50" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card shadow-sm h-100 border-start border-info border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1 small">Owner Created</h6>
+                            <h2 class="mb-0 text-info">@ViewBag.OwnerCreatedTenants</h2>
+                        </div>
+                        <i class="bi bi-plus-circle text-info opacity-50" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card shadow-sm h-100 border-start border-warning border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1 small">With Admin</h6>
+                            <h2 class="mb-0 text-warning">@ViewBag.TenantsWithAdmin</h2>
+                        </div>
+                        <i class="bi bi-person-check text-warning opacity-50" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 2: Sector & Framework KPIs -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="text-muted mb-3"><i class="bi bi-diagram-3"></i> Sectors & Frameworks (KSA GOSI: 70+ → 18 Main)</h5>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card shadow-sm h-100 bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 text-uppercase mb-1 small">Main Sectors</h6>
+                            <h2 class="mb-0">@ViewBag.TotalMainSectors</h2>
+                            <small class="text-white-50">GRC Categories</small>
+                        </div>
+                        <i class="bi bi-grid-3x3-gap opacity-50" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card shadow-sm h-100 bg-gradient" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 text-uppercase mb-1 small">GOSI Sub-Sectors</h6>
+                            <h2 class="mb-0">@ViewBag.TotalGosiSubSectors</h2>
+                            <small class="text-white-50">ISIC Rev 4</small>
+                        </div>
+                        <i class="bi bi-diagram-2 opacity-50" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card shadow-sm h-100 bg-gradient" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 text-uppercase mb-1 small">Framework Mappings</h6>
+                            <h2 class="mb-0">@ViewBag.TotalSectorMappings</h2>
+                            <small class="text-white-50">Sector → Framework</small>
+                        </div>
+                        <i class="bi bi-arrow-left-right opacity-50" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card shadow-sm h-100 bg-gradient" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 text-uppercase mb-1 small">Evidence Types</h6>
+                            <h2 class="mb-0">@ViewBag.TotalEvidenceTypes</h2>
+                            <small class="text-white-50">Scoring Criteria</small>
+                        </div>
+                        <i class="bi bi-file-earmark-check opacity-50" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 3: Regulatory Content KPIs -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="text-muted mb-3"><i class="bi bi-bank"></i> Regulatory Content</h5>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card shadow-sm h-100 border-start border-danger border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1 small">Regulators</h6>
+                            <h2 class="mb-0 text-danger">@ViewBag.TotalRegulators</h2>
+                            <small class="text-muted">KSA + International</small>
+                        </div>
+                        <i class="bi bi-bank text-danger opacity-50" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card shadow-sm h-100 border-start border-secondary border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1 small">Frameworks</h6>
+                            <h2 class="mb-0 text-secondary">@ViewBag.TotalFrameworks</h2>
+                            <small class="text-muted">Compliance Standards</small>
+                        </div>
+                        <i class="bi bi-journal-bookmark text-secondary opacity-50" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card shadow-sm h-100 border-start border-dark border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1 small">Controls</h6>
+                            <h2 class="mb-0 text-dark">@ViewBag.TotalControls</h2>
+                            <small class="text-muted">Compliance Requirements</small>
+                        </div>
+                        <i class="bi bi-list-check text-dark opacity-50" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card shadow-sm h-100 border-start border-purple border-4" style="border-color: #6f42c1 !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1 small">Workflows</h6>
+                            <h2 class="mb-0" style="color: #6f42c1;">@ViewBag.TotalWorkflowDefinitions</h2>
+                            <small class="text-muted">Process Templates</small>
+                        </div>
+                        <i class="bi bi-diagram-3 opacity-50" style="font-size: 2.5rem; color: #6f42c1;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-lightning-charge text-warning"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-auto">
+                            <a asp-action="Create" asp-controller="Owner" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Create Tenant
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a asp-action="Tenants" asp-controller="Owner" class="btn btn-outline-primary">
+                                <i class="bi bi-list"></i> View Tenants
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-danger" onclick="showRegulatorModal()">
+                                <i class="bi bi-plus"></i> Add Regulator
+                            </button>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-secondary" onclick="showFrameworkModal()">
+                                <i class="bi bi-plus"></i> Add Framework
+                            </button>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-dark" onclick="showControlModal()">
+                                <i class="bi bi-plus"></i> Add Control
+                            </button>
+                        </div>
+                        <div class="col-auto">
+                            <a href="/KnowledgeBase/SectorMapping" class="btn btn-outline-info">
+                                <i class="bi bi-book"></i> Sector Map Guide
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Management Tabs -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <ul class="nav nav-tabs card-header-tabs" id="dataTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="regulators-tab" data-bs-toggle="tab" data-bs-target="#regulators" type="button" role="tab">
+                                <i class="bi bi-bank"></i> Regulators <span class="badge bg-danger" id="regulatorsBadge">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="frameworks-tab" data-bs-toggle="tab" data-bs-target="#frameworks" type="button" role="tab">
+                                <i class="bi bi-journal-bookmark"></i> Frameworks <span class="badge bg-secondary" id="frameworksBadge">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="controls-tab" data-bs-toggle="tab" data-bs-target="#controls" type="button" role="tab">
+                                <i class="bi bi-list-check"></i> Controls <span class="badge bg-dark" id="controlsBadge">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="gosi-tab" data-bs-toggle="tab" data-bs-target="#gosi" type="button" role="tab">
+                                <i class="bi bi-diagram-2"></i> GOSI Mapping <span class="badge bg-success" id="gosiBadge">0</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="dataTabContent">
+                        
+                        <!-- Regulators Tab -->
+                        <div class="tab-pane fade show active" id="regulators" role="tabpanel">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input type="text" class="form-control" id="regulatorsSearch" placeholder="Search regulators..." onkeyup="debounce(loadRegulators, 300)()">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <select class="form-select" id="regulatorsType" onchange="loadRegulators()">
+                                        <option value="">All Types</option>
+                                        <option value="Government">Government</option>
+                                        <option value="Industry">Industry</option>
+                                        <option value="International">International</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <button class="btn btn-success me-2" onclick="showRegulatorModal()">
+                                        <i class="bi bi-plus"></i> Add New
+                                    </button>
+                                    <a href="/api/owner/regulators/export" class="btn btn-outline-success">
+                                        <i class="bi bi-download"></i> Export CSV
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="table-responsive" style="max-height: 500px;">
+                                <table class="table table-hover table-sm" id="regulatorsTable">
+                                    <thead class="table-danger sticky-top">
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Name</th>
+                                            <th>الاسم</th>
+                                            <th>Jurisdiction</th>
+                                            <th>Type</th>
+                                            <th>Website</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="regulatorsBody">
+                                        <tr><td colspan="7" class="text-center"><div class="spinner-border spinner-border-sm"></div> Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="regulatorsPagination" class="mt-3"></div>
+                        </div>
+
+                        <!-- Frameworks Tab -->
+                        <div class="tab-pane fade" id="frameworks" role="tabpanel">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input type="text" class="form-control" id="frameworksSearch" placeholder="Search frameworks..." onkeyup="debounce(loadFrameworks, 300)()">
+                                    </div>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <button class="btn btn-secondary me-2" onclick="showFrameworkModal()">
+                                        <i class="bi bi-plus"></i> Add New
+                                    </button>
+                                    <a href="/api/owner/frameworks/export" class="btn btn-outline-secondary">
+                                        <i class="bi bi-download"></i> Export CSV
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="table-responsive" style="max-height: 500px;">
+                                <table class="table table-hover table-sm" id="frameworksTable">
+                                    <thead class="table-secondary sticky-top">
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Name</th>
+                                            <th>Version</th>
+                                            <th>Jurisdiction</th>
+                                            <th>Controls</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="frameworksBody">
+                                        <tr><td colspan="7" class="text-center"><div class="spinner-border spinner-border-sm"></div> Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="frameworksPagination" class="mt-3"></div>
+                        </div>
+
+                        <!-- Controls Tab -->
+                        <div class="tab-pane fade" id="controls" role="tabpanel">
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input type="text" class="form-control" id="controlsSearch" placeholder="Search controls..." onkeyup="debounce(loadControls, 300)()">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <select class="form-select" id="controlsFramework" onchange="loadControls()">
+                                        <option value="">All Frameworks</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select class="form-select" id="controlsDomain" onchange="loadControls()">
+                                        <option value="">All Domains</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5 text-end">
+                                    <button class="btn btn-dark me-2" onclick="showControlModal()">
+                                        <i class="bi bi-plus"></i> Add New
+                                    </button>
+                                    <a href="/api/owner/controls/export" class="btn btn-outline-dark" id="controlsExportLink">
+                                        <i class="bi bi-download"></i> Export CSV
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="table-responsive" style="max-height: 500px;">
+                                <table class="table table-hover table-sm" id="controlsTable">
+                                    <thead class="table-dark sticky-top">
+                                        <tr>
+                                            <th>Control #</th>
+                                            <th>Framework</th>
+                                            <th>Domain</th>
+                                            <th>Title</th>
+                                            <th>Type</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="controlsBody">
+                                        <tr><td colspan="6" class="text-center"><div class="spinner-border spinner-border-sm"></div> Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="controlsPagination" class="mt-3"></div>
+                        </div>
+
+                        <!-- GOSI Mapping Tab -->
+                        <div class="tab-pane fade" id="gosi" role="tabpanel">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <select class="form-select" id="gosiSectorFilter" onchange="loadGosiMappings()">
+                                        <option value="">All Main Sectors (18)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-8 text-end">
+                                    <a href="/api/owner/gosi-sectors/export" class="btn btn-outline-success" id="gosiExportLink">
+                                        <i class="bi bi-download"></i> Export CSV
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="table-responsive" style="max-height: 500px;">
+                                <table class="table table-hover table-sm" id="gosiTable">
+                                    <thead class="table-success sticky-top">
+                                        <tr>
+                                            <th>ISIC</th>
+                                            <th>GOSI Code</th>
+                                            <th>Sub-Sector (EN)</th>
+                                            <th>القطاع الفرعي</th>
+                                            <th>Main Sector</th>
+                                            <th>Regulator</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gosiBody">
+                                        <tr><td colspan="6" class="text-center"><div class="spinner-border spinner-border-sm"></div> Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Regulator Modal -->
+<div class="modal fade" id="regulatorModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="regulatorModalTitle"><i class="bi bi-bank"></i> Add Regulator</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="regulatorForm">
+                    <input type="hidden" id="regulatorId">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Code <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="regulatorCode" required placeholder="e.g., NCA, SAMA">
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label">Name (English) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="regulatorName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Name (Arabic)</label>
+                            <input type="text" class="form-control" id="regulatorNameAr" dir="rtl">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Jurisdiction</label>
+                            <input type="text" class="form-control" id="regulatorJurisdiction" value="Saudi Arabia">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Type</label>
+                            <select class="form-select" id="regulatorType">
+                                <option value="Government">Government</option>
+                                <option value="Industry">Industry</option>
+                                <option value="International">International</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Website</label>
+                            <input type="url" class="form-control" id="regulatorWebsite" placeholder="https://">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Contact Email</label>
+                            <input type="email" class="form-control" id="regulatorEmail">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mt-4">
+                                <input type="checkbox" class="form-check-input" id="regulatorIsPrimary">
+                                <label class="form-check-label">Primary Regulator</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="regulatorDescription" rows="2"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="saveRegulator()">
+                    <i class="bi bi-check-lg"></i> Save Regulator
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Framework Modal -->
+<div class="modal fade" id="frameworkModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title" id="frameworkModalTitle"><i class="bi bi-journal-bookmark"></i> Add Framework</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="frameworkForm">
+                    <input type="hidden" id="frameworkId">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Code <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="frameworkCode" required placeholder="e.g., NCA-ECC">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Version</label>
+                            <input type="text" class="form-control" id="frameworkVersion" value="1.0">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="frameworkCategory">
+                                <option value="Regulatory">Regulatory</option>
+                                <option value="Industry">Industry Standard</option>
+                                <option value="International">International</option>
+                                <option value="Best Practice">Best Practice</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Name (English) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="frameworkName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Name (Arabic)</label>
+                            <input type="text" class="form-control" id="frameworkNameAr" dir="rtl">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Regulator Code</label>
+                            <input type="text" class="form-control" id="frameworkRegulatorCode" placeholder="e.g., NCA">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Jurisdiction</label>
+                            <input type="text" class="form-control" id="frameworkJurisdiction" value="Saudi Arabia">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description (English)</label>
+                            <textarea class="form-control" id="frameworkDescriptionEn" rows="2"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="frameworkIsActive" checked>
+                                <label class="form-check-label">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" onclick="saveFramework()">
+                    <i class="bi bi-check-lg"></i> Save Framework
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Control Modal -->
+<div class="modal fade" id="controlModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="controlModalTitle"><i class="bi bi-list-check"></i> Add Control</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="controlForm">
+                    <input type="hidden" id="controlId">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Framework Code <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="controlFrameworkCode" required placeholder="e.g., NCA-ECC">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Control Number <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="controlNumber" required placeholder="e.g., 1.1.1">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Domain</label>
+                            <input type="text" class="form-control" id="controlDomain" placeholder="e.g., Governance">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Control Type</label>
+                            <select class="form-select" id="controlType">
+                                <option value="Preventive">Preventive</option>
+                                <option value="Detective">Detective</option>
+                                <option value="Corrective">Corrective</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Title (English) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="controlTitleEn" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Title (Arabic)</label>
+                            <input type="text" class="form-control" id="controlTitleAr" dir="rtl">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Requirement (English)</label>
+                            <textarea class="form-control" id="controlRequirementEn" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Maturity Level</label>
+                            <select class="form-select" id="controlMaturityLevel">
+                                <option value="1">Level 1 - Initial</option>
+                                <option value="2">Level 2 - Managed</option>
+                                <option value="3">Level 3 - Defined</option>
+                                <option value="4">Level 4 - Measured</option>
+                                <option value="5">Level 5 - Optimized</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">ISO 27001 Mapping</label>
+                            <input type="text" class="form-control" id="controlMappingIso" placeholder="e.g., A.5.1.1">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">NIST Mapping</label>
+                            <input type="text" class="form-control" id="controlMappingNist" placeholder="e.g., ID.AM-1">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Implementation Guidance</label>
+                            <textarea class="form-control" id="controlGuidance" rows="2"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Evidence Requirements</label>
+                            <textarea class="form-control" id="controlEvidence" rows="2" placeholder="What evidence is needed to demonstrate compliance?"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-dark" onclick="saveControl()">
+                    <i class="bi bi-check-lg"></i> Save Control
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Control Details Modal -->
+<div class="modal fade" id="controlDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="bi bi-eye"></i> Control Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="controlDetailsBody">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Confirm Delete</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteMessage">Are you sure you want to delete this item?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="deleteConfirmBtn">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let currentPage = { regulators: 1, frameworks: 1, controls: 1 };
+    const pageSize = 50;
+
+    // Debounce helper
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+    // Load data on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadRegulators();
+        loadFrameworkOptions();
+    });
+
+    // Tab change event
+    document.querySelectorAll('#dataTab button').forEach(function(tab) {
+        tab.addEventListener('shown.bs.tab', function(e) {
+            const targetId = e.target.getAttribute('data-bs-target').replace('#', '');
+            switch(targetId) {
+                case 'regulators': loadRegulators(); break;
+                case 'frameworks': loadFrameworks(); break;
+                case 'controls': loadControls(); break;
+                case 'gosi': loadGosiMappings(); break;
+            }
+        });
+    });
+
+    // ======================== REGULATORS ========================
+    async function loadRegulators(page = 1) {
+        currentPage.regulators = page;
+        const tbody = document.getElementById('regulatorsBody');
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center"><div class="spinner-border spinner-border-sm"></div></td></tr>';
+        
+        try {
+            const search = document.getElementById('regulatorsSearch').value;
+            const type = document.getElementById('regulatorsType').value;
+            const url = `/api/owner/regulators?page=${page}&pageSize=${pageSize}&search=${encodeURIComponent(search)}&type=${encodeURIComponent(type)}`;
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            document.getElementById('regulatorsBadge').textContent = data.totalCount;
+            
+            if (data.data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No regulators found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = data.data.map(r => `
+                <tr>
+                    <td><code>${r.regulatorCode}</code></td>
+                    <td>${r.name}</td>
+                    <td>${r.nameAr || '-'}</td>
+                    <td><span class="badge bg-info">${r.jurisdiction}</span></td>
+                    <td>${r.type}</td>
+                    <td>${r.website ? `<a href="${r.website}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-link-45deg"></i></a>` : '-'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editRegulator('${r.id}')"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete('regulator', '${r.id}', '${r.name}')"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            renderPagination('regulators', data.totalPages, page);
+        } catch (error) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-danger text-center">Error loading regulators</td></tr>';
+            console.error(error);
+        }
+    }
+
+    function showRegulatorModal(id = null) {
+        document.getElementById('regulatorForm').reset();
+        document.getElementById('regulatorId').value = '';
+        document.getElementById('regulatorModalTitle').innerHTML = '<i class="bi bi-bank"></i> Add Regulator';
+        
+        if (id) {
+            document.getElementById('regulatorModalTitle').innerHTML = '<i class="bi bi-bank"></i> Edit Regulator';
+            loadRegulatorForEdit(id);
+        }
+        
+        new bootstrap.Modal(document.getElementById('regulatorModal')).show();
+    }
+
+    async function loadRegulatorForEdit(id) {
+        const response = await fetch(`/api/owner/regulators/${id}`);
+        const r = await response.json();
+        
+        document.getElementById('regulatorId').value = r.id;
+        document.getElementById('regulatorCode').value = r.regulatorCode;
+        document.getElementById('regulatorName').value = r.name;
+        document.getElementById('regulatorNameAr').value = r.nameAr || '';
+        document.getElementById('regulatorJurisdiction').value = r.jurisdiction || '';
+        document.getElementById('regulatorType').value = r.type || 'Government';
+        document.getElementById('regulatorWebsite').value = r.website || '';
+        document.getElementById('regulatorEmail').value = r.contactEmail || '';
+        document.getElementById('regulatorDescription').value = r.description || '';
+        document.getElementById('regulatorIsPrimary').checked = r.isPrimary;
+    }
+
+    async function saveRegulator() {
+        const id = document.getElementById('regulatorId').value;
+        const data = {
+            regulatorCode: document.getElementById('regulatorCode').value,
+            name: document.getElementById('regulatorName').value,
+            nameAr: document.getElementById('regulatorNameAr').value,
+            jurisdiction: document.getElementById('regulatorJurisdiction').value,
+            type: document.getElementById('regulatorType').value,
+            website: document.getElementById('regulatorWebsite').value,
+            contactEmail: document.getElementById('regulatorEmail').value,
+            description: document.getElementById('regulatorDescription').value,
+            isPrimary: document.getElementById('regulatorIsPrimary').checked
+        };
+        
+        try {
+            const url = id ? `/api/owner/regulators/${id}` : '/api/owner/regulators';
+            const method = id ? 'PUT' : 'POST';
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            if (!response.ok) {
+                const err = await response.json();
+                alert(err.error || 'Error saving regulator');
+                return;
+            }
+            
+            bootstrap.Modal.getInstance(document.getElementById('regulatorModal')).hide();
+            loadRegulators();
+        } catch (error) {
+            alert('Error saving regulator');
+            console.error(error);
+        }
+    }
+
+    function editRegulator(id) {
+        showRegulatorModal(id);
+    }
+
+    // ======================== FRAMEWORKS ========================
+    async function loadFrameworks(page = 1) {
+        currentPage.frameworks = page;
+        const tbody = document.getElementById('frameworksBody');
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center"><div class="spinner-border spinner-border-sm"></div></td></tr>';
+        
+        try {
+            const search = document.getElementById('frameworksSearch').value;
+            const url = `/api/owner/frameworks?page=${page}&pageSize=${pageSize}&search=${encodeURIComponent(search)}`;
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            document.getElementById('frameworksBadge').textContent = data.totalCount;
+            
+            if (data.data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No frameworks found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = data.data.map(f => `
+                <tr>
+                    <td><code>${f.code}</code></td>
+                    <td>${f.name}</td>
+                    <td>${f.version || '1.0'}</td>
+                    <td>${f.jurisdiction || '-'}</td>
+                    <td><span class="badge bg-dark">${f.controlCount}</span></td>
+                    <td><span class="badge ${f.isActive ? 'bg-success' : 'bg-secondary'}">${f.isActive ? 'Active' : 'Inactive'}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-info" onclick="viewFrameworkControls('${f.code}')"><i class="bi bi-list"></i></button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editFramework('${f.id}')"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete('framework', '${f.id}', '${f.name}')"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            renderPagination('frameworks', data.totalPages, page);
+        } catch (error) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-danger text-center">Error loading frameworks</td></tr>';
+            console.error(error);
+        }
+    }
+
+    async function loadFrameworkOptions() {
+        const response = await fetch('/api/owner/frameworks?pageSize=500');
+        const data = await response.json();
+        
+        const select = document.getElementById('controlsFramework');
+        select.innerHTML = '<option value="">All Frameworks</option>' + 
+            data.data.map(f => `<option value="${f.code}">${f.code} - ${f.name}</option>`).join('');
+    }
+
+    function showFrameworkModal(id = null) {
+        document.getElementById('frameworkForm').reset();
+        document.getElementById('frameworkId').value = '';
+        document.getElementById('frameworkModalTitle').innerHTML = '<i class="bi bi-journal-bookmark"></i> Add Framework';
+        document.getElementById('frameworkIsActive').checked = true;
+        
+        if (id) {
+            document.getElementById('frameworkModalTitle').innerHTML = '<i class="bi bi-journal-bookmark"></i> Edit Framework';
+            loadFrameworkForEdit(id);
+        }
+        
+        new bootstrap.Modal(document.getElementById('frameworkModal')).show();
+    }
+
+    async function loadFrameworkForEdit(id) {
+        const response = await fetch(`/api/owner/frameworks/${id}`);
+        const f = await response.json();
+        
+        document.getElementById('frameworkId').value = f.id;
+        document.getElementById('frameworkCode').value = f.code;
+        document.getElementById('frameworkVersion').value = f.version || '1.0';
+        document.getElementById('frameworkCategory').value = f.category || 'Regulatory';
+        document.getElementById('frameworkName').value = f.name;
+        document.getElementById('frameworkNameAr').value = f.nameAr || '';
+        document.getElementById('frameworkRegulatorCode').value = f.regulatorCode || '';
+        document.getElementById('frameworkJurisdiction').value = f.jurisdiction || '';
+        document.getElementById('frameworkDescriptionEn').value = f.descriptionEn || '';
+        document.getElementById('frameworkIsActive').checked = f.isActive;
+    }
+
+    async function saveFramework() {
+        const id = document.getElementById('frameworkId').value;
+        const data = {
+            code: document.getElementById('frameworkCode').value,
+            version: document.getElementById('frameworkVersion').value,
+            category: document.getElementById('frameworkCategory').value,
+            name: document.getElementById('frameworkName').value,
+            nameAr: document.getElementById('frameworkNameAr').value,
+            regulatorCode: document.getElementById('frameworkRegulatorCode').value,
+            jurisdiction: document.getElementById('frameworkJurisdiction').value,
+            descriptionEn: document.getElementById('frameworkDescriptionEn').value,
+            isActive: document.getElementById('frameworkIsActive').checked
+        };
+        
+        try {
+            const url = id ? `/api/owner/frameworks/${id}` : '/api/owner/frameworks';
+            const method = id ? 'PUT' : 'POST';
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            if (!response.ok) {
+                const err = await response.json();
+                alert(err.error || 'Error saving framework');
+                return;
+            }
+            
+            bootstrap.Modal.getInstance(document.getElementById('frameworkModal')).hide();
+            loadFrameworks();
+            loadFrameworkOptions();
+        } catch (error) {
+            alert('Error saving framework');
+            console.error(error);
+        }
+    }
+
+    function editFramework(id) {
+        showFrameworkModal(id);
+    }
+
+    function viewFrameworkControls(code) {
+        document.getElementById('controlsFramework').value = code;
+        document.querySelector('#controls-tab').click();
+        loadControls();
+    }
+
+    // ======================== CONTROLS ========================
+    async function loadControls(page = 1) {
+        currentPage.controls = page;
+        const tbody = document.getElementById('controlsBody');
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center"><div class="spinner-border spinner-border-sm"></div></td></tr>';
+        
+        try {
+            const search = document.getElementById('controlsSearch').value;
+            const framework = document.getElementById('controlsFramework').value;
+            const domain = document.getElementById('controlsDomain').value;
+            const url = `/api/owner/controls?page=${page}&pageSize=${pageSize}&search=${encodeURIComponent(search)}&frameworkCode=${encodeURIComponent(framework)}&domain=${encodeURIComponent(domain)}`;
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            document.getElementById('controlsBadge').textContent = data.totalCount;
+            
+            // Update export link
+            const exportUrl = framework 
+                ? `/api/owner/controls/export?frameworkCode=${framework}` 
+                : '/api/owner/controls/export';
+            document.getElementById('controlsExportLink').href = exportUrl;
+            
+            // Populate domain filter
+            if (data.domains) {
+                const domainSelect = document.getElementById('controlsDomain');
+                const currentDomain = domainSelect.value;
+                domainSelect.innerHTML = '<option value="">All Domains</option>' + 
+                    data.domains.map(d => `<option value="${d}">${d}</option>`).join('');
+                domainSelect.value = currentDomain;
+            }
+            
+            if (data.data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No controls found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = data.data.map(c => `
+                <tr>
+                    <td><code>${c.controlNumber}</code></td>
+                    <td><span class="badge bg-secondary">${c.frameworkCode}</span></td>
+                    <td>${c.domain || '-'}</td>
+                    <td>${(c.titleEn || '').substring(0, 60)}${(c.titleEn || '').length > 60 ? '...' : ''}</td>
+                    <td><span class="badge bg-${c.controlType === 'Preventive' ? 'primary' : c.controlType === 'Detective' ? 'warning' : 'info'}">${c.controlType || 'Standard'}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-info" onclick="viewControl('${c.id}')"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editControl('${c.id}')"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete('control', '${c.id}', '${c.controlNumber}')"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            renderPagination('controls', data.totalPages, page);
+        } catch (error) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-danger text-center">Error loading controls</td></tr>';
+            console.error(error);
+        }
+    }
+
+    function showControlModal(id = null) {
+        document.getElementById('controlForm').reset();
+        document.getElementById('controlId').value = '';
+        document.getElementById('controlModalTitle').innerHTML = '<i class="bi bi-list-check"></i> Add Control';
+        
+        if (id) {
+            document.getElementById('controlModalTitle').innerHTML = '<i class="bi bi-list-check"></i> Edit Control';
+            loadControlForEdit(id);
+        }
+        
+        new bootstrap.Modal(document.getElementById('controlModal')).show();
+    }
+
+    async function loadControlForEdit(id) {
+        const response = await fetch(`/api/owner/controls/${id}`);
+        const c = await response.json();
+        
+        document.getElementById('controlId').value = c.id;
+        document.getElementById('controlFrameworkCode').value = c.frameworkCode;
+        document.getElementById('controlNumber').value = c.controlNumber;
+        document.getElementById('controlDomain').value = c.domain || '';
+        document.getElementById('controlType').value = c.controlType || 'Preventive';
+        document.getElementById('controlTitleEn').value = c.titleEn || '';
+        document.getElementById('controlTitleAr').value = c.titleAr || '';
+        document.getElementById('controlRequirementEn').value = c.requirementEn || '';
+        document.getElementById('controlMaturityLevel').value = c.maturityLevel || 1;
+        document.getElementById('controlMappingIso').value = c.mappingIso27001 || '';
+        document.getElementById('controlMappingNist').value = c.mappingNist || '';
+        document.getElementById('controlGuidance').value = c.implementationGuidanceEn || '';
+        document.getElementById('controlEvidence').value = c.evidenceRequirements || '';
+    }
+
+    async function viewControl(id) {
+        const response = await fetch(`/api/owner/controls/${id}`);
+        const c = await response.json();
+        
+        document.getElementById('controlDetailsBody').innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Control Information</h6>
+                    <table class="table table-sm">
+                        <tr><th width="40%">Framework</th><td><code>${c.frameworkCode}</code></td></tr>
+                        <tr><th>Control Number</th><td><code>${c.controlNumber}</code></td></tr>
+                        <tr><th>Domain</th><td>${c.domain || '-'}</td></tr>
+                        <tr><th>Type</th><td>${c.controlType || '-'}</td></tr>
+                        <tr><th>Maturity Level</th><td>${c.maturityLevel || '-'}</td></tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6>Mappings</h6>
+                    <table class="table table-sm">
+                        <tr><th width="40%">ISO 27001</th><td>${c.mappingIso27001 || '-'}</td></tr>
+                        <tr><th>NIST</th><td>${c.mappingNist || '-'}</td></tr>
+                    </table>
+                </div>
+                <div class="col-12 mt-3">
+                    <h6>Title (English)</h6>
+                    <p>${c.titleEn || '-'}</p>
+                </div>
+                <div class="col-12">
+                    <h6>Title (Arabic)</h6>
+                    <p dir="rtl">${c.titleAr || '-'}</p>
+                </div>
+                <div class="col-12">
+                    <h6>Requirement</h6>
+                    <p>${c.requirementEn || '-'}</p>
+                </div>
+                <div class="col-12">
+                    <h6>Implementation Guidance</h6>
+                    <p>${c.implementationGuidanceEn || '-'}</p>
+                </div>
+                <div class="col-12">
+                    <h6>Evidence Requirements</h6>
+                    <p>${c.evidenceRequirements || '-'}</p>
+                </div>
+            </div>
+        `;
+        
+        new bootstrap.Modal(document.getElementById('controlDetailsModal')).show();
+    }
+
+    async function saveControl() {
+        const id = document.getElementById('controlId').value;
+        const data = {
+            frameworkCode: document.getElementById('controlFrameworkCode').value,
+            controlNumber: document.getElementById('controlNumber').value,
+            domain: document.getElementById('controlDomain').value,
+            controlType: document.getElementById('controlType').value,
+            titleEn: document.getElementById('controlTitleEn').value,
+            titleAr: document.getElementById('controlTitleAr').value,
+            requirementEn: document.getElementById('controlRequirementEn').value,
+            maturityLevel: parseInt(document.getElementById('controlMaturityLevel').value),
+            mappingIso27001: document.getElementById('controlMappingIso').value,
+            mappingNist: document.getElementById('controlMappingNist').value,
+            implementationGuidanceEn: document.getElementById('controlGuidance').value,
+            evidenceRequirements: document.getElementById('controlEvidence').value
+        };
+        
+        try {
+            const url = id ? `/api/owner/controls/${id}` : '/api/owner/controls';
+            const method = id ? 'PUT' : 'POST';
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            if (!response.ok) {
+                const err = await response.json();
+                alert(err.error || 'Error saving control');
+                return;
+            }
+            
+            bootstrap.Modal.getInstance(document.getElementById('controlModal')).hide();
+            loadControls();
+        } catch (error) {
+            alert('Error saving control');
+            console.error(error);
+        }
+    }
+
+    function editControl(id) {
+        showControlModal(id);
+    }
+
+    // ======================== GOSI MAPPINGS ========================
+    async function loadGosiMappings() {
+        const tbody = document.getElementById('gosiBody');
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center"><div class="spinner-border spinner-border-sm"></div></td></tr>';
+        
+        try {
+            const filter = document.getElementById('gosiSectorFilter').value;
+            const url = filter ? `/api/seed/gosi-sectors?mainSector=${filter}` : '/api/seed/gosi-sectors';
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            document.getElementById('gosiBadge').textContent = data.totalGosiSubSectors;
+            
+            // Populate filter if empty
+            const filterSelect = document.getElementById('gosiSectorFilter');
+            if (filterSelect.options.length <= 1) {
+                const sectors = [...new Set(data.mappings.map(m => m.mainSectorCode))].sort();
+                filterSelect.innerHTML = '<option value="">All Main Sectors (18)</option>' + 
+                    sectors.map(s => `<option value="${s}">${s}</option>`).join('');
+            }
+            
+            // Update export link
+            const exportUrl = filter 
+                ? `/api/owner/gosi-sectors/export?mainSector=${filter}` 
+                : '/api/owner/gosi-sectors/export';
+            document.getElementById('gosiExportLink').href = exportUrl;
+            
+            tbody.innerHTML = data.mappings.map(m => `
+                <tr>
+                    <td><span class="badge bg-secondary">${m.isicSection}</span></td>
+                    <td><code>${m.gosiCode}</code></td>
+                    <td>${m.subSectorNameEn}</td>
+                    <td dir="rtl">${m.subSectorNameAr}</td>
+                    <td><span class="badge bg-primary">${m.mainSectorCode}</span></td>
+                    <td>${m.primaryRegulator || '-'}</td>
+                </tr>
+            `).join('');
+        } catch (error) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-danger text-center">Error loading GOSI mappings</td></tr>';
+            console.error(error);
+        }
+    }
+
+    // ======================== DELETE ========================
+    let deleteTarget = { type: '', id: '', name: '' };
+
+    function confirmDelete(type, id, name) {
+        deleteTarget = { type, id, name };
+        document.getElementById('deleteMessage').textContent = `Are you sure you want to delete "${name}"? This action cannot be undone.`;
+        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    }
+
+    document.getElementById('deleteConfirmBtn').addEventListener('click', async function() {
+        try {
+            const url = `/api/owner/${deleteTarget.type}s/${deleteTarget.id}`;
+            const response = await fetch(url, { method: 'DELETE' });
+            
+            if (!response.ok) {
+                const err = await response.json();
+                alert(err.error || 'Error deleting item');
+                return;
+            }
+            
+            bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+            
+            // Reload appropriate table
+            switch(deleteTarget.type) {
+                case 'regulator': loadRegulators(); break;
+                case 'framework': loadFrameworks(); loadFrameworkOptions(); break;
+                case 'control': loadControls(); break;
+            }
+        } catch (error) {
+            alert('Error deleting item');
+            console.error(error);
+        }
+    });
+
+    // ======================== PAGINATION ========================
+    function renderPagination(type, totalPages, currentPage) {
+        const container = document.getElementById(`${type}Pagination`);
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+        
+        let html = '<nav><ul class="pagination pagination-sm justify-content-center">';
+        
+        // Previous
+        html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="load${type.charAt(0).toUpperCase() + type.slice(1)}(${currentPage - 1}); return false;">Previous</a>
+        </li>`;
+        
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="load${type.charAt(0).toUpperCase() + type.slice(1)}(${i}); return false;">${i}</a>
+                </li>`;
+            } else if (i === currentPage - 3 || i === currentPage + 3) {
+                html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            }
+        }
+        
+        // Next
+        html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="load${type.charAt(0).toUpperCase() + type.slice(1)}(${currentPage + 1}); return false;">Next</a>
+        </li>`;
+        
+        html += '</ul></nav>';
+        container.innerHTML = html;
+    }
+</script>
+}

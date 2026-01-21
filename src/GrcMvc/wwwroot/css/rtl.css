@@ -1,0 +1,265 @@
+/* RTL (Right-to-Left) Support for Arabic */
+
+[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Fix Bootstrap RTL spacing */
+[dir="rtl"] .me-2 {
+    margin-left: 0.5rem !important;
+    margin-right: 0 !important;
+}
+
+[dir="rtl"] .ms-2 {
+    margin-right: 0.5rem !important;
+    margin-left: 0 !important;
+}
+
+[dir="rtl"] .me-auto {
+    margin-left: auto !important;
+    margin-right: 0 !important;
+}
+
+[dir="rtl"] .ms-auto {
+    margin-right: auto !important;
+    margin-left: 0 !important;
+}
+
+/* Fix float directions */
+[dir="rtl"] .float-start {
+    float: right !important;
+}
+
+[dir="rtl"] .float-end {
+    float: left !important;
+}
+
+/* Fix text alignment */
+[dir="rtl"] .text-start {
+    text-align: right !important;
+}
+
+[dir="rtl"] .text-end {
+    text-align: left !important;
+}
+
+/* Fix dropdown menu alignment */
+[dir="rtl"] .dropdown-menu-end {
+    right: auto !important;
+    left: 0 !important;
+}
+
+[dir="rtl"] .dropdown-menu-start {
+    left: auto !important;
+    right: 0 !important;
+}
+
+/* Fix navbar */
+[dir="rtl"] .navbar-nav {
+    flex-direction: row-reverse;
+}
+
+/* Fix card body text */
+[dir="rtl"] .card-body {
+    text-align: right;
+}
+
+/* Fix table alignment */
+[dir="rtl"] table {
+    direction: rtl;
+}
+
+[dir="rtl"] th,
+[dir="rtl"] td {
+    text-align: right;
+}
+
+/* Fix form controls */
+[dir="rtl"] .form-control,
+[dir="rtl"] .form-select {
+    text-align: right;
+}
+
+[dir="rtl"] .form-check {
+    padding-right: 1.5em;
+    padding-left: 0;
+}
+
+[dir="rtl"] .form-check-input {
+    margin-right: -1.5em;
+    margin-left: 0;
+}
+
+/* Fix buttons */
+[dir="rtl"] .btn-group > .btn:not(:first-child) {
+    margin-right: -1px;
+    margin-left: 0;
+}
+
+/* Fix badges and labels */
+[dir="rtl"] .badge {
+    direction: rtl;
+}
+
+/* Fix pagination */
+[dir="rtl"] .pagination {
+    flex-direction: row-reverse;
+}
+
+/* Fix breadcrumb */
+[dir="rtl"] .breadcrumb-item + .breadcrumb-item::before {
+    content: var(--bs-breadcrumb-divider, "/");
+    float: right;
+    padding-right: 0;
+    padding-left: var(--bs-breadcrumb-item-padding-x);
+}
+
+/* Fix alert close button */
+[dir="rtl"] .alert-dismissible .btn-close {
+    right: auto;
+    left: 0;
+}
+
+/* Fix modal */
+[dir="rtl"] .modal-header .btn-close {
+    margin: -0.5rem auto -0.5rem -0.5rem;
+}
+
+/* Fix tooltip and popover */
+[dir="rtl"] .tooltip {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Fix list group */
+[dir="rtl"] .list-group-item {
+    text-align: right;
+}
+
+/* Fix input group */
+[dir="rtl"] .input-group > :not(:first-child):not(.dropdown-menu):not(.valid-tooltip):not(.valid-feedback):not(.invalid-tooltip):not(.invalid-feedback) {
+    margin-right: -1px;
+    margin-left: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: var(--bs-border-radius);
+    border-bottom-left-radius: var(--bs-border-radius);
+}
+
+/* Fix spacing utilities for RTL */
+[dir="rtl"] .pe-* {
+    padding-left: var(--bs-gutter-x) !important;
+    padding-right: 0 !important;
+}
+
+[dir="rtl"] .ps-* {
+    padding-right: var(--bs-gutter-x) !important;
+    padding-left: 0 !important;
+}
+
+/* Arabic font support */
+[dir="rtl"] body {
+    font-family: "Segoe UI", "Tahoma", "Arial", "Helvetica", sans-serif;
+}
+
+/* Fix icon alignment */
+[dir="rtl"] .bi {
+    display: inline-block;
+}
+
+/* Fix flex direction for RTL */
+[dir="rtl"] .d-flex {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .justify-content-between {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .justify-content-end {
+    justify-content: flex-start !important;
+}
+
+[dir="rtl"] .justify-content-start {
+    justify-content: flex-end !important;
+}
+
+/* Fix container alignment */
+[dir="rtl"] .container,
+[dir="rtl"] .container-fluid {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Fix navbar brand and items */
+[dir="rtl"] .navbar-brand {
+    margin-right: 0;
+    margin-left: 1rem;
+}
+
+[dir="rtl"] .navbar-nav .nav-link {
+    text-align: right;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+/* Fix main content area */
+[dir="rtl"] main {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Fix footer alignment */
+[dir="rtl"] .footer {
+    text-align: center;
+    direction: rtl;
+}
+
+/* Fix card alignment */
+[dir="rtl"] .card {
+    direction: rtl;
+    text-align: right;
+}
+
+[dir="rtl"] .card-title,
+[dir="rtl"] .card-text {
+    text-align: right;
+}
+
+/* Fix button groups */
+[dir="rtl"] .btn-group {
+    flex-direction: row-reverse;
+}
+
+/* Fix navbar collapse */
+[dir="rtl"] .navbar-collapse {
+    direction: rtl;
+}
+
+/* Fix dropdown items */
+[dir="rtl"] .dropdown-item {
+    text-align: right;
+    direction: rtl;
+}
+
+/* Fix spacing for RTL */
+[dir="rtl"] .mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+[dir="rtl"] .mt-3 {
+    margin-top: 1rem !important;
+}
+
+/* Fix icon spacing in RTL */
+[dir="rtl"] .bi {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+[dir="rtl"] .bi + span,
+[dir="rtl"] span + .bi {
+    margin-right: 0.5rem;
+    margin-left: 0;
+}

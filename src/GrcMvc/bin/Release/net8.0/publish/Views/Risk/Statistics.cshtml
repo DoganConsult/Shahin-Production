@@ -1,0 +1,285 @@
+@model GrcMvc.Models.DTOs.RiskStatisticsDto
+@{
+    ViewData["Title"] = "إحصائيات المخاطر";
+    ViewData["TitleEn"] = "Risk Statistics";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="bi bi-graph-up-arrow text-primary me-2"></i>
+                <span class="d-none d-md-inline">إحصائيات المخاطر</span>
+                <span class="d-md-none">الإحصائيات</span>
+            </h1>
+            <p class="text-muted mb-0">Risk Statistics & Analytics</p>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-right me-1"></i> العودة للقائمة
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-exclamation-triangle fs-4 text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">إجمالي المخاطر</h6>
+                            <h3 class="mb-0" id="totalRisks">@Model?.TotalRisks</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 border-start border-danger border-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-danger bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-exclamation-octagon fs-4 text-danger"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">مخاطر حرجة</h6>
+                            <h3 class="mb-0 text-danger" id="criticalRisks">@Model?.CriticalRisks</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 border-start border-warning border-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-exclamation-diamond fs-4 text-warning"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">مخاطر عالية</h6>
+                            <h3 class="mb-0 text-warning" id="highRisks">@Model?.HighRisks</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 border-start border-success border-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-shield-check fs-4 text-success"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">تم التخفيف</h6>
+                            <h3 class="mb-0 text-success" id="mitigatedRisks">@Model?.MitigatedRisks</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Risk Distribution Chart -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-pie-chart me-2 text-primary"></i>
+                        توزيع المخاطر حسب المستوى
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="riskDistributionChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk by Status -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-bar-chart me-2 text-primary"></i>
+                        المخاطر حسب الحالة
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="riskStatusChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Heat Map -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-grid-3x3 me-2 text-primary"></i>
+                        خريطة حرارة المخاطر (الاحتمالية × التأثير)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered text-center mb-0" id="heatMapTable">
+                            <thead>
+                                <tr>
+                                    <th class="bg-light" style="width: 120px;">الاحتمالية / التأثير</th>
+                                    <th class="bg-light">ضئيل (1)</th>
+                                    <th class="bg-light">منخفض (2)</th>
+                                    <th class="bg-light">متوسط (3)</th>
+                                    <th class="bg-light">عالي (4)</th>
+                                    <th class="bg-light">حرج (5)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="bg-light fw-bold">شبه مؤكد (5)</td>
+                                    <td class="bg-warning-subtle">-</td>
+                                    <td class="bg-warning">-</td>
+                                    <td class="bg-danger-subtle">-</td>
+                                    <td class="bg-danger">-</td>
+                                    <td class="bg-danger">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-light fw-bold">محتمل (4)</td>
+                                    <td class="bg-success-subtle">-</td>
+                                    <td class="bg-warning-subtle">-</td>
+                                    <td class="bg-warning">-</td>
+                                    <td class="bg-danger-subtle">-</td>
+                                    <td class="bg-danger">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-light fw-bold">ممكن (3)</td>
+                                    <td class="bg-success-subtle">-</td>
+                                    <td class="bg-success-subtle">-</td>
+                                    <td class="bg-warning-subtle">-</td>
+                                    <td class="bg-warning">-</td>
+                                    <td class="bg-danger-subtle">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-light fw-bold">غير محتمل (2)</td>
+                                    <td class="bg-success">-</td>
+                                    <td class="bg-success-subtle">-</td>
+                                    <td class="bg-success-subtle">-</td>
+                                    <td class="bg-warning-subtle">-</td>
+                                    <td class="bg-warning">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-light fw-bold">نادر (1)</td>
+                                    <td class="bg-success">-</td>
+                                    <td class="bg-success">-</td>
+                                    <td class="bg-success-subtle">-</td>
+                                    <td class="bg-success-subtle">-</td>
+                                    <td class="bg-warning-subtle">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trend Analysis -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-graph-up me-2 text-primary"></i>
+                        تحليل الاتجاهات (آخر 12 شهر)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="trendChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Risk Distribution Pie Chart
+            const distCtx = document.getElementById('riskDistributionChart').getContext('2d');
+            new Chart(distCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['حرج', 'عالي', 'متوسط', 'منخفض'],
+                    datasets: [{
+                        data: [@Model?.CriticalRisks, @Model?.HighRisks, @Model?.MediumRisks, @Model?.LowRisks],
+                        backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#198754'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Risk Status Bar Chart
+            const statusCtx = document.getElementById('riskStatusChart').getContext('2d');
+            new Chart(statusCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['نشط', 'تم التخفيف', 'مقبول', 'مغلق'],
+                    datasets: [{
+                        label: 'عدد المخاطر',
+                        data: [@Model?.ActiveRisks, @Model?.MitigatedRisks, @Model?.AcceptedRisks, @Model?.ClosedRisks],
+                        backgroundColor: ['#0d6efd', '#198754', '#6c757d', '#adb5bd']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Trend Line Chart
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
+                    datasets: [{
+                        label: 'إجمالي المخاطر',
+                        data: [12, 15, 18, 14, 16, 20, 22, 19, 17, 15, 14, @Model?.TotalRisks],
+                        borderColor: '#0d6efd',
+                        tension: 0.3,
+                        fill: false
+                    }, {
+                        label: 'مخاطر حرجة/عالية',
+                        data: [4, 5, 6, 4, 5, 7, 8, 6, 5, 4, 3, @(Model?.CriticalRisks + Model?.HighRisks)],
+                        borderColor: '#dc3545',
+                        tension: 0.3,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        });
+    </script>
+}

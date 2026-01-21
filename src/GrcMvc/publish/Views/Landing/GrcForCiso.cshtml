@@ -1,0 +1,264 @@
+@{
+    ViewData["Title"] = "GRC Platform for Risk & Security Leaders";
+    Layout = "~/Views/Landing/_LandingLayout.cshtml";
+}
+
+<style>
+    .role-hero {
+        background: linear-gradient(135deg, var(--darker) 0%, #1a0a1a 100%);
+        padding: 6rem 0 4rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .role-hero::before {
+        content: '';
+        position: absolute;
+        top: -30%;
+        right: -10%;
+        width: 60%;
+        height: 160%;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .role-hero h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--light);
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+    }
+
+    .role-hero .sub-headline {
+        font-size: 1.3rem;
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+        max-width: 650px;
+    }
+
+    .value-section {
+        padding: 5rem 0;
+        background: var(--dark);
+    }
+
+    .value-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .value-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .value-card:hover {
+        border-color: #6366f1;
+        transform: translateY(-5px);
+    }
+
+    .value-card i {
+        font-size: 2.5rem;
+        color: #6366f1;
+        margin-bottom: 1rem;
+    }
+
+    .value-card h3 {
+        color: var(--light);
+        font-size: 1.2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .value-card p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    .benefits-section {
+        padding: 5rem 0;
+        background: var(--darker);
+    }
+
+    .benefits-list {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .benefit-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.25rem;
+        padding: 1.5rem;
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-left: 4px solid #6366f1;
+        border-radius: 0 12px 12px 0;
+        margin-bottom: 1rem;
+    }
+
+    .benefit-item i {
+        font-size: 1.3rem;
+        color: #6366f1;
+        margin-top: 0.25rem;
+    }
+
+    .benefit-item div h4 {
+        color: var(--light);
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .benefit-item div p {
+        color: var(--text-muted);
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .role-cta {
+        padding: 5rem 0;
+        background: linear-gradient(135deg, var(--dark) 0%, #1a0a1a 100%);
+        text-align: center;
+    }
+
+    .role-cta h2 {
+        font-size: 2.2rem;
+        color: var(--light);
+        margin-bottom: 1rem;
+    }
+
+    .role-cta p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+
+    .role-cta-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.25rem 2.5rem;
+        background: #6366f1;
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 700;
+        border: none;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .role-cta-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5);
+        color: white;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--light);
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    @@media (max-width: 768px) {
+        .role-hero h1 {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+<!-- Hero Section -->
+<section class="role-hero">
+    <div class="container">
+        <h1>GRC Platform for Risk & Security Leaders</h1>
+        <p class="sub-headline">
+            Turn risk management into accountable workflows tied to controls and evidence.
+        </p>
+        <a href="/owner/Account/Register" class="role-cta-btn">
+            <i class="bi bi-shield-check"></i>
+            Explore Risk Workflows
+        </a>
+    </div>
+</section>
+
+<!-- Key Value Cards -->
+<section class="value-section">
+    <div class="container">
+        <h2 class="section-title">Built for Security & Risk Leaders</h2>
+        <div class="value-grid">
+            <div class="value-card">
+                <i class="bi bi-journal-bookmark"></i>
+                <h3>Risk Register with Ownership</h3>
+                <p>Every risk has an owner, a treatment plan, and accountability built in</p>
+            </div>
+            <div class="value-card">
+                <i class="bi bi-diagram-3"></i>
+                <h3>Control Mapping & Coverage</h3>
+                <p>See which controls mitigate which risks — and where gaps exist</p>
+            </div>
+            <div class="value-card">
+                <i class="bi bi-graph-up-arrow"></i>
+                <h3>Readiness Reporting</h3>
+                <p>Reports that reflect operational reality, not just checkbox status</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits -->
+<section class="benefits-section">
+    <div class="container">
+        <h2 class="section-title">Why CISOs Choose This Platform</h2>
+        <div class="benefits-list">
+            <div class="benefit-item">
+                <i class="bi bi-shield-fill-check"></i>
+                <div>
+                    <h4>Executive Visibility</h4>
+                    <p>Dashboard designed for board-level reporting and stakeholder communication</p>
+                </div>
+            </div>
+            <div class="benefit-item">
+                <i class="bi bi-people-fill"></i>
+                <div>
+                    <h4>Cross-Team Accountability</h4>
+                    <p>Assign control owners across IT, Security, Legal, and Operations</p>
+                </div>
+            </div>
+            <div class="benefit-item">
+                <i class="bi bi-speedometer2"></i>
+                <div>
+                    <h4>Real-Time Risk Posture</h4>
+                    <p>See your risk landscape update as controls are implemented and evidence collected</p>
+                </div>
+            </div>
+            <div class="benefit-item">
+                <i class="bi bi-link-45deg"></i>
+                <div>
+                    <h4>Framework Alignment</h4>
+                    <p>Map risks to multiple frameworks (ISO 27001, NIST, NCA ECC) simultaneously</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="role-cta">
+    <div class="container">
+        <h2>See Risk Management in Action</h2>
+        <p>Explore how the platform connects risks, controls, and accountability in a real workflow.</p>
+        <a href="/owner/Account/Register" class="role-cta-btn">
+            <i class="bi bi-rocket-takeoff"></i>
+            Explore Risk Workflows
+        </a>
+    </div>
+</section>

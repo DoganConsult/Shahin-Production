@@ -1,0 +1,305 @@
+@model GrcMvc.Controllers.EmailDashboardViewModel
+@{
+    ViewData["Title"] = "مركز عمليات البريد";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="bi bi-envelope-open text-primary me-2"></i>
+                مركز عمليات البريد
+            </h1>
+            <p class="text-muted mb-0">
+                إدارة البريد الإلكتروني لـ 
+                @if (string.IsNullOrEmpty(Model.Brand))
+                {
+                    <span class="badge bg-secondary">جميع الشركات</span>
+                }
+                else if (Model.Brand == "Shahin")
+                {
+                    <span class="badge bg-success">شاهين</span>
+                }
+                else
+                {
+                    <span class="badge bg-info">Dogan Consult</span>
+                }
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-building"></i> تصفية حسب الشركة
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" asp-action="Index">جميع الشركات</a></li>
+                    <li><a class="dropdown-item" asp-action="Index" asp-route-brand="Shahin">شاهين</a></li>
+                    <li><a class="dropdown-item" asp-action="Index" asp-route-brand="DoganConsult">Dogan Consult</a></li>
+                </ul>
+            </div>
+            <a asp-action="Mailboxes" class="btn btn-outline-primary">
+                <i class="bi bi-mailbox"></i> صناديق البريد
+            </a>
+            <a asp-action="Tasks" class="btn btn-primary">
+                <i class="bi bi-list-task"></i> المهام
+                @if (Model.PendingTasks > 0)
+                {
+                    <span class="badge bg-warning text-dark ms-1">@Model.PendingTasks</span>
+                }
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 bg-primary bg-opacity-10 h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="text-muted mb-1 small">جديدة</p>
+                            <h3 class="mb-0">@Model.NewThreads</h3>
+                        </div>
+                        <div class="fs-1 text-primary opacity-50">
+                            <i class="bi bi-envelope-plus"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-warning bg-opacity-10 h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="text-muted mb-1 small">قيد التنفيذ</p>
+                            <h3 class="mb-0">@Model.InProgressThreads</h3>
+                        </div>
+                        <div class="fs-1 text-warning opacity-50">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-info bg-opacity-10 h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="text-muted mb-1 small">بانتظار الرد</p>
+                            <h3 class="mb-0">@Model.AwaitingReplyThreads</h3>
+                        </div>
+                        <div class="fs-1 text-info opacity-50">
+                            <i class="bi bi-reply"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 @(Model.SlaBreachedCount > 0 ? "bg-danger" : "bg-success") bg-opacity-10 h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="text-muted mb-1 small">تجاوز SLA</p>
+                            <h3 class="mb-0 @(Model.SlaBreachedCount > 0 ? "text-danger" : "text-success")">
+                                @Model.SlaBreachedCount
+                            </h3>
+                        </div>
+                        <div class="fs-1 @(Model.SlaBreachedCount > 0 ? "text-danger" : "text-success") opacity-50">
+                            <i class="bi bi-alarm"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-2">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-3">
+                    <h4 class="mb-0 text-secondary">@Model.DraftsPending</h4>
+                    <small class="text-muted">مسودات معلقة</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-3">
+                    <h4 class="mb-0 text-success">@Model.ResolvedToday</h4>
+                    <small class="text-muted">حُلت اليوم</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-3">
+                    <h4 class="mb-0">@Model.TotalThreads</h4>
+                    <small class="text-muted">إجمالي المحادثات</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <!-- Mailboxes Summary -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body py-3">
+                    <div class="d-flex gap-3 flex-wrap">
+                        @foreach (var mb in Model.Mailboxes)
+                        {
+                            <div class="d-flex align-items-center">
+                                <span class="badge @(mb.IsActive ? "bg-success" : "bg-secondary") me-2">
+                                    @(mb.IsActive ? "●" : "○")
+                                </span>
+                                <span class="small">@mb.DisplayName</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Threads -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-inbox text-primary me-2"></i>
+                المحادثات الأخيرة
+            </h5>
+            <a asp-action="Threads" class="btn btn-sm btn-outline-primary">
+                عرض الكل <i class="bi bi-arrow-left"></i>
+            </a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 5%">الأولوية</th>
+                        <th style="width: 25%">الموضوع</th>
+                        <th style="width: 20%">المرسل</th>
+                        <th style="width: 15%">التصنيف</th>
+                        <th style="width: 15%">الحالة</th>
+                        <th style="width: 15%">الوقت</th>
+                        <th style="width: 5%"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var thread in Model.RecentThreads)
+                    {
+                        <tr class="@(thread.SlaBreached ? "table-danger" : "")">
+                            <td>
+                                @switch (thread.Priority)
+                                {
+                                    case GrcMvc.Models.Entities.EmailOperations.EmailPriority.Critical:
+                                        <span class="badge bg-danger">حرج</span>
+                                        break;
+                                    case GrcMvc.Models.Entities.EmailOperations.EmailPriority.Urgent:
+                                        <span class="badge bg-warning text-dark">عاجل</span>
+                                        break;
+                                    case GrcMvc.Models.Entities.EmailOperations.EmailPriority.High:
+                                        <span class="badge bg-orange text-white" style="background-color: #fd7e14;">مرتفع</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">عادي</span>
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Thread" asp-route-id="@thread.Id" class="text-decoration-none">
+                                    @(thread.Subject.Length > 50 ? thread.Subject[..50] + "..." : thread.Subject)
+                                </a>
+                                @if (thread.SlaBreached)
+                                {
+                                    <i class="bi bi-exclamation-triangle text-danger ms-1" title="تجاوز SLA"></i>
+                                }
+                            </td>
+                            <td>
+                                <small class="d-block">@thread.FromName</small>
+                                <small class="text-muted">@thread.FromEmail</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    @GetClassificationLabel(thread.Classification)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge @GetStatusBadgeClass(thread.Status)">
+                                    @GetStatusLabel(thread.Status)
+                                </span>
+                            </td>
+                            <td>
+                                <small class="text-muted">@thread.ReceivedAt.ToString("dd/MM HH:mm")</small>
+                            </td>
+                            <td>
+                                <a asp-action="Thread" asp-route-id="@thread.Id" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.RecentThreads.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>
+                                لا توجد محادثات حالياً
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetClassificationLabel(GrcMvc.Models.Entities.EmailOperations.EmailClassification c)
+    {
+        return c switch
+        {
+            GrcMvc.Models.Entities.EmailOperations.EmailClassification.TechnicalSupport => "دعم فني",
+            GrcMvc.Models.Entities.EmailOperations.EmailClassification.BillingInquiry => "فواتير",
+            GrcMvc.Models.Entities.EmailOperations.EmailClassification.QuoteRequest => "عرض سعر",
+            GrcMvc.Models.Entities.EmailOperations.EmailClassification.DemoRequest => "عرض تجريبي",
+            GrcMvc.Models.Entities.EmailOperations.EmailClassification.Complaint => "شكوى",
+            GrcMvc.Models.Entities.EmailOperations.EmailClassification.Legal => "قانوني",
+            GrcMvc.Models.Entities.EmailOperations.EmailClassification.FeatureRequest => "طلب ميزة",
+            GrcMvc.Models.Entities.EmailOperations.EmailClassification.BugReport => "بلاغ خطأ",
+            GrcMvc.Models.Entities.EmailOperations.EmailClassification.Spam => "سبام",
+            _ => c.ToString()
+        };
+    }
+
+    string GetStatusLabel(GrcMvc.Models.Entities.EmailOperations.EmailThreadStatus s)
+    {
+        return s switch
+        {
+            GrcMvc.Models.Entities.EmailOperations.EmailThreadStatus.New => "جديد",
+            GrcMvc.Models.Entities.EmailOperations.EmailThreadStatus.InProgress => "قيد التنفيذ",
+            GrcMvc.Models.Entities.EmailOperations.EmailThreadStatus.AwaitingCustomerReply => "بانتظار الرد",
+            GrcMvc.Models.Entities.EmailOperations.EmailThreadStatus.DraftPending => "مسودة معلقة",
+            GrcMvc.Models.Entities.EmailOperations.EmailThreadStatus.Resolved => "محلول",
+            GrcMvc.Models.Entities.EmailOperations.EmailThreadStatus.Closed => "مغلق",
+            _ => s.ToString()
+        };
+    }
+
+    string GetStatusBadgeClass(GrcMvc.Models.Entities.EmailOperations.EmailThreadStatus s)
+    {
+        return s switch
+        {
+            GrcMvc.Models.Entities.EmailOperations.EmailThreadStatus.New => "bg-primary",
+            GrcMvc.Models.Entities.EmailOperations.EmailThreadStatus.InProgress => "bg-warning text-dark",
+            GrcMvc.Models.Entities.EmailOperations.EmailThreadStatus.AwaitingCustomerReply => "bg-info",
+            GrcMvc.Models.Entities.EmailOperations.EmailThreadStatus.DraftPending => "bg-secondary",
+            GrcMvc.Models.Entities.EmailOperations.EmailThreadStatus.Resolved => "bg-success",
+            GrcMvc.Models.Entities.EmailOperations.EmailThreadStatus.Closed => "bg-dark",
+            _ => "bg-light text-dark"
+        };
+    }
+}

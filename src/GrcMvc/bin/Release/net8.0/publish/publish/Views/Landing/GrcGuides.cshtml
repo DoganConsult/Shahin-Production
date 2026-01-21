@@ -1,0 +1,224 @@
+@using GrcMvc.Services
+@inject IAppInfoService AppInfo
+@{
+    ViewData["Title"] = "أدلة GRC - مركز المعرفة | " + AppInfo.Name;
+    Layout = "_LandingLayout";
+}
+
+<section class="guides-hero">
+    <div class="container">
+        <div class="section-header fade-up">
+            <div class="section-badge"><i class="bi bi-book-half"></i><span>مركز المعرفة</span></div>
+            <h1 class="section-title">أدلة <span class="highlight">GRC</span> الشاملة</h1>
+            <p class="section-subtitle">كل ما تحتاج معرفته عن الحوكمة والمخاطر والامتثال في مكان واحد.</p>
+        </div>
+        <div class="search-box fade-up">
+            <i class="bi bi-search"></i>
+            <input type="text" placeholder="ابحث في الأدلة والموارد..." id="guideSearch">
+        </div>
+    </div>
+</section>
+
+<section class="categories-section">
+    <div class="container">
+        <div class="categories-grid fade-up">
+            <div class="category-card">
+                <div class="category-header">
+                    <div class="category-icon saudi"><i class="bi bi-flag-fill"></i></div>
+                    <h2>الأنظمة السعودية</h2>
+                </div>
+                <div class="category-guides">
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>دليل الامتثال لـ NCA ECC</span><span class="guide-badge">شامل</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>دليل SAMA CSF للقطاع المالي</span><span class="guide-badge new">جديد</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>نظام حماية البيانات PDPL</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>متطلبات CITC للاتصالات</span></a>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <div class="category-header">
+                    <div class="category-icon international"><i class="bi bi-globe"></i></div>
+                    <h2>المعايير الدولية</h2>
+                </div>
+                <div class="category-guides">
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>دليل تطبيق ISO 27001:2022</span><span class="guide-badge popular">الأكثر قراءة</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>SOC 2 Type II - دليل الاستعداد</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>PCI DSS 4.0 - التغييرات الجديدة</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>NIST Cybersecurity Framework</span></a>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <div class="category-header">
+                    <div class="category-icon risk"><i class="bi bi-exclamation-triangle"></i></div>
+                    <h2>إدارة المخاطر</h2>
+                </div>
+                <div class="category-guides">
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>دليل تطبيق ISO 31000</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>بناء سجل المخاطر الفعال</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>تقييم المخاطر الكمي vs النوعي</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>مؤشرات المخاطر الرئيسية KRIs</span></a>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <div class="category-header">
+                    <div class="category-icon audit"><i class="bi bi-search"></i></div>
+                    <h2>التدقيق الداخلي</h2>
+                </div>
+                <div class="category-guides">
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>معايير IIA الدولية</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>تخطيط التدقيق المبني على المخاطر</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>أوراق العمل - أفضل الممارسات</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>كتابة تقارير التدقيق الفعالة</span></a>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <div class="category-header">
+                    <div class="category-icon governance"><i class="bi bi-building"></i></div>
+                    <h2>حوكمة الشركات</h2>
+                </div>
+                <div class="category-guides">
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>لائحة حوكمة الشركات السعودية</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>دور لجنة المراجعة</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>إدارة تعارض المصالح</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-pdf"></i><span>حوكمة تقنية المعلومات COBIT</span></a>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <div class="category-header">
+                    <div class="category-icon templates"><i class="bi bi-file-earmark-ruled"></i></div>
+                    <h2>القوالب والنماذج</h2>
+                </div>
+                <div class="category-guides">
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-excel"></i><span>قالب سجل المخاطر</span><span class="guide-badge">Excel</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-word"></i><span>نموذج سياسة أمن المعلومات</span><span class="guide-badge">Word</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-excel"></i><span>مصفوفة الضوابط</span><span class="guide-badge">Excel</span></a>
+                    <a href="/help/coming-soon" class="guide-link"><i class="bi bi-file-word"></i><span>نموذج تقرير التدقيق</span><span class="guide-badge">Word</span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="featured-section">
+    <div class="container">
+        <div class="featured-guide fade-up">
+            <div class="featured-content">
+                <span class="featured-label">الدليل المميز</span>
+                <h2>الدليل الشامل للامتثال مع NCA ECC 2024</h2>
+                <p>دليل عملي شامل يغطي جميع متطلبات الضوابط الأساسية للأمن السيبراني من الهيئة الوطنية للأمن السيبراني.</p>
+                <ul class="featured-highlights">
+                    <li><i class="bi bi-check-circle-fill"></i> 114 صفحة من المحتوى العملي</li>
+                    <li><i class="bi bi-check-circle-fill"></i> قوالب وأدوات جاهزة للاستخدام</li>
+                    <li><i class="bi bi-check-circle-fill"></i> دراسات حالة من السوق السعودي</li>
+                </ul>
+                <a href="#" class="btn btn-primary btn-lg"><i class="bi bi-download"></i> تحميل الدليل مجاناً</a>
+            </div>
+            <div class="featured-visual">
+                <div class="guide-preview">
+                    <div class="cover-icon"><i class="bi bi-shield-check"></i></div>
+                    <div class="cover-title">NCA ECC</div>
+                    <div class="cover-subtitle">الدليل الشامل</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="videos-section">
+    <div class="container">
+        <h2 class="section-title fade-up">دروس فيديو</h2>
+        <div class="videos-grid fade-up">
+            <div class="video-card">
+                <div class="video-thumbnail"><i class="bi bi-play-circle-fill"></i><span class="video-duration">15:30</span></div>
+                <div class="video-info"><h3>مقدمة في إدارة المخاطر المؤسسية</h3><span class="video-views"><i class="bi bi-eye"></i> 2,450</span></div>
+            </div>
+            <div class="video-card">
+                <div class="video-thumbnail"><i class="bi bi-play-circle-fill"></i><span class="video-duration">22:15</span></div>
+                <div class="video-info"><h3>كيف تبني برنامج امتثال فعال</h3><span class="video-views"><i class="bi bi-eye"></i> 1,890</span></div>
+            </div>
+            <div class="video-card">
+                <div class="video-thumbnail"><i class="bi bi-play-circle-fill"></i><span class="video-duration">18:45</span></div>
+                <div class="video-info"><h3>ISO 27001 - من الصفر إلى الشهادة</h3><span class="video-views"><i class="bi bi-eye"></i> 3,210</span></div>
+            </div>
+            <div class="video-card">
+                <div class="video-thumbnail"><i class="bi bi-play-circle-fill"></i><span class="video-duration">12:00</span></div>
+                <div class="video-info"><h3>استخدام شاهين لتتبع الامتثال</h3><span class="video-views"><i class="bi bi-eye"></i> 980</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-box fade-up">
+            <h2>هل تريد تطبيق ما تعلمته؟</h2>
+            <p>جرب شاهين مجاناً وابدأ رحلة الامتثال الخاصة بك</p>
+            <a href="/Onboarding" class="btn btn-primary btn-lg"><i class="bi bi-rocket-takeoff-fill"></i> ابدأ التجربة المجانية</a>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+<style>
+    .guides-hero { padding: 8rem 0 4rem; text-align: center; }
+    .highlight { background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .section-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; color: var(--primary); margin-bottom: 1.5rem; }
+    .search-box { display: flex; align-items: center; gap: 1rem; max-width: 500px; margin: 2rem auto 0; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1rem 1.5rem; }
+    .search-box i { color: rgba(248, 250, 252, 0.5); }
+    .search-box input { flex: 1; background: transparent; border: none; color: var(--light); font-size: 1rem; }
+    .search-box input:focus { outline: none; }
+    .search-box input::placeholder { color: rgba(248, 250, 252, 0.5); }
+    .categories-section { padding: 4rem 0; }
+    .categories-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+    .category-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.5rem; }
+    .category-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border); }
+    .category-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+    .category-icon.saudi { background: rgba(0, 128, 0, 0.2); color: #22c55e; }
+    .category-icon.international { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+    .category-icon.risk { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+    .category-icon.audit { background: rgba(139, 92, 246, 0.2); color: #8b5cf6; }
+    .category-icon.governance { background: rgba(236, 72, 153, 0.2); color: #ec4899; }
+    .category-icon.templates { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+    .category-header h2 { font-size: 1.1rem; margin: 0; }
+    .category-guides { display: flex; flex-direction: column; gap: 0.5rem; }
+    .guide-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 8px; color: rgba(248, 250, 252, 0.8); text-decoration: none; transition: all 0.2s ease; font-size: 0.9rem; }
+    .guide-link:hover { background: rgba(16, 185, 129, 0.1); color: var(--light); }
+    .guide-link i { color: var(--primary); }
+    .guide-link span:first-of-type { flex: 1; }
+    .guide-badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.65rem; font-weight: 600; background: rgba(16, 185, 129, 0.2); color: #10b981; }
+    .guide-badge.new { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .guide-badge.popular { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+    .featured-section { padding: 4rem 0; background: rgba(16, 185, 129, 0.02); }
+    .featured-guide { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 24px; padding: 3rem; }
+    .featured-label { display: inline-block; background: linear-gradient(135deg, var(--primary), var(--secondary)); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem; }
+    .featured-content h2 { font-size: 1.75rem; margin-bottom: 1rem; }
+    .featured-content > p { color: rgba(248, 250, 252, 0.7); line-height: 1.8; margin-bottom: 1.5rem; }
+    .featured-highlights { list-style: none; padding: 0; margin-bottom: 2rem; }
+    .featured-highlights li { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; color: rgba(248, 250, 252, 0.8); }
+    .featured-highlights i { color: var(--primary); }
+    .guide-preview { width: 200px; height: 280px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(59, 130, 246, 0.2)); border: 1px solid var(--glass-border); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem; margin: 0 auto; }
+    .cover-icon { font-size: 3rem; color: var(--primary); margin-bottom: 1rem; }
+    .cover-title { font-size: 1.5rem; font-weight: 800; }
+    .cover-subtitle { color: rgba(248, 250, 252, 0.6); font-size: 0.9rem; }
+    .videos-section { padding: 4rem 0; }
+    .videos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-top: 2rem; }
+    .video-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.3s ease; }
+    .video-card:hover { transform: translateY(-5px); border-color: rgba(16, 185, 129, 0.3); }
+    .video-thumbnail { height: 120px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(139, 92, 246, 0.2)); display: flex; align-items: center; justify-content: center; position: relative; }
+    .video-thumbnail > i { font-size: 2.5rem; color: white; opacity: 0.8; }
+    .video-duration { position: absolute; bottom: 0.5rem; left: 0.5rem; background: rgba(0, 0, 0, 0.7); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .video-info { padding: 1rem; }
+    .video-info h3 { font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.4; }
+    .video-views { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: rgba(248, 250, 252, 0.5); }
+    .cta-section { padding: 4rem 0; }
+    .cta-box { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1)); border: 1px solid var(--glass-border); border-radius: 24px; padding: 4rem; text-align: center; }
+    .cta-box h2 { font-size: 2rem; margin-bottom: 1rem; }
+    .cta-box p { color: rgba(248, 250, 252, 0.7); margin-bottom: 2rem; }
+    @@media (max-width: 1024px) { .categories-grid, .videos-grid { grid-template-columns: repeat(2, 1fr); } .featured-guide { grid-template-columns: 1fr; } }
+    @@media (max-width: 768px) { .categories-grid, .videos-grid { grid-template-columns: 1fr; } .cta-box { padding: 2rem; } }
+</style>
+}

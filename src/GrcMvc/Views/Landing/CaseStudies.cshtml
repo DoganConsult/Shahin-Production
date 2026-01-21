@@ -1,0 +1,395 @@
+@using GrcMvc.Services
+@model GrcMvc.Controllers.CaseStudiesViewModel
+@inject IAppInfoService AppInfo
+@{
+    ViewData["Title"] = "دراسات الحالة - " + AppInfo.Name;
+    Layout = "_LandingLayout";
+    var featured = Model?.CaseStudies?.FirstOrDefault(c => c.IsFeatured);
+    var otherCases = Model?.CaseStudies?.Where(c => !c.IsFeatured).ToList() ?? new List<GrcMvc.Controllers.CaseStudyItem>();
+    var testimonials = Model?.Testimonials ?? new List<GrcMvc.Controllers.TestimonialItem>();
+}
+
+<section class="casestudies-hero">
+    <div class="container">
+        <div class="section-header fade-up">
+            <div class="section-badge">
+                <i class="bi bi-award"></i>
+                <span>قصص نجاح</span>
+            </div>
+            <h1 class="section-title">كيف حققت مؤسسات رائدة الامتثال مع شاهين</h1>
+            <p class="section-subtitle">
+                تعرف على تجارب حقيقية لمؤسسات استخدمت منصة شاهين لتحقيق أهدافها في الحوكمة والمخاطر والامتثال.
+            </p>
+        </div>
+
+        @if (featured != null)
+        {
+        <!-- Featured Case Study -->
+        <div class="featured-case fade-up">
+            <div class="case-image">
+                <span class="industry-badge">@(featured.IndustryAr ?? featured.Industry)</span>
+            </div>
+            <div class="case-content">
+                <h2>@(featured.TitleAr ?? featured.Title)</h2>
+                <p>@(featured.SummaryAr ?? featured.Summary)</p>
+                <div class="case-stats">
+                    @if (!string.IsNullOrEmpty(featured.ImprovementMetric))
+                    {
+                    <div class="stat">
+                        <span class="stat-value">@featured.ImprovementMetric</span>
+                        <span class="stat-label">@(featured.ImprovementLabelAr ?? featured.ImprovementLabel)</span>
+                    </div>
+                    }
+                    @if (!string.IsNullOrEmpty(featured.TimeToCompliance))
+                    {
+                    <div class="stat">
+                        <span class="stat-value">@featured.TimeToCompliance.Replace(" months", "").Replace(" month", "")</span>
+                        <span class="stat-label">@(featured.TimeToCompliance.Contains("month") ? "أشهر للامتثال" : featured.TimeToCompliance)</span>
+                    </div>
+                    }
+                    @if (!string.IsNullOrEmpty(featured.ComplianceScore))
+                    {
+                    <div class="stat">
+                        <span class="stat-value">@featured.ComplianceScore</span>
+                        <span class="stat-label">نسبة الامتثال</span>
+                    </div>
+                    }
+                </div>
+                @if (!string.IsNullOrEmpty(featured.Slug))
+                {
+                <a href="/case-studies/@featured.Slug" class="btn btn-primary">اقرأ القصة كاملة</a>
+                }
+                else
+                {
+                <a href="/Landing/Contact" class="btn btn-primary">تواصل معنا للمزيد</a>
+                }
+            </div>
+        </div>
+        }
+
+        <!-- Case Studies Grid -->
+        <div class="cases-grid fade-up">
+            @foreach (var caseStudy in otherCases.Take(4))
+            {
+            <div class="case-card">
+                <div class="card-header">
+                    <span class="industry">@(caseStudy.IndustryAr ?? caseStudy.Industry)</span>
+                </div>
+                <h3>@(caseStudy.TitleAr ?? caseStudy.Title)</h3>
+                <p>@(caseStudy.SummaryAr ?? caseStudy.Summary)</p>
+                <div class="case-results">
+                    @if (!string.IsNullOrEmpty(caseStudy.FrameworkCode))
+                    {
+                    <div class="result-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>@(caseStudy.FrameworkCode == "Multi" ? "توحيد 5 أنظمة" : $"امتثال {caseStudy.FrameworkCode}")</span>
+                    </div>
+                    }
+                    @if (!string.IsNullOrEmpty(caseStudy.TimeToCompliance))
+                    {
+                    <div class="result-item">
+                        <i class="bi bi-clock"></i>
+                        <span>@caseStudy.TimeToCompliance.Replace("months", "أشهر").Replace("month", "شهر")</span>
+                    </div>
+                    }
+                </div>
+                @if (!string.IsNullOrEmpty(caseStudy.Slug))
+                {
+                <a href="/case-studies/@caseStudy.Slug" class="btn btn-outline">اقرأ المزيد</a>
+                }
+                else
+                {
+                <a href="/Landing/Contact" class="btn btn-outline">تواصل معنا</a>
+                }
+            </div>
+            }
+        </div>
+
+        <!-- Testimonials -->
+        @if (testimonials.Any())
+        {
+        <div class="testimonials fade-up">
+            <h2>ماذا يقول عملاؤنا</h2>
+            <div class="testimonials-grid">
+                @foreach (var testimonial in testimonials.Take(2))
+                {
+                <div class="testimonial-card">
+                    <div class="quote-icon"><i class="bi bi-quote"></i></div>
+                    <p>"@(testimonial.QuoteAr ?? testimonial.Quote)"</p>
+                    <div class="testimonial-author">
+                        <div class="author-info">
+                            <strong>@(testimonial.AuthorAr ?? testimonial.Author)</strong>
+                            <span>@(testimonial.CompanyAr ?? testimonial.Company)</span>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+        }
+
+        <!-- CTA -->
+        <div class="casestudies-cta fade-up">
+            <h2>هل تريد أن تكون قصة النجاح التالية؟</h2>
+            <p>ابدأ رحلة الامتثال مع شاهين اليوم</p>
+            <div class="cta-buttons">
+                <a href="/owner/Account/Register" class="btn btn-primary btn-lg">
+                    <i class="bi bi-rocket-takeoff"></i>
+                    ابدأ التجربة المجانية
+                </a>
+                <a href="/Landing/Contact" class="btn btn-outline btn-lg">
+                    <i class="bi bi-chat-dots"></i>
+                    تحدث مع فريق المبيعات
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+<style>
+    .casestudies-hero {
+        padding: 8rem 0 4rem;
+    }
+
+    .featured-case {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 3rem;
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        overflow: hidden;
+        margin-bottom: 4rem;
+    }
+
+    .case-image {
+        min-height: 400px;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.3));
+        position: relative;
+    }
+
+    .industry-badge {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        background: var(--primary);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .case-content {
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .case-content h2 {
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
+        line-height: 1.4;
+    }
+
+    .case-content > p {
+        color: rgba(248, 250, 252, 0.7);
+        font-size: 1.05rem;
+        margin-bottom: 2rem;
+        line-height: 1.8;
+    }
+
+    .case-stats {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .case-stats .stat {
+        text-align: center;
+    }
+
+    .case-stats .stat-value {
+        display: block;
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--primary);
+    }
+
+    .case-stats .stat-label {
+        font-size: 0.9rem;
+        color: rgba(248, 250, 252, 0.6);
+    }
+
+    .cases-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .case-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .case-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .card-header {
+        margin-bottom: 1.25rem;
+    }
+
+    .card-header .industry {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--primary);
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .case-card h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+        line-height: 1.5;
+    }
+
+    .case-card > p {
+        color: rgba(248, 250, 252, 0.6);
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.7;
+    }
+
+    .case-results {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .result-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .result-item i {
+        color: var(--primary);
+    }
+
+    .testimonials h2 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .testimonials-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .testimonial-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2rem;
+    }
+
+    .quote-icon {
+        color: var(--primary);
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .testimonial-card > p {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        margin-bottom: 1.5rem;
+        color: rgba(248, 250, 252, 0.9);
+    }
+
+    .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .author-info strong {
+        display: block;
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .author-info span {
+        color: rgba(248, 250, 252, 0.5);
+        font-size: 0.9rem;
+    }
+
+    .casestudies-cta {
+        text-align: center;
+        background: linear-gradient(180deg, rgba(16, 185, 129, 0.1), transparent);
+        border-radius: 24px;
+        padding: 4rem;
+    }
+
+    .casestudies-cta h2 {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .casestudies-cta p {
+        color: rgba(248, 250, 252, 0.6);
+        margin-bottom: 1.5rem;
+    }
+
+    .cta-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    @@media (max-width: 1024px) {
+        .featured-case {
+            grid-template-columns: 1fr;
+        }
+
+        .case-image {
+            min-height: 250px;
+        }
+
+        .cases-grid,
+        .testimonials-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .case-stats {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .case-results {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+</style>
+}

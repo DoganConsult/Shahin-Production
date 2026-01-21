@@ -1,0 +1,145 @@
+@model IEnumerable<GrcMvc.Models.DTOs.ControlDto>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@{
+    ViewData["Title"] = L["Control_List_Title"].Value;
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-shield-check"></i> @L["Control_List_Title"]</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> @L["NewControl"]
+            </a>
+            <a asp-action="Matrix" class="btn btn-info">
+                <i class="bi bi-grid-3x3"></i> @L["MatrixAndStats"]
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="controlsTable">
+                    <thead>
+                        <tr>
+                            <th>@L["Control_ID"]</th>
+                            <th>@L["Control_Name"]</th>
+                            <th>@L["Control_Category"]</th>
+                            <th>@L["Control_Type"]</th>
+                            <th>@L["Control_Frequency"]</th>
+                            <th>@L["Control_Owner"]</th>
+                            <th>@L["Control_Effectiveness"]</th>
+                            <th>@L["Status"]</th>
+                            <th>@L["Actions"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@item.Id">@item.ControlId</a>
+                                </td>
+                                <td>@item.Name</td>
+                                <td>@item.Category</td>
+                                <td>@item.Type</td>
+                                <td>@item.Frequency</td>
+                                <td>@item.Owner</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar @GetEffectivenessClass(item.Effectiveness)"
+                                             role="progressbar"
+                                             style="width: @(item.Effectiveness)%;"
+                                             aria-valuenow="@item.Effectiveness"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100">
+                                            @item.Effectiveness%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge @GetStatusBadgeClass(item.Status)">
+                                        @item.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.Id"
+                                           class="btn btn-outline-primary" title="@L["Edit"]">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Id"
+                                           class="btn btn-outline-info" title="@L["Details"]">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id"
+                                           class="btn btn-outline-danger" title="@L["Delete"]">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "active" or "effective" => "bg-success",
+            "partially effective" => "bg-warning",
+            "ineffective" or "inactive" => "bg-danger",
+            "retired" => "bg-secondary",
+            _ => "bg-info"
+        };
+    }
+
+    private string GetEffectivenessClass(int score)
+    {
+        return score switch
+        {
+            >= 80 => "bg-success",
+            >= 50 => "bg-warning",
+            _ => "bg-danger"
+        };
+    }
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#controlsTable').DataTable({
+                "order": [[0, "asc"]],
+                "pageLength": 25,
+                "responsive": true
+            });
+        });
+    </script>
+}

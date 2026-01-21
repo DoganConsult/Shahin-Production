@@ -1,0 +1,2552 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Common Actions -->
+    <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="View" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="ViewDetails" xml:space="preserve">
+    <value>View Details</value>
+  </data>
+  <data name="ViewAll" xml:space="preserve">
+    <value>View All</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="Export" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="Import" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="Upload" xml:space="preserve">
+    <value>Upload</value>
+  </data>
+  <data name="Submit" xml:space="preserve">
+    <value>Submit</value>
+  </data>
+  <data name="Approve" xml:space="preserve">
+    <value>Approve</value>
+  </data>
+  <data name="Reject" xml:space="preserve">
+    <value>Reject</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="AreYouSure" xml:space="preserve">
+    <value>Are you sure?</value>
+  </data>
+  <data name="ConfirmAction" xml:space="preserve">
+    <value>Confirm Action</value>
+  </data>
+  <data name="ConfirmDelete" xml:space="preserve">
+    <value>Confirm Delete</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="QuickActions" xml:space="preserve">
+    <value>Quick Actions</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Nav_Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Nav_Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Nav_Dashboards" xml:space="preserve">
+    <value>Dashboards</value>
+  </data>
+  <data name="Nav_RiskManagement" xml:space="preserve">
+    <value>Risk Management</value>
+  </data>
+  <data name="Nav_Compliance" xml:space="preserve">
+    <value>Compliance</value>
+  </data>
+  <data name="Nav_Manage" xml:space="preserve">
+    <value>Manage</value>
+  </data>
+  <data name="Nav_Users" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="Nav_Roles" xml:space="preserve">
+    <value>Roles</value>
+  </data>
+  <data name="Nav_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Nav_Workflows" xml:space="preserve">
+    <value>Workflows</value>
+  </data>
+  <data name="Nav_Help" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="Nav_Admin" xml:space="preserve">
+    <value>Admin</value>
+  </data>
+  <data name="Nav_Administration" xml:space="preserve">
+    <value>Administration</value>
+  </data>
+  <data name="Nav_Profile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Nav_Logout" xml:space="preserve">
+    <value>Logout</value>
+  </data>
+  <data name="Nav_Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Nav_Register" xml:space="preserve">
+    <value>Register</value>
+  </data>
+  <data name="Nav_Notifications" xml:space="preserve">
+    <value>Notifications</value>
+  </data>
+  <data name="Nav_ShahinAI" xml:space="preserve">
+    <value>Shahin-AI</value>
+  </data>
+  <data name="Nav_CCM" xml:space="preserve">
+    <value>Continuous Compliance Management</value>
+  </data>
+  <data name="Nav_Onboarding" xml:space="preserve">
+    <value>Onboarding</value>
+  </data>
+  <data name="Nav_AuditLogs" xml:space="preserve">
+    <value>Audit Logs</value>
+  </data>
+  <data name="Nav_TenantAdmin" xml:space="preserve">
+    <value>Tenant Admin</value>
+  </data>
+  <data name="Nav_PlatformAdmin" xml:space="preserve">
+    <value>Platform Admin</value>
+  </data>
+  <data name="Nav_Subscription" xml:space="preserve">
+    <value>Subscription</value>
+  </data>
+  <data name="Nav_Workspaces" xml:space="preserve">
+    <value>Workspaces</value>
+  </data>
+  <data name="Risks" xml:space="preserve">
+    <value>Risks</value>
+  </data>
+  <data name="Risk" xml:space="preserve">
+    <value>Risk</value>
+  </data>
+  <data name="RiskName" xml:space="preserve">
+    <value>Risk Name</value>
+  </data>
+  <data name="RiskLevel" xml:space="preserve">
+    <value>Risk Level</value>
+  </data>
+  <data name="RiskOwner" xml:space="preserve">
+    <value>Risk Owner</value>
+  </data>
+  <data name="RiskDescription" xml:space="preserve">
+    <value>Risk Description</value>
+  </data>
+  <data name="RiskCategory" xml:space="preserve">
+    <value>Risk Category</value>
+  </data>
+  <data name="RiskAssessment" xml:space="preserve">
+    <value>Risk Assessment</value>
+  </data>
+  <data name="RiskTreatment" xml:space="preserve">
+    <value>Risk Treatment</value>
+  </data>
+  <data name="TotalRisks" xml:space="preserve">
+    <value>Total Risks</value>
+  </data>
+  <data name="HighRisks" xml:space="preserve">
+    <value>High Risks</value>
+  </data>
+  <data name="MediumRisks" xml:space="preserve">
+    <value>Medium Risks</value>
+  </data>
+  <data name="LowRisks" xml:space="preserve">
+    <value>Low Risks</value>
+  </data>
+  <data name="RecentRisks" xml:space="preserve">
+    <value>Recent Risks</value>
+  </data>
+  <data name="ViewAllRisks" xml:space="preserve">
+    <value>View All Risks</value>
+  </data>
+  <data name="CreateRisk" xml:space="preserve">
+    <value>Create Risk</value>
+  </data>
+  <data name="RiskRegister" xml:space="preserve">
+    <value>Risk Register</value>
+  </data>
+  <data name="Controls" xml:space="preserve">
+    <value>Controls</value>
+  </data>
+  <data name="Control" xml:space="preserve">
+    <value>Control</value>
+  </data>
+  <data name="ControlName" xml:space="preserve">
+    <value>Control Name</value>
+  </data>
+  <data name="ControlOwner" xml:space="preserve">
+    <value>Control Owner</value>
+  </data>
+  <data name="ControlStatus" xml:space="preserve">
+    <value>Control Status</value>
+  </data>
+  <data name="ControlDescription" xml:space="preserve">
+    <value>Control Description</value>
+  </data>
+  <data name="ActiveControls" xml:space="preserve">
+    <value>Active Controls</value>
+  </data>
+  <data name="TotalControls" xml:space="preserve">
+    <value>Total Controls</value>
+  </data>
+  <data name="ControlEffectiveness" xml:space="preserve">
+    <value>Control Effectiveness</value>
+  </data>
+  <data name="CreateControl" xml:space="preserve">
+    <value>Create Control</value>
+  </data>
+  <data name="AssessControl" xml:space="preserve">
+    <value>Assess Control</value>
+  </data>
+  <data name="ControlMatrix" xml:space="preserve">
+    <value>Control Matrix</value>
+  </data>
+  <data name="Policies" xml:space="preserve">
+    <value>Policies</value>
+  </data>
+  <data name="Policy" xml:space="preserve">
+    <value>Policy</value>
+  </data>
+  <data name="PolicyName" xml:space="preserve">
+    <value>Policy Name</value>
+  </data>
+  <data name="PolicyOwner" xml:space="preserve">
+    <value>Policy Owner</value>
+  </data>
+  <data name="PolicyStatus" xml:space="preserve">
+    <value>Policy Status</value>
+  </data>
+  <data name="PolicyDescription" xml:space="preserve">
+    <value>Policy Description</value>
+  </data>
+  <data name="TotalPolicies" xml:space="preserve">
+    <value>Total Policies</value>
+  </data>
+  <data name="CreatePolicy" xml:space="preserve">
+    <value>Create Policy</value>
+  </data>
+  <data name="PolicyStatistics" xml:space="preserve">
+    <value>Policy Statistics</value>
+  </data>
+  <data name="Audits" xml:space="preserve">
+    <value>Audits</value>
+  </data>
+  <data name="Audit" xml:space="preserve">
+    <value>Audit</value>
+  </data>
+  <data name="AuditName" xml:space="preserve">
+    <value>Audit Name</value>
+  </data>
+  <data name="AuditType" xml:space="preserve">
+    <value>Audit Type</value>
+  </data>
+  <data name="AuditStatus" xml:space="preserve">
+    <value>Audit Status</value>
+  </data>
+  <data name="AuditFindings" xml:space="preserve">
+    <value>Audit Findings</value>
+  </data>
+  <data name="PendingAudits" xml:space="preserve">
+    <value>Pending Audits</value>
+  </data>
+  <data name="UpcomingAudits" xml:space="preserve">
+    <value>Upcoming Audits</value>
+  </data>
+  <data name="TotalAudits" xml:space="preserve">
+    <value>Total Audits</value>
+  </data>
+  <data name="ViewAllAudits" xml:space="preserve">
+    <value>View All Audits</value>
+  </data>
+  <data name="CreateAudit" xml:space="preserve">
+    <value>Create Audit</value>
+  </data>
+  <data name="Auditor" xml:space="preserve">
+    <value>Auditor</value>
+  </data>
+  <data name="AuditStatistics" xml:space="preserve">
+    <value>Audit Statistics</value>
+  </data>
+  <data name="Assessments" xml:space="preserve">
+    <value>Assessments</value>
+  </data>
+  <data name="Assessment" xml:space="preserve">
+    <value>Assessment</value>
+  </data>
+  <data name="AssessmentName" xml:space="preserve">
+    <value>Assessment Name</value>
+  </data>
+  <data name="AssessmentType" xml:space="preserve">
+    <value>Assessment Type</value>
+  </data>
+  <data name="AssessmentStatus" xml:space="preserve">
+    <value>Assessment Status</value>
+  </data>
+  <data name="CreateAssessment" xml:space="preserve">
+    <value>Create Assessment</value>
+  </data>
+  <data name="Evidence" xml:space="preserve">
+    <value>Evidence</value>
+  </data>
+  <data name="EvidenceName" xml:space="preserve">
+    <value>Evidence Name</value>
+  </data>
+  <data name="EvidenceType" xml:space="preserve">
+    <value>Evidence Type</value>
+  </data>
+  <data name="EvidenceStatus" xml:space="preserve">
+    <value>Evidence Status</value>
+  </data>
+  <data name="UploadEvidence" xml:space="preserve">
+    <value>Upload Evidence</value>
+  </data>
+  <data name="TotalEvidence" xml:space="preserve">
+    <value>Total Evidence</value>
+  </data>
+  <data name="EvidenceLifecycle" xml:space="preserve">
+    <value>Evidence Lifecycle</value>
+  </data>
+  <data name="EvidenceStatistics" xml:space="preserve">
+    <value>Evidence Statistics</value>
+  </data>
+  <data name="ComplianceScore" xml:space="preserve">
+    <value>Compliance Score</value>
+  </data>
+  <data name="ComplianceStatus" xml:space="preserve">
+    <value>Compliance Status</value>
+  </data>
+  <data name="ComplianceFramework" xml:space="preserve">
+    <value>Compliance Framework</value>
+  </data>
+  <data name="ComplianceRequirements" xml:space="preserve">
+    <value>Compliance Requirements</value>
+  </data>
+  <data name="Frameworks" xml:space="preserve">
+    <value>Frameworks</value>
+  </data>
+  <data name="Framework" xml:space="preserve">
+    <value>Framework</value>
+  </data>
+  <data name="Regulators" xml:space="preserve">
+    <value>Regulators</value>
+  </data>
+  <data name="Regulator" xml:space="preserve">
+    <value>Regulator</value>
+  </data>
+  <data name="Reports" xml:space="preserve">
+    <value>Reports</value>
+  </data>
+  <data name="Report" xml:space="preserve">
+    <value>Report</value>
+  </data>
+  <data name="GenerateReport" xml:space="preserve">
+    <value>Generate Report</value>
+  </data>
+  <data name="ReportType" xml:space="preserve">
+    <value>Report Type</value>
+  </data>
+  <data name="RiskReports" xml:space="preserve">
+    <value>Risk Reports</value>
+  </data>
+  <data name="Plans" xml:space="preserve">
+    <value>Plans</value>
+  </data>
+  <data name="Plan" xml:space="preserve">
+    <value>Plan</value>
+  </data>
+  <data name="PlanName" xml:space="preserve">
+    <value>Plan Name</value>
+  </data>
+  <data name="CreatePlan" xml:space="preserve">
+    <value>Create Plan</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Status_Approved" xml:space="preserve">
+    <value>Approved</value>
+  </data>
+  <data name="Status_Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Status_Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="Status_Inactive" xml:space="preserve">
+    <value>Inactive</value>
+  </data>
+  <data name="Status_Rejected" xml:space="preserve">
+    <value>Rejected</value>
+  </data>
+  <data name="Status_Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="Status_Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="Status_Pending" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="Status_InProgress" xml:space="preserve">
+    <value>In Progress</value>
+  </data>
+  <data name="Status_Delegated" xml:space="preserve">
+    <value>Delegated</value>
+  </data>
+  <data name="Status_OnHold" xml:space="preserve">
+    <value>On Hold</value>
+  </data>
+  <data name="Status_Draft" xml:space="preserve">
+    <value>Draft</value>
+  </data>
+  <data name="Status_Published" xml:space="preserve">
+    <value>Published</value>
+  </data>
+  <data name="Status_Archived" xml:space="preserve">
+    <value>Archived</value>
+  </data>
+  <data name="Status_Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Status_Closed" xml:space="preserve">
+    <value>Closed</value>
+  </data>
+  <data name="Status_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="Status_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="Status_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="Status_Critical" xml:space="preserve">
+    <value>Critical</value>
+  </data>
+  <data name="Error_NotFound" xml:space="preserve">
+    <value>Resource not found</value>
+  </data>
+  <data name="Error_Unauthorized" xml:space="preserve">
+    <value>Unauthorized access</value>
+  </data>
+  <data name="Error_BadRequest" xml:space="preserve">
+    <value>Invalid request</value>
+  </data>
+  <data name="Error_ValidationFailed" xml:space="preserve">
+    <value>Validation failed</value>
+  </data>
+  <data name="Error_ServerError" xml:space="preserve">
+    <value>An error occurred while processing your request</value>
+  </data>
+  <data name="Error_AccessDenied" xml:space="preserve">
+    <value>Access denied</value>
+  </data>
+  <data name="Error_SessionExpired" xml:space="preserve">
+    <value>Session expired</value>
+  </data>
+  <data name="Error_InvalidInput" xml:space="preserve">
+    <value>Invalid input</value>
+  </data>
+  <data name="Error_WorkspaceSwitchFailed" xml:space="preserve">
+    <value>Failed to switch workspace</value>
+  </data>
+  <data name="Error_WorkspaceSwitchError" xml:space="preserve">
+    <value>Error switching workspace</value>
+  </data>
+  <data name="Success_Saved" xml:space="preserve">
+    <value>Saved successfully</value>
+  </data>
+  <data name="Success_Deleted" xml:space="preserve">
+    <value>Deleted successfully</value>
+  </data>
+  <data name="Success_Updated" xml:space="preserve">
+    <value>Updated successfully</value>
+  </data>
+  <data name="Success_Created" xml:space="preserve">
+    <value>Created successfully</value>
+  </data>
+  <data name="Success_Submitted" xml:space="preserve">
+    <value>Submitted successfully</value>
+  </data>
+  <data name="Success_Approved" xml:space="preserve">
+    <value>Approved successfully</value>
+  </data>
+  <data name="Success_Rejected" xml:space="preserve">
+    <value>Rejected</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="Priority" xml:space="preserve">
+    <value>Priority</value>
+  </data>
+  <data name="Owner" xml:space="preserve">
+    <value>Owner</value>
+  </data>
+  <data name="AssignedTo" xml:space="preserve">
+    <value>Assigned To</value>
+  </data>
+  <data name="CreatedBy" xml:space="preserve">
+    <value>Created By</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>Created At</value>
+  </data>
+  <data name="UpdatedAt" xml:space="preserve">
+    <value>Updated At</value>
+  </data>
+  <data name="DueDate" xml:space="preserve">
+    <value>Due Date</value>
+  </data>
+  <data name="StartDate" xml:space="preserve">
+    <value>Start Date</value>
+  </data>
+  <data name="EndDate" xml:space="preserve">
+    <value>End Date</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="Comments" xml:space="preserve">
+    <value>Comments</value>
+  </data>
+  <data name="Attachments" xml:space="preserve">
+    <value>Attachments</value>
+  </data>
+  <data name="Tags" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Phone" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="Department" xml:space="preserve">
+    <value>Department</value>
+  </data>
+  <data name="Organization" xml:space="preserve">
+    <value>Organization</value>
+  </data>
+  <data name="Tenant" xml:space="preserve">
+    <value>Tenant</value>
+  </data>
+  <data name="Workspace" xml:space="preserve">
+    <value>Workspace</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="Role" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="Permission" xml:space="preserve">
+    <value>Permission</value>
+  </data>
+  <data name="Permissions" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="MainDashboard" xml:space="preserve">
+    <value>Main Dashboard</value>
+  </data>
+  <data name="ExecutiveDashboard" xml:space="preserve">
+    <value>Executive Dashboard</value>
+  </data>
+  <data name="Inbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="Welcome" xml:space="preserve">
+    <value>Welcome</value>
+  </data>
+  <data name="WelcomeMessage" xml:space="preserve">
+    <value>Welcome to the GRC Management System</value>
+  </data>
+  <data name="Overview" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="Statistics" xml:space="preserve">
+    <value>Statistics</value>
+  </data>
+  <data name="RecentActivity" xml:space="preserve">
+    <value>Recent Activity</value>
+  </data>
+  <data name="MyTasks" xml:space="preserve">
+    <value>My Tasks</value>
+  </data>
+  <data name="PendingTasks" xml:space="preserve">
+    <value>Pending Tasks</value>
+  </data>
+  <data name="CompletedTasks" xml:space="preserve">
+    <value>Completed Tasks</value>
+  </data>
+  <data name="OverdueTasks" xml:space="preserve">
+    <value>Overdue Tasks</value>
+  </data>
+  <data name="Table_ID" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="Table_Action" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="Table_NoRecords" xml:space="preserve">
+    <value>No records found</value>
+  </data>
+  <data name="Table_ShowingRecords" xml:space="preserve">
+    <value>Showing records</value>
+  </data>
+  <data name="Table_Of" xml:space="preserve">
+    <value>of</value>
+  </data>
+  <data name="Table_Entries" xml:space="preserve">
+    <value>entries</value>
+  </data>
+  <data name="Form_Required" xml:space="preserve">
+    <value>Required</value>
+  </data>
+  <data name="Form_Optional" xml:space="preserve">
+    <value>Optional</value>
+  </data>
+  <data name="Form_SelectOption" xml:space="preserve">
+    <value>Select an option</value>
+  </data>
+  <data name="Form_SelectAll" xml:space="preserve">
+    <value>Select All</value>
+  </data>
+  <data name="Form_DeselectAll" xml:space="preserve">
+    <value>Deselect All</value>
+  </data>
+  <data name="Form_EnterValue" xml:space="preserve">
+    <value>Enter value</value>
+  </data>
+  <data name="Auth_Username" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="Auth_Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Auth_ConfirmPassword" xml:space="preserve">
+    <value>Confirm Password</value>
+  </data>
+  <data name="Auth_RememberMe" xml:space="preserve">
+    <value>Remember me</value>
+  </data>
+  <data name="Auth_ForgotPassword" xml:space="preserve">
+    <value>Forgot password?</value>
+  </data>
+  <data name="Auth_ResetPassword" xml:space="preserve">
+    <value>Reset Password</value>
+  </data>
+  <data name="Auth_ChangePassword" xml:space="preserve">
+    <value>Change Password</value>
+  </data>
+  <data name="Auth_LoginTitle" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Auth_RegisterTitle" xml:space="preserve">
+    <value>Create a new account</value>
+  </data>
+  <data name="Auth_LogoutConfirm" xml:space="preserve">
+    <value>Are you sure you want to logout?</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Language_Arabic" xml:space="preserve">
+    <value>العربية</value>
+  </data>
+  <data name="Language_English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="SwitchLanguage" xml:space="preserve">
+    <value>Switch Language</value>
+  </data>
+  <data name="Pagination_First" xml:space="preserve">
+    <value>First</value>
+  </data>
+  <data name="Pagination_Last" xml:space="preserve">
+    <value>Last</value>
+  </data>
+  <data name="Pagination_Page" xml:space="preserve">
+    <value>Page</value>
+  </data>
+  <data name="Pagination_PerPage" xml:space="preserve">
+    <value>Per page</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Count" xml:space="preserve">
+    <value>Count</value>
+  </data>
+  <data name="Percentage" xml:space="preserve">
+    <value>Percentage</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>Summary</value>
+  </data>
+  <data name="Information" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>Success</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="Selected" xml:space="preserve">
+    <value>Selected</value>
+  </data>
+  <data name="HelpCenter" xml:space="preserve">
+    <value>Help Center</value>
+  </data>
+  <data name="GettingStarted" xml:space="preserve">
+    <value>Getting Started</value>
+  </data>
+  <data name="FAQ" xml:space="preserve">
+    <value>FAQ</value>
+  </data>
+  <data name="Glossary" xml:space="preserve">
+    <value>Glossary</value>
+  </data>
+  <data name="ContactSupport" xml:space="preserve">
+    <value>Contact Support</value>
+  </data>
+  <data name="TenantAdmin" xml:space="preserve">
+    <value>Tenant Admin</value>
+  </data>
+  <data name="CatalogAdmin" xml:space="preserve">
+    <value>Catalog Admin</value>
+  </data>
+  <data name="RoleDelegation" xml:space="preserve">
+    <value>Role Delegation</value>
+  </data>
+  <data name="WebhookLogs" xml:space="preserve">
+    <value>Webhook Logs</value>
+  </data>
+  <data name="Analytics" xml:space="preserve">
+    <value>Analytics</value>
+  </data>
+  <data name="RoleProfiles" xml:space="preserve">
+    <value>Role Profiles</value>
+  </data>
+  <data name="AssessmentTemplates" xml:space="preserve">
+    <value>Assessment Templates</value>
+  </data>
+  <data name="DocumentFlow" xml:space="preserve">
+    <value>Document Flow</value>
+  </data>
+  <data name="CCMTests" xml:space="preserve">
+    <value>CCM Tests</value>
+  </data>
+  <data name="KRIDashboard" xml:space="preserve">
+    <value>KRI/KPI Dashboard</value>
+  </data>
+  <data name="Exceptions" xml:space="preserve">
+    <value>Exceptions</value>
+  </data>
+  <data name="AuditPackages" xml:space="preserve">
+    <value>Audit Packages</value>
+  </data>
+  <data name="Invitations" xml:space="preserve">
+    <value>Invitations</value>
+  </data>
+  <data name="MyProfile" xml:space="preserve">
+    <value>My Profile</value>
+  </data>
+  <data name="IntegratedFlow" xml:space="preserve">
+    <value>Integrated Flow</value>
+  </data>
+  <data name="MAP_ControlLibrary" xml:space="preserve">
+    <value>MAP - Control Library</value>
+  </data>
+  <data name="APPLY_Scope" xml:space="preserve">
+    <value>APPLY - Scope</value>
+  </data>
+  <data name="PROVE_Evidence" xml:space="preserve">
+    <value>PROVE - Evidence</value>
+  </data>
+  <data name="WATCH_Monitoring" xml:space="preserve">
+    <value>WATCH - Monitoring</value>
+  </data>
+  <data name="FIX_Remediation" xml:space="preserve">
+    <value>FIX - Remediation</value>
+  </data>
+  <data name="VAULT_Repository" xml:space="preserve">
+    <value>VAULT - Repository</value>
+  </data>
+  <data name="AllWorkflows" xml:space="preserve">
+    <value>All Workflows</value>
+  </data>
+  <data name="ActiveWorkflows" xml:space="preserve">
+    <value>Active Workflows</value>
+  </data>
+  <data name="Nav_StartFreeTrial" xml:space="preserve">
+    <value>Start Free Trial</value>
+  </data>
+  <data name="AppName" xml:space="preserve">
+    <value>GRC Management System</value>
+  </data>
+  <data name="AppNameShort" xml:space="preserve">
+    <value>GRC</value>
+  </data>
+  <data name="Copyright" xml:space="preserve">
+    <value>All rights reserved</value>
+  </data>
+  <data name="Error_PageTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Error_Oops" xml:space="preserve">
+    <value>Oops!</value>
+  </data>
+  <data name="Error_404_Title" xml:space="preserve">
+    <value>Page Not Found</value>
+  </data>
+  <data name="Error_404_Message" xml:space="preserve">
+    <value>The page you're looking for doesn't exist or has been moved.</value>
+  </data>
+  <data name="Error_403_Title" xml:space="preserve">
+    <value>Access Denied</value>
+  </data>
+  <data name="Error_403_Message" xml:space="preserve">
+    <value>You don't have permission to access this resource. Contact your administrator if you believe this is an error.</value>
+  </data>
+  <data name="Error_401_Title" xml:space="preserve">
+    <value>Authentication Required</value>
+  </data>
+  <data name="Error_401_Message" xml:space="preserve">
+    <value>Please log in to access this page.</value>
+  </data>
+  <data name="Error_500_Title" xml:space="preserve">
+    <value>Something Went Wrong</value>
+  </data>
+  <data name="Error_500_Message" xml:space="preserve">
+    <value>We encountered an unexpected error. Our team has been notified and is working on it.</value>
+  </data>
+  <data name="Error_GoHome" xml:space="preserve">
+    <value>Go to Homepage</value>
+  </data>
+  <data name="Error_GoBack" xml:space="preserve">
+    <value>Go Back</value>
+  </data>
+  <data name="Error_NeedHelp" xml:space="preserve">
+    <value>Need Help?</value>
+  </data>
+  <data name="Error_Help_CheckUrl" xml:space="preserve">
+    <value>Check if the URL is correct</value>
+  </data>
+  <data name="Error_Help_ClearCache" xml:space="preserve">
+    <value>Clear your browser cache</value>
+  </data>
+  <data name="Error_Help_TryAgain" xml:space="preserve">
+    <value>Try again in a few moments</value>
+  </data>
+  <data name="Error_Help_ViewGuide" xml:space="preserve">
+    <value>View our help guide</value>
+  </data>
+  <data name="Error_ReferenceId" xml:space="preserve">
+    <value>Reference ID</value>
+  </data>
+  <data name="Error_StillNeedHelp" xml:space="preserve">
+    <value>Still need help? Contact us at</value>
+  </data>
+  <data name="Toast_Success" xml:space="preserve">
+    <value>Success</value>
+  </data>
+  <data name="Toast_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Toast_Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Toast_Info" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="Toast_SaveSuccess" xml:space="preserve">
+    <value>Changes saved successfully</value>
+  </data>
+  <data name="Toast_DeleteSuccess" xml:space="preserve">
+    <value>Item deleted successfully</value>
+  </data>
+  <data name="Toast_CreateSuccess" xml:space="preserve">
+    <value>Item created successfully</value>
+  </data>
+  <data name="Toast_UpdateSuccess" xml:space="preserve">
+    <value>Item updated successfully</value>
+  </data>
+  <data name="Toast_OperationFailed" xml:space="preserve">
+    <value>Operation failed. Please try again.</value>
+  </data>
+  <data name="Validation_Required" xml:space="preserve">
+    <value>This field is required</value>
+  </data>
+  <data name="Validation_InvalidEmail" xml:space="preserve">
+    <value>Please enter a valid email address</value>
+  </data>
+  <data name="Validation_InvalidPhone" xml:space="preserve">
+    <value>Please enter a valid phone number</value>
+  </data>
+  <data name="Validation_MinLength" xml:space="preserve">
+    <value>Minimum {0} characters required</value>
+  </data>
+  <data name="Validation_MaxLength" xml:space="preserve">
+    <value>Maximum {0} characters allowed</value>
+  </data>
+  <data name="Validation_PasswordMismatch" xml:space="preserve">
+    <value>Passwords do not match</value>
+  </data>
+  <data name="Validation_InvalidFormat" xml:space="preserve">
+    <value>Invalid format</value>
+  </data>
+  <data name="Processing" xml:space="preserve">
+    <value>Processing...</value>
+  </data>
+  <data name="Saving" xml:space="preserve">
+    <value>Saving...</value>
+  </data>
+  <data name="PleaseWait" xml:space="preserve">
+    <value>Please wait...</value>
+  </data>
+  <data name="Dashboard_CommandCenter" xml:space="preserve">
+    <value>Command Center</value>
+  </data>
+  <data name="Dashboard_IntegratedGrcSystem" xml:space="preserve">
+    <value>Integrated Governance, Risk, and Compliance System</value>
+  </data>
+  <data name="Dashboard_AllSystemsOperational" xml:space="preserve">
+    <value>All systems operational</value>
+  </data>
+  <data name="Dashboard_ComplianceRate" xml:space="preserve">
+    <value>Compliance Rate</value>
+  </data>
+  <data name="Dashboard_ActiveRisks" xml:space="preserve">
+    <value>Active Risks</value>
+  </data>
+  <data name="Dashboard_EffectiveControls" xml:space="preserve">
+    <value>Effective Controls</value>
+  </data>
+  <data name="Dashboard_PendingTasks" xml:space="preserve">
+    <value>Pending Tasks</value>
+  </data>
+  <data name="Dashboard_UploadedEvidence" xml:space="preserve">
+    <value>Uploaded Evidence</value>
+  </data>
+  <data name="Dashboard_ComplianceTrend" xml:space="preserve">
+    <value>Compliance Trend - Last 12 Months</value>
+  </data>
+  <data name="Dashboard_RiskHeatMap" xml:space="preserve">
+    <value>Risk Heat Map</value>
+  </data>
+  <data name="RiskLevel_Rare" xml:space="preserve">
+    <value>Rare</value>
+  </data>
+  <data name="RiskLevel_Unlikely" xml:space="preserve">
+    <value>Unlikely</value>
+  </data>
+  <data name="RiskLevel_Possible" xml:space="preserve">
+    <value>Possible</value>
+  </data>
+  <data name="RiskLevel_Likely" xml:space="preserve">
+    <value>Likely</value>
+  </data>
+  <data name="RiskLevel_AlmostCertain" xml:space="preserve">
+    <value>Almost Certain</value>
+  </data>
+  <data name="RiskLevel_Catastrophic" xml:space="preserve">
+    <value>Catastrophic</value>
+  </data>
+  <data name="ImpactLevel_Major" xml:space="preserve">
+    <value>Major</value>
+  </data>
+  <data name="ImpactLevel_Moderate" xml:space="preserve">
+    <value>Moderate</value>
+  </data>
+  <data name="ImpactLevel_Minor" xml:space="preserve">
+    <value>Minor</value>
+  </data>
+  <data name="ImpactLevel_Insignificant" xml:space="preserve">
+    <value>Insignificant</value>
+  </data>
+  <data name="RiskLevel_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="RiskLevel_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="RiskLevel_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="RiskLevel_Critical" xml:space="preserve">
+    <value>Critical</value>
+  </data>
+  <data name="Dashboard_OverallComplianceIndicator" xml:space="preserve">
+    <value>Overall Compliance Indicator</value>
+  </data>
+  <data name="Dashboard_ComplianceRateLabel" xml:space="preserve">
+    <value>Compliance Rate</value>
+  </data>
+  <data name="ComplianceStatus_Compliant" xml:space="preserve">
+    <value>Compliant</value>
+  </data>
+  <data name="ComplianceStatus_Partial" xml:space="preserve">
+    <value>Partial</value>
+  </data>
+  <data name="ComplianceStatus_NonCompliant" xml:space="preserve">
+    <value>Non-Compliant</value>
+  </data>
+  <data name="Dashboard_ShahinAIInsights" xml:space="preserve">
+    <value>Shahin AI Insights</value>
+  </data>
+  <data name="AI_SmartAnalysis" xml:space="preserve">
+    <value>Smart Analysis</value>
+  </data>
+  <data name="AI_EarlyWarning" xml:space="preserve">
+    <value>Early Warning</value>
+  </data>
+  <data name="AI_AnalysisConfidence" xml:space="preserve">
+    <value>Analysis Confidence</value>
+  </data>
+  <data name="Dashboard_RegulatoryFrameworkProgress" xml:space="preserve">
+    <value>Regulatory Framework Progress</value>
+  </data>
+  <data name="Dashboard_RecentActivity" xml:space="preserve">
+    <value>Recent Activity</value>
+  </data>
+  <data name="Dashboard_CriticalAlerts" xml:space="preserve">
+    <value>Critical Alerts</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="Dashboard_PendingTasksTitle" xml:space="preserve">
+    <value>Pending Tasks</value>
+  </data>
+  <data name="Task" xml:space="preserve">
+    <value>Task</value>
+  </data>
+  <data name="Priority_Urgent" xml:space="preserve">
+    <value>Urgent</value>
+  </data>
+  <data name="Priority_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="Priority_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="Tomorrow" xml:space="preserve">
+    <value>Tomorrow</value>
+  </data>
+  <data name="Days" xml:space="preserve">
+    <value>days</value>
+  </data>
+  <data name="Week" xml:space="preserve">
+    <value>week</value>
+  </data>
+  <data name="Ago" xml:space="preserve">
+    <value>ago</value>
+  </data>
+  <data name="Minutes" xml:space="preserve">
+    <value>minutes</value>
+  </data>
+  <data name="Hour" xml:space="preserve">
+    <value>hour</value>
+  </data>
+  <data name="By" xml:space="preserve">
+    <value>By</value>
+  </data>
+  <data name="NoDataAvailable" xml:space="preserve">
+    <value>No data available</value>
+  </data>
+  <data name="LoadingData" xml:space="preserve">
+    <value>Loading data...</value>
+  </data>
+  <data name="NewRisk" xml:space="preserve">
+    <value>New Risk</value>
+  </data>
+  <data name="NewControl" xml:space="preserve">
+    <value>New Control</value>
+  </data>
+  <data name="NewAssessment" xml:space="preserve">
+    <value>New Assessment</value>
+  </data>
+  <data name="WelcomeToGrc" xml:space="preserve">
+    <value>Welcome to the Governance, Risk, and Compliance Management System</value>
+  </data>
+  <data name="GrcPlatformDescription" xml:space="preserve">
+    <value>Comprehensive platform for managing governance, risk, and compliance</value>
+  </data>
+  <data name="PleaseLoginMessage" xml:space="preserve">
+    <value>Please log in to access the dashboard and manage your organization's governance, risk, and compliance activities.</value>
+  </data>
+  <data name="RiskManagement" xml:space="preserve">
+    <value>Risk Management</value>
+  </data>
+  <data name="RiskManagementDescription" xml:space="preserve">
+    <value>Identify, assess, and mitigate risks across your organization with our comprehensive risk management tools.</value>
+  </data>
+  <data name="ComplianceTracking" xml:space="preserve">
+    <value>Compliance Tracking</value>
+  </data>
+  <data name="ComplianceTrackingDescription" xml:space="preserve">
+    <value>Ensure compliance with regulatory requirements and internal policies through automated tracking and reporting.</value>
+  </data>
+  <data name="PerformanceAnalytics" xml:space="preserve">
+    <value>Performance Analytics</value>
+  </data>
+  <data name="PerformanceAnalyticsDescription" xml:space="preserve">
+    <value>Monitor your GRC performance with real-time dashboards and comprehensive analytics.</value>
+  </data>
+  <data name="WantToExplore" xml:space="preserve">
+    <value>Want to explore the platform first?</value>
+  </data>
+  <data name="TryDemo" xml:space="preserve">
+    <value>Try Demo (POC Tenant)</value>
+  </data>
+  <data name="DemoDescription" xml:space="preserve">
+    <value>Pre-configured Shahin-AI demo organization</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>Level</value>
+  </data>
+  <data name="AuditTitle" xml:space="preserve">
+    <value>Audit Title</value>
+  </data>
+  <data name="Internal" xml:space="preserve">
+    <value>Internal</value>
+  </data>
+  <data name="External" xml:space="preserve">
+    <value>External</value>
+  </data>
+  <data name="Mitigated" xml:space="preserve">
+    <value>Mitigated</value>
+  </data>
+  <data name="RiskMatrix" xml:space="preserve">
+    <value>Risk Matrix</value>
+  </data>
+  <data name="EvidenceManagement" xml:space="preserve">
+    <value>Evidence Management</value>
+  </data>
+  <data name="NewEvidence" xml:space="preserve">
+    <value>New Evidence</value>
+  </data>
+  <data name="ExpiringSoon" xml:space="preserve">
+    <value>Expiring Soon</value>
+  </data>
+  <data name="Probability" xml:space="preserve">
+    <value>Probability</value>
+  </data>
+  <data name="Impact" xml:space="preserve">
+    <value>Impact</value>
+  </data>
+  <data name="RiskScore" xml:space="preserve">
+    <value>Risk Score</value>
+  </data>
+  <data name="Collected" xml:space="preserve">
+    <value>Collected</value>
+  </data>
+  <data name="Expires" xml:space="preserve">
+    <value>Expires</value>
+  </data>
+  <data name="Classification" xml:space="preserve">
+    <value>Classification</value>
+  </data>
+  <data name="NoRecordsFound" xml:space="preserve">
+    <value>No records found</value>
+  </data>
+  <data name="Month_January" xml:space="preserve">
+    <value>January</value>
+  </data>
+  <data name="Month_February" xml:space="preserve">
+    <value>February</value>
+  </data>
+  <data name="Month_March" xml:space="preserve">
+    <value>March</value>
+  </data>
+  <data name="Month_April" xml:space="preserve">
+    <value>April</value>
+  </data>
+  <data name="Month_May" xml:space="preserve">
+    <value>May</value>
+  </data>
+  <data name="Month_June" xml:space="preserve">
+    <value>June</value>
+  </data>
+  <data name="Month_July" xml:space="preserve">
+    <value>July</value>
+  </data>
+  <data name="Month_August" xml:space="preserve">
+    <value>August</value>
+  </data>
+  <data name="Month_September" xml:space="preserve">
+    <value>September</value>
+  </data>
+  <data name="Month_October" xml:space="preserve">
+    <value>October</value>
+  </data>
+  <data name="Month_November" xml:space="preserve">
+    <value>November</value>
+  </data>
+  <data name="Month_December" xml:space="preserve">
+    <value>December</value>
+  </data>
+  <data name="Chart_ComplianceRate" xml:space="preserve">
+    <value>Compliance Rate</value>
+  </data>
+  <data name="Chart_Target" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="AI_OpportunityToImprove" xml:space="preserve">
+    <value>Opportunity to Improve Compliance</value>
+  </data>
+  <data name="AI_OpportunityToImproveText" xml:space="preserve">
+    <value>3 similar controls detected in NCA-ECC and SAMA-CSF frameworks. Evidence can be merged to reduce effort by 40%.</value>
+  </data>
+  <data name="AI_RenewalDateComing" xml:space="preserve">
+    <value>Renewal Date Coming</value>
+  </data>
+  <data name="AI_RenewalDateComingText" xml:space="preserve">
+    <value>ISO 27001 certificate expires in 45 days. It is recommended to start the renewal process now.</value>
+  </data>
+  <data name="AI_Confidence" xml:space="preserve">
+    <value>Analysis Confidence</value>
+  </data>
+  <data name="High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="Activity_EvidenceApproved" xml:space="preserve">
+    <value>Evidence #1247 approved</value>
+  </data>
+  <data name="Activity_NewRiskRegistered" xml:space="preserve">
+    <value>New risk registered - Data Breach</value>
+  </data>
+  <data name="Activity_PolicyUploaded" xml:space="preserve">
+    <value>Information Security Policy v2.1 uploaded</value>
+  </data>
+  <data name="Activity_AssessmentCompleted" xml:space="preserve">
+    <value>NCA-ECC control assessment completed</value>
+  </data>
+  <data name="Alert_CriticalControlNotApplied" xml:space="preserve">
+    <value>Critical control not applied</value>
+  </data>
+  <data name="Alert_ComplianceDeadlineMissed" xml:space="preserve">
+    <value>Compliance deadline missed</value>
+  </data>
+  <data name="Alert_TaskExpiringSoon" xml:space="preserve">
+    <value>Task expiring soon</value>
+  </data>
+  <data name="Alert_EvidenceExpired" xml:space="preserve">
+    <value>Evidence expired</value>
+  </data>
+  <data name="Alert_CriticalControlNotAppliedDesc" xml:space="preserve">
+    <value>Privileged Access Management - Must be addressed within 48 hours</value>
+  </data>
+  <data name="Alert_ComplianceDeadlineMissedDesc" xml:space="preserve">
+    <value>Periodic SAMA assessment is 5 days overdue</value>
+  </data>
+  <data name="Alert_TaskExpiringSoonDesc" xml:space="preserve">
+    <value>Privacy Policy Review - 2 days remaining</value>
+  </data>
+  <data name="Alert_EvidenceExpiredDesc" xml:space="preserve">
+    <value>3 evidence items need update - last review 6 months ago</value>
+  </data>
+  <data name="Task_ReviewAccessControls" xml:space="preserve">
+    <value>Review Access Controls</value>
+  </data>
+  <data name="Task_UpdateInformationSecurityPolicy" xml:space="preserve">
+    <value>Update Information Security Policy</value>
+  </data>
+  <data name="Task_ApproveTrainingGuide" xml:space="preserve">
+    <value>Approve Training Guide</value>
+  </data>
+  <data name="Task_ReviewMonthlyRiskReport" xml:space="preserve">
+    <value>Review Monthly Risk Report</value>
+  </data>
+  <data name="Task_AssessNewExternalVendor" xml:space="preserve">
+    <value>Assess New External Vendor</value>
+  </data>
+  <data name="Auth_LoginToGrc" xml:space="preserve">
+    <value>Login to GRC System</value>
+  </data>
+  <data name="Auth_CreateNewAccount" xml:space="preserve">
+    <value>Create New Account</value>
+  </data>
+  <data name="Auth_ForgotPasswordTitle" xml:space="preserve">
+    <value>Forgot your password?</value>
+  </data>
+  <data name="Auth_FirstName" xml:space="preserve">
+    <value>First Name</value>
+  </data>
+  <data name="Auth_LastName" xml:space="preserve">
+    <value>Last Name</value>
+  </data>
+  <data name="Auth_Department" xml:space="preserve">
+    <value>Department</value>
+  </data>
+  <data name="Auth_EmailPlaceholder" xml:space="preserve">
+    <value>email@example.com</value>
+  </data>
+  <data name="Auth_PasswordPlaceholder" xml:space="preserve">
+    <value>Enter your password</value>
+  </data>
+  <data name="Auth_PasswordCreatePlaceholder" xml:space="preserve">
+    <value>Create a strong password</value>
+  </data>
+  <data name="Auth_ConfirmPasswordPlaceholder" xml:space="preserve">
+    <value>Confirm your password</value>
+  </data>
+  <data name="Auth_StrongPasswordHint" xml:space="preserve">
+    <value>Password must be at least 6 characters long and contain uppercase, lowercase, numbers, and special characters.</value>
+  </data>
+  <data name="Auth_DontHaveAccount" xml:space="preserve">
+    <value>Don't have an account?</value>
+  </data>
+  <data name="Auth_RegisterHere" xml:space="preserve">
+    <value>Register here</value>
+  </data>
+  <data name="Auth_AlreadyHaveAccount" xml:space="preserve">
+    <value>Already have an account?</value>
+  </data>
+  <data name="Auth_LoginHere" xml:space="preserve">
+    <value>Login here</value>
+  </data>
+  <data name="Auth_ForgotTenantId" xml:space="preserve">
+    <value>Forgot your Tenant ID?</value>
+  </data>
+  <data name="Auth_EnterEmailReset" xml:space="preserve">
+    <value>Enter your email address and we will send you a link to reset your password.</value>
+  </data>
+  <data name="Auth_FirstNamePlaceholder" xml:space="preserve">
+    <value>John</value>
+  </data>
+  <data name="Auth_LastNamePlaceholder" xml:space="preserve">
+    <value>Doe</value>
+  </data>
+  <data name="Auth_DepartmentPlaceholder" xml:space="preserve">
+    <value>IT Department</value>
+  </data>
+  <data name="Auth_ResetPasswordSent" xml:space="preserve">
+    <value>Reset link sent</value>
+  </data>
+  <data name="Auth_ResetPasswordSentTitle" xml:space="preserve">
+    <value>Reset link sent</value>
+  </data>
+  <data name="Auth_ResetPasswordSentSuccess" xml:space="preserve">
+    <value>Sent successfully!</value>
+  </data>
+  <data name="Auth_ResetPasswordSentMessage" xml:space="preserve">
+    <value>Password reset link has been sent to your email address.</value>
+  </data>
+  <data name="Auth_CheckInbox" xml:space="preserve">
+    <value>Check your inbox</value>
+  </data>
+  <data name="Auth_CheckSpam" xml:space="preserve">
+    <value>Check spam/junk folder</value>
+  </data>
+  <data name="Auth_LinkValid24Hours" xml:space="preserve">
+    <value>Link is valid for 24 hours only</value>
+  </data>
+  <data name="Auth_BackToLogin" xml:space="preserve">
+    <value>Back to Login</value>
+  </data>
+  <data name="Auth_EmailNotReceived" xml:space="preserve">
+    <value>Email not received?</value>
+  </data>
+  <data name="Auth_WaitFewMinutes" xml:space="preserve">
+    <value>Wait a few minutes then</value>
+  </data>
+  <data name="Auth_TryAgain" xml:space="preserve">
+    <value>Try again</value>
+  </data>
+  <data name="Auth_PasswordResetSuccessful" xml:space="preserve">
+    <value>Password Reset Successful</value>
+  </data>
+  <data name="Auth_PasswordResetSuccessfulMessage" xml:space="preserve">
+    <value>Your password has been successfully reset. You can now log in with your new password.</value>
+  </data>
+  <data name="Auth_UseStrongPassword" xml:space="preserve">
+    <value>For security reasons, please use a strong password that includes uppercase letters, numbers, and special characters.</value>
+  </data>
+  <data name="Auth_LogInToYourAccount" xml:space="preserve">
+    <value>Log In to Your Account</value>
+  </data>
+  <data name="Auth_RememberPassword" xml:space="preserve">
+    <value>Remember your password?</value>
+  </data>
+  <data name="Auth_GoToLogin" xml:space="preserve">
+    <value>Go to login</value>
+  </data>
+  <data name="Auth_ContactSupport" xml:space="preserve">
+    <value>If you didn't request a password reset or have any concerns, please contact our support team.</value>
+  </data>
+  <data name="Auth_CurrentPassword" xml:space="preserve">
+    <value>Current Password</value>
+  </data>
+  <data name="Auth_NewPassword" xml:space="preserve">
+    <value>New Password</value>
+  </data>
+  <data name="Auth_PasswordMinLengthHint" xml:space="preserve">
+    <value>Password must be at least 6 characters long.</value>
+  </data>
+  <data name="Auth_BackToProfile" xml:space="preserve">
+    <value>Back to Profile</value>
+  </data>
+  <data name="Auth_ForgotTenantIdTitle" xml:space="preserve">
+    <value>Forgot Tenant ID</value>
+  </data>
+  <data name="Auth_EnterEmailRetrieveTenantId" xml:space="preserve">
+    <value>Enter your email address to retrieve your Tenant ID</value>
+  </data>
+  <data name="Auth_TenantIdFound" xml:space="preserve">
+    <value>Tenant ID Found!</value>
+  </data>
+  <data name="Auth_OrganizationName" xml:space="preserve">
+    <value>Organization Name:</value>
+  </data>
+  <data name="Auth_TenantIdLabel" xml:space="preserve">
+    <value>Tenant ID:</value>
+  </data>
+  <data name="Auth_Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="Auth_CopyTenantIdHint" xml:space="preserve">
+    <value>Copy this Tenant ID and use it to log in</value>
+  </data>
+  <data name="Auth_TenantSlug" xml:space="preserve">
+    <value>Tenant Slug:</value>
+  </data>
+  <data name="Auth_TenantIdNotFound" xml:space="preserve">
+    <value>Tenant ID not found.</value>
+  </data>
+  <data name="Auth_TenantIdNotFoundMessage" xml:space="preserve">
+    <value>We couldn't find a Tenant ID associated with this email address, or you don't have admin access. Please verify your email and password, or contact your system administrator for assistance.</value>
+  </data>
+  <data name="Auth_EnterEmailTenantAdmin" xml:space="preserve">
+    <value>Enter the email address associated with your tenant admin account</value>
+  </data>
+  <data name="Auth_EnterPasswordVerify" xml:space="preserve">
+    <value>Enter your password to verify your identity</value>
+  </data>
+  <data name="Auth_CredentialsTemporaryNote" xml:space="preserve">
+    <value>Note: These credentials are temporary and may expire. If your credentials have expired, please contact the system owner.</value>
+  </data>
+  <data name="Auth_FindTenantId" xml:space="preserve">
+    <value>Find Tenant ID</value>
+  </data>
+  <data name="Auth_BackToTenantAdminLogin" xml:space="preserve">
+    <value>Back to Tenant Admin Login</value>
+  </data>
+  <data name="Auth_ImportantNotes" xml:space="preserve">
+    <value>Important Notes:</value>
+  </data>
+  <data name="Note" xml:space="preserve">
+    <value>Note</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>Copied!</value>
+  </data>
+  <data name="Auth_ChangePasswordRequired" xml:space="preserve">
+    <value>Change Password Required</value>
+  </data>
+  <data name="Auth_PasswordChangeRequired" xml:space="preserve">
+    <value>Password Change Required</value>
+  </data>
+  <data name="Auth_MustChangePassword" xml:space="preserve">
+    <value>For security reasons, you must change your password before continuing.</value>
+  </data>
+  <data name="Auth_EnterCurrentPassword" xml:space="preserve">
+    <value>Enter your current password</value>
+  </data>
+  <data name="Auth_EnterNewPassword" xml:space="preserve">
+    <value>Enter a new password</value>
+  </data>
+  <data name="Auth_ConfirmNewPassword" xml:space="preserve">
+    <value>Confirm New Password</value>
+  </data>
+  <data name="Auth_ConfirmNewPasswordPlaceholder" xml:space="preserve">
+    <value>Confirm your new password</value>
+  </data>
+  <data name="Auth_PasswordMin8Chars" xml:space="preserve">
+    <value>Minimum 8 characters</value>
+  </data>
+  <data name="Auth_PasswordEncryptedSecure" xml:space="preserve">
+    <value>Your password is encrypted and secure</value>
+  </data>
+  <data name="Auth_AccountLocked" xml:space="preserve">
+    <value>Account Locked</value>
+  </data>
+  <data name="Auth_AccountLockedMessage" xml:space="preserve">
+    <value>Your account has been temporarily locked due to multiple failed login attempts.</value>
+  </data>
+  <data name="Auth_TryAgainLater" xml:space="preserve">
+    <value>Please try again later or contact support if you need immediate assistance.</value>
+  </data>
+  <data name="Auth_GoToHome" xml:space="preserve">
+    <value>Go to Home</value>
+  </data>
+  <data name="Auth_AccessDenied" xml:space="preserve">
+    <value>Access Denied</value>
+  </data>
+  <data name="Auth_AccessDeniedMessage" xml:space="preserve">
+    <value>You do not have permission to access this resource.</value>
+  </data>
+  <data name="Auth_ContactAdministrator" xml:space="preserve">
+    <value>If you believe you should have access to this page, please contact your system administrator.</value>
+  </data>
+  <data name="Auth_GoToDashboard" xml:space="preserve">
+    <value>Go to Dashboard</value>
+  </data>
+  <data name="Auth_TwoFactorAuthentication" xml:space="preserve">
+    <value>Two-Factor Authentication</value>
+  </data>
+  <data name="Auth_EnterAuthenticatorCode" xml:space="preserve">
+    <value>Your login is protected with an authenticator app. Enter your authenticator code below.</value>
+  </data>
+  <data name="Auth_TwoFactorCode" xml:space="preserve">
+    <value>Authenticator Code</value>
+  </data>
+  <data name="Auth_RememberMachine" xml:space="preserve">
+    <value>Remember this machine</value>
+  </data>
+  <data name="Auth_NoAccessToAuthenticator" xml:space="preserve">
+    <value>Don't have access to your authenticator device? You can log in with a recovery code.</value>
+  </data>
+  <data name="Auth_LoginWithRecoveryCode" xml:space="preserve">
+    <value>log in with a recovery code</value>
+  </data>
+  <data name="Auth_RecoveryCodeLogin" xml:space="preserve">
+    <value>Recovery Code Login</value>
+  </data>
+  <data name="Auth_RecoveryCodeLoginMessage" xml:space="preserve">
+    <value>You have requested to log in with a recovery code. This login will not be remembered until you provide an authenticator app code at login or disable 2FA and log in again.</value>
+  </data>
+  <data name="Auth_RecoveryCode" xml:space="preserve">
+    <value>Recovery Code</value>
+  </data>
+  <data name="Auth_VerifyMfa" xml:space="preserve">
+    <value>Two-Factor Verification</value>
+  </data>
+  <data name="Auth_VerificationCodeSent" xml:space="preserve">
+    <value>Verification code has been sent to your email</value>
+  </data>
+  <data name="Auth_VerificationCode" xml:space="preserve">
+    <value>Verification Code</value>
+  </data>
+  <data name="Auth_Verify" xml:space="preserve">
+    <value>Verify</value>
+  </data>
+  <data name="Auth_CodeValidFor" xml:space="preserve">
+    <value>Code is valid for:</value>
+  </data>
+  <data name="Auth_ResendCode" xml:space="preserve">
+    <value>Resend Code</value>
+  </data>
+  <data name="Auth_AccountProtectionPriority" xml:space="preserve">
+    <value>Protecting your account is our priority</value>
+  </data>
+  <data name="Auth_Expired" xml:space="preserve">
+    <value>Expired</value>
+  </data>
+  <data name="Auth_ManageProfile" xml:space="preserve">
+    <value>Manage Your Profile</value>
+  </data>
+  <data name="Auth_EmailCannotBeChanged" xml:space="preserve">
+    <value>Email cannot be changed</value>
+  </data>
+  <data name="Auth_PhoneNumber" xml:space="preserve">
+    <value>Phone Number</value>
+  </data>
+  <data name="Auth_SaveChanges" xml:space="preserve">
+    <value>Save Changes</value>
+  </data>
+  <data name="Auth_MyProfile" xml:space="preserve">
+    <value>My Profile</value>
+  </data>
+  <data name="Auth_ViewManageAccountSettings" xml:space="preserve">
+    <value>View and manage your account settings</value>
+  </data>
+  <data name="Auth_QuickActions" xml:space="preserve">
+    <value>Quick Actions</value>
+  </data>
+  <data name="Auth_MyInbox" xml:space="preserve">
+    <value>My Inbox</value>
+  </data>
+  <data name="Auth_MyTasks" xml:space="preserve">
+    <value>My Tasks</value>
+  </data>
+  <data name="Auth_AccountSettings" xml:space="preserve">
+    <value>Account Settings</value>
+  </data>
+  <data name="Auth_AssignedProfiles" xml:space="preserve">
+    <value>Assigned Profiles</value>
+  </data>
+  <data name="Auth_NoProfilesAssigned" xml:space="preserve">
+    <value>No profiles assigned yet.</value>
+  </data>
+  <data name="Auth_Permissions" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
+  <data name="Auth_NoPermissionsAssigned" xml:space="preserve">
+    <value>No permissions assigned.</value>
+  </data>
+  <data name="Auth_More" xml:space="preserve">
+    <value>more</value>
+  </data>
+  <data name="Auth_WorkflowRoles" xml:space="preserve">
+    <value>Workflow Roles</value>
+  </data>
+  <data name="Auth_NoWorkflowRolesAssigned" xml:space="preserve">
+    <value>No workflow roles assigned.</value>
+  </data>
+  <data name="Auth_NotificationPreferences" xml:space="preserve">
+    <value>Notification Preferences</value>
+  </data>
+  <data name="Auth_EmailNotifications" xml:space="preserve">
+    <value>Email Notifications</value>
+  </data>
+  <data name="Auth_SmsNotifications" xml:space="preserve">
+    <value>SMS Notifications</value>
+  </data>
+  <data name="Auth_InAppNotifications" xml:space="preserve">
+    <value>In-App Notifications</value>
+  </data>
+  <data name="Auth_Digest" xml:space="preserve">
+    <value>Digest:</value>
+  </data>
+  <data name="Auth_Immediate" xml:space="preserve">
+    <value>Immediate</value>
+  </data>
+  <data name="Auth_Daily" xml:space="preserve">
+    <value>Daily</value>
+  </data>
+  <data name="Auth_Weekly" xml:space="preserve">
+    <value>Weekly</value>
+  </data>
+  <data name="Auth_LoginV2Title" xml:space="preserve">
+    <value>Login (V2 - Enhanced Security)</value>
+  </data>
+  <data name="Auth_LoginEnhancedSecurity" xml:space="preserve">
+    <value>Login - Enhanced Security</value>
+  </data>
+  <data name="Auth_EnhancedSecurityInfo" xml:space="preserve">
+    <value>Enhanced Security: This login uses crypto-safe session management and structured logging.</value>
+  </data>
+  <data name="Auth_LoginEnhanced" xml:space="preserve">
+    <value>Login (Enhanced)</value>
+  </data>
+  <data name="Auth_RegisterAsNewUser" xml:space="preserve">
+    <value>Register as a new user</value>
+  </data>
+  <data name="Auth_DemoLogin" xml:space="preserve">
+    <value>Demo Login (Development Only)</value>
+  </data>
+  <data name="Auth_V2Enhancements" xml:space="preserve">
+    <value>V2 Enhancements:</value>
+  </data>
+  <data name="Auth_SessionBasedAuth" xml:space="preserve">
+    <value>Session-based authentication (no DB claims)</value>
+  </data>
+  <data name="Auth_StructuredLogging" xml:space="preserve">
+    <value>Structured logging (no file I/O)</value>
+  </data>
+  <data name="Auth_EnhancedSecurityMonitoring" xml:space="preserve">
+    <value>Enhanced security monitoring</value>
+  </data>
+  <data name="Auth_DeterministicTenantResolution" xml:space="preserve">
+    <value>Deterministic tenant resolution</value>
+  </data>
+  <data name="Auth_SwitchToLegacyLogin" xml:space="preserve">
+    <value>Switch to Legacy Login</value>
+  </data>
+  <data name="Auth_TenantAdminLoginTitle" xml:space="preserve">
+    <value>Tenant Admin Login</value>
+  </data>
+  <data name="Auth_EnterTenantIdUsernamePassword" xml:space="preserve">
+    <value>Enter your Tenant ID, Username, and Password to access onboarding</value>
+  </data>
+  <data name="Auth_TenantIdProvided" xml:space="preserve">
+    <value>Your Tenant ID was provided when your account was created.</value>
+  </data>
+  <data name="Auth_TenantIdPlaceholder" xml:space="preserve">
+    <value>00000000-0000-0000-0000-000000000000</value>
+  </data>
+  <data name="Auth_UsernamePlaceholder" xml:space="preserve">
+    <value>admin-tenant-slug</value>
+  </data>
+  <data name="Auth_LoginToOnboarding" xml:space="preserve">
+    <value>Login to Onboarding</value>
+  </data>
+  <data name="Auth_BackToRegularLogin" xml:space="preserve">
+    <value>Back to Regular Login</value>
+  </data>
+  <data name="Auth_TenantLoginV2Title" xml:space="preserve">
+    <value>Tenant Login (V2 - Session-Based Claims)</value>
+  </data>
+  <data name="Auth_TenantLoginEnhanced" xml:space="preserve">
+    <value>Tenant Login - Enhanced</value>
+  </data>
+  <data name="Auth_SessionBasedTenantClaims" xml:space="preserve">
+    <value>Enhanced Security: This login uses session-based tenant claims (not persisted to database).</value>
+  </data>
+  <data name="Auth_Tenant" xml:space="preserve">
+    <value>Tenant:</value>
+  </data>
+  <data name="Auth_TenantSlugLabel" xml:space="preserve">
+    <value>Tenant Slug (Optional)</value>
+  </data>
+  <data name="Auth_TenantSlugPlaceholder" xml:space="preserve">
+    <value>tenant-slug</value>
+  </data>
+  <data name="Auth_RoleLabel" xml:space="preserve">
+    <value>Role (Optional)</value>
+  </data>
+  <data name="Auth_SelectRole" xml:space="preserve">
+    <value>-- Select Role --</value>
+  </data>
+  <data name="Auth_LoginToTenantEnhanced" xml:space="preserve">
+    <value>Login to Tenant (Enhanced)</value>
+  </data>
+  <data name="Auth_RegularLogin" xml:space="preserve">
+    <value>Regular Login</value>
+  </data>
+  <data name="Auth_V2SessionBasedClaims" xml:space="preserve">
+    <value>V2 Session-Based Claims:</value>
+  </data>
+  <data name="Auth_TenantContextInSession" xml:space="preserve">
+    <value>Tenant context stored in session (NOT database)</value>
+  </data>
+  <data name="Auth_FixesClaimsBug" xml:space="preserve">
+    <value>Fixes bug: Claims no longer persist to AspNetUserClaims table</value>
+  </data>
+  <data name="Auth_FasterTenantSwitching" xml:space="preserve">
+    <value>Faster tenant switching</value>
+  </data>
+  <data name="Auth_NoDatabaseOverhead" xml:space="preserve">
+    <value>No database overhead for tenant context</value>
+  </data>
+  <data name="Auth_SwitchToLegacyTenantLogin" xml:space="preserve">
+    <value>Switch to Legacy Tenant Login</value>
+  </data>
+  <data name="Landing_Title" xml:space="preserve">
+    <value>Shahin Platform - Governance, Risk, and Compliance System</value>
+  </data>
+  <data name="Landing_MetaDescription" xml:space="preserve">
+    <value>Shahin Platform - Integrated system for managing governance, risk, and compliance for Saudi Arabia. Compatible with Vision 2030 and supports 130+ regulatory bodies.</value>
+  </data>
+  <data name="Landing_HeroBadge" xml:space="preserve">
+    <value>Leading GRC Platform in the Kingdom</value>
+  </data>
+  <data name="Landing_HeroTitle" xml:space="preserve">
+    <value>Compliance Management</value>
+  </data>
+  <data name="Landing_HeroTitleAI" xml:space="preserve">
+    <value>with Artificial Intelligence</value>
+  </data>
+  <data name="Landing_HeroTitleFor" xml:space="preserve">
+    <value>for Saudi Organizations</value>
+  </data>
+  <data name="Landing_HeroSubtitle" xml:space="preserve">
+    <value>Integrated platform for managing governance, risk, and compliance with full support for Saudi regulatory frameworks and national cybersecurity standards</value>
+  </data>
+  <data name="Landing_StartFreeTrial" xml:space="preserve">
+    <value>Start Your Free Trial</value>
+  </data>
+  <data name="Landing_BookDemo" xml:space="preserve">
+    <value>Book a Demo</value>
+  </data>
+  <data name="Landing_RegulatoryBodies" xml:space="preserve">
+    <value>Regulatory Bodies</value>
+  </data>
+  <data name="Landing_LocalAndInternational" xml:space="preserve">
+    <value>Local and International</value>
+  </data>
+  <data name="Landing_Frameworks" xml:space="preserve">
+    <value>Regulatory Frameworks</value>
+  </data>
+  <data name="Landing_CertifiedAndUpdated" xml:space="preserve">
+    <value>Certified and Updated</value>
+  </data>
+  <data name="Landing_Controls" xml:space="preserve">
+    <value>Controls</value>
+  </data>
+  <data name="Landing_ReadyToApply" xml:space="preserve">
+    <value>Ready to Apply</value>
+  </data>
+  <data name="Landing_AIAgents" xml:space="preserve">
+    <value>AI Agents</value>
+  </data>
+  <data name="Landing_Specialized" xml:space="preserve">
+    <value>Specialized</value>
+  </data>
+  <data name="Landing_Challenges" xml:space="preserve">
+    <value>Challenges</value>
+  </data>
+  <data name="Landing_DoYouFaceTheseChallenges" xml:space="preserve">
+    <value>Do you face these challenges?</value>
+  </data>
+  <data name="Landing_MostSaudiOrganizations" xml:space="preserve">
+    <value>Most Saudi organizations face the same challenges in managing compliance and risk</value>
+  </data>
+  <data name="Landing_DataFragmentation" xml:space="preserve">
+    <value>Data Fragmentation</value>
+  </data>
+  <data name="Landing_DataFragmentationDesc" xml:space="preserve">
+    <value>Compliance information scattered across Excel files, emails, and various folders</value>
+  </data>
+  <data name="Landing_TimeWaste" xml:space="preserve">
+    <value>Time Waste</value>
+  </data>
+  <data name="Landing_TimeWasteDesc" xml:space="preserve">
+    <value>Long hours wasted manually collecting evidence and searching for documents for audits</value>
+  </data>
+  <data name="Landing_ComplianceRisks" xml:space="preserve">
+    <value>Compliance Risks</value>
+  </data>
+  <data name="Landing_ComplianceRisksDesc" xml:space="preserve">
+    <value>Large financial fines and reputational damage from not tracking regulatory requirements</value>
+  </data>
+  <data name="Landing_SkillsGap" xml:space="preserve">
+    <value>Skills Gap</value>
+  </data>
+  <data name="Landing_SkillsGapDesc" xml:space="preserve">
+    <value>Difficulty finding qualified compliance experts and high cost of training and recruitment</value>
+  </data>
+  <data name="Landing_ShahinSolvesAll" xml:space="preserve">
+    <value>Shahin platform solves all these challenges in one integrated platform</value>
+  </data>
+  <data name="Landing_Features" xml:space="preserve">
+    <value>Features</value>
+  </data>
+  <data name="Landing_EverythingYouNeed" xml:space="preserve">
+    <value>Everything you need in one platform</value>
+  </data>
+  <data name="Landing_ComprehensivePlatform" xml:space="preserve">
+    <value>Comprehensive platform for managing governance, risk, and compliance with integrated tools for all your organization's requirements</value>
+  </data>
+  <data name="Landing_ComplianceManagement" xml:space="preserve">
+    <value>Compliance Management</value>
+  </data>
+  <data name="Landing_ComplianceManagementDesc" xml:space="preserve">
+    <value>Comprehensive compliance tracking with all Saudi and international regulatory frameworks</value>
+  </data>
+  <data name="Landing_RiskManagement" xml:space="preserve">
+    <value>Risk Management</value>
+  </data>
+  <data name="Landing_RiskManagementDesc" xml:space="preserve">
+    <value>Professional risk assessment and analysis with interactive heat maps</value>
+  </data>
+  <data name="Landing_AuditManagement" xml:space="preserve">
+    <value>Audit Management</value>
+  </data>
+  <data name="Landing_AuditManagementDesc" xml:space="preserve">
+    <value>Efficient planning and execution of internal and external audit operations</value>
+  </data>
+  <data name="Landing_WorkflowEngine" xml:space="preserve">
+    <value>Workflow Engine</value>
+  </data>
+  <data name="Landing_WorkflowEngineDesc" xml:space="preserve">
+    <value>Process and approval automation with advanced workflow engine</value>
+  </data>
+  <data name="Landing_PolicyManagement" xml:space="preserve">
+    <value>Policy Management</value>
+  </data>
+  <data name="Landing_PolicyManagementDesc" xml:space="preserve">
+    <value>Create, distribute, and track policies and regulatory procedures</value>
+  </data>
+  <data name="Landing_VendorManagement" xml:space="preserve">
+    <value>Vendor Management</value>
+  </data>
+  <data name="Landing_VendorManagementDesc" xml:space="preserve">
+    <value>Assess and track third-party and vendor risks</value>
+  </data>
+  <data name="Landing_SmartAlerts" xml:space="preserve">
+    <value>Smart Alerts</value>
+  </data>
+  <data name="Landing_SmartAlertsDesc" xml:space="preserve">
+    <value>Automatic notifications and alerts for deadlines and due tasks</value>
+  </data>
+  <data name="Landing_ActionPlans" xml:space="preserve">
+    <value>Action Plans</value>
+  </data>
+  <data name="Landing_ActionPlansDesc" xml:space="preserve">
+    <value>Manage and track remediation plans and continuous improvement</value>
+  </data>
+  <data name="Landing_RegulatoryFrameworks" xml:space="preserve">
+    <value>Regulatory Frameworks</value>
+  </data>
+  <data name="Landing_RegulatoryFrameworksDesc" xml:space="preserve">
+    <value>Comprehensive library of Saudi and international regulatory frameworks</value>
+  </data>
+  <data name="Landing_AdvancedSecurity" xml:space="preserve">
+    <value>Advanced Security</value>
+  </data>
+  <data name="Landing_AdvancedSecurityDesc" xml:space="preserve">
+    <value>Advanced encryption and multi-level access control</value>
+  </data>
+  <data name="Landing_Integration" xml:space="preserve">
+    <value>Integration</value>
+  </data>
+  <data name="Landing_IntegrationDesc" xml:space="preserve">
+    <value>Easy integration with existing systems and cybersecurity tools</value>
+  </data>
+  <data name="Landing_Dashboards" xml:space="preserve">
+    <value>Dashboards</value>
+  </data>
+  <data name="Landing_DashboardsDesc" xml:space="preserve">
+    <value>Interactive dashboards with advanced reports and charts</value>
+  </data>
+  <data name="Landing_LearnMore" xml:space="preserve">
+    <value>Learn More</value>
+  </data>
+  <data name="Landing_WhyShahin" xml:space="preserve">
+    <value>Why Shahin?</value>
+  </data>
+  <data name="Landing_WhatMakesUsDifferent" xml:space="preserve">
+    <value>What makes us different</value>
+  </data>
+  <data name="Landing_ShahinDesignedForSaudi" xml:space="preserve">
+    <value>Shahin platform is specifically designed for the Saudi market with advanced technologies you won't find in any other platform</value>
+  </data>
+  <data name="Landing_Contact" xml:space="preserve">
+    <value>Contact Us</value>
+  </data>
+  <data name="Landing_ContactTitle" xml:space="preserve">
+    <value>We'd love to hear from you</value>
+  </data>
+  <data name="Landing_ContactSubtitle" xml:space="preserve">
+    <value>Whether you have a question, suggestion, or want to learn more about our services, our team is ready to help you.</value>
+  </data>
+  <data name="Landing_ContactMethods" xml:space="preserve">
+    <value>Contact Methods</value>
+  </data>
+  <data name="Landing_Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Landing_FAQ" xml:space="preserve">
+    <value>Frequently Asked Questions</value>
+  </data>
+  <data name="Landing_FAQTitle" xml:space="preserve">
+    <value>How can we help you?</value>
+  </data>
+  <data name="Landing_FAQSubtitle" xml:space="preserve">
+    <value>Answers to the most common questions about Shahin platform</value>
+  </data>
+  <data name="Landing_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Landing_Terms" xml:space="preserve">
+    <value>Terms and Conditions</value>
+  </data>
+  <data name="Landing_TermsTitle" xml:space="preserve">
+    <value>Terms and Conditions</value>
+  </data>
+  <data name="Landing_TermsSubtitle" xml:space="preserve">
+    <value>Agreement for using Shahin platform for governance, risk, and compliance management</value>
+  </data>
+  <data name="Landing_LastUpdated" xml:space="preserve">
+    <value>Last Updated:</value>
+  </data>
+  <data name="Landing_Privacy" xml:space="preserve">
+    <value>Privacy Policy</value>
+  </data>
+  <data name="Landing_PrivacyTitle" xml:space="preserve">
+    <value>Your Privacy is Our Priority</value>
+  </data>
+  <data name="Landing_PrivacySubtitle" xml:space="preserve">
+    <value>We adhere to the highest data protection standards in accordance with Saudi and international regulations</value>
+  </data>
+  <data name="Landing_PrivacyAndSecurity" xml:space="preserve">
+    <value>Privacy and Security</value>
+  </data>
+  <data name="Landing_LegalAgreement" xml:space="preserve">
+    <value>Legal Agreement</value>
+  </data>
+  <data name="Risk_Create" xml:space="preserve">
+    <value>Create Risk</value>
+  </data>
+  <data name="Risk_CreateNew" xml:space="preserve">
+    <value>Create New Risk</value>
+  </data>
+  <data name="Risk_Edit" xml:space="preserve">
+    <value>Edit Risk</value>
+  </data>
+  <data name="Risk_Details" xml:space="preserve">
+    <value>Risk Details</value>
+  </data>
+  <data name="Risk_Delete" xml:space="preserve">
+    <value>Delete Risk</value>
+  </data>
+  <data name="Risk_DeleteWarning" xml:space="preserve">
+    <value>Warning! Are you sure you want to delete this risk? This action cannot be undone.</value>
+  </data>
+  <data name="Risk_SelectCategory" xml:space="preserve">
+    <value>Select Category</value>
+  </data>
+  <data name="Risk_Category_Financial" xml:space="preserve">
+    <value>Financial</value>
+  </data>
+  <data name="Risk_Category_Operational" xml:space="preserve">
+    <value>Operational</value>
+  </data>
+  <data name="Risk_Category_Strategic" xml:space="preserve">
+    <value>Strategic</value>
+  </data>
+  <data name="Risk_Category_Compliance" xml:space="preserve">
+    <value>Compliance</value>
+  </data>
+  <data name="Risk_Category_Reputational" xml:space="preserve">
+    <value>Reputational</value>
+  </data>
+  <data name="Risk_Category_Technology" xml:space="preserve">
+    <value>Technology</value>
+  </data>
+  <data name="Risk_Category_Security" xml:space="preserve">
+    <value>Security</value>
+  </data>
+  <data name="Risk_Probability_VeryLow" xml:space="preserve">
+    <value>Very Low (1)</value>
+  </data>
+  <data name="Risk_Probability_Low" xml:space="preserve">
+    <value>Low (2)</value>
+  </data>
+  <data name="Risk_Probability_Medium" xml:space="preserve">
+    <value>Medium (3)</value>
+  </data>
+  <data name="Risk_Probability_High" xml:space="preserve">
+    <value>High (4)</value>
+  </data>
+  <data name="Risk_Probability_VeryHigh" xml:space="preserve">
+    <value>Very High (5)</value>
+  </data>
+  <data name="Risk_Impact_Negligible" xml:space="preserve">
+    <value>Negligible (1)</value>
+  </data>
+  <data name="Risk_Impact_Minor" xml:space="preserve">
+    <value>Minor (2)</value>
+  </data>
+  <data name="Risk_Impact_Moderate" xml:space="preserve">
+    <value>Moderate (3)</value>
+  </data>
+  <data name="Risk_Impact_Major" xml:space="preserve">
+    <value>Major (4)</value>
+  </data>
+  <data name="Risk_Impact_Catastrophic" xml:space="preserve">
+    <value>Catastrophic (5)</value>
+  </data>
+  <data name="Risk_MitigationStrategy" xml:space="preserve">
+    <value>Mitigation Strategy</value>
+  </data>
+  <data name="Risk_Owner" xml:space="preserve">
+    <value>Owner</value>
+  </data>
+  <data name="Risk_DueDate" xml:space="preserve">
+    <value>Due Date</value>
+  </data>
+  <data name="Risk_BackToList" xml:space="preserve">
+    <value>Back to List</value>
+  </data>
+  <data name="Risk_YesDelete" xml:space="preserve">
+    <value>Yes, Delete</value>
+  </data>
+  <data name="Risk_Overdue" xml:space="preserve">
+    <value>Overdue</value>
+  </data>
+  <data name="Risk_NotSet" xml:space="preserve">
+    <value>Not set</value>
+  </data>
+  <data name="Risk_CreatedDate" xml:space="preserve">
+    <value>Created Date</value>
+  </data>
+  <data name="Risk_LastModified" xml:space="preserve">
+    <value>Last Modified</value>
+  </data>
+  <data name="Risk_RiskPosition" xml:space="preserve">
+    <value>Risk Position</value>
+  </data>
+  <data name="Risk_AddControl" xml:space="preserve">
+    <value>Add Control</value>
+  </data>
+  <data name="Risk_ScheduleAssessment" xml:space="preserve">
+    <value>Schedule Assessment</value>
+  </data>
+  <data name="Risk_GenerateReport" xml:space="preserve">
+    <value>Generate Report</value>
+  </data>
+  <data name="Risk_RiskId" xml:space="preserve">
+    <value>Risk ID:</value>
+  </data>
+  <data name="Risk_RiskName" xml:space="preserve">
+    <value>Risk Name:</value>
+  </data>
+  <data name="Risk_RiskOwner" xml:space="preserve">
+    <value>Risk Owner:</value>
+  </data>
+  <data name="Risk_InherentRiskScore" xml:space="preserve">
+    <value>Inherent Risk Score:</value>
+  </data>
+  <data name="Risk_ResidualRiskScore" xml:space="preserve">
+    <value>Residual Risk Score:</value>
+  </data>
+  <data name="Risk_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="Risk_VeryLowRisk" xml:space="preserve">
+    <value>Very Low Risk</value>
+  </data>
+  <data name="Risk_LowRisk" xml:space="preserve">
+    <value>Low Risk</value>
+  </data>
+  <data name="Risk_MediumRisk" xml:space="preserve">
+    <value>Medium Risk</value>
+  </data>
+  <data name="Risk_HighRisk" xml:space="preserve">
+    <value>High Risk</value>
+  </data>
+  <data name="Risk_CriticalRisk" xml:space="preserve">
+    <value>Critical Risk</value>
+  </data>
+
+  <!-- ============================================================================
+       ONBOARDING WIZARD - Professional GRC Setup
+       ============================================================================ -->
+
+  <!-- Common Wizard Elements -->
+  <data name="Onboarding_TotalQuestions" xml:space="preserve">
+    <value>Complete all required fields</value>
+  </data>
+  <data name="Onboarding_StepIndicator" xml:space="preserve">
+    <value>Step {0} of {1}</value>
+  </data>
+  <data name="Onboarding_SelectCountry" xml:space="preserve">
+    <value>Select Country</value>
+  </data>
+  <data name="Onboarding_SelectType" xml:space="preserve">
+    <value>Select Type</value>
+  </data>
+  <data name="Onboarding_SelectSector" xml:space="preserve">
+    <value>Select Industry Sector</value>
+  </data>
+  <data name="Onboarding_SaveAndExit_Confirm" xml:space="preserve">
+    <value>Your progress will be saved. You can continue later from where you left off.</value>
+  </data>
+
+  <!-- Buttons -->
+  <data name="Button_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Button_SaveContinueLater" xml:space="preserve">
+    <value>Save &amp; Continue Later</value>
+  </data>
+  <data name="Button_SaveContinueToStepB" xml:space="preserve">
+    <value>Save &amp; Continue to Compliance</value>
+  </data>
+  <data name="Button_Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Button_CompleteSetup" xml:space="preserve">
+    <value>Complete Setup</value>
+  </data>
+
+  <!-- Step A: Organization Identity -->
+  <data name="Onboarding_StepA_Title" xml:space="preserve">
+    <value>Organization Identity</value>
+  </data>
+  <data name="Onboarding_StepA_Heading" xml:space="preserve">
+    <value>Organization Identity &amp; Profile</value>
+  </data>
+  <data name="Onboarding_StepA_Questions" xml:space="preserve">
+    <value>Tell us about your organization</value>
+  </data>
+  <data name="Onboarding_StepA_LegalName_Header" xml:space="preserve">
+    <value>Legal Entity Information</value>
+  </data>
+  <data name="Onboarding_StepA_LegalNameEn_Label" xml:space="preserve">
+    <value>Legal Name (English)</value>
+  </data>
+  <data name="Onboarding_StepA_LegalNameEn_Placeholder" xml:space="preserve">
+    <value>Enter organization's official legal name</value>
+  </data>
+  <data name="Onboarding_StepA_LegalNameAr_Label" xml:space="preserve">
+    <value>Legal Name (Arabic)</value>
+  </data>
+  <data name="Onboarding_StepA_LegalNameAr_Placeholder" xml:space="preserve">
+    <value>أدخل الاسم القانوني الرسمي</value>
+  </data>
+  <data name="Onboarding_StepA_TradeName_Label" xml:space="preserve">
+    <value>Trade Name / Brand Name</value>
+  </data>
+  <data name="Onboarding_StepA_TradeName_Placeholder" xml:space="preserve">
+    <value>Enter trade or brand name if different</value>
+  </data>
+  <data name="Onboarding_StepA_Geographic_Header" xml:space="preserve">
+    <value>Geographic &amp; Operational Presence</value>
+  </data>
+  <data name="Onboarding_StepA_Country_Label" xml:space="preserve">
+    <value>Country of Incorporation</value>
+  </data>
+  <data name="Onboarding_StepA_HqLocation_Label" xml:space="preserve">
+    <value>Headquarters Location</value>
+  </data>
+  <data name="Onboarding_StepA_HqLocation_Placeholder" xml:space="preserve">
+    <value>City, Region</value>
+  </data>
+  <data name="Onboarding_StepA_Timezone_Label" xml:space="preserve">
+    <value>Default Timezone</value>
+  </data>
+  <data name="Onboarding_StepA_OperatingCountries_Label" xml:space="preserve">
+    <value>Countries of Operation</value>
+  </data>
+  <data name="Onboarding_StepA_OrgType_Header" xml:space="preserve">
+    <value>Organization Type &amp; Industry Classification</value>
+  </data>
+  <data name="Onboarding_StepA_OrgType_Label" xml:space="preserve">
+    <value>Organization Type</value>
+  </data>
+  <data name="Onboarding_StepA_Industry_Label" xml:space="preserve">
+    <value>Primary Industry Sector</value>
+  </data>
+  <data name="Onboarding_StepA_BusinessLines_Label" xml:space="preserve">
+    <value>Business Lines / Services</value>
+  </data>
+  <data name="Onboarding_StepA_Communication_Header" xml:space="preserve">
+    <value>Communication &amp; Domain Verification</value>
+  </data>
+  <data name="Onboarding_StepA_PrimaryLanguage_Label" xml:space="preserve">
+    <value>Primary Communication Language</value>
+  </data>
+  <data name="Onboarding_StepA_DomainVerification_Label" xml:space="preserve">
+    <value>Domain Verification Method</value>
+  </data>
+  <data name="Onboarding_StepA_EmailDomains_Label" xml:space="preserve">
+    <value>Corporate Email Domains</value>
+  </data>
+  <data name="Onboarding_StepA_EmailDomain_Placeholder" xml:space="preserve">
+    <value>company.com</value>
+  </data>
+  <data name="Onboarding_StepA_AddDomain" xml:space="preserve">
+    <value>Add Another Domain</value>
+  </data>
+  <data name="Onboarding_StepA_DataResidency_Header" xml:space="preserve">
+    <value>Data Residency &amp; Sovereignty</value>
+  </data>
+  <data name="Onboarding_StepA_DataResidency_Label" xml:space="preserve">
+    <value>Organization has data residency requirements</value>
+  </data>
+  <data name="Onboarding_StepA_DataResidency_Help" xml:space="preserve">
+    <value>Enable if your organization must store data within specific geographic boundaries</value>
+  </data>
+  <data name="Onboarding_StepA_DataResidencyCountries_Label" xml:space="preserve">
+    <value>Required Data Residency Locations</value>
+  </data>
+
+  <!-- Countries -->
+  <data name="Country_SA" xml:space="preserve">
+    <value>Saudi Arabia</value>
+  </data>
+  <data name="Country_AE" xml:space="preserve">
+    <value>United Arab Emirates</value>
+  </data>
+  <data name="Country_QA" xml:space="preserve">
+    <value>Qatar</value>
+  </data>
+  <data name="Country_KW" xml:space="preserve">
+    <value>Kuwait</value>
+  </data>
+  <data name="Country_BH" xml:space="preserve">
+    <value>Bahrain</value>
+  </data>
+  <data name="Country_OM" xml:space="preserve">
+    <value>Oman</value>
+  </data>
+  <data name="Country_EG" xml:space="preserve">
+    <value>Egypt</value>
+  </data>
+  <data name="Country_JO" xml:space="preserve">
+    <value>Jordan</value>
+  </data>
+
+  <!-- Organization Types -->
+  <data name="OrgType_Enterprise" xml:space="preserve">
+    <value>Enterprise (1000+ employees)</value>
+  </data>
+  <data name="OrgType_SME" xml:space="preserve">
+    <value>SME (50-999 employees)</value>
+  </data>
+  <data name="OrgType_Startup" xml:space="preserve">
+    <value>Startup (Under 50 employees)</value>
+  </data>
+  <data name="OrgType_Government" xml:space="preserve">
+    <value>Government / Public Sector</value>
+  </data>
+  <data name="OrgType_RegulatedFI" xml:space="preserve">
+    <value>Regulated Financial Institution</value>
+  </data>
+  <data name="OrgType_Fintech" xml:space="preserve">
+    <value>Fintech / Digital Finance</value>
+  </data>
+  <data name="OrgType_Telecom" xml:space="preserve">
+    <value>Telecommunications Provider</value>
+  </data>
+  <data name="OrgType_Healthcare" xml:space="preserve">
+    <value>Healthcare Provider</value>
+  </data>
+  <data name="OrgType_Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+
+  <!-- Industry Sectors -->
+  <data name="Industry_Banking" xml:space="preserve">
+    <value>Banking &amp; Financial Services</value>
+  </data>
+  <data name="Industry_Insurance" xml:space="preserve">
+    <value>Insurance</value>
+  </data>
+  <data name="Industry_Healthcare" xml:space="preserve">
+    <value>Healthcare &amp; Life Sciences</value>
+  </data>
+  <data name="Industry_Telecom" xml:space="preserve">
+    <value>Telecommunications</value>
+  </data>
+  <data name="Industry_Energy" xml:space="preserve">
+    <value>Energy &amp; Utilities</value>
+  </data>
+  <data name="Industry_Government" xml:space="preserve">
+    <value>Government &amp; Public Sector</value>
+  </data>
+  <data name="Industry_Retail" xml:space="preserve">
+    <value>Retail &amp; Consumer</value>
+  </data>
+  <data name="Industry_Technology" xml:space="preserve">
+    <value>Technology &amp; Software</value>
+  </data>
+  <data name="Industry_Manufacturing" xml:space="preserve">
+    <value>Manufacturing</value>
+  </data>
+  <data name="Industry_Education" xml:space="preserve">
+    <value>Education</value>
+  </data>
+  <data name="Industry_RealEstate" xml:space="preserve">
+    <value>Real Estate &amp; Construction</value>
+  </data>
+  <data name="Industry_Transportation" xml:space="preserve">
+    <value>Transportation &amp; Logistics</value>
+  </data>
+  <data name="Industry_Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+
+  <!-- Languages -->
+  <data name="Language_Bilingual" xml:space="preserve">
+    <value>Bilingual (English &amp; Arabic)</value>
+  </data>
+  <data name="Language_EnglishOnly" xml:space="preserve">
+    <value>English Only</value>
+  </data>
+  <data name="Language_ArabicOnly" xml:space="preserve">
+    <value>Arabic Only</value>
+  </data>
+
+  <!-- Domain Verification -->
+  <data name="DomainVerification_AdminEmail" xml:space="preserve">
+    <value>Admin Email Verification</value>
+  </data>
+  <data name="DomainVerification_DNS" xml:space="preserve">
+    <value>DNS TXT Record</value>
+  </data>
+
+  <!-- Theme & Mobile -->
+  <data name="Shared_Theme_ToggleDarkMode" xml:space="preserve">
+    <value>Toggle Dark/Light Mode</value>
+  </data>
+  <data name="Shared_Mobile_Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Shared_Mobile_Inbox" xml:space="preserve">
+    <value>Inbox</value>
+  </data>
+  <data name="Shared_Mobile_Assessments" xml:space="preserve">
+    <value>Assessments</value>
+  </data>
+  <data name="Shared_Mobile_Risks" xml:space="preserve">
+    <value>Risks</value>
+  </data>
+  <data name="Shared_Mobile_More" xml:space="preserve">
+    <value>More</value>
+  </data>
+
+</root>

@@ -1,0 +1,380 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@{
+    ViewData["Title"] = "GRC Program Definition";
+    Layout = "_Layout";
+
+    var tenantId = ViewBag.TenantId as Guid?;
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-diagram-3"></i> @L["GRCProgramDefinition"]</h2>
+            <p class="text-muted">@L["DefineAndStructureGRCPrograms"]</p>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Initiatives" class="btn btn-outline-primary">
+                <i class="bi bi-list-check"></i> @L["Initiatives"]
+            </a>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createProgramModal">
+                <i class="bi bi-plus-circle"></i> @L["NewProgram"]
+            </button>
+        </div>
+    </div>
+
+    <!-- Program Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="opacity-75">@L["ActivePrograms"]</h6>
+                    <h2 class="mb-0">5</h2>
+                    <small>@L["CurrentlyRunning"]</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="opacity-75">@L["TotalInitiatives"]</h6>
+                    <h2 class="mb-0">23</h2>
+                    <small>@L["AcrossAllPrograms"]</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="opacity-75">@L["TotalBudget"]</h6>
+                    <h2 class="mb-0">$2.5M</h2>
+                    <small>@L["AnnualAllocation"]</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark shadow-sm">
+                <div class="card-body text-center">
+                    <h6>@L["OverallProgress"]</h6>
+                    <h2 class="mb-0">68%</h2>
+                    <small>@L["Completion"]</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Programs -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-folder-open"></i> @L["ActiveGRCPrograms"]</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>@L["Program"]</th>
+                                    <th>@L["Scope"]</th>
+                                    <th>@L["Owner"]</th>
+                                    <th>@L["Initiatives"]</th>
+                                    <th>@L["Budget"]</th>
+                                    <th>@L["Progress"]</th>
+                                    <th>@L["Status"]</th>
+                                    <th>@L["Actions"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <strong><i class="bi bi-shield-check"></i> ISO 27001 Certification Program</strong>
+                                        <br /><small class="text-muted">@L["Started"]: Jan 2026</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">Enterprise-wide</span>
+                                    </td>
+                                    <td>Sarah Johnson</td>
+                                    <td><span class="badge bg-info">8 initiatives</span></td>
+                                    <td>$450K</td>
+                                    <td>
+                                        <div class="progress" style="width: 100px; height: 20px;">
+                                            <div class="progress-bar bg-success" style="width: 75%">75%</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-success">@L["OnTrack"]</span></td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a asp-action="Initiatives" asp-route-programId="1" class="btn btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-action="Budget" asp-route-programId="1" class="btn btn-outline-secondary">
+                                                <i class="bi bi-cash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong><i class="bi bi-exclamation-triangle"></i> Risk Management Enhancement</strong>
+                                        <br /><small class="text-muted">@L["Started"]: Mar 2026</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">IT & Operations</span>
+                                    </td>
+                                    <td>Michael Chen</td>
+                                    <td><span class="badge bg-info">5 initiatives</span></td>
+                                    <td>$320K</td>
+                                    <td>
+                                        <div class="progress" style="width: 100px; height: 20px;">
+                                            <div class="progress-bar bg-info" style="width: 60%">60%</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-success">@L["OnTrack"]</span></td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a asp-action="Initiatives" asp-route-programId="2" class="btn btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-action="Budget" asp-route-programId="2" class="btn btn-outline-secondary">
+                                                <i class="bi bi-cash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong><i class="bi bi-check-square"></i> Compliance Automation</strong>
+                                        <br /><small class="text-muted">@L["Started"]: Feb 2026</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">Legal & Compliance</span>
+                                    </td>
+                                    <td>Emily Rodriguez</td>
+                                    <td><span class="badge bg-info">4 initiatives</span></td>
+                                    <td>$280K</td>
+                                    <td>
+                                        <div class="progress" style="width: 100px; height: 20px;">
+                                            <div class="progress-bar bg-warning" style="width: 45%">45%</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-warning text-dark">@L["AtRisk"]</span></td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a asp-action="Initiatives" asp-route-programId="3" class="btn btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-action="Budget" asp-route-programId="3" class="btn btn-outline-secondary">
+                                                <i class="bi bi-cash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong><i class="bi bi-shield-lock"></i> Business Continuity Program</strong>
+                                        <br /><small class="text-muted">@L["Started"]: Apr 2026</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">Operations</span>
+                                    </td>
+                                    <td>David Kim</td>
+                                    <td><span class="badge bg-info">3 initiatives</span></td>
+                                    <td>$220K</td>
+                                    <td>
+                                        <div class="progress" style="width: 100px; height: 20px;">
+                                            <div class="progress-bar bg-success" style="width: 82%">82%</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-success">@L["OnTrack"]</span></td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a asp-action="Initiatives" asp-route-programId="4" class="btn btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-action="Budget" asp-route-programId="4" class="btn btn-outline-secondary">
+                                                <i class="bi bi-cash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong><i class="bi bi-stars"></i> GRC Maturity Excellence</strong>
+                                        <br /><small class="text-muted">@L["Started"]: May 2026</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">Enterprise-wide</span>
+                                    </td>
+                                    <td>Lisa Anderson</td>
+                                    <td><span class="badge bg-info">3 initiatives</span></td>
+                                    <td>$180K</td>
+                                    <td>
+                                        <div class="progress" style="width: 100px; height: 20px;">
+                                            <div class="progress-bar bg-primary" style="width: 55%">55%</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-success">@L["OnTrack"]</span></td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a asp-action="Initiatives" asp-route-programId="5" class="btn btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-action="Budget" asp-route-programId="5" class="btn btn-outline-secondary">
+                                                <i class="bi bi-cash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Program Structure -->
+    <div class="row">
+        <div class="col-lg-6 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-pie-chart"></i> @L["ProgramsByScope"]</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="scopeChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="bi bi-bar-chart-line"></i> @L["BudgetAllocation"]</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="budgetChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Program Modal -->
+<div class="modal fade" id="createProgramModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">@L["CreateNewGRCProgram"]</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">@L["ProgramName"] *</label>
+                        <input type="text" class="form-control" name="Name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@L["Description"]</label>
+                        <textarea class="form-control" name="Description" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@L["Scope"] *</label>
+                            <select class="form-select" name="Scope" required>
+                                <option value="">@L["SelectScope"]</option>
+                                <option value="Enterprise">@L["Enterprise-wide"]</option>
+                                <option value="IT">@L["IT&Technology"]</option>
+                                <option value="Operations">@L["Operations"]</option>
+                                <option value="Legal">@L["Legal&Compliance"]</option>
+                                <option value="Finance">@L["Finance"]</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@L["ProgramOwner"] *</label>
+                            <input type="text" class="form-control" name="Owner" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@L["StartDate"] *</label>
+                            <input type="date" class="form-control" name="StartDate" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@L["TargetEndDate"]</label>
+                            <input type="date" class="form-control" name="EndDate">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@L["AnnualBudget"]</label>
+                        <input type="number" class="form-control" name="Budget" placeholder="0.00" step="1000">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@L["Cancel"]</button>
+                    <button type="submit" class="btn btn-primary">@L["CreateProgram"]</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Scope Chart
+        const scopeCtx = document.getElementById('scopeChart').getContext('2d');
+        new Chart(scopeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Enterprise-wide', 'IT & Technology', 'Operations', 'Legal & Compliance'],
+                datasets: [{
+                    data: [2, 1, 1, 1],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 206, 86, 0.8)',
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(153, 102, 255, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Budget Chart
+        const budgetCtx = document.getElementById('budgetChart').getContext('2d');
+        new Chart(budgetCtx, {
+            type: 'bar',
+            data: {
+                labels: ['ISO 27001', 'Risk Mgmt', 'Compliance', 'BC Program', 'Maturity'],
+                datasets: [{
+                    label: 'Budget ($K)',
+                    data: [450, 320, 280, 220, 180],
+                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value + 'K';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

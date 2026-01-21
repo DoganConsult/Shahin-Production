@@ -1,0 +1,61 @@
+/* ActivityFeed CSS Isolation */
+
+.activity-item[b-gedoqkon1z] {
+    transition: background-color 0.15s ease;
+}
+
+.activity-item:hover[b-gedoqkon1z] {
+    background-color: var(--bs-gray-100);
+}
+
+.activity-icon[b-gedoqkon1z] {
+    transition: transform 0.2s ease;
+}
+
+.activity-item:hover .activity-icon[b-gedoqkon1z] {
+    transform: scale(1.1);
+}
+
+.activity-time[b-gedoqkon1z] {
+    font-variant-numeric: tabular-nums;
+}
+
+.activity-link[b-gedoqkon1z] {
+    text-decoration: none;
+    color: inherit;
+}
+
+.activity-link:hover[b-gedoqkon1z] {
+    color: var(--bs-primary);
+}
+
+/* Animation for new activities */
+.activity-item.new[b-gedoqkon1z] {
+    animation: fadeInSlide-b-gedoqkon1z 0.3s ease-out;
+}
+
+@keyframes fadeInSlide-b-gedoqkon1z {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+[dir="rtl"] .activity-item.new[b-gedoqkon1z] {
+    animation-name: fadeInSlideRtl-b-gedoqkon1z;
+}
+
+@keyframes fadeInSlideRtl-b-gedoqkon1z {
+    from {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

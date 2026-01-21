@@ -1,0 +1,271 @@
+@page "/risks/{id:guid}/edit"
+@using GrcMvc.Models.DTOs
+@using GrcMvc.Services.Interfaces
+@using GrcMvc.Services.Mappers
+@inject NavigationManager NavManager
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IRiskService RiskService
+
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
+
+<PageTitle>@(currentCulture == "ar" ? "تعديل المخاطرة" : "Edit Risk")</PageTitle>
+
+<div dir="@dir" class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6">Edit Risk</h1>
+            <p class="text-muted">Update risk information and tracking</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/risks" class="btn btn-outline-secondary">Back to Risk Register</a>
+        </div>
+    </div>
+
+    @if (risk == null && !string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="row">
+            <div class="col-12">
+                <ErrorAlert Message="@errorMessage" Severity="danger" Title="Error Loading Risk" ShowDismiss="false" />
+                <div class="mt-3">
+                    <a href="/risks" class="btn btn-outline-secondary">Back to Risk Register</a>
+                </div>
+            </div>
+        </div>
+    }
+    else if (risk != null)
+    {
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Risk Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <ErrorAlert Message="@errorMessage" Severity="danger" ShowDismiss="true" />
+                        
+                        <div class="alert alert-light">
+                            <h6>Risk Identification</h6>
+                            <p class="mb-1">
+                                <strong>Risk Number:</strong>
+                                <span class="font-monospace">@risk.RiskNumber</span>
+                                (Auto-generated)
+                            </p>
+                            <p class="mb-0">
+                                <strong>Created:</strong> @risk.CreatedDate.ToString("MMM dd, yyyy hh:mm tt")
+                            </p>
+                        </div>
+
+                        <form @onsubmit="HandleUpdateRisk">
+                            <div class="mb-3">
+                                <label class="form-label">Risk Title <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" @bind="risk.Title" required />
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Category <span class="text-danger">*</span></label>
+                                    <select class="form-select" @bind="risk.Category" required>
+                                        <option value="Operational">Operational</option>
+                                        <option value="Compliance">Compliance</option>
+                                        <option value="Strategic">Strategic</option>
+                                        <option value="Financial">Financial</option>
+                                        <option value="Reputational">Reputational</option>
+                                        <option value="Technology">Technology</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Status <span class="text-danger">*</span></label>
+                                    <select class="form-select" @bind="risk.Status">
+                                        <option value="Open">Open</option>
+                                        <option value="Mitigated">Mitigated</option>
+                                        <option value="Accepted">Accepted</option>
+                                        <option value="Closed">Closed</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Description <span class="text-danger">*</span></label>
+                                <textarea class="form-control" rows="4" @bind="risk.Description" required></textarea>
+                            </div>
+
+                            <div class="card bg-light mb-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Risk Scoring</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Inherent Score (1-25)</label>
+                                            <input type="number" class="form-control" min="1" max="25"
+                                                @bind="risk.InherentScore" />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Residual Score (1-25)</label>
+                                            <input type="number" class="form-control" min="1" max="25"
+                                                @bind="risk.ResidualScore" />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Impact Level</label>
+                                            <select class="form-select" @bind="risk.Impact">
+                                                <option value="Low">Low</option>
+                                                <option value="Medium">Medium</option>
+                                                <option value="High">High</option>
+                                                <option value="Critical">Critical</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Likelihood</label>
+                                            <select class="form-select" @bind="risk.Likelihood">
+                                                <option value="Low">Low</option>
+                                                <option value="Medium">Medium</option>
+                                                <option value="High">High</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Responsible Party</label>
+                                    <input type="text" class="form-control" @bind="risk.ResponsibleParty" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Owner</label>
+                                    <input type="text" class="form-control" @bind="risk.Owner" />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Identified Date</label>
+                                    <input type="date" class="form-control" @bind="risk.IdentifiedDate" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Target Closure Date</label>
+                                    <input type="date" class="form-control" @bind="risk.TargetClosureDate" />
+                                </div>
+                            </div>
+
+                            @if (risk.Status == "Closed" && risk.ClosedDate.HasValue)
+                            {
+                                <div class="mb-3">
+                                    <label class="form-label">Closed Date</label>
+                                    <input type="date" class="form-control" @bind="risk.ClosedDate" />
+                                </div>
+                            }
+
+                            <div class="mb-3">
+                                <label class="form-label">Consequence Area</label>
+                                <input type="text" class="form-control" @bind="risk.ConsequenceArea" />
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-outline-secondary"
+                                @onclick="NavigateBack">Cancel</button>
+                                <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                                    @if (isSubmitting)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"
+                                            aria-hidden="true"></span>
+                                        <span>Saving...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Save Changes</span>
+                                    }
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card bg-warning-subtle mb-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">📊 Mitigations</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="small">@risk.Description.Substring(0, Math.Min(100, risk.Description.Length))...</p>
+                        <a href="#" class="btn btn-sm btn-outline-primary">View Mitigations (@risk.MitigationCount)</a>
+                        <a href="#" class="btn btn-sm btn-outline-primary">Add Mitigation</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private RiskEditDto? risk;
+    private bool isSubmitting = false;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Load from service
+            var serviceRiskResult = await RiskService.GetByIdAsync(Id);
+            
+            if (serviceRiskResult.IsFailure || serviceRiskResult.Value == null)
+            {
+                // Risk not found - could redirect or show error
+                // For now, set risk to null and UI will handle
+                risk = null;
+                errorMessage = serviceRiskResult.Error ?? "Risk not found";
+                return;
+            }
+
+            // Convert Service DTO to UI DTO
+            risk = RiskDtoMapper.ToEditDto(serviceRiskResult.Value);
+        }
+        catch (Exception ex)
+        {
+            // Log error
+            risk = null;
+            errorMessage = $"Error loading risk: {ex.Message}";
+        }
+    }
+
+    private void NavigateBack() => NavManager.NavigateTo("/risks");
+
+    private async Task HandleUpdateRisk()
+    {
+        if (risk == null) return;
+
+        isSubmitting = true;
+        try
+        {
+            // Convert UI DTO to Service DTO
+            var updateDto = RiskDtoMapper.ToUpdateDto(risk);
+            
+            // Call service to update
+            await RiskService.UpdateAsync(Id, updateDto);
+
+            // Navigate back to list
+            NavManager.NavigateTo("/risks");
+        }
+        catch (Exception ex)
+        {
+            // Log error
+            errorMessage = $"Error updating risk: {ex.Message}";
+            // Stay on page so user can see error and retry
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

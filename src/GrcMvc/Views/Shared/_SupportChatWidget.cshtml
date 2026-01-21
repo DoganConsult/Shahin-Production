@@ -1,0 +1,488 @@
+@* Support Chat Widget - AI-Powered User Assistance *@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using GrcMvc.Resources
+@inject IHtmlLocalizer<SharedResource> L
+
+<!-- Floating Chat Button -->
+<div id="supportChatButton" class="position-fixed" style="bottom: 20px; right: 20px; z-index: 9999;">
+    <button class="btn btn-primary btn-lg rounded-circle shadow-lg" onclick="toggleSupportChat()"
+            style="width: 60px; height: 60px;" title="@L["Shared_Chat_Help"]">
+        <i class="fas fa-headset fa-lg" id="chatIcon"></i>
+    </button>
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="chatBadge" style="display: none;">
+        1
+    </span>
+</div>
+
+<!-- Chat Window -->
+<div id="supportChatWindow" class="position-fixed shadow-lg rounded"
+     style="bottom: 90px; right: 20px; width: 380px; height: 500px; z-index: 9998; display: none; background: white; border: 1px solid #ddd;">
+
+    <!-- Chat Header -->
+    <div class="bg-primary text-white p-3 rounded-top d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <div class="bg-white rounded-circle p-2 me-2">
+                <i class="fas fa-robot text-primary"></i>
+            </div>
+            <div>
+                <strong>@L["Shared_Chat_Assistant"]</strong>
+                <small class="d-block opacity-75">@L["Shared_Chat_Online"]</small>
+            </div>
+        </div>
+        <div>
+            <button class="btn btn-sm btn-outline-light me-1" onclick="escalateToHuman()" title="@L["Shared_Chat_TransferHuman"]">
+                <i class="fas fa-user"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-light" onclick="toggleSupportChat()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat Messages -->
+    <div id="chatMessages" class="p-3" style="height: 350px; overflow-y: auto; background: #f8f9fa;">
+        <!-- Messages will be inserted here -->
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="border-top p-2 bg-light">
+        <div class="d-flex flex-wrap gap-1">
+            <button class="btn btn-outline-secondary btn-sm" onclick="sendQuickMessage('@L["Shared_Chat_QuickToS"]')">
+                <i class="fas fa-file-contract me-1"></i>@L["Shared_Chat_QuickToS"]
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="sendQuickMessage('@L["Shared_Chat_QuickPrivacy"]')">
+                <i class="fas fa-shield-alt me-1"></i>@L["Shared_Chat_QuickPrivacy"]
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="sendQuickMessage('@L["Shared_Chat_QuickStart"]')">
+                <i class="fas fa-play me-1"></i>@L["Shared_Chat_QuickStart"]
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="border-top p-2">
+        <div class="input-group">
+            <input type="text" id="chatInput" class="form-control" placeholder="@L["Shared_Chat_InputPlaceholder"]"
+                   onkeypress="if(event.key === 'Enter') sendMessage()">
+            <button class="btn btn-primary" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Terms of Service Modal -->
+<div class="modal fade" id="tosModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-file-contract me-2"></i>@L["Shared_Chat_ToS"]</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="max-height: 60vh;">
+                <div class="mb-4">
+                    <h4>Terms of Service</h4>
+                    <p class="text-muted">Version 1.0 | Effective Date: January 1, 2026</p>
+                </div>
+
+                <h5>1. Acceptance of Terms</h5>
+                <p>By accessing and using the GRC Management System ("Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.</p>
+
+                <h5>2. Account Responsibilities</h5>
+                <p>You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You must immediately notify us of any unauthorized use.</p>
+
+                <h5>3. Data Protection Compliance</h5>
+                <p>You agree to comply with all applicable data protection laws, including the Saudi Personal Data Protection Law (PDPL). You must ensure that any data you enter into the system is collected and processed lawfully.</p>
+
+                <h5>4. Acceptable Use</h5>
+                <p>The Service must be used only for legitimate GRC (Governance, Risk, and Compliance) purposes. Prohibited activities include:</p>
+                <ul>
+                    <li>Unauthorized access attempts</li>
+                    <li>Data misuse or unauthorized sharing</li>
+                    <li>Violation of any applicable laws or regulations</li>
+                    <li>Interference with service operation</li>
+                </ul>
+
+                <h5>5. Intellectual Property</h5>
+                <p>All platform content, features, and functionality are protected by intellectual property laws. You may not copy, modify, or distribute any part of the Service without authorization.</p>
+
+                <h5>6. Service Availability</h5>
+                <p>We strive for 99.9% uptime but may perform scheduled maintenance. We are not liable for any temporary unavailability.</p>
+
+                <h5>7. Termination</h5>
+                <p>Either party may terminate the agreement with 30 days written notice. Upon termination, your access will be revoked and data will be handled according to our data retention policy.</p>
+
+                <h5>8. Limitation of Liability</h5>
+                <p>The Service is provided "as is" without warranties of any kind. We shall not be liable for any indirect, incidental, or consequential damages.</p>
+
+                <h5>9. Governing Law</h5>
+                <p>These terms are governed by the laws of the Kingdom of Saudi Arabia. Any disputes shall be resolved in the courts of Riyadh.</p>
+
+                <hr class="my-4">
+
+                <h4 class="text-end" dir="rtl">شروط الخدمة</h4>
+                <p class="text-end text-muted" dir="rtl">الإصدار 1.0 | تاريخ السريان: 1 يناير 2026</p>
+
+                <h5 class="text-end" dir="rtl">1. قبول الشروط</h5>
+                <p class="text-end" dir="rtl">بالوصول إلى نظام إدارة الحوكمة والمخاطر والامتثال واستخدامه، فإنك توافق على الالتزام بشروط الخدمة هذه.</p>
+
+                <h5 class="text-end" dir="rtl">2. مسؤوليات الحساب</h5>
+                <p class="text-end" dir="rtl">أنت مسؤول عن الحفاظ على سرية بيانات اعتماد حسابك وعن جميع الأنشطة التي تتم تحت حسابك.</p>
+
+                <h5 class="text-end" dir="rtl">3. الامتثال لحماية البيانات</h5>
+                <p class="text-end" dir="rtl">أنت توافق على الامتثال لجميع قوانين حماية البيانات المعمول بها، بما في ذلك نظام حماية البيانات الشخصية السعودي (PDPL).</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@L["Close"]</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Privacy Policy Modal -->
+<div class="modal fade" id="privacyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-shield-alt me-2"></i>@L["Shared_Chat_PrivacyPolicy"]</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="max-height: 60vh;">
+                <div class="mb-4">
+                    <h4>Privacy Policy</h4>
+                    <p class="text-muted">Version 1.0 | Effective Date: January 1, 2026</p>
+                </div>
+
+                <h5>1. Data Collection</h5>
+                <p>We collect only the data necessary for providing GRC services:</p>
+                <ul>
+                    <li><strong>Account Information:</strong> Name, email, organization details</li>
+                    <li><strong>Organization Profile:</strong> Sector, size, compliance maturity</li>
+                    <li><strong>Compliance Data:</strong> Assessment results, evidence, control status</li>
+                    <li><strong>Usage Data:</strong> Login times, feature usage for improvement</li>
+                </ul>
+
+                <h5>2. Data Processing</h5>
+                <p>Your data is processed in the Kingdom of Saudi Arabia and stored on secure, encrypted servers. We implement:</p>
+                <ul>
+                    <li>AES-256 encryption at rest</li>
+                    <li>TLS 1.3 encryption in transit</li>
+                    <li>Role-based access controls</li>
+                    <li>Regular security audits</li>
+                </ul>
+
+                <h5>3. Data Sharing</h5>
+                <p>We do not sell your data. Third-party sharing is limited to:</p>
+                <ul>
+                    <li>Cloud infrastructure providers (under strict DPA)</li>
+                    <li>Regulatory authorities (when legally required)</li>
+                    <li>Auditors (with your consent)</li>
+                </ul>
+
+                <h5>4. Your Rights (PDPL Compliance)</h5>
+                <p>Under PDPL, you have the right to:</p>
+                <ul>
+                    <li><strong>Access:</strong> Request a copy of your personal data</li>
+                    <li><strong>Correction:</strong> Request correction of inaccurate data</li>
+                    <li><strong>Deletion:</strong> Request deletion of your data</li>
+                    <li><strong>Portability:</strong> Receive your data in a portable format</li>
+                    <li><strong>Objection:</strong> Object to certain processing activities</li>
+                </ul>
+
+                <h5>5. Data Retention</h5>
+                <p>Data is retained as long as your account is active, plus 7 years for regulatory compliance purposes. After this period, data is securely deleted.</p>
+
+                <h5>6. Contact</h5>
+                <p>For privacy inquiries, contact our Data Protection Officer at: dpo@grc-system.sa</p>
+
+                <hr class="my-4">
+
+                <h4 class="text-end" dir="rtl">سياسة الخصوصية</h4>
+                <p class="text-end text-muted" dir="rtl">الإصدار 1.0 | تاريخ السريان: 1 يناير 2026</p>
+
+                <h5 class="text-end" dir="rtl">1. جمع البيانات</h5>
+                <p class="text-end" dir="rtl">نجمع فقط البيانات الضرورية لتقديم خدمات الحوكمة والمخاطر والامتثال.</p>
+
+                <h5 class="text-end" dir="rtl">2. معالجة البيانات</h5>
+                <p class="text-end" dir="rtl">تتم معالجة بياناتك في المملكة العربية السعودية وتخزينها على خوادم مشفرة وآمنة.</p>
+
+                <h5 class="text-end" dir="rtl">3. حقوقك (الامتثال لنظام PDPL)</h5>
+                <p class="text-end" dir="rtl">بموجب نظام حماية البيانات الشخصية، لديك الحق في الوصول والتصحيح والحذف ونقل البيانات.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@L["Close"]</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    #supportChatWindow {
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @@keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .chat-message {
+        max-width: 85%;
+        margin-bottom: 10px;
+        padding: 10px 15px;
+        border-radius: 15px;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .chat-message.user {
+        background: #0d6efd;
+        color: white;
+        margin-left: auto;
+        border-bottom-right-radius: 5px;
+    }
+
+    .chat-message.agent {
+        background: white;
+        border: 1px solid #ddd;
+        margin-right: auto;
+        border-bottom-left-radius: 5px;
+    }
+
+    .chat-message.system {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        margin: 0 auto;
+        text-align: center;
+        font-size: 0.85rem;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .typing-indicator {
+        display: flex;
+        gap: 5px;
+        padding: 10px;
+    }
+
+    .typing-indicator span {
+        width: 8px;
+        height: 8px;
+        background: #999;
+        border-radius: 50%;
+        animation: typing 1.4s infinite ease-in-out;
+    }
+
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+    @@keyframes typing {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-10px); }
+    }
+</style>
+
+<script>
+    let conversationId = null;
+    let chatOpen = false;
+
+    function toggleSupportChat() {
+        const chatWindow = document.getElementById('supportChatWindow');
+        const chatIcon = document.getElementById('chatIcon');
+        const chatBadge = document.getElementById('chatBadge');
+
+        chatOpen = !chatOpen;
+        chatWindow.style.display = chatOpen ? 'block' : 'none';
+        chatIcon.className = chatOpen ? 'fas fa-times fa-lg' : 'fas fa-headset fa-lg';
+        chatBadge.style.display = 'none';
+
+        if (chatOpen && !conversationId) {
+            startConversation();
+        }
+    }
+
+    async function startConversation() {
+        try {
+            const response = await fetch('/api/support/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                conversationId = data.id;
+                loadMessages();
+            } else {
+                // Fallback: show welcome message locally
+                addMessage('agent', getWelcomeMessage());
+            }
+        } catch (error) {
+            addMessage('agent', getWelcomeMessage());
+        }
+    }
+
+    function getWelcomeMessage() {
+        return `مرحباً بك في نظام GRC! 👋
+
+أنا مساعدك الذكي، يمكنني مساعدتك في:
+• فهم شروط الخدمة وسياسة الخصوصية
+• إكمال عملية التسجيل
+• الإجابة على استفساراتك
+
+كيف يمكنني مساعدتك اليوم؟`;
+    }
+
+    function addMessage(type, content) {
+        const messagesDiv = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${type}`;
+        // XSS Prevention: Use textContent to safely render user input
+        // For newlines, split and append text nodes with <br> elements
+        const lines = content.split('\n');
+        lines.forEach((line, index) => {
+            messageDiv.appendChild(document.createTextNode(line));
+            if (index < lines.length - 1) {
+                messageDiv.appendChild(document.createElement('br'));
+            }
+        });
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        const messagesDiv = document.getElementById('chatMessages');
+        const indicator = document.createElement('div');
+        indicator.id = 'typingIndicator';
+        indicator.className = 'typing-indicator';
+        indicator.innerHTML = '<span></span><span></span><span></span>';
+        messagesDiv.appendChild(indicator);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+        const indicator = document.getElementById('typingIndicator');
+        if (indicator) indicator.remove();
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        if (!message) return;
+
+        input.value = '';
+        addMessage('user', message);
+        showTypingIndicator();
+
+        try {
+            const response = await fetch('/api/support/message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ conversationId, content: message })
+            });
+
+            hideTypingIndicator();
+
+            if (response.ok) {
+                const data = await response.json();
+                addMessage('agent', data.agentResponse);
+            } else {
+                // Fallback: local response
+                const localResponse = getLocalResponse(message);
+                addMessage('agent', localResponse);
+            }
+        } catch (error) {
+            hideTypingIndicator();
+            const localResponse = getLocalResponse(message);
+            addMessage('agent', localResponse);
+        }
+    }
+
+    function sendQuickMessage(message) {
+        document.getElementById('chatInput').value = message;
+        sendMessage();
+    }
+
+    function getLocalResponse(message) {
+        const lower = message.toLowerCase();
+
+        if (lower.includes('شروط') || lower.includes('terms') || lower.includes('service')) {
+            return `📋 شروط الخدمة تغطي:
+• مسؤوليات الحساب
+• حماية البيانات والامتثال لـ PDPL
+• الاستخدام المقبول للنظام
+• حقوق الملكية الفكرية
+
+للاطلاع على النص الكامل، انقر على "شروط الخدمة" في نموذج التسجيل.`;
+        }
+
+        if (lower.includes('خصوصية') || lower.includes('privacy') || lower.includes('بيانات')) {
+            return `🔒 سياسة الخصوصية:
+• نجمع البيانات الضرورية فقط
+• البيانات مشفرة ومحمية
+• حقوقك محفوظة وفق PDPL
+• لا نبيع بياناتك أبداً
+
+للاطلاع على النص الكامل، انقر على "سياسة الخصوصية".`;
+        }
+
+        if (lower.includes('بدء') || lower.includes('start') || lower.includes('كيف')) {
+            return `📝 للبدء في استخدام النظام:
+1. أكمل نموذج التسجيل
+2. وافق على شروط الخدمة والخصوصية
+3. أجب على أسئلة ملف المنظمة
+4. راجع الأطر التنظيمية المطبقة
+5. أنشئ خطة الامتثال
+
+العملية تستغرق حوالي 15 دقيقة.`;
+        }
+
+        return `شكراً لسؤالك! يمكنني مساعدتك في:
+• شروط الخدمة
+• سياسة الخصوصية
+• خطوات التسجيل
+• الأطر التنظيمية
+
+اكتب سؤالك أو استخدم الأزرار السريعة أدناه.`;
+    }
+
+    async function escalateToHuman() {
+        addMessage('system', 'جاري تحويلك إلى فريق الدعم البشري...');
+
+        try {
+            const response = await fetch('/api/support/escalate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ conversationId, reason: 'User requested human agent' })
+            });
+
+            if (response.ok) {
+                addMessage('agent', 'تم تحويل المحادثة إلى فريق الدعم. سيتواصل معك أحد ممثلي الدعم قريباً. 📞');
+            }
+        } catch (error) {
+            addMessage('agent', 'للتواصل مع فريق الدعم البشري، يرجى إرسال بريد إلكتروني إلى: support@grc-system.sa');
+        }
+    }
+
+    async function loadMessages() {
+        if (!conversationId) return;
+
+        try {
+            const response = await fetch(`/api/support/messages/${conversationId}`);
+            if (response.ok) {
+                const messages = await response.json();
+                const messagesDiv = document.getElementById('chatMessages');
+                messagesDiv.innerHTML = '';
+                messages.forEach(msg => addMessage(msg.senderType.toLowerCase(), msg.content));
+            }
+        } catch (error) {
+        }
+    }
+</script>

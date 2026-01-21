@@ -1,0 +1,174 @@
+@model GrcMvc.Models.DTOs.UpdateAssessmentDto
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@{
+    ViewData["Title"] = L["Assessment_Edit_Title"].Value;
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-pencil-square"></i> @L["Assessment_Edit_Title"]</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> @L["BackToList"]
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Name" class="control-label fw-bold">@L["Assessment_Name"]</label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label asp-for="AssessmentNumber" class="control-label fw-bold">@L["Assessment_Number"]</label>
+                            <input asp-for="AssessmentNumber" class="form-control" readonly />
+                            <span asp-validation-for="AssessmentNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label asp-for="Status" class="control-label fw-bold">@L["Assessment_Status"]</label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="Planned">@L["Assessment_Status_Planned"]</option>
+                                <option value="InProgress">@L["Assessment_Status_InProgress"]</option>
+                                <option value="Completed">@L["Assessment_Status_Completed"]</option>
+                                <option value="Cancelled">@L["Assessment_Status_Cancelled"]</option>
+                                <option value="Overdue">@L["Assessment_Status_Overdue"]</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="Type" class="control-label fw-bold">@L["Assessment_Type"]</label>
+                            <select asp-for="Type" class="form-select">
+                                <option value="Risk">@L["Assessment_Type_Risk"]</option>
+                                <option value="Control">@L["Assessment_Type_Control"]</option>
+                                <option value="Compliance">@L["Assessment_Type_Compliance"]</option>
+                                <option value="Security">@L["Assessment_Type_Security"]</option>
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="StartDate" class="control-label fw-bold">@L["Assessment_StartDate"]</label>
+                            <input asp-for="StartDate" class="form-control" type="date" />
+                            <span asp-validation-for="StartDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="EndDate" class="control-label fw-bold">@L["Assessment_EndDate"]</label>
+                            <input asp-for="EndDate" class="form-control" type="date" />
+                            <span asp-validation-for="EndDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Description" class="control-label fw-bold">@L["Assessment_Description"]</label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="AssignedTo" class="control-label fw-bold">@L["Assessment_AssignedTo"]</label>
+                            <input asp-for="AssignedTo" class="form-control" />
+                            <span asp-validation-for="AssignedTo" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="ReviewedBy" class="control-label fw-bold">@L["Assessment_ReviewedBy"]</label>
+                            <input asp-for="ReviewedBy" class="form-control" />
+                            <span asp-validation-for="ReviewedBy" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="ComplianceScore" class="control-label fw-bold">@L["Assessment_ComplianceScore"]</label>
+                            <input asp-for="ComplianceScore" class="form-control" type="number" min="0" max="100" />
+                            <span asp-validation-for="ComplianceScore" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="RiskId" class="control-label fw-bold">@L["Assessment_RelatedRisk"]</label>
+                            <select asp-for="RiskId" class="form-select" asp-items="ViewBag.RiskId">
+                                <option value="">@L["Form_None"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="ControlId" class="control-label fw-bold">@L["Assessment_RelatedControl"]</label>
+                            <select asp-for="ControlId" class="form-select" asp-items="ViewBag.ControlId">
+                                <option value="">@L["Form_None"]</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="form-group mb-3">
+                            <label asp-for="Results" class="control-label fw-bold">@L["Assessment_Results"]</label>
+                            <textarea asp-for="Results" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Results" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Findings" class="control-label fw-bold">@L["Assessment_Findings"]</label>
+                            <textarea asp-for="Findings" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Findings" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Recommendations" class="control-label fw-bold">@L["Assessment_Recommendations"]</label>
+                            <textarea asp-for="Recommendations" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Recommendations" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> @L["SaveChanges"]
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">@L["Cancel"]</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

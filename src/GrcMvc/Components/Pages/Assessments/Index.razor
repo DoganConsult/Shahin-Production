@@ -1,0 +1,117 @@
+@page "/assessments"
+@using GrcMvc.Models.DTOs
+@using GrcMvc.Services.Interfaces
+@inject IAssessmentService AssessmentService
+@inject IWorkflowEngineService WorkflowService
+@inject NavigationManager NavManager
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
+
+<PageTitle>@(currentCulture == "ar" ? "التقييمات" : "Assessments")</PageTitle>
+
+<div dir="@dir" class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">Assessments</h1>
+        </div>
+        <div class="col-auto">
+            <a href="/assessments/create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Assessment
+            </a>
+        </div>
+    </div>
+
+    @if (assessments == null || assessments.Count == 0)
+    {
+        <div class="alert alert-info">No assessments found</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Number</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Assigned To</th>
+                        <th>Start Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var assessment in assessments)
+                    {
+                        <tr>
+                            <td><span class="badge bg-secondary">@assessment.AssessmentNumber</span></td>
+                            <td><strong>@assessment.Name</strong></td>
+                            <td>@assessment.Type</td>
+                            <td>
+                                <span class="badge bg-@GetStatusColor(assessment.Status)">
+                                    @assessment.Status
+                                </span>
+                                @if (assessment.IsOverdue)
+                                {
+                                    <span class="badge bg-danger ms-2">OVERDUE</span>
+                                }
+                            </td>
+                            <td>@assessment.AssignedTo</td>
+                            <td>@assessment.StartDate.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <a href="/assessments/@assessment.Id/edit" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a href="/assessments/@assessment.Id/detail" class="btn btn-sm btn-outline-secondary">View</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<AssessmentListItemDto>? assessments;
+    private bool isLoading = true;
+    private bool IsLoading => isLoading; // Use property to suppress warning
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var allAssessments = await AssessmentService.GetAllAsync();
+            assessments = allAssessments.Select(a => new AssessmentListItemDto
+            {
+                Id = a.Id,
+                AssessmentNumber = a.AssessmentNumber ?? $"ASMT-{a.Id.ToString()[..8]}",
+                Name = a.Name ?? "Unnamed Assessment",
+                Type = a.Type ?? "Compliance",
+                Status = a.Status ?? "Draft",
+                AssignedTo = a.AssignedTo ?? "Unassigned",
+                StartDate = a.StartDate,
+                EndDate = a.EndDate,
+                IsOverdue = a.EndDate.HasValue && a.EndDate < DateTime.UtcNow && a.Status != "Completed",
+                Score = a.Score
+            }).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading assessments: {ex.Message}");
+            assessments = new List<AssessmentListItemDto>();
+        }
+    }
+
+    private string GetStatusColor(string status) => status switch
+    {
+        "Completed" => "success",
+        "In Progress" => "warning",
+        "Pending" => "info",
+        "Cancelled" => "danger",
+        _ => "secondary"
+    };
+}

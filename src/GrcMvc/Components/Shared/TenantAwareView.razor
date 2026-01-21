@@ -1,0 +1,23 @@
+@using GrcMvc.Services.Interfaces
+
+@if (TenantContext.HasTenantContext())
+{
+    @ChildContent
+}
+else
+{
+    <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">No Tenant Context</h4>
+        <p>You are not associated with any tenant. Please contact your administrator.</p>
+        <hr>
+        <p class="mb-0">
+            <a href="/onboarding" class="alert-link">Start Onboarding</a> or 
+            <a href="/Account/Logout" class="alert-link">Logout</a>
+        </p>
+    </div>
+}
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Inject] ITenantContextService TenantContext { get; set; } = null!;
+}

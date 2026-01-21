@@ -1,0 +1,189 @@
+@model GrcMvc.Models.DTOs.WorkflowStatisticsDto
+@{
+    ViewData["Title"] = "Workflow Statistics";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-bar-chart"></i> Workflow Statistics</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Workflow Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Workflows</h5>
+                    <p class="card-text display-4">@Model.TotalWorkflows</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Active</h5>
+                    <p class="card-text display-4">@Model.ActiveWorkflows</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Overdue</h5>
+                    <p class="card-text display-4">@Model.OverdueWorkflows</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Executions</h5>
+                    <p class="card-text display-4">@Model.TotalExecutions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Execution Success Rate</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="display-1 text-success">@Model.SuccessRate.ToString("F1")%</div>
+                    <p class="text-muted">
+                        @Model.SuccessfulExecutions Successful / @Model.FailedExecutions Failed
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Avg Execution Time</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="display-1 text-primary">@Model.AverageExecutionTime.ToString("F1")s</div>
+                    <p class="text-muted">Average duration per execution</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4 h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Workflows by Category</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4 h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Status Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4 h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Priority Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="priorityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Category Chart
+            var categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            var categoryData = @System.Text.Json.JsonSerializer.Serialize(Model.WorkflowsByCategory));
+
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(categoryData),
+                    datasets: [{
+                        data: Object.values(categoryData),
+                        backgroundColor: [
+                            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'
+                        ]
+                    }]
+                }
+            });
+
+            // Status Chart
+            var statusCtx = document.getElementById('statusChart').getContext('2d');
+            var statusData = @System.Text.Json.JsonSerializer.Serialize(Model.StatusDistribution));
+
+            new Chart(statusCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(statusData),
+                    datasets: [{
+                        data: Object.values(statusData),
+                        backgroundColor: [
+                            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'
+                        ]
+                    }]
+                }
+            });
+
+            // Priority Chart
+            var priorityCtx = document.getElementById('priorityChart').getContext('2d');
+            var priorityData = @System.Text.Json.JsonSerializer.Serialize(Model.PriorityDistribution));
+
+            new Chart(priorityCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(priorityData),
+                    datasets: [{
+                        label: 'Count',
+                        data: Object.values(priorityData),
+                        backgroundColor: '#4e73df'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        });
+    </script>
+}

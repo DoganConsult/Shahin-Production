@@ -1,0 +1,144 @@
+@model List<GrcMvc.Models.Entities.AuditEvent>
+@{
+    ViewData["Title"] = "Audit Logs";
+    Layout = "_Layout";
+    var tenantSlug = ViewBag.TenantSlug as string;
+    var tenant = ViewBag.Tenant as GrcMvc.Models.Entities.Tenant;
+    var eventTypes = ViewBag.EventTypes as List<string>;
+    var actorNames = ViewBag.ActorNames as Dictionary<string, string> ?? new Dictionary<string, string>();
+    var currentPage = ViewBag.CurrentPage ?? 1;
+    var totalPages = ViewBag.TotalPages ?? 1;
+    var totalCount = ViewBag.TotalCount ?? 0;
+
+    // Helper to get display name for actor
+    string GetActorDisplayName(string actor)
+    {
+        if (string.IsNullOrEmpty(actor)) return "Unknown";
+        if (actor == "SYSTEM") return "System";
+        if (actorNames.TryGetValue(actor, out var name)) return name;
+        // If it looks like a GUID, show shortened version
+        if (Guid.TryParse(actor, out _)) return actor.Substring(0, 8) + "...";
+        return actor;
+    }
+}
+
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", new { tenantSlug })">@tenant?.OrganizationName</a></li>
+            <li class="breadcrumb-item active">Audit Logs</li>
+        </ol>
+    </nav>
+    <h1 class="h3 mb-4">Audit Logs</h1>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Event Type</label>
+                    <select name="eventType" class="form-select">
+                        <option value="">All Types</option>
+                        @if (eventTypes != null)
+                        {
+                            @foreach (var et in eventTypes)
+                            {
+                                <option value="@et">@et</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">From</label>
+                    <input type="date" name="from" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">To</label>
+                    <input type="date" name="to" class="form-control">
+                </div>
+                <div class="col-md-3 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="bi bi-search"></i> Filter
+                    </button>
+                    <a href="@Url.Action("AuditLogs", new { tenantSlug })" class="btn btn-outline-secondary">Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Logs Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Event Type</th>
+                            <th>Action</th>
+                            <th>Entity</th>
+                            <th>Actor</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var evt in Model)
+                        {
+                            <tr class="@(evt.Status == "Failed" ? "table-danger" : evt.Severity == "Warning" ? "table-warning" : "")">
+                                <td><small>@evt.EventTimestamp.ToString("yyyy-MM-dd HH:mm:ss")</small></td>
+                                <td><span class="badge bg-secondary">@evt.EventType</span></td>
+                                <td><small>@evt.Action</small></td>
+                                <td>
+                                    <small class="text-muted">@evt.AffectedEntityType</small>
+                                    @if (!string.IsNullOrEmpty(evt.Description))
+                                    {
+                                        <br><small>@evt.Description</small>
+                                    }
+                                </td>
+                                <td><small title="@evt.Actor">@GetActorDisplayName(evt.Actor)</small></td>
+                                <td>
+                                    <span class="badge bg-@(evt.Status == "Success" ? "success" : evt.Status == "Failed" ? "danger" : "warning")">
+                                        @evt.Status
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="bi bi-journal-text fs-1 d-block mb-2"></i>
+                                    No audit logs found
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <span class="text-muted">
+                Showing @Model.Count of @totalCount logs
+            </span>
+            @if ((int)totalPages > 1)
+            {
+                <nav aria-label="Audit log pagination">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item @((int)currentPage <= 1 ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("AuditLogs", new { tenantSlug, page = (int)currentPage - 1 })">Previous</a>
+                        </li>
+                        @for (var i = Math.Max(1, (int)currentPage - 2); i <= Math.Min((int)totalPages, (int)currentPage + 2); i++)
+                        {
+                            <li class="page-item @(i == (int)currentPage ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("AuditLogs", new { tenantSlug, page = i })">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @((int)currentPage >= (int)totalPages ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("AuditLogs", new { tenantSlug, page = (int)currentPage + 1 })">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>

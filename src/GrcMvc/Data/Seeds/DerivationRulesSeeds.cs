@@ -1,0 +1,676 @@
+using System.Text.Json;
+using GrcMvc.Models.Entities;
+using Microsoft.EntityFrameworkCore;
+
+namespace GrcMvc.Data.Seeds;
+
+/// <summary>
+/// Seeds comprehensive KSA GRC derivation rules (50+ rules)
+/// These rules map organization profile answers to applicable baselines, packages, and templates
+/// </summary>
+public static class DerivationRulesSeeds
+{
+    /// <summary>
+    /// Well-known default tenant ID used for system/global data
+    /// </summary>
+    private static readonly Guid DefaultTenantId = new Guid("00000000-0000-0000-0000-000000000001");
+
+    public static async Task SeedAsync(GrcDbContext context, ILogger logger)
+    {
+        // Check if ruleset already has comprehensive rules
+        var existingRuleCount = await context.Rules.CountAsync();
+        if (existingRuleCount >= 50)
+        {
+            logger.LogInformation("Derivation rules already seeded ({Count} rules)", existingRuleCount);
+            return;
+        }
+
+        logger.LogInformation("Seeding comprehensive KSA derivation rules...");
+
+        // Ensure default tenant exists before creating rulesets
+        var defaultTenant = await context.Tenants.FirstOrDefaultAsync(t => t.Id == DefaultTenantId && !t.IsDeleted);
+        if (defaultTenant == null)
+        {
+            logger.LogInformation("Creating default tenant for derivation rules...");
+            defaultTenant = new Tenant
+            {
+                Id = DefaultTenantId,
+                TenantSlug = "default",
+                TenantCode = "SYSTEM",
+                OrganizationName = "System Default",
+                AdminEmail = "admin@default.local",
+                Status = "Active",
+                IsActive = true,
+                ActivatedAt = DateTime.UtcNow,
+                ActivatedBy = "System",
+                SubscriptionStartDate = DateTime.UtcNow,
+                SubscriptionTier = "Enterprise",
+                CorrelationId = Guid.NewGuid().ToString(),
+                CreatedDate = DateTime.UtcNow,
+                CreatedBy = "System"
+            };
+            context.Tenants.Add(defaultTenant);
+            await context.SaveChangesAsync();
+            logger.LogInformation("Default tenant created with ID: {TenantId}", DefaultTenantId);
+        }
+
+        // Get or create the main ruleset
+        var ruleset = await context.Rulesets.FirstOrDefaultAsync(r => r.Status == "Active");
+        if (ruleset == null)
+        {
+            ruleset = new Ruleset
+            {
+                Id = Guid.NewGuid(),
+                TenantId = DefaultTenantId,
+                RulesetCode = "KSA_GRC_COMPREHENSIVE_V1",
+                Name = "KSA Comprehensive GRC Rules",
+                Version = 1,
+                Status = "Active",
+                ActivatedAt = DateTime.UtcNow,
+                ChangeNotes = "Comprehensive KSA regulatory mapping with 50+ derivation rules",
+                CreatedDate = DateTime.UtcNow,
+                CreatedBy = "System"
+            };
+            context.Rulesets.Add(ruleset);
+            await context.SaveChangesAsync();
+        }
+
+        var rules = CreateComprehensiveRules(ruleset.Id);
+        
+        // Remove existing rules and add new ones
+        var existingRules = await context.Rules.Where(r => r.RulesetId == ruleset.Id).ToListAsync();
+        context.Rules.RemoveRange(existingRules);
+        
+        context.Rules.AddRange(rules);
+        await context.SaveChangesAsync();
+
+        logger.LogInformation("Seeded {Count} comprehensive derivation rules", rules.Count);
+    }
+
+    private static List<Rule> CreateComprehensiveRules(Guid rulesetId)
+    {
+        var rules = new List<Rule>();
+        int priority = 1;
+
+        // ============================================================
+        // SECTION 1: COUNTRY & REGION RULES (Priority 1-10)
+        // ============================================================
+        
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_KSA_JURISDICTION",
+            "Saudi Arabia Jurisdiction",
+            "Organization operating in Saudi Arabia",
+            CreateCondition("and", new[] { ("country", "equals", "SA") }),
+            new[] {
+                CreateAction("apply_baseline", "NCA_ECC"),
+                CreateAction("tag", "jurisdiction", "KSA")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_GCC_JURISDICTION",
+            "GCC Regional Jurisdiction",
+            "Organization operating in GCC region",
+            CreateCondition("or", new[] {
+                ("country", "in", "SA,AE,BH,KW,OM,QA")
+            }),
+            new[] {
+                CreateAction("tag", "region", "GCC"),
+                CreateAction("apply_package", "PKG_GCC_COMMON")
+            }));
+
+        // ============================================================
+        // SECTION 2: SECTOR-BASED RULES (Priority 11-40)
+        // ============================================================
+
+        // Financial Sector
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_SECTOR_BANKING",
+            "Banking Sector",
+            "Licensed banking institution under SAMA",
+            CreateCondition("and", new[] {
+                ("sector", "in", "Banking,Banks,Commercial Banking")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "SAMA_CSF"),
+                CreateAction("apply_baseline", "NCA_ECC"),
+                CreateAction("apply_package", "PKG_SAMA_CYBER"),
+                CreateAction("tag", "sama_regulated", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_SECTOR_INSURANCE",
+            "Insurance Sector",
+            "Licensed insurance company",
+            CreateCondition("and", new[] {
+                ("sector", "in", "Insurance,Reinsurance")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "SAMA_CSF"),
+                CreateAction("apply_baseline", "IA_REQUIREMENTS"),
+                CreateAction("apply_package", "PKG_INSURANCE_CONTROLS"),
+                CreateAction("tag", "ia_regulated", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_SECTOR_FINTECH",
+            "FinTech Sector",
+            "Financial technology company",
+            CreateCondition("and", new[] {
+                ("sector", "in", "FinTech,Financial Technology,Payment Services")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "SAMA_CSF"),
+                CreateAction("apply_baseline", "NCA_ECC"),
+                CreateAction("apply_baseline", "PDPL"),
+                CreateAction("apply_package", "PKG_FINTECH_SANDBOX"),
+                CreateAction("tag", "sama_fintech", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_SECTOR_CAPITAL_MARKETS",
+            "Capital Markets Sector",
+            "Securities, investment, or asset management",
+            CreateCondition("and", new[] {
+                ("sector", "in", "Investment,Securities,Asset Management,Capital Markets")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "CMA_REQUIREMENTS"),
+                CreateAction("apply_baseline", "NCA_ECC"),
+                CreateAction("tag", "cma_regulated", "true")
+            }));
+
+        // Healthcare Sector
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_SECTOR_HEALTHCARE",
+            "Healthcare Sector",
+            "Healthcare provider or facility",
+            CreateCondition("and", new[] {
+                ("sector", "in", "Healthcare,Hospital,Clinic,Medical,Pharmaceutical")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "MOH_REQUIREMENTS"),
+                CreateAction("apply_baseline", "NCA_ECC"),
+                CreateAction("apply_baseline", "PDPL"),
+                CreateAction("apply_package", "PKG_HEALTH_DATA"),
+                CreateAction("tag", "moh_regulated", "true")
+            }));
+
+        // Telecom Sector
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_SECTOR_TELECOM",
+            "Telecommunications Sector",
+            "Telecom operator or service provider",
+            CreateCondition("and", new[] {
+                ("sector", "in", "Telecom,Telecommunications,ISP,Mobile")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "CITC_REQUIREMENTS"),
+                CreateAction("apply_baseline", "NCA_ECC"),
+                CreateAction("apply_baseline", "NCA_CTCC"),
+                CreateAction("tag", "citc_regulated", "true")
+            }));
+
+        // Energy Sector
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_SECTOR_ENERGY",
+            "Energy Sector",
+            "Oil, gas, or electricity company",
+            CreateCondition("and", new[] {
+                ("sector", "in", "Energy,Oil,Gas,Petroleum,Electricity,Power")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "NCA_ECC"),
+                CreateAction("apply_baseline", "NCA_CTCC"),
+                CreateAction("apply_baseline", "SEC_REQUIREMENTS"),
+                CreateAction("apply_package", "PKG_CRITICAL_INFRA"),
+                CreateAction("apply_package", "PKG_ICS_OT"),
+                CreateAction("tag", "critical_infrastructure", "true")
+            }));
+
+        // Government Sector
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_SECTOR_GOVERNMENT",
+            "Government Sector",
+            "Government entity or agency",
+            CreateCondition("and", new[] {
+                ("sector", "in", "Government,Public Sector,Ministry")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "NCA_ECC"),
+                CreateAction("apply_baseline", "NCA_DCC"),
+                CreateAction("apply_baseline", "PDPL"),
+                CreateAction("apply_package", "PKG_GOVT_SECURITY"),
+                CreateAction("tag", "government", "true")
+            }));
+
+        // Education Sector
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_SECTOR_EDUCATION",
+            "Education Sector",
+            "University, school, or training institution",
+            CreateCondition("and", new[] {
+                ("sector", "in", "Education,University,School,Training,Academic")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "MOE_REQUIREMENTS"),
+                CreateAction("apply_baseline", "NCA_ECC"),
+                CreateAction("apply_baseline", "PDPL"),
+                CreateAction("apply_package", "PKG_STUDENT_DATA"),
+                CreateAction("tag", "moe_regulated", "true")
+            }));
+
+        // Retail & E-Commerce
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_SECTOR_RETAIL",
+            "Retail & E-Commerce Sector",
+            "Retail business or e-commerce platform",
+            CreateCondition("and", new[] {
+                ("sector", "in", "Retail,E-Commerce,Commerce,Trading")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "PDPL"),
+                CreateAction("apply_baseline", "ZATCA_REQUIREMENTS"),
+                CreateAction("apply_package", "PKG_CONSUMER_DATA"),
+                CreateAction("tag", "moc_regulated", "true")
+            }));
+
+        // Transportation & Aviation
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_SECTOR_AVIATION",
+            "Aviation Sector",
+            "Airline or aviation services",
+            CreateCondition("and", new[] {
+                ("sector", "in", "Aviation,Airlines,Airport,Air Transport")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "GACA_REQUIREMENTS"),
+                CreateAction("apply_baseline", "NCA_ECC"),
+                CreateAction("apply_baseline", "NCA_CTCC"),
+                CreateAction("tag", "gaca_regulated", "true")
+            }));
+
+        // ============================================================
+        // SECTION 3: DATA TYPE RULES (Priority 41-60)
+        // ============================================================
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_DATA_PERSONAL",
+            "Personal Data Processing",
+            "Organization processes personal data",
+            CreateCondition("or", new[] {
+                ("processesPersonalData", "equals", "true"),
+                ("dataTypes", "contains", "personal"),
+                ("dataTypes", "contains", "PII")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "PDPL"),
+                CreateAction("apply_package", "PKG_DATA_PROTECTION"),
+                CreateAction("apply_template", "TEMP_PDPL_ASSESSMENT"),
+                CreateAction("tag", "pdpl_scope", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_DATA_SENSITIVE",
+            "Sensitive Personal Data",
+            "Organization processes sensitive personal data",
+            CreateCondition("or", new[] {
+                ("processesSensitiveData", "equals", "true"),
+                ("dataTypes", "contains", "health"),
+                ("dataTypes", "contains", "biometric"),
+                ("dataTypes", "contains", "genetic")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "PDPL"),
+                CreateAction("apply_package", "PKG_SENSITIVE_DATA"),
+                CreateAction("apply_package", "PKG_ENHANCED_CONSENT"),
+                CreateAction("tag", "sensitive_data", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_DATA_FINANCIAL",
+            "Financial Data Processing",
+            "Organization processes financial/payment data",
+            CreateCondition("or", new[] {
+                ("dataTypes", "contains", "financial"),
+                ("dataTypes", "contains", "payment"),
+                ("dataTypes", "contains", "credit card"),
+                ("dataTypes", "contains", "PCI")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "PCI_DSS"),
+                CreateAction("apply_package", "PKG_PAYMENT_SECURITY"),
+                CreateAction("tag", "pci_scope", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_DATA_CHILDREN",
+            "Children's Data Processing",
+            "Organization processes data of minors",
+            CreateCondition("or", new[] {
+                ("dataTypes", "contains", "children"),
+                ("dataTypes", "contains", "minors"),
+                ("dataTypes", "contains", "students")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "PDPL"),
+                CreateAction("apply_package", "PKG_CHILDREN_DATA"),
+                CreateAction("apply_package", "PKG_ENHANCED_CONSENT"),
+                CreateAction("tag", "children_data", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_DATA_GOVERNMENT",
+            "Government Classified Data",
+            "Organization handles government classified data",
+            CreateCondition("or", new[] {
+                ("dataTypes", "contains", "classified"),
+                ("dataTypes", "contains", "government"),
+                ("dataClassification", "in", "Confidential,Secret,Top Secret")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "NCA_DCC"),
+                CreateAction("apply_package", "PKG_CLASSIFIED_HANDLING"),
+                CreateAction("tag", "classified_data", "true")
+            }));
+
+        // ============================================================
+        // SECTION 4: INFRASTRUCTURE RULES (Priority 61-80)
+        // ============================================================
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_INFRA_CLOUD_AWS",
+            "AWS Cloud Infrastructure",
+            "Organization uses AWS",
+            CreateCondition("and", new[] {
+                ("cloudProviders", "contains", "AWS")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "NCA_CCC"),
+                CreateAction("apply_package", "PKG_AWS_SECURITY"),
+                CreateAction("apply_package", "PKG_DATA_RESIDENCY"),
+                CreateAction("tag", "cloud_aws", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_INFRA_CLOUD_AZURE",
+            "Azure Cloud Infrastructure",
+            "Organization uses Microsoft Azure",
+            CreateCondition("and", new[] {
+                ("cloudProviders", "contains", "Azure")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "NCA_CCC"),
+                CreateAction("apply_package", "PKG_AZURE_SECURITY"),
+                CreateAction("apply_package", "PKG_DATA_RESIDENCY"),
+                CreateAction("tag", "cloud_azure", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_INFRA_CLOUD_GCP",
+            "GCP Cloud Infrastructure",
+            "Organization uses Google Cloud",
+            CreateCondition("and", new[] {
+                ("cloudProviders", "contains", "GCP")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "NCA_CCC"),
+                CreateAction("apply_package", "PKG_GCP_SECURITY"),
+                CreateAction("apply_package", "PKG_DATA_RESIDENCY"),
+                CreateAction("tag", "cloud_gcp", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_INFRA_HYBRID",
+            "Hybrid Cloud Infrastructure",
+            "Organization uses hybrid cloud model",
+            CreateCondition("and", new[] {
+                ("hostingModel", "equals", "Hybrid")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "NCA_CCC"),
+                CreateAction("apply_package", "PKG_HYBRID_SECURITY"),
+                CreateAction("apply_package", "PKG_DATA_RESIDENCY"),
+                CreateAction("tag", "hybrid_cloud", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_INFRA_ONPREM",
+            "On-Premise Infrastructure",
+            "Organization uses on-premise data centers",
+            CreateCondition("and", new[] {
+                ("hostingModel", "equals", "On-Premise")
+            }),
+            new[] {
+                CreateAction("apply_package", "PKG_PHYSICAL_SECURITY"),
+                CreateAction("apply_package", "PKG_DC_OPERATIONS"),
+                CreateAction("tag", "on_premise", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_INFRA_CRITICAL",
+            "Critical Infrastructure",
+            "Organization is designated critical infrastructure",
+            CreateCondition("or", new[] {
+                ("isCriticalInfrastructure", "equals", "true"),
+                ("sector", "in", "Energy,Telecom,Healthcare,Water,Finance,Government,Transportation")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "NCA_CTCC"),
+                CreateAction("apply_package", "PKG_CRITICAL_INFRA"),
+                CreateAction("apply_package", "PKG_INCIDENT_RESPONSE"),
+                CreateAction("apply_package", "PKG_BCM"),
+                CreateAction("tag", "critical_infra", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_INFRA_ICS_OT",
+            "ICS/OT Systems",
+            "Organization operates industrial control systems",
+            CreateCondition("or", new[] {
+                ("hasIcsOtSystems", "equals", "true"),
+                ("systemTypes", "contains", "SCADA"),
+                ("systemTypes", "contains", "ICS"),
+                ("systemTypes", "contains", "OT")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "NCA_OTC"),
+                CreateAction("apply_package", "PKG_ICS_SECURITY"),
+                CreateAction("apply_package", "PKG_OT_MONITORING"),
+                CreateAction("tag", "ics_ot", "true")
+            }));
+
+        // ============================================================
+        // SECTION 5: ORGANIZATION SIZE & MATURITY (Priority 81-90)
+        // ============================================================
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_SIZE_LARGE",
+            "Large Enterprise",
+            "Organization with 500+ employees",
+            CreateCondition("and", new[] {
+                ("employeeCount", "gte", "500")
+            }),
+            new[] {
+                CreateAction("apply_package", "PKG_ENTERPRISE_GRC"),
+                CreateAction("apply_package", "PKG_MULTI_TEAM"),
+                CreateAction("tag", "enterprise", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_SIZE_SME",
+            "SME Organization",
+            "Small to medium enterprise (50-499 employees)",
+            CreateCondition("and", new[] {
+                ("employeeCount", "gte", "50"),
+                ("employeeCount", "lt", "500")
+            }),
+            new[] {
+                CreateAction("apply_package", "PKG_SME_ESSENTIALS"),
+                CreateAction("apply_template", "TEMP_SME_BASELINE"),
+                CreateAction("tag", "sme", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_MATURITY_LOW",
+            "Low Maturity Organization",
+            "Organization new to formal compliance",
+            CreateCondition("and", new[] {
+                ("complianceMaturity", "in", "None,Ad-hoc,Initial")
+            }),
+            new[] {
+                CreateAction("apply_package", "PKG_GETTING_STARTED"),
+                CreateAction("apply_template", "TEMP_BASELINE_100Q"),
+                CreateAction("tag", "maturity_low", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_MATURITY_HIGH",
+            "High Maturity Organization",
+            "Organization with established GRC program",
+            CreateCondition("and", new[] {
+                ("complianceMaturity", "in", "Managed,Optimizing")
+            }),
+            new[] {
+                CreateAction("apply_package", "PKG_ADVANCED_GRC"),
+                CreateAction("apply_package", "PKG_CONTINUOUS_MONITORING"),
+                CreateAction("tag", "maturity_high", "true")
+            }));
+
+        // ============================================================
+        // SECTION 6: THIRD PARTY & VENDOR RULES (Priority 91-100)
+        // ============================================================
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_VENDORS_HIGH",
+            "High Third-Party Exposure",
+            "Organization with significant vendor dependencies",
+            CreateCondition("or", new[] {
+                ("vendorCount", "gte", "50"),
+                ("criticalVendorCount", "gte", "10"),
+                ("hasThirdPartyDataProcessing", "equals", "true")
+            }),
+            new[] {
+                CreateAction("apply_package", "PKG_VENDOR_RISK"),
+                CreateAction("apply_package", "PKG_THIRD_PARTY_ASSURANCE"),
+                CreateAction("apply_template", "TEMP_VENDOR_ASSESSMENT"),
+                CreateAction("tag", "high_vendor_risk", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_OUTSOURCING",
+            "Outsourced Operations",
+            "Organization outsources critical functions",
+            CreateCondition("and", new[] {
+                ("hasOutsourcedOperations", "equals", "true")
+            }),
+            new[] {
+                CreateAction("apply_package", "PKG_OUTSOURCING_CONTROLS"),
+                CreateAction("apply_package", "PKG_SLA_MONITORING"),
+                CreateAction("tag", "outsourcing", "true")
+            }));
+
+        // ============================================================
+        // SECTION 7: INTERNATIONAL & CROSS-BORDER (Priority 101-110)
+        // ============================================================
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_CROSS_BORDER",
+            "Cross-Border Data Transfers",
+            "Organization transfers data outside KSA",
+            CreateCondition("or", new[] {
+                ("hasDataCenterInKSA", "equals", "false"),
+                ("crossBorderDataTransfer", "equals", "true")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "PDPL"),
+                CreateAction("apply_package", "PKG_DATA_TRANSFER"),
+                CreateAction("apply_package", "PKG_DATA_LOCALIZATION"),
+                CreateAction("tag", "cross_border", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_INTERNATIONAL_OPS",
+            "International Operations",
+            "Organization with operations outside KSA",
+            CreateCondition("and", new[] {
+                ("hasInternationalOperations", "equals", "true")
+            }),
+            new[] {
+                CreateAction("apply_package", "PKG_MULTI_JURISDICTION"),
+                CreateAction("tag", "international", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_EU_DATA",
+            "EU Data Processing",
+            "Organization processes EU citizens' data",
+            CreateCondition("or", new[] {
+                ("processesEuData", "equals", "true"),
+                ("markets", "contains", "EU")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "GDPR"),
+                CreateAction("apply_package", "PKG_GDPR_COMPLIANCE"),
+                CreateAction("tag", "gdpr_scope", "true")
+            }));
+
+        // ============================================================
+        // SECTION 8: SPECIFIC COMPLIANCE REQUIREMENTS (Priority 111-120)
+        // ============================================================
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_ISO27001_TARGET",
+            "ISO 27001 Certification Target",
+            "Organization targeting ISO 27001 certification",
+            CreateCondition("and", new[] {
+                ("targetCertifications", "contains", "ISO27001")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "ISO_27001"),
+                CreateAction("apply_package", "PKG_ISMS"),
+                CreateAction("apply_template", "TEMP_ISO27001_ASSESSMENT"),
+                CreateAction("tag", "iso27001_target", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_SOC2_TARGET",
+            "SOC 2 Compliance Target",
+            "Organization targeting SOC 2 attestation",
+            CreateCondition("and", new[] {
+                ("targetCertifications", "contains", "SOC2")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "SOC2"),
+                CreateAction("apply_package", "PKG_TSC_CONTROLS"),
+                CreateAction("apply_template", "TEMP_SOC2_READINESS"),
+                CreateAction("tag", "soc2_target", "true")
+            }));
+
+        rules.Add(CreateRule(rulesetId, priority++, "RULE_PUBLICLY_TRADED",
+            "Publicly Traded Company",
+            "Organization is publicly traded",
+            CreateCondition("and", new[] {
+                ("isPubliclyTraded", "equals", "true")
+            }),
+            new[] {
+                CreateAction("apply_baseline", "CMA_REQUIREMENTS"),
+                CreateAction("apply_package", "PKG_FINANCIAL_CONTROLS"),
+                CreateAction("apply_package", "PKG_DISCLOSURE"),
+                CreateAction("tag", "publicly_traded", "true")
+            }));
+
+        return rules;
+    }
+
+    #region Helper Methods
+
+    private static Rule CreateRule(Guid rulesetId, int priority, string code, string name, string description,
+        object condition, object[] actions)
+    {
+        return new Rule
+        {
+            Id = Guid.NewGuid(),
+            RulesetId = rulesetId,
+            RuleCode = code,
+            Name = name,
+            Description = description,
+            Priority = priority,
+            Status = "ACTIVE",
+            BusinessReason = description,
+            ConditionJson = JsonSerializer.Serialize(condition),
+            ActionsJson = JsonSerializer.Serialize(actions),
+            CreatedDate = DateTime.UtcNow,
+            CreatedBy = "System"
+        };
+    }
+
+    private static object CreateCondition(string type, (string field, string op, string value)[] conditions)
+    {
+        return new
+        {
+            type = type,
+            conditions = conditions.Select(c => new
+            {
+                field = c.field,
+                @operator = c.op,
+                value = c.value
+            }).ToArray()
+        };
+    }
+
+    private static object CreateAction(string action, string code)
+    {
+        return new { action = action, code = code };
+    }
+
+    private static object CreateAction(string action, string key, string value)
+    {
+        return new { action = action, key = key, value = value };
+    }
+
+    #endregion
+}

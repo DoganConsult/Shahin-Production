@@ -1,0 +1,28 @@
+@*
+    SHAHIN AI GRC - Progress Bar Component
+    Usage: <partial name="Components/_ShahinProgress" model='new { Value = 75, Type = "success", ShowLabel = true }' />
+*@
+@{
+    dynamic model = ViewData.Model ?? new { };
+    var value = model?.Value ?? 0;
+    var type = model?.Type ?? "primary"; // primary, success, warning, danger
+    var showLabel = model?.ShowLabel ?? false;
+    var cssClass = model?.CssClass ?? "";
+
+    var progressBarClass = "shahin-progress-bar";
+    if (type != "primary") {
+        progressBarClass += $" shahin-progress-bar-{type}";
+    }
+}
+
+<div class="shahin-progress @cssClass">
+    <div class="@progressBarClass" style="width: @(value)%"
+         role="progressbar"
+         aria-valuenow="@value"
+         aria-valuemin="0"
+         aria-valuemax="100">
+        @if (showLabel) {
+            <span>@(value)%</span>
+        }
+    </div>
+</div>

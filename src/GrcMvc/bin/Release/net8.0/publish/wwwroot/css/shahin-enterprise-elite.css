@@ -1,0 +1,869 @@
+/* ═══════════════════════════════════════════════════════════════════
+   SHAHIN AI GRC - ENTERPRISE ELITE STANDARDS
+   Apple & Google Inspired Design System
+   Version: 2.0.0 Enterprise Elite
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ENTERPRISE ELITE DESIGN TOKENS
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+:root {
+  /* ─── Apple-Inspired Primary System ─── */
+  --elite-primary: #007AFF;
+  --elite-primary-variant: #0051D5;
+  --elite-primary-on: #FFFFFF;
+  --elite-primary-container: #E8F1FF;
+  --elite-primary-on-container: #001D3D;
+  
+  /* ─── Google Material 3 Secondary ─── */
+  --elite-secondary: #6750A4;
+  --elite-secondary-variant: #4F378B;
+  --elite-secondary-on: #FFFFFF;
+  --elite-secondary-container: #EADDFF;
+  --elite-secondary-on-container: #21005D;
+  
+  /* ─── Enterprise Tertiary ─── */
+  --elite-tertiary: #7D5260;
+  --elite-tertiary-variant: #5B3949;
+  --elite-tertiary-on: #FFFFFF;
+  --elite-tertiary-container: #FFD8E4;
+  --elite-tertiary-on-container: #31111D;
+  
+  /* ─── Surface System (Apple/Google Hybrid) ─── */
+  --elite-surface: #FFFBFE;
+  --elite-surface-variant: #E7E0EC;
+  --elite-surface-container: #F3EDF7;
+  --elite-surface-container-high: #FFFFFF;
+  --elite-surface-container-low: #F7F2FA;
+  --elite-surface-dim: #DDD8E0;
+  --elite-surface-bright: #FFFFFB;
+  
+  /* ─── Enterprise Neutral Palette ─── */
+  --elite-neutral: #6B6B80;
+  --elite-neutral-variant: #A097B6;
+  --elite-neutral-on: #FFFFFF;
+  --elite-neutral-container: #E7E0EC;
+  --elite-neutral-on-container: #1D1B20;
+  
+  /* ─── Outline System ─── */
+  --elite-outline: #79747E;
+  --elite-outline-variant: #CAC4D0;
+  
+  /* ─── Enterprise Status Colors ─── */
+  --elite-success: #00C853;
+  --elite-success-container: #E8F5E8;
+  --elite-success-on-container: #00390F;
+  
+  --elite-warning: #FF8F00;
+  --elite-warning-container: #FFF8E6;
+  --elite-warning-on-container: #412C00;
+  
+  --elite-error: #BA1A1A;
+  --elite-error-container: #FFDAD6;
+  --elite-error-on-container: #410002;
+  
+  --elite-info: #018786;
+  --elite-info-container: #CFFAF5;
+  --elite-info-on-container: #00363A;
+  
+  /* ─── Typography System (Apple SF Pro Inspired) ─── */
+  --elite-font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  --elite-font-family-mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  
+  /* ─── Enterprise Type Scale ─── */
+  --elite-text-display-large: 57px;    /* Apple Display Large */
+  --elite-text-display-medium: 45px;   /* Apple Display Medium */
+  --elite-text-display-small: 36px;    /* Apple Display Small */
+  
+  --elite-text-headline-large: 32px;   /* Material Headline Large */
+  --elite-text-headline-medium: 28px;  /* Material Headline Medium */
+  --elite-text-headline-small: 24px;   /* Material Headline Small */
+  
+  --elite-text-title-large: 22px;      /* Material Title Large */
+  --elite-text-title-medium: 16px;     /* Material Title Medium */
+  --elite-text-title-small: 14px;      /* Material Title Small */
+  
+  --elite-text-body-large: 16px;       /* Material Body Large */
+  --elite-text-body-medium: 14px;      /* Material Body Medium */
+  --elite-text-body-small: 12px;       /* Material Body Small */
+  
+  --elite-text-label-large: 14px;      /* Material Label Large */
+  --elite-text-label-medium: 12px;     /* Material Label Medium */
+  --elite-text-label-small: 11px;      /* Material Label Small */
+  
+  /* ─── Font Weights ─── */
+  --elite-font-weight-thin: 100;
+  --elite-font-weight-light: 300;
+  --elite-font-weight-regular: 400;
+  --elite-font-weight-medium: 500;
+  --elite-font-weight-semibold: 600;
+  --elite-font-weight-bold: 700;
+  --elite-font-weight-heavy: 800;
+  --elite-font-weight-black: 900;
+  
+  /* ─── Line Heights ─── */
+  --elite-line-height-tight: 1.2;
+  --elite-line-height-normal: 1.4;
+  --elite-line-height-relaxed: 1.6;
+  
+  /* ─── Enterprise Spacing System ─── */
+  --elite-space-1: 4px;     /* 0.25rem */
+  --elite-space-2: 8px;     /* 0.5rem */
+  --elite-space-3: 12px;    /* 0.75rem */
+  --elite-space-4: 16px;    /* 1rem */
+  --elite-space-5: 20px;    /* 1.25rem */
+  --elite-space-6: 24px;    /* 1.5rem */
+  --elite-space-8: 32px;    /* 2rem */
+  --elite-space-10: 40px;   /* 2.5rem */
+  --elite-space-12: 48px;   /* 3rem */
+  --elite-space-16: 64px;   /* 4rem */
+  --elite-space-20: 80px;   /* 5rem */
+  --elite-space-24: 96px;   /* 6rem */
+  --elite-space-32: 128px;  /* 8rem */
+  --elite-space-40: 160px;  /* 10rem */
+  --elite-space-48: 192px;  /* 12rem */
+  --elite-space-64: 256px;  /* 16rem */
+  
+  /* ─── Enterprise Border Radius ─── */
+  --elite-radius-none: 0px;
+  --elite-radius-xs: 4px;
+  --elite-radius-sm: 8px;
+  --elite-radius-md: 12px;
+  --elite-radius-lg: 16px;
+  --elite-radius-xl: 20px;
+  --elite-radius-2xl: 24px;
+  --elite-radius-3xl: 28px;
+  --elite-radius-full: 9999px;
+  
+  /* ─── Enterprise Shadows (Apple Depth System) ─── */
+  --elite-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --elite-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --elite-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --elite-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --elite-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --elite-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --elite-shadow-3xl: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
+  
+  /* ─── Enterprise Transitions (Apple Spring Physics) ─── */
+  --elite-transition-fast: 150ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  --elite-transition-standard: 250ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  --elite-transition-slow: 350ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  --elite-transition-spring: 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  /* ─── Z-Index Scale ─── */
+  --elite-z-dropdown: 1000;
+  --elite-z-sticky: 1020;
+  --elite-z-fixed: 1030;
+  --elite-z-modal-backdrop: 1040;
+  --elite-z-modal: 1050;
+  --elite-z-popover: 1060;
+  --elite-z-tooltip: 1070;
+  --elite-z-toast: 1080;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ENTERPRISE ELITE COMPONENT SYSTEM
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ─── Elite Button System ─── */
+.elite-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--elite-space-2);
+  font-family: var(--elite-font-family);
+  font-size: var(--elite-text-label-large);
+  font-weight: var(--elite-font-weight-medium);
+  line-height: var(--elite-line-height-tight);
+  padding: var(--elite-space-3) var(--elite-space-4);
+  border-radius: var(--elite-radius-lg);
+  border: none;
+  cursor: pointer;
+  transition: all var(--elite-transition-standard);
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.elite-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s;
+}
+
+.elite-btn:hover::before {
+  transform: translateX(100%);
+}
+
+.elite-btn:focus {
+  outline: 2px solid var(--elite-primary);
+  outline-offset: 2px;
+}
+
+.elite-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ─── Primary Button (Apple Style) ─── */
+.elite-btn-primary {
+  background: linear-gradient(135deg, var(--elite-primary) 0%, var(--elite-primary-variant) 100%);
+  color: var(--elite-primary-on);
+  box-shadow: var(--elite-shadow-sm);
+}
+
+.elite-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--elite-primary-variant) 0%, var(--elite-primary) 100%);
+  transform: translateY(-1px);
+  box-shadow: var(--elite-shadow-lg);
+}
+
+.elite-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--elite-shadow-sm);
+}
+
+/* ─── Secondary Button (Google Material Style) ─── */
+.elite-btn-secondary {
+  background: var(--elite-secondary-container);
+  color: var(--elite-secondary-on-container);
+  box-shadow: var(--elite-shadow-sm);
+}
+
+.elite-btn-secondary:hover:not(:disabled) {
+  background: var(--elite-secondary);
+  transform: translateY(-1px);
+  box-shadow: var(--elite-shadow-lg);
+}
+
+/* ─── Tertiary Button (Apple Ghost Style) ─── */
+.elite-btn-tertiary {
+  background: transparent;
+  color: var(--elite-tertiary);
+  border: 1px solid var(--elite-tertiary);
+}
+
+.elite-btn-tertiary:hover:not(:disabled) {
+  background: var(--elite-tertiary-container);
+  color: var(--elite-tertiary-on-container);
+  transform: translateY(-1px);
+  box-shadow: var(--elite-shadow-md);
+}
+
+/* ─── Surface Button (Elevated) ─── */
+.elite-btn-surface {
+  background: var(--elite-surface-container-high);
+  color: var(--elite-primary);
+  box-shadow: var(--elite-shadow-md);
+}
+
+.elite-btn-surface:hover:not(:disabled) {
+  background: var(--elite-surface-container);
+  transform: translateY(-2px);
+  box-shadow: var(--elite-shadow-xl);
+}
+
+/* ─── Button Sizes ─── */
+.elite-btn-xs {
+  padding: var(--elite-space-1) var(--elite-space-2);
+  font-size: var(--elite-text-label-small);
+  min-height: 24px;
+}
+
+.elite-btn-sm {
+  padding: var(--elite-space-2) var(--elite-space-3);
+  font-size: var(--elite-text-label-medium);
+  min-height: 32px;
+}
+
+.elite-btn-lg {
+  padding: var(--elite-space-4) var(--elite-space-6);
+  font-size: var(--elite-text-label-large);
+  min-height: 48px;
+}
+
+.elite-btn-xl {
+  padding: var(--elite-space-5) var(--elite-space-8);
+  font-size: var(--elite-text-title-medium);
+  min-height: 56px;
+}
+
+.elite-btn-hero {
+  padding: var(--elite-space-6) var(--elite-space-12);
+  font-size: var(--elite-text-title-large);
+  font-weight: var(--elite-font-weight-semibold);
+  min-height: 64px;
+  border-radius: var(--elite-radius-xl);
+  letter-spacing: 0.025em;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ENTERPRISE ELITE CARD SYSTEM
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.elite-card {
+  background: var(--elite-surface-container-high);
+  border-radius: var(--elite-radius-xl);
+  box-shadow: var(--elite-shadow-sm);
+  transition: all var(--elite-transition-standard);
+  overflow: hidden;
+  border: 1px solid var(--elite-outline-variant);
+}
+
+.elite-card:hover {
+  box-shadow: var(--elite-shadow-lg);
+  transform: translateY(-2px);
+}
+
+.elite-card-header {
+  padding: var(--elite-space-6);
+  border-bottom: 1px solid var(--elite-outline-variant);
+  background: var(--elite-surface-container);
+}
+
+.elite-card-title {
+  font-size: var(--elite-text-title-large);
+  font-weight: var(--elite-font-weight-semibold);
+  color: var(--elite-neutral-on-container);
+  margin: 0;
+  line-height: var(--elite-line-height-tight);
+}
+
+.elite-card-subtitle {
+  font-size: var(--elite-text-body-medium);
+  color: var(--elite-neutral-variant);
+  margin-top: var(--elite-space-1);
+}
+
+.elite-card-body {
+  padding: var(--elite-space-6);
+}
+
+.elite-card-footer {
+  padding: var(--elite-space-6);
+  border-top: 1px solid var(--elite-outline-variant);
+  background: var(--elite-surface-container);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ─── Card Variants ─── */
+.elite-card-elevated {
+  box-shadow: var(--elite-shadow-xl);
+  border: none;
+}
+
+.elite-card-elevated:hover {
+  box-shadow: var(--elite-shadow-2xl);
+  transform: translateY(-4px);
+}
+
+.elite-card-outlined {
+  box-shadow: none;
+  border: 2px solid var(--elite-outline);
+}
+
+.elite-card-filled {
+  background: var(--elite-surface-container);
+  box-shadow: none;
+  border: none;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ENTERPRISE ELITE FORM SYSTEM
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.elite-form-group {
+  margin-bottom: var(--elite-space-5);
+}
+
+.elite-form-label {
+  display: block;
+  font-size: var(--elite-text-label-large);
+  font-weight: var(--elite-font-weight-medium);
+  color: var(--elite-neutral-on-container);
+  margin-bottom: var(--elite-space-2);
+}
+
+.elite-form-label-required::after {
+  content: " *";
+  color: var(--elite-error);
+}
+
+.elite-form-input,
+.elite-form-select,
+.elite-form-textarea {
+  width: 100%;
+  padding: var(--elite-space-3) var(--elite-space-4);
+  font-size: var(--elite-text-body-large);
+  font-family: var(--elite-font-family);
+  color: var(--elite-neutral-on-container);
+  background: var(--elite-surface-container-high);
+  border: 1px solid var(--elite-outline);
+  border-radius: var(--elite-radius-lg);
+  transition: all var(--elite-transition-standard);
+}
+
+.elite-form-input:focus,
+.elite-form-select:focus,
+.elite-form-textarea:focus {
+  outline: none;
+  border-color: var(--elite-primary);
+  border-width: 2px;
+  box-shadow: 0 0 0 4px var(--elite-primary-container);
+}
+
+.elite-form-input:disabled,
+.elite-form-select:disabled,
+.elite-form-textarea:disabled {
+  background: var(--elite-surface-variant);
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.elite-form-input.is-invalid,
+.elite-form-select.is-invalid,
+.elite-form-textarea.is-invalid {
+  border-color: var(--elite-error);
+}
+
+.elite-form-input.is-invalid:focus,
+.elite-form-select.is-invalid:focus,
+.elite-form-textarea.is-invalid:focus {
+  box-shadow: 0 0 0 4px var(--elite-error-container);
+}
+
+.elite-form-help {
+  display: block;
+  margin-top: var(--elite-space-2);
+  font-size: var(--elite-text-body-small);
+  color: var(--elite-neutral-variant);
+}
+
+.elite-form-error {
+  display: block;
+  margin-top: var(--elite-space-2);
+  font-size: var(--elite-text-body-small);
+  color: var(--elite-error);
+  font-weight: var(--elite-font-weight-medium);
+}
+
+.elite-form-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ENTERPRISE ELITE ALERT SYSTEM
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.elite-alert {
+  padding: var(--elite-space-4) var(--elite-space-5);
+  border-radius: var(--elite-radius-lg);
+  border: 1px solid var(--elite-outline);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--elite-space-3);
+}
+
+.elite-alert-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+}
+
+.elite-alert-content {
+  flex: 1;
+}
+
+.elite-alert-title {
+  font-size: var(--elite-text-title-small);
+  font-weight: var(--elite-font-weight-medium);
+  margin-bottom: var(--elite-space-1);
+}
+
+.elite-alert-description {
+  font-size: var(--elite-text-body-medium);
+  line-height: var(--elite-line-height-normal);
+}
+
+/* ─── Alert Variants ─── */
+.elite-alert-success {
+  background: var(--elite-success-container);
+  border-color: var(--elite-success);
+  color: var(--elite-success-on-container);
+}
+
+.elite-alert-warning {
+  background: var(--elite-warning-container);
+  border-color: var(--elite-warning);
+  color: var(--elite-warning-on-container);
+}
+
+.elite-alert-error {
+  background: var(--elite-error-container);
+  border-color: var(--elite-error);
+  color: var(--elite-error-on-container);
+}
+
+.elite-alert-info {
+  background: var(--elite-info-container);
+  border-color: var(--elite-info);
+  color: var(--elite-info-on-container);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ENTERPRISE ELITE TABLE SYSTEM
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.elite-table-container {
+  overflow-x: auto;
+  border-radius: var(--elite-radius-xl);
+  border: 1px solid var(--elite-outline-variant);
+  background: var(--elite-surface-container-high);
+}
+
+.elite-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--elite-surface-container-high);
+}
+
+.elite-table thead {
+  background: var(--elite-surface-container);
+  border-bottom: 2px solid var(--elite-outline);
+}
+
+.elite-table th {
+  padding: var(--elite-space-4) var(--elite-space-5);
+  text-align: left;
+  font-size: var(--elite-text-label-large);
+  font-weight: var(--elite-font-weight-semibold);
+  color: var(--elite-neutral-on-container);
+  white-space: nowrap;
+}
+
+.elite-table td {
+  padding: var(--elite-space-4) var(--elite-space-5);
+  font-size: var(--elite-text-body-medium);
+  color: var(--elite-neutral-on-container);
+  border-bottom: 1px solid var(--elite-outline-variant);
+}
+
+.elite-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.elite-table tbody tr:hover {
+  background: var(--elite-surface-container);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ENTERPRISE ELITE MODAL SYSTEM
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.elite-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--elite-z-modal-backdrop);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.elite-modal {
+  background: var(--elite-surface-container-high);
+  border-radius: var(--elite-radius-2xl);
+  box-shadow: var(--elite-shadow-3xl);
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: var(--elite-z-modal);
+  border: 1px solid var(--elite-outline-variant);
+}
+
+.elite-modal-header {
+  padding: var(--elite-space-6);
+  border-bottom: 1px solid var(--elite-outline-variant);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--elite-surface-container);
+}
+
+.elite-modal-title {
+  font-size: var(--elite-text-headline-small);
+  font-weight: var(--elite-font-weight-semibold);
+  color: var(--elite-neutral-on-container);
+  margin: 0;
+}
+
+.elite-modal-close {
+  background: none;
+  border: none;
+  font-size: var(--elite-text-headline-medium);
+  color: var(--elite-neutral-variant);
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--elite-radius-full);
+  transition: all var(--elite-transition-fast);
+}
+
+.elite-modal-close:hover {
+  background: var(--elite-surface-variant);
+  color: var(--elite-neutral-on-container);
+}
+
+.elite-modal-body {
+  padding: var(--elite-space-6);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.elite-modal-footer {
+  padding: var(--elite-space-6);
+  border-top: 1px solid var(--elite-outline-variant);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--elite-space-3);
+  background: var(--elite-surface-container);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ENTERPRISE ELITE UTILITY SYSTEM
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ─── Typography Utilities ─── */
+.elite-text-display-large { 
+  font-size: var(--elite-text-display-large); 
+  font-weight: var(--elite-font-weight-semibold);
+  line-height: var(--elite-line-height-tight);
+}
+
+.elite-text-headline-large { 
+  font-size: var(--elite-text-headline-large); 
+  font-weight: var(--elite-font-weight-semibold);
+}
+
+.elite-text-title-large { 
+  font-size: var(--elite-text-title-large); 
+  font-weight: var(--elite-font-weight-medium);
+}
+
+.elite-text-body-large { 
+  font-size: var(--elite-text-body-large); 
+  font-weight: var(--elite-font-weight-regular);
+}
+
+.elite-text-label-large { 
+  font-size: var(--elite-text-label-large); 
+  font-weight: var(--elite-font-weight-medium);
+}
+
+/* ─── Color Utilities ─── */
+.elite-text-primary { color: var(--elite-primary); }
+.elite-text-secondary { color: var(--elite-secondary); }
+.elite-text-tertiary { color: var(--elite-tertiary); }
+.elite-text-success { color: var(--elite-success); }
+.elite-text-warning { color: var(--elite-warning); }
+.elite-text-error { color: var(--elite-error); }
+.elite-text-info { color: var(--elite-info); }
+.elite-text-muted { color: var(--elite-neutral-variant); }
+
+/* ─── Background Utilities ─── */
+.elite-bg-primary { background: var(--elite-primary); }
+.elite-bg-secondary { background: var(--elite-secondary); }
+.elite-bg-tertiary { background: var(--elite-tertiary); }
+.elite-bg-success { background: var(--elite-success); }
+.elite-bg-warning { background: var(--elite-warning); }
+.elite-bg-error { background: var(--elite-error); }
+.elite-bg-info { background: var(--elite-info); }
+.elite-bg-surface { background: var(--elite-surface); }
+.elite-bg-surface-variant { background: var(--elite-surface-variant); }
+
+/* ─── Spacing Utilities ─── */
+.elite-m-0 { margin: 0 !important; }
+.elite-mt-4 { margin-top: var(--elite-space-4); }
+.elite-mb-4 { margin-bottom: var(--elite-space-4); }
+.elite-p-4 { padding: var(--elite-space-4); }
+.elite-p-6 { padding: var(--elite-space-6); }
+
+/* ─── Shadow Utilities ─── */
+.elite-shadow-sm { box-shadow: var(--elite-shadow-sm); }
+.elite-shadow { box-shadow: var(--elite-shadow-sm); }
+.elite-shadow-md { box-shadow: var(--elite-shadow-md); }
+.elite-shadow-lg { box-shadow: var(--elite-shadow-lg); }
+.elite-shadow-xl { box-shadow: var(--elite-shadow-xl); }
+.elite-shadow-2xl { box-shadow: var(--elite-shadow-2xl); }
+
+/* ─── Border Radius Utilities ─── */
+.elite-rounded { border-radius: var(--elite-radius-lg); }
+.elite-rounded-lg { border-radius: var(--elite-radius-xl); }
+.elite-rounded-xl { border-radius: var(--elite-radius-2xl); }
+.elite-rounded-full { border-radius: var(--elite-radius-full); }
+
+/* ─── Display Utilities ─── */
+.elite-hidden { display: none !important; }
+.elite-block { display: block !important; }
+.elite-flex { display: flex !important; }
+.elite-inline-flex { display: inline-flex !important; }
+.elite-grid { display: grid !important; }
+
+/* ─── Flex Utilities ─── */
+.elite-flex-col { flex-direction: column; }
+.elite-flex-row { flex-direction: row; }
+.elite-items-center { align-items: center; }
+.elite-items-start { align-items: flex-start; }
+.elite-items-end { align-items: flex-end; }
+.elite-justify-center { justify-content: center; }
+.elite-justify-between { justify-content: space-between; }
+.elite-justify-end { justify-content: flex-end; }
+.elite-gap-2 { gap: var(--elite-space-2); }
+.elite-gap-4 { gap: var(--elite-space-4); }
+.elite-gap-6 { gap: var(--elite-space-6); }
+
+/* ─── Text Alignment ─── */
+.elite-text-center { text-align: center; }
+.elite-text-left { text-align: left; }
+.elite-text-right { text-align: right; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ENTERPRISE ELITE RESPONSIVE SYSTEM
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@media (max-width: 640px) {
+  .elite-modal {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .elite-card-body {
+    padding: var(--elite-space-4);
+  }
+
+  .elite-btn-lg {
+    padding: var(--elite-space-3) var(--elite-space-5);
+    font-size: var(--elite-text-label-large);
+  }
+
+  .elite-table th,
+  .elite-table td {
+    padding: var(--elite-space-3) var(--elite-space-4);
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ENTERPRISE ELITE RTL SUPPORT
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+[dir="rtl"] .elite-btn,
+[dir="rtl"] .elite-form-input,
+[dir="rtl"] .elite-form-select {
+  text-align: right;
+}
+
+[dir="rtl"] .elite-table th,
+[dir="rtl"] .elite-table td {
+  text-align: right;
+}
+
+[dir="rtl"] .elite-modal-footer {
+  justify-content: flex-start;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ENTERPRISE ELITE DARK MODE
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* ─── Dark Mode Surface System ─── */
+    --elite-surface: #121212;
+    --elite-surface-variant: #1C1C1C;
+    --elite-surface-container: #212121;
+    --elite-surface-container-high: #2C2C2C;
+    --elite-surface-container-low: #1A1A1A;
+    --elite-surface-dim: #0F0F0F;
+    --elite-surface-bright: #FFFFFF;
+    
+    /* ─── Dark Mode Neutral Palette ─── */
+    --elite-neutral: #CCC2DC;
+    --elite-neutral-variant: #49454F;
+    --elite-neutral-on: #1C1B1F;
+    --elite-neutral-on-container: #E6E0E9;
+    
+    /* ─── Dark Mode Outline ─── */
+    --elite-outline: #938F99;
+    --elite-outline-variant: #49454F;
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ENTERPRISE ELITE ANIMATIONS
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@keyframes elite-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes elite-slide-up {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes elite-scale-in {
+  from { 
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.elite-animate-fade-in {
+  animation: elite-fade-in 0.3s ease-out;
+}
+
+.elite-animate-slide-up {
+  animation: elite-slide-up 0.4s ease-out;
+}
+
+.elite-animate-scale-in {
+  animation: elite-scale-in 0.2s ease-out;
+}

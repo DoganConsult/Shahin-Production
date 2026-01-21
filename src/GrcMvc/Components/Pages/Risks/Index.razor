@@ -1,0 +1,322 @@
+@page "/risks"
+@using GrcMvc.Models.DTOs
+@using GrcMvc.Services.Interfaces
+@using GrcMvc.Services.Mappers
+@using GrcMvc.Models.DTOs
+@using System.Linq
+
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var isRtl = currentCulture == "ar";
+    var dir = isRtl ? "rtl" : "ltr";
+}
+
+<PageTitle>@(isRtl ? "سجل المخاطر" : "Risk Register")</PageTitle>
+
+<div dir="@dir" class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6">Risk Register</h1>
+            <p class="text-muted">Comprehensive risk inventory and tracking</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/risks/create" class="btn btn-primary">
+                <span class="me-2">+</span>Register New Risk
+            </a>
+        </div>
+    </div>
+
+    <LoadingSpinner IsLoading="@isLoading" Message="Loading risks..." />
+    
+    <ErrorAlert Message="@errorMessage" Severity="danger" ShowDismiss="true" />
+
+    <!-- Filtering Options -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="form-label">Filter by Status</label>
+                            <select class="form-select form-select-sm" @onchange="FilterByStatus">
+                                <option value="">All Statuses</option>
+                                <option value="Open">Open</option>
+                                <option value="Mitigated">Mitigated</option>
+                                <option value="Accepted">Accepted</option>
+                                <option value="Closed">Closed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Filter by Rating</label>
+                            <select class="form-select form-select-sm" @onchange="FilterByRating">
+                                <option value="">All Ratings</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Sort By</label>
+                            <select class="form-select form-select-sm" @onchange="ChangeSortOrder">
+                                <option value="date">Date (Newest)</option>
+                                <option value="risk-high">Risk Score (High)</option>
+                                <option value="status">Status</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">&nbsp;</label>
+                            <button class="btn btn-sm btn-outline-secondary w-100" @onclick="ResetFilters">
+                                Reset Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-2">
+            <div class="card text-center border-danger">
+                <div class="card-body">
+                    <h6 class="card-title">Critical Risks</h6>
+                    <p class="display-6 text-danger mb-0">@(risks.Count(r => r.ResidualRating == "Critical"))</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="card text-center border-warning">
+                <div class="card-body">
+                    <h6 class="card-title">High Risks</h6>
+                    <p class="display-6 text-warning mb-0">@(risks.Count(r => r.ResidualRating == "High"))</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="card text-center border-info">
+                <div class="card-body">
+                    <h6 class="card-title">Medium Risks</h6>
+                    <p class="display-6 text-info mb-0">@(risks.Count(r => r.ResidualRating == "Medium"))</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="card text-center border-success">
+                <div class="card-body">
+                    <h6 class="card-title">Low Risks</h6>
+                    <p class="display-6 text-success mb-0">@(risks.Count(r => r.ResidualRating == "Low"))</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Risk Number</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Inherent</th>
+                                <th>Residual</th>
+                                <th>Owner</th>
+                                <th>Identified</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var risk in risks)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-secondary">@risk.RiskNumber</span>
+                                    </td>
+                                    <td>
+                                        <strong>@risk.Title</strong>
+                                        <br />
+                                        <small class="text-muted">@risk.Category</small>
+                                    </td>
+                                    <td>@risk.Category</td>
+                                    <td>
+                                        <StatusBadge Status="@risk.Status" />
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">@risk.InherentScore</span>
+                                    </td>
+                                    <td>
+                                        @if (risk.ResidualRating == "Critical")
+                                        {
+                                            <span class="badge bg-danger">@risk.ResidualScore (Critical)</span>
+                                        }
+                                        else if (risk.ResidualRating == "High")
+                                        {
+                                            <span class="badge bg-warning">@risk.ResidualScore (High)</span>
+                                        }
+                                        else if (risk.ResidualRating == "Medium")
+                                        {
+                                            <span class="badge bg-info">@risk.ResidualScore (Medium)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">@risk.ResidualScore (Low)</span>
+                                        }
+                                    </td>
+                                    <td>@risk.ResponsibleParty</td>
+                                    <td>@risk.IdentifiedDate.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        <a href="/risks/@risk.Id/edit" class="btn btn-sm btn-outline-primary">Edit</a>
+                                        <a href="/risks/@risk.Id" class="btn btn-sm btn-outline-secondary">View</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IRiskService RiskService
+
+@code {
+    private List<RiskListItemDto> risks = new();
+    private bool isLoading = true;
+    private string selectedStatus = "";
+    private string selectedRating = "";
+    private string sortOrder = "date";
+    private RiskStatisticsDto? statistics;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+            
+            // Load from service
+            var serviceRisksResult = await RiskService.GetAllAsync();
+            
+            // Convert Service DTOs to UI DTOs
+            if (serviceRisksResult.IsSuccess)
+            {
+                risks = serviceRisksResult.Value
+                    .Select(RiskDtoMapper.ToListItemDto)
+                    .ToList();
+            }
+            else
+            {
+                risks = new List<RiskListItemDto>();
+                errorMessage = serviceRisksResult.Error ?? "Failed to load risks";
+            }
+            
+            // Load statistics
+            var statisticsResult = await RiskService.GetStatisticsAsync();
+            if (statisticsResult.IsSuccess)
+            {
+                statistics = statisticsResult.Value;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log error (you can inject ILogger if needed)
+            // For now, fallback to empty list
+            risks = new List<RiskListItemDto>();
+            errorMessage = $"Error loading risks: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task FilterByStatus(ChangeEventArgs e)
+    {
+        selectedStatus = e.Value?.ToString() ?? "";
+        await ApplyFilters();
+    }
+
+    private async Task FilterByRating(ChangeEventArgs e)
+    {
+        selectedRating = e.Value?.ToString() ?? "";
+        await ApplyFilters();
+    }
+
+    private async Task ChangeSortOrder(ChangeEventArgs e)
+    {
+        sortOrder = e.Value?.ToString() ?? "date";
+        await ApplyFilters();
+    }
+
+    private async Task ApplyFilters()
+    {
+        try
+        {
+            isLoading = true;
+            
+            IEnumerable<RiskDto> serviceRisks = Enumerable.Empty<RiskDto>();
+            
+            // Apply status filter if selected
+            if (!string.IsNullOrEmpty(selectedStatus))
+            {
+                var statusResult = await RiskService.GetByStatusAsync(selectedStatus);
+                if (statusResult.IsSuccess)
+                    serviceRisks = statusResult.Value;
+            }
+            else
+            {
+                var allResult = await RiskService.GetAllAsync();
+                if (allResult.IsSuccess)
+                    serviceRisks = allResult.Value;
+            }
+            
+            // Convert to UI DTOs
+            var filtered = serviceRisks
+                .Select(RiskDtoMapper.ToListItemDto)
+                .ToList();
+            
+            // Apply rating filter (client-side, as service doesn't have this)
+            if (!string.IsNullOrEmpty(selectedRating))
+            {
+                filtered = filtered
+                    .Where(r => r.ResidualRating == selectedRating)
+                    .ToList();
+            }
+            
+            // Apply sorting
+            risks = sortOrder switch
+            {
+                "date" => filtered.OrderByDescending(r => r.IdentifiedDate).ToList(),
+                "risk-high" => filtered.OrderByDescending(r => r.ResidualScore).ToList(),
+                "status" => filtered.OrderBy(r => r.Status).ToList(),
+                _ => filtered
+            };
+        }
+        catch (Exception ex)
+        {
+            // Log error
+            risks = new List<RiskListItemDto>();
+            errorMessage = $"Error filtering risks: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ResetFilters()
+    {
+        selectedStatus = "";
+        selectedRating = "";
+        sortOrder = "date";
+    }
+}

@@ -1,0 +1,171 @@
+@{
+    ViewData["Title"] = "Evidence Workflow Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var evidenceId = ViewBag.EvidenceId ?? Context.Request.Query["id"].ToString();
+}
+
+<div class="container-fluid mt-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "WorkflowUI")">Workflows</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Evidence", "WorkflowUI")">Evidence</a></li>
+            <li class="breadcrumb-item active">Detail</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3">
+                <i class="fas fa-file-alt text-info me-2"></i>
+                Evidence Review
+            </h1>
+            <p class="text-muted">Review and score evidence submission</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-success me-2" onclick="acceptEvidence()">
+                <i class="fas fa-check"></i> Accept
+            </button>
+            <button class="btn btn-warning me-2" onclick="requestRevision()">
+                <i class="fas fa-redo"></i> Request Revision
+            </button>
+            <button class="btn btn-danger" onclick="rejectEvidence()">
+                <i class="fas fa-times"></i> Reject
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Evidence Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Evidence Number</label>
+                            <p class="fw-bold">EVD-20260106-001</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Evidence Type</label>
+                            <p class="fw-bold">Document</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Control Reference</label>
+                            <p>ECC-1-1-1 - Cybersecurity Governance</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Submitted By</label>
+                            <p>Ahmed Al-Rashid</p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Title</label>
+                        <p class="fw-bold">Information Security Policy v2.0</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Description</label>
+                        <p>Approved information security policy document covering all organizational security requirements.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-file me-2"></i>Attached Files</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div><i class="fas fa-file-pdf text-danger me-2"></i>InfoSec_Policy_v2.0.pdf</div>
+                                <div>
+                                    <span class="badge bg-secondary me-2">2.4 MB</span>
+                                    <button class="btn btn-sm btn-outline-primary"><i class="fas fa-download"></i></button>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-star me-2"></i>Scoring</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Completeness Score</label>
+                            <select class="form-select">
+                                <option value="1">1 - Not Acceptable</option>
+                                <option value="2">2 - Partially Acceptable</option>
+                                <option value="3" selected>3 - Acceptable</option>
+                                <option value="4">4 - Good</option>
+                                <option value="5">5 - Excellent</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Relevance Score</label>
+                            <select class="form-select">
+                                <option value="1">1 - Not Relevant</option>
+                                <option value="2">2 - Partially Relevant</option>
+                                <option value="3" selected>3 - Relevant</option>
+                                <option value="4">4 - Highly Relevant</option>
+                                <option value="5">5 - Perfectly Relevant</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Review Comments</label>
+                        <textarea class="form-control" rows="3" placeholder="Add review comments..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Status</h6>
+                </div>
+                <div class="card-body text-center">
+                    <span class="badge bg-warning fs-5 mb-3">Under Review</span>
+                    <p class="text-muted small">Submitted Jan 5, 2026</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="list-group list-group-flush">
+                    <a href="@Url.Action("Evidence", "WorkflowUI")" class="list-group-item list-group-item-action">
+                        <i class="fas fa-arrow-left text-secondary me-2"></i> Back to Evidence
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function acceptEvidence() {
+        if (confirm('Accept this evidence?')) {
+            alert('Evidence accepted!');
+            window.location.href = '@Url.Action("Evidence", "WorkflowUI")';
+        }
+    }
+    function requestRevision() {
+        var reason = prompt('What revisions are needed?');
+        if (reason) {
+            alert('Revision requested.');
+        }
+    }
+    function rejectEvidence() {
+        var reason = prompt('Reason for rejection:');
+        if (reason) {
+            alert('Evidence rejected.');
+            window.location.href = '@Url.Action("Evidence", "WorkflowUI")';
+        }
+    }
+</script>
+}

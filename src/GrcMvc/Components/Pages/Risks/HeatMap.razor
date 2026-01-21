@@ -1,0 +1,531 @@
+@page "/risks/heatmap"
+@using GrcMvc.Models.DTOs
+@using GrcMvc.Services.Interfaces
+@using Microsoft.AspNetCore.Components
+@inject IRiskService RiskService
+@inject ITenantService TenantService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Risk Heat Map</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6">Risk Heat Map</h1>
+            <p class="text-muted">Interactive 5x5 risk matrix visualization</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-outline-secondary" @onclick="RefreshData">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+            <a href="/risks" class="btn btn-primary">
+                <i class="bi bi-list"></i> Risk Register
+            </a>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="text-muted mt-3">Loading heat map data...</p>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+        </div>
+    }
+    else
+    {
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-danger text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 opacity-75">Critical Risks</h6>
+                        <h2 class="card-title mb-0">@criticalCount</h2>
+                        <small class="opacity-75">Immediate action required</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark h-100">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2">High Risks</h6>
+                        <h2 class="card-title mb-0">@highCount</h2>
+                        <small>Priority mitigation needed</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 opacity-75">Medium Risks</h6>
+                        <h2 class="card-title mb-0">@mediumCount</h2>
+                        <small class="opacity-75">Managed mitigation</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 opacity-75">Low Risks</h6>
+                        <h2 class="card-title mb-0">@lowCount</h2>
+                        <small class="opacity-75">Monitor and track</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Heat Map Matrix -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="bi bi-grid-3x3"></i> 5x5 Risk Matrix
+                                <small class="text-muted ms-2">(@totalRisks risks plotted)</small>
+                            </h5>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-secondary @(viewMode == "count" ? "active" : "")"
+                                        @onclick="SetViewModeCount">
+                                    Count
+                                </button>
+                                <button class="btn btn-outline-secondary @(viewMode == "list" ? "active" : "")"
+                                        @onclick="SetViewModeList">
+                                    List
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="heat-map-container">
+                            <!-- Y-Axis Label (Impact) -->
+                            <div class="axis-label axis-label-y">
+                                <div class="axis-title">
+                                    <i class="bi bi-arrow-up"></i> IMPACT
+                                </div>
+                            </div>
+
+                            <!-- Heat Map Grid -->
+                            <div class="heat-map-grid">
+                                <!-- Impact levels (5 to 1, top to bottom) -->
+                                @for (int impact = 5; impact >= 1; impact--)
+                                {
+                                    <div class="heat-map-row">
+                                        <!-- Impact Label -->
+                                        <div class="axis-label-cell">
+                                            <strong>@GetImpactLabel(impact)</strong>
+                                        </div>
+
+                                        <!-- Probability cells (1 to 5, left to right) -->
+                                        @for (int probability = 1; probability <= 5; probability++)
+                                        {
+                                            var cellRisks = GetRisksInCell(probability, impact);
+                                            var cellClass = GetCellColorClass(probability, impact);
+                                            var riskScore = probability * impact;
+
+                                            <div class="heat-map-cell @cellClass"
+                                                 @onclick="() => ShowCellDetails(probability, impact)"
+                                                 title="@cellRisks.Count risk(s) - Click for details">
+
+                                                @if (viewMode == "count")
+                                                {
+                                                    <div class="cell-count">
+                                                        @cellRisks.Count
+                                                    </div>
+                                                    <div class="cell-score">
+                                                        Score: @riskScore
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="cell-risks-list">
+                                                        @if (cellRisks.Any())
+                                                        {
+                                                            @foreach (var risk in cellRisks.Take(3))
+                                                            {
+                                                                <div class="risk-item">@risk.Name</div>
+                                                            }
+                                                            @if (cellRisks.Count > 3)
+                                                            {
+                                                                <div class="risk-more">+@(cellRisks.Count - 3) more</div>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="cell-empty">—</div>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+
+                                <!-- Probability Labels Row -->
+                                <div class="heat-map-row axis-row">
+                                    <div class="axis-label-cell"></div>
+                                    @for (int probability = 1; probability <= 5; probability++)
+                                    {
+                                        <div class="axis-label-cell">
+                                            <strong>@GetProbabilityLabel(probability)</strong>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- X-Axis Label (Probability) -->
+                            <div class="axis-label axis-label-x">
+                                <div class="axis-title">
+                                    PROBABILITY <i class="bi bi-arrow-right"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Legend -->
+                        <div class="heat-map-legend mt-4">
+                            <div class="d-flex justify-content-center gap-4">
+                                <div class="legend-item">
+                                    <span class="legend-color bg-danger"></span>
+                                    <span>Critical (20-25)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color bg-warning"></span>
+                                    <span>High (12-16)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color bg-info"></span>
+                                    <span>Medium (6-10)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color bg-success"></span>
+                                    <span>Low (1-5)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cell Details Modal -->
+        @if (selectedCell != null)
+        {
+            <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                Risks: Probability @selectedCell.Value.Probability × Impact @selectedCell.Value.Impact
+                                <span class="badge @GetCellColorClass(selectedCell.Value.Probability, selectedCell.Value.Impact) ms-2">
+                                    Score: @(selectedCell.Value.Probability * selectedCell.Value.Impact)
+                                </span>
+                            </h5>
+                            <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                        </div>
+                        <div class="modal-body">
+                            @if (selectedCellRisks.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Risk ID</th>
+                                                <th>Name</th>
+                                                <th>Status</th>
+                                                <th>Owner</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var risk in selectedCellRisks)
+                                            {
+                                                <tr>
+                                                    <td><code>@risk.Id.ToString().Substring(0, 8)</code></td>
+                                                    <td>@risk.Name</td>
+                                                    <td><span class="badge bg-secondary">@risk.Status</span></td>
+                                                    <td>@risk.Owner</td>
+                                                    <td>
+                                                        <a href="/risks/edit?id=@risk.Id" class="btn btn-sm btn-outline-primary">
+                                                            View
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No risks in this cell.</p>
+                            }
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<style>
+    .heat-map-container {
+        position: relative;
+        padding: 40px;
+    }
+
+    .axis-label {
+        position: absolute;
+        font-weight: bold;
+        color: #6c757d;
+    }
+
+    .axis-label-y {
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%) rotate(-90deg);
+        transform-origin: center;
+    }
+
+    .axis-label-x {
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .axis-title {
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+    }
+
+    .heat-map-grid {
+        display: table;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 4px;
+    }
+
+    .heat-map-row {
+        display: table-row;
+    }
+
+    .heat-map-cell {
+        display: table-cell;
+        width: 18%;
+        height: 100px;
+        text-align: center;
+        vertical-align: middle;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        padding: 8px;
+    }
+
+    .heat-map-cell:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 10;
+    }
+
+    .axis-label-cell {
+        display: table-cell;
+        width: 10%;
+        text-align: center;
+        vertical-align: middle;
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    .axis-row .axis-label-cell {
+        font-size: 0.85rem;
+    }
+
+    .cell-count {
+        font-size: 2rem;
+        font-weight: bold;
+        color: white;
+    }
+
+    .cell-score {
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.8);
+        margin-top: 4px;
+    }
+
+    .cell-risks-list {
+        font-size: 0.75rem;
+        color: white;
+        max-height: 80px;
+        overflow: hidden;
+    }
+
+    .risk-item {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 2px;
+    }
+
+    .risk-more {
+        font-style: italic;
+        opacity: 0.8;
+        margin-top: 4px;
+    }
+
+    .cell-empty {
+        font-size: 1.5rem;
+        color: rgba(255,255,255,0.5);
+    }
+
+    /* Color Classes */
+    .bg-critical { background-color: #dc3545; color: white; }
+    .bg-high { background-color: #ffc107; color: #000; }
+    .bg-medium { background-color: #0dcaf0; color: white; }
+    .bg-low { background-color: #198754; color: white; }
+
+    .heat-map-legend {
+        border-top: 1px solid #dee2e6;
+        padding-top: 1rem;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .legend-color {
+        width: 30px;
+        height: 20px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+</style>
+
+@code {
+    private bool isLoading = true;
+    private string? errorMessage;
+    private string viewMode = "count"; // "count" or "list"
+
+    private List<RiskDto> allRisks = new();
+    private int totalRisks = 0;
+    private int criticalCount = 0;
+    private int highCount = 0;
+    private int mediumCount = 0;
+    private int lowCount = 0;
+
+    private (int Probability, int Impact)? selectedCell;
+    private List<RiskDto> selectedCellRisks = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadHeatMapData();
+    }
+
+    private async Task LoadHeatMapData()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var result = await RiskService.GetAllAsync();
+
+            if (result.IsSuccess && result.Value != null)
+            {
+                allRisks = result.Value.ToList();
+                totalRisks = allRisks.Count;
+
+                // Calculate counts by risk level
+                criticalCount = allRisks.Count(r => (r.Probability * r.Impact) >= 20);
+                highCount = allRisks.Count(r => (r.Probability * r.Impact) >= 12 && (r.Probability * r.Impact) < 20);
+                mediumCount = allRisks.Count(r => (r.Probability * r.Impact) >= 6 && (r.Probability * r.Impact) < 12);
+                lowCount = allRisks.Count(r => (r.Probability * r.Impact) < 6);
+            }
+            else
+            {
+                errorMessage = result.Error ?? "Failed to load risk data";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading heat map: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private List<RiskDto> GetRisksInCell(int probability, int impact)
+    {
+        return allRisks.Where(r => r.Probability == probability && r.Impact == impact).ToList();
+    }
+
+    private string GetCellColorClass(int probability, int impact)
+    {
+        var score = probability * impact;
+        if (score >= 20) return "bg-critical";
+        if (score >= 12) return "bg-high";
+        if (score >= 6) return "bg-medium";
+        return "bg-low";
+    }
+
+    private string GetImpactLabel(int impact)
+    {
+        return impact switch
+        {
+            5 => "Critical",
+            4 => "High",
+            3 => "Medium",
+            2 => "Low",
+            1 => "Minimal",
+            _ => impact.ToString()
+        };
+    }
+
+    private string GetProbabilityLabel(int probability)
+    {
+        return probability switch
+        {
+            5 => "Almost Certain",
+            4 => "Likely",
+            3 => "Possible",
+            2 => "Unlikely",
+            1 => "Rare",
+            _ => probability.ToString()
+        };
+    }
+
+    private void ShowCellDetails(int probability, int impact)
+    {
+        selectedCell = (probability, impact);
+        selectedCellRisks = GetRisksInCell(probability, impact);
+    }
+
+    private void CloseModal()
+    {
+        selectedCell = null;
+        selectedCellRisks.Clear();
+    }
+
+    private void SetViewModeCount() => viewMode = "count";
+    private void SetViewModeList() => viewMode = "list";
+
+    private async Task RefreshData()
+    {
+        await LoadHeatMapData();
+    }
+}

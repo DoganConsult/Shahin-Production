@@ -1,0 +1,140 @@
+@model GrcMvc.Controllers.SelfRegistrationViewModel
+@{
+    ViewData["Title"] = "Register Your Organization";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <img src="~/images/brand/eagle-logo-128.png" alt="Shahin AI" class="mb-3" style="height: 80px;" />
+                <h1 class="h3">Register Your Organization</h1>
+                <p class="text-muted">Start your 14-day free trial of Shahin GRC Platform</p>
+            </div>
+
+            <!-- Registration Form -->
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-4">
+                    <form asp-action="Index" method="post" id="registerForm">
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <!-- Organization Name -->
+                        <div class="mb-3">
+                            <label asp-for="OrganizationName" class="form-label">
+                                <i class="bi bi-building me-1"></i> Organization Name <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="OrganizationName" class="form-control form-control-lg" placeholder="Your Company Name" autofocus />
+                            <span asp-validation-for="OrganizationName" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Full Name -->
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label">
+                                <i class="bi bi-person me-1"></i> Your Full Name <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="FullName" class="form-control form-control-lg" placeholder="Ahmed Mohammed" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label asp-for="AdminEmail" class="form-label">
+                                <i class="bi bi-envelope me-1"></i> Work Email <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="AdminEmail" type="email" class="form-control form-control-lg" placeholder="you@company.com" />
+                            <span asp-validation-for="AdminEmail" class="text-danger small"></span>
+                            <div class="form-text">We'll send activation link to this email</div>
+                        </div>
+
+                        <!-- Phone (Optional) -->
+                        <div class="mb-3">
+                            <label asp-for="PhoneNumber" class="form-label">
+                                <i class="bi bi-telephone me-1"></i> Phone Number
+                            </label>
+                            <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="+966 5X XXX XXXX" />
+                        </div>
+
+                        <!-- Industry -->
+                        <div class="mb-3">
+                            <label asp-for="Industry" class="form-label">
+                                <i class="bi bi-briefcase me-1"></i> Industry
+                            </label>
+                            <select asp-for="Industry" class="form-select">
+                                <option value="">Select your industry...</option>
+                                <option value="Financial Services">Financial Services</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Government">Government</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Manufacturing">Manufacturing</option>
+                                <option value="Retail">Retail</option>
+                                <option value="Energy">Energy & Utilities</option>
+                                <option value="Education">Education</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Terms -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input asp-for="AcceptTerms" class="form-check-input" type="checkbox" />
+                                <label asp-for="AcceptTerms" class="form-check-label">
+                                    I agree to the <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a>
+                                </label>
+                            </div>
+                            <span asp-validation-for="AcceptTerms" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-rocket-takeoff me-2"></i> Start Free Trial
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Benefits -->
+            <div class="mt-4 text-center">
+                <p class="text-muted small mb-2">Your trial includes:</p>
+                <div class="row text-center small">
+                    <div class="col-4">
+                        <i class="bi bi-check-circle text-success"></i> Full Features
+                    </div>
+                    <div class="col-4">
+                        <i class="bi bi-check-circle text-success"></i> 5 Users
+                    </div>
+                    <div class="col-4">
+                        <i class="bi bi-check-circle text-success"></i> No Credit Card
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Link -->
+            <div class="text-center mt-4">
+                <p class="text-muted">
+                    Already have an account?
+                    <a asp-controller="Account" asp-action="Login" class="text-decoration-none">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-generate slug preview
+        document.getElementById('OrganizationName')?.addEventListener('input', function() {
+            const name = this.value;
+            const slug = name.toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '')
+                .substring(0, 50);
+            // Could show preview: console.log('Slug:', slug);
+        });
+    </script>
+}

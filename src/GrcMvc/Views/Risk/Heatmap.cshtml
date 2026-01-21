@@ -1,0 +1,126 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using GrcMvc.Configuration
+@inject IHtmlLocalizer<SharedResource> L
+@{
+    ViewData["Title"] = "Risk Heatmap";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-grid-3x3-gap"></i> Risk Heatmap</h2>
+            <p class="text-muted">5x5 Probability vs Impact Matrix</p>
+        </div>
+        <div class="col text-end">
+            <select id="stageFilter" class="form-select d-inline-block w-auto">
+                <option value="all">All Stages</option>
+                <option value="inherent">Inherent</option>
+                <option value="residual">Residual</option>
+            </select>
+            <button class="btn btn-outline-secondary" onclick="exportHeatmap()">
+                <i class="bi bi-download"></i> Export
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div id="heatmapContainer">
+                        <!-- Risk Heatmap will be rendered here via JavaScript -->
+                        <table class="table table-bordered" id="riskHeatmap">
+                            <thead>
+                                <tr>
+                                    <th>Probability \ Impact</th>
+                                    <th class="text-center">1<br/>Negligible</th>
+                                    <th class="text-center">2<br/>Minor</th>
+                                    <th class="text-center">3<br/>Moderate</th>
+                                    <th class="text-center">4<br/>Major</th>
+                                    <th class="text-center">5<br/>Catastrophic</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int prob = 5; prob >= 1; prob--)
+                                {
+                                    <tr>
+                                        <td class="fw-bold">@prob<br/><small>@(prob == 5 ? "Almost Certain" : prob == 4 ? "Likely" : prob == 3 ? "Possible" : prob == 2 ? "Unlikely" : "Rare")</small></td>
+                                        @for (int impact = 1; impact <= 5; impact++)
+                                        {
+                                            var score = prob * impact;
+                                            var cellClass = score >= 20 ? "bg-danger" : score >= 12 ? "bg-warning" : score >= 6 ? "bg-info" : "bg-success";
+                                            <td class="text-center @cellClass heatmap-cell" data-prob="@prob" data-impact="@impact" data-score="@score" style="min-height: 80px; cursor: pointer;">
+                                                <div class="risk-count" data-cell="@prob-@impact">0</div>
+                                                <small class="text-muted">@score</small>
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6>Risk Details</h6>
+                </div>
+                <div class="card-body" id="riskDetails">
+                    <p class="text-muted">Click on a heatmap cell to view risks in that category</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        loadHeatmapData();
+        
+        document.querySelectorAll('.heatmap-cell').forEach(cell => {
+            cell.addEventListener('click', function() {
+                const prob = this.dataset.prob;
+                const impact = this.dataset.impact;
+                loadRisksByCell(prob, impact);
+            });
+        });
+        
+        document.getElementById('stageFilter').addEventListener('change', function() {
+            loadHeatmapData(this.value);
+        });
+    });
+    
+    function loadHeatmapData(stage = 'all') {
+        // TODO: Call API endpoint /api/risks/heatmap/{tenantId}
+        // Update cell counts based on response
+        fetch(`/api/risks/heatmap?stage=${stage}`)
+            .then(response => response.json())
+            .then(data => {
+                // Update heatmap cells with risk counts
+                data.cells?.forEach(cell => {
+                    const cellElement = document.querySelector(`[data-prob="${cell.prob}"][data-impact="${cell.impact}"]`);
+                    if (cellElement) {
+                        cellElement.querySelector('.risk-count').textContent = cell.count || 0;
+                    }
+                });
+            })
+            .catch(error => console.error('Error loading heatmap:', error));
+    }
+    
+    function loadRisksByCell(prob, impact) {
+        // TODO: Load risks for specific cell
+        document.getElementById('riskDetails').innerHTML = 
+            `<p>Loading risks for Probability=${prob}, Impact=${impact}...</p>`;
+    }
+    
+    function exportHeatmap() {
+        // TODO: Export heatmap as image or PDF
+        alert('Export functionality coming soon');
+    }
+</script>

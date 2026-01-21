@@ -1,0 +1,114 @@
+@page "/policies"
+@using GrcMvc.Models.DTOs
+@using GrcMvc.Services.Interfaces
+@inject IPolicyService PolicyService
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
+
+<PageTitle>@(currentCulture == "ar" ? "السياسات" : "Policies")</PageTitle>
+
+<div dir="@dir" class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">Policies</h1>
+        </div>
+        <div class="col-auto">
+            <a href="/policies/create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Policy
+            </a>
+        </div>
+    </div>
+
+    @if (policies == null || policies.Count == 0)
+    {
+        <div class="alert alert-info">No policies found</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Last Review</th>
+                        <th>Violations</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var policy in policies)
+                    {
+                        <tr>
+                            <td><strong>@policy.Name</strong></td>
+                            <td>@policy.Category</td>
+                            <td>
+                                <span class="badge bg-@GetStatusColor(policy.Status)">
+                                    @policy.Status
+                                </span>
+                            </td>
+                            <td>@policy.LastReviewDate.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                @if (policy.ViolationCount > 0)
+                                {
+                                    <span class="badge bg-danger">@policy.ViolationCount violations</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">No violations</span>
+                                }
+                            </td>
+                            <td>
+                                <a href="/policies/@policy.Id/edit" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a href="/policies/@policy.Id/violations" class="btn btn-sm btn-outline-secondary">View
+                                    Violations</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<PolicyListItemDto>? policies;
+    private bool isLoading = true;
+    private bool IsLoading => isLoading; // Use property to suppress warning
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var allPolicies = await PolicyService.GetAllAsync();
+            policies = allPolicies.Select(p => new PolicyListItemDto
+            {
+                Id = p.Id,
+                Name = p.Title ?? "Unnamed Policy",
+                Status = p.Status ?? "Draft",
+                Category = p.Category ?? "General",
+                LastReviewDate = p.ReviewDate ?? DateTime.UtcNow,
+                ViolationCount = 0
+            }).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading policies: {ex.Message}");
+            policies = new List<PolicyListItemDto>();
+        }
+    }
+
+    private string GetStatusColor(string status) => status switch
+    {
+        "Active" => "success",
+        "Inactive" => "danger",
+        "Pending Review" => "warning",
+        _ => "secondary"
+    };
+}

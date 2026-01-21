@@ -1,0 +1,322 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@model List<GrcMvc.Services.Interfaces.CertificationDto>
+@{
+    ViewData["Title"] = "Certification Management";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-award"></i> Certification Management</h2>
+            <p class="text-muted">Track and manage regulatory certifications and industry standards compliance</p>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Readiness" class="btn btn-outline-info">
+                <i class="bi bi-clipboard-check"></i> Readiness Assessment
+            </a>
+            <a asp-action="Portfolio" class="btn btn-outline-success">
+                <i class="bi bi-collection"></i> Portfolio View
+            </a>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCertificationModal">
+                <i class="bi bi-plus-circle"></i> Add Certification
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h6 class="opacity-75">Total Certifications</h6>
+                    <h2 class="mb-0">@Model.Count</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h6 class="opacity-75">Active</h6>
+                    <h2 class="mb-0">@Model.Count(c => c.Status == "Active")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h6>Expiring Soon</h6>
+                    <h2 class="mb-0">@Model.Count(c => c.ExpiryDate.HasValue && c.ExpiryDate.Value <= DateTime.UtcNow.AddMonths(3))</h2>
+                    <small>Within 3 months</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h6 class="opacity-75">In Progress</h6>
+                    <h2 class="mb-0">@Model.Count(c => c.Status == "InProgress" || c.Status == "Planning")</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Certifications Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="bi bi-list-ul"></i> Certification Tracking</h5>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Certification</th>
+                                <th>Standard</th>
+                                <th>Status</th>
+                                <th>Issued Date</th>
+                                <th>Expiry Date</th>
+                                <th>Days Remaining</th>
+                                <th>Readiness</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var cert in Model.OrderBy(c => c.ExpiryDate))
+                            {
+                                var statusBadge = cert.Status switch
+                                {
+                                    "Active" => "bg-success",
+                                    "Expired" => "bg-danger",
+                                    "InProgress" => "bg-info",
+                                    "Planning" => "bg-warning text-dark",
+                                    _ => "bg-secondary"
+                                };
+
+                                var daysRemaining = cert.ExpiryDate.HasValue ? (cert.ExpiryDate.Value - DateTime.UtcNow).Days : 0;
+                                var daysClass = daysRemaining <= 30 ? "text-danger fw-bold" :
+                                               daysRemaining <= 90 ? "text-warning fw-bold" : "text-success";
+
+                                <tr>
+                                    <td>
+                                        <strong>@cert.Name</strong>
+                                        @if (!string.IsNullOrEmpty(cert.IssuingBody))
+                                        {
+                                            <br /><small class="text-muted">Issued by: @cert.IssuingBody</small>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">@cert.Standard</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge @statusBadge">@cert.Status</span>
+                                    </td>
+                                    <td>
+                                        @if (cert.IssuedDate.HasValue)
+                                        {
+                                            @cert.IssuedDate.Value.ToShortDateString()
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (cert.ExpiryDate.HasValue)
+                                        {
+                                            @cert.ExpiryDate.Value.ToShortDateString()
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No expiry</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (cert.ExpiryDate.HasValue && cert.Status == "Active")
+                                        {
+                                            <span class="@daysClass">@daysRemaining days</span>
+                                            @if (daysRemaining <= 30)
+                                            {
+                                                <br /><span class="badge bg-danger"><i class="bi bi-exclamation-triangle"></i> Urgent</span>
+                                            }
+                                            else if (daysRemaining <= 90)
+                                            {
+                                                <br /><span class="badge bg-warning text-dark"><i class="bi bi-clock"></i> Action Soon</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">N/A</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (cert.ReadinessScore.HasValue)
+                                        {
+                                            var scoreClass = cert.ReadinessScore.Value >= 80 ? "text-success" :
+                                                           cert.ReadinessScore.Value >= 60 ? "text-info" :
+                                                           cert.ReadinessScore.Value >= 40 ? "text-warning" : "text-danger";
+                                            <strong class="@scoreClass">@cert.ReadinessScore.Value%</strong>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Not assessed</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a asp-action="Readiness" asp-route-id="@cert.Id" class="btn btn-outline-info" data-bs-toggle="tooltip" title="Assess Readiness">
+                                                <i class="bi bi-clipboard-check"></i>
+                                            </a>
+                                            <a asp-action="Preparation" asp-route-certificationId="@cert.Id" class="btn btn-outline-primary" data-bs-toggle="tooltip" title="Preparation Plan">
+                                                <i class="bi bi-list-check"></i>
+                                            </a>
+                                            <a asp-action="Audit" asp-route-certificationId="@cert.Id" class="btn btn-outline-success" data-bs-toggle="tooltip" title="Audit History">
+                                                <i class="bi bi-file-earmark-text"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-award display-1 text-muted opacity-25"></i>
+                    <p class="text-muted mt-3">No certifications tracked yet</p>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCertificationModal">
+                        <i class="bi bi-plus-circle"></i> Add First Certification
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Popular Certifications -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm bg-light">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-star"></i> Popular Certifications to Consider</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h6 class="small">Security</h6>
+                            <ul class="small">
+                                <li>ISO 27001</li>
+                                <li>SOC 2 Type II</li>
+                                <li>NCA ECC</li>
+                                <li>PCI DSS</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-3">
+                            <h6 class="small">Quality</h6>
+                            <ul class="small">
+                                <li>ISO 9001</li>
+                                <li>CMMI</li>
+                                <li>Six Sigma</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-3">
+                            <h6 class="small">Privacy</h6>
+                            <ul class="small">
+                                <li>ISO 27701</li>
+                                <li>GDPR Compliance</li>
+                                <li>PDPL (Saudi)</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-3">
+                            <h6 class="small">Industry-Specific</h6>
+                            <ul class="small">
+                                <li>HIPAA (Healthcare)</li>
+                                <li>FedRAMP (Government)</li>
+                                <li>ISO 20000 (IT Service)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Certification Modal -->
+<div class="modal fade" id="addCertificationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Add Certification</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Certification Name *</label>
+                        <input type="text" class="form-control" name="Name" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Standard/Framework *</label>
+                            <select class="form-select" name="Standard" required>
+                                <option value="">Select Standard</option>
+                                <option value="ISO 27001">ISO 27001 - Information Security</option>
+                                <option value="SOC 2">SOC 2 - Service Organization Controls</option>
+                                <option value="NCA ECC">NCA ECC - Essential Cybersecurity Controls</option>
+                                <option value="ISO 9001">ISO 9001 - Quality Management</option>
+                                <option value="PCI DSS">PCI DSS - Payment Card Industry</option>
+                                <option value="HIPAA">HIPAA - Healthcare</option>
+                                <option value="GDPR">GDPR - Privacy</option>
+                                <option value="ISO 27701">ISO 27701 - Privacy Information Management</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Issuing Body</label>
+                            <input type="text" class="form-control" name="IssuingBody" placeholder="e.g., BSI, AICPA">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Status *</label>
+                            <select class="form-select" name="Status" required>
+                                <option value="Planning">Planning</option>
+                                <option value="InProgress">In Progress</option>
+                                <option value="Active">Active</option>
+                                <option value="Expired">Expired</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Issued Date</label>
+                            <input type="date" class="form-control" name="IssuedDate">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Expiry Date</label>
+                            <input type="date" class="form-control" name="ExpiryDate">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Certification</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    </script>
+}

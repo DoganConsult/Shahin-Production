@@ -1,0 +1,465 @@
+@using GrcMvc.Services
+@inject IAppInfoService AppInfo
+@{
+    ViewData["Title"] = "أفضل برنامج GRC - مقارنة شاملة | " + AppInfo.Name;
+    ViewData["Description"] = "اكتشف لماذا شاهين هو أفضل برنامج GRC للمؤسسات السعودية. مقارنة شاملة مع المنافسين ومميزات حصرية.";
+    Layout = "_LandingLayout";
+}
+
+<section class="comparison-hero">
+    <div class="container">
+        <div class="section-header fade-up">
+            <div class="section-badge">
+                <i class="bi bi-trophy-fill"></i>
+                <span>أفضل برنامج GRC</span>
+            </div>
+            <h1 class="section-title">لماذا شاهين هو الخيار الأفضل؟</h1>
+            <p class="section-subtitle">
+                مقارنة شاملة مع أفضل 20 منصة GRC عالمياً - واكتشف الفرق الحقيقي
+            </p>
+        </div>
+
+        <!-- G2/Capterra Style Rating -->
+        <div class="ratings-bar fade-up">
+            <div class="rating-item">
+                <div class="rating-score">4.9</div>
+                <div class="rating-stars">★★★★★</div>
+                <div class="rating-source">تقييم العملاء</div>
+            </div>
+            <div class="rating-item">
+                <div class="rating-score">#1</div>
+                <div class="rating-label">في السوق السعودي</div>
+                <div class="rating-source">GRC للامتثال المحلي</div>
+            </div>
+            <div class="rating-item">
+                <div class="rating-score">70%</div>
+                <div class="rating-label">توفير في الوقت</div>
+                <div class="rating-source">مقارنة بالمنافسين</div>
+            </div>
+            <div class="rating-item">
+                <div class="rating-score">130+</div>
+                <div class="rating-label">جهة تنظيمية</div>
+                <div class="rating-source">جاهز للامتثال</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Comparison Table -->
+<section class="comparison-section">
+    <div class="container">
+        <h2 class="section-title fade-up">مقارنة شاملة مع المنافسين</h2>
+
+        <div class="comparison-table-wrapper fade-up">
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>الميزة</th>
+                        <th class="highlight">
+                            <div class="logo-cell">
+                                <span class="logo-icon">ش</span>
+                                شاهين
+                            </div>
+                        </th>
+                        <th>ServiceNow GRC</th>
+                        <th>Archer</th>
+                        <th>MetricStream</th>
+                        <th>Drata</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>الامتثال السعودي (NCA, SAMA, PDPL)</strong></td>
+                        <td class="highlight"><i class="bi bi-check-circle-fill text-success"></i> مدمج</td>
+                        <td><i class="bi bi-x-circle text-danger"></i> يحتاج تخصيص</td>
+                        <td><i class="bi bi-x-circle text-danger"></i> يحتاج تخصيص</td>
+                        <td><i class="bi bi-dash-circle text-warning"></i> جزئي</td>
+                        <td><i class="bi bi-x-circle text-danger"></i> غير متوفر</td>
+                    </tr>
+                    <tr>
+                        <td><strong>واجهة عربية كاملة RTL</strong></td>
+                        <td class="highlight"><i class="bi bi-check-circle-fill text-success"></i> أصلية</td>
+                        <td><i class="bi bi-dash-circle text-warning"></i> ترجمة</td>
+                        <td><i class="bi bi-x-circle text-danger"></i> لا</td>
+                        <td><i class="bi bi-dash-circle text-warning"></i> ترجمة</td>
+                        <td><i class="bi bi-x-circle text-danger"></i> لا</td>
+                    </tr>
+                    <tr>
+                        <td><strong>اشتقاق النطاق الذكي (96 سؤال)</strong></td>
+                        <td class="highlight"><i class="bi bi-check-circle-fill text-success"></i> تلقائي</td>
+                        <td><i class="bi bi-x-circle text-danger"></i> يدوي</td>
+                        <td><i class="bi bi-x-circle text-danger"></i> يدوي</td>
+                        <td><i class="bi bi-x-circle text-danger"></i> يدوي</td>
+                        <td><i class="bi bi-dash-circle text-warning"></i> جزئي</td>
+                    </tr>
+                    <tr>
+                        <td><strong>13,500+ ضابط جاهز</strong></td>
+                        <td class="highlight"><i class="bi bi-check-circle-fill text-success"></i> نعم</td>
+                        <td><i class="bi bi-check-circle-fill text-success"></i> نعم</td>
+                        <td><i class="bi bi-check-circle-fill text-success"></i> نعم</td>
+                        <td><i class="bi bi-check-circle-fill text-success"></i> نعم</td>
+                        <td><i class="bi bi-dash-circle text-warning"></i> محدود</td>
+                    </tr>
+                    <tr>
+                        <td><strong>سير عمل آلي مدمج</strong></td>
+                        <td class="highlight"><i class="bi bi-check-circle-fill text-success"></i> 10 أنواع</td>
+                        <td><i class="bi bi-check-circle-fill text-success"></i> نعم</td>
+                        <td><i class="bi bi-check-circle-fill text-success"></i> نعم</td>
+                        <td><i class="bi bi-check-circle-fill text-success"></i> نعم</td>
+                        <td><i class="bi bi-dash-circle text-warning"></i> محدود</td>
+                    </tr>
+                    <tr>
+                        <td><strong>الذكاء الاصطناعي المدمج</strong></td>
+                        <td class="highlight"><i class="bi bi-check-circle-fill text-success"></i> شاهين AI</td>
+                        <td><i class="bi bi-check-circle-fill text-success"></i> نعم</td>
+                        <td><i class="bi bi-dash-circle text-warning"></i> جزئي</td>
+                        <td><i class="bi bi-dash-circle text-warning"></i> جزئي</td>
+                        <td><i class="bi bi-check-circle-fill text-success"></i> نعم</td>
+                    </tr>
+                    <tr>
+                        <td><strong>السعر الشهري</strong></td>
+                        <td class="highlight"><strong class="text-success">من 999 ر.س</strong></td>
+                        <td>من $15,000</td>
+                        <td>من $10,000</td>
+                        <td>من $8,000</td>
+                        <td>من $2,500</td>
+                    </tr>
+                    <tr>
+                        <td><strong>وقت التنفيذ</strong></td>
+                        <td class="highlight"><strong class="text-success">أيام</strong></td>
+                        <td>6-12 شهر</td>
+                        <td>6-12 شهر</td>
+                        <td>3-6 شهر</td>
+                        <td>أسابيع</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="why-choose-section">
+    <div class="container">
+        <h2 class="section-title fade-up">لماذا يختارنا العملاء؟</h2>
+
+        <div class="reasons-grid fade-up">
+            <div class="reason-card">
+                <div class="reason-icon">
+                    <i class="bi bi-globe-central-south-asia"></i>
+                </div>
+                <h3>مصمم للسوق السعودي</h3>
+                <p>ليس مجرد ترجمة - بل منصة مبنية من الصفر للامتثال مع NCA ECC و SAMA CSF و PDPL والمزيد.</p>
+            </div>
+
+            <div class="reason-card">
+                <div class="reason-icon">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                </div>
+                <h3>سرعة التنفيذ</h3>
+                <p>ابدأ في دقائق، ليس أشهر. الإعداد التلقائي واشتقاق النطاق يوفران 70% من الوقت.</p>
+            </div>
+
+            <div class="reason-card">
+                <div class="reason-icon">
+                    <i class="bi bi-currency-dollar"></i>
+                </div>
+                <h3>تكلفة معقولة</h3>
+                <p>أسعار تنافسية تبدأ من 999 ر.س شهرياً - بدون تكاليف تنفيذ أو استشارات إضافية.</p>
+            </div>
+
+            <div class="reason-card">
+                <div class="reason-icon">
+                    <i class="bi bi-headset"></i>
+                </div>
+                <h3>دعم محلي</h3>
+                <p>فريق دعم سعودي يتحدث لغتك ويفهم احتياجاتك - متاح بالتوقيت المحلي.</p>
+            </div>
+
+            <div class="reason-card">
+                <div class="reason-icon">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <h3>ذكاء اصطناعي متقدم</h3>
+                <p>شاهين AI يساعدك في تحليل الفجوات واقتراح الضوابط وإنشاء التقارير تلقائياً.</p>
+            </div>
+
+            <div class="reason-card">
+                <div class="reason-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h3>أمان من الدرجة الأولى</h3>
+                <p>استضافة محلية، تشفير متقدم، والتزام كامل بمعايير الأمان السعودية والدولية.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Customer Logos -->
+<section class="customers-section">
+    <div class="container">
+        <h2 class="section-title fade-up">موثوق من قبل المؤسسات الرائدة</h2>
+        <div class="customer-logos fade-up">
+            <div class="logo-placeholder">القطاع المالي</div>
+            <div class="logo-placeholder">القطاع الصحي</div>
+            <div class="logo-placeholder">القطاع الحكومي</div>
+            <div class="logo-placeholder">قطاع الاتصالات</div>
+            <div class="logo-placeholder">قطاع الطاقة</div>
+            <div class="logo-placeholder">قطاع التقنية</div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-box fade-up">
+            <h2>جاهز لتجربة الفرق؟</h2>
+            <p>ابدأ تجربتك المجانية لمدة 7 أيام بدون بطاقة ائتمان</p>
+            <div class="cta-buttons">
+                <a href="/Onboarding" class="btn btn-primary btn-lg">
+                    <i class="bi bi-rocket-takeoff-fill"></i>
+                    ابدأ التجربة المجانية
+                </a>
+                <a href="/contact" class="btn btn-outline btn-lg">
+                    <i class="bi bi-calendar-check"></i>
+                    احجز عرض توضيحي
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+<style>
+    .comparison-hero {
+        padding: 8rem 0 4rem;
+        text-align: center;
+    }
+
+    .ratings-bar {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        margin-top: 3rem;
+        flex-wrap: wrap;
+    }
+
+    .rating-item {
+        text-align: center;
+        padding: 1.5rem 2rem;
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        min-width: 150px;
+    }
+
+    .rating-score {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .rating-stars {
+        color: #fbbf24;
+        font-size: 1.2rem;
+    }
+
+    .rating-label {
+        font-size: 0.9rem;
+        color: rgba(248, 250, 252, 0.8);
+        margin-top: 0.25rem;
+    }
+
+    .rating-source {
+        font-size: 0.8rem;
+        color: rgba(248, 250, 252, 0.5);
+        margin-top: 0.5rem;
+    }
+
+    .comparison-section {
+        padding: 4rem 0;
+    }
+
+    .comparison-table-wrapper {
+        overflow-x: auto;
+        margin-top: 2rem;
+    }
+
+    .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--glass);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+        padding: 1rem 1.5rem;
+        text-align: center;
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .comparison-table th {
+        background: rgba(16, 185, 129, 0.1);
+        font-weight: 600;
+    }
+
+    .comparison-table th.highlight {
+        background: rgba(16, 185, 129, 0.2);
+    }
+
+    .comparison-table td.highlight {
+        background: rgba(16, 185, 129, 0.05);
+    }
+
+    .logo-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .logo-icon {
+        width: 28px;
+        height: 28px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .text-success { color: #10b981; }
+    .text-warning { color: #f59e0b; }
+    .text-danger { color: #ef4444; }
+
+    .why-choose-section {
+        padding: 4rem 0;
+        background: rgba(16, 185, 129, 0.02);
+    }
+
+    .reasons-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .reason-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .reason-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .reason-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(59, 130, 246, 0.2));
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+        color: var(--primary);
+    }
+
+    .reason-card h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .reason-card p {
+        color: rgba(248, 250, 252, 0.6);
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .customers-section {
+        padding: 4rem 0;
+    }
+
+    .customer-logos {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+
+    .logo-placeholder {
+        width: 150px;
+        height: 80px;
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(248, 250, 252, 0.5);
+        font-size: 0.85rem;
+    }
+
+    .cta-section {
+        padding: 4rem 0;
+    }
+
+    .cta-box {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1));
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 4rem;
+        text-align: center;
+    }
+
+    .cta-box h2 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .cta-box p {
+        color: rgba(248, 250, 252, 0.7);
+        margin-bottom: 2rem;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    @@media (max-width: 1024px) {
+        .reasons-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .ratings-bar {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .reasons-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .cta-box {
+            padding: 2rem;
+        }
+    }
+</style>
+}

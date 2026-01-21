@@ -1,0 +1,456 @@
+@{
+    ViewData["Title"] = "تصنيف القطاعات - GOSI Sector Classification";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-building me-2"></i>
+                        تصنيف القطاعات - KSA GOSI Sector Classification
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Alert about GOSI Classification -->
+                    <div class="alert alert-info" role="alert">
+                        <h5 class="alert-heading">
+                            <i class="bi bi-info-circle me-2"></i>
+                            KSA GOSI Occupational Safety Classification: 70+ Sectors
+                        </h5>
+                        <p>
+                            المملكة العربية السعودية تستخدم التصنيف الوطني للأنشطة الاقتصادية (ISIC Rev 4) الذي يحتوي على أكثر من <strong>70 قطاعاً فرعياً</strong>.
+                            قمنا بتجميع هذه القطاعات في <strong>18 قطاعاً رئيسياً</strong> لتسهيل إدارة الامتثال.
+                        </p>
+                        <hr>
+                        <p class="mb-0">
+                            Saudi Arabia uses the National Classification of Economic Activities (ISIC Rev 4) with <strong>70+ sub-sectors</strong>.
+                            We have mapped these to <strong>18 main GRC sectors</strong> for simplified compliance management.
+                        </p>
+                    </div>
+
+                    <!-- 18 Main Sectors Grid -->
+                    <h5 class="mt-4 mb-3">
+                        <i class="bi bi-grid-3x3-gap me-2"></i>
+                        القطاعات الرئيسية الـ 18 - The 18 Main Sectors
+                    </h5>
+                    
+                    <div class="row g-3">
+                        <!-- Row 1: Original 9 Sectors -->
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-primary">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-bank fs-1 text-primary"></i>
+                                    <h6 class="mt-2">BANKING</h6>
+                                    <small class="text-muted">الخدمات المصرفية</small>
+                                    <div class="badge bg-primary mt-2">5 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-success">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-hospital fs-1 text-success"></i>
+                                    <h6 class="mt-2">HEALTHCARE</h6>
+                                    <small class="text-muted">الرعاية الصحية</small>
+                                    <div class="badge bg-success mt-2">4 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-warning">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-building fs-1 text-warning"></i>
+                                    <h6 class="mt-2">GOVERNMENT</h6>
+                                    <small class="text-muted">القطاع الحكومي</small>
+                                    <div class="badge bg-warning text-dark mt-2">4 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-info">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-phone fs-1 text-info"></i>
+                                    <h6 class="mt-2">TELECOM</h6>
+                                    <small class="text-muted">الاتصالات</small>
+                                    <div class="badge bg-info mt-2">4 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-danger">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-lightning-charge fs-1 text-danger"></i>
+                                    <h6 class="mt-2">ENERGY</h6>
+                                    <small class="text-muted">الطاقة والمرافق</small>
+                                    <div class="badge bg-danger mt-2">4 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-secondary">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-cart4 fs-1 text-secondary"></i>
+                                    <h6 class="mt-2">RETAIL</h6>
+                                    <small class="text-muted">التجزئة</small>
+                                    <div class="badge bg-secondary mt-2">4 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Row 2 -->
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-dark">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-cpu fs-1 text-dark"></i>
+                                    <h6 class="mt-2">TECHNOLOGY</h6>
+                                    <small class="text-muted">التقنية</small>
+                                    <div class="badge bg-dark mt-2">4 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-primary">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-shield-check fs-1 text-primary"></i>
+                                    <h6 class="mt-2">INSURANCE</h6>
+                                    <small class="text-muted">التأمين</small>
+                                    <div class="badge bg-primary mt-2">5 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-success">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-mortarboard fs-1 text-success"></i>
+                                    <h6 class="mt-2">EDUCATION</h6>
+                                    <small class="text-muted">التعليم</small>
+                                    <div class="badge bg-success mt-2">4 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Row 3: New 9 Sectors -->
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-warning">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-truck fs-1 text-warning"></i>
+                                    <h6 class="mt-2">TRANSPORTATION</h6>
+                                    <small class="text-muted">النقل واللوجستيات</small>
+                                    <div class="badge bg-warning text-dark mt-2">4 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-info">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-hammer fs-1 text-info"></i>
+                                    <h6 class="mt-2">CONSTRUCTION</h6>
+                                    <small class="text-muted">البناء والتشييد</small>
+                                    <div class="badge bg-info mt-2">4 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-danger">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-gear fs-1 text-danger"></i>
+                                    <h6 class="mt-2">MANUFACTURING</h6>
+                                    <small class="text-muted">الصناعات التحويلية</small>
+                                    <div class="badge bg-danger mt-2">5 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Row 4 -->
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-secondary">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-house-door fs-1 text-secondary"></i>
+                                    <h6 class="mt-2">REAL_ESTATE</h6>
+                                    <small class="text-muted">العقارات</small>
+                                    <div class="badge bg-secondary mt-2">4 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-primary">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-building fs-1 text-primary"></i>
+                                    <h6 class="mt-2">HOSPITALITY</h6>
+                                    <small class="text-muted">الضيافة والسياحة</small>
+                                    <div class="badge bg-primary mt-2">4 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-success">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-camera-video fs-1 text-success"></i>
+                                    <h6 class="mt-2">MEDIA</h6>
+                                    <small class="text-muted">الإعلام والترفيه</small>
+                                    <div class="badge bg-success mt-2">4 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Row 5 -->
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-warning">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-tree fs-1 text-warning"></i>
+                                    <h6 class="mt-2">AGRICULTURE</h6>
+                                    <small class="text-muted">الزراعة والغذاء</small>
+                                    <div class="badge bg-warning text-dark mt-2">4 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-dark">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-minecart-loaded fs-1 text-dark"></i>
+                                    <h6 class="mt-2">MINING</h6>
+                                    <small class="text-muted">التعدين</small>
+                                    <div class="badge bg-dark mt-2">4 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <div class="card h-100 border-info">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-briefcase fs-1 text-info"></i>
+                                    <h6 class="mt-2">PROFESSIONAL</h6>
+                                    <small class="text-muted">الخدمات المهنية</small>
+                                    <div class="badge bg-info mt-2">4 Frameworks</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GOSI Sub-Sector Mapping Table -->
+                    <h5 class="mt-5 mb-3">
+                        <i class="bi bi-diagram-3 me-2"></i>
+                        تفاصيل تصنيف GOSI - GOSI Sub-Sector Mapping Details
+                    </h5>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ISIC Section</th>
+                                    <th>GOSI Code</th>
+                                    <th>Sub-Sector (English)</th>
+                                    <th>القطاع الفرعي (عربي)</th>
+                                    <th>Main Sector</th>
+                                    <th>Primary Regulator</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Section A: Agriculture -->
+                                <tr class="table-success">
+                                    <td><span class="badge bg-success">A</span></td>
+                                    <td>01</td>
+                                    <td>Crop and animal production</td>
+                                    <td>إنتاج المحاصيل والثروة الحيوانية</td>
+                                    <td>AGRICULTURE</td>
+                                    <td>MEWA</td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td><span class="badge bg-success">A</span></td>
+                                    <td>02</td>
+                                    <td>Forestry and logging</td>
+                                    <td>الحراجة وقطع الأشجار</td>
+                                    <td>AGRICULTURE</td>
+                                    <td>MEWA</td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td><span class="badge bg-success">A</span></td>
+                                    <td>03</td>
+                                    <td>Fishing and aquaculture</td>
+                                    <td>صيد الأسماك وتربية الأحياء المائية</td>
+                                    <td>AGRICULTURE</td>
+                                    <td>MEWA</td>
+                                </tr>
+                                
+                                <!-- Section B: Mining -->
+                                <tr class="table-warning">
+                                    <td><span class="badge bg-warning text-dark">B</span></td>
+                                    <td>05-09</td>
+                                    <td>Mining and quarrying</td>
+                                    <td>التعدين واستغلال المحاجر</td>
+                                    <td>MINING / ENERGY</td>
+                                    <td>MIM / MOE</td>
+                                </tr>
+                                
+                                <!-- Section C: Manufacturing -->
+                                <tr class="table-info">
+                                    <td><span class="badge bg-info">C</span></td>
+                                    <td>10-33</td>
+                                    <td>Manufacturing (24 sub-sectors)</td>
+                                    <td>الصناعات التحويلية (24 قطاع فرعي)</td>
+                                    <td>MANUFACTURING</td>
+                                    <td>MIM / SFDA</td>
+                                </tr>
+                                
+                                <!-- Section D-E: Utilities -->
+                                <tr class="table-danger">
+                                    <td><span class="badge bg-danger">D-E</span></td>
+                                    <td>35-39</td>
+                                    <td>Electricity, gas, water, waste</td>
+                                    <td>الكهرباء، الغاز، المياه، النفايات</td>
+                                    <td>ENERGY</td>
+                                    <td>ECRA / NWC</td>
+                                </tr>
+                                
+                                <!-- Section F: Construction -->
+                                <tr class="table-secondary">
+                                    <td><span class="badge bg-secondary">F</span></td>
+                                    <td>41-43</td>
+                                    <td>Construction</td>
+                                    <td>التشييد والبناء</td>
+                                    <td>CONSTRUCTION</td>
+                                    <td>MOMRA</td>
+                                </tr>
+                                
+                                <!-- Section G: Trade -->
+                                <tr class="table-primary">
+                                    <td><span class="badge bg-primary">G</span></td>
+                                    <td>45-47</td>
+                                    <td>Wholesale and retail trade</td>
+                                    <td>تجارة الجملة والتجزئة</td>
+                                    <td>RETAIL</td>
+                                    <td>MOCI</td>
+                                </tr>
+                                
+                                <!-- Section H: Transport -->
+                                <tr class="table-warning">
+                                    <td><span class="badge bg-warning text-dark">H</span></td>
+                                    <td>49-53</td>
+                                    <td>Transportation and storage</td>
+                                    <td>النقل والتخزين</td>
+                                    <td>TRANSPORTATION</td>
+                                    <td>TGA / GACA</td>
+                                </tr>
+                                
+                                <!-- Section I: Hospitality -->
+                                <tr class="table-info">
+                                    <td><span class="badge bg-info">I</span></td>
+                                    <td>55-56</td>
+                                    <td>Accommodation and food service</td>
+                                    <td>الإقامة وخدمات الطعام</td>
+                                    <td>HOSPITALITY</td>
+                                    <td>MOT</td>
+                                </tr>
+                                
+                                <!-- Section J: ICT -->
+                                <tr class="table-dark">
+                                    <td><span class="badge bg-dark">J</span></td>
+                                    <td>58-63</td>
+                                    <td>Information and communication</td>
+                                    <td>المعلومات والاتصالات</td>
+                                    <td>TELECOM / TECHNOLOGY / MEDIA</td>
+                                    <td>CST / MCIT / GCAM</td>
+                                </tr>
+                                
+                                <!-- Section K: Financial -->
+                                <tr class="table-primary">
+                                    <td><span class="badge bg-primary">K</span></td>
+                                    <td>64-66</td>
+                                    <td>Financial and insurance activities</td>
+                                    <td>الأنشطة المالية والتأمين</td>
+                                    <td>BANKING / INSURANCE</td>
+                                    <td>SAMA</td>
+                                </tr>
+                                
+                                <!-- Section L: Real Estate -->
+                                <tr class="table-secondary">
+                                    <td><span class="badge bg-secondary">L</span></td>
+                                    <td>68</td>
+                                    <td>Real estate activities</td>
+                                    <td>الأنشطة العقارية</td>
+                                    <td>REAL_ESTATE</td>
+                                    <td>REGA</td>
+                                </tr>
+                                
+                                <!-- Section M-N: Professional -->
+                                <tr class="table-info">
+                                    <td><span class="badge bg-info">M-N</span></td>
+                                    <td>69-82</td>
+                                    <td>Professional and support services</td>
+                                    <td>الخدمات المهنية والداعمة</td>
+                                    <td>PROFESSIONAL_SERVICES</td>
+                                    <td>Various</td>
+                                </tr>
+                                
+                                <!-- Section O: Government -->
+                                <tr class="table-warning">
+                                    <td><span class="badge bg-warning text-dark">O</span></td>
+                                    <td>84</td>
+                                    <td>Public administration and defence</td>
+                                    <td>الإدارة العامة والدفاع</td>
+                                    <td>GOVERNMENT</td>
+                                    <td>NCA</td>
+                                </tr>
+                                
+                                <!-- Section P: Education -->
+                                <tr class="table-success">
+                                    <td><span class="badge bg-success">P</span></td>
+                                    <td>85</td>
+                                    <td>Education</td>
+                                    <td>التعليم</td>
+                                    <td>EDUCATION</td>
+                                    <td>MOE</td>
+                                </tr>
+                                
+                                <!-- Section Q: Healthcare -->
+                                <tr class="table-danger">
+                                    <td><span class="badge bg-danger">Q</span></td>
+                                    <td>86-88</td>
+                                    <td>Human health and social work</td>
+                                    <td>صحة الإنسان والعمل الاجتماعي</td>
+                                    <td>HEALTHCARE</td>
+                                    <td>MOH</td>
+                                </tr>
+                                
+                                <!-- Section R: Entertainment -->
+                                <tr class="table-primary">
+                                    <td><span class="badge bg-primary">R</span></td>
+                                    <td>90-93</td>
+                                    <td>Arts, entertainment and recreation</td>
+                                    <td>الفنون والترفيه</td>
+                                    <td>MEDIA</td>
+                                    <td>GEA</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- API Reference -->
+                    <h5 class="mt-5 mb-3">
+                        <i class="bi bi-code-slash me-2"></i>
+                        API Reference
+                    </h5>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <pre class="bg-dark text-light p-3 rounded"><code># Get all GOSI sub-sector mappings
+GET /api/seed/gosi-sectors
+
+# Get mappings for a specific main sector
+GET /api/seed/gosi-sectors?mainSector=BANKING
+
+# Get framework mappings for a sector
+GET /api/seed/sectors/BANKING
+
+# Seed all sector data (18 sectors + 70+ sub-sectors)
+POST /api/seed/evidence-scoring</code></pre>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

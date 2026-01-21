@@ -1,0 +1,113 @@
+@model GrcMvc.Controllers.ControlOwnershipGuideViewModel
+@{
+    ViewData["Title"] = "Control Ownership Guide";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/KnowledgeBase">Knowledge Base</a></li>
+                    <li class="breadcrumb-item active">Control Ownership</li>
+                </ol>
+            </nav>
+            <h1 class="h2 mb-2">
+                <i class="fas fa-clipboard-check text-primary me-2"></i>
+                Control Ownership Guide
+            </h1>
+            <p class="text-muted">Learn how to effectively own and manage controls in your organization.</p>
+        </div>
+    </div>
+
+    <!-- Ownership Principles -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-star me-2"></i>Key Ownership Principles</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @foreach (var principle in Model.Principles)
+                        {
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-check-circle text-success fa-2x"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="mb-1">@principle.Title</h5>
+                                        <p class="text-muted mb-0">@principle.Description</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RACI Matrix Example -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>RACI Matrix Examples</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Activity</th>
+                                    <th><span class="badge bg-danger">R</span> Responsible</th>
+                                    <th><span class="badge bg-warning text-dark">A</span> Accountable</th>
+                                    <th><span class="badge bg-info">C</span> Consulted</th>
+                                    <th><span class="badge bg-secondary">I</span> Informed</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var raci in Model.RACIMatrix)
+                                {
+                                    <tr>
+                                        <td><strong>@raci.Activity</strong></td>
+                                        <td>@raci.Responsible</td>
+                                        <td>@raci.Accountable</td>
+                                        <td>@raci.Consulted</td>
+                                        <td>@raci.Informed</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Best Practices -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-thumbs-up me-2"></i>Best Practices</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var practice in Model.BestPractices)
+                        {
+                            <li class="list-group-item">
+                                <i class="fas fa-lightbulb text-warning me-2"></i>
+                                @practice
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

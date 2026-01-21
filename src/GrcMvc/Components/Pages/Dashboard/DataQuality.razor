@@ -1,0 +1,579 @@
+@page "/dashboard/data-quality"
+@using GrcMvc.Data
+@using GrcMvc.Models.Entities
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Authorization
+@inject GrcDbContext DbContext
+@inject IHttpContextAccessor HttpContextAccessor
+@attribute [Authorize(Roles = "PlatformAdmin,TenantAdmin,ComplianceManager")]
+
+<PageTitle>جودة البيانات | Data Quality Dashboard</PageTitle>
+
+<div dir="rtl" class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6"><i class="bi bi-database-check me-2"></i>لوحة جودة البيانات</h1>
+                <p class="text-muted mb-0">مراقبة حداثة البيانات، الروابط المفقودة، والتحقق من السجلات</p>
+            </div>
+            <div class="text-end">
+                <span class="badge @GetOverallHealthBadge(overallHealth) fs-6">@overallHealth</span>
+                <br>
+                <small class="text-muted">آخر تحديث: @DateTime.UtcNow.ToString("HH:mm")</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Quality Score -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="text-muted mb-4">مؤشر جودة البيانات</h5>
+                    <div class="position-relative d-inline-block">
+                        <svg width="150" height="150" viewBox="0 0 150 150">
+                            <circle cx="75" cy="75" r="65" fill="none" stroke="#e9ecef" stroke-width="10"/>
+                            <circle cx="75" cy="75" r="65" fill="none" stroke="@GetScoreColor(dataQualityScore)" 
+                                    stroke-width="10" stroke-linecap="round"
+                                    stroke-dasharray="@(408 * dataQualityScore / 100) 408"
+                                    transform="rotate(-90 75 75)"/>
+                        </svg>
+                        <div class="position-absolute top-50 start-50 translate-middle">
+                            <h2 class="mb-0 @GetScoreTextClass(dataQualityScore)">@dataQualityScore%</h2>
+                        </div>
+                    </div>
+                    <p class="text-muted mt-3 mb-0">@GetScoreDescription(dataQualityScore)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="row g-3 h-100">
+                <div class="col-6">
+                    <div class="card h-100 border-success">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="text-muted">سجلات محدّثة</h6>
+                                    <h2 class="text-success">@freshRecords</h2>
+                                </div>
+                                <i class="bi bi-check-circle text-success fs-1"></i>
+                            </div>
+                            <div class="progress mt-2" style="height: 5px;">
+                                <div class="progress-bar bg-success" style="width: @GetFreshPercentage()%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card h-100 border-warning">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="text-muted">سجلات قديمة</h6>
+                                    <h2 class="text-warning">@staleRecords</h2>
+                                </div>
+                                <i class="bi bi-hourglass-split text-warning fs-1"></i>
+                            </div>
+                            <div class="progress mt-2" style="height: 5px;">
+                                <div class="progress-bar bg-warning" style="width: @GetStalePercentage()%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card h-100 border-danger">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="text-muted">روابط مفقودة</h6>
+                                    <h2 class="text-danger">@missingMappings</h2>
+                                </div>
+                                <i class="bi bi-link-45deg text-danger fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card h-100 border-secondary">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="text-muted">سجلات يتيمة</h6>
+                                    <h2 class="text-secondary">@orphanRecords</h2>
+                                </div>
+                                <i class="bi bi-file-earmark-x text-secondary fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Freshness by Entity -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>حداثة البيانات حسب النوع</h5>
+                    <small class="text-muted">الفترة المتوقعة للتحديث</small>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>نوع البيانات</th>
+                                    <th>إجمالي السجلات</th>
+                                    <th>آخر تحديث</th>
+                                    <th>السجلات القديمة</th>
+                                    <th>الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in dataFreshness)
+                                {
+                                    <tr>
+                                        <td>
+                                            <i class="bi @GetEntityIcon(item.EntityType) me-2"></i>
+                                            @GetEntityArabic(item.EntityType)
+                                        </td>
+                                        <td>@item.TotalRecords</td>
+                                        <td>
+                                            @if (item.LastUpdated.HasValue)
+                                            {
+                                                <span>@item.LastUpdated.Value.ToString("yyyy-MM-dd HH:mm")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (item.StaleRecords > 0)
+                                            {
+                                                <span class="text-danger">@item.StaleRecords</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-success">0</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="badge @GetFreshnessBadge(item.FreshnessStatus)">
+                                                @GetFreshnessArabic(item.FreshnessStatus)
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Missing Mappings -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-link-45deg me-2"></i>روابط مفقودة</h5>
+                    <span class="badge bg-white text-danger">@missingMappingsList.Count</span>
+                </div>
+                <div class="card-body p-0" style="max-height: 300px; overflow-y: auto;">
+                    @if (missingMappingsList.Any())
+                    {
+                        <table class="table table-sm mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>النوع</th>
+                                    <th>المصدر</th>
+                                    <th>المطلوب</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var mapping in missingMappingsList.Take(10))
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-secondary">@mapping.MappingType</span></td>
+                                        <td><small>@mapping.SourceName</small></td>
+                                        <td><small class="text-danger">@mapping.ExpectedTarget</small></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-success">
+                            <i class="bi bi-check-circle fs-1"></i>
+                            <p class="mb-0">جميع الروابط مكتملة</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Orphan Records -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-file-earmark-x me-2"></i>السجلات اليتيمة</h5>
+                    <span class="badge bg-white text-secondary">@orphanRecordsList.Count</span>
+                </div>
+                <div class="card-body p-0" style="max-height: 300px; overflow-y: auto;">
+                    @if (orphanRecordsList.Any())
+                    {
+                        <table class="table table-sm mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>النوع</th>
+                                    <th>الاسم</th>
+                                    <th>السبب</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var orphan in orphanRecordsList.Take(10))
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-secondary">@orphan.EntityType</span></td>
+                                        <td><small>@orphan.EntityName</small></td>
+                                        <td><small class="text-muted">@GetOrphanReasonArabic(orphan.OrphanReason)</small></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-success">
+                            <i class="bi bi-check-circle fs-1"></i>
+                            <p class="mb-0">لا توجد سجلات يتيمة</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Validation Issues -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>مشاكل التحقق</h5>
+                    <span class="badge bg-dark">@validationIssues.Count</span>
+                </div>
+                <div class="card-body p-0">
+                    @if (validationIssues.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>النوع</th>
+                                        <th>الكيان</th>
+                                        <th>الحقل</th>
+                                        <th>المشكلة</th>
+                                        <th>القيمة الحالية</th>
+                                        <th>الخطورة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var issue in validationIssues.Take(10))
+                                    {
+                                        <tr>
+                                            <td><span class="badge bg-secondary">@issue.EntityType</span></td>
+                                            <td><small>@issue.EntityName</small></td>
+                                            <td><code>@issue.FieldName</code></td>
+                                            <td>@GetIssueTypeArabic(issue.IssueType)</td>
+                                            <td><small class="text-muted">@(string.IsNullOrEmpty(issue.CurrentValue) ? "-" : issue.CurrentValue)</small></td>
+                                            <td>
+                                                <span class="badge @GetSeverityBadge(issue.Severity)">@issue.Severity</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-success">
+                            <i class="bi bi-check-circle fs-1"></i>
+                            <p class="mb-0">جميع البيانات صحيحة</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int dataQualityScore = 85;
+    private string overallHealth = "جيد";
+    private int freshRecords = 0;
+    private int staleRecords = 0;
+    private int missingMappings = 0;
+    private int orphanRecords = 0;
+
+    private List<DataFreshnessItem> dataFreshness = new();
+    private List<MissingMappingItem> missingMappingsList = new();
+    private List<OrphanRecordItem> orphanRecordsList = new();
+    private List<ValidationIssueItem> validationIssues = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        var tenant = await DbContext.Tenants.FirstOrDefaultAsync(t => !t.IsDeleted);
+        var tenantId = tenant?.Id ?? Guid.Empty;
+
+        // Calculate data freshness by entity type
+        var now = DateTime.UtcNow;
+        var staleThreshold = now.AddDays(-30);
+
+        // Controls
+        var controls = await DbContext.Controls.Where(c => c.TenantId == tenantId && !c.IsDeleted).ToListAsync();
+        var controlsStale = controls.Count(c => c.ModifiedDate < staleThreshold);
+
+        // Risks
+        var risks = await DbContext.Risks.Where(r => r.TenantId == tenantId && !r.IsDeleted).ToListAsync();
+        var risksStale = risks.Count(r => r.ModifiedDate < staleThreshold);
+
+        // Evidences
+        var evidences = await DbContext.Evidences.Where(e => e.TenantId == tenantId && !e.IsDeleted).ToListAsync();
+        var evidencesStale = evidences.Count(e => e.ModifiedDate < staleThreshold);
+
+        // Assessments
+        var assessments = await DbContext.Assessments.Where(a => a.TenantId == tenantId && !a.IsDeleted).ToListAsync();
+        var assessmentsStale = assessments.Count(a => a.ModifiedDate < staleThreshold);
+
+        dataFreshness = new List<DataFreshnessItem>
+        {
+            new() { EntityType = "Controls", TotalRecords = controls.Count, StaleRecords = controlsStale, 
+                    LastUpdated = controls.Any() ? controls.Max(c => c.ModifiedDate) : null,
+                    FreshnessStatus = GetFreshnessStatus(controlsStale, controls.Count) },
+            new() { EntityType = "Risks", TotalRecords = risks.Count, StaleRecords = risksStale,
+                    LastUpdated = risks.Any() ? risks.Max(r => r.ModifiedDate) : null,
+                    FreshnessStatus = GetFreshnessStatus(risksStale, risks.Count) },
+            new() { EntityType = "Evidences", TotalRecords = evidences.Count, StaleRecords = evidencesStale,
+                    LastUpdated = evidences.Any() ? evidences.Max(e => e.ModifiedDate) : null,
+                    FreshnessStatus = GetFreshnessStatus(evidencesStale, evidences.Count) },
+            new() { EntityType = "Assessments", TotalRecords = assessments.Count, StaleRecords = assessmentsStale,
+                    LastUpdated = assessments.Any() ? assessments.Max(a => a.ModifiedDate) : null,
+                    FreshnessStatus = GetFreshnessStatus(assessmentsStale, assessments.Count) }
+        };
+
+        var totalRecords = controls.Count + risks.Count + evidences.Count + assessments.Count;
+        var totalStale = controlsStale + risksStale + evidencesStale + assessmentsStale;
+
+        freshRecords = totalRecords - totalStale;
+        staleRecords = totalStale;
+
+        // Missing mappings - controls without evidence
+        missingMappingsList = controls
+            .Where(c => !evidences.Any(e => e.ControlId == c.Id))
+            .Select(c => new MissingMappingItem
+            {
+                MappingType = "Control-Evidence",
+                SourceId = c.Id,
+                SourceName = c.Name,
+                ExpectedTarget = "Evidence"
+            })
+            .ToList();
+
+        missingMappings = missingMappingsList.Count;
+
+        // Orphan records - evidences without control
+        orphanRecordsList = evidences
+            .Where(e => e.ControlId == null || !controls.Any(c => c.Id == e.ControlId))
+            .Select(e => new OrphanRecordItem
+            {
+                EntityType = "Evidence",
+                EntityId = e.Id,
+                EntityName = e.Title ?? "بدون عنوان",
+                OrphanReason = "NoParent"
+            })
+            .ToList();
+
+        orphanRecords = orphanRecordsList.Count;
+
+        // Validation issues - find empty required fields
+        validationIssues = new List<ValidationIssueItem>();
+
+        // Controls without owner
+        validationIssues.AddRange(controls
+            .Where(c => string.IsNullOrEmpty(c.Owner))
+            .Select(c => new ValidationIssueItem
+            {
+                EntityType = "Control",
+                EntityId = c.Id,
+                EntityName = c.Name,
+                FieldName = "Owner",
+                IssueType = "Missing",
+                CurrentValue = "",
+                Severity = "Medium"
+            }));
+
+        // Risks without score
+        validationIssues.AddRange(risks
+            .Where(r => r.RiskScore == 0)
+            .Select(r => new ValidationIssueItem
+            {
+                EntityType = "Risk",
+                EntityId = r.Id,
+                EntityName = r.Name ?? "بدون اسم",
+                FieldName = "RiskScore",
+                IssueType = "Missing",
+                CurrentValue = "0",
+                Severity = "High"
+            }));
+
+        // Calculate overall score
+        var issues = missingMappings + orphanRecords + validationIssues.Count + staleRecords;
+        var maxIssues = totalRecords * 2; // Max possible issues
+        dataQualityScore = maxIssues > 0 ? Math.Max(0, 100 - (issues * 100 / maxIssues)) : 100;
+
+        overallHealth = dataQualityScore >= 90 ? "ممتاز" :
+                        dataQualityScore >= 70 ? "جيد" :
+                        dataQualityScore >= 50 ? "متوسط" : "ضعيف";
+    }
+
+    private string GetFreshnessStatus(int stale, int total)
+    {
+        if (total == 0) return "Fresh";
+        var percentage = (decimal)stale / total * 100;
+        return percentage switch
+        {
+            <= 10 => "Fresh",
+            <= 30 => "Aging",
+            <= 50 => "Stale",
+            _ => "Critical"
+        };
+    }
+
+    private decimal GetFreshPercentage() => freshRecords + staleRecords > 0 ? (decimal)freshRecords / (freshRecords + staleRecords) * 100 : 100;
+    private decimal GetStalePercentage() => freshRecords + staleRecords > 0 ? (decimal)staleRecords / (freshRecords + staleRecords) * 100 : 0;
+
+    private string GetScoreColor(int score) => score >= 80 ? "#198754" : score >= 60 ? "#ffc107" : "#dc3545";
+    private string GetScoreTextClass(int score) => score >= 80 ? "text-success" : score >= 60 ? "text-warning" : "text-danger";
+    private string GetScoreDescription(int score) => score >= 90 ? "جودة بيانات ممتازة" :
+                                                      score >= 70 ? "جودة جيدة - تحسينات طفيفة مطلوبة" :
+                                                      score >= 50 ? "جودة متوسطة - يجب المراجعة" : "جودة ضعيفة - إجراء فوري مطلوب";
+
+    private string GetOverallHealthBadge(string health) => health switch
+    {
+        "ممتاز" => "bg-success",
+        "جيد" => "bg-primary",
+        "متوسط" => "bg-warning text-dark",
+        "ضعيف" => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    private string GetEntityIcon(string type) => type switch
+    {
+        "Controls" => "bi-shield-check",
+        "Risks" => "bi-exclamation-triangle",
+        "Evidences" => "bi-file-earmark-check",
+        "Assessments" => "bi-clipboard-check",
+        _ => "bi-database"
+    };
+
+    private string GetEntityArabic(string type) => type switch
+    {
+        "Controls" => "الضوابط",
+        "Risks" => "المخاطر",
+        "Evidences" => "الأدلة",
+        "Assessments" => "التقييمات",
+        _ => type
+    };
+
+    private string GetFreshnessBadge(string status) => status switch
+    {
+        "Fresh" => "bg-success",
+        "Aging" => "bg-info",
+        "Stale" => "bg-warning text-dark",
+        "Critical" => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    private string GetFreshnessArabic(string status) => status switch
+    {
+        "Fresh" => "محدّث",
+        "Aging" => "قديم نسبياً",
+        "Stale" => "قديم",
+        "Critical" => "حرج",
+        _ => status
+    };
+
+    private string GetOrphanReasonArabic(string reason) => reason switch
+    {
+        "NoParent" => "بدون أب",
+        "DeletedParent" => "الأب محذوف",
+        "BrokenReference" => "رابط معطل",
+        _ => reason
+    };
+
+    private string GetIssueTypeArabic(string type) => type switch
+    {
+        "Missing" => "مفقود",
+        "Invalid" => "غير صالح",
+        "OutOfRange" => "خارج النطاق",
+        "Duplicate" => "مكرر",
+        _ => type
+    };
+
+    private string GetSeverityBadge(string severity) => severity switch
+    {
+        "Critical" => "bg-danger",
+        "High" => "bg-warning text-dark",
+        "Medium" => "bg-info",
+        "Low" => "bg-secondary",
+        _ => "bg-secondary"
+    };
+
+    // DTOs
+    private class DataFreshnessItem
+    {
+        public string EntityType { get; set; } = "";
+        public int TotalRecords { get; set; }
+        public int StaleRecords { get; set; }
+        public DateTime? LastUpdated { get; set; }
+        public string FreshnessStatus { get; set; } = "";
+    }
+
+    private class MissingMappingItem
+    {
+        public string MappingType { get; set; } = "";
+        public Guid SourceId { get; set; }
+        public string SourceName { get; set; } = "";
+        public string ExpectedTarget { get; set; } = "";
+    }
+
+    private class OrphanRecordItem
+    {
+        public string EntityType { get; set; } = "";
+        public Guid EntityId { get; set; }
+        public string EntityName { get; set; } = "";
+        public string OrphanReason { get; set; } = "";
+    }
+
+    private class ValidationIssueItem
+    {
+        public string EntityType { get; set; } = "";
+        public Guid EntityId { get; set; }
+        public string EntityName { get; set; } = "";
+        public string FieldName { get; set; } = "";
+        public string IssueType { get; set; } = "";
+        public string CurrentValue { get; set; } = "";
+        public string Severity { get; set; } = "";
+    }
+}

@@ -1,0 +1,117 @@
+@page "/audits"
+@using GrcMvc.Models.DTOs
+@using GrcMvc.Services.Interfaces
+@inject IAuditService AuditService
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
+
+<PageTitle>@(currentCulture == "ar" ? "المراجعات" : "Audits")</PageTitle>
+
+<div dir="@dir" class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">Audits</h1>
+        </div>
+        <div class="col-auto">
+            <a href="/audits/create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Audit
+            </a>
+        </div>
+    </div>
+
+    @if (audits == null || audits.Count == 0)
+    {
+        <div class="alert alert-info">No audits found</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Number</th>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Lead Auditor</th>
+                        <th>Start Date</th>
+                        <th>Findings</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var audit in audits)
+                    {
+                        <tr>
+                            <td><span class="badge bg-secondary">@audit.AuditNumber</span></td>
+                            <td><strong>@audit.Title</strong></td>
+                            <td>@audit.Type</td>
+                            <td>
+                                <span class="badge bg-@GetStatusColor(audit.Status)">
+                                    @audit.Status
+                                </span>
+                                @if (audit.IsOverdue)
+                                {
+                                    <span class="badge bg-danger ms-2">OVERDUE</span>
+                                }
+                            </td>
+                            <td>@audit.LeadAuditor</td>
+                            <td>@audit.PlannedStartDate.ToString("MMM dd, yyyy")</td>
+                            <td><span class="badge bg-light text-dark">@audit.FindingCount findings</span></td>
+                            <td>
+                                <a href="/audits/@audit.Id/edit" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a href="/audits/@audit.Id/detail" class="btn btn-sm btn-outline-secondary">View</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<AuditListItemDto>? audits;
+    private bool isLoading = true;
+    private bool IsLoading => isLoading; // Use property to suppress warning
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var allAudits = await AuditService.GetAllAsync();
+            audits = allAudits.Select(a => new AuditListItemDto
+            {
+                Id = a.Id,
+                AuditNumber = a.AuditNumber ?? $"AUD-{a.Id.ToString()[..8]}",
+                Title = a.Name ?? "Unnamed Audit",
+                Type = a.Type ?? "Internal",
+                Status = a.Status ?? "Planned",
+                LeadAuditor = a.LeadAuditor ?? "Unassigned",
+                PlannedStartDate = a.StartDate,
+                PlannedEndDate = a.EndDate,
+                FindingCount = 0,
+                IsOverdue = a.EndDate < DateTime.UtcNow && a.Status != "Completed"
+            }).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading audits: {ex.Message}");
+            audits = new List<AuditListItemDto>();
+        }
+    }
+
+    private string GetStatusColor(string status) => status switch
+    {
+        "Completed" => "success",
+        "In Progress" => "warning",
+        "Planned" => "info",
+        "Cancelled" => "danger",
+        _ => "secondary"
+    };
+}

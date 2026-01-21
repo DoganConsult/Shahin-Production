@@ -1,0 +1,179 @@
+@*
+    SHAHIN AI GRC - Rating/Stars Component
+    Usage: <partial name="Components/_ShahinRating" model='new {
+        Id = "riskRating",
+        Rating = 4,
+        MaxRating = 5,
+        Size = "md",
+        ReadOnly = false,
+        ShowLabel = true
+    }' />
+*@
+@{
+    dynamic model = ViewData.Model ?? new { };
+    var id = model?.Id ?? "shahinRating" + Guid.NewGuid().ToString("N").Substring(0, 8);
+    var rating = model?.Rating ?? 0;
+    var maxRating = model?.MaxRating ?? 5;
+    var size = model?.Size ?? "md"; // sm, md, lg
+    var readOnly = model?.ReadOnly ?? false;
+    var showLabel = model?.ShowLabel ?? false;
+    var color = model?.Color ?? "warning";
+    var name = model?.Name ?? "rating";
+
+    var sizeClass = size switch
+    {
+        "sm" => "shahin-rating-sm",
+        "lg" => "shahin-rating-lg",
+        _ => ""
+    };
+
+    var colorVar = color switch
+    {
+        "primary" => "var(--shahin-primary)",
+        "success" => "var(--shahin-success)",
+        "warning" => "var(--shahin-warning)",
+        "danger" => "var(--shahin-error)",
+        _ => "var(--shahin-warning)"
+    };
+}
+
+<div class="shahin-rating @sizeClass" id="@id" data-rating="@rating" data-readonly="@(readOnly ? "true" : "false")">
+    <input type="hidden" name="@name" value="@rating" id="@(id)-value" />
+
+    <div class="shahin-rating-stars">
+        @for (int i = 1; i <= maxRating; i++)
+        {
+            var filled = i <= rating;
+            var starId = $"{id}-star-{i}";
+
+            <span class="shahin-rating-star @(filled ? "filled" : "")"
+                  data-value="@i"
+                  id="@starId"
+                  @(readOnly ? Html.Raw("style=\"cursor: default;\"") : null)>
+                <i class="bi @(filled ? "bi-star-fill" : "bi-star")"></i>
+            </span>
+        }
+    </div>
+
+    @if (showLabel)
+    {
+        <span class="shahin-rating-label">
+            <strong id="@(id)-label">@rating</strong> / @maxRating
+        </span>
+    }
+</div>
+
+<style>
+    .shahin-rating {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--shahin-space-2);
+    }
+
+    .shahin-rating-stars {
+        display: flex;
+        gap: var(--shahin-space-1);
+    }
+
+    .shahin-rating-star {
+        cursor: pointer;
+        font-size: var(--shahin-font-size-xl);
+        color: var(--shahin-gray-300);
+        transition: all var(--shahin-transition-fast);
+        user-select: none;
+    }
+
+    .shahin-rating-star:hover:not([style*="cursor: default"]),
+    .shahin-rating-star.hover {
+        color: @colorVar;
+        transform: scale(1.1);
+    }
+
+    .shahin-rating-star.filled {
+        color: @colorVar;
+    }
+
+    .shahin-rating-sm .shahin-rating-star {
+        font-size: var(--shahin-font-size-base);
+    }
+
+    .shahin-rating-lg .shahin-rating-star {
+        font-size: var(--shahin-font-size-3xl);
+    }
+
+    .shahin-rating-label {
+        font-size: var(--shahin-font-size-sm);
+        color: var(--shahin-gray-600);
+        margin-left: var(--shahin-space-2);
+    }
+
+    [dir="rtl"] .shahin-rating {
+        flex-direction: row-reverse;
+    }
+
+    [dir="rtl"] .shahin-rating-stars {
+        flex-direction: row-reverse;
+    }
+</style>
+
+@if (!readOnly)
+{
+    @section Scripts {
+        <script>
+            (function() {
+                var ratingEl = document.getElementById('@id');
+                if (!ratingEl) return;
+
+                var stars = ratingEl.querySelectorAll('.shahin-rating-star');
+                var valueInput = document.getElementById('@(id)-value');
+                var labelEl = document.getElementById('@(id)-label');
+                var currentRating = parseInt(ratingEl.getAttribute('data-rating')) || 0;
+
+                stars.forEach(function(star, index) {
+                    // Click to set rating
+                    star.addEventListener('click', function() {
+                        var value = parseInt(this.getAttribute('data-value'));
+                        currentRating = value;
+                        updateRating(value);
+                        if (valueInput) valueInput.value = value;
+                        if (labelEl) labelEl.textContent = value;
+                    });
+
+                    // Hover preview
+                    star.addEventListener('mouseenter', function() {
+                        var value = parseInt(this.getAttribute('data-value'));
+                        previewRating(value);
+                    });
+                });
+
+                ratingEl.querySelector('.shahin-rating-stars').addEventListener('mouseleave', function() {
+                    updateRating(currentRating);
+                });
+
+                function updateRating(rating) {
+                    stars.forEach(function(star, index) {
+                        var value = parseInt(star.getAttribute('data-value'));
+                        if (value <= rating) {
+                            star.classList.add('filled');
+                            star.querySelector('i').className = 'bi bi-star-fill';
+                        } else {
+                            star.classList.remove('filled');
+                            star.querySelector('i').className = 'bi bi-star';
+                        }
+                    });
+                }
+
+                function previewRating(rating) {
+                    stars.forEach(function(star, index) {
+                        var value = parseInt(star.getAttribute('data-value'));
+                        if (value <= rating) {
+                            star.classList.add('hover');
+                        } else {
+                            star.classList.remove('hover');
+                        }
+                    });
+                }
+            })();
+        </script>
+    }
+}

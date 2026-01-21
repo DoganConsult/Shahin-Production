@@ -1,0 +1,459 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@{
+    ViewData["Title"] = "Shahin GRC - AI-Powered Governance, Risk & Compliance";
+    ViewData["MetaDescription"] = "Enterprise GRC platform built in Saudi Arabia for global compliance. 12 AI agents, 50+ frameworks, 5000+ controls. From KSA to the world.";
+    Layout = "_LandingLayout";
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+}
+
+<!-- World-Class Hero Section -->
+<section class="hero-premium position-relative overflow-hidden" style="min-height: 100vh; background: linear-gradient(135deg, #0a0f1a 0%, #1a1f3c 50%, #0d1321 100%);">
+    <!-- Animated Background Grid -->
+    <div class="hero-grid-bg position-absolute w-100 h-100" style="opacity: 0.1;">
+        <svg width="100%" height="100%">
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="0.5"/>
+            </pattern>
+            <rect width="100%" height="100%" fill="url(#grid)"/>
+        </svg>
+    </div>
+
+    <!-- Floating Orbs -->
+    <div class="hero-orb hero-orb-1 position-absolute" style="width: 600px; height: 600px; background: radial-gradient(circle, rgba(37,99,235,0.3) 0%, transparent 70%); top: -200px; right: -200px; border-radius: 50%; filter: blur(60px); animation: float 8s ease-in-out infinite;"></div>
+    <div class="hero-orb hero-orb-2 position-absolute" style="width: 400px; height: 400px; background: radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 70%); bottom: -100px; left: -100px; border-radius: 50%; filter: blur(40px); animation: float 6s ease-in-out infinite reverse;"></div>
+
+    <div class="container position-relative" style="z-index: 10;">
+        <div class="row min-vh-100 align-items-center py-5">
+            <div class="col-lg-7">
+                <!-- Trust Badge -->
+                <div class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill mb-4" style="background: rgba(37,99,235,0.15); border: 1px solid rgba(37,99,235,0.3);">
+                    <span class="pulse-dot" style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite;"></span>
+                    <span class="text-white-50 small fw-medium">Built in Saudi Arabia for Global Enterprise</span>
+                </div>
+
+                <!-- Main Headline -->
+                <h1 class="display-2 fw-bold text-white mb-4" style="line-height: 1.1;">
+                    <span class="d-block">The Future of</span>
+                    <span class="d-block" style="background: linear-gradient(135deg, #2563eb, #10b981, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Governance, Risk</span>
+                    <span class="d-block">& Compliance</span>
+                </h1>
+
+                <!-- Subheadline -->
+                <p class="lead text-white-50 mb-5" style="font-size: 1.35rem; max-width: 540px;">
+                    12 AI agents working 24/7. 50+ regulatory frameworks. 5,000+ controls mapped.
+                    One unified platform that transforms compliance from burden to competitive advantage.
+                </p>
+
+                <!-- CTA Buttons -->
+                <div class="d-flex flex-wrap gap-3 mb-5">
+                    <a href="/Landing/FreeTrial" class="btn btn-lg px-5 py-3 fw-semibold" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border-radius: 12px; box-shadow: 0 4px 24px rgba(37,99,235,0.4);">
+                        Start Free Trial
+                        <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                    <a href="/Landing/Contact" class="btn btn-lg px-5 py-3 fw-semibold" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; backdrop-filter: blur(10px);">
+                        <i class="bi bi-play-circle me-2"></i>
+                        Watch Demo
+                    </a>
+                </div>
+
+                <!-- Trust Indicators -->
+                <div class="d-flex flex-wrap gap-4 align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-shield-check text-success fs-5"></i>
+                        <span class="text-white-50 small">SOC 2 Type II</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-patch-check text-primary fs-5"></i>
+                        <span class="text-white-50 small">ISO 27001</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-award text-warning fs-5"></i>
+                        <span class="text-white-50 small">SAMA CSF Certified</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Visual -->
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="position-relative">
+                    <!-- Dashboard Preview Card -->
+                    <div class="card border-0 shadow-lg" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden;">
+                        <div class="card-header py-3 px-4 d-flex align-items-center gap-2" style="background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <span class="d-inline-block rounded-circle" style="width: 12px; height: 12px; background: #ef4444;"></span>
+                            <span class="d-inline-block rounded-circle" style="width: 12px; height: 12px; background: #fbbf24;"></span>
+                            <span class="d-inline-block rounded-circle" style="width: 12px; height: 12px; background: #10b981;"></span>
+                            <span class="text-white-50 small ms-2">Shahin Command Center</span>
+                        </div>
+                        <div class="card-body p-4">
+                            <!-- Compliance Score -->
+                            <div class="text-center mb-4">
+                                <div class="position-relative d-inline-block">
+                                    <svg width="160" height="160" viewBox="0 0 160 160">
+                                        <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="12"/>
+                                        <circle cx="80" cy="80" r="70" fill="none" stroke="url(#scoreGradient)" stroke-width="12" stroke-dasharray="395" stroke-dashoffset="47" stroke-linecap="round" transform="rotate(-90 80 80)"/>
+                                        <defs>
+                                            <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" style="stop-color:#10b981"/>
+                                                <stop offset="100%" style="stop-color:#2563eb"/>
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                    <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                        <span class="display-5 fw-bold text-white">88%</span>
+                                        <small class="d-block text-white-50">Compliance</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Stats -->
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="p-3 rounded-3" style="background: rgba(16,185,129,0.15);">
+                                        <div class="h4 fw-bold text-success mb-0">247</div>
+                                        <small class="text-white-50">Controls Passed</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-3 rounded-3" style="background: rgba(251,191,36,0.15);">
+                                        <div class="h4 fw-bold text-warning mb-0">18</div>
+                                        <small class="text-white-50">In Progress</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-3 rounded-3" style="background: rgba(239,68,68,0.15);">
+                                        <div class="h4 fw-bold text-danger mb-0">5</div>
+                                        <small class="text-white-50">Action Required</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-3 rounded-3" style="background: rgba(37,99,235,0.15);">
+                                        <div class="h4 fw-bold text-primary mb-0">12</div>
+                                        <small class="text-white-50">AI Agents Active</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Floating AI Agent Card -->
+                    <div class="position-absolute" style="bottom: -30px; left: -60px; animation: float 4s ease-in-out infinite;">
+                        <div class="card border-0 shadow-lg p-3" style="background: rgba(37,99,235,0.9); backdrop-filter: blur(10px); border-radius: 16px; width: 200px;">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: rgba(255,255,255,0.2);">
+                                    <i class="bi bi-robot text-white fs-4"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold text-white small">Shahin AI</div>
+                                    <div class="text-white-50" style="font-size: 11px;">Analyzing 3 risks...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="position-absolute bottom-0 start-50 translate-middle-x mb-4 text-center" style="animation: bounce 2s infinite;">
+        <i class="bi bi-chevron-double-down text-white-50 fs-3"></i>
+    </div>
+</section>
+
+<!-- AI Agents Showcase -->
+<section class="py-6" style="background: linear-gradient(180deg, #0d1321 0%, #1a1f3c 100%);">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge px-3 py-2 mb-3" style="background: rgba(139,92,246,0.2); color: #a78bfa; border-radius: 20px;">12 SPECIALIZED AI AGENTS</span>
+            <h2 class="display-5 fw-bold text-white mb-3">Your AI-Powered GRC Team</h2>
+            <p class="lead text-white-50 mx-auto" style="max-width: 600px;">
+                Each agent is trained on specific GRC domains, working together 24/7 to keep your organization compliant.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Agent Cards -->
+            @{
+                var agents = new[] {
+                    new { Icon = "bi-cpu", Name = "Shahin Orchestrator", Desc = "Central AI coordinator", Color = "#8b5cf6" },
+                    new { Icon = "bi-shield-check", Name = "Compliance Agent", Desc = "Regulatory monitoring", Color = "#2563eb" },
+                    new { Icon = "bi-graph-up-arrow", Name = "Risk Agent", Desc = "Risk assessment & scoring", Color = "#ef4444" },
+                    new { Icon = "bi-clipboard-check", Name = "Audit Agent", Desc = "Audit trail management", Color = "#10b981" },
+                    new { Icon = "bi-file-earmark-text", Name = "Policy Agent", Desc = "Policy lifecycle", Color = "#f59e0b" },
+                    new { Icon = "bi-bar-chart-line", Name = "Analytics Agent", Desc = "Real-time insights", Color = "#06b6d4" },
+                    new { Icon = "bi-file-richtext", Name = "Report Agent", Desc = "Automated reporting", Color = "#ec4899" },
+                    new { Icon = "bi-tools", Name = "Diagnostic Agent", Desc = "System health", Color = "#84cc16" },
+                    new { Icon = "bi-headset", Name = "Support Agent", Desc = "24/7 assistance", Color = "#6366f1" },
+                    new { Icon = "bi-diagram-3", Name = "Workflow Agent", Desc = "Process automation", Color = "#14b8a6" },
+                    new { Icon = "bi-folder-check", Name = "Evidence Agent", Desc = "Evidence collection", Color = "#f97316" },
+                    new { Icon = "bi-envelope-check", Name = "Email Agent", Desc = "Communication management", Color = "#0ea5e9" }
+                };
+            }
+
+            @foreach (var agent in agents)
+            {
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card h-100 border-0 agent-card" style="background: rgba(255,255,255,0.03); border-radius: 16px; transition: all 0.3s ease; cursor: pointer;">
+                        <div class="card-body text-center p-4">
+                            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px; background: linear-gradient(135deg, @agent.Color, transparent); border: 2px solid @agent.Color;">
+                                <i class="bi @agent.Icon fs-3" style="color: @agent.Color;"></i>
+                            </div>
+                            <h6 class="fw-semibold text-white mb-1">@agent.Name</h6>
+                            <small class="text-white-50">@agent.Desc</small>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="text-center mt-5">
+            <a href="/Agent" class="btn btn-outline-light btn-lg px-5">
+                Explore All Agents <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Value Propositions -->
+<section class="py-6" style="background: #f8fafc;">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5">
+                <span class="badge px-3 py-2 mb-3" style="background: rgba(37,99,235,0.1); color: #2563eb; border-radius: 20px;">WHY SHAHIN</span>
+                <h2 class="display-5 fw-bold mb-4" style="color: #1e293b;">
+                    Built Different.<br>
+                    Built for <span style="color: #2563eb;">Enterprise.</span>
+                </h2>
+                <p class="lead text-muted mb-4">
+                    Unlike legacy GRC tools, Shahin was designed from the ground up with AI at its core,
+                    specifically tailored for Saudi Vision 2030 and global compliance requirements.
+                </p>
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex align-items-start gap-3">
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                        <div>
+                            <strong class="text-dark">Saudi-First, Global-Ready</strong>
+                            <p class="text-muted mb-0 small">NCA, SAMA, PDPL built-in. ISO, SOC 2, GDPR included.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start gap-3">
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                        <div>
+                            <strong class="text-dark">Arabic-English Native</strong>
+                            <p class="text-muted mb-0 small">Full RTL support. Not a translation - built bilingual.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start gap-3">
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                        <div>
+                            <strong class="text-dark">90% Faster Implementation</strong>
+                            <p class="text-muted mb-0 small">Pre-mapped controls. Auto-generated policies. AI-assisted setup.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="row g-4">
+                    <div class="col-6">
+                        <div class="card border-0 shadow-sm h-100" style="border-radius: 20px;">
+                            <div class="card-body p-4">
+                                <div class="display-4 fw-bold text-primary mb-2">50+</div>
+                                <h5 class="fw-semibold mb-2">Frameworks</h5>
+                                <p class="text-muted small mb-0">NCA-ECC, SAMA-CSF, PDPL, ISO 27001, SOC 2, NIST, GDPR, PCI-DSS...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card border-0 shadow-sm h-100" style="border-radius: 20px;">
+                            <div class="card-body p-4">
+                                <div class="display-4 fw-bold text-success mb-2">5,000+</div>
+                                <h5 class="fw-semibold mb-2">Controls</h5>
+                                <p class="text-muted small mb-0">Pre-mapped, cross-referenced, with implementation guidance.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card border-0 shadow-sm h-100" style="border-radius: 20px;">
+                            <div class="card-body p-4">
+                                <div class="display-4 fw-bold text-purple mb-2" style="color: #8b5cf6;">12</div>
+                                <h5 class="fw-semibold mb-2">AI Agents</h5>
+                                <p class="text-muted small mb-0">Specialized agents for compliance, risk, audit, policy, and more.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card border-0 shadow-sm h-100" style="border-radius: 20px;">
+                            <div class="card-body p-4">
+                                <div class="display-4 fw-bold text-warning mb-2">24/7</div>
+                                <h5 class="fw-semibold mb-2">Monitoring</h5>
+                                <p class="text-muted small mb-0">Continuous compliance monitoring and real-time alerts.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Social Proof / Testimonials -->
+<section class="py-6" style="background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge px-3 py-2 mb-3" style="background: rgba(16,185,129,0.2); color: #34d399; border-radius: 20px;">TRUSTED BY LEADERS</span>
+            <h2 class="display-5 fw-bold text-white mb-3">What Our Customers Say</h2>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0" style="background: rgba(255,255,255,0.05); border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex mb-3">
+                            @for (int i = 0; i < 5; i++)
+                            {
+                                <i class="bi bi-star-fill text-warning"></i>
+                            }
+                        </div>
+                        <p class="text-white-50 mb-4">
+                            "Shahin reduced our compliance assessment time from 3 months to 2 weeks.
+                            The AI agents handle 80% of the routine work automatically."
+                        </p>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <span class="text-white fw-bold">MA</span>
+                            </div>
+                            <div>
+                                <div class="fw-semibold text-white">Mohammed Al-Rashid</div>
+                                <small class="text-white-50">CISO, Saudi Fintech Corp</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0" style="background: rgba(255,255,255,0.05); border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex mb-3">
+                            @for (int i = 0; i < 5; i++)
+                            {
+                                <i class="bi bi-star-fill text-warning"></i>
+                            }
+                        </div>
+                        <p class="text-white-50 mb-4">
+                            "Finally a GRC platform that understands Saudi regulations.
+                            NCA-ECC and SAMA-CSF mapping was instant. No more Excel spreadsheets."
+                        </p>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-success d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <span class="text-white fw-bold">FA</span>
+                            </div>
+                            <div>
+                                <div class="fw-semibold text-white">Fatima Al-Zahrani</div>
+                                <small class="text-white-50">Compliance Director, Healthcare Group</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0" style="background: rgba(255,255,255,0.05); border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex mb-3">
+                            @for (int i = 0; i < 5; i++)
+                            {
+                                <i class="bi bi-star-fill text-warning"></i>
+                            }
+                        </div>
+                        <p class="text-white-50 mb-4">
+                            "The bilingual Arabic-English interface is seamless. Our team in Riyadh
+                            works in Arabic, London team in English - same platform, zero friction."
+                        </p>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <span class="text-dark fw-bold">KS</span>
+                            </div>
+                            <div>
+                                <div class="fw-semibold text-white">Khalid Saud</div>
+                                <small class="text-white-50">Risk Manager, Energy Sector</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ROI Calculator Teaser -->
+<section class="py-6" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h2 class="display-5 fw-bold text-white mb-3">Calculate Your ROI</h2>
+                <p class="lead text-white-50 mb-0">
+                    See how much time and money Shahin can save your organization.
+                    Average customer sees 70% reduction in compliance costs.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                <a href="/Landing/Pricing" class="btn btn-light btn-lg px-5 py-3 fw-semibold" style="border-radius: 12px;">
+                    Calculate Now <i class="bi bi-calculator ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Final CTA -->
+<section class="py-6" style="background: #0f172a;">
+    <div class="container">
+        <div class="text-center">
+            <h2 class="display-4 fw-bold text-white mb-4">
+                Ready to Transform Your<br>
+                <span style="background: linear-gradient(135deg, #2563eb, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Compliance Operations?</span>
+            </h2>
+            <p class="lead text-white-50 mb-5 mx-auto" style="max-width: 600px;">
+                Join the leading organizations in Saudi Arabia using Shahin to automate compliance,
+                reduce risk, and focus on what matters - growing their business.
+            </p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a href="/Landing/FreeTrial" class="btn btn-lg px-5 py-3 fw-semibold" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border-radius: 12px; box-shadow: 0 4px 24px rgba(37,99,235,0.4);">
+                    Start 14-Day Free Trial
+                    <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+                <a href="/Landing/Contact" class="btn btn-outline-light btn-lg px-5 py-3 fw-semibold" style="border-radius: 12px;">
+                    Schedule Demo
+                </a>
+            </div>
+            <p class="text-white-50 small mt-4">
+                <i class="bi bi-credit-card me-1"></i> No credit card required
+                <span class="mx-3">|</span>
+                <i class="bi bi-clock me-1"></i> Setup in 5 minutes
+                <span class="mx-3">|</span>
+                <i class="bi bi-headset me-1"></i> 24/7 support
+            </p>
+        </div>
+    </div>
+</section>
+
+<style>
+    @@keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+    }
+    @@keyframes bounce {
+        0%, 100% { transform: translateY(0) translateX(-50%); }
+        50% { transform: translateY(-10px) translateX(-50%); }
+    }
+    .agent-card:hover {
+        transform: translateY(-8px);
+        background: rgba(255,255,255,0.08) !important;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    .py-6 { padding-top: 5rem; padding-bottom: 5rem; }
+</style>

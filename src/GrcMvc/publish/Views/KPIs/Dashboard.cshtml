@@ -1,0 +1,204 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@model GrcMvc.Services.Interfaces.GrcKpisDto
+@{
+    ViewData["Title"] = "KPI Dashboard";
+    Layout = "_Layout";
+    var kpiName = ViewBag.KpiName as string;
+    var months = ViewBag.Months as int? ?? 12;
+    var trends = ViewBag.Trends as List<GrcMvc.Services.Interfaces.KpiTrendDto> ?? new List<GrcMvc.Services.Interfaces.KpiTrendDto>();
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-speedometer2"></i> KPI Dashboard</h2>
+            <p class="text-muted">Performance trends and analytics</p>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Management" class="btn btn-outline-secondary">
+                <i class="bi bi-list"></i> KPI Management
+            </a>
+            <a asp-action="Thresholds" class="btn btn-outline-primary">
+                <i class="bi bi-sliders"></i> Thresholds
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI Selection -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label">Select KPI</label>
+                    <select name="kpiName" class="form-select">
+                        <option value="">-- Select KPI to view trends --</option>
+                        <option value="ComplianceRate" selected="@(kpiName == "ComplianceRate")">Compliance Rate</option>
+                        <option value="RiskMitigationRate" selected="@(kpiName == "RiskMitigationRate")">Risk Mitigation Rate</option>
+                        <option value="ControlEffectiveness" selected="@(kpiName == "ControlEffectiveness")">Control Effectiveness</option>
+                        <option value="PolicyCompliance" selected="@(kpiName == "PolicyCompliance")">Policy Compliance</option>
+                        <option value="AuditFindingsResolved" selected="@(kpiName == "AuditFindingsResolved")">Audit Findings Resolved</option>
+                        <option value="TrainingCompletion" selected="@(kpiName == "TrainingCompletion")">Training Completion</option>
+                        <option value="AssessmentCoverage" selected="@(kpiName == "AssessmentCoverage")">Assessment Coverage</option>
+                        <option value="VendorCompliance" selected="@(kpiName == "VendorCompliance")">Vendor Compliance</option>
+                        <option value="DataProtectionScore" selected="@(kpiName == "DataProtectionScore")">Data Protection Score</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Time Period</label>
+                    <select name="months" class="form-select">
+                        <option value="3" selected="@(months == 3)">Last 3 Months</option>
+                        <option value="6" selected="@(months == 6)">Last 6 Months</option>
+                        <option value="12" selected="@(months == 12)">Last 12 Months</option>
+                        <option value="24" selected="@(months == 24)">Last 24 Months</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary d-block w-100">
+                        <i class="bi bi-graph-up"></i> View Trends
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Current KPIs Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <h2>@Model.ComplianceRate.ToString("F0")%</h2>
+                    <p class="mb-0">Compliance Rate</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <h2>@Model.RiskMitigationRate.ToString("F0")%</h2>
+                    <p class="mb-0">Risk Mitigation</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <h2>@Model.ControlEffectiveness.ToString("F0")%</h2>
+                    <p class="mb-0">Control Effectiveness</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body text-center">
+                    <h2>@Model.PolicyCompliance.ToString("F0")%</h2>
+                    <p class="mb-0">Policy Compliance</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(kpiName))
+    {
+        <!-- Trend Chart Area -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <i class="bi bi-graph-up"></i> @kpiName Trend (Last @months Months)
+            </div>
+            <div class="card-body">
+                @if (trends.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Value</th>
+                                    <th>Target</th>
+                                    <th>Status</th>
+                                    <th>Visual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var trend in trends.OrderByDescending(t => t.Date))
+                                {
+                                    <tr>
+                                        <td>@trend.Date.ToString("MMM yyyy")</td>
+                                        <td><strong>@trend.Value.ToString("F1")%</strong></td>
+                                        <td>@trend.Target.ToString("F1")%</td>
+                                        <td>
+                                            @if (trend.OnTarget)
+                                            {
+                                                <span class="badge bg-success">On Target</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning">Below Target</span>
+                                            }
+                                        </td>
+                                        <td style="width: 200px;">
+                                            <div class="progress position-relative" style="height: 20px;">
+                                                <div class="progress-bar @(trend.OnTarget ? "bg-success" : "bg-warning")"
+                                                     style="width: @trend.Value%">
+                                                </div>
+                                                <div class="position-absolute" style="left: @trend.Target%; top: 0; bottom: 0; border-left: 2px dashed #dc3545;"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-bar-chart display-1 text-muted opacity-25"></i>
+                        <p class="text-muted mt-3">No trend data available for this period</p>
+                        <p class="small text-muted">Trend data is collected over time as KPIs are calculated</p>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- All KPIs Grid -->
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <i class="bi bi-grid"></i> All KPI Values
+        </div>
+        <div class="card-body">
+            <div class="row">
+                @{
+                    var allKpis = new (string Name, decimal Value, string Icon)[] {
+                        ("Audit Findings Resolved", Model.AuditFindingsResolved, "bi-check2-all"),
+                        ("Incident Response Time", Model.IncidentResponseTime, "bi-lightning"),
+                        ("Training Completion", Model.TrainingCompletion, "bi-mortarboard"),
+                        ("Assessment Coverage", Model.AssessmentCoverage, "bi-clipboard-check"),
+                        ("Vendor Compliance", Model.VendorCompliance, "bi-people"),
+                        ("Data Protection Score", Model.DataProtectionScore, "bi-lock")
+                    };
+                }
+                @foreach (var kpi in allKpis)
+                {
+                    var statusColor = kpi.Value >= 80 ? "success" : kpi.Value >= 60 ? "warning" : "danger";
+                    <div class="col-md-4 col-sm-6 mb-3">
+                        <div class="border rounded p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>
+                                    <i class="bi @kpi.Icon text-muted me-2"></i>
+                                    @kpi.Name
+                                </span>
+                                <span class="fs-4 fw-bold text-@statusColor">@kpi.Value.ToString("F0")%</span>
+                            </div>
+                            <div class="progress mt-2" style="height: 6px;">
+                                <div class="progress-bar bg-@statusColor" style="width: @kpi.Value%"></div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

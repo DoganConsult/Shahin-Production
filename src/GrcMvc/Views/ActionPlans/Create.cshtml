@@ -1,0 +1,204 @@
+@model GrcMvc.Models.DTOs.CreateActionPlanDto
+
+@{
+    ViewData["Title"] = "Create Action Plan";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header">
+                <h2>
+                    <i class="bi bi-clipboard-plus"></i> @ViewData["Title"]
+                </h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Home</a></li>
+                        <li class="breadcrumb-item"><a asp-action="Index">Action Plans</a></li>
+                        <li class="breadcrumb-item active">Create</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-pencil-square"></i> New Action Plan</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Title" class="form-label">Title *</label>
+                                <input asp-for="Title" class="form-control" placeholder="Enter action plan title" required />
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PlanNumber" class="form-label">Plan Number</label>
+                                <input asp-for="PlanNumber" class="form-control" placeholder="Auto-generated if empty" />
+                                <small class="form-text text-muted">Leave empty for auto-generation</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description *</label>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Detailed description of the action plan..." required></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Category" class="form-label">Category *</label>
+                                <select asp-for="Category" class="form-select" required>
+                                    <option value="">-- Select Category --</option>
+                                    <option value="Risk Remediation">Risk Remediation</option>
+                                    <option value="Audit Finding">Audit Finding</option>
+                                    <option value="Compliance Gap">Compliance Gap</option>
+                                    <option value="Control Deficiency">Control Deficiency</option>
+                                    <option value="Security Incident">Security Incident</option>
+                                    <option value="Improvement Initiative">Improvement Initiative</option>
+                                    <option value="Policy Update">Policy Update</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <span asp-validation-for="Category" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Priority" class="form-label">Priority *</label>
+                                <select asp-for="Priority" class="form-select" required>
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                    <option value="Critical">Critical</option>
+                                </select>
+                                <span asp-validation-for="Priority" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Status" class="form-label">Status</label>
+                                <select asp-for="Status" class="form-select">
+                                    <option value="Draft" selected>Draft</option>
+                                    <option value="InProgress">In Progress</option>
+                                    <option value="Completed">Completed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="AssignedTo" class="form-label">Assigned To</label>
+                                <input asp-for="AssignedTo" class="form-control" placeholder="User email or name" />
+                                <span asp-validation-for="AssignedTo" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Owner" class="form-label">Owner</label>
+                                <input asp-for="Owner" class="form-control" placeholder="Action plan owner" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="StartDate" class="form-label">Start Date</label>
+                                <input asp-for="StartDate" type="date" class="form-control" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="DueDate" class="form-label">Due Date</label>
+                                <input asp-for="DueDate" type="date" class="form-control" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="DataClassification" class="form-label">Data Classification</label>
+                                <select asp-for="DataClassification" class="form-select">
+                                    <option value="Public">Public</option>
+                                    <option value="Internal" selected>Internal</option>
+                                    <option value="Confidential">Confidential</option>
+                                    <option value="Restricted">Restricted</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Notes" class="form-label">Notes</label>
+                            <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Additional notes or instructions..."></textarea>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h6 class="text-muted mb-3">Related Items (Optional)</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RelatedRiskId" class="form-label">Related Risk</label>
+                                <input asp-for="RelatedRiskId" type="text" class="form-control" placeholder="Risk ID (GUID)" />
+                                <small class="form-text text-muted">Link this plan to a specific risk</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RelatedAuditId" class="form-label">Related Audit</label>
+                                <input asp-for="RelatedAuditId" type="text" class="form-control" placeholder="Audit ID (GUID)" />
+                                <small class="form-text text-muted">Link this plan to an audit finding</small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RelatedAssessmentId" class="form-label">Related Assessment</label>
+                                <input asp-for="RelatedAssessmentId" type="text" class="form-control" placeholder="Assessment ID (GUID)" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RelatedControlId" class="form-label">Related Control</label>
+                                <input asp-for="RelatedControlId" type="text" class="form-control" placeholder="Control ID (GUID)" />
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i> Create Action Plan
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-lg"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="bi bi-info-circle"></i> Guidelines</h6>
+                </div>
+                <div class="card-body">
+                    <h6>Priority Levels:</h6>
+                    <ul class="small">
+                        <li><strong>Critical:</strong> Immediate action required, high risk</li>
+                        <li><strong>High:</strong> Important, address within 1 week</li>
+                        <li><strong>Medium:</strong> Address within 1 month</li>
+                        <li><strong>Low:</strong> Schedule as resources allow</li>
+                    </ul>
+
+                    <h6 class="mt-3">Common Categories:</h6>
+                    <ul class="small">
+                        <li><strong>Risk Remediation:</strong> Addressing identified risks</li>
+                        <li><strong>Audit Finding:</strong> Resolving audit observations</li>
+                        <li><strong>Compliance Gap:</strong> Closing compliance deficiencies</li>
+                        <li><strong>Control Deficiency:</strong> Strengthening controls</li>
+                    </ul>
+
+                    <div class="alert alert-warning mt-3">
+                        <i class="bi bi-exclamation-triangle"></i> <strong>Note:</strong>
+                        Action plans with Critical or High priority will trigger notifications to relevant stakeholders.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

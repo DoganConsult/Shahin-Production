@@ -1,0 +1,176 @@
+@using GrcMvc.Application.Policy
+@using Microsoft.AspNetCore.Components
+@inherits ComponentBase
+
+@if (ShowDialog && Violation != null)
+{
+    <div class="modal fade show" style="display: block;" tabindex="-1" role="dialog" id="policyViolationModal">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-@GetSeverityClass() text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-@GetSeverityIcon() me-2"></i>
+                        @GetSeverityTitle()
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseDialog" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-@GetSeverityClass() mb-3">
+                        <h6 class="alert-heading mb-2">
+                            <strong>@GetViolationTitle()</strong>
+                        </h6>
+                        <p class="mb-0">@Violation.Message</p>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Violation.RemediationHint))
+                    {
+                        <div class="card mb-3 border-info">
+                            <div class="card-header bg-info text-white">
+                                <i class="fas fa-lightbulb me-2"></i>
+                                <strong>الحل المقترح / Remediation</strong>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-0">@Violation.RemediationHint</p>
+                            </div>
+                        </div>
+                    }
+
+                    @if (Violation.FailedConditions?.Any() == true)
+                    {
+                        <div class="card mb-3 border-warning">
+                            <div class="card-header bg-warning">
+                                <i class="fas fa-list me-2"></i>
+                                <strong>Failed Conditions</strong>
+                            </div>
+                            <div class="card-body">
+                                <ul class="mb-0">
+                                    @foreach (var condition in Violation.FailedConditions)
+                                    {
+                                        <li>@condition</li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Violation.RuleId))
+                    {
+                        <div class="small text-muted">
+                            <i class="fas fa-code me-1"></i>
+                            <strong>Rule ID:</strong> <code>@Violation.RuleId</code>
+                        </div>
+                    }
+
+                    @if (CanAutoFix)
+                    {
+                        <div class="mt-3">
+                            <button class="btn btn-primary" @onclick="HandleAutoFix">
+                                <i class="fas fa-magic me-2"></i>
+                                Auto-fix this issue
+                            </button>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDialog">
+                        <i class="fas fa-times me-2"></i>
+                        Close
+                    </button>
+                    @if (OnFixRequested.HasDelegate)
+                    {
+                        <button type="button" class="btn btn-primary" @onclick="HandleFixRequest">
+                            <i class="fas fa-wrench me-2"></i>
+                            Fix Now
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" @onclick="CloseDialog"></div>
+}
+
+@code {
+    [Parameter] public bool ShowDialog { get; set; }
+    [Parameter] public GrcMvc.Application.Policy.PolicyViolationInfo? Violation { get; set; }
+    [Parameter] public bool CanAutoFix { get; set; }
+    [Parameter] public EventCallback OnAutoFix { get; set; }
+    [Parameter] public EventCallback OnFixRequested { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public bool AutoDismiss { get; set; } = false;
+    [Parameter] public int AutoDismissSeconds { get; set; } = 0;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (ShowDialog && AutoDismiss && AutoDismissSeconds > 0)
+        {
+            await Task.Delay(AutoDismissSeconds * 1000);
+            await CloseDialog();
+        }
+    }
+
+    private async Task CloseDialog()
+    {
+        ShowDialog = false;
+        await OnClose.InvokeAsync();
+    }
+
+    private string GetSeverityClass()
+    {
+        return Violation?.Severity?.ToLower() switch
+        {
+            "critical" => "danger",
+            "high" => "warning",
+            "medium" => "warning",
+            "low" => "info",
+            _ => "warning"
+        };
+    }
+
+    private string GetSeverityIcon()
+    {
+        return Violation?.Severity?.ToLower() switch
+        {
+            "critical" => "exclamation-triangle",
+            "high" => "exclamation-circle",
+            "medium" => "info-circle",
+            "low" => "lightbulb",
+            _ => "info-circle"
+        };
+    }
+
+    private string GetSeverityTitle()
+    {
+        return Violation?.Severity?.ToLower() switch
+        {
+            "critical" => "Policy Violation (Critical)",
+            "high" => "Policy Violation (High Priority)",
+            "medium" => "Policy Requirement",
+            "low" => "Policy Suggestion",
+            _ => "Policy Violation"
+        };
+    }
+
+    private string GetViolationTitle()
+    {
+        return Violation?.Severity?.ToLower() switch
+        {
+            "critical" => "⚠️ Policy Violation Detected",
+            "high" => "⚠️ Policy Violation",
+            "medium" => "ℹ️ Policy Requirement Not Met",
+            "low" => "💡 Policy Suggestion",
+            _ => "Policy Violation"
+        };
+    }
+
+    private async Task HandleAutoFix()
+    {
+        await OnAutoFix.InvokeAsync();
+        await CloseDialog();
+    }
+
+    private async Task HandleFixRequest()
+    {
+        await OnFixRequested.InvokeAsync();
+    }
+}

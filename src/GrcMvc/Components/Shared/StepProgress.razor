@@ -1,0 +1,100 @@
+@using GrcMvc.Models.DTOs
+
+<div class="progress-container">
+    <div class="progress" style="height: 2px;">
+        <div class="progress-bar" role="progressbar" style="width: @($"{ProgressPercent}%")"
+            aria-valuenow="@ProgressPercent" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    
+    <div class="row mt-3 text-center">
+        @foreach (var step in Steps)
+        {
+            <div class="col">
+                <div class="step-indicator">
+                    <div class="step-circle @(IsStepComplete(step) ? "complete" : IsStepActive(step) ? "active" : "")">
+                        @if (IsStepComplete(step))
+                        {
+                            <i class="bi bi-check"></i>
+                        }
+                        else
+                        {
+                            <span>@(Steps.IndexOf(step) + 1)</span>
+                        }
+                    </div>
+                    <div class="step-label small">@step</div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .step-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        background-color: #e9ecef;
+        color: #495057;
+        margin-bottom: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .step-circle.active {
+        background-color: #0d6efd;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.25);
+    }
+
+    .step-circle.complete {
+        background-color: #198754;
+    }
+
+    .step-label {
+        color: #495057;
+        margin-top: 4px;
+        white-space: nowrap;
+        max-width: 80px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public List<string> Steps { get; set; } = new() { "Submit", "Review", "Approve", "Complete" };
+
+    [Parameter]
+    public string CurrentStep { get; set; } = "Submit";
+
+    private int ProgressPercent
+    {
+        get
+        {
+            var index = Steps.IndexOf(CurrentStep);
+            if (index < 0) return 0;
+            return (index + 1) * 100 / Steps.Count;
+        }
+    }
+
+    private bool IsStepComplete(string step)
+    {
+        var currentIndex = Steps.IndexOf(CurrentStep);
+        var stepIndex = Steps.IndexOf(step);
+        return stepIndex < currentIndex;
+    }
+
+    private bool IsStepActive(string step)
+    {
+        return step == CurrentStep;
+    }
+}

@@ -1,0 +1,160 @@
+@model GrcMvc.Models.DTOs.UpdateWorkflowDto
+@{
+    ViewData["Title"] = "Edit Workflow";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-pencil-square"></i> Edit Workflow</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Name" class="control-label fw-bold">Workflow Name</label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label asp-for="WorkflowNumber" class="control-label fw-bold">Workflow Number</label>
+                            <input asp-for="WorkflowNumber" class="form-control" readonly />
+                            <span asp-validation-for="WorkflowNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label asp-for="Status" class="control-label fw-bold">Status</label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="Draft">Draft</option>
+                                <option value="Active">Active</option>
+                                <option value="Suspended">Suspended</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="Category" class="control-label fw-bold">Category</label>
+                            <select asp-for="Category" class="form-select">
+                                <option value="">Select Category...</option>
+                                <option value="Access Control">Access Control</option>
+                                <option value="Incident Management">Incident Management</option>
+                                <option value="Change Management">Change Management</option>
+                                <option value="Vendor Management">Vendor Management</option>
+                                <option value="Compliance">Compliance</option>
+                            </select>
+                            <span asp-validation-for="Category" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="Type" class="control-label fw-bold">Type</label>
+                            <select asp-for="Type" class="form-select">
+                                <option value="">Select Type...</option>
+                                <option value="Sequential">Sequential</option>
+                                <option value="Parallel">Parallel</option>
+                                <option value="State Machine">State Machine</option>
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="Priority" class="control-label fw-bold">Priority</label>
+                            <select asp-for="Priority" class="form-select">
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                            <span asp-validation-for="Priority" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Description" class="control-label fw-bold">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Steps" class="control-label fw-bold">Workflow Steps</label>
+                            <textarea asp-for="Steps" class="form-control" rows="5"></textarea>
+                            <span asp-validation-for="Steps" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Conditions" class="control-label fw-bold">Conditions / Logic</label>
+                            <textarea asp-for="Conditions" class="form-control" rows="5"></textarea>
+                            <span asp-validation-for="Conditions" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="AssignedTo" class="control-label fw-bold">Assigned To</label>
+                            <input asp-for="AssignedTo" class="form-control" />
+                            <span asp-validation-for="AssignedTo" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="InitiatedBy" class="control-label fw-bold">Initiated By</label>
+                            <input asp-for="InitiatedBy" class="form-control" />
+                            <span asp-validation-for="InitiatedBy" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="DueDate" class="control-label fw-bold">Due Date</label>
+                            <input asp-for="DueDate" class="form-control" type="date" />
+                            <span asp-validation-for="DueDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Notifications" class="control-label fw-bold">Notification Settings</label>
+                    <textarea asp-for="Notifications" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="Notifications" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Save Changes
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

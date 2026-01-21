@@ -1,0 +1,93 @@
+/* DataTable CSS Isolation */
+
+.grc-datatable[b-xe9cdznzvp] {
+    position: relative;
+}
+
+.grc-datatable .table[b-xe9cdznzvp] {
+    margin-bottom: 0;
+}
+
+.grc-datatable .table thead th[b-xe9cdznzvp] {
+    white-space: nowrap;
+    user-select: none;
+}
+
+.grc-datatable .table thead th[onclick][b-xe9cdznzvp] {
+    transition: background-color 0.15s ease;
+}
+
+.grc-datatable .table thead th[onclick]:hover[b-xe9cdznzvp] {
+    background-color: var(--bs-gray-200);
+}
+
+.grc-datatable .table tbody tr[b-xe9cdznzvp] {
+    transition: background-color 0.15s ease;
+}
+
+/* Sort indicator */
+.sort-indicator[b-xe9cdznzvp] {
+    transition: transform 0.2s ease;
+}
+
+.sort-indicator.asc[b-xe9cdznzvp] {
+    transform: rotate(180deg);
+}
+
+/* Search input enhancement */
+.grc-datatable .input-group:focus-within[b-xe9cdznzvp] {
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+    border-radius: 0.375rem;
+}
+
+/* Pagination styling */
+.grc-datatable .pagination[b-xe9cdznzvp] {
+    gap: 0.25rem;
+}
+
+.grc-datatable .page-link[b-xe9cdznzvp] {
+    border-radius: 0.375rem;
+    transition: all 0.15s ease;
+}
+
+.grc-datatable .page-link:hover[b-xe9cdznzvp] {
+    transform: translateY(-1px);
+}
+
+/* Empty state */
+.grc-datatable .table-empty[b-xe9cdznzvp] {
+    animation: fadeIn-b-xe9cdznzvp 0.3s ease;
+}
+
+@keyframes fadeIn-b-xe9cdznzvp {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Loading state */
+.grc-datatable.loading[b-xe9cdznzvp]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Row selection highlight */
+.grc-datatable .table tbody tr.selected[b-xe9cdznzvp] {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+/* Mobile responsive table */
+@media (max-width: 768px) {
+    .grc-datatable .table-responsive[b-xe9cdznzvp] {
+        border-radius: 0.5rem;
+        border: 1px solid var(--bs-gray-200);
+    }
+}

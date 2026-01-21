@@ -1,0 +1,112 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@model IEnumerable<GrcMvc.Models.DTOs.PolicyViolationDto>
+@{
+    ViewData["Title"] = L["Policy_Violations_Title"].Value;
+    Layout = "_Layout";
+    Guid? policyId = ViewBag.PolicyId;
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-exclamation-octagon"></i> @L["Policy_Violations_Title"]</h2>
+            @if (policyId.HasValue)
+            {
+                <h5 class="text-muted">@L["Policy_ForPolicyId", policyId]</h5>
+            }
+        </div>
+        <div class="col text-end">
+            @if (policyId.HasValue)
+            {
+                <a asp-action="Details" asp-route-id="@policyId" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> @L["BackToPolicy"]
+                </a>
+            }
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-list"></i> @L["AllPolicies"]
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-shield-check display-1 text-success"></i>
+                    <h4 class="mt-3 text-success">@L["Policy_NoViolationsFound"]</h4>
+                    <p>@L["Policy_PerfectCompliance"]</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover" id="violationsTable">
+                        <thead>
+                            <tr>
+                                <th>@L["Policy_DetectedDate"]</th>
+                                <th>@L["Policy_Title"]</th>
+                                <th>@L["Policy_Severity"]</th>
+                                <th>@L["Status"]</th>
+                                <th>@L["Policy_Owner"]</th>
+                                <th>@L["Policy_ResolutionPlan"]</th>
+                                <th>@L["Actions"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.DetectedDate.ToShortDateString()</td>
+                                    <td>@item.Title</td>
+                                    <td>
+                                        <span class="badge @GetSeverityClass(item.Severity)">
+                                            @item.Severity
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">@item.Status</span>
+                                    </td>
+                                    <td>@item.Owner</td>
+                                    <td>
+                                        <span class="d-inline-block text-truncate" style="max-width: 250px;">
+                                            @item.ResolutionPlan
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-info" disabled title="@L["Policy_DetailsComingSoon"]">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetSeverityClass(string severity)
+    {
+        return severity?.ToLower() switch
+        {
+            "critical" => "bg-danger",
+            "high" => "bg-warning",
+            "medium" => "bg-info",
+            "low" => "bg-success",
+            _ => "bg-secondary"
+        };
+    }
+}

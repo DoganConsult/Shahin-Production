@@ -1,0 +1,216 @@
+@model StepLGoLiveMetricsDto
+@using GrcMvc.Models.DTOs
+@{
+    ViewData["Title"] = "Go-Live & Success Metrics - Onboarding Wizard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var summary = ViewData["WizardSummary"] as WizardSummaryDto;
+    var tenantId = summary?.TenantId ?? Guid.Empty;
+}
+
+<div class="d-flex">
+    @await Html.PartialAsync("_WizardSidebar", summary)
+
+    <div class="flex-grow-1 p-4">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-rocket text-primary me-2"></i>
+                        Step L: Go-Live & Success Metrics
+                    </h2>
+                    <p class="text-muted mb-0">مقاييس الإطلاق والنجاح | Questions 91-96 • Sales + operational proof</p>
+                </div>
+                <span class="badge bg-success fs-6">Final Step! 🎉</span>
+            </div>
+
+            <form asp-action="StepL" asp-route-tenantId="@tenantId" method="post">
+                @Html.AntiForgeryToken()
+
+                <!-- Success Definition -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Success Definition in 90 Days (Q91)</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">Pick your top 3 success metrics:</p>
+                        <div class="row">
+                            @{
+                                var successMetrics = new[] {
+                                    ("fewer_audit_hours", "Fewer Audit Hours", "Reduce time spent on audit preparation", "fa-clock"),
+                                    ("faster_evidence_turnaround", "Faster Evidence Turnaround", "Speed up evidence collection and submission", "fa-tachometer-alt"),
+                                    ("reduced_repeat_findings", "Reduced Repeat Findings", "Fewer recurring audit findings", "fa-redo"),
+                                    ("improved_sla_compliance", "Improved SLA Compliance", "Better adherence to remediation SLAs", "fa-check-double"),
+                                    ("improved_outage_recovery", "Improved Outage Recovery", "Faster recovery from incidents", "fa-first-aid")
+                                };
+                            }
+                            @foreach (var (code, name, desc, icon) in successMetrics)
+                            {
+                                <div class="col-md-4 mb-3">
+                                    <div class="form-check card p-3 h-100 @(Model.SuccessMetricsTop3.Contains(code) ? "border-success bg-light" : "")">
+                                        <input type="checkbox" class="form-check-input success-metric" 
+                                               name="SuccessMetricsTop3" value="@code" id="sm_@code"
+                                               @(Model.SuccessMetricsTop3.Contains(code) ? "checked" : "")>
+                                        <label class="form-check-label" for="sm_@code">
+                                            <i class="fas @icon text-success me-2"></i>
+                                            <strong>@name</strong>
+                                            <small class="text-muted d-block mt-1">@desc</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <small class="text-muted">Select exactly 3 metrics to track.</small>
+                    </div>
+                </div>
+
+                <!-- Baseline Measurements -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Baseline Measurements (Q92-94)</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">Current state (for comparison after 90 days):</p>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="BaselineAuditPrepHoursPerMonth" class="form-label">
+                                    Audit Prep Hours/Month
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" asp-for="BaselineAuditPrepHoursPerMonth" 
+                                           class="form-control" step="0.5" min="0" placeholder="e.g., 40">
+                                    <span class="input-group-text">hours</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="BaselineRemediationClosureDays" class="form-label">
+                                    Avg. Remediation Closure Time
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" asp-for="BaselineRemediationClosureDays" 
+                                           class="form-control" step="0.5" min="0" placeholder="e.g., 45">
+                                    <span class="input-group-text">days</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="BaselineOverdueControlsPerMonth" class="form-label">
+                                    Overdue Controls/Month
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" asp-for="BaselineOverdueControlsPerMonth" 
+                                           class="form-control" min="0" placeholder="e.g., 15">
+                                    <span class="input-group-text">controls</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pilot Scope -->
+                <div class="card mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-flask me-2"></i>Pilot Scope (Q96)</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">Select control domains for initial pilot (top 10-20 controls):</p>
+                        <div class="row">
+                            @{
+                                var domains = new[] {
+                                    "Access Control", "Cryptography", "Network Security",
+                                    "Incident Response", "Business Continuity", "Vendor Management",
+                                    "Asset Management", "Change Management", "Data Protection"
+                                };
+                            }
+                            @foreach (var domain in domains)
+                            {
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" 
+                                               name="PilotScope" value="@domain" id="pilot_@domain.Replace(" ", "_")"
+                                               @(Model.PilotScope.Contains(domain) ? "checked" : "")>
+                                        <label class="form-check-label" for="pilot_@domain.Replace(" ", "_")">
+                                            @domain
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Final Summary -->
+                <div class="card mb-4 border-success">
+                    <div class="card-body bg-light">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h5 class="text-success mb-2">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    You're Almost Done!
+                                </h5>
+                                <p class="mb-0 text-muted">
+                                    Click "Complete Onboarding" to finalize your configuration. 
+                                    You can always update these settings later.
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <span class="badge bg-success fs-5">Step 12 of 12</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="@Url.Action("StepK", new { tenantId })" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Back
+                    </a>
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-check-double me-2"></i>
+                        Complete Onboarding 🎉
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
+    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
+    <script>
+        // Initialize Motivation System
+        const motivation = new WizardMotivation({
+            stepNumber: 12,
+            totalSteps: 12,
+            tenantId: '@tenantId',
+            stepName: 'StepL'
+        });
+
+        // Initialize Live Preview Panel
+        const livePreview = new LivePreviewPanel({
+            stepName: 'StepL'
+        });
+
+        // Initialize Why We Ask Tooltips
+        const tooltips = new WhyWeAskTooltips();
+
+        // Limit to 3 success metrics
+        document.querySelectorAll('.success-metric').forEach(cb => {
+            cb.addEventListener('change', function() {
+                const checked = document.querySelectorAll('.success-metric:checked');
+                if (checked.length > 3) {
+                    this.checked = false;
+                    alert('Please select exactly 3 success metrics.');
+                }
+                
+                // Update card styling
+                document.querySelectorAll('.success-metric').forEach(el => {
+                    const card = el.closest('.card');
+                    if (el.checked) {
+                        card.classList.add('border-success', 'bg-light');
+                    } else {
+                        card.classList.remove('border-success', 'bg-light');
+                    }
+                });
+            });
+        });
+    </script>
+}

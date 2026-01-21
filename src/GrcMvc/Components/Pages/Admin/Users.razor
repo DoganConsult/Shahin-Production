@@ -1,0 +1,121 @@
+@page "/admin/users"
+@using GrcMvc.Models.DTOs
+@using GrcMvc.Data
+@using GrcMvc.Models.Entities
+@using Microsoft.EntityFrameworkCore
+@using System.Text.Json
+@inject IHttpContextAccessor HttpContextAccessor
+@inject GrcDbContext DbContext
+
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
+
+<PageTitle>@(currentCulture == "ar" ? "إدارة المستخدمين" : "User Management")</PageTitle>
+
+<div dir="@dir" class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">User Management</h1>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> Add User
+            </button>
+        </div>
+    </div>
+
+    @if (users == null || users.Count == 0)
+    {
+        <div class="alert alert-info">No users found</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Status</th>
+                        <th>Last Login</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in users)
+                    {
+                        <tr>
+                            <td><strong>@user.Name</strong></td>
+                            <td>@user.Email</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(user.Roles))
+                                {
+                                    @foreach (var role in user.Roles.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                                    {
+                                        <span class="badge bg-info">@role.Trim()</span>
+                                    }
+                                }
+                            </td>
+                            <td>
+                                <span class="badge bg-@(user.IsActive ? "success" : "danger")">
+                                    @(user.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </td>
+                            <td>
+                                @if (user.LastLogin.HasValue)
+                                {
+                                    @user.LastLogin.Value.ToString("MMM dd, yyyy")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Never</span>
+                                }
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                <button class="btn btn-sm btn-outline-danger">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<UserListItemDto>? users;
+    private Guid currentTenantId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var tenant = await DbContext.Tenants.FirstOrDefaultAsync(t => !t.IsDeleted);
+            currentTenantId = tenant?.Id ?? Guid.Empty;
+
+            var tenantUsers = await DbContext.TenantUsers
+                .Where(tu => tu.TenantId == currentTenantId && !tu.IsDeleted)
+                .Include(tu => tu.User)
+                .ToListAsync();
+
+            users = tenantUsers.Select(tu => new UserListItemDto
+            {
+                Id = tu.Id,
+                Name = tu.User != null ? tu.User.FullName : tu.UserId,
+                Email = tu.User?.Email ?? tu.UserId,
+                Roles = tu.RoleCode,
+                IsActive = tu.Status == "Active",
+                LastLogin = tu.User?.LastLoginDate
+            }).ToList();
+        }
+        catch (Exception)
+        {
+            users = new List<UserListItemDto>();
+        }
+    }
+}

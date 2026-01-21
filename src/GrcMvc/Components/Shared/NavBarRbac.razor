@@ -1,0 +1,81 @@
+@using GrcMvc.Services.Interfaces
+@using GrcMvc.Models.Entities
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Localization
+@using System.Security.Claims
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IMenuService MenuService
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+
+@code {
+    private List<MenuItemDto> menuItems = new();
+    private string dir = "ltr";
+    private string displayName = "Name";
+    private bool isRtl = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+        var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+        isRtl = currentCulture == "ar";
+        dir = isRtl ? "rtl" : "ltr";
+        displayName = isRtl ? "NameAr" : "Name";
+
+        var userId = HttpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        menuItems = userId != null ? await MenuService.GetUserMenuItemsAsync(userId) : new List<MenuItemDto>();
+    }
+}
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top" dir="@dir">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <i class="bi bi-shield-lock"></i> GRC System
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                @foreach (var item in menuItems)
+                {
+                    @if (item.Children.Any())
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="@item.Id" role="button"
+                                data-bs-toggle="dropdown">
+                                <i class="@item.Icon"></i> @(isRtl ? item.NameAr : item.Name)
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                @foreach (var child in item.Children)
+                                {
+                                    <li>
+                                        <a class="dropdown-item" href="@child.Url">
+                                            <i class="@child.Icon me-2"></i>@(isRtl ? child.NameAr : child.Name)
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="@item.Url">
+                                <i class="@item.Icon"></i> @(isRtl ? item.NameAr : item.Name)
+                            </a>
+                        </li>
+                    }
+                }
+                <li class="nav-item">
+                    <LanguageSwitcher />
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-warning" href="/logout">
+                        <i class="bi bi-box-arrow-right"></i> @(isRtl ? "تسجيل الخروج" : "Logout")
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

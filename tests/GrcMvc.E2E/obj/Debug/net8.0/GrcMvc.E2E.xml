@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>GrcMvc.E2E</name>
+    </assembly>
+    <members>
+        <member name="T:GrcMvc.E2E.ApiGoldenPathTests">
+            <summary>
+            API Golden Path Tests - Fast, Deterministic Gate
+            These tests run BEFORE Selenium tests in CI
+            Covers: Registration, Trial, Provision, Invite, Accept, Security
+            </summary>
+        </member>
+        <member name="T:GrcMvc.E2E.GoldenPathE2ETests">
+            <summary>
+            Golden Path E2E Tests - Production Readiness Gate
+            Covers: Register, Verify, Login, Invite, Accept, Role-based access
+            Uses: Selenium + MailHog/Mailpit for email capture
+            </summary>
+        </member>
+        <member name="M:GrcMvc.E2E.GoldenPathE2ETests.WaitForLinkFromMailAsync(System.String,System.String,System.Int32)">
+            <summary>
+            Wait for email link from MailHog/Mailpit
+            </summary>
+        </member>
+    </members>
+</doc>

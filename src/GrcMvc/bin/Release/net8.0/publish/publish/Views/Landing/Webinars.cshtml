@@ -1,0 +1,316 @@
+@using GrcMvc.Services
+@inject IAppInfoService AppInfo
+@{
+    ViewData["Title"] = "الندوات - " + AppInfo.Name;
+    Layout = "_LandingLayout";
+}
+
+<section class="webinars-hero">
+    <div class="container">
+        <div class="section-header fade-up">
+            <div class="section-badge">
+                <i class="bi bi-broadcast"></i>
+                <span>الندوات الإلكترونية</span>
+            </div>
+            <h1 class="section-title">تعلم من الخبراء مباشرة</h1>
+            <p class="section-subtitle">
+                ندوات مجانية حول الحوكمة والمخاطر والامتثال، يقدمها خبراء متخصصون.
+            </p>
+        </div>
+
+        <!-- Upcoming Webinar -->
+        <div class="upcoming-webinar fade-up">
+            <div class="badge-live"><i class="bi bi-circle-fill"></i> قريباً</div>
+            <h2>التحول الرقمي وتحديات الامتثال في 2026</h2>
+            <p>كيف تواكب مؤسستك التحول الرقمي مع ضمان الامتثال للمتطلبات التنظيمية المتزايدة</p>
+            <div class="webinar-details">
+                <span><i class="bi bi-calendar3"></i> 15 يناير 2026</span>
+                <span><i class="bi bi-clock"></i> 7:00 مساءً بتوقيت الرياض</span>
+                <span><i class="bi bi-person"></i> د. محمد العتيبي، خبير GRC</span>
+            </div>
+            <a href="#" class="btn btn-primary btn-lg">
+                <i class="bi bi-calendar-plus"></i>
+                سجّل الآن مجاناً
+            </a>
+        </div>
+
+        <!-- Past Webinars -->
+        <div class="past-webinars fade-up">
+            <h2>الندوات السابقة</h2>
+            <div class="webinars-grid">
+                <div class="webinar-card">
+                    <div class="webinar-thumbnail">
+                        <i class="bi bi-play-circle-fill"></i>
+                        <span class="duration">1:15:00</span>
+                    </div>
+                    <div class="webinar-info">
+                        <h3>أساسيات نظام حماية البيانات الشخصية PDPL</h3>
+                        <p>شرح تفصيلي لمتطلبات النظام وكيفية تطبيقها في مؤسستك</p>
+                        <div class="webinar-meta">
+                            <span><i class="bi bi-calendar3"></i> 10 ديسمبر 2025</span>
+                            <span><i class="bi bi-eye"></i> 1,250 مشاهدة</span>
+                        </div>
+                        <a href="#" class="btn btn-outline">شاهد الآن</a>
+                    </div>
+                </div>
+
+                <div class="webinar-card">
+                    <div class="webinar-thumbnail">
+                        <i class="bi bi-play-circle-fill"></i>
+                        <span class="duration">55:30</span>
+                    </div>
+                    <div class="webinar-info">
+                        <h3>بناء ثقافة إدارة المخاطر في المؤسسات</h3>
+                        <p>استراتيجيات عملية لنشر ثقافة الوعي بالمخاطر على جميع المستويات</p>
+                        <div class="webinar-meta">
+                            <span><i class="bi bi-calendar3"></i> 25 نوفمبر 2025</span>
+                            <span><i class="bi bi-eye"></i> 980 مشاهدة</span>
+                        </div>
+                        <a href="#" class="btn btn-outline">شاهد الآن</a>
+                    </div>
+                </div>
+
+                <div class="webinar-card">
+                    <div class="webinar-thumbnail">
+                        <i class="bi bi-play-circle-fill"></i>
+                        <span class="duration">1:05:00</span>
+                    </div>
+                    <div class="webinar-info">
+                        <h3>التحضير للتدقيق الخارجي: نصائح وتجارب</h3>
+                        <p>تجارب حية ونصائح عملية من مسؤولي امتثال في مؤسسات كبرى</p>
+                        <div class="webinar-meta">
+                            <span><i class="bi bi-calendar3"></i> 10 نوفمبر 2025</span>
+                            <span><i class="bi bi-eye"></i> 1,100 مشاهدة</span>
+                        </div>
+                        <a href="#" class="btn btn-outline">شاهد الآن</a>
+                    </div>
+                </div>
+
+                <div class="webinar-card">
+                    <div class="webinar-thumbnail">
+                        <i class="bi bi-play-circle-fill"></i>
+                        <span class="duration">1:20:00</span>
+                    </div>
+                    <div class="webinar-info">
+                        <h3>جولة في منصة شاهين: من التسجيل إلى الامتثال</h3>
+                        <p>عرض عملي لجميع مميزات المنصة وكيفية استخدامها</p>
+                        <div class="webinar-meta">
+                            <span><i class="bi bi-calendar3"></i> 1 نوفمبر 2025</span>
+                            <span><i class="bi bi-eye"></i> 2,300 مشاهدة</span>
+                        </div>
+                        <a href="#" class="btn btn-outline">شاهد الآن</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="webinars-cta fade-up">
+            <h2>هل لديك موضوع تقترحه؟</h2>
+            <p>نحب أن نسمع منك! اقترح موضوعاً للندوات القادمة</p>
+            <a href="/Landing/Contact" class="btn btn-primary btn-lg">
+                <i class="bi bi-lightbulb"></i>
+                اقترح موضوعاً
+            </a>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+<style>
+    .webinars-hero {
+        padding: 8rem 0 4rem;
+    }
+
+    .upcoming-webinar {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.15));
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-radius: 24px;
+        padding: 3rem;
+        text-align: center;
+        margin-bottom: 4rem;
+        position: relative;
+    }
+
+    .badge-live {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--accent);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+
+    .badge-live i {
+        font-size: 0.5rem;
+        animation: pulse 1.5s infinite;
+    }
+
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .upcoming-webinar h2 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .upcoming-webinar > p {
+        color: rgba(248, 250, 252, 0.8);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .webinar-details {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+        color: rgba(248, 250, 252, 0.7);
+    }
+
+    .webinar-details span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .webinar-details i {
+        color: var(--primary);
+    }
+
+    .past-webinars h2 {
+        font-size: 1.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .webinars-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .webinar-card {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .webinar-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .webinar-thumbnail {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(139, 92, 246, 0.3));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .webinar-thumbnail i {
+        font-size: 3rem;
+        color: white;
+        opacity: 0.8;
+    }
+
+    .webinar-thumbnail .duration {
+        position: absolute;
+        bottom: 0.75rem;
+        right: 0.75rem;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+    }
+
+    .webinar-info {
+        padding: 1.5rem;
+    }
+
+    .webinar-info h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+        line-height: 1.5;
+    }
+
+    .webinar-info > p {
+        color: rgba(248, 250, 252, 0.6);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+
+    .webinar-meta {
+        display: flex;
+        gap: 1.5rem;
+        color: rgba(248, 250, 252, 0.5);
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+
+    .webinar-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .webinars-cta {
+        text-align: center;
+        background: linear-gradient(180deg, rgba(16, 185, 129, 0.1), transparent);
+        border-radius: 24px;
+        padding: 4rem;
+    }
+
+    .webinars-cta h2 {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .webinars-cta p {
+        color: rgba(248, 250, 252, 0.6);
+        margin-bottom: 1.5rem;
+    }
+
+    @@media (max-width: 1024px) {
+        .webinars-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .webinar-card {
+            grid-template-columns: 150px 1fr;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .webinar-card {
+            grid-template-columns: 1fr;
+        }
+
+        .webinar-thumbnail {
+            height: 150px;
+        }
+
+        .webinar-details {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+    }
+</style>
+}

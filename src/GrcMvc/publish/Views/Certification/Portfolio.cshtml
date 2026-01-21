@@ -1,0 +1,361 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@model GrcMvc.Models.ViewModels.Certification.CertificationPortfolioViewModel
+@{
+    ViewData["Title"] = "Certification Portfolio";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-collection"></i> Certification Portfolio</h2>
+            <p class="text-muted">Comprehensive view of all organizational certifications and compliance credentials</p>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-list-ul"></i> List View
+            </a>
+            <button type="button" class="btn btn-primary" onclick="window.print()">
+                <i class="bi bi-printer"></i> Print Portfolio
+            </button>
+        </div>
+    </div>
+
+    <!-- Portfolio Summary -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-primary">
+                <div class="card-body">
+                    <h4>Certification Portfolio Overview</h4>
+                    <p class="text-muted mb-3">Demonstrating organizational commitment to security, quality, and compliance excellence</p>
+                    <div class="row">
+                        <div class="col-md-4 text-center border-end">
+                            <h2 class="text-primary">@Model.TotalCertifications</h2>
+                            <p class="text-muted small mb-0">Total Certifications</p>
+                        </div>
+                        <div class="col-md-4 text-center border-end">
+                            <h2 class="text-success">@Model.ActiveCertifications</h2>
+                            <p class="text-muted small mb-0">Active & Valid</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h2 class="text-info">@Model.CoveragePercentage%</h2>
+                            <p class="text-muted small mb-0">Industry Coverage</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm bg-light">
+                <div class="card-body">
+                    <h6><i class="bi bi-trophy"></i> Achievements</h6>
+                    <ul class="small mb-0">
+                        <li>@Model.SecurityCertifications Security certifications</li>
+                        <li>@Model.QualityCertifications Quality certifications</li>
+                        <li>@Model.PrivacyCertifications Privacy certifications</li>
+                        <li>Last audit: @Model.LastAuditDate?.ToString("MMM yyyy")</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Certification Categories -->
+    <div class="row mb-4">
+        <!-- Security & Cybersecurity -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-shield-lock"></i> Security & Cybersecurity</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.SecurityCerts?.Any() == true)
+                    {
+                        @foreach (var cert in Model.SecurityCerts)
+                        {
+                            <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+                                <div>
+                                    <h6 class="mb-0">
+                                        @if (cert.IsActive)
+                                        {
+                                            <i class="bi bi-patch-check-fill text-success"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-patch-exclamation text-warning"></i>
+                                        }
+                                        @cert.Name
+                                    </h6>
+                                    <small class="text-muted">@cert.Standard</small>
+                                </div>
+                                <div class="text-end">
+                                    @if (cert.ExpiryDate.HasValue)
+                                    {
+                                        <small class="text-muted d-block">Expires:</small>
+                                        <small class="fw-bold">@cert.ExpiryDate.Value.ToString("MMM yyyy")</small>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-3">No security certifications</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Quality & Process Management -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-gear"></i> Quality & Process Management</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.QualityCerts?.Any() == true)
+                    {
+                        @foreach (var cert in Model.QualityCerts)
+                        {
+                            <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+                                <div>
+                                    <h6 class="mb-0">
+                                        @if (cert.IsActive)
+                                        {
+                                            <i class="bi bi-patch-check-fill text-success"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-patch-exclamation text-warning"></i>
+                                        }
+                                        @cert.Name
+                                    </h6>
+                                    <small class="text-muted">@cert.Standard</small>
+                                </div>
+                                <div class="text-end">
+                                    @if (cert.ExpiryDate.HasValue)
+                                    {
+                                        <small class="text-muted d-block">Expires:</small>
+                                        <small class="fw-bold">@cert.ExpiryDate.Value.ToString("MMM yyyy")</small>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-3">No quality certifications</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Privacy & Data Protection -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="bi bi-lock"></i> Privacy & Data Protection</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.PrivacyCerts?.Any() == true)
+                    {
+                        @foreach (var cert in Model.PrivacyCerts)
+                        {
+                            <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+                                <div>
+                                    <h6 class="mb-0">
+                                        @if (cert.IsActive)
+                                        {
+                                            <i class="bi bi-patch-check-fill text-success"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-patch-exclamation text-warning"></i>
+                                        }
+                                        @cert.Name
+                                    </h6>
+                                    <small class="text-muted">@cert.Standard</small>
+                                </div>
+                                <div class="text-end">
+                                    @if (cert.ExpiryDate.HasValue)
+                                    {
+                                        <small class="text-muted d-block">Expires:</small>
+                                        <small class="fw-bold">@cert.ExpiryDate.Value.ToString("MMM yyyy")</small>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-3">No privacy certifications</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Industry-Specific -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-building"></i> Industry-Specific</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.IndustryCerts?.Any() == true)
+                    {
+                        @foreach (var cert in Model.IndustryCerts)
+                        {
+                            <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+                                <div>
+                                    <h6 class="mb-0">
+                                        @if (cert.IsActive)
+                                        {
+                                            <i class="bi bi-patch-check-fill text-success"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-patch-exclamation text-warning"></i>
+                                        }
+                                        @cert.Name
+                                    </h6>
+                                    <small class="text-muted">@cert.Standard</small>
+                                </div>
+                                <div class="text-end">
+                                    @if (cert.ExpiryDate.HasValue)
+                                    {
+                                        <small class="text-muted d-block">Expires:</small>
+                                        <small class="fw-bold">@cert.ExpiryDate.Value.ToString("MMM yyyy")</small>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-3">No industry-specific certifications</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expiry Timeline -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-calendar3"></i> Certification Renewal Timeline</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Certification</th>
+                                    <th>Category</th>
+                                    <th>Issued</th>
+                                    <th>Expires</th>
+                                    <th>Months Remaining</th>
+                                    <th>Next Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var cert in Model.AllCertifications?.OrderBy(c => c.ExpiryDate) ?? Enumerable.Empty<GrcMvc.Services.Interfaces.CertificationDto>())
+                                {
+                                    if (cert.ExpiryDate.HasValue)
+                                    {
+                                        var monthsRemaining = ((cert.ExpiryDate.Value.Year - DateTime.UtcNow.Year) * 12) + cert.ExpiryDate.Value.Month - DateTime.UtcNow.Month;
+                                        var urgencyClass = monthsRemaining <= 3 ? "table-danger" :
+                                                          monthsRemaining <= 6 ? "table-warning" : "";
+
+                                        <tr class="@urgencyClass">
+                                            <td><strong>@cert.Name</strong></td>
+                                            <td><span class="badge bg-light text-dark">@cert.Category</span></td>
+                                            <td>@cert.IssuedDate?.ToString("MMM yyyy")</td>
+                                            <td>@cert.ExpiryDate.Value.ToString("MMM yyyy")</td>
+                                            <td>
+                                                @if (monthsRemaining <= 0)
+                                                {
+                                                    <span class="badge bg-danger">Expired</span>
+                                                }
+                                                else if (monthsRemaining <= 3)
+                                                {
+                                                    <span class="badge bg-danger">@monthsRemaining months</span>
+                                                }
+                                                else if (monthsRemaining <= 6)
+                                                {
+                                                    <span class="badge bg-warning text-dark">@monthsRemaining months</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-success">@monthsRemaining months</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (monthsRemaining <= 6)
+                                                {
+                                                    <a asp-action="Preparation" asp-route-certificationId="@cert.Id" class="btn btn-sm btn-warning">
+                                                        <i class="bi bi-exclamation-triangle"></i> Start Renewal
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted small">Monitor</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Certification Value Statement -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm bg-light">
+                <div class="card-body">
+                    <h5><i class="bi bi-stars"></i> Certification Value Statement</h5>
+                    <p class="mb-2">Our comprehensive certification portfolio demonstrates:</p>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <ul class="small">
+                                <li><strong>Security Excellence:</strong> Protecting customer data and assets</li>
+                                <li><strong>Quality Commitment:</strong> Delivering consistent, high-quality services</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <ul class="small">
+                                <li><strong>Privacy Protection:</strong> Respecting data privacy rights and regulations</li>
+                                <li><strong>Industry Leadership:</strong> Meeting sector-specific standards</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <ul class="small">
+                                <li><strong>Continuous Improvement:</strong> Regular audits and updates</li>
+                                <li><strong>Stakeholder Trust:</strong> Independent verification of our practices</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Print styling
+        window.addEventListener('beforeprint', function() {
+            document.querySelectorAll('.btn').forEach(btn => btn.style.display = 'none');
+        });
+        window.addEventListener('afterprint', function() {
+            document.querySelectorAll('.btn').forEach(btn => btn.style.display = '');
+        });
+    </script>
+}

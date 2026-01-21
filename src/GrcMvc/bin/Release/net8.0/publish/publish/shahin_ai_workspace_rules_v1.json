@@ -1,0 +1,2335 @@
+{
+  "spec_name": "Shahin-AI Workspace Rules",
+  "spec_version": "1.0.0",
+  "generated_at_utc": "2026-01-13T12:00:22Z",
+  "purpose": "Machine-readable policy for coding agents to implement Shahin-AI GRC platform features in ABP-first manner. Includes patches, features, required artifacts, and acceptance criteria.",
+  "global_non_negotiables": {
+    "abp_first_hierarchy": [
+      "If ABP module/service/option exists, use it.",
+      "If ABP extension point exists (AppService/DomainService/EventHandler/Middleware/Setting/Permission), extend it.",
+      "Only then add custom logic, but it must remain tenant-safe, auditable, and permission-checked."
+    ],
+    "security_integrity_defaults": [
+      "Every critical action emits Audit + Domain Event (and persistent audit record).",
+      "Every endpoint enforces permissions (not role-only).",
+      "Every data write is tenant-scoped; reject host/tenant mismatch.",
+      "No silent fallbacks; return deterministic error payloads."
+    ],
+    "definition_of_done": [
+      "Tenant-safe",
+      "Audited (ABP auditing + domain audit record)",
+      "Permission-controlled",
+      "Tested (unit + integration)",
+      "Observable (structured logs + basic metrics)"
+    ],
+    "agent_output_requirements_per_patch": [
+      "Implementation artifacts list (files/classes/modules touched)",
+      "Permission map (new permissions + who gets them)",
+      "Data model changes (migrations + tables impacted)",
+      "Events emitted (domain events + audit payloads)",
+      "Test coverage (integration test proving tenant isolation + onboarding redirect)"
+    ]
+  },
+  "anti_abuse_minimum_controls_for_public_trial": {
+    "mandatory_if_public_trial": true,
+    "controls": [
+      {
+        "id": "ABUSE-01",
+        "name": "Rate limiting on trial submit",
+        "enforcement": "Block with 429 when exceeded",
+        "audit": true
+      },
+      {
+        "id": "ABUSE-02",
+        "name": "Audit logging per attempt (success/failure)",
+        "enforcement": "Persist attempt record",
+        "audit": true
+      },
+      {
+        "id": "ABUSE-03",
+        "name": "IP + device fingerprint capture",
+        "enforcement": "Store on attempt",
+        "audit": true
+      },
+      {
+        "id": "ABUSE-04",
+        "name": "Email verification gating",
+        "enforcement": "Restrict sensitive modules until verified",
+        "audit": true
+      },
+      {
+        "id": "ABUSE-05",
+        "name": "Fraud scoring threshold + review queue",
+        "enforcement": "Flag + queue + notify",
+        "audit": true
+      }
+    ]
+  },
+  "patches": [
+    {
+      "patch_id": "PATCH-01",
+      "title": "Multi-Tenancy Core",
+      "feature_range": {
+        "from": 1,
+        "to": 10
+      },
+      "features": [
+        {
+          "feature_id": 1,
+          "title": "ABP-native multi-tenancy (host + tenant separation)",
+          "tags": [
+            "abp",
+            "multitenancy"
+          ],
+          "how_to": [
+            "Enable AbpMultiTenancyOptions.IsEnabled=true.",
+            "Use ABP TenantManagement module; enforce ICurrentTenant in app services."
+          ],
+          "expected_result": "Host manages tenants; tenant users cannot access host operations.",
+          "acceptance_criteria": [
+            "Cross-tenant access attempts return AccessDenied and create audit entry."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 2,
+          "title": "Database-per-tenant support (ABP connection strings; optional Finbuckle helpers)",
+          "tags": [
+            "db",
+            "multitenancy"
+          ],
+          "how_to": [
+            "Prefer AbpTenantConnectionStrings for per-tenant CS.",
+            "If using Finbuckle, use only for resolution helpers; ABP remains authoritative."
+          ],
+          "expected_result": "Per-tenant connection string resolves reliably.",
+          "acceptance_criteria": [
+            "Tenant A cannot read Tenant B data via repositories; integration test passes."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 3,
+          "title": "Tenant lifecycle management (trial → active → suspended → archived)",
+          "tags": [
+            "governance",
+            "security"
+          ],
+          "how_to": [
+            "Store lifecycle in tenant extra properties or setting.",
+            "Host-only UI/API to manage state; middleware blocks suspended/archived."
+          ],
+          "expected_result": "Tenant state governs access.",
+          "acceptance_criteria": [
+            "Suspended/archived tenant login is blocked and audited."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 4,
+          "title": "Tenant-aware DI and caching",
+          "tags": [
+            "architecture"
+          ],
+          "how_to": [
+            "All caches must be keyed by tenant.",
+            "Services must read ICurrentTenant and not assume singleton tenant state."
+          ],
+          "expected_result": "No cross-tenant cache bleed.",
+          "acceptance_criteria": [
+            "Same operation under two tenants yields isolated cache entries."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 5,
+          "title": "Tenant-scoped configuration overrides",
+          "tags": [
+            "abp",
+            "settings"
+          ],
+          "how_to": [
+            "Use ABP Setting Management.",
+            "Read settings through ISettingProvider under tenant context."
+          ],
+          "expected_result": "Tenant can override operational settings.",
+          "acceptance_criteria": [
+            "Tenant override does not affect other tenants."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 6,
+          "title": "Tenant-level feature toggles",
+          "tags": [
+            "abp",
+            "features"
+          ],
+          "how_to": [
+            "Use ABP Feature Management.",
+            "Gate UI/API by feature checks."
+          ],
+          "expected_result": "Subscription-tier gating works.",
+          "acceptance_criteria": [
+            "Disabled feature returns forbidden and is audited."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 7,
+          "title": "Tenant isolation in DbContext/Repositories",
+          "tags": [
+            "efcore",
+            "multitenancy"
+          ],
+          "how_to": [
+            "Use ABP data filters.",
+            "Avoid custom filters that bypass ABP."
+          ],
+          "expected_result": "Repository queries are tenant-filtered.",
+          "acceptance_criteria": [
+            "Attempted cross-tenant read returns empty/denied."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 8,
+          "title": "Multi-region tenant readiness",
+          "tags": [
+            "infra",
+            "storage"
+          ],
+          "how_to": [
+            "Store region setting per tenant.",
+            "Route storage/integrations based on region."
+          ],
+          "expected_result": "Evidence and integrations respect region.",
+          "acceptance_criteria": [
+            "Region change affects routing; audited."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 9,
+          "title": "Tenant usage metering",
+          "tags": [
+            "analytics"
+          ],
+          "how_to": [
+            "Emit metering events on user creation, evidence upload, workflows, agent runs.",
+            "Aggregate per tenant."
+          ],
+          "expected_result": "Usage visible and auditable.",
+          "acceptance_criteria": [
+            "Meter counts match actions in integration tests."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 10,
+          "title": "Trial expiration enforcement (time + usage)",
+          "tags": [
+            "jobs",
+            "security"
+          ],
+          "how_to": [
+            "Background job evaluates expiry and thresholds.",
+            "Set tenant to suspended on expiry."
+          ],
+          "expected_result": "Expired trials are blocked automatically.",
+          "acceptance_criteria": [
+            "Expired tenant requests are blocked and audited."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        }
+      ]
+    },
+    {
+      "patch_id": "PATCH-02",
+      "title": "Tenant Governance & Isolation",
+      "feature_range": {
+        "from": 11,
+        "to": 20
+      },
+      "features": [
+        {
+          "feature_id": 11,
+          "title": "Tenant audit isolation",
+          "tags": [
+            "audit"
+          ],
+          "how_to": [
+            "Partition audit queries by tenant.",
+            "Host can filter by tenant."
+          ],
+          "expected_result": "Audit visibility respects tenant boundaries.",
+          "acceptance_criteria": [
+            "Tenant admin cannot see host/system audits."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 12,
+          "title": "Platform admin vs tenant admin separation",
+          "tags": [
+            "rbac",
+            "pbac"
+          ],
+          "how_to": [
+            "Use ABP permissions for host-only tenant CRUD.",
+            "Tenant admins manage tenant-internal operations only."
+          ],
+          "expected_result": "Hard separation of duties.",
+          "acceptance_criteria": [
+            "Tenant admin calling host endpoints receives 403 + audit."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 13,
+          "title": "ABP Identity authentication only (retire custom auth paths)",
+          "tags": [
+            "identity",
+            "abp"
+          ],
+          "how_to": [
+            "Use ABP Account UI + ABP Identity.",
+            "Route legacy auth under /account/legacy if needed."
+          ],
+          "expected_result": "Single authoritative auth stack.",
+          "acceptance_criteria": [
+            "Trial-created admin can login via /Account/Login successfully."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 14,
+          "title": "Tenant-aware login & cookie isolation",
+          "tags": [
+            "identity",
+            "multitenancy"
+          ],
+          "how_to": [
+            "Use ABP tenant resolver order (user/cookie/query/header) appropriate to deployment.",
+            "Prevent ambiguous tenant sessions."
+          ],
+          "expected_result": "Correct tenant context after login.",
+          "acceptance_criteria": [
+            "Login yields correct ICurrentTenant and onboarding redirect works."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 15,
+          "title": "Role-based access control (RBAC)",
+          "tags": [
+            "rbac"
+          ],
+          "how_to": [
+            "Define tenant roles (admin, control owner, assessor, etc.).",
+            "Assign via ABP Identity."
+          ],
+          "expected_result": "Roles control access baseline.",
+          "acceptance_criteria": [
+            "Removing role reduces access immediately."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 16,
+          "title": "Permission-based access control (PBAC)",
+          "tags": [
+            "pbac"
+          ],
+          "how_to": [
+            "Define permissions per module.",
+            "Enforce in controllers/app services."
+          ],
+          "expected_result": "Permissions are authoritative.",
+          "acceptance_criteria": [
+            "No endpoint accessible without required permission."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 17,
+          "title": "Module permission groups",
+          "tags": [
+            "pbac"
+          ],
+          "how_to": [
+            "Create permission groups for Onboarding/Evidence/Workflow/etc.",
+            "Grant per role."
+          ],
+          "expected_result": "Modular delegation.",
+          "acceptance_criteria": [
+            "Role grants enable module access only."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 18,
+          "title": "Default admin role auto-provisioning",
+          "tags": [
+            "seed",
+            "abp"
+          ],
+          "how_to": [
+            "Use ABP data seed for admin role/permission grants.",
+            "Ensure tenant creation seeds permissions."
+          ],
+          "expected_result": "New tenant immediately usable.",
+          "acceptance_criteria": [
+            "First admin can access onboarding and tenant admin UI."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 19,
+          "title": "Custom roles per tenant",
+          "tags": [
+            "rbac"
+          ],
+          "how_to": [
+            "Enable ABP role management UI/API in tenant context.",
+            "Persist permission grants."
+          ],
+          "expected_result": "Tenant-defined roles supported.",
+          "acceptance_criteria": [
+            "New custom role assignment is enforced."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 20,
+          "title": "Delegated admin roles (read/write/approve)",
+          "tags": [
+            "workflow",
+            "rbac"
+          ],
+          "how_to": [
+            "Provide role templates (Approver/EvidenceCustodian/etc.).",
+            "Wire to workflows and approvals."
+          ],
+          "expected_result": "Delegation reduces bottlenecks.",
+          "acceptance_criteria": [
+            "Approvals route based on delegated roles."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        }
+      ]
+    },
+    {
+      "patch_id": "PATCH-03",
+      "title": "Security Hardening",
+      "feature_range": {
+        "from": 21,
+        "to": 30
+      },
+      "features": [
+        {
+          "feature_id": 21,
+          "title": "MFA readiness hooks",
+          "tags": [
+            "security"
+          ],
+          "how_to": [
+            "Tenant setting to require MFA.",
+            "Integrate provider later; enforce policy boundaries now."
+          ],
+          "expected_result": "Policy-controlled MFA readiness.",
+          "acceptance_criteria": [
+            "When MFA-required, login is gated per configured rule; audited."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 22,
+          "title": "Password policy per tenant",
+          "tags": [
+            "identity",
+            "security"
+          ],
+          "how_to": [
+            "Map tenant settings to IdentityOptions.",
+            "Enforce on registration/reset."
+          ],
+          "expected_result": "Regulated tenants can enforce stronger passwords.",
+          "acceptance_criteria": [
+            "Password rules enforced and tested."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 23,
+          "title": "Lockout + brute-force protection",
+          "tags": [
+            "security"
+          ],
+          "how_to": [
+            "Configure Identity lockout.",
+            "Rate limit login endpoints."
+          ],
+          "expected_result": "Brute-force attempts are throttled.",
+          "acceptance_criteria": [
+            "Repeated failures lock user; security log entry exists."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 24,
+          "title": "Security event logging",
+          "tags": [
+            "audit",
+            "security"
+          ],
+          "how_to": [
+            "Use ABP security logs plus domain audit.",
+            "Capture login/failure/lockout."
+          ],
+          "expected_result": "Auth events are traceable.",
+          "acceptance_criteria": [
+            "Dashboard can query failures by tenant."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 25,
+          "title": "Access denial audit trail",
+          "tags": [
+            "audit"
+          ],
+          "how_to": [
+            "Middleware captures access denied with user/tenant/action.",
+            "Persist and alert optionally."
+          ],
+          "expected_result": "Forensics for permission failures.",
+          "acceptance_criteria": [
+            "403 responses create audit record."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 26,
+          "title": "Emergency tenant admin recovery (host only)",
+          "tags": [
+            "security",
+            "governance"
+          ],
+          "how_to": [
+            "Host-only workflow to reset tenant admin.",
+            "Requires approval and full auditing."
+          ],
+          "expected_result": "Recoverability without breaking separation.",
+          "acceptance_criteria": [
+            "Recovery action requires host permission and is auditable."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 27,
+          "title": "Public trial registration controls (anonymous, rate-limited)",
+          "tags": [
+            "trial",
+            "security"
+          ],
+          "how_to": [
+            "AllowAnonymous for GET/POST /trial.",
+            "Rate-limit by IP + fingerprint; log attempts."
+          ],
+          "expected_result": "Trial is accessible but controlled.",
+          "acceptance_criteria": [
+            "Exceed limit returns 429 + audit record."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 28,
+          "title": "One-call tenant + admin creation via ITenantAppService",
+          "tags": [
+            "trial",
+            "abp"
+          ],
+          "how_to": [
+            "Use ITenantAppService.CreateAsync(TenantCreateDto).",
+            "Avoid duplicating identity logic."
+          ],
+          "expected_result": "Tenant + admin created atomically by ABP.",
+          "acceptance_criteria": [
+            "AbpTenants and AbpUsers created and linked by TenantId."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 29,
+          "title": "Auto-login after trial creation",
+          "tags": [
+            "trial",
+            "identity"
+          ],
+          "how_to": [
+            "After creation, sign-in the admin under tenant context using ABP Identity pipeline.",
+            "Set tenant resolution for the session."
+          ],
+          "expected_result": "No manual login required for trial onboarding.",
+          "acceptance_criteria": [
+            "Trial submit results in authenticated session and redirect to onboarding."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 30,
+          "title": "Trial duration enforcement (configurable)",
+          "tags": [
+            "trial",
+            "jobs"
+          ],
+          "how_to": [
+            "Store expiry timestamp at tenant creation.",
+            "Job enforces expiry state transition."
+          ],
+          "expected_result": "Trial governance is consistent.",
+          "acceptance_criteria": [
+            "Expired tenant blocked; state change audited."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        }
+      ]
+    },
+    {
+      "patch_id": "PATCH-04",
+      "title": "Onboarding Orchestration",
+      "feature_range": {
+        "from": 31,
+        "to": 40
+      },
+      "features": [
+        {
+          "feature_id": 31,
+          "title": "Fast-Start onboarding path",
+          "tags": [
+            "onboarding"
+          ],
+          "how_to": [
+            "Expose /onboarding/wizard/fast-start route alias.",
+            "Collect minimum required fields; persist state."
+          ],
+          "expected_result": "Users become productive quickly.",
+          "acceptance_criteria": [
+            "Fast-start completion produces baseline plan."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 32,
+          "title": "Full 12-step onboarding wizard",
+          "tags": [
+            "onboarding"
+          ],
+          "how_to": [
+            "Persist per-step answers.",
+            "Allow resume; tenant-scoped."
+          ],
+          "expected_result": "Deep onboarding available.",
+          "acceptance_criteria": [
+            "All steps persist and resume works."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 33,
+          "title": "Resume-from-last-step onboarding",
+          "tags": [
+            "onboarding"
+          ],
+          "how_to": [
+            "Track CurrentStep.",
+            "Redirect to last incomplete step on login."
+          ],
+          "expected_result": "No lost progress.",
+          "acceptance_criteria": [
+            "Login returns to last unfinished step."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 34,
+          "title": "Onboarding status per tenant",
+          "tags": [
+            "onboarding"
+          ],
+          "how_to": [
+            "Store Pending/InProgress/Completed (tenant extra props or onboarding table).",
+            "Update on transitions."
+          ],
+          "expected_result": "Deterministic onboarding enforcement.",
+          "acceptance_criteria": [
+            "Completed tenants bypass onboarding redirect."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 35,
+          "title": "Middleware onboarding enforcement",
+          "tags": [
+            "onboarding",
+            "middleware"
+          ],
+          "how_to": [
+            "Middleware checks onboarding status for tenant admins.",
+            "Redirect if incomplete; allowlist required routes."
+          ],
+          "expected_result": "No operational access before onboarding completion.",
+          "acceptance_criteria": [
+            "Tenant admin hitting dashboard pre-completion redirects."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 36,
+          "title": "Role-aware onboarding enforcement",
+          "tags": [
+            "onboarding",
+            "rbac"
+          ],
+          "how_to": [
+            "Force only tenant admins through onboarding.",
+            "Allow contributors limited access."
+          ],
+          "expected_result": "Team can join while admin sets up.",
+          "acceptance_criteria": [
+            "Contributor not forced into wizard."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 37,
+          "title": "Onboarding answers → rules engine context",
+          "tags": [
+            "rules"
+          ],
+          "how_to": [
+            "Normalize answers into rules context object.",
+            "Persist snapshot for explainability."
+          ],
+          "expected_result": "Rules engine has deterministic inputs.",
+          "acceptance_criteria": [
+            "Rules context payload stored and versioned."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 38,
+          "title": "Onboarding → plan auto-generation",
+          "tags": [
+            "plan"
+          ],
+          "how_to": [
+            "Create plan entity after onboarding.",
+            "Use dates/maturity to populate roadmap."
+          ],
+          "expected_result": "Plan exists immediately at completion.",
+          "acceptance_criteria": [
+            "Plan created + event emitted; visible in UI."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 39,
+          "title": "Onboarding → framework auto-selection",
+          "tags": [
+            "rules",
+            "frameworks"
+          ],
+          "how_to": [
+            "Select baseline/overlays based on jurisdiction/sector/data.",
+            "Store reasons."
+          ],
+          "expected_result": "Applicable frameworks appear automatically.",
+          "acceptance_criteria": [
+            "Each inclusion has rationale stored."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 40,
+          "title": "Onboarding validation checkpoints",
+          "tags": [
+            "onboarding",
+            "validation"
+          ],
+          "how_to": [
+            "Server-side validation for required inputs.",
+            "Block step progression until valid."
+          ],
+          "expected_result": "No invalid onboarding states.",
+          "acceptance_criteria": [
+            "Missing required fields blocks progress with deterministic error."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        }
+      ]
+    },
+    {
+      "patch_id": "PATCH-05",
+      "title": "Compliance Go-Live & Traceability",
+      "feature_range": {
+        "from": 41,
+        "to": 50
+      },
+      "features": [
+        {
+          "feature_id": 41,
+          "title": "Go-Live transition after onboarding completion",
+          "tags": [
+            "onboarding",
+            "jobs"
+          ],
+          "how_to": [
+            "Mark onboarding completed.",
+            "Initialize workspace/templates via job."
+          ],
+          "expected_result": "Operational mode enabled.",
+          "acceptance_criteria": [
+            "Completion triggers setup job; audit exists."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 42,
+          "title": "Onboarding audit replay (step diffs)",
+          "tags": [
+            "audit",
+            "onboarding"
+          ],
+          "how_to": [
+            "Store per-step changes with actor/timestamp/diff.",
+            "Expose replay view."
+          ],
+          "expected_result": "Full audit reconstruction possible.",
+          "acceptance_criteria": [
+            "Replay reconstructs answer history."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 43,
+          "title": "Framework management (versioned)",
+          "tags": [
+            "frameworks"
+          ],
+          "how_to": [
+            "Framework entity with versioning.",
+            "Permission gate manage operations."
+          ],
+          "expected_result": "Frameworks are manageable and traceable.",
+          "acceptance_criteria": [
+            "Import/change is audited and versioned."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 44,
+          "title": "Regulator mapping per jurisdiction",
+          "tags": [
+            "frameworks",
+            "rules"
+          ],
+          "how_to": [
+            "Regulator catalog + country mapping.",
+            "Used in rules engine."
+          ],
+          "expected_result": "Automatic applicability by country.",
+          "acceptance_criteria": [
+            "Country change updates regulator list."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 45,
+          "title": "Control catalog with inheritance & overlays",
+          "tags": [
+            "controls"
+          ],
+          "how_to": [
+            "Controls belong to baselines; overlays add/override.",
+            "Maintain traceability."
+          ],
+          "expected_result": "Configurable control universe.",
+          "acceptance_criteria": [
+            "Overlay changes reflect in tenant baseline."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 46,
+          "title": "Control applicability rules engine (explainable)",
+          "tags": [
+            "rules",
+            "controls"
+          ],
+          "how_to": [
+            "Evaluate rules deterministically.",
+            "Store matched rules + reasons."
+          ],
+          "expected_result": "Explainable selection.",
+          "acceptance_criteria": [
+            "Each selected control has rationale payload."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 47,
+          "title": "Risk register with scoring & treatment",
+          "tags": [
+            "risk"
+          ],
+          "how_to": [
+            "Risk entity with scoring.",
+            "Link to controls and treatments."
+          ],
+          "expected_result": "Risk-driven compliance operations.",
+          "acceptance_criteria": [
+            "Dashboard KPIs update from risk changes."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 48,
+          "title": "Risk appetite configuration",
+          "tags": [
+            "risk",
+            "settings"
+          ],
+          "how_to": [
+            "Tenant settings define thresholds.",
+            "Heatmap uses appetite thresholds."
+          ],
+          "expected_result": "Org-specific risk posture.",
+          "acceptance_criteria": [
+            "Heatmap respects tenant thresholds."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 49,
+          "title": "Policy lifecycle management",
+          "tags": [
+            "policy",
+            "workflow"
+          ],
+          "how_to": [
+            "Policy create/review/approve/publish workflow.",
+            "Permissions enforced."
+          ],
+          "expected_result": "Controlled policy operations.",
+          "acceptance_criteria": [
+            "Publish requires approval; audit trail exists."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 50,
+          "title": "Policy versioning + approvals (immutable records)",
+          "tags": [
+            "policy",
+            "audit"
+          ],
+          "how_to": [
+            "Version policies.",
+            "Store approvals as immutable."
+          ],
+          "expected_result": "Audit-proof change control.",
+          "acceptance_criteria": [
+            "Old versions accessible read-only."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        }
+      ]
+    },
+    {
+      "patch_id": "PATCH-06",
+      "title": "Assessments & Findings",
+      "feature_range": {
+        "from": 51,
+        "to": 60
+      },
+      "features": [
+        {
+          "feature_id": 51,
+          "title": "Assessment creation & execution",
+          "tags": [
+            "assessment"
+          ],
+          "how_to": [
+            "Assessment entity with states.",
+            "Assign assessors and due dates."
+          ],
+          "expected_result": "Operational assessment workflow.",
+          "acceptance_criteria": [
+            "Assessments created and tracked end-to-end."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 52,
+          "title": "Assessment templates & reuse",
+          "tags": [
+            "assessment",
+            "templates"
+          ],
+          "how_to": [
+            "Template catalog; clone per tenant.",
+            "Keep provenance."
+          ],
+          "expected_result": "Faster tenant onboarding to assessments.",
+          "acceptance_criteria": [
+            "Template produces consistent assessment set."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 53,
+          "title": "Findings tracking (gap analysis)",
+          "tags": [
+            "findings"
+          ],
+          "how_to": [
+            "Findings linked to control + assessment.",
+            "Severity/status lifecycle."
+          ],
+          "expected_result": "Nonconformities tracked.",
+          "acceptance_criteria": [
+            "Lifecycle audited; permissions enforced."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 54,
+          "title": "Remediation task management",
+          "tags": [
+            "remediation",
+            "workflow"
+          ],
+          "how_to": [
+            "Remediation tasks derived from findings.",
+            "Owners + SLAs + status."
+          ],
+          "expected_result": "Accountability for closure.",
+          "acceptance_criteria": [
+            "Assignments and SLAs operate; escalations triggered."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 55,
+          "title": "Exception management with expiry",
+          "tags": [
+            "exceptions",
+            "workflow"
+          ],
+          "how_to": [
+            "Exception entity with expiry and approvals.",
+            "Auto-escalate on expiry."
+          ],
+          "expected_result": "Controlled risk acceptance.",
+          "acceptance_criteria": [
+            "Expired exceptions escalate automatically."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 56,
+          "title": "Evidence collection & validation",
+          "tags": [
+            "evidence",
+            "validation"
+          ],
+          "how_to": [
+            "Evidence entity with required metadata.",
+            "File/type rules enforced."
+          ],
+          "expected_result": "Audit-ready evidence library.",
+          "acceptance_criteria": [
+            "Invalid evidence rejected with reason."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 57,
+          "title": "Evidence lifecycle & retention rules",
+          "tags": [
+            "evidence",
+            "jobs"
+          ],
+          "how_to": [
+            "Retention setting per tenant.",
+            "Archive/delete job with audit."
+          ],
+          "expected_result": "Regulatory retention compliance.",
+          "acceptance_criteria": [
+            "Retention actions logged and reversible where required."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 58,
+          "title": "Audit preparation workspace (audit pack)",
+          "tags": [
+            "audit"
+          ],
+          "how_to": [
+            "Assemble evidence/controls/findings.",
+            "Generate export package."
+          ],
+          "expected_result": "Exportable audit readiness.",
+          "acceptance_criteria": [
+            "Audit pack generated with traceability."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 59,
+          "title": "Audit response tracking",
+          "tags": [
+            "audit",
+            "workflow"
+          ],
+          "how_to": [
+            "Track auditor requests/responses/SLAs.",
+            "Assign owners."
+          ],
+          "expected_result": "Manage audit interactions.",
+          "acceptance_criteria": [
+            "SLA metrics exist and are auditable."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 60,
+          "title": "Compliance scoring engine",
+          "tags": [
+            "scoring"
+          ],
+          "how_to": [
+            "Score from control status, evidence freshness, findings.",
+            "Deterministic recalculation."
+          ],
+          "expected_result": "Measurable posture.",
+          "acceptance_criteria": [
+            "Same inputs yield same score; tested."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        }
+      ]
+    },
+    {
+      "patch_id": "PATCH-07",
+      "title": "Workflow Engine Core",
+      "feature_range": {
+        "from": 61,
+        "to": 70
+      },
+      "features": [
+        {
+          "feature_id": 61,
+          "title": "Workflow engine core (state + transitions)",
+          "tags": [
+            "workflow"
+          ],
+          "how_to": [
+            "Workflow definitions + instances.",
+            "Transition validation and auditing."
+          ],
+          "expected_result": "Reusable workflow engine for GRC actions.",
+          "acceptance_criteria": [
+            "State changes audited; invalid transitions rejected."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 62,
+          "title": "Approval workflows (multi-level)",
+          "tags": [
+            "workflow",
+            "approvals"
+          ],
+          "how_to": [
+            "Configurable approval gates.",
+            "Role/permission driven."
+          ],
+          "expected_result": "Governed approvals.",
+          "acceptance_criteria": [
+            "Cannot bypass approval; audit record exists."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 63,
+          "title": "SLA-driven deadlines",
+          "tags": [
+            "workflow",
+            "sla"
+          ],
+          "how_to": [
+            "SLA definitions attached to tasks.",
+            "Compute deadlines consistently."
+          ],
+          "expected_result": "Predictable due-date management.",
+          "acceptance_criteria": [
+            "SLA breach detection works."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 64,
+          "title": "Escalation rules",
+          "tags": [
+            "workflow",
+            "jobs"
+          ],
+          "how_to": [
+            "Matrix by time/severity/role.",
+            "Background job enforces escalation."
+          ],
+          "expected_result": "Prevent stuck tasks.",
+          "acceptance_criteria": [
+            "Escalation triggers as configured and is logged."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 65,
+          "title": "Delegation & substitution",
+          "tags": [
+            "workflow"
+          ],
+          "how_to": [
+            "Delegation rules by period.",
+            "Approval fallback logic."
+          ],
+          "expected_result": "Continuity during absence.",
+          "acceptance_criteria": [
+            "Delegated approvals recorded with original owner."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 66,
+          "title": "Automated reminders & notifications",
+          "tags": [
+            "notifications"
+          ],
+          "how_to": [
+            "Notification service for in-app/email.",
+            "Cadence config per tenant."
+          ],
+          "expected_result": "Users get reminders before SLAs breach.",
+          "acceptance_criteria": [
+            "Reminders delivered and logged."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 67,
+          "title": "Conditional workflow branching",
+          "tags": [
+            "workflow",
+            "rules"
+          ],
+          "how_to": [
+            "Branch rules from onboarding/risk.",
+            "Store reason for branch selection."
+          ],
+          "expected_result": "Dynamic operations.",
+          "acceptance_criteria": [
+            "Branch choice is explainable and stored."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 68,
+          "title": "Evidence request automation",
+          "tags": [
+            "evidence",
+            "workflow"
+          ],
+          "how_to": [
+            "Generate evidence requests from baseline controls.",
+            "Assign owners + due dates."
+          ],
+          "expected_result": "Immediate evidence plan.",
+          "acceptance_criteria": [
+            "Requests created for required controls; gaps visible."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 69,
+          "title": "Remediation auto-generation from findings",
+          "tags": [
+            "remediation"
+          ],
+          "how_to": [
+            "Findings create remediation tasks with severity SLAs.",
+            "Allow justified exceptions."
+          ],
+          "expected_result": "Direct conversion gaps → tasks.",
+          "acceptance_criteria": [
+            "Each finding has task or documented exception."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 70,
+          "title": "Exception expiry automation",
+          "tags": [
+            "exceptions",
+            "jobs"
+          ],
+          "how_to": [
+            "Expiry checker triggers renew/close workflows.",
+            "Notify owners."
+          ],
+          "expected_result": "No expired exceptions forgotten.",
+          "acceptance_criteria": [
+            "Expiry triggers events and notifications."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        }
+      ]
+    },
+    {
+      "patch_id": "PATCH-08",
+      "title": "Operations & Diagnostics",
+      "feature_range": {
+        "from": 71,
+        "to": 80
+      },
+      "features": [
+        {
+          "feature_id": 71,
+          "title": "Cadence scheduler",
+          "tags": [
+            "jobs"
+          ],
+          "how_to": [
+            "Scheduler per tenant for recurring workflows.",
+            "Use tenant settings."
+          ],
+          "expected_result": "Operational rhythm.",
+          "acceptance_criteria": [
+            "Jobs align to cadence config."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 72,
+          "title": "Workflow diagnostics & replay",
+          "tags": [
+            "workflow",
+            "audit"
+          ],
+          "how_to": [
+            "Store execution logs/decisions.",
+            "Enable replay view."
+          ],
+          "expected_result": "Debuggable workflows.",
+          "acceptance_criteria": [
+            "Replay reconstructs tasks/actions list."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 73,
+          "title": "Rules Engine Agent (framework selection)",
+          "tags": [
+            "agents",
+            "rules"
+          ],
+          "how_to": [
+            "Deterministic evaluation.",
+            "Store matched rules and rationale."
+          ],
+          "expected_result": "Transparent baseline selection.",
+          "acceptance_criteria": [
+            "Explainability payload stored per run."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 74,
+          "title": "Onboarding Agent (state orchestration)",
+          "tags": [
+            "agents",
+            "onboarding"
+          ],
+          "how_to": [
+            "Orchestrate onboarding transitions.",
+            "Trigger setup tasks; enforce permissions."
+          ],
+          "expected_result": "Automated onboarding operations.",
+          "acceptance_criteria": [
+            "Agent actions audited; permission checks enforced."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 75,
+          "title": "Next-Best-Action Agent",
+          "tags": [
+            "agents"
+          ],
+          "how_to": [
+            "Compute best next task from deadlines/risk/maturity.",
+            "Return confidence + rationale."
+          ],
+          "expected_result": "Guided user experience.",
+          "acceptance_criteria": [
+            "Output includes confidence and explainability."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 76,
+          "title": "Evidence Guidance Agent",
+          "tags": [
+            "agents",
+            "evidence"
+          ],
+          "how_to": [
+            "Suggest evidence types per control.",
+            "Link to internal catalog/standard."
+          ],
+          "expected_result": "Faster evidence collection.",
+          "acceptance_criteria": [
+            "Suggestions stored and tenant-scoped."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 77,
+          "title": "Remediation Suggestion Agent",
+          "tags": [
+            "agents",
+            "remediation"
+          ],
+          "how_to": [
+            "Recommend remediation actions.",
+            "Never auto-apply without approval."
+          ],
+          "expected_result": "Reduced resolution time.",
+          "acceptance_criteria": [
+            "Recommendations require human approval to execute."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 78,
+          "title": "Risk Interpretation Agent",
+          "tags": [
+            "agents",
+            "risk"
+          ],
+          "how_to": [
+            "Summarize posture from stored risks/controls/findings.",
+            "Include sources and limits."
+          ],
+          "expected_result": "Executive clarity.",
+          "acceptance_criteria": [
+            "Output includes traceable references."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 79,
+          "title": "Compliance Q&A Copilot (tenant-safe RAG)",
+          "tags": [
+            "agents",
+            "security"
+          ],
+          "how_to": [
+            "Tenant-scoped retrieval.",
+            "Permission-bounded responses and auditing."
+          ],
+          "expected_result": "Safe assistant.",
+          "acceptance_criteria": [
+            "No cross-tenant leakage; Q&A audited."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 80,
+          "title": "Agent prompt contracts (machine-readable schemas)",
+          "tags": [
+            "agents",
+            "contracts"
+          ],
+          "how_to": [
+            "Define JSON schema per agent input/output.",
+            "Validate at runtime; version schemas."
+          ],
+          "expected_result": "Stable agent integration.",
+          "acceptance_criteria": [
+            "Contract validation enforced; versions tracked."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        }
+      ]
+    },
+    {
+      "patch_id": "PATCH-09",
+      "title": "AI Governance & Auditability",
+      "feature_range": {
+        "from": 81,
+        "to": 90
+      },
+      "features": [
+        {
+          "feature_id": 81,
+          "title": "Agent explainability payload standard",
+          "tags": [
+            "agents",
+            "audit"
+          ],
+          "how_to": [
+            "Standard rationale object: inputs, rules, ranking, constraints.",
+            "Persist per response."
+          ],
+          "expected_result": "Human-readable and replayable explainability.",
+          "acceptance_criteria": [
+            "Every agent response includes explainability payload."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 82,
+          "title": "Deterministic AI mode for audits",
+          "tags": [
+            "agents",
+            "audit"
+          ],
+          "how_to": [
+            "AuditMode flag forces deterministic templates.",
+            "Disable randomness and non-deterministic tools."
+          ],
+          "expected_result": "Reproducible outputs.",
+          "acceptance_criteria": [
+            "Same input yields identical output in AuditMode."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 83,
+          "title": "AI output audit trail",
+          "tags": [
+            "agents",
+            "audit"
+          ],
+          "how_to": [
+            "Store prompt, model config, output, user, time, correlation id.",
+            "Tenant-scoped."
+          ],
+          "expected_result": "Full traceability.",
+          "acceptance_criteria": [
+            "Auditor can reconstruct AI decision from stored record."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 84,
+          "title": "Human-in-the-loop checkpoints",
+          "tags": [
+            "governance",
+            "agents"
+          ],
+          "how_to": [
+            "Require approvals for high-impact actions.",
+            "Define policy of what is 'high-impact'."
+          ],
+          "expected_result": "Controlled automation.",
+          "acceptance_criteria": [
+            "High-impact actions cannot execute without approval."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 85,
+          "title": "Agent permission boundaries",
+          "tags": [
+            "agents",
+            "security"
+          ],
+          "how_to": [
+            "Agents run under scoped permissions/tenant.",
+            "Reject forbidden calls."
+          ],
+          "expected_result": "Least privilege AI.",
+          "acceptance_criteria": [
+            "Forbidden endpoint calls are blocked + audited."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 86,
+          "title": "Agent execution replay",
+          "tags": [
+            "agents",
+            "audit"
+          ],
+          "how_to": [
+            "Persist execution graph steps with outcomes.",
+            "Provide replay tooling."
+          ],
+          "expected_result": "Debuggable and auditable.",
+          "acceptance_criteria": [
+            "Replay reproduces action list and results."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 87,
+          "title": "Tenant dashboards",
+          "tags": [
+            "dashboard"
+          ],
+          "how_to": [
+            "Config per tenant; permission gating.",
+            "Tenant-only data aggregation."
+          ],
+          "expected_result": "Tenant-specific analytics.",
+          "acceptance_criteria": [
+            "Widgets reflect tenant data only."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 88,
+          "title": "Executive compliance scorecards",
+          "tags": [
+            "dashboard",
+            "scoring"
+          ],
+          "how_to": [
+            "Board-ready score KPIs.",
+            "Export support."
+          ],
+          "expected_result": "Executive reporting.",
+          "acceptance_criteria": [
+            "Scores trace to sources."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 89,
+          "title": "Risk heatmaps",
+          "tags": [
+            "dashboard",
+            "risk"
+          ],
+          "how_to": [
+            "Heatmap from risk likelihood/impact and appetite thresholds.",
+            "Tenant-configured."
+          ],
+          "expected_result": "Risk overview.",
+          "acceptance_criteria": [
+            "Heatmap respects tenant thresholds; tested."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 90,
+          "title": "KPI & success metrics tracking",
+          "tags": [
+            "analytics"
+          ],
+          "how_to": [
+            "Define metrics at onboarding.",
+            "Track as events over time."
+          ],
+          "expected_result": "ROI and improvement monitoring.",
+          "acceptance_criteria": [
+            "Metrics derived from events and audited."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        }
+      ]
+    },
+    {
+      "patch_id": "PATCH-10",
+      "title": "ROI, Engagement, and Integrity",
+      "feature_range": {
+        "from": 91,
+        "to": 100
+      },
+      "features": [
+        {
+          "feature_id": 91,
+          "title": "Engagement metrics (confidence/fatigue/momentum)",
+          "tags": [
+            "analytics",
+            "engagement"
+          ],
+          "how_to": [
+            "Compute from user actions (lateness, streaks, errors).",
+            "Store tenant-scoped time series."
+          ],
+          "expected_result": "Non-gamified engagement insight.",
+          "acceptance_criteria": [
+            "Metrics update from events deterministically."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 92,
+          "title": "Gamification-free motivation scoring",
+          "tags": [
+            "engagement"
+          ],
+          "how_to": [
+            "Score friction reduction, clarity, progress, urgency.",
+            "Explainable scoring."
+          ],
+          "expected_result": "Motivation signals without badges.",
+          "acceptance_criteria": [
+            "Score includes breakdown and rationale."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 93,
+          "title": "ROI measurement (hours saved/findings reduced)",
+          "tags": [
+            "analytics",
+            "roi"
+          ],
+          "how_to": [
+            "Set baseline at onboarding.",
+            "Compute deltas from operational data/events."
+          ],
+          "expected_result": "Quantified business value.",
+          "acceptance_criteria": [
+            "ROI metrics trace to sources."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 94,
+          "title": "System-wide audit logging coverage",
+          "tags": [
+            "audit"
+          ],
+          "how_to": [
+            "ABP auditing + custom domain audit store.",
+            "Ensure coverage for critical actions."
+          ],
+          "expected_result": "Complete audit trail.",
+          "acceptance_criteria": [
+            "Every critical action recorded; verified by tests."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 95,
+          "title": "Event-driven telemetry",
+          "tags": [
+            "analytics",
+            "events"
+          ],
+          "how_to": [
+            "Publish domain events for onboarding/assessments.",
+            "Store aggregates."
+          ],
+          "expected_result": "Operational insight.",
+          "acceptance_criteria": [
+            "Telemetry includes tenant id + correlation id."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 96,
+          "title": "Compliance trend analytics",
+          "tags": [
+            "analytics"
+          ],
+          "how_to": [
+            "Time-series on score, findings, closure rate.",
+            "Compute from events."
+          ],
+          "expected_result": "Trends over time.",
+          "acceptance_criteria": [
+            "Trends reproducible from events; tested."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 97,
+          "title": "Evidence completeness analytics",
+          "tags": [
+            "analytics",
+            "evidence"
+          ],
+          "how_to": [
+            "Compare required controls vs evidence coverage.",
+            "Actionable gap listing."
+          ],
+          "expected_result": "Evidence gap visibility.",
+          "acceptance_criteria": [
+            "Completeness computed and links to missing evidence requests."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 98,
+          "title": "Tenant health score",
+          "tags": [
+            "analytics"
+          ],
+          "how_to": [
+            "Composite from onboarding, activity, overdue, compliance.",
+            "Thresholds and breakdown."
+          ],
+          "expected_result": "Success indicator.",
+          "acceptance_criteria": [
+            "Score has breakdown and tenant thresholds."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 99,
+          "title": "Regulatory readiness index",
+          "tags": [
+            "analytics",
+            "frameworks"
+          ],
+          "how_to": [
+            "Weighted readiness by regulator/framework.",
+            "Trace to controls and evidence freshness."
+          ],
+          "expected_result": "Ready-for-audit view.",
+          "acceptance_criteria": [
+            "Index references control/evidence sources."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        },
+        {
+          "feature_id": 100,
+          "title": "Full audit replay (who/what/why/when)",
+          "tags": [
+            "audit",
+            "replay"
+          ],
+          "how_to": [
+            "Join audit, workflow logs, agent runs, onboarding changes.",
+            "Provide replay API/UI."
+          ],
+          "expected_result": "End-to-end replay capability.",
+          "acceptance_criteria": [
+            "Replay reconstructs tenant timeline deterministically."
+          ],
+          "required": {
+            "permissions": [],
+            "events": [],
+            "tests": [],
+            "artifacts": []
+          }
+        }
+      ]
+    }
+  ]
+}

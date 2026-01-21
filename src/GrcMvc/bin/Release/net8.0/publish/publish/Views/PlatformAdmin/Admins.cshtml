@@ -1,0 +1,122 @@
+@model List<GrcMvc.Models.Entities.PlatformAdmin>
+@{
+    ViewData["Title"] = "Platform Admins";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Dashboard")">Platform Admin</a></li>
+                    <li class="breadcrumb-item active">Platform Admins</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-0">Platform Administrators</h1>
+        </div>
+        <a href="@Url.Action("CreateAdmin")" class="btn btn-primary">
+            <i class="bi bi-person-plus"></i> Add Admin
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Admin</th>
+                            <th>Level</th>
+                            <th>Status</th>
+                            <th>Permissions</th>
+                            <th>Last Login</th>
+                            <th>Tenants Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var admin in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@admin.DisplayName</strong>
+                                    <br><small class="text-muted">@admin.ContactEmail</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-@(admin.AdminLevel == GrcMvc.Models.Entities.PlatformAdminLevel.Owner ? "danger" :
+                                                           admin.AdminLevel == GrcMvc.Models.Entities.PlatformAdminLevel.CoOwner ? "warning" :
+                                                           admin.AdminLevel == GrcMvc.Models.Entities.PlatformAdminLevel.Partner ? "info" : "secondary")">
+                                        @admin.AdminLevel
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-@(admin.Status == "Active" ? "success" : "danger")">
+                                        @admin.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <small>
+                                        @if (admin.CanCreateTenants) { <span class="badge bg-light text-dark">Create</span> }
+                                        @if (admin.CanManageTenants) { <span class="badge bg-light text-dark">Manage</span> }
+                                        @if (admin.CanDeleteTenants) { <span class="badge bg-light text-dark">Delete</span> }
+                                        @if (admin.CanImpersonateUsers) { <span class="badge bg-light text-dark">Impersonate</span> }
+                                    </small>
+                                </td>
+                                <td>
+                                    @if (admin.LastLoginAt.HasValue)
+                                    {
+                                        <small>@admin.LastLoginAt.Value.ToString("MMM dd, HH:mm")</small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted">Never</small>
+                                    }
+                                </td>
+                                <td>@admin.TotalTenantsCreated</td>
+                                <td>
+                                    @if (admin.AdminLevel != GrcMvc.Models.Entities.PlatformAdminLevel.Owner)
+                                    {
+                                        <div class="btn-group btn-group-sm">
+                                            @if (admin.Status == "Active")
+                                            {
+                                                <form asp-action="SuspendAdmin" asp-route-id="@admin.Id" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="reason" value="Admin action">
+                                                    <button type="submit" class="btn btn-outline-warning" onclick="return confirm('Suspend this admin?')">
+                                                        <i class="bi bi-pause-circle"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <form asp-action="ReactivateAdmin" asp-route-id="@admin.Id" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-outline-success">
+                                                        <i class="bi bi-play-circle"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-dark">Owner</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    No platform admins found
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

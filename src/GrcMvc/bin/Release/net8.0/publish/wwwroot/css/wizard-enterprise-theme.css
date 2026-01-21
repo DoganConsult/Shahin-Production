@@ -1,0 +1,560 @@
+/**
+ * Onboarding Wizard - Enterprise Theme Overrides
+ * This file extends wizard-enhancements.css with enterprise dark theme
+ */
+
+/* ============================================================================
+   Cards - Enterprise Dark Style
+   ============================================================================ */
+.wizard-container .card {
+    background: var(--wizard-bg-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--wizard-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.wizard-container .card:hover {
+    background: var(--wizard-bg-card-hover);
+    border-color: var(--wizard-border-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.4);
+}
+
+.wizard-container .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--wizard-gradient-primary);
+    border-radius: 16px 16px 0 0;
+}
+
+.wizard-container .card-header {
+    background: rgba(16, 185, 129, 0.1);
+    border-bottom: 1px solid var(--wizard-border);
+    color: var(--wizard-text-primary);
+    font-weight: 600;
+    border-radius: 16px 16px 0 0 !important;
+}
+
+.wizard-container .card-header.bg-primary {
+    background: rgba(59, 130, 246, 0.1) !important;
+}
+
+.wizard-container .card-header.bg-info {
+    background: rgba(6, 182, 212, 0.1) !important;
+}
+
+.wizard-container .card-header.bg-success {
+    background: rgba(16, 185, 129, 0.1) !important;
+}
+
+.wizard-container .card-header.bg-warning {
+    background: rgba(245, 158, 11, 0.1) !important;
+}
+
+.wizard-container .card-header.bg-danger {
+    background: rgba(239, 68, 68, 0.1) !important;
+}
+
+.wizard-container .card-body {
+    color: var(--wizard-text-primary);
+}
+
+/* ============================================================================
+   Form Controls - Enterprise Dark Style
+   ============================================================================ */
+.wizard-container .form-control,
+.wizard-container .form-select {
+    background: var(--wizard-bg-tertiary);
+    border: 1px solid var(--wizard-border);
+    color: var(--wizard-text-primary);
+    transition: all 0.3s ease;
+}
+
+.wizard-container .form-control:focus,
+.wizard-container .form-select:focus {
+    background: var(--wizard-bg-secondary);
+    border-color: var(--wizard-accent-primary);
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+    color: var(--wizard-text-primary);
+}
+
+.wizard-container .form-control::placeholder {
+    color: var(--wizard-text-tertiary);
+}
+
+.wizard-container .form-label {
+    color: var(--wizard-text-secondary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.wizard-container .text-muted {
+    color: var(--wizard-text-tertiary) !important;
+}
+
+.wizard-container .form-check-input {
+    background-color: var(--wizard-bg-tertiary);
+    border-color: var(--wizard-border);
+}
+
+.wizard-container .form-check-input:checked {
+    background-color: var(--wizard-accent-primary);
+    border-color: var(--wizard-accent-primary);
+}
+
+.wizard-container .form-check-label {
+    color: var(--wizard-text-primary);
+}
+
+/* ============================================================================
+   Buttons - Enterprise Style with Gradients
+   ============================================================================ */
+.wizard-container .btn-primary {
+    background: var(--wizard-gradient-primary);
+    border: none;
+    color: white;
+    font-weight: 600;
+    box-shadow: var(--wizard-glow-primary);
+    transition: all 0.3s ease;
+}
+
+.wizard-container .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+}
+
+.wizard-container .btn-secondary {
+    background: var(--wizard-bg-tertiary);
+    border: 1px solid var(--wizard-border);
+    color: var(--wizard-text-primary);
+}
+
+.wizard-container .btn-secondary:hover {
+    background: var(--wizard-bg-card-hover);
+    border-color: var(--wizard-border-hover);
+}
+
+.wizard-container .btn-warning {
+    background: var(--wizard-gradient-warning);
+    border: none;
+    color: white;
+    font-weight: 600;
+}
+
+.wizard-container .btn-outline-primary {
+    border-color: var(--wizard-accent-primary);
+    color: var(--wizard-accent-primary);
+    background: transparent;
+}
+
+.wizard-container .btn-outline-primary:hover {
+    background: var(--wizard-accent-primary);
+    color: white;
+}
+
+.wizard-container .btn-outline-secondary {
+    border-color: var(--wizard-border);
+    color: var(--wizard-text-secondary);
+}
+
+.wizard-container .btn-outline-secondary:hover {
+    background: var(--wizard-bg-tertiary);
+    border-color: var(--wizard-border-hover);
+    color: var(--wizard-text-primary);
+}
+
+/* ============================================================================
+   Sidebar - Enterprise Style
+   ============================================================================ */
+.wizard-sidebar {
+    background: var(--wizard-bg-secondary) !important;
+    border-right: 1px solid var(--wizard-border) !important;
+    color: var(--wizard-text-primary);
+}
+
+.wizard-sidebar h5 {
+    color: var(--wizard-text-primary);
+}
+
+.wizard-step {
+    background: transparent;
+    border-left: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.wizard-step:hover:not(.disabled) {
+    background: rgba(16, 185, 129, 0.1);
+    border-left-color: var(--wizard-accent-primary);
+}
+
+.wizard-step.current {
+    background: rgba(16, 185, 129, 0.15) !important;
+    border-left-color: var(--wizard-accent-primary) !important;
+    box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.2);
+}
+
+.wizard-step.completed {
+    background: rgba(16, 185, 129, 0.08);
+    border-left-color: var(--wizard-accent-primary);
+}
+
+.wizard-step .step-name {
+    color: var(--wizard-text-primary);
+}
+
+.wizard-step .step-number {
+    color: var(--wizard-text-tertiary);
+}
+
+/* ============================================================================
+   Progress Bar - Enterprise Style
+   ============================================================================ */
+.wizard-sidebar .progress {
+    background: var(--wizard-bg-tertiary);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.wizard-sidebar .progress-bar {
+    background: var(--wizard-gradient-primary);
+    box-shadow: var(--wizard-glow-primary);
+}
+
+/* ============================================================================
+   Badges - Enterprise Style
+   ============================================================================ */
+.wizard-container .badge {
+    font-weight: 600;
+    padding: 0.5em 1em;
+    border-radius: 8px;
+}
+
+.wizard-container .badge.bg-primary {
+    background: var(--wizard-gradient-secondary) !important;
+}
+
+.wizard-container .badge.bg-success {
+    background: var(--wizard-gradient-primary) !important;
+}
+
+.wizard-container .badge.bg-warning {
+    background: var(--wizard-gradient-warning) !important;
+}
+
+.wizard-container .badge.bg-danger {
+    background: var(--wizard-gradient-danger) !important;
+}
+
+/* ============================================================================
+   Header Section - Enterprise Style
+   ============================================================================ */
+.wizard-container .d-flex.justify-content-between.align-items-center {
+    background: var(--wizard-bg-card);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--wizard-border);
+    margin-bottom: 24px;
+}
+
+.wizard-container h2 {
+    color: var(--wizard-text-primary);
+    font-weight: 700;
+}
+
+.wizard-container h2 .fa-building,
+.wizard-container h2 .fas,
+.wizard-container h2 .bi {
+    background: var(--wizard-gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ============================================================================
+   Time Estimation - Enterprise Style
+   ============================================================================ */
+.total-time-remaining {
+    background: var(--wizard-bg-card);
+    border: 1px solid var(--wizard-border);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: var(--wizard-glow-secondary);
+}
+
+.total-time-remaining .time-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: var(--wizard-gradient-warning);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.total-time-remaining i {
+    color: var(--wizard-accent-warning);
+}
+
+.total-time-remaining small {
+    color: var(--wizard-text-secondary);
+}
+
+.step-time-estimate {
+    color: var(--wizard-text-tertiary);
+}
+
+/* ============================================================================
+   Validation Messages - Enterprise Style
+   ============================================================================ */
+.validation-message.success {
+    color: var(--wizard-accent-primary);
+}
+
+.validation-message.error {
+    color: var(--wizard-accent-danger);
+}
+
+.field-valid {
+    border-color: var(--wizard-accent-primary) !important;
+    background-color: var(--wizard-bg-tertiary);
+}
+
+.field-invalid {
+    border-color: var(--wizard-accent-danger) !important;
+    background-color: var(--wizard-bg-tertiary);
+}
+
+/* ============================================================================
+   Language Toggle - Enterprise Style
+   ============================================================================ */
+.language-toggle {
+    background: var(--wizard-bg-card);
+    border: 1px solid var(--wizard-border);
+    backdrop-filter: blur(20px);
+}
+
+.language-toggle .lang-option {
+    color: var(--wizard-text-secondary);
+}
+
+.language-toggle .lang-option:hover {
+    background: var(--wizard-bg-tertiary);
+    color: var(--wizard-text-primary);
+}
+
+.language-toggle .lang-option.active {
+    background: var(--wizard-gradient-primary);
+    color: white;
+}
+
+/* ============================================================================
+   File Upload - Enterprise Style
+   ============================================================================ */
+.file-upload-area {
+    border: 2px dashed var(--wizard-border);
+    background: var(--wizard-bg-tertiary);
+    color: var(--wizard-text-primary);
+}
+
+.file-upload-area:hover {
+    border-color: var(--wizard-accent-primary);
+    background: var(--wizard-bg-card);
+}
+
+.file-upload-area.drag-over {
+    border-color: var(--wizard-accent-primary);
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.file-upload-icon {
+    color: var(--wizard-accent-primary);
+}
+
+.uploaded-file {
+    background: var(--wizard-bg-tertiary);
+    border: 1px solid var(--wizard-border);
+}
+
+.uploaded-file .file-name {
+    color: var(--wizard-text-primary);
+}
+
+.uploaded-file .file-icon {
+    color: var(--wizard-accent-secondary);
+}
+
+/* ============================================================================
+   Tooltips - Enterprise Style
+   ============================================================================ */
+.field-help-icon {
+    background: var(--wizard-gradient-secondary);
+    box-shadow: var(--wizard-glow-secondary);
+}
+
+/* ============================================================================
+   Alert Messages - Enterprise Style
+   ============================================================================ */
+.wizard-container .alert {
+    background: var(--wizard-bg-card);
+    border: 1px solid var(--wizard-border);
+    color: var(--wizard-text-primary);
+    border-radius: 12px;
+}
+
+.wizard-container .alert-danger {
+    border-left: 4px solid var(--wizard-accent-danger);
+}
+
+.wizard-container .alert-success {
+    border-left: 4px solid var(--wizard-accent-primary);
+}
+
+.wizard-container .alert-warning {
+    border-left: 4px solid var(--wizard-accent-warning);
+}
+
+.wizard-container .alert-info {
+    border-left: 4px solid var(--wizard-accent-info);
+}
+
+/* ============================================================================
+   Input Groups - Enterprise Style
+   ============================================================================ */
+.wizard-container .input-group-text {
+    background: var(--wizard-bg-tertiary);
+    border-color: var(--wizard-border);
+    color: var(--wizard-text-secondary);
+}
+
+/* ============================================================================
+   Dropdown Menus - Enterprise Style
+   ============================================================================ */
+.wizard-container .dropdown-menu {
+    background: var(--wizard-bg-card);
+    border: 1px solid var(--wizard-border);
+    backdrop-filter: blur(20px);
+}
+
+.wizard-container .dropdown-item {
+    color: var(--wizard-text-primary);
+}
+
+.wizard-container .dropdown-item:hover {
+    background: var(--wizard-bg-tertiary);
+    color: var(--wizard-accent-primary);
+}
+
+/* ============================================================================
+   Summary Dashboard - Enterprise Style
+   ============================================================================ */
+.summary-section {
+    background: var(--wizard-bg-card);
+    border: 1px solid var(--wizard-border);
+    backdrop-filter: blur(20px);
+}
+
+.summary-section .section-header {
+    border-bottom-color: var(--wizard-accent-primary);
+}
+
+.summary-item .label {
+    color: var(--wizard-text-secondary);
+}
+
+.summary-item .value {
+    color: var(--wizard-text-primary);
+}
+
+.confidence-score {
+    background: var(--wizard-bg-card);
+    border-color: var(--wizard-accent-primary);
+}
+
+.confidence-score .score-value {
+    color: var(--wizard-accent-primary);
+}
+
+/* ============================================================================
+   Animations - Enterprise Style
+   ============================================================================ */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes glow-pulse {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(16, 185, 129, 0.6);
+    }
+}
+
+.wizard-container .card {
+    animation: slideIn 0.4s ease;
+}
+
+/* ============================================================================
+   RTL Support for Enterprise Theme
+   ============================================================================ */
+html[dir="rtl"] .wizard-step {
+    border-left: none;
+    border-right: 3px solid transparent;
+}
+
+html[dir="rtl"] .wizard-step:hover:not(.disabled),
+html[dir="rtl"] .wizard-step.current,
+html[dir="rtl"] .wizard-step.completed {
+    border-right-color: var(--wizard-accent-primary);
+    border-left-color: transparent;
+}
+
+html[dir="rtl"] .wizard-sidebar {
+    border-right: none;
+    border-left: 1px solid var(--wizard-border);
+}
+
+html[dir="rtl"] .language-toggle {
+    left: auto;
+    right: 300px;
+}
+
+html[dir="rtl"] .auto-save-indicator {
+    right: auto;
+    left: 20px;
+}
+
+/* ============================================================================
+   Responsive Adjustments for Enterprise Theme
+   ============================================================================ */
+@media (max-width: 992px) {
+    .wizard-sidebar {
+        background: var(--wizard-bg-secondary) !important;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar-toggle {
+        background: var(--wizard-gradient-primary);
+        box-shadow: var(--wizard-glow-primary);
+    }
+
+    .sidebar-overlay {
+        background: rgba(15, 20, 25, 0.8);
+        backdrop-filter: blur(4px);
+    }
+}

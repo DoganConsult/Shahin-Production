@@ -1,0 +1,199 @@
+@model GrcMvc.Controllers.CheckoutViewModel
+@{
+    ViewData["Title"] = "إنشاء حساب | Create Account";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            
+            <!-- Progress Steps -->
+            <div class="d-flex justify-content-center mb-5">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" 
+                         style="width: 40px; height: 40px;">
+                        <i class="bi bi-check"></i>
+                    </div>
+                    <span class="mx-2 text-success fw-bold">الخطة</span>
+                    <div class="border-top border-2 border-primary" style="width: 60px;"></div>
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                         style="width: 40px; height: 40px;">2</div>
+                    <span class="mx-2 text-primary fw-bold">الحساب</span>
+                    <div class="border-top border-2 border-secondary" style="width: 60px;"></div>
+                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" 
+                         style="width: 40px; height: 40px;">3</div>
+                    <span class="mx-2 text-muted">الدفع</span>
+                    <div class="border-top border-2 border-secondary" style="width: 60px;"></div>
+                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" 
+                         style="width: 40px; height: 40px;">4</div>
+                    <span class="mx-2 text-muted">التفعيل</span>
+                </div>
+            </div>
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-plus me-2"></i>
+                        إنشاء حسابك | Create Your Account
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    
+                    <!-- Order Summary -->
+                    <div class="alert alert-info mb-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong><i class="bi bi-box-seam me-2"></i>@Model.PlanName</strong>
+                                <span class="badge bg-primary ms-2">@Model.BillingCycle</span>
+                            </div>
+                            <div class="text-end">
+                                <strong class="fs-4">@Model.Amount.ToString("N0") @Model.Currency</strong>
+                                <small class="d-block text-muted">
+                                    @(Model.BillingCycle == "Annual" ? "سنوياً" : "شهرياً")
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form asp-action="ProcessCheckout" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="PlanId" value="@Model.PlanId" />
+                        <input type="hidden" name="BillingCycle" value="@Model.BillingCycle" />
+                        <input type="hidden" name="Amount" value="@Model.Amount" />
+                        <input type="hidden" name="Currency" value="@Model.Currency" />
+
+                        <h5 class="mb-3 text-primary">
+                            <i class="bi bi-building me-2"></i>
+                            معلومات الشركة | Company Information
+                        </h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">اسم الشركة | Company Name <span class="text-danger">*</span></label>
+                            <input type="text" name="CompanyName" class="form-control form-control-lg" 
+                                   placeholder="مثال: شركة الحلول التقنية" required />
+                        </div>
+
+                        <hr class="my-4"/>
+
+                        <h5 class="mb-3 text-primary">
+                            <i class="bi bi-person me-2"></i>
+                            معلومات المسؤول | Admin Information
+                        </h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">الاسم الأول | First Name <span class="text-danger">*</span></label>
+                                <input type="text" name="FirstName" class="form-control" 
+                                       placeholder="أحمد" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">الاسم الأخير | Last Name <span class="text-danger">*</span></label>
+                                <input type="text" name="LastName" class="form-control" 
+                                       placeholder="محمد" required />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">البريد الإلكتروني | Email <span class="text-danger">*</span></label>
+                            <input type="email" name="Email" class="form-control form-control-lg" 
+                                   placeholder="admin@company.com" required />
+                            <small class="text-muted">سيتم استخدامه لتسجيل الدخول</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">رقم الهاتف | Phone</label>
+                            <input type="tel" name="Phone" class="form-control" 
+                                   placeholder="+966 5X XXX XXXX" />
+                        </div>
+
+                        <hr class="my-4"/>
+
+                        <h5 class="mb-3 text-primary">
+                            <i class="bi bi-shield-lock me-2"></i>
+                            كلمة المرور | Password
+                        </h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">كلمة المرور | Password <span class="text-danger">*</span></label>
+                            <input type="password" name="Password" class="form-control form-control-lg" 
+                                   minlength="8" required 
+                                   pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                                   title="يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، حرف صغير، ورقم" />
+                            <small class="text-muted">
+                                8 أحرف على الأقل، تتضمن حروف كبيرة وصغيرة وأرقام
+                            </small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">تأكيد كلمة المرور | Confirm Password <span class="text-danger">*</span></label>
+                            <input type="password" id="confirmPassword" class="form-control form-control-lg" 
+                                   required />
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input type="checkbox" class="form-check-input" id="terms" required />
+                            <label class="form-check-label" for="terms">
+                                أوافق على 
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">الشروط والأحكام</a>
+                                و
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">سياسة الخصوصية</a>
+                            </label>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-arrow-left me-2"></i>
+                                المتابعة للدفع | Continue to Payment
+                            </button>
+                            <a href="@Url.Action("Plans")" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-right me-2"></i>
+                                العودة للخطط | Back to Plans
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Features reminder -->
+            <div class="card mt-4 border-0 bg-light">
+                <div class="card-body">
+                    <h6 class="text-primary mb-3">
+                        <i class="bi bi-check2-all me-2"></i>
+                        ما ستحصل عليه مع @Model.PlanName:
+                    </h6>
+                    <ul class="list-unstyled mb-0">
+                        @foreach (var feature in Model.Features.Take(5))
+                        {
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                @feature
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        var password = document.querySelector('input[name="Password"]').value;
+        var confirm = document.getElementById('confirmPassword').value;
+        if (password !== confirm) {
+            e.preventDefault();
+            alert('كلمة المرور غير متطابقة | Passwords do not match');
+        }
+    });
+</script>
+}

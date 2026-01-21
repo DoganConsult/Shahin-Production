@@ -1,0 +1,291 @@
+@{
+    ViewData["Title"] = "Workflows";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-3">
+                <i class="fas fa-tasks"></i> Workflow Management
+            </h1>
+            <p class="text-muted">Manage compliance, control, and operational workflows</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newWorkflowModal">
+                <i class="fas fa-plus"></i> New Workflow
+            </button>
+        </div>
+    </div>
+
+    <!-- Workflow Types Tabs -->
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#controlImplementation">
+                <i class="fas fa-tools"></i> Control Implementation
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#approvals">
+                <i class="fas fa-check-circle"></i> Approvals
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#evidence">
+                <i class="fas fa-file-alt"></i> Evidence
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#risks">
+                <i class="fas fa-exclamation-triangle"></i> Risks
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#audits">
+                <i class="fas fa-search"></i> Audits
+            </a>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- Control Implementation Tab -->
+        <div id="controlImplementation" class="tab-pane fade show active">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Control Implementation Workflows</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Control ID</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Updated</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="controlImplementationTable">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approvals Tab -->
+        <div id="approvals" class="tab-pane fade">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Approval Workflows</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Document ID</th>
+                                    <th>Stage</th>
+                                    <th>Status</th>
+                                    <th>Submitted By</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="approvalsTable">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">No approvals pending</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evidence Tab -->
+        <div id="evidence" class="tab-pane fade">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Evidence Collection Workflows</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Control ID</th>
+                                    <th>Status</th>
+                                    <th>Submitted By</th>
+                                    <th>Collection Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="evidenceTable">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">No evidence submissions</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risks Tab -->
+        <div id="risks" class="tab-pane fade">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0">Risk Assessment Workflows</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Risk ID</th>
+                                    <th>Status</th>
+                                    <th>Risk Level</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="risksTable">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">No risk assessments</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audits Tab -->
+        <div id="audits" class="tab-pane fade">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Audit Workflows</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Audit ID</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Started</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditsTable">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">No active audits</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Workflow Modal -->
+<div class="modal fade" id="newWorkflowModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Workflow</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newWorkflowForm">
+                    <div class="mb-3">
+                        <label class="form-label">Workflow Type</label>
+                        <select class="form-select" id="workflowType" required>
+                            <option value="">Select a workflow type...</option>
+                            <option value="control-implementation">Control Implementation</option>
+                            <option value="approval">Approval/Sign-off</option>
+                            <option value="evidence">Evidence Collection</option>
+                            <option value="risk">Risk Assessment</option>
+                            <option value="audit">Audit</option>
+                            <option value="testing">Compliance Testing</option>
+                            <option value="remediation">Remediation</option>
+                            <option value="policy">Policy Review</option>
+                            <option value="training">Training Assignment</option>
+                            <option value="exception">Exception Handling</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Reference ID</label>
+                        <input type="number" class="form-control" id="referenceId" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="description" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitNewWorkflow()">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function submitNewWorkflow() {
+            const workflowType = document.getElementById('workflowType').value;
+            const referenceId = document.getElementById('referenceId').value;
+            const description = document.getElementById('description').value;
+
+            if (!workflowType || !referenceId) {
+                alert('Please fill required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/workflows/${workflowType}/initiate/${referenceId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ description })
+                });
+
+                if (response.ok) {
+                    alert('Workflow created successfully');
+                    location.reload();
+                } else {
+                    alert('Error creating workflow');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error creating workflow');
+            }
+        }
+
+        // Load workflows on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            loadWorkflows();
+        });
+
+        async function loadWorkflows() {
+            try {
+                const response = await fetch('/api/workflows/list/all');
+                const data = await response.json();
+                // Update tables with data
+            } catch (error) {
+                console.error('Error loading workflows:', error);
+            }
+        }
+    </script>
+}

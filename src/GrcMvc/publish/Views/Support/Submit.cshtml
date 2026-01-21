@@ -1,0 +1,173 @@
+@model GrcMvc.Controllers.SubmitTicketViewModel
+@{
+    ViewData["Title"] = "إرسال تذكرة دعم";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-headset"></i>
+                        إرسال تذكرة دعم
+                    </h3>
+                    <p class="mb-0 mt-2 small">إذا واجهت مشكلة في الوصول أو خطأ في النظام، يرجى إرسال تذكرة وسنقوم بالرد في أقرب وقت</p>
+                </div>
+                <div class="card-body">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            <h5><i class="bi bi-exclamation-triangle"></i> يرجى تصحيح الأخطاء التالية:</h5>
+                            <ul class="mb-0">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <form asp-action="SubmitTicket" method="post" id="supportForm">
+                        @Html.AntiForgeryToken()
+
+                        @if (ViewBag.UserId != null)
+                        {
+                            <input type="hidden" asp-for="UserId" value="@ViewBag.UserId" />
+                            <input type="hidden" asp-for="TenantId" value="@ViewBag.TenantId" />
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i>
+                                أنت مسجل الدخول كـ: <strong>@ViewBag.UserEmail</strong>
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label asp-for="UserEmail" class="form-label">
+                                <i class="bi bi-envelope"></i> البريد الإلكتروني <span class="text-danger">*</span>
+                            </label>
+                            @{
+                                var isReadonly = ViewBag.UserEmail != null;
+                            }
+                            <input type="email" asp-for="UserEmail" class="form-control" 
+                                   value="@ViewBag.UserEmail" 
+                                   readonly="@isReadonly"
+                                   placeholder="example@company.com" required />
+                            <span asp-validation-for="UserEmail" class="text-danger"></span>
+                            <small class="form-text text-muted">سنستخدم هذا البريد للتواصل معك بخصوص التذكرة</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Subject" class="form-label">
+                                <i class="bi bi-card-heading"></i> الموضوع <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" asp-for="Subject" class="form-control" 
+                                   placeholder="مثال: لا أستطيع الوصول إلى لوحة التحكم" 
+                                   maxlength="500" required />
+                            <span asp-validation-for="Subject" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">
+                                <i class="bi bi-file-text"></i> وصف المشكلة <span class="text-danger">*</span>
+                            </label>
+                            <textarea asp-for="Description" class="form-control" rows="6" 
+                                      placeholder="يرجى وصف المشكلة بالتفصيل، بما في ذلك الخطوات التي قمت بها والأخطاء التي ظهرت..." 
+                                      maxlength="2000" required></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                <i class="bi bi-lightbulb"></i> 
+                                نصيحة: كلما كان الوصف أكثر تفصيلاً، كلما كان من السهل حل المشكلة بسرعة
+                            </small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Category" class="form-label">
+                                    <i class="bi bi-tags"></i> الفئة
+                                </label>
+                                <select asp-for="Category" class="form-select">
+                                    <option value="Technical">تقني - Technical</option>
+                                    <option value="Access">مشكلة في الوصول - Access</option>
+                                    <option value="Billing">الفوترة - Billing</option>
+                                    <option value="Account">الحساب - Account</option>
+                                    <option value="Feature Request">طلب ميزة - Feature Request</option>
+                                    <option value="Bug Report">تقرير خطأ - Bug Report</option>
+                                    <option value="Other">أخرى - Other</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Priority" class="form-label">
+                                    <i class="bi bi-flag"></i> الأولوية
+                                </label>
+                                <select asp-for="Priority" class="form-select">
+                                    <option value="Low">منخفضة - Low</option>
+                                    <option value="Medium" selected>متوسطة - Medium</option>
+                                    <option value="High">عالية - High</option>
+                                    <option value="Urgent">عاجلة - Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" asp-for="IsUrgent" class="form-check-input" id="isUrgent" />
+                                <label class="form-check-label" for="isUrgent">
+                                    <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                                    <strong>عاجل</strong> - هذه مشكلة حرجة تؤثر على العمل
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Tags" class="form-label">
+                                <i class="bi bi-hash"></i> العلامات (اختياري)
+                            </label>
+                            <input type="text" asp-for="Tags" class="form-control" 
+                                   placeholder="مثال: login, dashboard, error" />
+                            <small class="form-text text-muted">يمكنك إضافة كلمات مفتاحية لفهم المشكلة بشكل أفضل</small>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="/" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> إلغاء
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i> إرسال التذكرة
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5><i class="bi bi-info-circle"></i> معلومات إضافية</h5>
+                    <ul class="mb-0">
+                        <li>سيتم إرسال رقم التذكرة إلى بريدك الإلكتروني</li>
+                        <li>يمكنك متابعة حالة التذكرة باستخدام رقم التذكرة</li>
+                        <li>متوسط وقت الرد: 4 ساعات للمشاكل العاجلة، 24 ساعة للمشاكل العادية</li>
+                        <li>للمشاكل الفورية، يرجى الاتصال بالدعم على: <a href="mailto:support@shahin-ai.com">support@shahin-ai.com</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('isUrgent').addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById('Priority').value = 'Urgent';
+            }
+        });
+
+        document.getElementById('supportForm').addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>جاري الإرسال...';
+        });
+    </script>
+}

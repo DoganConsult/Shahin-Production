@@ -1,0 +1,84 @@
+@model List<GrcMvc.Models.Entities.CapturedEvidence>
+@{
+    ViewData["Title"] = "Shahin VAULT - Evidence Repository";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-1">
+                <i class="fas fa-lock me-2" style="color: #1ABC9C;"></i>
+                Shahin VAULT
+            </h1>
+            <p class="text-muted mb-0">Evidence Repository | <span dir="rtl">خزنة</span></p>
+        </div>
+        <a href="@Url.Action("Index", "ShahinAI")" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <div class="h2 mb-0" style="color: #1ABC9C;">@ViewBag.TotalEvidence</div>
+                    <small class="text-muted">Stored Evidence</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header text-white" style="background-color: #1ABC9C;">
+            <i class="fas fa-archive me-2"></i>Evidence Vault
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Code</th>
+                            <th>Title</th>
+                            <th>Process</th>
+                            <th>Version</th>
+                            <th>Captured</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var evidence in Model)
+                        {
+                            <tr>
+                                <td><code>@evidence.EvidenceCode</code></td>
+                                <td>@evidence.Title</td>
+                                <td>—</td>
+                                <td><span class="badge bg-info">v@evidence.VersionNumber</span></td>
+                                <td>@evidence.CapturedAt.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    @if (evidence.IsCurrent)
+                                    {
+                                        <span class="badge bg-success">Current</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Archived</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                    No evidence stored in the vault yet.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

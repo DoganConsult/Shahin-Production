@@ -1,0 +1,282 @@
+@model StepBAssuranceObjectiveDto
+@using GrcMvc.Models.DTOs
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer L
+@{
+    ViewData["Title"] = L["Onboarding_StepB_Title"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var summary = ViewData["WizardSummary"] as WizardSummaryDto;
+    var tenantId = summary?.TenantId ?? Guid.Empty;
+}
+
+<div class="d-flex">
+    @await Html.PartialAsync("_WizardSidebar", summary)
+
+    <div class="flex-grow-1 p-4">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-bullseye text-primary me-2"></i>
+                        @L["Onboarding_StepB_Heading"]
+                    </h2>
+                    <p class="text-muted mb-0">
+                        @L["Onboarding_StepB_Questions"]
+                    </p>
+                </div>
+                <span class="badge bg-primary fs-6">@L["Onboarding_StepIndicator", 2, 12]</span>
+            </div>
+
+            <form asp-action="StepB" asp-route-tenantId="@tenantId" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="All" class="alert alert-danger" role="alert" style="display: none;"></div>
+
+                <!-- Primary Driver -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-flag me-2"></i>@L["Onboarding_StepB_PrimaryDriver_Header"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">@L["Onboarding_StepB_PrimaryDriver_Question"]</p>
+                        <div class="row">
+                            @{
+                                var drivers = new[] {
+                                    ("regulator_exam", "Onboarding_Driver_RegulatorExam", "fa-gavel", "Onboarding_Driver_RegulatorExam_Desc"),
+                                    ("internal_audit", "Onboarding_Driver_InternalAudit", "fa-search", "Onboarding_Driver_InternalAudit_Desc"),
+                                    ("external_audit", "Onboarding_Driver_ExternalAudit", "fa-user-tie", "Onboarding_Driver_ExternalAudit_Desc"),
+                                    ("certification", "Onboarding_Driver_Certification", "fa-certificate", "Onboarding_Driver_Certification_Desc"),
+                                    ("customer_due_diligence", "Onboarding_Driver_CustomerDD", "fa-handshake", "Onboarding_Driver_CustomerDD_Desc"),
+                                    ("board_reporting", "Onboarding_Driver_BoardReporting", "fa-chart-bar", "Onboarding_Driver_BoardReporting_Desc")
+                                };
+                            }
+                            @foreach (var (value, labelKey, icon, descKey) in drivers)
+                            {
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check card h-100 p-3 @(Model.PrimaryDriver == value ? "border-primary bg-light" : "")">
+                                        <input class="form-check-input" type="radio" name="PrimaryDriver"
+                                               value="@value" id="driver_@value"
+                                               @(Model.PrimaryDriver == value ? "checked" : "") required>
+                                        <label class="form-check-label d-block" for="driver_@value">
+                                            <i class="fas @icon text-primary me-2"></i>
+                                            <strong>@L[labelKey]</strong>
+                                            <small class="text-muted d-block mt-1">@L[descKey]</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <span asp-validation-for="PrimaryDriver" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- Target Timeline -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>@L["Onboarding_StepB_TargetTimeline_Header"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label asp-for="TargetTimeline" class="form-label">
+                                    @L["Onboarding_StepB_TargetTimeline_Label"]
+                                </label>
+                                <input asp-for="TargetTimeline" type="date" class="form-control">
+                                <small class="text-muted">@L["Onboarding_StepB_TargetTimeline_Help"]</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Pain Points -->
+                <div class="card mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>@L["Onboarding_StepB_PainPoints_Header"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">@L["Onboarding_StepB_PainPoints_Instructions"]</p>
+                        <div id="painPointsList">
+                            @{
+                                var painPoints = new[] {
+                                    ("evidence_collection", "Onboarding_Pain_EvidenceCollection", "Onboarding_Pain_EvidenceCollection_Desc"),
+                                    ("mapping_frameworks", "Onboarding_Pain_FrameworkMapping", "Onboarding_Pain_FrameworkMapping_Desc"),
+                                    ("remediation_delays", "Onboarding_Pain_RemediationDelays", "Onboarding_Pain_RemediationDelays_Desc"),
+                                    ("outages", "Onboarding_Pain_Outages", "Onboarding_Pain_Outages_Desc"),
+                                    ("vendor_risk", "Onboarding_Pain_VendorRisk", "Onboarding_Pain_VendorRisk_Desc"),
+                                    ("fraud_leakage", "Onboarding_Pain_FraudLeakage", "Onboarding_Pain_FraudLeakage_Desc")
+                                };
+                            }
+                            @for (int i = 0; i < painPoints.Length; i++)
+                            {
+                                var (value, labelKey, descKey) = painPoints[i];
+                                <div class="pain-point-item card mb-2 p-3" data-value="@value">
+                                    <div class="d-flex align-items-center">
+                                        <span class="rank-badge badge bg-secondary me-3">@(i + 1)</span>
+                                        <div class="form-check flex-grow-1">
+                                            <input type="checkbox" class="form-check-input pain-checkbox"
+                                                   id="pain_@value" value="@value">
+                                            <label class="form-check-label" for="pain_@value">
+                                                <strong>@L[labelKey]</strong>
+                                                <small class="text-muted d-block">@L[descKey]</small>
+                                            </label>
+                                        </div>
+                                        <i class="fas fa-grip-vertical text-muted drag-handle"></i>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <small class="text-muted">@L["Onboarding_StepB_PainPoints_SelectHelp"]</small>
+                        <input type="hidden" name="CurrentPainPointsJson" id="currentPainPointsJson">
+                    </div>
+                </div>
+
+                <!-- Desired Maturity -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>@L["Onboarding_StepB_DesiredMaturity_Header"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">@L["Onboarding_StepB_DesiredMaturity_Question"]</p>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100 @(Model.DesiredMaturity == "Foundation" ? "border-success bg-light" : "")">
+                                    <div class="card-body text-center">
+                                        <input type="radio" name="DesiredMaturity" value="Foundation"
+                                               id="mat_foundation" class="btn-check"
+                                               @(Model.DesiredMaturity == "Foundation" ? "checked" : "")>
+                                        <label class="d-block cursor-pointer" for="mat_foundation">
+                                            <i class="fas fa-seedling fa-3x text-success mb-2"></i>
+                                            <h5>@L["Maturity_Foundation"]</h5>
+                                            <small class="text-muted">
+                                                @L["Maturity_Foundation_Desc"]
+                                            </small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100 @(Model.DesiredMaturity == "AssuranceOps" ? "border-success bg-light" : "")">
+                                    <div class="card-body text-center">
+                                        <input type="radio" name="DesiredMaturity" value="AssuranceOps"
+                                               id="mat_assurance" class="btn-check"
+                                               @(Model.DesiredMaturity == "AssuranceOps" ? "checked" : "")>
+                                        <label class="d-block cursor-pointer" for="mat_assurance">
+                                            <i class="fas fa-cogs fa-3x text-primary mb-2"></i>
+                                            <h5>@L["Maturity_AssuranceOps"]</h5>
+                                            <small class="text-muted">
+                                                @L["Maturity_AssuranceOps_Desc"]
+                                            </small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100 @(Model.DesiredMaturity == "ContinuousAssurance" ? "border-success bg-light" : "")">
+                                    <div class="card-body text-center">
+                                        <input type="radio" name="DesiredMaturity" value="ContinuousAssurance"
+                                               id="mat_continuous" class="btn-check"
+                                               @(Model.DesiredMaturity == "ContinuousAssurance" ? "checked" : "")>
+                                        <label class="d-block cursor-pointer" for="mat_continuous">
+                                            <i class="fas fa-robot fa-3x text-warning mb-2"></i>
+                                            <h5>@L["Maturity_ContinuousAssurance"]</h5>
+                                            <small class="text-muted">
+                                                @L["Maturity_ContinuousAssurance_Desc"]
+                                            </small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reporting Audience -->
+                <div class="card mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-users me-2"></i>@L["Onboarding_StepB_ReportingAudience_Header"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">@L["Onboarding_StepB_ReportingAudience_Question"]</p>
+                        <div class="row">
+                            @{
+                                var audiences = new[] {
+                                    ("Board", "Audience_Board"), ("CRO", "Audience_CRO"),
+                                    ("CIO", "Audience_CIO"), ("CISO", "Audience_CISO"),
+                                    ("Internal_Audit", "Audience_InternalAudit"), ("Regulators", "Audience_Regulators"),
+                                    ("Compliance", "Audience_Compliance"), ("Legal", "Audience_Legal")
+                                };
+                            }
+                            @foreach (var (value, labelKey) in audiences)
+                            {
+                                <div class="col-md-3 col-6">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input"
+                                               name="ReportingAudience" value="@value" id="aud_@value"
+                                               @(Model.ReportingAudience.Contains(value) ? "checked" : "")>
+                                        <label class="form-check-label" for="aud_@value">@L[labelKey]</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="@Url.Action("StepA", new { tenantId })" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> @L["Button_BackToStepA"]
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        @L["Button_ContinueToStepC"]
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
+    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
+    <script>
+        // Initialize Motivation System
+        const motivation = new WizardMotivation({
+            stepNumber: 2,
+            totalSteps: 12,
+            tenantId: '@tenantId',
+            stepName: 'StepB'
+        });
+
+        // Initialize Live Preview Panel
+        const livePreview = new LivePreviewPanel({
+            stepName: 'StepB'
+        });
+
+        // Initialize Why We Ask Tooltips
+        const tooltips = new WhyWeAskTooltips();
+    </script>
+    <script>
+        // Handle pain points selection and ranking
+        document.querySelectorAll('.pain-checkbox').forEach(function(checkbox) {
+            checkbox.addEventListener('change', updatePainPointsJson);
+        });
+
+        function updatePainPointsJson() {
+            const selected = [];
+            document.querySelectorAll('.pain-checkbox:checked').forEach(function(cb, index) {
+                selected.push({ Item: cb.value, Rank: index + 1 });
+            });
+            document.getElementById('currentPainPointsJson').value = JSON.stringify(selected);
+        }
+
+        // Maturity card selection styling
+        document.querySelectorAll('input[name="DesiredMaturity"]').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('input[name="DesiredMaturity"]').forEach(function(r) {
+                    r.closest('.card').classList.remove('border-success', 'bg-light');
+                });
+                this.closest('.card').classList.add('border-success', 'bg-light');
+            });
+        });
+    </script>
+}

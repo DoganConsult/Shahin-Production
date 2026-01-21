@@ -1,0 +1,457 @@
+/* /Views/Shared/Components/ActivityFeed/Default.cshtml.rz.scp.css */
+/* ActivityFeed CSS Isolation */
+
+.activity-item[b-gedoqkon1z] {
+    transition: background-color 0.15s ease;
+}
+
+.activity-item:hover[b-gedoqkon1z] {
+    background-color: var(--bs-gray-100);
+}
+
+.activity-icon[b-gedoqkon1z] {
+    transition: transform 0.2s ease;
+}
+
+.activity-item:hover .activity-icon[b-gedoqkon1z] {
+    transform: scale(1.1);
+}
+
+.activity-time[b-gedoqkon1z] {
+    font-variant-numeric: tabular-nums;
+}
+
+.activity-link[b-gedoqkon1z] {
+    text-decoration: none;
+    color: inherit;
+}
+
+.activity-link:hover[b-gedoqkon1z] {
+    color: var(--bs-primary);
+}
+
+/* Animation for new activities */
+.activity-item.new[b-gedoqkon1z] {
+    animation: fadeInSlide-b-gedoqkon1z 0.3s ease-out;
+}
+
+@keyframes fadeInSlide-b-gedoqkon1z {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+[dir="rtl"] .activity-item.new[b-gedoqkon1z] {
+    animation-name: fadeInSlideRtl-b-gedoqkon1z;
+}
+
+@keyframes fadeInSlideRtl-b-gedoqkon1z {
+    from {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+/* /Views/Shared/Components/DashboardWidget/Default.cshtml.rz.scp.css */
+/* DashboardWidget CSS Isolation */
+
+.grc-widget[b-jvaedma3n7] {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.grc-widget:hover[b-jvaedma3n7] {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.widget-icon[b-jvaedma3n7] {
+    transition: transform 0.3s ease;
+}
+
+.grc-widget:hover .widget-icon[b-jvaedma3n7] {
+    transform: scale(1.1);
+}
+
+.widget-trend[b-jvaedma3n7] {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+}
+
+.widget-trend.trend-up[b-jvaedma3n7] {
+    background: rgba(25, 135, 84, 0.1);
+    color: var(--bs-success);
+}
+
+.widget-trend.trend-down[b-jvaedma3n7] {
+    background: rgba(220, 53, 69, 0.1);
+    color: var(--bs-danger);
+}
+
+.widget-value[b-jvaedma3n7] {
+    font-variant-numeric: tabular-nums;
+}
+
+.widget-link[b-jvaedma3n7] {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.grc-widget:hover .widget-link[b-jvaedma3n7] {
+    opacity: 1;
+}
+/* /Views/Shared/Components/DataTable/Default.cshtml.rz.scp.css */
+/* DataTable CSS Isolation */
+
+.grc-datatable[b-xe9cdznzvp] {
+    position: relative;
+}
+
+.grc-datatable .table[b-xe9cdznzvp] {
+    margin-bottom: 0;
+}
+
+.grc-datatable .table thead th[b-xe9cdznzvp] {
+    white-space: nowrap;
+    user-select: none;
+}
+
+.grc-datatable .table thead th[onclick][b-xe9cdznzvp] {
+    transition: background-color 0.15s ease;
+}
+
+.grc-datatable .table thead th[onclick]:hover[b-xe9cdznzvp] {
+    background-color: var(--bs-gray-200);
+}
+
+.grc-datatable .table tbody tr[b-xe9cdznzvp] {
+    transition: background-color 0.15s ease;
+}
+
+/* Sort indicator */
+.sort-indicator[b-xe9cdznzvp] {
+    transition: transform 0.2s ease;
+}
+
+.sort-indicator.asc[b-xe9cdznzvp] {
+    transform: rotate(180deg);
+}
+
+/* Search input enhancement */
+.grc-datatable .input-group:focus-within[b-xe9cdznzvp] {
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+    border-radius: 0.375rem;
+}
+
+/* Pagination styling */
+.grc-datatable .pagination[b-xe9cdznzvp] {
+    gap: 0.25rem;
+}
+
+.grc-datatable .page-link[b-xe9cdznzvp] {
+    border-radius: 0.375rem;
+    transition: all 0.15s ease;
+}
+
+.grc-datatable .page-link:hover[b-xe9cdznzvp] {
+    transform: translateY(-1px);
+}
+
+/* Empty state */
+.grc-datatable .table-empty[b-xe9cdznzvp] {
+    animation: fadeIn-b-xe9cdznzvp 0.3s ease;
+}
+
+@keyframes fadeIn-b-xe9cdznzvp {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Loading state */
+.grc-datatable.loading[b-xe9cdznzvp]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Row selection highlight */
+.grc-datatable .table tbody tr.selected[b-xe9cdznzvp] {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+/* Mobile responsive table */
+@media (max-width: 768px) {
+    .grc-datatable .table-responsive[b-xe9cdznzvp] {
+        border-radius: 0.5rem;
+        border: 1px solid var(--bs-gray-200);
+    }
+}
+/* /Views/Shared/Components/Timeline/Default.cshtml.rz.scp.css */
+/* Timeline CSS Isolation */
+
+.timeline-item[b-y70zg6h4u1] {
+    transition: opacity 0.2s ease;
+}
+
+.timeline-item:hover .timeline-content[b-y70zg6h4u1] {
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.timeline-marker[b-y70zg6h4u1] {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.timeline-item:hover .timeline-marker[b-y70zg6h4u1] {
+    transform: scale(1.1);
+}
+
+.timeline-content[b-y70zg6h4u1] {
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.timeline-content a[b-y70zg6h4u1] {
+    transition: color 0.15s ease;
+}
+
+.timeline-content a:hover[b-y70zg6h4u1] {
+    color: var(--bs-primary) !important;
+}
+
+/* Current item pulse animation enhancement */
+.timeline-marker-pulse[b-y70zg6h4u1] {
+    position: relative;
+}
+
+.timeline-marker-pulse[b-y70zg6h4u1]::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid var(--bs-primary);
+    animation: pulseRing-b-y70zg6h4u1 2s infinite;
+}
+
+@keyframes pulseRing-b-y70zg6h4u1 {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+/* Completed items fade slightly */
+.timeline-completed[b-y70zg6h4u1] {
+    opacity: 0.85;
+}
+
+.timeline-completed:hover[b-y70zg6h4u1] {
+    opacity: 1;
+}
+/* /Views/Shared/_Layout.cshtml.rz.scp.css */
+/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+a.navbar-brand[b-n35owtjt9d] {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+a[b-n35owtjt9d] {
+  color: #0077cc;
+}
+
+.btn-primary[b-n35owtjt9d] {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active[b-n35owtjt9d], .nav-pills .show > .nav-link[b-n35owtjt9d] {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.border-top[b-n35owtjt9d] {
+  border-top: 1px solid #e5e5e5;
+}
+.border-bottom[b-n35owtjt9d] {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow[b-n35owtjt9d] {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy[b-n35owtjt9d] {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+.footer[b-n35owtjt9d] {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
+}
+
+/* ========================================
+   GRC Layout Enhancements - CSS Isolation
+   ======================================== */
+
+/* GRC Sidebar Styles */
+.grc-sidebar[b-n35owtjt9d] {
+    background: var(--bs-gray-100);
+    border-right: 1px solid var(--bs-gray-300);
+    padding: 1rem;
+    min-height: calc(100vh - 200px);
+}
+
+[dir="rtl"] .grc-sidebar[b-n35owtjt9d] {
+    border-right: none;
+    border-left: 1px solid var(--bs-gray-300);
+}
+
+/* Page Header Section Styles */
+[b-n35owtjt9d] .page-header {
+    background: linear-gradient(135deg, var(--bs-gray-100) 0%, var(--bs-white) 100%);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--bs-gray-200);
+}
+
+[b-n35owtjt9d] .page-header h1 {
+    margin-bottom: 0.5rem;
+    color: var(--bs-gray-800);
+}
+
+[b-n35owtjt9d] .page-header .breadcrumb {
+    margin-bottom: 0;
+    background: transparent;
+    padding: 0;
+}
+
+/* Action Buttons Section */
+[b-n35owtjt9d] .page-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+/* Footer Enhancements */
+.footer a:hover[b-n35owtjt9d] {
+    text-decoration: underline !important;
+}
+
+/* Navbar Brand Animation */
+.navbar-brand:hover img[b-n35owtjt9d] {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+.navbar-brand img[b-n35owtjt9d] {
+    transition: transform 0.2s ease;
+}
+
+/* User Avatar in Navbar */
+.user-avatar[b-n35owtjt9d] {
+    font-weight: 600;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+    transition: box-shadow 0.2s ease;
+}
+
+.user-avatar:hover[b-n35owtjt9d] {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+}
+
+/* Alert Message Animations */
+.alert[b-n35owtjt9d] {
+    animation: slideDown-b-n35owtjt9d 0.3s ease-out;
+}
+
+@keyframes slideDown-b-n35owtjt9d {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dropdown Menu Enhancements */
+.dropdown-menu[b-n35owtjt9d] {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border: none;
+}
+
+.dropdown-item[b-n35owtjt9d] {
+    transition: background-color 0.15s ease, padding-inline-start 0.15s ease;
+}
+
+.dropdown-item:hover[b-n35owtjt9d] {
+    padding-inline-start: 1.25rem;
+}
+
+/* Search Input in Navbar */
+.navbar .form-control:focus[b-n35owtjt9d] {
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* GRC Icon Spin Animation (for Tag Helpers) */
+.grc-icon-spin[b-n35owtjt9d] {
+    animation: spin-b-n35owtjt9d 1s linear infinite;
+}
+
+@keyframes spin-b-n35owtjt9d {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+    .grc-sidebar[b-n35owtjt9d] {
+        width: 100% !important;
+        min-height: auto;
+        margin-bottom: 1rem;
+        border-right: none;
+        border-bottom: 1px solid var(--bs-gray-300);
+    }
+
+    [b-n35owtjt9d] .page-header {
+        padding: 1rem;
+    }
+
+    [b-n35owtjt9d] .page-actions {
+        justify-content: center;
+    }
+}

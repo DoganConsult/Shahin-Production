@@ -1,0 +1,203 @@
+@{
+    ViewData["Title"] = "Control Details - Shahin MAP";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var controlId = ViewBag.ControlId ?? Guid.Empty;
+}
+
+<div class="container-fluid mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Controls")">Controls</a></li>
+            <li class="breadcrumb-item active">Details</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3">
+                <i class="fas fa-shield-alt text-primary me-2"></i>
+                <span id="controlNumber">Loading...</span>
+            </h1>
+            <p class="text-muted" id="controlTitle">Loading control details...</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("Edit", "Controls", new { id = controlId })" class="btn btn-warning me-2">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="@Url.Action("Assess", "Controls", new { id = controlId })" class="btn btn-primary">
+                <i class="fas fa-clipboard-check"></i> Assess
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Control Information -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Control Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">Control Number</label>
+                            <p class="fw-bold" id="detailControlNumber">-</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">Framework</label>
+                            <p id="detailFramework">-</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">Domain</label>
+                            <p id="detailDomain">-</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">Control Type</label>
+                            <p id="detailControlType">-</p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Title (English)</label>
+                        <p id="detailTitleEn">-</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Title (Arabic)</label>
+                        <p dir="rtl" id="detailTitleAr">-</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Requirement</label>
+                        <p id="detailRequirement">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation Guidance -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-book me-2"></i>Implementation Guidance</h5>
+                </div>
+                <div class="card-body">
+                    <p id="detailGuidance" class="text-muted">No guidance available.</p>
+                </div>
+            </div>
+
+            <!-- Evidence Requirements -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Evidence Requirements</h5>
+                </div>
+                <div class="card-body">
+                    <p id="detailEvidence" class="text-muted">No evidence requirements defined.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Status Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Status</h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <span class="badge bg-secondary fs-6" id="statusBadge">Not Assessed</span>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="h4 text-primary mb-0" id="assessmentCount">0</div>
+                            <small class="text-muted">Assessments</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="h4 text-success mb-0" id="evidenceCount">0</div>
+                            <small class="text-muted">Evidence</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mappings -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-link me-2"></i>Framework Mappings</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <small class="text-muted">ISO 27001:</small>
+                        <span id="mappingIso27001" class="badge bg-light text-dark">-</span>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">NIST CSF:</small>
+                        <span id="mappingNist" class="badge bg-light text-dark">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="@Url.Action("Assess", "Controls", new { id = controlId })" class="list-group-item list-group-item-action">
+                        <i class="fas fa-clipboard-check text-primary me-2"></i> Start Assessment
+                    </a>
+                    <a href="@Url.Action("Create", "Evidence")" class="list-group-item list-group-item-action">
+                        <i class="fas fa-upload text-success me-2"></i> Upload Evidence
+                    </a>
+                    <a href="@Url.Action("Index", "Controls")" class="list-group-item list-group-item-action">
+                        <i class="fas fa-arrow-left text-secondary me-2"></i> Back to Controls
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(document).ready(function() {
+        loadControlDetails();
+    });
+
+    function loadControlDetails() {
+        var controlId = '@controlId';
+        if (!controlId || controlId === '00000000-0000-0000-0000-000000000000') {
+            showError('Invalid control ID');
+            return;
+        }
+
+        $.get('/api/controls/' + controlId)
+            .done(function(data) {
+                populateDetails(data);
+            })
+            .fail(function() {
+                showError('Failed to load control details');
+            });
+    }
+
+    function populateDetails(data) {
+        $('#controlNumber').text(data.controlNumber || 'N/A');
+        $('#controlTitle').text(data.titleEn || data.title || 'No title');
+        $('#detailControlNumber').text(data.controlNumber);
+        $('#detailFramework').text(data.frameworkCode || '-');
+        $('#detailDomain').text(data.domain || '-');
+        $('#detailControlType').text(data.controlType || '-');
+        $('#detailTitleEn').text(data.titleEn || '-');
+        $('#detailTitleAr').text(data.titleAr || '-');
+        $('#detailRequirement').text(data.requirementEn || '-');
+        $('#detailGuidance').text(data.implementationGuidanceEn || 'No guidance available.');
+        $('#detailEvidence').text(data.evidenceRequirements || 'No evidence requirements defined.');
+        $('#mappingIso27001').text(data.mappingIso27001 || '-');
+        $('#mappingNist').text(data.mappingNist || '-');
+    }
+
+    function showError(message) {
+        $('#controlTitle').text(message).addClass('text-danger');
+    }
+</script>
+}

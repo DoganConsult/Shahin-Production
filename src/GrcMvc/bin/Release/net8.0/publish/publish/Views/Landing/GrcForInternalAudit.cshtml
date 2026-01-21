@@ -1,0 +1,698 @@
+@using GrcMvc.Services
+@inject IAppInfoService AppInfo
+@{
+    ViewData["Title"] = "GRC للتدقيق الداخلي - أدوات المدقق الذكي | " + AppInfo.Name;
+    ViewData["Description"] = "أدوات متقدمة للمدققين الداخليين: تخطيط التدقيق، تتبع النتائج، إدارة الأدلة، وإعداد التقارير التلقائي.";
+    Layout = "_LandingLayout";
+}
+
+<section class="role-hero">
+    <div class="container">
+        <div class="hero-content fade-up">
+            <div class="role-badge">
+                <i class="bi bi-search"></i>
+                <span>للتدقيق الداخلي</span>
+            </div>
+            <h1>أدوات ذكية <span class="highlight">للمدققين الداخليين</span></h1>
+            <p class="hero-subtitle">
+                خطط، نفذ، وأبلغ عن عمليات التدقيق بكفاءة أعلى وجهد أقل.
+                شاهين يوفر لك كل ما تحتاجه لإدارة دورة التدقيق الكاملة.
+            </p>
+            <div class="hero-cta">
+                <a href="/Onboarding" class="btn btn-primary btn-lg">
+                    <i class="bi bi-rocket-takeoff-fill"></i>
+                    ابدأ التجربة المجانية
+                </a>
+                <a href="/contact" class="btn btn-outline btn-lg">
+                    <i class="bi bi-play-circle"></i>
+                    شاهد العرض التوضيحي
+                </a>
+            </div>
+        </div>
+
+        <div class="hero-visual fade-up">
+            <div class="audit-dashboard-preview">
+                <div class="preview-header">
+                    <span class="preview-dot"></span>
+                    <span class="preview-dot"></span>
+                    <span class="preview-dot"></span>
+                    <span class="preview-title">لوحة تحكم التدقيق</span>
+                </div>
+                <div class="preview-content">
+                    <div class="preview-stat">
+                        <span class="stat-value">12</span>
+                        <span class="stat-label">تدقيق نشط</span>
+                    </div>
+                    <div class="preview-stat">
+                        <span class="stat-value">45</span>
+                        <span class="stat-label">نتيجة مفتوحة</span>
+                    </div>
+                    <div class="preview-stat">
+                        <span class="stat-value">89%</span>
+                        <span class="stat-label">معدل الإغلاق</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pain Points -->
+<section class="pain-points">
+    <div class="container">
+        <h2 class="section-title fade-up">هل تعاني من هذه التحديات؟</h2>
+
+        <div class="pains-grid fade-up">
+            <div class="pain-card">
+                <i class="bi bi-hourglass-split"></i>
+                <h3>ضياع الوقت في المتابعة</h3>
+                <p>ساعات طويلة في متابعة توصيات التدقيق السابقة والتأكد من تنفيذها</p>
+            </div>
+            <div class="pain-card">
+                <i class="bi bi-folder-x"></i>
+                <h3>صعوبة جمع الأدلة</h3>
+                <p>طلب الأدلة يدوياً من الإدارات المختلفة والانتظار لأيام</p>
+            </div>
+            <div class="pain-card">
+                <i class="bi bi-file-earmark-x"></i>
+                <h3>تقارير يدوية مرهقة</h3>
+                <p>إعداد تقارير التدقيق يستهلك وقتاً كبيراً ويتطلب مراجعات متعددة</p>
+            </div>
+            <div class="pain-card">
+                <i class="bi bi-diagram-2"></i>
+                <h3>غياب الرؤية الشاملة</h3>
+                <p>صعوبة ربط نتائج التدقيق بالمخاطر والضوابط على مستوى المؤسسة</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features for Auditors -->
+<section class="audit-features">
+    <div class="container">
+        <h2 class="section-title fade-up">أدوات مصممة للمدققين</h2>
+
+        <div class="features-tabs fade-up">
+            <div class="tab-buttons">
+                <button class="tab-btn active" data-tab="planning">التخطيط</button>
+                <button class="tab-btn" data-tab="execution">التنفيذ</button>
+                <button class="tab-btn" data-tab="reporting">التقارير</button>
+                <button class="tab-btn" data-tab="followup">المتابعة</button>
+            </div>
+
+            <div class="tab-content active" id="planning">
+                <div class="tab-grid">
+                    <div class="tab-visual">
+                        <div class="feature-box">
+                            <i class="bi bi-calendar-check-fill"></i>
+                            <span>خطة التدقيق السنوية</span>
+                        </div>
+                    </div>
+                    <div class="tab-info">
+                        <h3>تخطيط ذكي للتدقيق</h3>
+                        <ul>
+                            <li><strong>خطة سنوية تفاعلية</strong> - أنشئ وأدر خطة التدقيق السنوية بسهولة</li>
+                            <li><strong>تقييم المخاطر</strong> - حدد أولويات التدقيق بناءً على مستوى المخاطر</li>
+                            <li><strong>تخصيص الموارد</strong> - وزّع المدققين على المهام حسب الخبرة</li>
+                            <li><strong>قوالب جاهزة</strong> - استخدم قوالب تدقيق معتمدة (IIA, IPPF)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="execution">
+                <div class="tab-grid">
+                    <div class="tab-visual">
+                        <div class="feature-box">
+                            <i class="bi bi-clipboard-check-fill"></i>
+                            <span>أوراق العمل الرقمية</span>
+                        </div>
+                    </div>
+                    <div class="tab-info">
+                        <h3>تنفيذ التدقيق بكفاءة</h3>
+                        <ul>
+                            <li><strong>أوراق عمل رقمية</strong> - وثّق اختباراتك ونتائجك بشكل منظم</li>
+                            <li><strong>طلب الأدلة تلقائياً</strong> - أرسل طلبات للإدارات بنقرة واحدة</li>
+                            <li><strong>تتبع الإجراءات</strong> - راقب تقدم كل إجراء تدقيق</li>
+                            <li><strong>تعاون الفريق</strong> - اعمل مع فريقك في الوقت الفعلي</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="reporting">
+                <div class="tab-grid">
+                    <div class="tab-visual">
+                        <div class="feature-box">
+                            <i class="bi bi-file-earmark-pdf-fill"></i>
+                            <span>تقارير احترافية</span>
+                        </div>
+                    </div>
+                    <div class="tab-info">
+                        <h3>تقارير تلقائية احترافية</h3>
+                        <ul>
+                            <li><strong>إنشاء تلقائي</strong> - أنشئ التقرير من أوراق العمل بنقرة</li>
+                            <li><strong>قوالب معتمدة</strong> - قوالب تتوافق مع معايير IIA</li>
+                            <li><strong>تصدير متعدد</strong> - PDF, Word, Excel حسب الحاجة</li>
+                            <li><strong>تقارير للإدارة</strong> - ملخصات تنفيذية جاهزة للجنة التدقيق</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="followup">
+                <div class="tab-grid">
+                    <div class="tab-visual">
+                        <div class="feature-box">
+                            <i class="bi bi-arrow-repeat"></i>
+                            <span>متابعة التوصيات</span>
+                        </div>
+                    </div>
+                    <div class="tab-info">
+                        <h3>متابعة ذكية للتوصيات</h3>
+                        <ul>
+                            <li><strong>تتبع التنفيذ</strong> - راقب تقدم كل توصية تلقائياً</li>
+                            <li><strong>تنبيهات تلقائية</strong> - إشعارات عند اقتراب المواعيد</li>
+                            <li><strong>التحقق من الأدلة</strong> - تأكد من جودة الإجراءات التصحيحية</li>
+                            <li><strong>إعادة الفتح</strong> - أعد فتح النتائج غير المكتملة بسهولة</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Integration with GRC -->
+<section class="integration-section">
+    <div class="container">
+        <div class="integration-grid fade-up">
+            <div class="integration-content">
+                <h2>تكامل كامل مع منظومة GRC</h2>
+                <p>
+                    لا يعمل التدقيق الداخلي في عزلة. شاهين يربط نتائج التدقيق بالمخاطر
+                    والضوابط والامتثال لتوفير رؤية شاملة للحوكمة.
+                </p>
+                <ul class="integration-list">
+                    <li><i class="bi bi-check-circle-fill"></i> ربط النتائج بسجل المخاطر</li>
+                    <li><i class="bi bi-check-circle-fill"></i> تحديث حالة الضوابط تلقائياً</li>
+                    <li><i class="bi bi-check-circle-fill"></i> تتبع أثر التدقيق على الامتثال</li>
+                    <li><i class="bi bi-check-circle-fill"></i> تقارير موحدة للإدارة العليا</li>
+                </ul>
+            </div>
+            <div class="integration-visual">
+                <div class="grc-circle">
+                    <div class="circle-center">GRC</div>
+                    <div class="circle-item" style="--i: 0">المخاطر</div>
+                    <div class="circle-item" style="--i: 1">الضوابط</div>
+                    <div class="circle-item" style="--i: 2">الامتثال</div>
+                    <div class="circle-item active" style="--i: 3">التدقيق</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonial -->
+<section class="testimonial-section">
+    <div class="container">
+        <div class="testimonial-card fade-up">
+            <i class="bi bi-quote"></i>
+            <blockquote>
+                "شاهين قلّص وقت إعداد تقارير التدقيق بنسبة 60%. الآن يمكننا التركيز على
+                التحليل والقيمة المضافة بدلاً من العمل الورقي."
+            </blockquote>
+            <div class="testimonial-author">
+                <div class="author-info">
+                    <strong>مدير التدقيق الداخلي</strong>
+                    <span>شركة مالية رائدة</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-box fade-up">
+            <h2>ارتقِ بأداء فريق التدقيق</h2>
+            <p>جرب شاهين مجاناً لمدة 7 أيام واكتشف الفرق</p>
+            <div class="cta-buttons">
+                <a href="/Onboarding" class="btn btn-primary btn-lg">
+                    <i class="bi bi-rocket-takeoff-fill"></i>
+                    ابدأ التجربة المجانية
+                </a>
+                <a href="/grc-for-compliance-managers" class="btn btn-outline btn-lg">
+                    <i class="bi bi-arrow-left"></i>
+                    شاهين لمديري الامتثال
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+<style>
+    .role-hero {
+        padding: 8rem 0 4rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+    }
+
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+    }
+
+    .role-hero h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+    }
+
+    .role-hero h1 .highlight {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-subtitle {
+        font-size: 1.2rem;
+        color: rgba(248, 250, 252, 0.7);
+        line-height: 1.8;
+        margin-bottom: 2rem;
+    }
+
+    .hero-cta {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .audit-dashboard-preview {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .preview-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .preview-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #ef4444;
+    }
+
+    .preview-dot:nth-child(2) { background: #fbbf24; }
+    .preview-dot:nth-child(3) { background: #10b981; }
+
+    .preview-title {
+        margin-right: auto;
+        font-size: 0.85rem;
+        color: rgba(248, 250, 252, 0.5);
+    }
+
+    .preview-content {
+        padding: 2rem;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    .preview-stat {
+        text-align: center;
+        padding: 1rem;
+        background: rgba(16, 185, 129, 0.1);
+        border-radius: 12px;
+    }
+
+    .preview-stat .stat-value {
+        display: block;
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .preview-stat .stat-label {
+        font-size: 0.8rem;
+        color: rgba(248, 250, 252, 0.6);
+    }
+
+    .pain-points {
+        padding: 4rem 0;
+        background: rgba(239, 68, 68, 0.02);
+    }
+
+    .pains-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .pain-card {
+        background: var(--glass);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .pain-card i {
+        font-size: 2.5rem;
+        color: #ef4444;
+        margin-bottom: 1rem;
+    }
+
+    .pain-card h3 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .pain-card p {
+        color: rgba(248, 250, 252, 0.6);
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+
+    .audit-features {
+        padding: 4rem 0;
+    }
+
+    .features-tabs {
+        margin-top: 2rem;
+    }
+
+    .tab-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .tab-btn {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        color: rgba(248, 250, 252, 0.7);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .tab-btn.active {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-color: transparent;
+        color: white;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .tab-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 3rem;
+    }
+
+    .feature-box {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1));
+        border-radius: 16px;
+        padding: 4rem;
+        text-align: center;
+    }
+
+    .feature-box i {
+        font-size: 4rem;
+        color: var(--primary);
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    .feature-box span {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .tab-info h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tab-info ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .tab-info li {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .tab-info li:last-child {
+        border-bottom: none;
+    }
+
+    .tab-info strong {
+        color: var(--primary);
+    }
+
+    .integration-section {
+        padding: 4rem 0;
+        background: rgba(16, 185, 129, 0.02);
+    }
+
+    .integration-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+    }
+
+    .integration-content h2 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .integration-content > p {
+        color: rgba(248, 250, 252, 0.7);
+        line-height: 1.8;
+        margin-bottom: 1.5rem;
+    }
+
+    .integration-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .integration-list li {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+        color: rgba(248, 250, 252, 0.8);
+    }
+
+    .integration-list i {
+        color: var(--primary);
+    }
+
+    .grc-circle {
+        position: relative;
+        width: 300px;
+        height: 300px;
+        margin: 0 auto;
+    }
+
+    .circle-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+    }
+
+    .circle-item {
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        text-align: center;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(calc(var(--i) * 90deg)) translateY(-120px) rotate(calc(var(--i) * -90deg));
+    }
+
+    .circle-item.active {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.3));
+        border-color: var(--primary);
+    }
+
+    .testimonial-section {
+        padding: 4rem 0;
+    }
+
+    .testimonial-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 3rem;
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .testimonial-card > i {
+        font-size: 3rem;
+        color: var(--primary);
+        opacity: 0.5;
+    }
+
+    .testimonial-card blockquote {
+        font-size: 1.25rem;
+        line-height: 1.8;
+        margin: 1.5rem 0;
+        font-style: italic;
+    }
+
+    .testimonial-author {
+        display: flex;
+        justify-content: center;
+    }
+
+    .author-info strong {
+        display: block;
+    }
+
+    .author-info span {
+        color: rgba(248, 250, 252, 0.5);
+        font-size: 0.9rem;
+    }
+
+    .cta-section {
+        padding: 4rem 0;
+    }
+
+    .cta-box {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1));
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 4rem;
+        text-align: center;
+    }
+
+    .cta-box h2 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .cta-box > p {
+        color: rgba(248, 250, 252, 0.7);
+        margin-bottom: 2rem;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    @@media (max-width: 1024px) {
+        .role-hero {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+
+        .hero-cta {
+            justify-content: center;
+        }
+
+        .pains-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .tab-grid,
+        .integration-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .pains-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .tab-buttons {
+            flex-wrap: wrap;
+        }
+
+        .role-hero h1 {
+            font-size: 2rem;
+        }
+
+        .cta-box {
+            padding: 2rem;
+        }
+    }
+</style>
+}
+
+@section Scripts {
+<script>
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+        });
+    });
+</script>
+}

@@ -1,0 +1,1183 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@{
+    var userRole = User.IsInRole("Admin") ? "Admin" : 
+                   User.IsInRole("TenantAdmin") ? "TenantAdmin" :
+                   User.IsInRole("ComplianceManager") ? "ComplianceManager" :
+                   User.IsInRole("RiskManager") ? "RiskManager" :
+                   User.IsInRole("Auditor") ? "Auditor" :
+                   User.IsInRole("EvidenceOfficer") ? "EvidenceOfficer" : "User";
+    var isRtl = ViewContext.HttpContext.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>()?.RequestCulture?.UICulture?.Name == "ar";
+}
+
+<!-- AI Assistant Floating Widget (شاهين) -->
+<div id="ai-assistant" class="ai-assistant @(isRtl ? "rtl" : "")">
+    <!-- Floating Button -->
+    <button class="ai-assistant-trigger" onclick="AIAssistant.toggle()" aria-label="@L["AI_Assistant"]" title="شاهين - المساعد الذكي">
+        <i class="bi bi-robot"></i>
+        <span class="pulse-ring"></span>
+        <span class="notification-badge" id="ai-notification" style="display:none;">1</span>
+    </button>
+
+    <!-- Assistant Panel -->
+    <div class="ai-assistant-panel" id="ai-panel">
+        <div class="ai-panel-header">
+            <div class="ai-avatar">
+                <i class="bi bi-robot"></i>
+                <span class="status-dot"></span>
+            </div>
+            <div class="ai-info">
+                <h6 class="mb-0">شاهين - مساعدك الذكي</h6>
+                <small class="text-success" id="ai-status"><i class="bi bi-circle-fill"></i> متصل</small>
+            </div>
+            <div class="ai-header-actions">
+                <button class="btn-icon" onclick="AIAssistant.clear()" title="مسح المحادثة">
+                    <i class="bi bi-trash3"></i>
+                </button>
+                <button class="btn-close btn-close-white" onclick="AIAssistant.close()"></button>
+            </div>
+        </div>
+
+        <div class="ai-panel-body" id="ai-messages">
+            <!-- Welcome Message -->
+            <div class="ai-message ai-message-bot">
+                <div class="ai-avatar-small"><i class="bi bi-robot"></i></div>
+                <div class="ai-message-content">
+                    <p class="mb-2">مرحباً! 👋</p>
+                    <p class="mb-2">أنا <strong>شاهين</strong>، مساعدك الذكي لنظام الحوكمة والمخاطر والامتثال.</p>
+                    <p class="mb-0">كيف يمكنني مساعدتك اليوم؟</p>
+                </div>
+            </div>
+
+            <!-- Quick Actions based on Role -->
+            <div class="ai-quick-actions">
+                <p class="text-muted small mb-2"><i class="bi bi-lightning-charge"></i> إجراءات سريعة:</p>
+                <div class="d-flex flex-wrap gap-2" id="ai-quick-actions">
+                    @if (userRole == "Admin" || userRole == "TenantAdmin")
+                    {
+                        <button class="ai-action-btn" onclick="AIAssistant.action('dashboard')">
+                            <i class="bi bi-speedometer2"></i> لوحة التحكم
+                        </button>
+                        <button class="ai-action-btn" onclick="AIAssistant.action('users')">
+                            <i class="bi bi-people"></i> المستخدمون
+                        </button>
+                        <button class="ai-action-btn" onclick="AIAssistant.action('settings')">
+                            <i class="bi bi-gear"></i> الإعدادات
+                        </button>
+                    }
+                    else if (userRole == "ComplianceManager")
+                    {
+                        <button class="ai-action-btn" onclick="AIAssistant.action('assessments')">
+                            <i class="bi bi-clipboard-check"></i> التقييمات
+                        </button>
+                        <button class="ai-action-btn" onclick="AIAssistant.action('controls')">
+                            <i class="bi bi-shield-check"></i> الضوابط
+                        </button>
+                        <button class="ai-action-btn" onclick="AIAssistant.action('evidence')">
+                            <i class="bi bi-file-earmark-check"></i> الأدلة
+                        </button>
+                    }
+                    else if (userRole == "RiskManager")
+                    {
+                        <button class="ai-action-btn" onclick="AIAssistant.action('risks')">
+                            <i class="bi bi-exclamation-triangle"></i> المخاطر
+                        </button>
+                        <button class="ai-action-btn" onclick="AIAssistant.action('treatments')">
+                            <i class="bi bi-bandaid"></i> خطط المعالجة
+                        </button>
+                        <button class="ai-action-btn" onclick="AIAssistant.action('reports')">
+                            <i class="bi bi-bar-chart"></i> التقارير
+                        </button>
+                    }
+                    else if (userRole == "Auditor")
+                    {
+                        <button class="ai-action-btn" onclick="AIAssistant.action('audits')">
+                            <i class="bi bi-search"></i> المراجعات
+                        </button>
+                        <button class="ai-action-btn" onclick="AIAssistant.action('findings')">
+                            <i class="bi bi-flag"></i> الملاحظات
+                        </button>
+                        <button class="ai-action-btn" onclick="AIAssistant.action('evidence')">
+                            <i class="bi bi-file-earmark"></i> الأدلة
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="ai-action-btn" onclick="AIAssistant.action('mytasks')">
+                            <i class="bi bi-list-task"></i> مهامي
+                        </button>
+                        <button class="ai-action-btn" onclick="AIAssistant.action('inbox')">
+                            <i class="bi bi-inbox"></i> صندوق الوارد
+                        </button>
+                        <button class="ai-action-btn" onclick="AIAssistant.action('help')">
+                            <i class="bi bi-question-circle"></i> المساعدة
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="ai-panel-footer">
+            <div class="ai-input-group">
+                <input type="text" id="ai-input" class="form-control" placeholder="اكتب سؤالك هنا..." 
+                       onkeypress="if(event.key==='Enter')AIAssistant.send()" autocomplete="off">
+                <button class="btn btn-primary ai-send-btn" onclick="AIAssistant.send()" id="ai-send-btn">
+                    <i class="bi bi-send"></i>
+                </button>
+            </div>
+            <div class="ai-suggestions mt-2" id="ai-suggestions">
+                <small class="text-muted">اقتراحات:</small>
+                <div class="d-flex flex-wrap gap-1 mt-1" id="ai-suggestion-list">
+                    <span class="ai-suggestion" onclick="AIAssistant.ask('كيف أبدأ؟')">كيف أبدأ؟</span>
+                    <span class="ai-suggestion" onclick="AIAssistant.ask('ما هي مهامي؟')">ما هي مهامي؟</span>
+                    <span class="ai-suggestion" onclick="AIAssistant.ask('شرح النظام')">شرح النظام</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Onboarding Tour Overlay -->
+<div id="tour-overlay" class="tour-overlay d-none">
+    <div class="tour-spotlight" id="tour-spotlight"></div>
+    <div class="tour-tooltip" id="tour-tooltip">
+        <div class="tour-content">
+            <h5 class="tour-title" id="tour-title"></h5>
+            <p class="tour-description" id="tour-description"></p>
+        </div>
+        <div class="tour-footer">
+            <span class="tour-progress" id="tour-progress"></span>
+            <div class="tour-buttons">
+                <button class="btn btn-sm btn-outline-light" onclick="Tour.skip()">تخطي</button>
+                <button class="btn btn-sm btn-light tour-next-btn" onclick="Tour.next()" id="tour-next-btn">التالي <i class="bi bi-arrow-left"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Keyboard Shortcuts Modal -->
+<div class="modal fade" id="shortcutsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-keyboard"></i> اختصارات لوحة المفاتيح</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="shortcuts-list">
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>K</kbd>
+                        <span>البحث السريع</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>/</kbd>
+                        <span>فتح المساعد الذكي</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Esc</kbd>
+                        <span>إغلاق النوافذ</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>H</kbd>
+                        <span>الصفحة الرئيسية</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>N</kbd>
+                        <span>إشعار جديد</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>?</kbd>
+                        <span>عرض الاختصارات</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Search Modal -->
+<div class="modal fade" id="quickSearchModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content search-modal-content">
+            <div class="modal-body p-0">
+                <div class="quick-search-container">
+                    <div class="quick-search-input-wrapper">
+                        <i class="bi bi-search"></i>
+                        <input type="text" id="quick-search-input" class="quick-search-input" 
+                               placeholder="ابحث في النظام..." autocomplete="off"
+                               oninput="QuickSearch.search(this.value)">
+                        <kbd>Esc</kbd>
+                    </div>
+                    <div class="quick-search-results" id="quick-search-results">
+                        <div class="search-section">
+                            <div class="search-section-title">الصفحات</div>
+                            <div class="search-items" id="search-pages"></div>
+                        </div>
+                        <div class="search-section">
+                            <div class="search-section-title">الإجراءات</div>
+                            <div class="search-items" id="search-actions"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* AI Assistant Styles */
+.ai-assistant {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+    font-family: 'Tajawal', sans-serif;
+}
+
+.ai-assistant.rtl {
+    right: auto;
+    left: 20px;
+}
+
+.ai-assistant-trigger {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.ai-assistant-trigger:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(102, 126, 234, 0.6);
+}
+
+.pulse-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid #667eea;
+    animation: pulse 2s infinite;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #dc3545;
+    color: white;
+    font-size: 0.7rem;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+.ai-assistant-panel {
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    width: 400px;
+    max-height: 550px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.ai-assistant.rtl .ai-assistant-panel {
+    right: auto;
+    left: 0;
+}
+
+.ai-assistant-panel.show {
+    display: flex;
+    animation: slideUp 0.3s ease;
+}
+
+@@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-panel-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ai-avatar {
+    width: 45px;
+    height: 45px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    position: relative;
+}
+
+.ai-avatar .status-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    background: #28a745;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.ai-header-actions {
+    display: flex;
+    gap: 8px;
+    margin-right: auto;
+}
+
+.btn-icon {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-icon:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.ai-panel-body {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    max-height: 320px;
+    background: #f8f9fa;
+}
+
+.ai-message {
+    margin-bottom: 12px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.ai-message-bot {
+    flex-direction: row;
+}
+
+.ai-message-user {
+    flex-direction: row-reverse;
+}
+
+.ai-avatar-small {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.ai-message-bot .ai-message-content {
+    background: white;
+    border-radius: 12px 12px 12px 4px;
+    padding: 12px 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    max-width: 85%;
+}
+
+.ai-message-user .ai-message-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px 12px 4px 12px;
+    padding: 12px 15px;
+    max-width: 85%;
+}
+
+.ai-message-loading {
+    display: flex;
+    gap: 4px;
+    padding: 8px 15px;
+}
+
+.ai-message-loading span {
+    width: 8px;
+    height: 8px;
+    background: #667eea;
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+}
+
+.ai-message-loading span:nth-child(2) { animation-delay: 0.2s; }
+.ai-message-loading span:nth-child(3) { animation-delay: 0.4s; }
+
+@@keyframes typing {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1); }
+}
+
+.ai-quick-actions {
+    background: white;
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+.ai-action-btn {
+    background: #f0f4ff;
+    border: 1px solid #e0e7ff;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    color: #667eea;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ai-action-btn:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.ai-panel-footer {
+    padding: 12px 15px;
+    border-top: 1px solid #eee;
+    background: white;
+}
+
+.ai-input-group {
+    display: flex;
+    gap: 8px;
+}
+
+.ai-input-group .form-control {
+    border-radius: 20px;
+    border: 2px solid #e0e7ff;
+    padding-right: 15px;
+    transition: border-color 0.2s;
+}
+
+.ai-input-group .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.ai-send-btn {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ai-send-btn:disabled {
+    opacity: 0.5;
+}
+
+.ai-suggestion {
+    background: #f0f4ff;
+    border-radius: 12px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    color: #667eea;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ai-suggestion:hover {
+    background: #667eea;
+    color: white;
+}
+
+/* Tour Styles */
+.tour-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9998;
+    pointer-events: none;
+}
+
+.tour-spotlight {
+    position: absolute;
+    border-radius: 8px;
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.75);
+    transition: all 0.4s ease;
+    pointer-events: auto;
+}
+
+.tour-tooltip {
+    position: absolute;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 350px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    z-index: 9999;
+    pointer-events: auto;
+}
+
+.tour-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 30px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid #667eea;
+}
+
+.tour-title {
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.tour-description {
+    font-size: 0.95rem;
+    opacity: 0.95;
+    line-height: 1.6;
+}
+
+.tour-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+.tour-progress {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.tour-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+/* Shortcuts Modal */
+.shortcuts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.shortcut-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.shortcut-item kbd {
+    background: #333;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin: 0 2px;
+}
+
+/* Quick Search Modal */
+.search-modal-content {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.quick-search-container {
+    background: white;
+}
+
+.quick-search-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.quick-search-input-wrapper i {
+    color: #667eea;
+    font-size: 1.2rem;
+}
+
+.quick-search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1.1rem;
+}
+
+.quick-search-input-wrapper kbd {
+    background: #eee;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.quick-search-results {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 15px;
+}
+
+.search-section {
+    margin-bottom: 15px;
+}
+
+.search-section-title {
+    font-size: 0.75rem;
+    color: #666;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    padding: 0 10px;
+}
+
+.search-items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.search-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-decoration: none;
+    color: inherit;
+}
+
+.search-item:hover {
+    background: #f0f4ff;
+}
+
+.search-item i {
+    color: #667eea;
+    font-size: 1.1rem;
+}
+
+.search-item-title {
+    font-weight: 500;
+}
+
+.search-item-desc {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+/* Dark Mode Styles */
+.dark-mode .ai-panel-body {
+    background: #1a1a2e;
+}
+
+.dark-mode .ai-message-bot .ai-message-content {
+    background: #16213e;
+    color: #eee;
+}
+
+.dark-mode .ai-quick-actions {
+    background: #16213e;
+}
+
+.dark-mode .ai-panel-footer {
+    background: #0f0f23;
+    border-top-color: #333;
+}
+
+.dark-mode .ai-input-group .form-control {
+    background: #1a1a2e;
+    border-color: #333;
+    color: #eee;
+}
+
+/* Mobile Responsive */
+@@media (max-width: 768px) {
+    .ai-assistant-panel {
+        width: calc(100vw - 40px);
+        max-width: 380px;
+        right: 10px;
+        bottom: 80px;
+    }
+
+    .ai-assistant.rtl .ai-assistant-panel {
+        left: 10px;
+        right: auto;
+    }
+
+    .tour-tooltip {
+        max-width: calc(100vw - 40px);
+        margin: 0 20px;
+    }
+}
+</style>
+
+<script>
+// AI Assistant Module - Connected to Real API
+window.AIAssistant = {
+    panel: null,
+    messages: null,
+    input: null,
+    sendBtn: null,
+    conversationHistory: [],
+    userRole: '@userRole',
+    isLoading: false,
+
+    init: function() {
+        this.panel = document.getElementById('ai-panel');
+        this.messages = document.getElementById('ai-messages');
+        this.input = document.getElementById('ai-input');
+        this.sendBtn = document.getElementById('ai-send-btn');
+        this.loadSuggestions();
+    },
+
+    toggle: function() {
+        if (!this.panel) this.init();
+        this.panel.classList.toggle('show');
+        if (this.panel.classList.contains('show')) {
+            this.input?.focus();
+        }
+    },
+
+    close: function() {
+        if (!this.panel) this.init();
+        this.panel.classList.remove('show');
+    },
+
+    clear: function() {
+        if (!this.messages) this.init();
+        this.conversationHistory = [];
+        this.messages.innerHTML = `
+            <div class="ai-message ai-message-bot">
+                <div class="ai-avatar-small"><i class="bi bi-robot"></i></div>
+                <div class="ai-message-content">
+                    <p class="mb-2">مرحباً! 👋</p>
+                    <p class="mb-0">كيف يمكنني مساعدتك؟</p>
+                </div>
+            </div>
+        `;
+    },
+
+    send: async function() {
+        if (!this.input || this.isLoading) return;
+        const message = this.input.value.trim();
+        if (!message) return;
+
+        // Add user message
+        this.addMessage(message, 'user');
+        this.conversationHistory.push({ role: 'user', content: message });
+        this.input.value = '';
+        
+        // Show loading
+        this.showLoading();
+
+        try {
+            const response = await fetch('/api/dashboard/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message,
+                    history: this.conversationHistory.slice(-10)
+                })
+            });
+
+            const data = await response.json();
+            this.hideLoading();
+
+            if (data.success) {
+                this.addMessage(data.response, 'bot');
+                this.conversationHistory.push({ role: 'assistant', content: data.response });
+            } else {
+                this.addMessage('عذراً، حدث خطأ. يرجى المحاولة مرة أخرى.', 'bot');
+            }
+        } catch (error) {
+            this.hideLoading();
+            this.addMessage('عذراً، تعذر الاتصال بالخادم. يرجى التحقق من الاتصال.', 'bot');
+            console.error('Chat error:', error);
+        }
+    },
+
+    ask: function(question) {
+        if (!this.input) this.init();
+        this.input.value = question;
+        this.send();
+    },
+
+    addMessage: function(text, type) {
+        if (!this.messages) this.init();
+        
+        // Remove loading if exists
+        const loadingMsg = this.messages.querySelector('.ai-message-loading-container');
+        if (loadingMsg) loadingMsg.remove();
+
+        const div = document.createElement('div');
+        div.className = `ai-message ai-message-${type} fade-in`;
+        
+        if (type === 'bot') {
+            div.innerHTML = `
+                <div class="ai-avatar-small"><i class="bi bi-robot"></i></div>
+                <div class="ai-message-content">${this.formatMessage(text)}</div>
+            `;
+        } else {
+            div.innerHTML = `<div class="ai-message-content">${this.escapeHtml(text)}</div>`;
+        }
+        
+        this.messages.appendChild(div);
+        this.messages.scrollTop = this.messages.scrollHeight;
+    },
+
+    formatMessage: function(text) {
+        // Convert newlines to <br> and handle basic formatting
+        return text
+            .replace(/\n/g, '<br>')
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/(\d+\.)/g, '<br>$1');
+    },
+
+    escapeHtml: function(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    },
+
+    showLoading: function() {
+        this.isLoading = true;
+        this.sendBtn.disabled = true;
+        
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'ai-message ai-message-bot ai-message-loading-container';
+        loadingDiv.innerHTML = `
+            <div class="ai-avatar-small"><i class="bi bi-robot"></i></div>
+            <div class="ai-message-content ai-message-loading">
+                <span></span><span></span><span></span>
+            </div>
+        `;
+        this.messages.appendChild(loadingDiv);
+        this.messages.scrollTop = this.messages.scrollHeight;
+    },
+
+    hideLoading: function() {
+        this.isLoading = false;
+        this.sendBtn.disabled = false;
+    },
+
+    action: function(actionType) {
+        const routes = {
+            'dashboard': '/Dashboard',
+            'users': '/Users',
+            'settings': '/TenantAdmin',
+            'assessments': '/Assessment',
+            'controls': '/Control',
+            'evidence': '/Evidence',
+            'risks': '/Risk',
+            'treatments': '/ActionPlan',
+            'reports': '/Reports',
+            'audits': '/Audit',
+            'findings': '/Audit/Findings',
+            'mytasks': '/Inbox',
+            'inbox': '/Inbox',
+            'help': '/Help'
+        };
+        
+        if (routes[actionType]) {
+            window.location.href = routes[actionType];
+        }
+    },
+
+    loadSuggestions: async function() {
+        try {
+            const response = await fetch('/api/dashboard/suggestions');
+            const data = await response.json();
+            
+            if (data.suggestions) {
+                const container = document.getElementById('ai-suggestion-list');
+                if (container) {
+                    container.innerHTML = data.suggestions.map(s => 
+                        `<span class="ai-suggestion" onclick="AIAssistant.ask('${s.text}')">
+                            <i class="bi ${s.icon}"></i> ${s.text}
+                        </span>`
+                    ).join('');
+                }
+            }
+        } catch (error) {
+        }
+    }
+};
+
+// Onboarding Tour Module
+window.Tour = {
+    steps: [],
+    currentStep: 0,
+    overlay: null,
+    spotlight: null,
+    tooltip: null,
+
+    init: function() {
+        this.overlay = document.getElementById('tour-overlay');
+        this.spotlight = document.getElementById('tour-spotlight');
+        this.tooltip = document.getElementById('tour-tooltip');
+    },
+
+    start: function(steps) {
+        this.init();
+        this.steps = steps || this.getDefaultSteps();
+        this.currentStep = 0;
+        
+        if (this.steps.length === 0) return;
+        
+        this.overlay.classList.remove('d-none');
+        document.body.style.overflow = 'hidden';
+        this.showStep(0);
+    },
+
+    getDefaultSteps: function() {
+        return [
+            { 
+                element: '.navbar-brand', 
+                title: 'مرحباً بك في نظام GRC! 🎉', 
+                description: 'هذا هو نظام الحوكمة والمخاطر والامتثال. سنأخذك في جولة سريعة لتتعرف على أهم المميزات.' 
+            },
+            { 
+                element: '.nav-item.dropdown:first-of-type', 
+                title: 'القوائم الرئيسية', 
+                description: 'استخدم القوائم المنسدلة للوصول إلى الأقسام المختلفة مثل التقييمات، المخاطر، والتقارير.' 
+            },
+            { 
+                element: '#ai-assistant .ai-assistant-trigger', 
+                title: 'المساعد الذكي شاهين 🤖', 
+                description: 'شاهين مساعدك الذكي متاح دائماً! انقر هنا للحصول على مساعدة فورية أو اسأل أي سؤال.' 
+            },
+            { 
+                element: '.quick-action-tile:first-of-type', 
+                title: 'الإجراءات السريعة', 
+                description: 'استخدم هذه الأزرار للوصول السريع للمهام الأكثر استخداماً.' 
+            }
+        ];
+    },
+
+    showStep: function(index) {
+        if (index >= this.steps.length) {
+            this.end();
+            return;
+        }
+
+        this.currentStep = index;
+        const step = this.steps[index];
+        const element = document.querySelector(step.element);
+        
+        if (!element) {
+            this.next();
+            return;
+        }
+
+        // Scroll element into view
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        setTimeout(() => {
+            const rect = element.getBoundingClientRect();
+
+            // Position spotlight
+            this.spotlight.style.top = (rect.top - 5 + window.scrollY) + 'px';
+            this.spotlight.style.left = (rect.left - 5) + 'px';
+            this.spotlight.style.width = (rect.width + 10) + 'px';
+            this.spotlight.style.height = (rect.height + 10) + 'px';
+
+            // Update tooltip content
+            document.getElementById('tour-title').textContent = step.title;
+            document.getElementById('tour-description').textContent = step.description;
+            document.getElementById('tour-progress').textContent = `${index + 1} / ${this.steps.length}`;
+            
+            // Update button text for last step
+            const nextBtn = document.getElementById('tour-next-btn');
+            if (index === this.steps.length - 1) {
+                nextBtn.innerHTML = 'إنهاء <i class="bi bi-check"></i>';
+            } else {
+                nextBtn.innerHTML = 'التالي <i class="bi bi-arrow-left"></i>';
+            }
+
+            // Position tooltip below element
+            this.tooltip.style.top = (rect.bottom + 15 + window.scrollY) + 'px';
+            this.tooltip.style.left = Math.max(10, rect.left) + 'px';
+        }, 300);
+    },
+
+    next: function() {
+        this.showStep(this.currentStep + 1);
+    },
+
+    prev: function() {
+        if (this.currentStep > 0) {
+            this.showStep(this.currentStep - 1);
+        }
+    },
+
+    skip: function() {
+        this.end();
+    },
+
+    end: function() {
+        this.overlay.classList.add('d-none');
+        document.body.style.overflow = '';
+        localStorage.setItem('grc_tour_completed', 'true');
+        
+        // Show completion message
+        if (window.showToast) {
+            showToast('success', 'تم إكمال الجولة التعريفية! 🎉');
+        }
+    }
+};
+
+// Quick Search Module
+window.QuickSearch = {
+    pages: [
+        { title: 'لوحة التحكم', desc: 'الصفحة الرئيسية', icon: 'bi-speedometer2', url: '/Dashboard' },
+        { title: 'التقييمات', desc: 'إدارة تقييمات الامتثال', icon: 'bi-clipboard-check', url: '/Assessment' },
+        { title: 'المخاطر', desc: 'سجل المخاطر', icon: 'bi-exclamation-triangle', url: '/Risk' },
+        { title: 'الضوابط', desc: 'مصفوفة الضوابط', icon: 'bi-shield-check', url: '/Control' },
+        { title: 'الأدلة', desc: 'مستودع الأدلة', icon: 'bi-file-earmark', url: '/Evidence' },
+        { title: 'المراجعات', desc: 'المراجعات الداخلية', icon: 'bi-search', url: '/Audit' },
+        { title: 'التقارير', desc: 'التقارير والتحليلات', icon: 'bi-bar-chart', url: '/Reports' },
+        { title: 'الإعدادات', desc: 'إعدادات المؤسسة', icon: 'bi-gear', url: '/TenantAdmin' },
+        { title: 'المستخدمون', desc: 'إدارة المستخدمين', icon: 'bi-people', url: '/Users' },
+        { title: 'الأطر التنظيمية', desc: 'مكتبة الأطر', icon: 'bi-layer-group', url: '/Framework' }
+    ],
+    actions: [
+        { title: 'تقييم جديد', desc: 'إنشاء تقييم امتثال', icon: 'bi-plus-circle', url: '/Assessment/Create' },
+        { title: 'رفع دليل', desc: 'رفع ملف دليل جديد', icon: 'bi-cloud-upload', url: '/Evidence/Upload' },
+        { title: 'خطر جديد', desc: 'تسجيل خطر جديد', icon: 'bi-plus-square', url: '/Risk/Create' },
+        { title: 'مراجعة جديدة', desc: 'بدء مراجعة داخلية', icon: 'bi-journal-plus', url: '/Audit/Create' }
+    ],
+
+    search: function(query) {
+        const q = query.toLowerCase();
+        
+        const filteredPages = this.pages.filter(p => 
+            p.title.includes(q) || p.desc.includes(q)
+        );
+        
+        const filteredActions = this.actions.filter(a => 
+            a.title.includes(q) || a.desc.includes(q)
+        );
+
+        this.renderResults('search-pages', filteredPages);
+        this.renderResults('search-actions', filteredActions);
+    },
+
+    renderResults: function(containerId, items) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        container.innerHTML = items.map(item => `
+            <a href="${item.url}" class="search-item">
+                <i class="bi ${item.icon}"></i>
+                <div>
+                    <div class="search-item-title">${item.title}</div>
+                    <div class="search-item-desc">${item.desc}</div>
+                </div>
+            </a>
+        `).join('');
+    },
+
+    open: function() {
+        const modal = new bootstrap.Modal(document.getElementById('quickSearchModal'));
+        modal.show();
+        setTimeout(() => document.getElementById('quick-search-input')?.focus(), 300);
+    }
+};
+
+// Keyboard Shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl+K - Quick Search
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        QuickSearch.open();
+    }
+    
+    // Ctrl+/ - Open AI Assistant
+    if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+        e.preventDefault();
+        AIAssistant.toggle();
+    }
+    
+    // Ctrl+H - Home
+    if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
+        e.preventDefault();
+        window.location.href = '/Dashboard';
+    }
+    
+    // ? - Show shortcuts (when not in input)
+    if (e.key === '?' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+        e.preventDefault();
+        const modal = new bootstrap.Modal(document.getElementById('shortcutsModal'));
+        modal.show();
+    }
+    
+    // Escape - Close modals/panels
+    if (e.key === 'Escape') {
+        AIAssistant.close();
+    }
+});
+
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+    AIAssistant.init();
+    
+    // Initialize quick search results
+    QuickSearch.search('');
+
+    // Check if should show tour for new users
+    const tourCompleted = localStorage.getItem('grc_tour_completed');
+    const isNewUser = document.querySelector('[data-new-user="true"]');
+    
+    if (!tourCompleted && (isNewUser || window.location.search.includes('tour=1'))) {
+        setTimeout(() => Tour.start(), 1500);
+    }
+});
+</script>

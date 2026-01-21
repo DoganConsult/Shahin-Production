@@ -1,0 +1,254 @@
+@model GrcMvc.Models.ViewModels.TenantDetailsViewModel
+@{
+    ViewData["Title"] = Model.Tenant.OrganizationName;
+    Layout = "_Layout";
+}
+
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a href="@Url.Action("Dashboard")">Platform Admin</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Tenants")">Tenants</a></li>
+            <li class="breadcrumb-item active">@Model.Tenant.OrganizationName</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="h3 mb-1">@Model.Tenant.OrganizationName</h1>
+            <p class="text-muted mb-0">
+                <span class="badge bg-@(Model.Tenant.Status == "Active" ? "success" : Model.Tenant.Status == "Pending" ? "warning" : "danger")">
+                    @Model.Tenant.Status
+                </span>
+                <span class="badge bg-@(Model.Tenant.SubscriptionTier == "Enterprise" ? "dark" : Model.Tenant.SubscriptionTier == "Professional" ? "primary" : "secondary")">
+                    @Model.Tenant.SubscriptionTier
+                </span>
+                @if (Model.Tenant.IsOwnerCreated)
+                {
+                    <span class="badge bg-info">Owner Created</span>
+                }
+            </p>
+        </div>
+        <div class="btn-group">
+            <a href="@Url.Action("EditTenant", new { id = Model.Tenant.Id })" class="btn btn-outline-primary">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            @if (Model.Tenant.Status == "Active")
+            {
+                <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#suspendModal">
+                    <i class="bi bi-pause-circle"></i> Suspend
+                </button>
+            }
+            else
+            {
+                <form asp-action="ActivateTenant" asp-route-id="@Model.Tenant.Id" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-outline-success">
+                        <i class="bi bi-play-circle"></i> Activate
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Tenant Info -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="bi bi-building"></i> Tenant Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-5">Slug</dt>
+                        <dd class="col-7"><code>/@Model.Tenant.TenantSlug</code></dd>
+
+                        <dt class="col-5">Admin Email</dt>
+                        <dd class="col-7">@Model.Tenant.AdminEmail</dd>
+
+                        <dt class="col-5">Created</dt>
+                        <dd class="col-7">@Model.Tenant.CreatedAt.ToString("MMM dd, yyyy")</dd>
+
+                        <dt class="col-5">Activated</dt>
+                        <dd class="col-7">@(Model.Tenant.ActivatedAt?.ToString("MMM dd, yyyy") ?? "Not yet")</dd>
+
+                        <dt class="col-5">Subscription</dt>
+                        <dd class="col-7">
+                            @Model.Tenant.SubscriptionTier
+                            @if (Model.Tenant.SubscriptionEndDate.HasValue)
+                            {
+                                <br><small class="text-muted">Expires: @Model.Tenant.SubscriptionEndDate.Value.ToString("MMM dd, yyyy")</small>
+                            }
+                        </dd>
+
+                        <dt class="col-5">Bypass Payment</dt>
+                        <dd class="col-7">@(Model.Tenant.BypassPayment ? "Yes" : "No")</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="bi bi-graph-up"></i> Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <h2 class="mb-0 text-primary">@Model.UserCount</h2>
+                            <small class="text-muted">Total Users</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <h2 class="mb-0 text-success">@Model.ActiveUserCount</h2>
+                            <small class="text-muted">Active Users</small>
+                        </div>
+                        <div class="col-6">
+                            <h2 class="mb-0 text-info">@Model.PlanCount</h2>
+                            <small class="text-muted">Plans</small>
+                        </div>
+                        <div class="col-6">
+                            <h2 class="mb-0 text-warning">@Model.RecentActivity.Count</h2>
+                            <small class="text-muted">Recent Events</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <form asp-action="ResetTenantAdmin" asp-route-id="@Model.Tenant.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-warning w-100" onclick="return confirm('Reset admin credentials?')">
+                                <i class="bi bi-key"></i> Reset Admin Credentials
+                            </button>
+                        </form>
+                        <a href="@Url.Action("Users", new { tenantId = Model.Tenant.Id })" class="btn btn-outline-primary">
+                            <i class="bi bi-people"></i> Manage Users
+                        </a>
+                        <a href="@Url.Action("AuditLogs", new { tenantId = Model.Tenant.Id })" class="btn btn-outline-info">
+                            <i class="bi bi-journal-text"></i> View Audit Logs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card mt-4">
+        <div class="card-header bg-transparent d-flex justify-content-between">
+            <h5 class="mb-0"><i class="bi bi-people"></i> Users</h5>
+            <a href="@Url.Action("Users", new { tenantId = Model.Tenant.Id })" class="btn btn-sm btn-link">View All</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var tu in Model.Tenant.Users.Take(5))
+                        {
+                            <tr>
+                                <td>
+                                    @tu.User?.Email
+                                    <br><small class="text-muted">@tu.User?.FullName</small>
+                                </td>
+                                <td><span class="badge bg-secondary">@tu.RoleCode</span></td>
+                                <td>
+                                    <span class="badge bg-@(tu.Status == "Active" ? "success" : "warning")">
+                                        @tu.Status
+                                    </span>
+                                </td>
+                                <td>@tu.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            </tr>
+                        }
+                        @if (!Model.Tenant.Users.Any())
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">No users yet</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card mt-4">
+        <div class="card-header bg-transparent d-flex justify-content-between">
+            <h5 class="mb-0"><i class="bi bi-activity"></i> Recent Activity</h5>
+            <a href="@Url.Action("AuditLogs", new { tenantId = Model.Tenant.Id })" class="btn btn-sm btn-link">View All</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Event</th>
+                            <th>Description</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var evt in Model.RecentActivity)
+                        {
+                            <tr>
+                                <td><span class="badge bg-secondary">@evt.EventType</span></td>
+                                <td>@evt.Description</td>
+                                <td><small>@evt.Timestamp.ToString("HH:mm MMM dd")</small></td>
+                            </tr>
+                        }
+                        @if (!Model.RecentActivity.Any())
+                        {
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-muted">No recent activity</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Suspend Modal -->
+<div class="modal fade" id="suspendModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="SuspendTenant" asp-route-id="@Model.Tenant.Id" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title">Suspend Tenant</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to suspend <strong>@Model.Tenant.OrganizationName</strong>?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Reason for suspension</label>
+                        <textarea name="reason" class="form-control" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Suspend Tenant</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

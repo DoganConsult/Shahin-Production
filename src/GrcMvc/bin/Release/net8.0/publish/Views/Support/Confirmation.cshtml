@@ -1,0 +1,99 @@
+@{
+    ViewData["Title"] = "تم إرسال التذكرة بنجاح";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ticket = ViewBag.Ticket as GrcMvc.Models.Entities.SupportTicket;
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            @if (ticket != null)
+            {
+                <div class="card shadow-sm border-success">
+                    <div class="card-header bg-success text-white">
+                        <h3 class="mb-0">
+                            <i class="bi bi-check-circle-fill"></i>
+                            تم إرسال التذكرة بنجاح
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-success">
+                            <h5><i class="bi bi-ticket-perforated"></i> رقم التذكرة: <strong>@ticket.TicketNumber</strong></h5>
+                            <p class="mb-0">تم إرسال التذكرة بنجاح وسيتم الرد عليها في أقرب وقت ممكن.</p>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>الموضوع:</strong>
+                                <p>@ticket.Subject</p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>الحالة:</strong>
+                                <p>
+                                    <span class="badge bg-info">@ticket.Status</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>الفئة:</strong>
+                                <p>@ticket.Category</p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>الأولوية:</strong>
+                                <p>
+                                    <span class="badge bg-@(ticket.Priority == "Urgent" || ticket.Priority == "Critical" ? "danger" : ticket.Priority == "High" ? "warning" : "secondary")">
+                                        @ticket.Priority
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>تاريخ الإنشاء:</strong>
+                            <p>@ticket.CreatedAt.ToString("yyyy-MM-dd HH:mm")</p>
+                        </div>
+
+                        @if (ticket.SlaDeadline.HasValue)
+                        {
+                            <div class="mb-3">
+                                <strong>موعد الرد المتوقع:</strong>
+                                <p>@ticket.SlaDeadline.Value.ToString("yyyy-MM-dd HH:mm")</p>
+                            </div>
+                        }
+
+                        <div class="alert alert-info">
+                            <h6><i class="bi bi-envelope"></i> ما التالي؟</h6>
+                            <ul class="mb-0">
+                                <li>تم إرسال رقم التذكرة إلى بريدك الإلكتروني: <strong>@ticket.UserEmail</strong></li>
+                                <li>يمكنك متابعة حالة التذكرة باستخدام الرابط أدناه</li>
+                                <li>سيتم إشعارك عند تحديث التذكرة</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                            <a href="/Support/Status?ticketNumber=@ticket.TicketNumber" class="btn btn-primary">
+                                <i class="bi bi-search"></i> متابعة حالة التذكرة
+                            </a>
+                            <a href="/Support" class="btn btn-outline-secondary">
+                                <i class="bi bi-plus-circle"></i> إرسال تذكرة أخرى
+                            </a>
+                            <a href="/" class="btn btn-outline-secondary">
+                                <i class="bi bi-house"></i> العودة للصفحة الرئيسية
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-danger">
+                    <h5><i class="bi bi-exclamation-triangle"></i> خطأ</h5>
+                    <p>@(ViewBag.Error ?? "التذكرة غير موجودة")</p>
+                    <a href="/Support" class="btn btn-primary">إرسال تذكرة جديدة</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

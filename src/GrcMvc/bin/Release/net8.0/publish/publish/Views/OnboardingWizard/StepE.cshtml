@@ -1,0 +1,141 @@
+@model StepEDataRiskProfileDto
+@using GrcMvc.Models.DTOs
+@{
+    ViewData["Title"] = "Data & Risk Profile - Onboarding Wizard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var summary = ViewData["WizardSummary"] as WizardSummaryDto;
+    var tenantId = summary?.TenantId ?? Guid.Empty;
+}
+
+<div class="d-flex">
+    @await Html.PartialAsync("_WizardSidebar", summary)
+
+    <div class="flex-grow-1 p-4">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-shield-alt text-primary me-2"></i>
+                        Step E: Data & Risk Profile
+                    </h2>
+                    <p class="text-muted mb-0">ملف البيانات والمخاطر | Questions 35-40</p>
+                </div>
+                <span class="badge bg-primary fs-6">Step 5 of 12</span>
+            </div>
+
+            <form asp-action="StepE" asp-route-tenantId="@tenantId" method="post">
+                @Html.AntiForgeryToken()
+
+                <!-- Data Types -->
+                <div class="card mb-4">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0"><i class="fas fa-database me-2"></i>Data Types Processed (Q35) <span class="text-warning">*</span></h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @{
+                                var dataTypes = new[] {
+                                    ("PII", "Personal Identifiable Information", "Names, IDs, addresses"),
+                                    ("PCI", "Payment Card Data", "Credit/debit card numbers"),
+                                    ("PHI", "Protected Health Information", "Medical records"),
+                                    ("confidential", "Confidential Business Data", "Trade secrets, financials"),
+                                    ("classified", "Classified/Government Data", "Sensitive government info")
+                                };
+                            }
+                            @foreach (var (code, name, desc) in dataTypes)
+                            {
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check card p-3">
+                                        <input type="checkbox" class="form-check-input" 
+                                               name="DataTypesProcessed" value="@code" id="dt_@code"
+                                               @(Model.DataTypesProcessed.Contains(code) ? "checked" : "")>
+                                        <label class="form-check-label" for="dt_@code">
+                                            <strong>@name</strong>
+                                            <small class="text-muted d-block">@desc</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Card Data -->
+                <div class="card mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-credit-card me-2"></i>Payment Card Data (Q36)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="hasPaymentCard" asp-for="HasPaymentCardData">
+                            <label class="form-check-label" for="hasPaymentCard">
+                                <strong>Organization processes payment card data</strong>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cross-Border Transfers -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-globe me-2"></i>Cross-Border Data Transfers (Q37)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="hasCrossBorder" asp-for="HasCrossBorderDataTransfers">
+                            <label class="form-check-label" for="hasCrossBorder">
+                                <strong>Data is transferred across country borders</strong>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Third-Party Processing -->
+                <div class="card mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-handshake me-2"></i>Third-Party Data Processing (Q40)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="hasThirdParty" asp-for="HasThirdPartyDataProcessing">
+                            <label class="form-check-label" for="hasThirdParty">
+                                <strong>Third parties process sensitive data on our behalf</strong>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="@Url.Action("StepD", new { tenantId })" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Back
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        Continue to Step F <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="~/css/wizard-motivation.css" asp-append-version="true" />
+    <script src="~/js/wizard-motivation.js" asp-append-version="true"></script>
+    <script>
+        // Initialize Motivation System
+        const motivation = new WizardMotivation({
+            stepNumber: 5,
+            totalSteps: 12,
+            tenantId: '@tenantId',
+            stepName: 'StepE'
+        });
+
+        // Initialize Live Preview Panel
+        const livePreview = new LivePreviewPanel({
+            stepName: 'StepE'
+        });
+
+        // Initialize Why We Ask Tooltips
+        const tooltips = new WhyWeAskTooltips();
+    </script>
+}

@@ -1,0 +1,283 @@
+@page "/evidence/lifecycle"
+@using GrcMvc.Data
+@using GrcMvc.Models.Entities
+@using Microsoft.EntityFrameworkCore
+@inject GrcDbContext DbContext
+@inject NavigationManager Navigation
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
+
+<PageTitle>@(currentCulture == "ar" ? "دورة حياة الأدلة" : "Evidence Lifecycle")</PageTitle>
+
+<div dir="@dir" class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-6"><i class="bi bi-file-earmark-check me-2"></i>Evidence Lifecycle</h1>
+            <p class="text-muted">Track evidence through submission, review, and approval</p>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">@stats.Total</h3>
+                    <small class="text-muted">Total</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-secondary">@stats.Pending</h3>
+                    <small class="text-muted">Pending</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">@stats.Submitted</h3>
+                    <small class="text-muted">Submitted</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">@stats.InReview</h3>
+                    <small class="text-muted">In Review</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">@stats.Verified</h3>
+                    <small class="text-muted">Verified</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-danger">@stats.Rejected</h3>
+                    <small class="text-muted">Rejected</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+            <a class="nav-link @(currentFilter == "all" ? "active" : "")" href="javascript:void(0)" @onclick='() => FilterBy("all")'>All</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(currentFilter == "pending" ? "active" : "")" href="javascript:void(0)" @onclick='() => FilterBy("pending")'>Pending Review</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(currentFilter == "verified" ? "active" : "")" href="javascript:void(0)" @onclick='() => FilterBy("verified")'>Verified</a>
+        </li>
+    </ul>
+
+    <!-- Evidence List -->
+    <div class="card">
+        <div class="card-body p-0">
+            @if (isLoading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary"></div>
+                </div>
+            }
+            else if (evidenceList.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Evidence #</th>
+                                <th>Title</th>
+                                <th>Type</th>
+                                <th>Assessment</th>
+                                <th>Status</th>
+                                <th>Collected</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var evidence in evidenceList)
+                            {
+                                <tr>
+                                    <td><code>@evidence.EvidenceNumber</code></td>
+                                    <td>
+                                        <strong>@evidence.Title</strong>
+                                        @if (!string.IsNullOrEmpty(evidence.FileName))
+                                        {
+                                            <br /><small class="text-muted"><i class="bi bi-paperclip"></i> @evidence.FileName</small>
+                                        }
+                                    </td>
+                                    <td><span class="badge bg-secondary">@evidence.Type</span></td>
+                                    <td>@(evidence.Assessment?.Name ?? "-")</td>
+                                    <td>@GetStatusBadge(evidence.VerificationStatus)</td>
+                                    <td>@evidence.CollectionDate.ToString("MMM dd, yyyy")</td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" @onclick="() => ViewEvidence(evidence.Id)" title="View">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            @if (evidence.VerificationStatus == "Pending")
+                                            {
+                                                <button class="btn btn-outline-success" @onclick="() => VerifyEvidence(evidence.Id)" title="Verify">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger" @onclick="() => RejectEvidence(evidence.Id)" title="Reject">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-file-earmark display-4"></i>
+                    <p class="mt-2">No evidence found</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Evidence> evidenceList = new();
+    private bool isLoading = true;
+    private string currentFilter = "all";
+    private Guid currentTenantId;
+    private EvidenceStats stats = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var tenant = await DbContext.Tenants.FirstOrDefaultAsync(t => !t.IsDeleted);
+        currentTenantId = tenant?.Id ?? Guid.Empty;
+        await LoadEvidence();
+        await LoadStats();
+    }
+
+    private async Task LoadEvidence()
+    {
+        isLoading = true;
+        try
+        {
+            var query = DbContext.Evidences
+                .Include(e => e.Assessment)
+                .Where(e => e.TenantId == currentTenantId && !e.IsDeleted);
+
+            query = currentFilter switch
+            {
+                "pending" => query.Where(e => e.VerificationStatus == "Pending"),
+                "verified" => query.Where(e => e.VerificationStatus == "Verified"),
+                _ => query
+            };
+
+            evidenceList = await query.OrderByDescending(e => e.CollectionDate).Take(100).ToListAsync();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadStats()
+    {
+        var all = await DbContext.Evidences
+            .Where(e => e.TenantId == currentTenantId && !e.IsDeleted)
+            .ToListAsync();
+
+        stats = new EvidenceStats
+        {
+            Total = all.Count,
+            Pending = all.Count(e => e.VerificationStatus == "Pending"),
+            Submitted = all.Count(e => e.VerificationStatus == "Submitted"),
+            InReview = all.Count(e => e.VerificationStatus == "InReview"),
+            Verified = all.Count(e => e.VerificationStatus == "Verified"),
+            Rejected = all.Count(e => e.VerificationStatus == "Rejected")
+        };
+    }
+
+    private async Task FilterBy(string filter)
+    {
+        currentFilter = filter;
+        await LoadEvidence();
+    }
+
+    private void ViewEvidence(Guid id)
+    {
+        Navigation.NavigateTo($"/evidence/{id}");
+    }
+
+    private async Task VerifyEvidence(Guid id)
+    {
+        var evidence = await DbContext.Evidences.FindAsync(id);
+        if (evidence != null)
+        {
+            evidence.VerificationStatus = "Verified";
+            evidence.VerifiedBy = "System";
+            evidence.VerificationDate = DateTime.UtcNow;
+            evidence.ModifiedDate = DateTime.UtcNow;
+            await DbContext.SaveChangesAsync();
+            await LoadEvidence();
+            await LoadStats();
+        }
+    }
+
+    private async Task RejectEvidence(Guid id)
+    {
+        var evidence = await DbContext.Evidences.FindAsync(id);
+        if (evidence != null)
+        {
+            evidence.VerificationStatus = "Rejected";
+            evidence.VerifiedBy = "System";
+            evidence.VerificationDate = DateTime.UtcNow;
+            evidence.ModifiedDate = DateTime.UtcNow;
+            await DbContext.SaveChangesAsync();
+            await LoadEvidence();
+            await LoadStats();
+        }
+    }
+
+    private MarkupString GetStatusBadge(string status)
+    {
+        var (bgClass, icon) = status switch
+        {
+            "Pending" => ("bg-warning text-dark", "bi-hourglass-split"),
+            "Submitted" => ("bg-info", "bi-send"),
+            "InReview" => ("bg-primary", "bi-search"),
+            "Verified" => ("bg-success", "bi-check-circle"),
+            "Rejected" => ("bg-danger", "bi-x-circle"),
+            _ => ("bg-secondary", "bi-question")
+        };
+        return new MarkupString($"<span class=\"badge {bgClass}\"><i class=\"bi {icon} me-1\"></i>{status}</span>");
+    }
+
+    private class EvidenceStats
+    {
+        public int Total { get; set; }
+        public int Pending { get; set; }
+        public int Submitted { get; set; }
+        public int InReview { get; set; }
+        public int Verified { get; set; }
+        public int Rejected { get; set; }
+    }
+}

@@ -1,0 +1,379 @@
+@*
+    Enterprise Professional Onboarding Progress Widget
+    Mature, business-focused motivation system for professionals
+*@
+@model dynamic
+
+@{
+    var onboardingStatus = ViewBag.OnboardingStatus as string ?? "NOT_STARTED";
+    var onboardingUrl = ViewBag.OnboardingUrl as string ?? "/OnboardingWizard";
+    var tenantId = ViewBag.TenantId as Guid? ?? Guid.Empty;
+
+    var currentStep = ViewBag.OnboardingCurrentStep as int? ?? 1;
+    var completedSteps = ViewBag.OnboardingCompletedSteps as int? ?? 0;
+    var totalSteps = 12;
+    var progressPercent = Math.Round((double)completedSteps / totalSteps * 100, 0);
+
+    // Professional achievement metrics
+    var totalPoints = ViewBag.OnboardingTotalPoints as int? ?? 0;
+    var maxPoints = 1300; // Total available points across all steps
+    var scorePercent = totalPoints > 0 ? Math.Round((double)totalPoints / maxPoints * 100, 1) : 0;
+
+    // Time efficiency
+    var estimatedTime = 60; // Total estimated minutes for all steps
+    var actualTime = ViewBag.OnboardingActualTime as int? ?? 0;
+    var timeEfficiency = actualTime > 0 && actualTime < estimatedTime
+        ? Math.Round((double)(estimatedTime - actualTime) / estimatedTime * 100, 0)
+        : 0;
+
+    // Professional level (based on completion quality)
+    var professionalLevel = scorePercent >= 95 ? "Executive" :
+                            scorePercent >= 85 ? "Expert" :
+                            scorePercent >= 75 ? "Advanced" :
+                            scorePercent >= 60 ? "Proficient" :
+                            "Developing";
+
+    var isCompleted = onboardingStatus == "COMPLETED";
+    var isInProgress = onboardingStatus == "IN_PROGRESS";
+    var isNotStarted = onboardingStatus == "NOT_STARTED";
+}
+
+@if (!isCompleted)
+{
+    <!-- Professional Onboarding Progress -->
+    <div class="dash-panel onboarding-professional-widget" style="margin-bottom: 24px; border-left: 4px solid var(--dash-accent-secondary); background: var(--dash-bg-card); backdrop-filter: blur(20px);">
+        <div class="panel-header" style="background: rgba(59,130,246,0.08); border-bottom: 1px solid var(--dash-border);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 48px; height: 48px; background: var(--wizard-gradient-secondary); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: var(--wizard-glow-secondary);">
+                    <i class="bi bi-building-gear" style="font-size: 1.5rem; color: white;"></i>
+                </div>
+                <div>
+                    <h5 class="panel-title" style="margin: 0; font-size: 1.125rem; color: var(--dash-text-primary);">
+                        <span data-i18n-en="Organization Configuration Progress" data-i18n-ar="تقدم إعداد المنظمة">
+                            Organization Configuration Progress
+                        </span>
+                    </h5>
+                    <p style="margin: 0; font-size: 0.875rem; color: var(--dash-text-secondary);">
+                        <span data-i18n-en="GRC System Setup & Compliance Framework Mapping" data-i18n-ar="إعداد نظام GRC وتعيين إطار الامتثال">
+                            GRC System Setup & Compliance Framework Mapping
+                        </span>
+                    </p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                @if (!isNotStarted)
+                {
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--dash-accent-secondary); line-height: 1;">
+                            @scorePercent<span style="font-size: 1rem;">%</span>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--dash-text-tertiary); text-transform: uppercase; letter-spacing: 0.5px;">
+                            Configuration Score
+                        </div>
+                    </div>
+                }
+                <div class="dash-badge" style="background: var(--wizard-gradient-secondary); color: white; padding: 8px 20px; border-radius: 8px; font-weight: 600;">
+                    @professionalLevel
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-body" style="padding: 24px;">
+            @if (isNotStarted)
+            {
+                <!-- Executive Summary - Not Started -->
+                <div style="display: grid; grid-template-columns: 1fr 1px 1fr; gap: 32px; align-items: center;">
+                    <div>
+                        <h4 style="color: var(--dash-text-primary); margin-bottom: 16px; font-size: 1.25rem; font-weight: 600;">
+                            <span data-i18n-en="System Configuration Required" data-i18n-ar="مطلوب تكوين النظام">
+                                System Configuration Required
+                            </span>
+                        </h4>
+                        <p style="color: var(--dash-text-secondary); margin-bottom: 24px; line-height: 1.6;">
+                            <span data-i18n-en="Complete the comprehensive configuration process to establish your organization's GRC foundation, compliance frameworks, and operational workflows."
+                                  data-i18n-ar="أكمل عملية التكوين الشاملة لإنشاء أساس GRC لمؤسستك وأطر الامتثال وسير العمل التشغيلي.">
+                                Complete the comprehensive configuration process to establish your organization's GRC foundation, compliance frameworks, and operational workflows.
+                            </span>
+                        </p>
+
+                        <!-- Key Deliverables -->
+                        <div style="background: rgba(59,130,246,0.05); border: 1px solid rgba(59,130,246,0.2); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                            <div style="font-weight: 600; color: var(--dash-text-primary); margin-bottom: 12px; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                Configuration Objectives
+                            </div>
+                            <div style="display: grid; gap: 8px;">
+                                <div style="display: flex; align-items: start; gap: 8px;">
+                                    <i class="bi bi-check2-circle" style="color: var(--dash-accent-secondary); margin-top: 2px;"></i>
+                                    <span style="color: var(--dash-text-secondary); font-size: 0.875rem;">Organization profile and regulatory mapping</span>
+                                </div>
+                                <div style="display: flex; align-items: start; gap: 8px;">
+                                    <i class="bi bi-check2-circle" style="color: var(--dash-accent-secondary); margin-top: 2px;"></i>
+                                    <span style="color: var(--dash-text-secondary); font-size: 0.875rem;">Compliance framework alignment and scoping</span>
+                                </div>
+                                <div style="display: flex; align-items: start; gap: 8px;">
+                                    <i class="bi bi-check2-circle" style="color: var(--dash-accent-secondary); margin-top: 2px;"></i>
+                                    <span style="color: var(--dash-text-secondary); font-size: 0.875rem;">Risk profile and control ownership model</span>
+                                </div>
+                                <div style="display: flex; align-items: start; gap: 8px;">
+                                    <i class="bi bi-check2-circle" style="color: var(--dash-accent-secondary); margin-top: 2px;"></i>
+                                    <span style="color: var(--dash-text-secondary); font-size: 0.875rem;">Operational workflows and evidence standards</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 12px;">
+                            <a href="@onboardingUrl" class="btn" style="flex: 1; background: var(--wizard-gradient-secondary); color: white; border: none; padding: 14px 24px; border-radius: 8px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--wizard-glow-secondary); transition: all 0.3s ease;">
+                                <i class="bi bi-gear-fill"></i>
+                                <span data-i18n-en="Begin Configuration" data-i18n-ar="ابدأ التكوين">Begin Configuration</span>
+                            </a>
+                            <button class="btn" onclick="showConfigurationGuide()" style="background: var(--wizard-bg-tertiary); color: var(--dash-text-primary); border: 1px solid var(--wizard-border); padding: 14px 24px; border-radius: 8px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
+                                <i class="bi bi-book"></i>
+                                <span data-i18n-en="View Guide" data-i18n-ar="عرض الدليل">View Guide</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="width: 1px; height: 100%; background: var(--dash-border);"></div>
+
+                    <!-- Configuration Metrics Preview -->
+                    <div>
+                        <div style="font-weight: 600; color: var(--dash-text-secondary); margin-bottom: 16px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">
+                            Configuration Scope
+                        </div>
+                        <div style="display: grid; gap: 16px;">
+                            <div style="background: var(--wizard-bg-tertiary); border: 1px solid var(--wizard-border); border-radius: 8px; padding: 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <span style="color: var(--dash-text-secondary); font-size: 0.875rem;">Configuration Sections</span>
+                                    <span style="font-size: 1.25rem; font-weight: 700; color: var(--dash-text-primary);">12</span>
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--dash-text-tertiary);">Comprehensive coverage areas</div>
+                            </div>
+                            <div style="background: var(--wizard-bg-tertiary); border: 1px solid var(--wizard-border); border-radius: 8px; padding: 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <span style="color: var(--dash-text-secondary); font-size: 0.875rem;">Data Points</span>
+                                    <span style="font-size: 1.25rem; font-weight: 700; color: var(--dash-text-primary);">96</span>
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--dash-text-tertiary);">Organization-specific inputs</div>
+                            </div>
+                            <div style="background: var(--wizard-bg-tertiary); border: 1px solid var(--wizard-border); border-radius: 8px; padding: 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <span style="color: var(--dash-text-secondary); font-size: 0.875rem;">Est. Duration</span>
+                                    <span style="font-size: 1.25rem; font-weight: 700; color: var(--dash-text-primary);">45-60 min</span>
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--dash-text-tertiary);">Can be completed in sessions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Professional Progress View - In Progress -->
+                <div>
+                    <!-- Progress Metrics Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                        <!-- Completion Progress -->
+                        <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); border-radius: 8px; padding: 16px;">
+                            <div style="font-size: 0.75rem; color: var(--dash-text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                                Completion Rate
+                            </div>
+                            <div style="font-size: 2rem; font-weight: 700; color: var(--dash-accent-primary); line-height: 1; margin-bottom: 4px;">
+                                @progressPercent<span style="font-size: 1.25rem;">%</span>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--dash-text-secondary);">
+                                @completedSteps of @totalSteps sections
+                            </div>
+                        </div>
+
+                        <!-- Configuration Quality -->
+                        <div style="background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); border-radius: 8px; padding: 16px;">
+                            <div style="font-size: 0.75rem; color: var(--dash-text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                                Quality Score
+                            </div>
+                            <div style="font-size: 2rem; font-weight: 700; color: var(--dash-accent-secondary); line-height: 1; margin-bottom: 4px;">
+                                @scorePercent<span style="font-size: 1.25rem;">%</span>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--dash-text-secondary);">
+                                @totalPoints / @maxPoints points
+                            </div>
+                        </div>
+
+                        <!-- Time Efficiency -->
+                        <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 8px; padding: 16px;">
+                            <div style="font-size: 0.75rem; color: var(--dash-text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                                Efficiency
+                            </div>
+                            <div style="font-size: 2rem; font-weight: 700; color: var(--dash-accent-warning); line-height: 1; margin-bottom: 4px;">
+                                @(timeEfficiency > 0 ? $"+{timeEfficiency}" : "On Track")<span style="font-size: 1.25rem;">@(timeEfficiency > 0 ? "%" : "")</span>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--dash-text-secondary);">
+                                @(actualTime > 0 ? $"{actualTime} min elapsed" : "Timer active")
+                            </div>
+                        </div>
+
+                        <!-- Professional Level -->
+                        <div style="background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.2); border-radius: 8px; padding: 16px;">
+                            <div style="font-size: 0.75rem; color: var(--dash-text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                                Achievement Level
+                            </div>
+                            <div style="font-size: 1.25rem; font-weight: 700; color: var(--dash-accent-purple); line-height: 1.2; margin-bottom: 4px;">
+                                @professionalLevel
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--dash-text-secondary);">
+                                @(scorePercent >= 95 ? "Excellent" : scorePercent >= 75 ? "Very Good" : scorePercent >= 60 ? "Good" : "Acceptable")
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div style="margin-bottom: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <div style="font-size: 0.875rem; font-weight: 500; color: var(--dash-text-primary);">
+                                <span data-i18n-en="Section @currentStep of @totalSteps" data-i18n-ar="القسم @currentStep من @totalSteps">
+                                    Section @currentStep of @totalSteps
+                                </span>
+                            </div>
+                            <div style="font-size: 0.875rem; color: var(--dash-text-secondary);">
+                                <span data-i18n-en="@(totalSteps - completedSteps) sections remaining" data-i18n-ar="@(totalSteps - completedSteps) أقسام متبقية">
+                                    @(totalSteps - completedSteps) sections remaining
+                                </span>
+                            </div>
+                        </div>
+                        <div style="height: 10px; background: var(--wizard-bg-tertiary); border-radius: 8px; overflow: hidden; position: relative;">
+                            <div style="height: 100%; width: @progressPercent%; background: var(--wizard-gradient-secondary); border-radius: 8px; transition: width 0.6s ease; position: relative; overflow: hidden;">
+                                <div style="position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); animation: shimmer 2s infinite;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Section Info -->
+                    <div style="background: rgba(59,130,246,0.08); border-left: 4px solid var(--dash-accent-secondary); border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 56px; height: 56px; background: var(--wizard-gradient-secondary); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: var(--wizard-glow-secondary);">
+                                <i class="bi bi-arrow-right-circle-fill" style="font-size: 1.75rem; color: white;"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-size: 1.125rem; font-weight: 600; color: var(--dash-text-primary); margin-bottom: 4px;">
+                                    <span data-i18n-en="Configuration in Progress" data-i18n-ar="التكوين قيد التقدم">
+                                        Configuration in Progress
+                                    </span>
+                                </div>
+                                <div style="font-size: 0.875rem; color: var(--dash-text-secondary);">
+                                    <span data-i18n-en="You've completed @completedSteps sections with a quality score of @scorePercent%. Continue to maintain your professional standard."
+                                          data-i18n-ar="لقد أكملت @completedSteps أقسام بدرجة جودة @scorePercent%. استمر للحفاظ على معيارك المهني.">
+                                        You've completed @completedSteps sections with a quality score of @scorePercent%. Continue to maintain your professional standard.
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.75rem; color: var(--dash-text-tertiary); text-transform: uppercase; margin-bottom: 4px;">
+                                    Points Earned
+                                </div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--dash-accent-secondary);">
+                                    @totalPoints
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 12px;">
+                        <a href="@onboardingUrl" class="btn" style="flex: 1; background: var(--wizard-gradient-secondary); color: white; border: none; padding: 14px 24px; border-radius: 8px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--wizard-glow-secondary); transition: all 0.3s ease;">
+                            <i class="bi bi-play-circle-fill"></i>
+                            <span data-i18n-en="Resume Configuration" data-i18n-ar="استئناف التكوين">Resume Configuration</span>
+                        </a>
+                        <a href="@(onboardingUrl)/Summary/@tenantId" class="btn" style="background: var(--wizard-bg-tertiary); color: var(--dash-text-primary); border: 1px solid var(--wizard-border); padding: 14px 24px; border-radius: 8px; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
+                            <i class="bi bi-list-check"></i>
+                            <span data-i18n-en="Review Progress" data-i18n-ar="مراجعة التقدم">Review Progress</span>
+                        </a>
+                        <button class="btn" onclick="saveConfigurationProgress('@tenantId')" style="background: var(--wizard-bg-tertiary); color: var(--dash-text-secondary); border: 1px solid var(--wizard-border); padding: 14px 20px; border-radius: 8px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="bi bi-floppy"></i>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<style>
+@@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.onboarding-professional-widget .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
+}
+</style>
+
+<script>
+function showConfigurationGuide() {
+    const guide = `
+ORGANIZATION CONFIGURATION GUIDE
+
+This comprehensive configuration process establishes your organization's GRC foundation through 12 focused sections:
+
+SECTION OVERVIEW:
+━━━━━━━━━━━━━━━━
+1. Organization Identity: Legal entity, jurisdiction, industry classification
+2. Assurance Objective: Regulatory drivers, audit timeline, maturity goals
+3. Regulatory Applicability: Framework mapping, regulator identification
+4. Scope Definition: Systems, processes, locations, criticality tiers
+5. Data & Risk Profile: Data types, cross-border transfers, risk exposure
+6. Technology Landscape: Integration points, security tools, infrastructure
+7. Control Ownership: Governance model, approval workflows, accountability
+8. Teams & Access: User roles, RACI matrix, delegation rules
+9. Workflow & Cadence: Evidence frequency, SLAs, review cycles
+10. Evidence Standards: Retention, naming conventions, quality criteria
+11. Baseline & Overlays: Control framework selection, custom requirements
+12. Success Metrics: KPIs, baseline measurements, pilot scope
+
+ESTIMATED DURATION: 45-60 minutes
+RECOMMENDED APPROACH: Complete in 2-3 focused sessions
+AUTO-SAVE: Enabled every 30 seconds
+SUPPORT: Available via help icons throughout the process
+    `;
+
+    alert(guide);
+}
+
+async function saveConfigurationProgress(tenantId) {
+    try {
+        const response = await fetch(\`/OnboardingWizard/SaveAndExit/\${tenantId}\`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+            }
+        });
+
+        if (response.ok) {
+            showNotification('Configuration progress saved successfully', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showNotification('Failed to save progress. Please try again.', 'error');
+        }
+    } catch (error) {
+        console.error('Save error:', error);
+        showNotification('An error occurred. Please try again.', 'error');
+    }
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show`;
+    notification.style.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = \`
+        \${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    \`;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 150);
+    }, 3000);
+}
+</script>

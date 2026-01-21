@@ -1,0 +1,54 @@
+@* Welcome Tour Modal - Shown on first login *@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using GrcMvc.Resources
+@inject IHtmlLocalizer<SharedResource> L
+
+@{
+    var currentCulture = Context.Request.Cookies["GrcMvc.Culture"] ?? "ar";
+    var isRtl = currentCulture == "ar";
+}
+
+@if (ViewBag.ShowWelcomeTour == true)
+{
+    <div class="modal fade" id="welcomeTourModal" tabindex="-1" aria-labelledby="welcomeTourModalLabel" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="welcomeTourModalLabel">
+                        <i class="bi bi-rocket me-2"></i>
+                        @L["Shared_WelcomeTour_Title"]
+                    </h5>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4 class="mb-3">@L["Shared_WelcomeTour_AccountReady"]</h4>
+                    <p class="lead mb-4">
+                        @L["Shared_WelcomeTour_QuickTourQuestion"]
+                    </p>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        @L["Shared_WelcomeTour_TourDuration"]
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary" onclick="Tour.endTour(); $('#welcomeTourModal').modal('hide');">
+                        <i class="bi bi-x-circle me-2"></i>
+                        @L["Shared_WelcomeTour_Skip"]
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="Tour.startWelcomeTour(); $('#welcomeTourModal').modal('hide');">
+                        <i class="bi bi-play-circle me-2"></i>
+                        @L["Shared_WelcomeTour_Start"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#welcomeTourModal').modal('show');
+        });
+    </script>
+}

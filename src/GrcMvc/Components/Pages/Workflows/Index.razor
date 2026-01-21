@@ -1,0 +1,159 @@
+@page "/workflows"
+@using GrcMvc.Models.DTOs
+@using GrcMvc.Services.Interfaces
+@inject IWorkflowEngineService WorkflowService
+@inject NavigationManager NavManager
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var requestCulture = HttpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "ar";
+    var dir = currentCulture == "ar" ? "rtl" : "ltr";
+}
+
+<PageTitle>@(currentCulture == "ar" ? "سير العمل" : "Workflows")</PageTitle>
+
+<div dir="@dir" class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">Workflows</h1>
+            <small class="text-muted">@(workflows?.Count ?? 0) workflows found</small>
+        </div>
+        <div class="col-auto">
+            <a href="/workflows/create" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> New Workflow
+            </a>
+        </div>
+    </div>
+
+    <LoadingSpinner IsLoading="@isLoading" Message="Loading workflows..." />
+
+    @if (!isLoading)
+    {
+        @if (errorMessage != null)
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+        else if (workflows == null || workflows.Count == 0)
+        {
+            <div class="alert alert-warning">No workflows found. <a href="/workflows/create">Create one now</a></div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var workflow in workflows)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@workflow.Name</strong><br />
+                                    <small class="text-muted">@workflow.Description</small>
+                                </td>
+                                <td>@workflow.Category</td>
+                                <td>
+                                    <StatusBadge Status="@workflow.Status" />
+                                </td>
+                                <td>@workflow.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <a href="/workflows/@workflow.Id" class="btn btn-sm btn-info" title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => ConfirmDelete(workflow.Id, workflow.Name)"
+                                        title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<WorkflowListItemDto>? workflows;
+    private bool isLoading = true;
+    private string? errorMessage;
+    private Guid selectedWorkflowId;
+    private string selectedWorkflowName = "";
+#pragma warning disable CS0414
+    private bool showDeleteConfirm = false; // Used in UI for delete confirmation modal
+#pragma warning restore CS0414
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Get current tenant ID (from auth context - for demo using fixed tenant)
+            var tenantId = Guid.Parse("550e8400-e29b-41d4-a716-446655440000");
+
+            // Load workflows from database
+            var instances = await WorkflowService.GetUserWorkflowsAsync(tenantId, page: 1, pageSize: 50);
+
+            if (instances != null && instances.Any())
+            {
+                workflows = instances.Select(w => new WorkflowListItemDto
+                {
+                    Id = w.Id,
+                    Name = w.WorkflowDefinition?.Name ?? $"Workflow {w.Id:N}".Substring(0, 20),
+                    Description = w.WorkflowDefinition?.Description ?? "No description",
+                    Category = w.WorkflowDefinition?.Category ?? "Uncategorized",
+                    Status = w.Status,
+                    CreatedAt = w.CreatedDate,
+                    ModifiedAt = w.ModifiedDate
+                }).ToList();
+            }
+            else
+            {
+                workflows = new List<WorkflowListItemDto>();
+            }
+
+            isLoading = false;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading workflows: {ex.Message}";
+            workflows = new List<WorkflowListItemDto>();
+            isLoading = false;
+        }
+    }
+
+    private async Task ConfirmDelete(Guid id, string name)
+    {
+        selectedWorkflowId = id;
+        selectedWorkflowName = name;
+        showDeleteConfirm = true;
+    }
+
+    private async Task HandleDelete()
+    {
+        try
+        {
+            // Simulate API call to delete workflow
+            await Task.Delay(300);
+            workflows?.RemoveAll(w => w.Id == selectedWorkflowId);
+            showDeleteConfirm = false;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error deleting workflow: {ex.Message}";
+        }
+    }
+
+    private async Task HandleCancel()
+    {
+        showDeleteConfirm = false;
+    }
+}

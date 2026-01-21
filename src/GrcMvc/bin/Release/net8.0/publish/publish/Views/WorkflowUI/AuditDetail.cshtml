@@ -1,0 +1,160 @@
+@{
+    ViewData["Title"] = "Audit Workflow Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var auditId = ViewBag.AuditId ?? Context.Request.Query["id"].ToString();
+}
+
+<div class="container-fluid mt-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "WorkflowUI")">Workflows</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Audits", "WorkflowUI")">Audits</a></li>
+            <li class="breadcrumb-item active">Detail</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3">
+                <i class="fas fa-search text-purple me-2"></i>
+                Audit Finding Remediation
+            </h1>
+            <p class="text-muted">Track and remediate audit findings</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-success" onclick="closeFinding()">
+                <i class="fas fa-check"></i> Close Finding
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Finding Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Finding ID</label>
+                            <p class="fw-bold">AUD-2026-001-F1</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Severity</label>
+                            <p><span class="badge bg-danger">High</span></p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Audit</label>
+                            <p>NCA ECC Annual Assessment 2026</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Control Reference</label>
+                            <p>ECC-2-1-1 - Access Control</p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Finding Description</label>
+                        <p>Access reviews are not being performed on a quarterly basis as required by the control specification.</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Recommendation</label>
+                        <p>Implement automated quarterly access review process and maintain documentation of review completion.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Remediation Plan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <input type="checkbox" class="form-check-input me-2" checked disabled>
+                                    <span class="text-decoration-line-through">Define access review process</span>
+                                </div>
+                                <span class="badge bg-success">Completed</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <input type="checkbox" class="form-check-input me-2">
+                                    <span>Implement automated review tool</span>
+                                </div>
+                                <span class="badge bg-info">In Progress</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <input type="checkbox" class="form-check-input me-2">
+                                    <span>Complete first quarterly review</span>
+                                </div>
+                                <span class="badge bg-secondary">Pending</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-file-upload me-2"></i>Evidence of Remediation</h5>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-upload me-2"></i>Upload Remediation Evidence
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Progress</h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="progress mb-3" style="height: 30px;">
+                        <div class="progress-bar bg-info" style="width: 33%">33%</div>
+                    </div>
+                    <p class="text-muted small">1 of 3 tasks completed</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-calendar me-2"></i>Timeline</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2"><small class="text-muted">Finding Date:</small> <strong>Jan 3, 2026</strong></div>
+                    <div class="mb-2"><small class="text-muted">Due Date:</small> <strong class="text-danger">Jan 17, 2026</strong></div>
+                    <div class="mb-2"><small class="text-muted">Owner:</small> <strong>IT Security Team</strong></div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="list-group list-group-flush">
+                    <a href="@Url.Action("Audits", "WorkflowUI")" class="list-group-item list-group-item-action">
+                        <i class="fas fa-arrow-left text-secondary me-2"></i> Back to Audits
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function closeFinding() {
+        if (confirm('Are all remediation tasks complete? Close this finding?')) {
+            alert('Finding closed successfully!');
+            window.location.href = '@Url.Action("Audits", "WorkflowUI")';
+        }
+    }
+</script>
+}

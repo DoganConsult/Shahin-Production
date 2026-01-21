@@ -1,0 +1,19 @@
+<AuthorizeView Roles="PlatformAdmin">
+    <Authorized>
+        @ChildContent
+    </Authorized>
+    <NotAuthorized>
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">Access Denied</h4>
+            <p>Platform Admin access required. You do not have permission to view this content.</p>
+            <hr>
+            <p class="mb-0">
+                <a href="/app/dashboard" class="alert-link">Go to My Dashboard</a>
+            </p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

@@ -1,0 +1,164 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@model GrcMvc.Models.DTOs.EvidenceStatisticsDto
+@{
+    ViewData["Title"] = L["Evidence_Statistics_Title"].Value;
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-bar-chart"></i> @L["Evidence_Statistics_Title"]</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> @L["BackToList"]
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">@L["Evidence_TotalEvidence"]</h5>
+                    <p class="card-text display-4">@Model.TotalEvidences</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">@L["Evidence_Active"]</h5>
+                    <p class="card-text display-4">@Model.ActiveEvidences</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">@L["Evidence_ExpiringSoon"]</h5>
+                    <p class="card-text display-4">@Model.ExpiringSoon</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-secondary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">@L["Evidence_Archived"]</h5>
+                    <p class="card-text display-4">@Model.ArchivedEvidences</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4 h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">@L["Evidence_ByType"]</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="typeChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4 h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">@L["Evidence_DataClassification"]</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="classChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4 h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">@L["Evidence_StatusDistribution"]</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Type Chart
+            var typeCtx = document.getElementById('typeChart').getContext('2d');
+            var typeData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.EvidencesByType));
+
+            new Chart(typeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(typeData),
+                    datasets: [{
+                        data: Object.values(typeData),
+                        backgroundColor: [
+                            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'
+                        ]
+                    }]
+                }
+            });
+
+            // Classification Chart
+            var classCtx = document.getElementById('classChart').getContext('2d');
+            var classData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ClassificationDistribution));
+
+            new Chart(classCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(classData),
+                    datasets: [{
+                        data: Object.values(classData),
+                        backgroundColor: [
+                            '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'
+                        ]
+                    }]
+                }
+            });
+
+            // Status Chart
+            var statusCtx = document.getElementById('statusChart').getContext('2d');
+            var statusData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.StatusDistribution));
+
+            new Chart(statusCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(statusData),
+                    datasets: [{
+                        label: '@L["Evidence_Count"]',
+                        data: Object.values(statusData),
+                        backgroundColor: '#4e73df'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        });
+    </script>
+}

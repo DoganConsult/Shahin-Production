@@ -1,0 +1,142 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using GrcMvc.Services.Integrations;
+using System;
+using System.IO;
+using System.Threading.Tasks;
+
+namespace GrcMvc.Controllers.Api;
+
+/// <summary>
+/// Stripe Webhook Controller
+/// 
+/// ASP.NET Core / ABP Best Practices:
+/// 1. Dedicated controller for webhooks (Single Responsibility)
+/// 2. [ApiController] for automatic model validation
+/// 3. Raw body reading for signature verification
+/// 4. Proper HTTP status codes
+/// 5. Idempotency handling (events may be sent multiple times)
+/// 6. Async/await throughout
+/// 7. Structured logging
+/// </summary>
+[ApiController]
+[Route("api/webhooks")]
+public class PaymentWebhookController : ControllerBase
+{
+    private readonly IPaymentWebhookHandler _webhookHandler;
+    private readonly ILogger<PaymentWebhookController> _logger;
+
+    public PaymentWebhookController(
+        IPaymentWebhookHandler webhookHandler,
+        ILogger<PaymentWebhookController> logger)
+    {
+        _webhookHandler = webhookHandler;
+        _logger = logger;
+    }
+
+    /// <summary>
+    /// Stripe Webhook Endpoint
+    /// POST /api/webhooks/stripe
+    /// 
+    /// Security Notes:
+    /// - Verifies Stripe signature before processing
+    /// - Always returns 200 OK to Stripe after verification
+    /// - Logs all events for audit purposes
+    /// </summary>
+    [HttpPost("stripe")]
+    [IgnoreAntiforgeryToken] // Stripe webhooks don't include CSRF tokens
+    public async Task<IActionResult> HandleStripeWebhook()
+    {
+        string payload;
+        
+        // Read raw body for signature verification
+        Request.EnableBuffering();
+        using (var reader = new StreamReader(Request.Body))
+        {
+            payload = await reader.ReadToEndAsync();
+        }
+
+        if (string.IsNullOrEmpty(payload))
+        {
+            _logger.LogWarning("Empty webhook payload received");
+            return BadRequest(new { error = "Empty payload" });
+        }
+
+        // Get Stripe signature from header
+        var signature = Request.Headers["Stripe-Signature"].ToString();
+        
+        if (string.IsNullOrEmpty(signature))
+        {
+            _logger.LogWarning("Missing Stripe-Signature header");
+            return BadRequest(new { error = "Missing signature" });
+        }
+
+        try
+        {
+            // Verify and parse the webhook
+            var webhookEvent = await _webhookHandler.VerifyAndParseWebhookAsync(payload, signature);
+            
+            if (webhookEvent == null)
+            {
+                _logger.LogWarning("Webhook signature verification failed");
+                return BadRequest(new { error = "Invalid signature" });
+            }
+
+            _logger.LogInformation(
+                "Processing Stripe webhook: {EventType} ({EventId}) for tenant {TenantId}",
+                webhookEvent.EventType,
+                webhookEvent.EventId,
+                webhookEvent.TenantId);
+
+            // Process the event
+            var success = await _webhookHandler.HandleWebhookEventAsync(webhookEvent);
+
+            if (!success)
+            {
+                _logger.LogWarning("Failed to process webhook event: {EventId}", webhookEvent.EventId);
+                // Still return 200 to prevent Stripe from retrying
+                // We'll handle failed events through our own retry mechanism
+            }
+
+            // Always return 200 to acknowledge receipt
+            // Stripe will retry if we return non-2xx
+            return Ok(new { received = true, eventId = webhookEvent.EventId });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Exception processing Stripe webhook");
+            
+            // Return 200 anyway to prevent infinite retries
+            // Log the error for manual investigation
+            return Ok(new { received = true, error = "Processing error logged" });
+        }
+    }
+
+    /// <summary>
+    /// PayPal Webhook Endpoint (Future)
+    /// POST /api/webhooks/paypal
+    /// </summary>
+    [HttpPost("paypal")]
+    [IgnoreAntiforgeryToken]
+    public async Task<IActionResult> HandlePayPalWebhook()
+    {
+        // TODO: Implement PayPal webhook handling
+        _logger.LogInformation("PayPal webhook received (not implemented)");
+        return Ok(new { received = true });
+    }
+
+    /// <summary>
+    /// Webhook health check - can be used to verify endpoint is reachable
+    /// GET /api/webhooks/health
+    /// </summary>
+    [HttpGet("health")]
+    public IActionResult HealthCheck()
+    {
+        return Ok(new 
+        { 
+            status = "healthy",
+            timestamp = DateTime.UtcNow,
+            endpoints = new[] { "stripe", "paypal" }
+        });
+    }
+}

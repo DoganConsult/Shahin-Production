@@ -1,0 +1,124 @@
+@*
+    SHAHIN AI GRC - Tabs Component
+    Usage: <partial name="Components/_ShahinTabs" model='new {
+        Id = "myTabs",
+        Tabs = new[] {
+            new { Title = "Overview", Content = Html.Raw("<p>Overview content</p>"), Icon = "house", Active = true },
+            new { Title = "Details", Content = Html.Raw("<p>Details content</p>"), Icon = "info-circle", Active = false },
+            new { Title = "History", Content = Html.Raw("<p>History content</p>"), Icon = "clock-history", Active = false }
+        }
+    }' />
+*@
+@{
+    dynamic model = ViewData.Model ?? new { };
+    var id = model?.Id ?? "shahinTabs" + Guid.NewGuid().ToString("N").Substring(0, 8);
+    var tabs = model?.Tabs as IEnumerable<dynamic> ?? new List<dynamic>();
+    var variant = model?.Variant ?? "pills"; // tabs or pills
+}
+
+<div class="shahin-tabs">
+    <ul class="nav nav-@variant mb-3" id="@(id)-tab" role="tablist">
+        @{
+            var tabList = tabs.ToList();
+            for (int i = 0; i < tabList.Count; i++)
+            {
+                var tab = tabList[i];
+                var title = tab.Title?.ToString() ?? $"Tab {i + 1}";
+                var icon = tab.Icon?.ToString() ?? "";
+                var active = (i == 0 && tab.Active == null) || (tab.Active != null && (bool)tab.Active);
+                var tabId = $"{id}-tab-{i}";
+                var panelId = $"{id}-panel-{i}";
+
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(active ? "active" : "")"
+                            id="@tabId"
+                            data-bs-toggle="@variant"
+                            data-bs-target="#@panelId"
+                            type="button"
+                            role="tab"
+                            aria-controls="@panelId"
+                            aria-selected="@(active ? "true" : "false")">
+                        @if (!string.IsNullOrEmpty(icon))
+                        {
+                            <i class="bi bi-@icon me-2"></i>
+                        }
+                        @title
+                    </button>
+                </li>
+            }
+        }
+    </ul>
+    <div class="tab-content" id="@(id)-content">
+        @{
+            for (int i = 0; i < tabList.Count; i++)
+            {
+                var tab = tabList[i];
+                var content = tab.Content ?? "";
+                var active = (i == 0 && tab.Active == null) || (tab.Active != null && (bool)tab.Active);
+                var tabId = $"{id}-tab-{i}";
+                var panelId = $"{id}-panel-{i}";
+
+                <div class="tab-pane fade @(active ? "show active" : "")"
+                     id="@panelId"
+                     role="tabpanel"
+                     aria-labelledby="@tabId">
+                    @content
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<style>
+    .shahin-tabs .nav-pills .nav-link {
+        background-color: transparent;
+        color: var(--shahin-gray-700);
+        border-radius: var(--shahin-radius-base);
+        padding: var(--shahin-space-3) var(--shahin-space-5);
+        transition: all var(--shahin-transition-base);
+        border: 1px solid transparent;
+    }
+
+    .shahin-tabs .nav-pills .nav-link:hover {
+        background-color: var(--shahin-primary-light);
+        color: var(--shahin-primary-dark);
+    }
+
+    .shahin-tabs .nav-pills .nav-link.active {
+        background-color: var(--shahin-primary);
+        color: var(--shahin-white);
+        box-shadow: var(--shahin-shadow-sm);
+    }
+
+    .shahin-tabs .nav-tabs .nav-link {
+        border: 1px solid transparent;
+        border-radius: var(--shahin-radius-base) var(--shahin-radius-base) 0 0;
+        padding: var(--shahin-space-3) var(--shahin-space-5);
+        color: var(--shahin-gray-700);
+        transition: all var(--shahin-transition-base);
+    }
+
+    .shahin-tabs .nav-tabs .nav-link:hover {
+        border-color: var(--shahin-gray-200) var(--shahin-gray-200) var(--shahin-gray-300);
+        color: var(--shahin-primary);
+    }
+
+    .shahin-tabs .nav-tabs .nav-link.active {
+        color: var(--shahin-primary);
+        background-color: var(--shahin-white);
+        border-color: var(--shahin-gray-300) var(--shahin-gray-300) var(--shahin-white);
+        font-weight: var(--shahin-font-weight-semibold);
+    }
+
+    .shahin-tabs .tab-content {
+        padding: var(--shahin-space-4);
+        background-color: var(--shahin-white);
+        border: 1px solid var(--shahin-gray-200);
+        border-radius: var(--shahin-radius-base);
+    }
+
+    .shahin-tabs .nav-tabs + .tab-content {
+        border-top: none;
+        border-radius: 0 0 var(--shahin-radius-base) var(--shahin-radius-base);
+    }
+</style>

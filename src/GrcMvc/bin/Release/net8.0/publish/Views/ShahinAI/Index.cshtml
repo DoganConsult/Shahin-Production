@@ -1,0 +1,290 @@
+@using Microsoft.AspNetCore.Localization
+@model GrcMvc.Services.Implementations.ShahinAIDashboard
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var isArabic = requestCulture?.RequestCulture?.UICulture?.Name == "ar";
+    ViewData["Title"] = isArabic ? "لوحة تحكم شاهين" : "Shahin-AI Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1">
+                        <i class="fas fa-shield-alt text-primary @(isArabic ? "ms-2" : "me-2")"></i>
+                        @(isArabic ? "لوحة تحكم شاهين-إيه آي" : "Shahin-AI Dashboard")
+                    </h1>
+                    <p class="text-muted mb-0">
+                        @(isArabic ? "خريطة تحكم واحدة لجميع الأسواق" : "One control map for all markets")
+                    </p>
+                </div>
+                <div class="@(isArabic ? "text-start" : "text-end")">
+                    <span class="badge bg-success fs-6">
+                        <i class="fas fa-heart-pulse @(isArabic ? "ms-1" : "me-1")"></i>
+                        @(isArabic ? $"درجة الصحة: {Model.OverallHealthScore:F0}%" : $"Health Score: {Model.OverallHealthScore:F0}%")
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Operating Sentence -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info border-0 shadow-sm">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-lightbulb fa-2x @(isArabic ? "ms-3" : "me-3") text-warning"></i>
+                    <div>
+                        @if (isArabic)
+                        {
+                            <strong>الجملة التشغيلية:</strong>
+                            <span class="me-2">"اربطها، طبّقها، أثبتها—راقب الاستثناءات وعالج الفجوات؛ واحفظ كل شيء في الخزنة."</span>
+                        }
+                        else
+                        {
+                            <strong>Operating Sentence:</strong>
+                            <span class="ms-2">"MAP it, APPLY it, PROVE it—WATCH exceptions and FIX gaps; store in VAULT."</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6 Module Cards -->
+    <div class="row g-4">
+        <!-- MAP -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm hover-shadow">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 @(isArabic ? "ms-3" : "me-3")">
+                            <i class="fas fa-map fa-lg text-primary"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-0">@(isArabic ? "خريطة" : "MAP")</h5>
+                            <small class="text-muted">@(isArabic ? "MAP" : "خريطة")</small>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted">@(isArabic ? "ربط المتطلبات → الأهداف → الضوابط" : "Requirement → Objective → Control mapping")</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h3 mb-0 text-primary">@Model.MAP.TotalControls</span>
+                        <span class="text-muted">@(isArabic ? "ضوابط" : "Controls")</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="@Url.Action("Map", "ShahinAI")" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-arrow-@(isArabic ? "left" : "right") @(isArabic ? "ms-2" : "me-2")"></i>@(isArabic ? "فتح خريطة" : "Open MAP")
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- APPLY -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm hover-shadow">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
+                            <i class="fas fa-check-circle fa-lg text-success"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-0">APPLY</h5>
+                            <small class="text-muted">تطبيق</small>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted">Scope and applicability rules</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h3 mb-0 text-success">—</span>
+                        <span class="text-muted">Scope Rules</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="@Url.Action("Apply", "ShahinAI")" class="btn btn-outline-success w-100">
+                        <i class="fas fa-arrow-right me-2"></i>Open APPLY
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROVE -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm hover-shadow">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-purple bg-opacity-10 p-3 me-3" style="background-color: rgba(155, 89, 182, 0.1);">
+                            <i class="fas fa-file-alt fa-lg" style="color: #9B59B6;"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-0">PROVE</h5>
+                            <small class="text-muted">إثبات</small>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted">Evidence packs & testing</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h3 mb-0" style="color: #9B59B6;">@Model.PROVE.TotalEvidence</span>
+                        <span class="text-muted">Evidence Items</span>
+                    </div>
+                    @if (Model.PROVE.TotalEvidence > 0)
+                    {
+                        <div class="progress mt-2" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: @Model.PROVE.CompletionRate%"></div>
+                        </div>
+                        <small class="text-muted">@Model.PROVE.CompletionRate.ToString("F0")% approved</small>
+                    }
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="@Url.Action("Prove", "ShahinAI")" class="btn btn-outline-secondary w-100" style="border-color: #9B59B6; color: #9B59B6;">
+                        <i class="fas fa-arrow-right me-2"></i>Open PROVE
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- WATCH -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm hover-shadow">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-danger bg-opacity-10 p-3 me-3">
+                            <i class="fas fa-eye fa-lg text-danger"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-0">WATCH</h5>
+                            <small class="text-muted">مراقبة</small>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted">KRIs/KPIs & alerts</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h3 mb-0 text-danger">@Model.WATCH.TotalIndicators</span>
+                        <span class="text-muted">Indicators</span>
+                    </div>
+                    @if (Model.WATCH.OpenAlerts > 0)
+                    {
+                        <div class="mt-2">
+                            <span class="badge bg-danger">@Model.WATCH.OpenAlerts Open Alerts</span>
+                            @if (Model.WATCH.CriticalAlerts > 0)
+                            {
+                                <span class="badge bg-dark ms-1">@Model.WATCH.CriticalAlerts Critical</span>
+                            }
+                        </div>
+                    }
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="@Url.Action("Watch", "ShahinAI")" class="btn btn-outline-danger w-100">
+                        <i class="fas fa-arrow-right me-2"></i>Open WATCH
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- FIX -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm hover-shadow">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
+                            <i class="fas fa-wrench fa-lg text-warning"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-0">FIX</h5>
+                            <small class="text-muted">معالجة</small>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted">Remediation & exceptions</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h3 mb-0 text-warning">@Model.FIX.OpenExceptions</span>
+                        <span class="text-muted">Open Exceptions</span>
+                    </div>
+                    @if (Model.FIX.ExpiringExceptions > 0)
+                    {
+                        <div class="mt-2">
+                            <span class="badge bg-warning text-dark">@Model.FIX.ExpiringExceptions Expiring Soon</span>
+                        </div>
+                    }
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="@Url.Action("Fix", "ShahinAI")" class="btn btn-outline-warning w-100">
+                        <i class="fas fa-arrow-right me-2"></i>Open FIX
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- VAULT -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm hover-shadow">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle p-3 me-3" style="background-color: rgba(26, 188, 156, 0.1);">
+                            <i class="fas fa-lock fa-lg" style="color: #1ABC9C;"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-0">VAULT</h5>
+                            <small class="text-muted">خزنة</small>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted">Evidence repository</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h3 mb-0" style="color: #1ABC9C;">@Model.VAULT.TotalEvidence</span>
+                        <span class="text-muted">Stored Items</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="@Url.Action("Vault", "ShahinAI")" class="btn btn-outline-secondary w-100" style="border-color: #1ABC9C; color: #1ABC9C;">
+                        <i class="fas fa-arrow-right me-2"></i>Open VAULT
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Row -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title text-muted mb-3">
+                        <i class="fas fa-chart-bar me-2"></i>Quick Stats
+                    </h6>
+                    <div class="row text-center">
+                        <div class="col">
+                            <div class="h4 mb-0">@Model.MAP.TotalControls</div>
+                            <small class="text-muted">Total Controls</small>
+                        </div>
+                        <div class="col">
+                            <div class="h4 mb-0">@Model.PROVE.Approved</div>
+                            <small class="text-muted">Approved Evidence</small>
+                        </div>
+                        <div class="col">
+                            <div class="h4 mb-0">@Model.WATCH.OpenAlerts</div>
+                            <small class="text-muted">Open Alerts</small>
+                        </div>
+                        <div class="col">
+                            <div class="h4 mb-0">@Model.FIX.OpenExceptions</div>
+                            <small class="text-muted">Open Exceptions</small>
+                        </div>
+                        <div class="col">
+                            <div class="h4 mb-0">@Model.VAULT.TotalEvidence</div>
+                            <small class="text-muted">Vault Items</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-shadow:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        transition: all 0.2s ease-in-out;
+    }
+    .card {
+        transition: all 0.2s ease-in-out;
+    }
+</style>

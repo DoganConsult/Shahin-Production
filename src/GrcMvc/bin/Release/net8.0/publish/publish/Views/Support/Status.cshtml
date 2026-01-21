@@ -1,0 +1,125 @@
+@{
+    ViewData["Title"] = "حالة التذكرة";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ticket = ViewBag.Ticket as GrcMvc.Models.Entities.SupportTicket;
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            @if (ticket != null)
+            {
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">
+                            <i class="bi bi-ticket-perforated"></i>
+                            تذكرة الدعم: @ticket.TicketNumber
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5>معلومات التذكرة</h5>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th width="40%">الموضوع:</th>
+                                        <td>@ticket.Subject</td>
+                                    </tr>
+                                    <tr>
+                                        <th>الحالة:</th>
+                                        <td>
+                                            <span class="badge bg-@(ticket.Status == "Resolved" || ticket.Status == "Closed" ? "success" : ticket.Status == "In Progress" ? "info" : "warning")">
+                                                @ticket.Status
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>الأولوية:</th>
+                                        <td>
+                                            <span class="badge bg-@(ticket.Priority == "Urgent" || ticket.Priority == "Critical" ? "danger" : ticket.Priority == "High" ? "warning" : "secondary")">
+                                                @ticket.Priority
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>الفئة:</th>
+                                        <td>@ticket.Category</td>
+                                    </tr>
+                                    <tr>
+                                        <th>تاريخ الإنشاء:</th>
+                                        <td>@ticket.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                                    </tr>
+                                    @if (ticket.UpdatedAt.HasValue)
+                                    {
+                                        <tr>
+                                            <th>آخر تحديث:</th>
+                                            <td>@ticket.UpdatedAt.Value.ToString("yyyy-MM-dd HH:mm")</td>
+                                        </tr>
+                                    }
+                                    @if (ticket.ResolvedAt.HasValue)
+                                    {
+                                        <tr>
+                                            <th>تاريخ الحل:</th>
+                                            <td>@ticket.ResolvedAt.Value.ToString("yyyy-MM-dd HH:mm")</td>
+                                        </tr>
+                                    }
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>الوصف</h5>
+                                <div class="border p-3 rounded bg-light">
+                                    @Html.Raw(ticket.Description.Replace("\n", "<br/>"))
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(ticket.ResolutionNotes))
+                        {
+                            <div class="alert alert-success">
+                                <h6><i class="bi bi-check-circle"></i> ملاحظات الحل:</h6>
+                                <p class="mb-0">@Html.Raw(ticket.ResolutionNotes.Replace("\n", "<br/>"))</p>
+                            </div>
+                        }
+
+                        @if (ticket.Comments != null && ticket.Comments.Any())
+                        {
+                            <h5 class="mt-4">التعليقات</h5>
+                            <div class="list-group">
+                                @foreach (var comment in ticket.Comments.OrderBy(c => c.CreatedAt))
+                                {
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between">
+                                            <strong>@comment.CreatedAt.ToString("yyyy-MM-dd HH:mm")</strong>
+                                            @if (comment.IsInternal)
+                                            {
+                                                <span class="badge bg-secondary">داخلي</span>
+                                            }
+                                        </div>
+                                        <p class="mb-0 mt-2">@Html.Raw(comment.Content.Replace("\n", "<br/>"))</p>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                            <a href="/Support" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> إرسال تذكرة جديدة
+                            </a>
+                            <a href="/" class="btn btn-outline-secondary">
+                                <i class="bi bi-house"></i> العودة للصفحة الرئيسية
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-danger">
+                    <h5><i class="bi bi-exclamation-triangle"></i> خطأ</h5>
+                    <p>@(ViewBag.Error ?? "التذكرة غير موجودة")</p>
+                    <a href="/Support" class="btn btn-primary">إرسال تذكرة جديدة</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

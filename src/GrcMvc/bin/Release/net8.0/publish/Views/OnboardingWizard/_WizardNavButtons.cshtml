@@ -1,0 +1,46 @@
+@* Wizard Navigation Buttons Partial - Provides Save & Continue Later functionality *@
+@{
+    var tenantId = ViewBag.TenantId ?? TempData["TenantId"];
+    var currentStep = ViewBag.CurrentStep ?? "A";
+    var nextStepName = ViewBag.NextStepName ?? "Next Step";
+    var prevStepAction = ViewBag.PrevStepAction as string;
+    var isLastStep = ViewBag.IsLastStep ?? false;
+}
+
+<div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+    <div>
+        @if (!string.IsNullOrEmpty(prevStepAction))
+        {
+            <a href="@Url.Action(prevStepAction, "OnboardingWizard", new { tenantId = tenantId })"
+               class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Previous Step
+            </a>
+        }
+        else
+        {
+            <a href="@Url.Action("Index", "Onboarding")" class="btn btn-outline-secondary">
+                <i class="fas fa-times me-1"></i> Cancel
+            </a>
+        }
+    </div>
+    <div>
+        <a href="@Url.Action("SaveAndExit", "OnboardingWizard", new { tenantId = tenantId })"
+           class="btn btn-warning me-2"
+           onclick="return confirm('Save your progress and exit? You can continue later from where you left off.');">
+            <i class="fas fa-save me-1"></i> Save & Exit
+        </a>
+        @if ((bool)isLastStep)
+        {
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="fas fa-check me-1"></i> Complete Wizard
+            </button>
+        }
+        else
+        {
+            <button type="submit" class="btn btn-primary btn-lg">
+                Save & Continue
+                <i class="fas fa-arrow-right ms-2"></i>
+            </button>
+        }
+    </div>
+</div>

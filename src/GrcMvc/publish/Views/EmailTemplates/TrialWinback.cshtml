@@ -1,0 +1,133 @@
+@model dynamic
+@{
+    Layout = null;
+    var name = Model?.Name ?? "there";
+    var companyName = Model?.CompanyName ?? "Your Company";
+    var upgradeLink = Model?.UpgradeLink ?? "#";
+    var demoLink = Model?.DemoLink ?? "#";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>We've made improvements - come back and see</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td style="padding: 40px 20px;">
+                <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="padding: 30px 40px 20px; text-align: center; border-bottom: 1px solid #e2e8f0;">
+                            <h1 style="margin: 0; font-size: 22px; color: #0f172a;">
+                                Shahin<span style="color: #dc2626;">AI</span> GRC
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <p style="margin: 0 0 20px; font-size: 16px; color: #334155;">
+                                Hello @name,
+                            </p>
+
+                            <p style="margin: 0 0 20px; font-size: 16px; color: #334155; line-height: 1.6;">
+                                It's been a while since your trial ended. We've been busy making Shahin AI GRC even better for organizations like @companyName.
+                            </p>
+
+                            <!-- What's New -->
+                            <table role="presentation" style="width: 100%; margin: 20px 0; background-color: #f8fafc; border-radius: 8px;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <p style="margin: 0 0 15px; font-size: 16px; color: #334155; font-weight: 600;">
+                                            What's new since you left:
+                                        </p>
+                                        <table role="presentation" style="width: 100%;">
+                                            <tr>
+                                                <td style="padding: 8px 0;">
+                                                    <span style="color: #dc2626; font-size: 16px;">&#9733;</span>
+                                                    <span style="color: #334155; font-size: 14px; margin-left: 10px;"><strong>AI Compliance Agent</strong> - Auto-generate gap analysis reports</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0;">
+                                                    <span style="color: #dc2626; font-size: 16px;">&#9733;</span>
+                                                    <span style="color: #334155; font-size: 14px; margin-left: 10px;"><strong>PDPL Module</strong> - Full Saudi data protection compliance</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0;">
+                                                    <span style="color: #dc2626; font-size: 16px;">&#9733;</span>
+                                                    <span style="color: #334155; font-size: 14px; margin-left: 10px;"><strong>Ecosystem Connections</strong> - Connect with auditors & consultants</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0;">
+                                                    <span style="color: #dc2626; font-size: 16px;">&#9733;</span>
+                                                    <span style="color: #334155; font-size: 14px; margin-left: 10px;"><strong>Arabic Support</strong> - Full RTL interface & Arabic reports</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Special Offer -->
+                            <table role="presentation" style="width: 100%; margin: 20px 0; background: linear-gradient(135deg, #059669 0%, #047857 100%); border-radius: 8px;">
+                                <tr>
+                                    <td style="padding: 25px; text-align: center;">
+                                        <p style="margin: 0 0 10px; font-size: 18px; color: #ffffff; font-weight: 600;">
+                                            Welcome Back Offer
+                                        </p>
+                                        <p style="margin: 0 0 15px; font-size: 24px; color: #ffffff; font-weight: 700;">
+                                            25% OFF First 3 Months
+                                        </p>
+                                        <p style="margin: 0; font-size: 14px; color: #d1fae5;">
+                                            Use code: WELCOMEBACK25 | Valid for 7 days
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- CTA Buttons -->
+                            <table role="presentation" style="width: 100%;">
+                                <tr>
+                                    <td style="text-align: center; padding: 20px 0;">
+                                        <a href="@upgradeLink" style="display: inline-block; padding: 14px 32px; background-color: #dc2626; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; border-radius: 8px; margin-right: 10px;">
+                                            Reactivate Account
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center; padding: 0 0 20px;">
+                                        <a href="@demoLink" style="display: inline-block; padding: 12px 28px; background-color: #ffffff; color: #334155; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 8px; border: 2px solid #e2e8f0;">
+                                            Schedule a Demo First
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="margin: 20px 0 0; font-size: 13px; color: #94a3b8; line-height: 1.6; text-align: center;">
+                                Your previous data is still available. Reactivate within 30 days to restore everything.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 20px 40px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; border-radius: 0 0 12px 12px;">
+                            <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center;">
+                                No longer interested? <a href="#" style="color: #64748b;">Unsubscribe</a><br><br>
+                                <strong style="color: #334155;">The Shahin AI Team</strong>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

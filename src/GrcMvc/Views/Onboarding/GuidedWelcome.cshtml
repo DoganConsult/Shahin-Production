@@ -1,0 +1,474 @@
+@{
+    ViewData["Title"] = "Welcome to Your GRC Trial";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Shahin AI GRC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #dc2626;
+            --secondary: #10b981;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--darker);
+            color: var(--light);
+            min-height: 100vh;
+        }
+
+        .onboarding-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--glass-border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.5s ease;
+        }
+
+        .step-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .step-card {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .step-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .step-card h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--light);
+        }
+
+        .step-card p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        .focus-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .focus-option {
+            background: var(--glass);
+            border: 2px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .focus-option:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .focus-option.selected {
+            border-color: var(--primary);
+            background: rgba(220, 38, 38, 0.1);
+        }
+
+        .focus-option i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .focus-option h3 {
+            font-size: 1rem;
+            color: var(--light);
+            margin: 0;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2.5rem;
+            background: var(--primary);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4);
+            color: white;
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 1rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-top: 1rem;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--light);
+            color: var(--light);
+        }
+
+        .workflow-preview {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .workflow-preview h4 {
+            color: var(--primary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .workflow-nodes {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .workflow-node {
+            background: var(--dark);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--light);
+        }
+
+        .workflow-arrow {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .feedback-box {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .feedback-box label {
+            display: block;
+            color: var(--light);
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feedback-box textarea {
+            width: 100%;
+            padding: 1rem;
+            background: var(--darker);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--light);
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .feedback-box textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .step-indicator-bottom {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 2rem;
+        }
+
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .step-dot.active {
+            background: var(--primary);
+        }
+
+        .step-dot.completed {
+            background: var(--secondary);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-card {
+            animation: fadeIn 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="onboarding-container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 20%"></div>
+        </div>
+
+        <div class="step-container">
+            <!-- Step 0: Welcome -->
+            <div class="step-card" id="step0">
+                <div class="step-icon">🚀</div>
+                <h1>Welcome to Your GRC Trial</h1>
+                <p>
+                    This guided onboarding helps you explore the platform using real workflows — no setup required.
+                </p>
+                <button class="btn-primary" onclick="nextStep(1)">
+                    Start Onboarding
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Step 1: Choose Focus -->
+            <div class="step-card hidden" id="step1">
+                <h1>What Would You Like to Explore First?</h1>
+                <p>We tailor the experience to your priorities.</p>
+
+                <div class="focus-options">
+                    <div class="focus-option" onclick="selectFocus(this, 'compliance')">
+                        <i class="bi bi-clipboard-check"></i>
+                        <h3>Compliance Workflows</h3>
+                    </div>
+                    <div class="focus-option" onclick="selectFocus(this, 'risk')">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <h3>Risk Management</h3>
+                    </div>
+                    <div class="focus-option" onclick="selectFocus(this, 'audit')">
+                        <i class="bi bi-search"></i>
+                        <h3>Internal Audit & Controls</h3>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="nextStep(2)" id="continueBtn" disabled>
+                    Continue
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Step 2: Your Experience Matters -->
+            <div class="step-card hidden" id="step2">
+                <div class="step-icon">✨</div>
+                <h1>Your Experience Matters</h1>
+                <p>
+                    Your real usage helps refine workflows and improve practical adoption. 
+                    We treat your feedback as a reference for this stage.
+                </p>
+                <button class="btn-primary" onclick="nextStep(3)">
+                    Continue
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Step 3: First Value Moment -->
+            <div class="step-card hidden" id="step3">
+                <h1>Start With a Real Workflow</h1>
+                <p>
+                    You're viewing a live workflow example. Explore how risks, controls, and evidence connect operationally.
+                </p>
+
+                <div class="workflow-preview">
+                    <h4>Sample Workflow</h4>
+                    <div class="workflow-nodes">
+                        <div class="workflow-node">Risk Identified</div>
+                        <span class="workflow-arrow">→</span>
+                        <div class="workflow-node">Control Mapped</div>
+                        <span class="workflow-arrow">→</span>
+                        <div class="workflow-node">Owner Assigned</div>
+                        <span class="workflow-arrow">→</span>
+                        <div class="workflow-node">Evidence Collected</div>
+                        <span class="workflow-arrow">→</span>
+                        <div class="workflow-node">Audit Ready</div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="nextStep(4)">
+                    Open First Workflow
+                    <i class="bi bi-play-circle"></i>
+                </button>
+            </div>
+
+            <!-- Step 4: Quick Success -->
+            <div class="step-card hidden" id="step4">
+                <div class="step-icon">⚡</div>
+                <h1>Complete One Action</h1>
+                <p>
+                    Assign an owner, attach evidence, and move the workflow forward — 
+                    to see how execution works end-to-end.
+                </p>
+                <button class="btn-primary" onclick="nextStep(5)">
+                    Complete Step
+                    <i class="bi bi-check-lg"></i>
+                </button>
+            </div>
+
+            <!-- Step 5: Soft Feedback -->
+            <div class="step-card hidden" id="step5">
+                <h1>Share a Quick Note (Optional)</h1>
+                <p>
+                    If anything feels unclear or doesn't match your environment, 
+                    your perspective is highly valuable at this stage.
+                </p>
+
+                <div class="feedback-box">
+                    <label for="feedback">Your thoughts or observations:</label>
+                    <textarea id="feedback" placeholder="What worked well? What could be clearer?"></textarea>
+                </div>
+
+                <button class="btn-primary" onclick="completeFeedback()">
+                    Share Feedback
+                    <i class="bi bi-send"></i>
+                </button>
+                <br>
+                <a href="/dashboard" class="btn-secondary">
+                    Continue Exploring
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="step-indicator-bottom">
+            <div class="step-dot active" id="dot0"></div>
+            <div class="step-dot" id="dot1"></div>
+            <div class="step-dot" id="dot2"></div>
+            <div class="step-dot" id="dot3"></div>
+            <div class="step-dot" id="dot4"></div>
+            <div class="step-dot" id="dot5"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        let selectedFocus = '';
+
+        function nextStep(step) {
+            document.getElementById('step' + currentStep).classList.add('hidden');
+            document.getElementById('step' + step).classList.remove('hidden');
+            
+            // Update dots
+            document.getElementById('dot' + currentStep).classList.remove('active');
+            document.getElementById('dot' + currentStep).classList.add('completed');
+            document.getElementById('dot' + step).classList.add('active');
+            
+            // Update progress bar
+            const progress = ((step + 1) / 6) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            currentStep = step;
+
+            // Smooth scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function selectFocus(element, focus) {
+            document.querySelectorAll('.focus-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedFocus = focus;
+            document.getElementById('continueBtn').disabled = false;
+        }
+
+        async function completeFeedback() {
+            const feedback = document.getElementById('feedback').value;
+            
+            if (feedback.trim()) {
+                try {
+                    await fetch('/api/trial/demo-request', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: 'Onboarding Feedback',
+                            email: 'feedback@onboarding',
+                            company: selectedFocus || 'General',
+                            type: 'onboarding_feedback'
+                        })
+                    });
+                } catch (e) {
+                }
+            }
+            
+            // Redirect to dashboard
+            window.location.href = '/dashboard';
+        }
+    </script>
+</body>
+</html>

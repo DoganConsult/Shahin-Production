@@ -1,0 +1,144 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> L
+@model IEnumerable<GrcMvc.Models.DTOs.EvidenceDto>
+@{
+    ViewData["Title"] = L["Evidence"].Value;
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="bi bi-file-earmark-check"></i> @L["EvidenceManagement"]</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> @L["NewEvidence"]
+            </a>
+            <a asp-action="Expiring" class="btn btn-warning">
+                <i class="bi bi-clock-history"></i> @L["ExpiringSoon"]
+            </a>
+            <a asp-action="Statistics" class="btn btn-secondary">
+                <i class="bi bi-bar-chart"></i> @L["Statistics"]
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="evidenceTable">
+                    <thead>
+                        <tr>
+                            <th>@L["Name"]</th>
+                            <th>@L["Type"]</th>
+                            <th>@L["Classification"]</th>
+                            <th>@L["Status"]</th>
+                            <th>@L["Owner"]</th>
+                            <th>@L["Collected"]</th>
+                            <th>@L["Expires"]</th>
+                            <th>@L["Actions"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@item.Id">@item.Name</a>
+                                </td>
+                                <td>@item.EvidenceType</td>
+                                <td>
+                                    <span class="badge @GetClassificationClass(item.DataClassification)">
+                                        @item.DataClassification
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge @GetStatusBadgeClass(item.Status)">
+                                        @item.Status
+                                    </span>
+                                </td>
+                                <td>@item.Owner</td>
+                                <td>@item.CollectionDate.ToShortDateString()</td>
+                                <td>@(item.ExpirationDate?.ToShortDateString() ?? "-")</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="@item.Location" target="_blank" class="btn btn-outline-secondary" title="@L["Download"]">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id"
+                                           class="btn btn-outline-primary" title="@L["Edit"]">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Id"
+                                           class="btn btn-outline-info" title="@L["Details"]">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id"
+                                           class="btn btn-outline-danger" title="@L["Delete"]">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "active" or "valid" => "bg-success",
+            "expired" => "bg-danger",
+            "pending" => "bg-warning",
+            "archived" => "bg-secondary",
+            _ => "bg-info"
+        };
+    }
+
+    private string GetClassificationClass(string classification)
+    {
+        return classification?.ToLower() switch
+        {
+            "public" => "bg-success",
+            "internal" => "bg-info",
+            "confidential" => "bg-warning text-dark",
+            "restricted" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#evidenceTable').DataTable({
+                "order": [[5, "desc"]], // Sort by collected date
+                "pageLength": 25,
+                "responsive": true
+            });
+        });
+    </script>
+}

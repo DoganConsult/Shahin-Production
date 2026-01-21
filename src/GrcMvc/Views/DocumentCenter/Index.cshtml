@@ -1,0 +1,258 @@
+@model List<GrcMvc.Models.Entities.DocumentTemplate>
+@{
+    ViewData["Title"] = "مركز المستندات - Document Center";
+    Layout = "_Layout";
+    var categories = ViewBag.Categories as Dictionary<string, int> ?? new Dictionary<string, int>();
+    var domains = ViewBag.Domains as Dictionary<string, int> ?? new Dictionary<string, int>();
+    var selectedCategory = ViewBag.SelectedCategory as string;
+    var selectedDomain = ViewBag.SelectedDomain as string;
+    var searchTerm = ViewBag.SearchTerm as string;
+    var totalTemplates = ViewBag.TotalTemplates as int? ?? 0;
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1">
+                        <i class="fas fa-folder-open text-primary me-2"></i>
+                        مركز المستندات | Document Center
+                    </h1>
+                    <p class="text-muted mb-0">
+                        قوالب جاهزة للاستخدام لجميع احتياجات الحوكمة والمخاطر والامتثال
+                        <br>
+                        <small>Ready-to-use templates for all GRC needs</small>
+                    </p>
+                </div>
+                <div>
+                    <span class="badge bg-primary fs-6">
+                        <i class="fas fa-file-alt me-1"></i>
+                        @totalTemplates قالب | Templates
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" name="search" class="form-control" 
+                                       placeholder="البحث... | Search..." value="@searchTerm">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select name="category" class="form-select">
+                                <option value="">جميع الفئات | All Categories</option>
+                                <option value="Policy" selected="@(selectedCategory == "Policy")">سياسة | Policy</option>
+                                <option value="Procedure" selected="@(selectedCategory == "Procedure")">إجراء | Procedure</option>
+                                <option value="Form" selected="@(selectedCategory == "Form")">نموذج | Form</option>
+                                <option value="Checklist" selected="@(selectedCategory == "Checklist")">قائمة مراجعة | Checklist</option>
+                                <option value="Report" selected="@(selectedCategory == "Report")">تقرير | Report</option>
+                                <option value="Agreement" selected="@(selectedCategory == "Agreement")">اتفاقية | Agreement</option>
+                                <option value="Guide" selected="@(selectedCategory == "Guide")">دليل | Guide</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select name="domain" class="form-select">
+                                <option value="">جميع المجالات | All Domains</option>
+                                <option value="Security" selected="@(selectedDomain == "Security")">الأمن | Security</option>
+                                <option value="Risk" selected="@(selectedDomain == "Risk")">المخاطر | Risk</option>
+                                <option value="Compliance" selected="@(selectedDomain == "Compliance")">الامتثال | Compliance</option>
+                                <option value="Governance" selected="@(selectedDomain == "Governance")">الحوكمة | Governance</option>
+                                <option value="Audit" selected="@(selectedDomain == "Audit")">التدقيق | Audit</option>
+                                <option value="Privacy" selected="@(selectedDomain == "Privacy")">الخصوصية | Privacy</option>
+                                <option value="Operations" selected="@(selectedDomain == "Operations")">العمليات | Operations</option>
+                                <option value="Training" selected="@(selectedDomain == "Training")">التدريب | Training</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter me-1"></i> تصفية | Filter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Quick Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex flex-wrap gap-2">
+                <a href="/DocumentCenter" class="btn @(string.IsNullOrEmpty(selectedCategory) ? "btn-primary" : "btn-outline-primary")">
+                    <i class="fas fa-th-large me-1"></i> الكل (@totalTemplates)
+                </a>
+                @foreach (var cat in categories)
+                {
+                    var icon = cat.Key switch {
+                        "Policy" => "fa-file-alt",
+                        "Procedure" => "fa-list-ol",
+                        "Form" => "fa-wpforms",
+                        "Checklist" => "fa-tasks",
+                        "Report" => "fa-chart-bar",
+                        "Agreement" => "fa-handshake",
+                        "Guide" => "fa-book",
+                        _ => "fa-file"
+                    };
+                    <a href="/DocumentCenter?category=@cat.Key" 
+                       class="btn @(selectedCategory == cat.Key ? "btn-primary" : "btn-outline-secondary")">
+                        <i class="fas @icon me-1"></i> @cat.Key (@cat.Value)
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates Grid -->
+    <div class="row">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="col-12">
+                <div class="alert alert-info text-center py-5">
+                    <i class="fas fa-folder-open fa-3x mb-3 text-muted"></i>
+                    <h4>لا توجد قوالب | No templates found</h4>
+                    <p class="mb-0">جاري إضافة القوالب قريباً | Templates are being added soon</p>
+                </div>
+            </div>
+        }
+        else
+        {
+            @foreach (var template in Model)
+            {
+                var categoryIcon = template.Category switch {
+                    "Policy" => "fa-file-alt",
+                    "Procedure" => "fa-list-ol",
+                    "Form" => "fa-wpforms",
+                    "Checklist" => "fa-tasks",
+                    "Report" => "fa-chart-bar",
+                    "Agreement" => "fa-handshake",
+                    "Certificate" => "fa-certificate",
+                    "Guide" => "fa-book",
+                    _ => "fa-file"
+                };
+                var formatIcon = template.FileFormat switch {
+                    "docx" => "fa-file-word text-primary",
+                    "xlsx" => "fa-file-excel text-success",
+                    "pdf" => "fa-file-pdf text-danger",
+                    _ => "fa-file"
+                };
+                var domainBadgeClass = template.Domain switch {
+                    "Security" => "bg-danger",
+                    "Risk" => "bg-warning text-dark",
+                    "Compliance" => "bg-success",
+                    "Governance" => "bg-primary",
+                    "Audit" => "bg-info",
+                    "Privacy" => "bg-purple",
+                    _ => "bg-secondary"
+                };
+
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100 border-0 shadow-sm template-card">
+                        <div class="card-header bg-white border-0 pt-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="d-flex align-items-center">
+                                    <div class="template-icon me-3">
+                                        <i class="fas @categoryIcon fa-2x text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-light text-dark">@template.Category</span>
+                                        @if (!string.IsNullOrEmpty(template.Domain))
+                                        {
+                                            <span class="badge @domainBadgeClass ms-1">@template.Domain</span>
+                                        }
+                                    </div>
+                                </div>
+                                <div>
+                                    <i class="fas @formatIcon fa-lg"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title mb-2">
+                                <a href="/DocumentCenter/Details/@template.Id" class="text-decoration-none text-dark">
+                                    @(template.TitleAr ?? template.TitleEn)
+                                </a>
+                            </h5>
+                            @if (template.TitleAr != null)
+                            {
+                                <p class="text-muted small mb-2">@template.TitleEn</p>
+                            }
+                            <p class="card-text text-muted small">
+                                @(template.DescriptionAr ?? template.DescriptionEn ?? "No description available")
+                            </p>
+                            @if (!string.IsNullOrEmpty(template.FrameworkCodes))
+                            {
+                                <div class="mb-2">
+                                    @foreach (var fw in template.FrameworkCodes.Split(','))
+                                    {
+                                        <span class="badge bg-light text-dark me-1">@fw.Trim()</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                        <div class="card-footer bg-white border-0 pb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="text-muted small">
+                                    <i class="fas fa-download me-1"></i> @template.DownloadCount
+                                    <span class="ms-2">v@template.Version</span>
+                                </div>
+                                <div class="btn-group">
+                                    @if (template.IsBilingual)
+                                    {
+                                        <a href="/DocumentCenter/Download/@template.Id?language=ar" 
+                                           class="btn btn-sm btn-outline-primary" title="تحميل بالعربية">
+                                            <i class="fas fa-download me-1"></i> AR
+                                        </a>
+                                        <a href="/DocumentCenter/Download/@template.Id?language=en" 
+                                           class="btn btn-sm btn-outline-secondary" title="Download in English">
+                                            <i class="fas fa-download me-1"></i> EN
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="/DocumentCenter/Download/@template.Id" 
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fas fa-download me-1"></i> تحميل | Download
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<style>
+    .template-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .template-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    .template-icon {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(13, 110, 253, 0.1);
+        border-radius: 10px;
+    }
+    .bg-purple {
+        background-color: #6f42c1 !important;
+    }
+</style>

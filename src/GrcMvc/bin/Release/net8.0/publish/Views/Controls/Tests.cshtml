@@ -1,0 +1,281 @@
+@{
+    ViewData["Title"] = "Test Manager - Shahin PROVE";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3">
+                <i class="fas fa-vial text-info"></i> Test Manager
+                <small class="text-muted fs-6">Shahin PROVE</small>
+            </h1>
+            <p class="text-muted">Define and execute control testing procedures</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-outline-success me-2" onclick="runAllTests()">
+                <i class="fas fa-play"></i> Run All Tests
+            </button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTestModal">
+                <i class="fas fa-plus"></i> Add Test
+            </button>
+        </div>
+    </div>
+
+    <!-- Test Stats -->
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center py-3">
+                    <h3 class="mb-0">156</h3>
+                    <small>Total Tests</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center py-3">
+                    <h3 class="mb-0">98</h3>
+                    <small>Passed</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center py-3">
+                    <h3 class="mb-0">12</h3>
+                    <small>Failed</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-warning text-dark">
+                <div class="card-body text-center py-3">
+                    <h3 class="mb-0">24</h3>
+                    <small>Pending</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-secondary text-white">
+                <div class="card-body text-center py-3">
+                    <h3 class="mb-0">22</h3>
+                    <small>Not Run</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center py-3">
+                    <h3 class="mb-0">89%</h3>
+                    <small>Pass Rate</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test List -->
+    <div class="card shadow">
+        <div class="card-header bg-white">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="Search tests...">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select">
+                        <option value="">All Controls</option>
+                        <option>Access Control</option>
+                        <option>Governance</option>
+                        <option>Data Protection</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select">
+                        <option value="">All Status</option>
+                        <option value="passed">Passed</option>
+                        <option value="failed">Failed</option>
+                        <option value="pending">Pending</option>
+                        <option value="notRun">Not Run</option>
+                    </select>
+                </div>
+                <div class="col-md-2 text-end">
+                    <span class="badge bg-primary">156 tests</span>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 100px;">Test ID</th>
+                        <th>Test Name</th>
+                        <th style="width: 120px;">Control</th>
+                        <th style="width: 80px;">Type</th>
+                        <th style="width: 80px;">Status</th>
+                        <th style="width: 100px;">Last Run</th>
+                        <th style="width: 120px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>TST-001</code></td>
+                        <td>Verify password complexity policy is enforced</td>
+                        <td><span class="badge bg-info">ECC-2.2.1</span></td>
+                        <td><span class="badge bg-secondary">Auto</span></td>
+                        <td><span class="badge bg-success">Passed</span></td>
+                        <td>Jan 5, 2026</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-success" title="Run"><i class="fas fa-play"></i></button>
+                                <button class="btn btn-outline-primary" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="btn btn-outline-secondary" title="Edit"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>TST-002</code></td>
+                        <td>Check MFA is enabled for privileged accounts</td>
+                        <td><span class="badge bg-info">ECC-2.2.2</span></td>
+                        <td><span class="badge bg-secondary">Auto</span></td>
+                        <td><span class="badge bg-success">Passed</span></td>
+                        <td>Jan 5, 2026</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-success" title="Run"><i class="fas fa-play"></i></button>
+                                <button class="btn btn-outline-primary" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="btn btn-outline-secondary" title="Edit"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>TST-003</code></td>
+                        <td>Verify security logs are retained for 1 year</td>
+                        <td><span class="badge bg-info">ECC-3.1.1</span></td>
+                        <td><span class="badge bg-warning text-dark">Manual</span></td>
+                        <td><span class="badge bg-danger">Failed</span></td>
+                        <td>Jan 4, 2026</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-success" title="Run"><i class="fas fa-play"></i></button>
+                                <button class="btn btn-outline-primary" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="btn btn-outline-secondary" title="Edit"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>TST-004</code></td>
+                        <td>Review security awareness training completion</td>
+                        <td><span class="badge bg-warning text-dark">SAMA-2.1</span></td>
+                        <td><span class="badge bg-warning text-dark">Manual</span></td>
+                        <td><span class="badge bg-warning text-dark">Pending</span></td>
+                        <td>-</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-success" title="Run"><i class="fas fa-play"></i></button>
+                                <button class="btn btn-outline-primary" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="btn btn-outline-secondary" title="Edit"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>TST-005</code></td>
+                        <td>Validate data encryption at rest</td>
+                        <td><span class="badge bg-success">PDPL-8</span></td>
+                        <td><span class="badge bg-secondary">Auto</span></td>
+                        <td><span class="badge bg-secondary">Not Run</span></td>
+                        <td>-</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-success" title="Run"><i class="fas fa-play"></i></button>
+                                <button class="btn btn-outline-primary" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="btn btn-outline-secondary" title="Edit"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Test Modal -->
+<div class="modal fade" id="addTestModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-vial"></i> Add Test Case</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Test ID <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" placeholder="e.g., TST-XXX">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">Test Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" placeholder="Descriptive test name">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Control <span class="text-danger">*</span></label>
+                        <select class="form-select">
+                            <option>Select control...</option>
+                            <option>ECC-2.2.1 - Access Control</option>
+                            <option>ECC-3.1.1 - Logging</option>
+                            <option>SAMA-2.1 - Training</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Test Type <span class="text-danger">*</span></label>
+                        <select class="form-select">
+                            <option value="manual">Manual</option>
+                            <option value="auto">Automated</option>
+                            <option value="hybrid">Hybrid</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Test Steps <span class="text-danger">*</span></label>
+                        <textarea class="form-control" rows="4" placeholder="1. Step one&#10;2. Step two&#10;3. Step three"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Expected Result</label>
+                        <textarea class="form-control" rows="2" placeholder="What should be observed if the control is effective"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Frequency</label>
+                        <select class="form-select">
+                            <option>Monthly</option>
+                            <option>Quarterly</option>
+                            <option>Annually</option>
+                            <option>On-demand</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Evidence Required</label>
+                        <select class="form-select" multiple>
+                            <option>Screenshot</option>
+                            <option>Log file</option>
+                            <option>Configuration export</option>
+                            <option>Policy document</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Test
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function runAllTests() {
+        if (confirm('Run all automated tests? This may take a few minutes.')) {
+            alert('Running tests... 98 passed, 12 failed, 24 pending manual review.');
+        }
+    }
+</script>
